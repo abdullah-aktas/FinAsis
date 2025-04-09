@@ -3,9 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FinAsis{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ _('FinAsis - Finansal Asistan ve Entegrasyon Platformu') }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ _('finans, asistan, entegrasyon, muhasebe, crm, eğitim, yapay zeka') }}{% endblock %}">
+    <meta name="author" content="FinAsis">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="{% block og_title %}{{ _('FinAsis') }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ _('FinAsis - Finansal Asistan ve Entegrasyon Platformu') }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'img/logo.png' %}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ _('FinAsis') }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ _('FinAsis - Finansal Asistan ve Entegrasyon Platformu') }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'img/logo.png' %}{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    
+    <title>{% block title %}{{ _('FinAsis') }}{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "{% block schema_name %}{{ _('FinAsis') }}{% endblock %}",
+        "description": "{% block schema_description %}{{ _('Finansal Asistan ve Entegrasyon Platformu') }}{% endblock %}",
+        "url": "{{ request.build_absolute_uri }}",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "TRY"
+        }
+    }
+    </script>
+    
     <style>
         :root {
             --primary-color: #2193b0;
@@ -62,68 +106,222 @@
     </style>
 </head>
 <body {% block body_attrs %}{% endblock %}>
-    {% block navbar %}
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Header -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">FinAsis</a>
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'img/logo.png' %}" alt="FinAsis Logo" height="30">
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'education:education_home' %}">
-                            <i class="fas fa-graduation-cap"></i> Eğitim
-                        </a>
+                        <a class="nav-link" href="{% url 'home' %}">{{ _('Ana Sayfa') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'virtual_company:company_home' %}">
-                            <i class="fas fa-building"></i> Sanal Şirket
-                        </a>
+                        <a class="nav-link" href="{% url 'external_integrations:template_list' %}">{{ _('Entegrasyonlar') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'ai_assistant:chat' %}">
-                            <i class="fas fa-robot"></i> AI Asistan
-                        </a>
+                        <a class="nav-link" href="{% url 'education:courses' %}">{{ _('Eğitimler') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'ai_assistant:chat' %}">{{ _('AI Asistan') }}</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:profile' %}">
-                            <i class="fas fa-user"></i> {{ user.username }}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:logout' %}">
-                            <i class="fas fa-sign-out-alt"></i> Çıkış
-                        </a>
-                    </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">{{ _('Profilim') }}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">{{ _('Ayarlar') }}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">{{ _('Çıkış Yap') }}</a></li>
+                            </ul>
+                        </li>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Giriş
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'accounts:register' %}">
-                            <i class="fas fa-user-plus"></i> Kayıt Ol
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">{{ _('Giriş Yap') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:register' %}">{{ _('Kayıt Ol') }}</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
-    </nav>
-    {% endblock %}
+    </header>
 
-    {% block main_container %}
-    <div class="container my-4">
+    <!-- Main Content -->
+    <main class="py-4">
         {% block content %}{% endblock %}
-    </div>
-    {% endblock %}
+    </main>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>{{ _('FinAsis') }}</h5>
+                    <p>{{ _('Finansal Asistan ve Entegrasyon Platformu') }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>{{ _('Hızlı Bağlantılar') }}</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-light">{{ _('Ana Sayfa') }}</a></li>
+                        <li><a href="{% url 'external_integrations:template_list' %}" class="text-light">{{ _('Entegrasyonlar') }}</a></li>
+                        <li><a href="{% url 'education:courses' %}" class="text-light">{{ _('Eğitimler') }}</a></li>
+                        <li><a href="{% url 'ai_assistant:chat' %}" class="text-light">{{ _('AI Asistan') }}</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>{{ _('İletişim') }}</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> info@finasis.com</li>
+                        <li><i class="fas fa-phone"></i> +90 555 123 4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> İstanbul, Türkiye</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; {% now "Y" %} FinAsis. {{ _('Tüm hakları saklıdır.') }}</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- AI SEO Assistant -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // AI SEO Asistanı
+            const aiSeoAssistant = {
+                // Sayfa içeriğini analiz et
+                analyzeContent: function() {
+                    const content = document.body.innerText;
+                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    const images = document.querySelectorAll('img');
+                    const links = document.querySelectorAll('a');
+                    
+                    // SEO puanı hesapla
+                    let seoScore = 100;
+                    
+                    // Başlık kontrolü
+                    if (headings.length < 2) seoScore -= 10;
+                    
+                    // Görsel alt etiketi kontrolü
+                    let imagesWithoutAlt = 0;
+                    images.forEach(img => {
+                        if (!img.alt) imagesWithoutAlt++;
+                    });
+                    seoScore -= imagesWithoutAlt * 5;
+                    
+                    // İçerik uzunluğu kontrolü
+                    if (content.length < 300) seoScore -= 15;
+                    
+                    // Anahtar kelime yoğunluğu analizi
+                    const keywords = this.extractKeywords(content);
+                    this.updateMetaKeywords(keywords);
+                    
+                    // SEO önerileri oluştur
+                    this.generateSeoSuggestions(seoScore, headings, images, links);
+                    
+                    return seoScore;
+                },
+                
+                // Anahtar kelimeleri çıkar
+                extractKeywords: function(content) {
+                    // Basit bir anahtar kelime çıkarma algoritması
+                    const words = content.toLowerCase().split(/\s+/);
+                    const wordFreq = {};
+                    
+                    words.forEach(word => {
+                        if (word.length > 3) { // 3 karakterden uzun kelimeler
+                            wordFreq[word] = (wordFreq[word] || 0) + 1;
+                        }
+                    });
+                    
+                    // En sık kullanılan kelimeleri döndür
+                    return Object.entries(wordFreq)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10)
+                        .map(item => item[0]);
+                },
+                
+                // Meta anahtar kelimelerini güncelle
+                updateMetaKeywords: function(keywords) {
+                    const metaKeywords = document.querySelector('meta[name="keywords"]');
+                    if (metaKeywords) {
+                        const currentKeywords = metaKeywords.getAttribute('content').split(', ');
+                        const newKeywords = [...new Set([...currentKeywords, ...keywords])];
+                        metaKeywords.setAttribute('content', newKeywords.join(', '));
+                    }
+                },
+                
+                // SEO önerileri oluştur
+                generateSeoSuggestions: function(score, headings, images, links) {
+                    const suggestions = [];
+                    
+                    // Başlık önerileri
+                    if (headings.length < 2) {
+                        suggestions.push('Daha fazla başlık (h1, h2, h3) ekleyin.');
+                    }
+                    
+                    // Görsel önerileri
+                    let imagesWithoutAlt = 0;
+                    images.forEach(img => {
+                        if (!img.alt) imagesWithoutAlt++;
+                    });
+                    if (imagesWithoutAlt > 0) {
+                        suggestions.push(`${imagesWithoutAlt} görsele alt etiketi ekleyin.`);
+                    }
+                    
+                    // İçerik önerileri
+                    if (document.body.innerText.length < 300) {
+                        suggestions.push('Daha fazla içerik ekleyin (en az 300 karakter).');
+                    }
+                    
+                    // Bağlantı önerileri
+                    if (links.length < 3) {
+                        suggestions.push('Daha fazla iç bağlantı ekleyin.');
+                    }
+                    
+                    // Önerileri konsola yazdır (geliştirme amaçlı)
+                    console.log('SEO Puanı:', score);
+                    console.log('SEO Önerileri:', suggestions);
+                    
+                    // Önerileri sayfaya ekle (geliştirme amaçlı)
+                    if (suggestions.length > 0) {
+                        const seoInfo = document.createElement('div');
+                        seoInfo.className = 'seo-info bg-light p-3 mt-3';
+                        seoInfo.innerHTML = `
+                            <h4>SEO Önerileri (${score} puan)</h4>
+                            <ul>
+                                ${suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                            </ul>
+                        `;
+                        document.querySelector('main').appendChild(seoInfo);
+                    }
+                }
+            };
+            
+            // SEO analizi başlat
+            aiSeoAssistant.analyzeContent();
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html> 

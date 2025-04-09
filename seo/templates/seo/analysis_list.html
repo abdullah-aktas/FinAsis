@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SEO Analiz Listesi{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>SEO Analiz Listesi</h1>
+        <a href="{% url 'seo:analysis_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Analiz
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sayfa URL</th>
+                            <th>Başlık Uzunluğu</th>
+                            <th>Açıklama Uzunluğu</th>
+                            <th>Skor</th>
+                            <th>Oluşturan</th>
+                            <th>Oluşturulma Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in analysis_list %}
+                        <tr>
+                            <td>{{ analysis.page_url }}</td>
+                            <td>{{ analysis.title_length }}</td>
+                            <td>{{ analysis.description_length }}</td>
+                            <td>
+                                {% if analysis.score >= 80 %}
+                                <span class="badge bg-success">{{ analysis.score }}</span>
+                                {% elif analysis.score >= 60 %}
+                                <span class="badge bg-warning">{{ analysis.score }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ analysis.score }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ analysis.created_by.get_full_name }}</td>
+                            <td>{{ analysis.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'seo:analysis_detail' analysis.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'seo:analysis_update' analysis.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'seo:analysis_delete' analysis.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Henüz SEO analizi bulunmamaktadır.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
