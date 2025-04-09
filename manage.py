@@ -4,7 +4,7 @@ import os
 import sys
 
 
-def main():
+def main() -> object:
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finasis.settings')
     try:

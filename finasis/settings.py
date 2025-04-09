@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.utils.translation import gettext_lazy as _
 
 # .env dosyasını yükle
 load_dotenv()
@@ -25,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']  # Production'da spesifik domain adlarını belirtin
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -42,20 +43,35 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'accounting',
-    'crm',
-    'virtual_company',
-    'education',
-    'blockchain',
-    'ai_assistant',  # AI Asistan uygulaması
+    
+    # Third party apps
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
+    'django_filters',
+    'whitenoise',
+    'drf_yasg',
+    'sslserver',  # SSL desteği için
+    
+    # Local apps
+    'accounts.apps.AccountsConfig',
+    'accounting.apps.AccountingConfig',
+    'crm.apps.CrmConfig',
+    'virtual_company.apps.VirtualCompanyConfig',
+    'ai_assistant.apps.AiAssistantConfig',
+    'blockchain.apps.BlockchainConfig',
+    'education.apps.EducationConfig',
+    'reporting.apps.ReportingConfig',  # Raporlama modülü
+    'external_integrations.apps.ExternalIntegrationsConfig',  # Harici entegrasyonlar
 ]
 
-AUTH_USER_MODEL = 'accounts.User'  # Özel kullanıcı modelini aktif hale getir
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static dosyalar için
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Dil desteği için
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,7 +85,9 @@ ROOT_URLCONF = 'finasis.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'finasis', 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,6 +96,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -90,8 +109,16 @@ WSGI_APPLICATION = 'finasis.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'finasis'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Miras.47'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+            'options': '-c client_encoding=UTF8'
+        },
     }
 }
 
@@ -103,18 +130,10 @@ DEFAULT_CHARSET = 'utf-8'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 
@@ -127,15 +146,26 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+LANGUAGES = [
+    ('tr', _('Türkçe')),
+    ('ku', _('Kürtçe')),     # Kürtçe
+    ('en', _('İngilizce')),
+    ('de', _('Almanca')),
+    ('fr', _('Fransızca')),
+    ('ar', _('Arapça')),     # Arapça
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -148,37 +178,63 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework ayarları
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day'
+    }
 }
-
-# AI Asistan ayarları
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
-# Blockchain ayarları
-WEB3_PROVIDER_URL = os.getenv('WEB3_PROVIDER_URL')
-SMART_CONTRACT_ADDRESS = os.getenv('SMART_CONTRACT_ADDRESS')
 
 # CORS ayarları
 CORS_ALLOWED_ORIGINS = [
-    "https://finasis.com",  # Production domain
+    'http://localhost:3000',
+    'http://localhost:19006',
+    'exp://localhost:19000',
+    'exp://192.168.1.*:19000',
+    'exp://192.168.1.*:19006',
 ]
+
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = 'FinAsis <noreply@finasis.com>'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'FinAsis <noreply@finasis.com>')
 
 # Password reset settings
 PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
@@ -188,17 +244,34 @@ PASSWORD_RESET_EMAIL_SUBJECT = 'FinAsis - Şifre Sıfırlama'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'finasis': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': True,
         },
     },
@@ -207,25 +280,84 @@ LOGGING = {
 # Cache settings
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            }
+        }
     }
 }
 
 # AI Assistant settings
-AI_ASSISTANT_API_KEY = os.getenv('AI_ASSISTANT_API_KEY')
-AI_ASSISTANT_MODEL = os.getenv('AI_ASSISTANT_MODEL', 'gpt-3.5-turbo')
-AI_ASSISTANT_MAX_TOKENS = int(os.getenv('AI_ASSISTANT_MAX_TOKENS', 1000))
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+AI_ASSISTANT_CACHE_TTL = 3600  # 1 saat
+
+# Blockchain ayarları
+WEB3_PROVIDER_URL = os.getenv('WEB3_PROVIDER_URL')
+SMART_CONTRACT_ADDRESS = os.getenv('SMART_CONTRACT_ADDRESS')
 
 # Security Settings
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 SECURE_HSTS_SECONDS = 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_HSTS_PRELOAD = False
 
 # HTTPS Settings
 USE_HTTPS = False
+
+# Session
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 86400  # 1 gün
+
+# E-Fatura Ayarları
+EINVOICE_API_URL = os.getenv('EINVOICE_API_URL', 'https://earsivportal.efatura.gov.tr/earsiv-services')
+EINVOICE_API_KEY = os.getenv('EINVOICE_API_KEY')
+
+# OCR Ayarları
+TESSERACT_PATH = os.getenv('TESSERACT_PATH', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+OCR_LANGUAGE = 'tur'
+
+# Banka API Ayarları
+BANK_API_SETTINGS = {
+    'GARANTI': {
+        'API_URL': os.getenv('GARANTI_API_URL'),
+        'CLIENT_ID': os.getenv('GARANTI_CLIENT_ID'),
+        'CLIENT_SECRET': os.getenv('GARANTI_CLIENT_SECRET'),
+    },
+    'ISBANK': {
+        'API_URL': os.getenv('ISBANK_API_URL'),
+        'CLIENT_ID': os.getenv('ISBANK_CLIENT_ID'),
+        'CLIENT_SECRET': os.getenv('ISBANK_CLIENT_SECRET'),
+    },
+    'AKBANK': {
+        'API_URL': os.getenv('AKBANK_API_URL'),
+        'CLIENT_ID': os.getenv('AKBANK_CLIENT_ID'),
+        'CLIENT_SECRET': os.getenv('AKBANK_CLIENT_SECRET'),
+    },
+    'YAPIKREDI': {
+        'API_URL': os.getenv('YAPIKREDI_API_URL'),
+        'CLIENT_ID': os.getenv('YAPIKREDI_CLIENT_ID'),
+        'CLIENT_SECRET': os.getenv('YAPIKREDI_CLIENT_SECRET'),
+    },
+    'ZIRAAT': {
+        'API_URL': os.getenv('ZIRAAT_API_URL'),
+        'CLIENT_ID': os.getenv('ZIRAAT_CLIENT_ID'),
+        'CLIENT_SECRET': os.getenv('ZIRAAT_CLIENT_SECRET'),
+    }
+}
+
+# Dosya yükleme limitleri
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB

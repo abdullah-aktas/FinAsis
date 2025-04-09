@@ -344,3 +344,31 @@ Traceback (most recent call last):
     raise NoReverseMatch(msg)
 django.urls.exceptions.NoReverseMatch: Reverse for 'register' not found. 'register' is not a valid view function or pattern name.
 "GET /accounts/login/?next=/ai-assistant/ HTTP/1.1" 500 152989
+ERROR 2025-04-09 22:50:47,078 basehttp 3988 8408 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:50:47,180 basehttp 3988 6448 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:50:47,546 basehttp 3988 9604 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:50:47,559 basehttp 3988 5552 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:52:38,375 basehttp 6916 6548 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:52:38,379 basehttp 6916 11312 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:52:55,287 basehttp 6916 5844 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:52:55,294 basehttp 6916 984 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:47,964 basehttp 11688 4140 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:48,007 basehttp 11688 9836 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:48,028 basehttp 11688 6888 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:48,037 basehttp 11688 10144 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:50,188 basehttp 11688 7476 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:50,190 basehttp 11688 3764 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:50,192 basehttp 11688 11328 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:50,194 basehttp 11688 1420 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:52,646 basehttp 11688 10384 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:52,660 basehttp 11688 9212 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:52,662 basehttp 11688 5720 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:54:52,664 basehttp 11688 7428 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:35,118 basehttp 11688 6784 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:35,371 basehttp 11688 8104 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:35,476 basehttp 11688 8628 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:35,524 basehttp 11688 10340 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:42,190 basehttp 11688 11712 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:55:42,200 basehttp 11688 11960 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:57:50,735 basehttp 12100 124 You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2025-04-09 22:57:50,766 basehttp 12100 8052 You're accessing the development server over HTTPS, but it only supports HTTP.
