@@ -1,0 +1,253 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}{{ customer.name }} - Müşteri Detayı{% endblock %}
+
+{% block actions %}
+<div class="btn-group">
+    <a href="{% url 'crm:customer_update' pk=customer.pk %}" class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Düzenle
+    </a>
+    <a href="{% url 'crm:customer_delete' pk=customer.pk %}" class="btn btn-danger">
+        <i class="fas fa-trash me-2"></i>Sil
+    </a>
+</div>
+{% endblock %}
+
+{% block main_content %}
+<div class="row">
+    <!-- Müşteri Bilgileri -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Müşteri Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Müşteri Adı</h6>
+                    <p class="mb-0">{{ customer.name }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Tip</h6>
+                    <p class="mb-0">
+                        {% if customer.type == 'individual' %}
+                        <span class="badge bg-info">Bireysel</span>
+                        {% else %}
+                        <span class="badge bg-primary">Kurumsal</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Durum</h6>
+                    <p class="mb-0">
+                        {% if customer.status == 'active' %}
+                        <span class="badge bg-success">Aktif</span>
+                        {% elif customer.status == 'inactive' %}
+                        <span class="badge bg-danger">Pasif</span>
+                        {% elif customer.status == 'lead' %}
+                        <span class="badge bg-warning">Potansiyel</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">E-posta</h6>
+                    <p class="mb-0">
+                        <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Telefon</h6>
+                    <p class="mb-0">
+                        <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                    </p>
+                </div>
+                {% if customer.type == 'company' %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Vergi Numarası</h6>
+                    <p class="mb-0">{{ customer.tax_number|default:"-" }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Vergi Dairesi</h6>
+                    <p class="mb-0">{{ customer.tax_office|default:"-" }}</p>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Adres</h6>
+                    <p class="mb-0">{{ customer.address|default:"-"|linebreaks }}</p>
+                </div>
+                {% if customer.notes %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Notlar</h6>
+                    <p class="mb-0">{{ customer.notes|linebreaks }}</p>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">Kayıt Tarihi</h6>
+                    <p class="mb-0">{{ customer.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Son Güncelleme</h6>
+                    <p class="mb-0">{{ customer.updated_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fırsatlar ve Aktiviteler -->
+    <div class="col-md-8">
+        <!-- Fırsatlar -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Fırsatlar</h5>
+                <a href="{% url 'crm:opportunity_create' %}?customer={{ customer.pk }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-2"></i>Yeni Fırsat
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fırsat Adı</th>
+                                <th>Tutar</th>
+                                <th>Olasılık</th>
+                                <th>Durum</th>
+                                <th>Beklenen Kapanış</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for opportunity in customer.opportunities.all %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'crm:opportunity_detail' pk=opportunity.pk %}">
+                                        {{ opportunity.name }}
+                                    </a>
+                                </td>
+                                <td>{{ opportunity.amount|floatformat:2 }} TL</td>
+                                <td>%{{ opportunity.probability }}</td>
+                                <td>
+                                    {% if opportunity.status == 'new' %}
+                                    <span class="badge bg-info">Yeni</span>
+                                    {% elif opportunity.status == 'qualified' %}
+                                    <span class="badge bg-primary">Nitelikli</span>
+                                    {% elif opportunity.status == 'proposal' %}
+                                    <span class="badge bg-warning">Teklif</span>
+                                    {% elif opportunity.status == 'negotiation' %}
+                                    <span class="badge bg-info">Görüşme</span>
+                                    {% elif opportunity.status == 'closed_won' %}
+                                    <span class="badge bg-success">Kazanıldı</span>
+                                    {% elif opportunity.status == 'closed_lost' %}
+                                    <span class="badge bg-danger">Kaybedildi</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ opportunity.expected_close_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'crm:opportunity_detail' pk=opportunity.pk %}" class="btn btn-sm btn-info" title="Görüntüle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'crm:opportunity_update' pk=opportunity.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'crm:opportunity_delete' pk=opportunity.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">Henüz fırsat bulunmuyor.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktiviteler -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Aktiviteler</h5>
+                <a href="{% url 'crm:activity_create' %}?customer={{ customer.pk }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-2"></i>Yeni Aktivite
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tip</th>
+                                <th>Konu</th>
+                                <th>Durum</th>
+                                <th>Bitiş Tarihi</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in customer.activities.all %}
+                            <tr>
+                                <td>
+                                    {% if activity.type == 'call' %}
+                                    <i class="fas fa-phone text-primary"></i>
+                                    {% elif activity.type == 'meeting' %}
+                                    <i class="fas fa-users text-success"></i>
+                                    {% elif activity.type == 'email' %}
+                                    <i class="fas fa-envelope text-info"></i>
+                                    {% elif activity.type == 'task' %}
+                                    <i class="fas fa-tasks text-warning"></i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'crm:activity_detail' pk=activity.pk %}">
+                                        {{ activity.subject }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if activity.status == 'planned' %}
+                                    <span class="badge bg-info">Planlandı</span>
+                                    {% elif activity.status == 'in_progress' %}
+                                    <span class="badge bg-warning">Devam Ediyor</span>
+                                    {% elif activity.status == 'completed' %}
+                                    <span class="badge bg-success">Tamamlandı</span>
+                                    {% elif activity.status == 'cancelled' %}
+                                    <span class="badge bg-danger">İptal Edildi</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.due_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'crm:activity_detail' pk=activity.pk %}" class="btn btn-sm btn-info" title="Görüntüle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'crm:activity_update' pk=activity.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'crm:activity_delete' pk=activity.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-calendar-alt fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">Henüz aktivite bulunmuyor.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

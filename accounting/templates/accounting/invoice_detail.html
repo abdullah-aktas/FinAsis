@@ -1,0 +1,109 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="row">
+    <!-- Fatura Bilgileri -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Fatura Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Fatura No:</dt>
+                    <dd class="col-sm-8">{{ invoice.number }}</dd>
+                    
+                    <dt class="col-sm-4">Tarih:</dt>
+                    <dd class="col-sm-8">{{ invoice.date|date:"d.m.Y" }}</dd>
+                    
+                    <dt class="col-sm-4">Cari:</dt>
+                    <dd class="col-sm-8">{{ invoice.account.name }}</dd>
+                    
+                    <dt class="col-sm-4">Tip:</dt>
+                    <dd class="col-sm-8">
+                        {% if invoice.type == 'in' %}
+                        <span class="badge bg-success">Alış</span>
+                        {% else %}
+                        <span class="badge bg-danger">Satış</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4">Durum:</dt>
+                    <dd class="col-sm-8">
+                        {% if invoice.is_active %}
+                        <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                        <span class="badge bg-danger">Pasif</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'accounting:invoice_edit' invoice.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'accounting:invoice_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fatura Kalemleri -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Fatura Kalemleri</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Kalem</th>
+                                <th>Miktar</th>
+                                <th>Birim Fiyat</th>
+                                <th>KDV Oranı</th>
+                                <th>KDV Tutarı</th>
+                                <th>Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in invoice.lines.all %}
+                            <tr>
+                                <td>{{ line.description }}</td>
+                                <td>{{ line.quantity|floatformat:2 }}</td>
+                                <td>{{ line.unit_price|floatformat:2 }} ₺</td>
+                                <td>%{{ line.vat_rate|floatformat:0 }}</td>
+                                <td>{{ line.vat_amount|floatformat:2 }} ₺</td>
+                                <td>{{ line.total|floatformat:2 }} ₺</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Fatura kalemi bulunmuyor.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" class="text-end"><strong>Ara Toplam:</strong></td>
+                                <td>{{ invoice.subtotal|floatformat:2 }} ₺</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="text-end"><strong>KDV Toplam:</strong></td>
+                                <td>{{ invoice.vat_total|floatformat:2 }} ₺</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="text-end"><strong>Genel Toplam:</strong></td>
+                                <td class="{% if invoice.grand_total >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    <strong>{{ invoice.grand_total|floatformat:2 }} ₺</strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

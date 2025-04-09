@@ -1,0 +1,1 @@
+# Bu dosya accounts uygulamasının bir Python paketi olduğunu belirtir 

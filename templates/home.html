@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Ana Sayfa{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-3">FinAsis</h1>
+        <p class="lead">Finansal eğitim ve deneyim platformu</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-education">
+            <div class="card-body text-center">
+                <i class="fas fa-graduation-cap fa-3x text-education mb-3"></i>
+                <h3 class="card-title text-education">Eğitim</h3>
+                <p class="card-text">Finansal okuryazarlık eğitimleri ile bilgi ve becerilerinizi geliştirin.</p>
+                <a href="{% url 'education:education_home' %}" class="btn btn-education">Eğitimlere Git</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-accounting">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-3x text-accounting mb-3"></i>
+                <h3 class="card-title text-accounting">Sanal Şirket</h3>
+                <p class="card-text">Kendi sanal şirketinizi kurun ve gerçek dünya deneyimi kazanın.</p>
+                <a href="{% url 'virtual_company:company_home' %}" class="btn btn-accounting">Şirket Kur</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-ai">
+            <div class="card-body text-center">
+                <i class="fas fa-robot fa-3x text-ai mb-3"></i>
+                <h3 class="card-title text-ai">AI Asistan</h3>
+                <p class="card-text">Yapay zeka destekli asistanımız ile finansal sorularınıza yanıt alın.</p>
+                <a href="{% url 'ai_assistant:chat' %}" class="btn btn-ai">Sohbete Başla</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>Hemen Başlayın</h3>
+                <p>FinAsis'in sunduğu tüm özelliklere erişmek için ücretsiz hesap oluşturun.</p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary">Kayıt Ol</a>
+                <span class="mx-2">veya</span>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,177 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Raporlar{% endblock %}
+
+{% block actions %}
+<a href="{% url 'crm:report_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Yeni Rapor
+</a>
+{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Raporlar</h5>
+    </div>
+    <div class="card-body">
+        <!-- Filtreler -->
+        <form method="get" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Rapor adı veya açıklama..." value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">Tüm Türler</option>
+                        <option value="sales" {% if request.GET.type == 'sales' %}selected{% endif %}>Satış Raporu</option>
+                        <option value="customer" {% if request.GET.type == 'customer' %}selected{% endif %}>Müşteri Raporu</option>
+                        <option value="activity" {% if request.GET.type == 'activity' %}selected{% endif %}>Aktivite Raporu</option>
+                        <option value="opportunity" {% if request.GET.type == 'opportunity' %}selected{% endif %}>Fırsat Raporu</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="period" class="form-select">
+                        <option value="">Tüm Dönemler</option>
+                        <option value="today" {% if request.GET.period == 'today' %}selected{% endif %}>Bugün</option>
+                        <option value="week" {% if request.GET.period == 'week' %}selected{% endif %}>Bu Hafta</option>
+                        <option value="month" {% if request.GET.period == 'month' %}selected{% endif %}>Bu Ay</option>
+                        <option value="quarter" {% if request.GET.period == 'quarter' %}selected{% endif %}>Bu Çeyrek</option>
+                        <option value="year" {% if request.GET.period == 'year' %}selected{% endif %}>Bu Yıl</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrele
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Rapor Listesi -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Rapor Adı</th>
+                        <th>Tür</th>
+                        <th>Dönem</th>
+                        <th>Oluşturan</th>
+                        <th>Oluşturma Tarihi</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'crm:report_detail' pk=report.pk %}">
+                                {{ report.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if report.type == 'sales' %}
+                            <span class="badge bg-primary">Satış Raporu</span>
+                            {% elif report.type == 'customer' %}
+                            <span class="badge bg-success">Müşteri Raporu</span>
+                            {% elif report.type == 'activity' %}
+                            <span class="badge bg-info">Aktivite Raporu</span>
+                            {% elif report.type == 'opportunity' %}
+                            <span class="badge bg-warning">Fırsat Raporu</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.period == 'today' %}
+                            Bugün
+                            {% elif report.period == 'week' %}
+                            Bu Hafta
+                            {% elif report.period == 'month' %}
+                            Bu Ay
+                            {% elif report.period == 'quarter' %}
+                            Bu Çeyrek
+                            {% elif report.period == 'year' %}
+                            Bu Yıl
+                            {% else %}
+                            {{ report.start_date|date:"d.m.Y" }} - {{ report.end_date|date:"d.m.Y" }}
+                            {% endif %}
+                        </td>
+                        <td>{{ report.created_by.get_full_name }}</td>
+                        <td>{{ report.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'crm:report_detail' pk=report.pk %}" class="btn btn-sm btn-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'crm:report_update' pk=report.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'crm:report_delete' pk=report.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-file-alt fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Henüz rapor bulunmuyor.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sayfalama -->
+        {% if is_paginated %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

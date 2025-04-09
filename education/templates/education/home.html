@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Eğitim{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-4 text-education">FinAsis Eğitim Merkezi</h1>
+        <p class="lead">Finansal okuryazarlık eğitimleri ve interaktif dersler</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card border-education">
+            <div class="card-body">
+                <h2 class="card-title text-education">Finansal Okuryazarlık Temelleri</h2>
+                <p class="card-text">Finans dünyasının temel kavramlarını öğrenin ve finansal kararlarınızı daha bilinçli alın.</p>
+                <a href="{% url 'education:course_list' %}" class="btn btn-education">Kurslara Göz At</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-education">
+            <div class="card-body">
+                <h5 class="card-title text-education"><i class="fas fa-chart-line"></i> Yatırım Eğitimi</h5>
+                <p class="card-text">Borsa, tahvil, döviz ve diğer yatırım araçları hakkında bilgi edinin.</p>
+                <a href="#" class="btn btn-education">Detaylar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-education">
+            <div class="card-body">
+                <h5 class="card-title text-education"><i class="fas fa-piggy-bank"></i> Tasarruf ve Bütçe</h5>
+                <p class="card-text">Etkili bütçe yönetimi ve tasarruf stratejileri geliştirmeyi öğrenin.</p>
+                <a href="#" class="btn btn-education">Detaylar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-education">
+            <div class="card-body">
+                <h5 class="card-title text-education"><i class="fas fa-building"></i> İşletme Finansı</h5>
+                <p class="card-text">İşletme finansmanı, muhasebe ve finansal raporlama konularında bilgi edinin.</p>
+                <a href="#" class="btn btn-education">Detaylar</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
