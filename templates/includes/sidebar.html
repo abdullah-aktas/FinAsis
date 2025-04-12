@@ -1,0 +1,51 @@
+<!-- Muhasebe Bölümü -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccounting"
+        aria-expanded="true" aria-controls="collapseAccounting">
+        <i class="fas fa-fw fa-calculator"></i>
+        <span>{% translate "Muhasebe" %}</span>
+    </a>
+    <div id="collapseAccounting" class="collapse" aria-labelledby="headingUtilities"
+        data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">{% translate "Muhasebe İşlemleri" %}:</h6>
+            <a class="collapse-item" href="{% url 'accounting:dashboard' %}">
+                <i class="fas fa-fw fa-tachometer-alt"></i> {% translate "Genel Bakış" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:chart_of_accounts_list' %}">
+                <i class="fas fa-fw fa-list"></i> {% translate "Hesap Planı" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:account_list' %}">
+                <i class="fas fa-fw fa-address-book"></i> {% translate "Cari Hesaplar" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:invoice_list' %}">
+                <i class="fas fa-fw fa-file-invoice"></i> {% translate "Faturalar" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:transaction_list' %}">
+                <i class="fas fa-fw fa-exchange-alt"></i> {% translate "Yevmiye Fişleri" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:bank_list' %}">
+                <i class="fas fa-fw fa-university"></i> {% translate "Bankalar" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:cashbox_list' %}">
+                <i class="fas fa-fw fa-cash-register"></i> {% translate "Kasalar" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:stock_list' %}">
+                <i class="fas fa-fw fa-boxes"></i> {% translate "Stoklar" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:stock_transaction_list' %}">
+                <i class="fas fa-fw fa-truck-loading"></i> {% translate "Stok Hareketleri" %}
+            </a>
+            
+            <!-- E-Belgeler -->
+            <div class="collapse-divider"></div>
+            <h6 class="collapse-header">{% translate "E-Belgeler" %}:</h6>
+            <a class="collapse-item" href="{% url 'accounting:edocument_list' %}">
+                <i class="fas fa-fw fa-file-alt"></i> {% translate "E-Belge Listesi" %}
+            </a>
+            <a class="collapse-item" href="{% url 'accounting:edocument_settings' %}">
+                <i class="fas fa-fw fa-cogs"></i> {% translate "E-Belge Ayarları" %}
+            </a>
+        </div>
+    </div>
+</li> 

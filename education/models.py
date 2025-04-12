@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from virtual_company.models import VirtualCompany
+from django.utils.translation import gettext_lazy as _
+from accounting.models import BaseModel
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -156,3 +158,113 @@ class UserBadge(BaseModel):
     class Meta:
         verbose_name = 'Kullanıcı Rozeti'
         verbose_name_plural = 'Kullanıcı Rozetleri'
+
+class LearningModule(BaseModel):
+    """Öğrenme Modülü"""
+    title = models.CharField(_('Başlık'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    difficulty_level = models.CharField(_('Zorluk Seviyesi'), max_length=20, choices=[
+        ('beginner', 'Başlangıç'),
+        ('intermediate', 'Orta'),
+        ('advanced', 'İleri'),
+    ])
+    estimated_duration = models.IntegerField(_('Tahmini Süre (dakika)'))
+    points = models.IntegerField(_('Kazanılacak Puan'), default=10)
+    order = models.IntegerField(_('Sıralama'), default=0)
+    is_active = models.BooleanField(_('Aktif'), default=True)
+
+    class Meta:
+        verbose_name = _('Öğrenme Modülü')
+        verbose_name_plural = _('Öğrenme Modülleri')
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+class LearningContent(BaseModel):
+    """Öğrenme İçeriği"""
+    module = models.ForeignKey(LearningModule, on_delete=models.CASCADE, related_name='contents')
+    title = models.CharField(_('Başlık'), max_length=255)
+    content_type = models.CharField(_('İçerik Tipi'), max_length=20, choices=[
+        ('text', 'Metin'),
+        ('video', 'Video'),
+        ('quiz', 'Quiz'),
+        ('exercise', 'Alıştırma'),
+        ('simulation', 'Simülasyon'),
+    ])
+    content = models.TextField(_('İçerik'))
+    order = models.IntegerField(_('Sıralama'), default=0)
+    is_required = models.BooleanField(_('Zorunlu mu?'), default=True)
+
+    class Meta:
+        verbose_name = _('Öğrenme İçeriği')
+        verbose_name_plural = _('Öğrenme İçerikleri')
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.module.title} - {self.title}"
+
+class VirtualCompanySimulation(BaseModel):
+    """Sanal Şirket Simülasyonu"""
+    title = models.CharField(_('Başlık'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    initial_balance = models.DecimalField(_('Başlangıç Bakiyesi'), max_digits=12, decimal_places=2)
+    scenario = models.JSONField(_('Senaryo'))
+    difficulty_level = models.CharField(_('Zorluk Seviyesi'), max_length=20, choices=[
+        ('beginner', 'Başlangıç'),
+        ('intermediate', 'Orta'),
+        ('advanced', 'İleri'),
+    ])
+    learning_objectives = models.TextField(_('Öğrenme Hedefleri'))
+    success_criteria = models.JSONField(_('Başarı Kriterleri'))
+    is_active = models.BooleanField(_('Aktif'), default=True)
+
+    class Meta:
+        verbose_name = _('Sanal Şirket Simülasyonu')
+        verbose_name_plural = _('Sanal Şirket Simülasyonları')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+class UserProgress(BaseModel):
+    """Kullanıcı İlerlemesi"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='learning_progress')
+    module = models.ForeignKey(LearningModule, on_delete=models.CASCADE)
+    content = models.ForeignKey(LearningContent, on_delete=models.CASCADE)
+    status = models.CharField(_('Durum'), max_length=20, choices=[
+        ('not_started', 'Başlanmadı'),
+        ('in_progress', 'Devam Ediyor'),
+        ('completed', 'Tamamlandı'),
+    ], default='not_started')
+    completion_date = models.DateTimeField(_('Tamamlanma Tarihi'), null=True, blank=True)
+    score = models.IntegerField(_('Puan'), null=True, blank=True)
+    feedback = models.TextField(_('Geri Bildirim'), blank=True)
+
+    class Meta:
+        verbose_name = _('Kullanıcı İlerlemesi')
+        verbose_name_plural = _('Kullanıcı İlerlemeleri')
+        unique_together = ('user', 'module', 'content')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.module.title} - {self.content.title}"
+
+class SimulationProgress(BaseModel):
+    """Simülasyon İlerlemesi"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='simulation_progress')
+    simulation = models.ForeignKey(VirtualCompanySimulation, on_delete=models.CASCADE)
+    current_state = models.JSONField(_('Mevcut Durum'))
+    progress = models.FloatField(_('İlerleme Yüzdesi'), default=0)
+    score = models.IntegerField(_('Puan'), null=True, blank=True)
+    completed_at = models.DateTimeField(_('Tamamlanma Tarihi'), null=True, blank=True)
+    feedback = models.TextField(_('Geri Bildirim'), blank=True)
+
+    class Meta:
+        verbose_name = _('Simülasyon İlerlemesi')
+        verbose_name_plural = _('Simülasyon İlerlemeleri')
+        unique_together = ('user', 'simulation')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.simulation.title}"

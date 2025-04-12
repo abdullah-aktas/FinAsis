@@ -38,9 +38,11 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('accounts/', include('accounts.urls')),
+    path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+    path('company/', include('company_management.urls')),
+    path('integrations/', include('external_integrations.urls')),
+    path('game/', include('ursina_game.urls')),
     path('education/', include('education.urls')),
     path('virtual-company/', include('virtual_company.urls')),
     path('ai-assistant/', include('ai_assistant.urls')),
@@ -48,6 +50,10 @@ urlpatterns = [
     path('accounting/', include('accounting.urls')),
     path('blockchain/', include('blockchain.urls')),
     path('crm/', include('crm.urls')),
+    path('analytics/', include('analytics.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+    path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     
     # API Dokümantasyonu
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),

@@ -29,7 +29,7 @@ class Department(models.Model):
     """Departman modeli"""
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='departments', verbose_name='Şirket')
     name = models.CharField(max_length=100, verbose_name='Departman Adı')
-    manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_departments', verbose_name='Yönetici')
+    manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='company_managed_departments', verbose_name='Yönetici')
     description = models.TextField(blank=True, verbose_name='Açıklama')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')

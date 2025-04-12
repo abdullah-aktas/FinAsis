@@ -8,6 +8,9 @@ from .serializers import (
     GameSerializer, GameScoreSerializer,
     GameAchievementSerializer, UserGameAchievementSerializer
 )
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .game import FinancialTradingGame
 
 # Create your views here.
 
@@ -79,3 +82,36 @@ class UserGameAchievementViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return UserGameAchievement.objects.filter(user=self.request.user)
+
+@login_required
+def game_view(request):
+    """Oyun ana sayfası"""
+    return render(request, 'ursina_game/game.html')
+
+@login_required
+def start_game(request):
+    """Oyunu başlat"""
+    game = FinancialTradingGame()
+    game.start()
+    return JsonResponse({'status': 'success', 'message': 'Oyun başlatıldı'})
+
+@login_required
+def pause_game(request):
+    """Oyunu duraklat"""
+    game = FinancialTradingGame()
+    game.pause()
+    return JsonResponse({'status': 'success', 'message': 'Oyun duraklatıldı'})
+
+@login_required
+def resume_game(request):
+    """Oyunu devam ettir"""
+    game = FinancialTradingGame()
+    game.resume()
+    return JsonResponse({'status': 'success', 'message': 'Oyun devam ediyor'})
+
+@login_required
+def end_game(request):
+    """Oyunu bitir"""
+    game = FinancialTradingGame()
+    game.end()
+    return JsonResponse({'status': 'success', 'message': 'Oyun sonlandırıldı'})

@@ -14,9 +14,9 @@ router.register(r'user-badges', views.UserBadgeViewSet, basename='user-badge')
 app_name = 'education'
 
 urlpatterns = [
-    path('', views.education_home, name='home'),
+    path('dashboard/', views.education_home, name='dashboard'),
     path('courses/', views.course_list, name='course_list'),
     path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
     path('lessons/<int:lesson_id>/', views.lesson_detail, name='lesson_detail'),
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ] 

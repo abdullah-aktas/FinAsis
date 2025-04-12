@@ -1,17 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.views import (
     PasswordResetView,
     PasswordResetDoneView,
     PasswordResetConfirmView,
-    PasswordResetCompleteView
+    PasswordResetCompleteView,
+    PasswordChangeView
 )
 from django.urls import reverse_lazy
 from django.conf import settings
 from .forms import UserRegistrationForm, UserUpdateForm
 from .models import User
+from .tkinter_settings import open_settings_window
+import threading
 
 def login_view(request):
     """Kullanıcı girişi görünümü"""
@@ -19,25 +23,17 @@ def login_view(request):
         return redirect('home')
         
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')
-        
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            
-            if not remember_me:
-                # Oturum süresini 2 saat olarak ayarla
-                request.session.set_expiry(7200)
-                
-            messages.success(request, 'Başarıyla giriş yaptınız.')
-            return redirect('home')
-        else:
-            messages.error(request, 'Kullanıcı adı veya şifre hatalı.')
-            
-    return render(request, 'accounts/login.html')
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'accounts/login.html', {'form': form})
 
 def register_view(request):
     """Kullanıcı kaydı görünümü"""
@@ -81,6 +77,29 @@ def profile_view(request):
     }
     return render(request, 'accounts/profile.html', context)
 
+@login_required
+def settings_view(request):
+    """Kullanıcı ayarları görünümü"""
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ayarlarınız başarıyla güncellendi.')
+            return redirect('accounts:settings')
+    else:
+        form = UserUpdateForm(instance=request.user)
+    
+    # Tkinter penceresini ayrı bir thread'de aç
+    thread = threading.Thread(target=open_settings_window, args=(request.user,))
+    thread.daemon = True
+    thread.start()
+    
+    context = {
+        'form': form,
+        'user': request.user
+    }
+    return render(request, 'accounts/settings.html', context)
+
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
     email_template_name = 'accounts/password_reset_email.html'
@@ -96,4 +115,13 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     success_url = reverse_lazy('accounts:password_reset_complete')
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = 'accounts/password_reset_complete.html' 
+    template_name = 'accounts/password_reset_complete.html'
+
+class CustomPasswordChangeView(PasswordChangeView):
+    """Özel şifre değiştirme görünümü"""
+    template_name = 'accounts/password_change.html'
+    success_url = reverse_lazy('accounts:settings')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Şifreniz başarıyla değiştirildi.')
+        return super().form_valid(form) 

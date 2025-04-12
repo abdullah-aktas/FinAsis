@@ -18,8 +18,28 @@ from .serializers import (
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 # Template Views
+class IntegrationListView(LoginRequiredMixin, ListView):
+    model = Integration
+    template_name = 'external_integrations/integration_list.html'
+    context_object_name = 'integrations'
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        provider_id = self.request.GET.get('provider')
+        if provider_id:
+            queryset = queryset.filter(provider_id=provider_id)
+        return queryset.select_related('provider')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['providers'] = IntegrationProvider.objects.filter(is_active=True)
+        return context
+
 class IntegrationProviderListView(LoginRequiredMixin, ListView):
     model = IntegrationProvider
     template_name = 'external_integrations/provider_list.html'

@@ -34,7 +34,7 @@ FinAsis, finansal yönetim ve eğitim platformudur. Kullanıcılara finansal ver
 
 1. Repoyu klonlayın:
 ```bash
-git clone https://github.com/yourusername/finasis.git
+git clone https://github.com/abdullah-aktas/finasis.git
 cd finasis
 ```
 

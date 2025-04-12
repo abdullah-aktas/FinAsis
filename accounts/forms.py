@@ -1,9 +1,12 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.contrib.auth import get_user_model
 from .models import User
 
+User = get_user_model()
+
 class UserRegistrationForm(UserCreationForm):
-    """Kullanıcı kaydı formu"""
+    """Kullanıcı kayıt formu"""
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={'class': 'form-control'})
@@ -15,7 +18,7 @@ class UserRegistrationForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'role', 'password1', 'password2')
+        fields = ('username', 'email', 'first_name', 'last_name', 'role', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,17 +32,20 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError('Bu e-posta adresi zaten kullanılıyor.')
         return email
 
-class UserUpdateForm(UserChangeForm):
+class UserUpdateForm(forms.ModelForm):
     """Kullanıcı güncelleme formu"""
-    password = None  # Şifre alanını kaldır
-    
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'role')
+        fields = ('username', 'email', 'first_name', 'last_name')
+        labels = {
+            'username': 'Kullanıcı Adı',
+            'email': 'E-posta',
+            'first_name': 'Ad',
+            'last_name': 'Soyad'
+        }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'role': forms.Select(attrs={'class': 'form-control'}),
         } 

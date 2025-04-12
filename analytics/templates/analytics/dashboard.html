@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">{{ page_title }}</h1>
+        </div>
+    </div>
+
+    <!-- Özet Kartları -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Kar</h5>
+                    <h2 class="card-text">₺{{ total_profit|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Gelir</h5>
+                    <h2 class="card-text">₺{{ total_revenue|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Gider</h5>
+                    <h2 class="card-text">₺{{ total_expenses|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Kar Marjı</h5>
+                    <h2 class="card-text">%{{ profit_margin }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafikler -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Aylık Performans</h5>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">En İyi Performans Gösteren Ürünler</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Satış</th>
+                                    <th>Gelir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.sales }}</td>
+                                    <td>₺{{ product.revenue|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Aylık performans grafiği
+    const monthlyData = {{ monthly_data|safe }};
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(item => item.month),
+            datasets: [{
+                label: 'Kar',
+                data: monthlyData.map(item => item.profit),
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }, {
+                label: 'Gelir',
+                data: monthlyData.map(item => item.revenue),
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 

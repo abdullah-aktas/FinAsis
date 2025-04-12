@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -42,11 +42,17 @@ INSTALLED_APPS = [
     'django_celery_results',
     
     # Local apps
+    'accounts.apps.AccountsConfig',
     'users.apps.UsersConfig',
     'customer_management.apps.CustomerManagementConfig',
     'company_management.apps.CompanyManagementConfig',
     'ext_services.apps.ExtServicesConfig',
     'seo_management.apps.SeoManagementConfig',
+    'virtual_company.apps.VirtualCompanyConfig',
+    'education.apps.EducationConfig',
+    'ai_assistant.apps.AiAssistantConfig',
+    'blockchain.apps.BlockchainConfig',
+    'accounting.apps.AccountingConfig',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +74,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': ['D:\\TeknoFest Proje\\FinAsis\\templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -127,13 +134,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth settings
-AUTH_USER_MODEL = 'auth.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 # Django AllAuth settings
 SITE_ID = 1
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
 # Crispy Forms settings
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -198,4 +204,43 @@ BLOCKCHAIN_API_KEY = os.getenv('BLOCKCHAIN_API_KEY')
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-] 
+]
+
+# LangChain settings
+LANGCHAIN_WARNINGS = 'ignore'
+
+# E-Belge Ayarları
+EDOCUMENT_API_KEY = os.getenv('EDOCUMENT_API_KEY')
+EDOCUMENT_API_URL = os.getenv('EDOCUMENT_API_URL', 'https://api.example.com/edocument')
+EDOCUMENT_SERVICE_TYPE = os.getenv('EDOCUMENT_SERVICE_TYPE', 'earchive')
+
+# Şirket Bilgileri
+COMPANY_VKN = os.getenv('COMPANY_VKN')
+COMPANY_NAME = os.getenv('COMPANY_NAME')
+COMPANY_WEBSITE = os.getenv('COMPANY_WEBSITE')
+COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS')
+COMPANY_DISTRICT = os.getenv('COMPANY_DISTRICT')
+COMPANY_CITY = os.getenv('COMPANY_CITY')
+COMPANY_POSTAL_CODE = os.getenv('COMPANY_POSTAL_CODE')
+COMPANY_COUNTRY = os.getenv('COMPANY_COUNTRY', 'Türkiye')
+COMPANY_TAX_OFFICE = os.getenv('COMPANY_TAX_OFFICE')
+COMPANY_PHONE = os.getenv('COMPANY_PHONE')
+COMPANY_EMAIL = os.getenv('COMPANY_EMAIL')
+
+# E-Belge Dosya Ayarları
+EDOCUMENT_STORAGE_PATH = os.path.join(BASE_DIR, 'media', 'edocuments')
+EDOCUMENT_PDF_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'pdf')
+EDOCUMENT_XML_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'xml')
+
+# E-Belge Arşivleme Ayarları
+EDOCUMENT_RETENTION_PERIOD = int(os.getenv('EDOCUMENT_RETENTION_PERIOD', '10'))  # Yıl
+EDOCUMENT_BACKUP_ENABLED = os.getenv('EDOCUMENT_BACKUP_ENABLED', 'True').lower() == 'true'
+EDOCUMENT_BACKUP_PATH = os.path.join(BASE_DIR, 'backups', 'edocuments')
+
+# E-Belge Önbellek Ayarları
+EDOCUMENT_CACHE_ENABLED = os.getenv('EDOCUMENT_CACHE_ENABLED', 'True').lower() == 'true'
+EDOCUMENT_CACHE_TIMEOUT = int(os.getenv('EDOCUMENT_CACHE_TIMEOUT', '3600'))  # Saniye
+
+# E-Belge Log Ayarları
+EDOCUMENT_LOG_LEVEL = os.getenv('EDOCUMENT_LOG_LEVEL', 'INFO')
+EDOCUMENT_LOG_FILE = os.path.join(BASE_DIR, 'logs', 'edocument.log') 

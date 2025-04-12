@@ -1,180 +1,273 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}FinAsis - Ana Sayfa{% endblock %}
+{% block title %}FinAsis - Finansal Asistan ve Entegrasyon Platformu{% endblock %}
+
+{% block meta_description %}{{ _('FinAsis, finansal okuryazarlık eğitimleri, sanal şirket simülasyonu, yapay zeka asistanı ve blockchain teknolojisi ile finansal becerilerinizi geliştirin.') }}{% endblock %}
+
+{% block meta_keywords %}{{ _('finans, asistan, entegrasyon, muhasebe, crm, eğitim, yapay zeka, blockchain, sanal şirket') }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title">Finansal Geleceğinizi Şekillendirin</h1>
+                <p class="hero-subtitle">FinAsis ile muhasebe, finans ve eğitim ihtiyaçlarınızı tek platformda yönetin.</p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">Hemen Başlayın</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'img/hero-image.png' %}" alt="FinAsis Platform" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Neden FinAsis?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Finansal Analiz</h3>
+                    <p>Gelişmiş analiz araçları ile finansal verilerinizi anlayın ve doğru kararlar alın.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Eğitim Platformu</h3>
+                    <p>Finans ve muhasebe alanında kendinizi geliştirin, sertifikalar kazanın.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Asistan</h3>
+                    <p>Yapay zeka destekli asistanınız ile finansal süreçlerinizi otomatikleştirin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Packages Section -->
+{% if user.is_authenticated %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Paketlerimiz</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="package-card">
+                    <div class="package-header">
+                        <h3>KOBİ Paketi</h3>
+                        <div class="package-price">₺299/ay</div>
+                        <p>Küçük ve orta ölçekli işletmeler için</p>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li><i class="fas fa-check text-success"></i> Temel muhasebe işlemleri</li>
+                            <li><i class="fas fa-check text-success"></i> Fatura yönetimi</li>
+                            <li><i class="fas fa-check text-success"></i> Raporlama araçları</li>
+                            <li><i class="fas fa-check text-success"></i> E-posta desteği</li>
+                        </ul>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100 mt-3">Paketi Seç</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="package-card">
+                    <div class="package-header">
+                        <h3>Eğitim Paketi</h3>
+                        <div class="package-price">₺199/ay</div>
+                        <p>Bireysel ve kurumsal eğitimler için</p>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li><i class="fas fa-check text-success"></i> Tüm eğitim içerikleri</li>
+                            <li><i class="fas fa-check text-success"></i> Sertifika programları</li>
+                            <li><i class="fas fa-check text-success"></i> Canlı dersler</li>
+                            <li><i class="fas fa-check text-success"></i> Mentor desteği</li>
+                        </ul>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100 mt-3">Paketi Seç</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="package-card">
+                    <div class="package-header">
+                        <h3>Kurumsal Paket</h3>
+                        <div class="package-price">₺599/ay</div>
+                        <p>Büyük ölçekli işletmeler için</p>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li><i class="fas fa-check text-success"></i> Tüm KOBİ özellikleri</li>
+                            <li><i class="fas fa-check text-success"></i> Gelişmiş raporlama</li>
+                            <li><i class="fas fa-check text-success"></i> API entegrasyonları</li>
+                            <li><i class="fas fa-check text-success"></i> 7/24 öncelikli destek</li>
+                        </ul>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100 mt-3">Paketi Seç</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2 class="mb-4">Finansal Geleceğinizi Bugün Şekillendirin</h2>
+        <p class="mb-4">FinAsis ile tanışın ve işletmenizi bir üst seviyeye taşıyın.</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-cta">Ücretsiz Deneyin</a>
+    </div>
+</section>
+{% endblock %}
 
 {% block extra_css %}
 <style>
     .hero-section {
-        background: linear-gradient(135deg, #2193b0 0%, #6dd5be 100%);
-        padding: 5rem 0;
-        margin-bottom: 4rem;
-        border-radius: 20px;
+        background: var(--gradient);
         color: white;
-        text-align: center;
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
     }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "img/pattern.png" %}') repeat;
+        opacity: 0.1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
     .hero-title {
-        font-size: 4rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
     }
+    
     .hero-subtitle {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         opacity: 0.9;
         margin-bottom: 2rem;
     }
+    
     .feature-card {
-        background: white;
-        border-radius: 20px;
         padding: 2rem;
-        height: 100%;
-        transition: all 0.3s;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 8px 12px rgba(0,0,0,0.15);
-    }
-    .feature-icon {
-        font-size: 3rem;
-        color: #2193b0;
-        margin-bottom: 1.5rem;
-    }
-    .feature-title {
-        color: #2193b0;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .feature-text {
-        color: #666;
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-    }
-    .btn-feature {
-        background: #2193b0;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 0.8rem 1.5rem;
-        font-size: 1.1rem;
-        transition: all 0.3s;
-        width: 100%;
-    }
-    .btn-feature:hover {
-        background: #1a7b94;
-        color: white;
-    }
-    .cta-section {
+        border-radius: 15px;
         background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-top: 4rem;
-    }
-    .cta-title {
-        color: #2193b0;
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    .cta-text {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-    }
-    .btn-cta {
-        background: #2193b0;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         transition: all 0.3s;
-        margin: 0 0.5rem;
+        height: 100%;
     }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-icon i {
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .package-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    
+    .package-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .package-header {
+        background: var(--gradient);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .package-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+    
+    .package-features {
+        padding: 2rem;
+    }
+    
+    .package-features ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .package-features li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .package-features li:last-child {
+        border-bottom: none;
+    }
+    
+    .cta-section {
+        background: var(--gradient);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+    }
+    
+    .btn-cta {
+        background: white;
+        color: var(--primary-color);
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+    }
+    
     .btn-cta:hover {
-        background: #1a7b94;
-        color: white;
         transform: translateY(-2px);
-    }
-    .btn-cta-outline {
-        background: transparent;
-        color: #2193b0;
-        border: 2px solid #2193b0;
-    }
-    .btn-cta-outline:hover {
-        background: #2193b0;
-        color: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 </style>
-{% endblock %}
-
-{% block content %}
-<div class="hero-section">
-    <div class="container">
-        <h1 class="hero-title">FinAsis</h1>
-        <p class="hero-subtitle">Finansal eğitim ve deneyim platformu</p>
-        {% if not user.is_authenticated %}
-        <div class="mt-4">
-            <a href="{% url 'accounts:register' %}" class="btn btn-cta">
-                <i class="fas fa-user-plus me-2"></i>Hemen Başla
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<div class="container">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="feature-card text-center">
-                <i class="fas fa-graduation-cap feature-icon"></i>
-                <h3 class="feature-title">Eğitim</h3>
-                <p class="feature-text">Finansal okuryazarlık eğitimleri ile bilgi ve becerilerinizi geliştirin. Uzman eğitmenlerden interaktif dersler alın.</p>
-                <a href="{% url 'education:education_home' %}" class="btn btn-feature">
-                    <i class="fas fa-arrow-right me-2"></i>Eğitimlere Git
-                </a>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="feature-card text-center">
-                <i class="fas fa-building feature-icon"></i>
-                <h3 class="feature-title">Sanal Şirket</h3>
-                <p class="feature-text">Kendi sanal şirketinizi kurun ve gerçek dünya deneyimi kazanın. Risk almadan iş dünyasını keşfedin.</p>
-                <a href="{% url 'virtual_company:company_home' %}" class="btn btn-feature">
-                    <i class="fas fa-arrow-right me-2"></i>Şirket Kur
-                </a>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="feature-card text-center">
-                <i class="fas fa-robot feature-icon"></i>
-                <h3 class="feature-title">AI Asistan</h3>
-                <p class="feature-text">Yapay zeka destekli asistanımız ile finansal sorularınıza anında yanıt alın. 7/24 destek alın.</p>
-                <a href="{% url 'ai_assistant:chat' %}" class="btn btn-feature">
-                    <i class="fas fa-arrow-right me-2"></i>Sohbete Başla
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {% if not user.is_authenticated %}
-    <div class="cta-section">
-        <h2 class="cta-title">Hemen Başlayın</h2>
-        <p class="cta-text">FinAsis'in sunduğu tüm özelliklere erişmek için ücretsiz hesap oluşturun.</p>
-        <div>
-            <a href="{% url 'accounts:register' %}" class="btn btn-cta">
-                <i class="fas fa-user-plus me-2"></i>Kayıt Ol
-            </a>
-            <a href="{% url 'accounts:login' %}" class="btn btn-cta btn-cta-outline">
-                <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
-            </a>
-        </div>
-    </div>
-    {% endif %}
-</div>
 {% endblock %} 

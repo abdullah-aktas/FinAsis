@@ -1,20 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count, F, Q
 from django.utils import timezone
 from .models import (
     ChartOfAccounts, Account, Invoice, InvoiceLine,
-    Transaction, TransactionLine, CashBox, Bank, Stock, StockTransaction
+    Transaction, TransactionLine, CashBox, Bank, Stock, StockTransaction, EDocument, EDocumentSettings,
+    Tax, Currency, ExchangeRate, Budget, BudgetCategory, DailyTask,
+    UserDailyTask, KnowledgeBase, UserKnowledgeRead, TaskCategory, TaskCompletion, TaskNote
 )
 from .forms import (
     AccountForm, InvoiceForm, InvoiceLineForm, InvoiceLineFormSet,
     TransactionForm, TransactionLineForm, TransactionLineFormSet,
-    BankForm, StockForm, StockTransactionForm, ChartOfAccountsForm, CashBoxForm
+    BankForm, StockForm, StockTransactionForm, ChartOfAccountsForm, CashBoxForm,
+    EDocumentCreateForm, EDocumentFilterForm, EDocumentCancelForm, EDocumentSettingsForm,
+    DailyTaskForm, TaskResourceFormSet
 )
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, TemplateView
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, FileResponse
+from django.views.decorators.http import require_POST
+from django.utils.translation import gettext_lazy as _
+from .services import EDocumentService
+from django.template.loader import render_to_string
+from django.contrib import transaction
+import os
+import mimetypes
+from datetime import datetime
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator
 
 @login_required
 def dashboard(request):
@@ -592,6 +607,23 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'accounting/invoice_detail.html'
     context_object_name = 'invoice'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        invoice = self.get_object()
+        
+        # Fatura kalemlerini context'e ekle
+        context['invoice_lines'] = invoice.lines.all()
+        
+        # E-belge kontrollerini ekle
+        context['has_edocument'] = invoice.edocument_set.exists()
+        context['can_create_edocument'] = invoice.can_create_e_invoice and not invoice.edocument_set.exists()
+        
+        # Eğer faturanın e-belgesi varsa, detayları context'e ekle
+        if context['has_edocument']:
+            context['edocument'] = invoice.edocument_set.first()
+        
+        return context
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
@@ -885,4 +917,723 @@ class StockTransactionDeleteView(LoginRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Stok hareketi başarıyla silindi.')
+        return super().delete(request, *args, **kwargs)
+
+# E-Belge görünümleri
+@login_required
+def e_document_list(request):
+    """E-Belgeleri listeler"""
+    # Filtreleme parametreleri
+    document_type = request.GET.get('type')
+    status = request.GET.get('status')
+    date_start = request.GET.get('date_start')
+    date_end = request.GET.get('date_end')
+    
+    # Temel sorgu
+    documents = EDocument.objects.all().order_by('-created_at')
+    
+    # Filtreleri uygula
+    if document_type:
+        documents = documents.filter(document_type=document_type)
+    if status:
+        documents = documents.filter(status=status)
+    if date_start:
+        documents = documents.filter(created_at__gte=date_start)
+    if date_end:
+        documents = documents.filter(created_at__lte=date_end)
+    
+    # Sayfalama
+    paginator = Paginator(documents, 20)
+    page = request.GET.get('page')
+    documents = paginator.get_page(page)
+    
+    context = {
+        'documents': documents,
+        'document_types': EDocument.DOCUMENT_TYPES,
+        'status_choices': EDocument.STATUS_CHOICES,
+        'filters': {
+            'type': document_type,
+            'status': status,
+            'date_start': date_start,
+            'date_end': date_end
+        }
+    }
+    
+    return render(request, 'accounting/e_document_list.html', context)
+
+@login_required
+def e_document_detail(request, pk):
+    """E-Belge detaylarını gösterir"""
+    e_document = get_object_or_404(EDocument, pk=pk)
+    
+    # E-Belge durumunu kontrol et ve güncelle
+    if e_document.status == 'PENDING':
+        e_document_service = EDocumentService()
+        try:
+            status = e_document_service.check_document_status(e_document)
+            if status != e_document.status:
+                e_document.status = status
+                e_document.save()
+        except Exception as e:
+            messages.warning(request, f'E-Belge durumu kontrol edilirken hata oluştu: {str(e)}')
+    
+    context = {
+        'e_document': e_document,
+        'invoice': e_document.invoice,
+        'status_colors': {
+            'DRAFT': 'secondary',
+            'PENDING': 'warning',
+            'APPROVED': 'success',
+            'REJECTED': 'danger',
+            'CANCELED': 'dark',
+            'ERROR': 'danger'
+        }
+    }
+    
+    return render(request, 'accounting/e_document_detail.html', context)
+
+@login_required
+def create_e_invoice(request, invoice_id):
+    """Faturadan e-fatura oluşturur"""
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    
+    # Faturayla ilişkili bir e-belge kontrolü
+    if EDocument.objects.filter(invoice=invoice, document_type='INVOICE').exists():
+        messages.error(request, f'{invoice.invoice_number} numaralı fatura için zaten bir e-fatura bulunmaktadır.')
+        return redirect('accounting:invoice_detail', pk=invoice_id)
+    
+    try:
+        # E-Fatura oluştur
+        e_document_service = EDocumentService()
+        e_document = e_document_service.create_e_invoice(invoice)
+        
+        # Başarılı mesajı göster
+        messages.success(request, f'E-Fatura başarıyla oluşturuldu: {e_document.document_number}')
+        
+        # PDF dosyası varsa indirme linki ekle
+        if e_document.pdf_file:
+            messages.info(request, f'<a href="{e_document.pdf_file.url}" target="_blank">E-Fatura PDF</a> dosyasını indirebilirsiniz.', extra_tags='safe')
+        
+        return redirect('accounting:e_document_detail', pk=e_document.pk)
+    except Exception as e:
+        messages.error(request, f'E-Fatura oluşturma hatası: {str(e)}')
+        return redirect('accounting:invoice_detail', pk=invoice_id)
+
+@login_required
+def create_e_archive_invoice(request, invoice_id):
+    """Faturadan e-arşiv fatura oluşturur"""
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    
+    # Faturayla ilişkili bir e-arşiv fatura kontrolü
+    if EDocument.objects.filter(invoice=invoice, document_type='ARCHIVE_INVOICE').exists():
+        messages.error(request, f'{invoice.invoice_number} numaralı fatura için zaten bir e-arşiv fatura bulunmaktadır.')
+        return redirect('accounting:invoice_detail', pk=invoice_id)
+    
+    try:
+        # E-Arşiv Fatura oluştur
+        e_document_service = EDocumentService()
+        e_document = e_document_service.create_e_archive_invoice(invoice)
+        
+        # Başarılı mesajı göster
+        messages.success(request, f'E-Arşiv Fatura başarıyla oluşturuldu: {e_document.document_number}')
+        
+        # PDF dosyası varsa indirme linki ekle
+        if e_document.pdf_file:
+            messages.info(request, f'<a href="{e_document.pdf_file.url}" target="_blank">E-Arşiv Fatura PDF</a> dosyasını indirebilirsiniz.', extra_tags='safe')
+        
+        return redirect('accounting:e_document_detail', pk=e_document.pk)
+    except Exception as e:
+        messages.error(request, f'E-Arşiv Fatura oluşturma hatası: {str(e)}')
+        return redirect('accounting:invoice_detail', pk=invoice_id)
+
+@login_required
+def check_e_document_status(request, pk):
+    """E-Belge durumunu günceller"""
+    document = get_object_or_404(EDocument, pk=pk)
+    
+    try:
+        e_document_service = EDocumentService()
+        result = e_document_service.check_document_status(document)
+        
+        if result.get('success'):
+            messages.success(request, f'E-Belge durumu güncellendi: {document.get_status_display()}')
+        else:
+            messages.error(request, f'E-Belge durumu güncellenirken hata oluştu: {result.get("error")}')
+    except Exception as e:
+        messages.error(request, f'E-Belge durumu sorgulama hatası: {str(e)}')
+    
+    return redirect('accounting:e_document_detail', pk=pk)
+
+@login_required
+def download_e_document_pdf(request, pk):
+    """E-Belge PDF'ini indirir"""
+    document = get_object_or_404(EDocument, pk=pk)
+    
+    # Eğer PDF zaten varsa doğrudan sunum
+    if document.pdf_file:
+        response = HttpResponse(document.pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{document.document_number}.pdf"'
+        return response
+    
+    # PDF yoksa indir
+    try:
+        e_document_service = EDocumentService()
+        result = e_document_service.download_document_pdf(document)
+        
+        if result.get('success'):
+            # Güncellenmiş belgeyi yeniden al
+            document.refresh_from_db()
+            response = HttpResponse(document.pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{document.document_number}.pdf"'
+            return response
+        else:
+            messages.error(request, f'PDF indirme hatası: {result.get("error")}')
+    except Exception as e:
+        messages.error(request, f'PDF indirme hatası: {str(e)}')
+    
+    return redirect('accounting:e_document_detail', pk=pk)
+
+@login_required
+@require_POST
+def cancel_e_document(request, pk):
+    """E-Belgeyi iptal eder"""
+    document = get_object_or_404(EDocument, pk=pk)
+    
+    # İptal edilebilir kontrolü
+    if not document.can_be_canceled():
+        messages.error(request, 'Bu belge iptal edilemez durumda.')
+        return redirect('accounting:e_document_detail', pk=pk)
+    
+    reason = request.POST.get('cancel_reason')
+    if not reason:
+        messages.error(request, 'İptal gerekçesi belirtilmelidir.')
+        return redirect('accounting:e_document_detail', pk=pk)
+    
+    try:
+        e_document_service = EDocumentService()
+        result = e_document_service.cancel_document(document, reason)
+        
+        if result.get('success'):
+            messages.success(request, f'E-Belge başarıyla iptal edildi.')
+        else:
+            messages.error(request, f'E-Belge iptali sırasında hata oluştu: {result.get("error")}')
+    except Exception as e:
+        messages.error(request, f'E-Belge iptal hatası: {str(e)}')
+    
+    return redirect('accounting:e_document_detail', pk=pk)
+
+# Fatura detay sayfasında e-belge bölümü için ajax fonksiyonu
+@login_required
+def invoice_e_documents(request, invoice_id):
+    """Faturaya ait e-belgeleri getirir"""
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    documents = EDocument.objects.filter(invoice=invoice).order_by('-created_at')
+    
+    html = render_to_string('accounting/includes/invoice_e_documents.html', {
+        'documents': documents,
+        'invoice': invoice,
+    }, request=request)
+    
+    return JsonResponse({'html': html})
+
+class EDocumentListView(LoginRequiredMixin, ListView):
+    """E-belge listesi görünümü"""
+    model = EDocument
+    template_name = 'accounting/edocument_list.html'
+    context_object_name = 'edocuments'
+    paginate_by = 25
+    
+    def get_queryset(self):
+        queryset = EDocument.objects.all().order_by('-created_at')
+        
+        # Form ile gelen filtreler
+        form = EDocumentFilterForm(self.request.GET)
+        if form.is_valid():
+            # Belge türü filtresi
+            if form.cleaned_data.get('document_type'):
+                queryset = queryset.filter(document_type=form.cleaned_data['document_type'])
+            
+            # Durum filtresi
+            if form.cleaned_data.get('status'):
+                queryset = queryset.filter(status=form.cleaned_data['status'])
+            
+            # Tarih aralığı filtresi
+            if form.cleaned_data.get('start_date'):
+                queryset = queryset.filter(created_at__date__gte=form.cleaned_data['start_date'])
+            if form.cleaned_data.get('end_date'):
+                queryset = queryset.filter(created_at__date__lte=form.cleaned_data['end_date'])
+            
+            # Genel arama
+            if form.cleaned_data.get('search'):
+                search = form.cleaned_data['search']
+                queryset = queryset.filter(
+                    models.Q(document_number__icontains=search) |
+                    models.Q(invoice__number__icontains=search) |
+                    models.Q(invoice__account__name__icontains=search)
+                )
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter_form'] = EDocumentFilterForm(self.request.GET)
+        return context
+
+
+class EDocumentDetailView(LoginRequiredMixin, DetailView):
+    """E-belge detay görünümü"""
+    model = EDocument
+    template_name = 'accounting/edocument_detail.html'
+    context_object_name = 'edocument'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['invoice'] = self.object.invoice
+        context['cancel_form'] = EDocumentCancelForm()
+        return context
+
+
+@login_required
+def create_edocument(request, pk):
+    """Faturadan e-belge oluşturma"""
+    invoice = get_object_or_404(Invoice, pk=pk)
+    
+    # Eğer faturanın zaten bir e-belgesi varsa veya uygun değilse hata mesajı göster
+    if invoice.edocument_set.exists():
+        messages.error(request, _("Bu fatura için zaten bir e-belge oluşturulmuş."))
+        return redirect('accounting:invoice_detail', pk=invoice.pk)
+    
+    if not invoice.can_create_e_invoice:
+        messages.error(request, _("Bu fatura e-belge oluşturmak için uygun değil."))
+        return redirect('accounting:invoice_detail', pk=invoice.pk)
+    
+    # Müşterinin e-fatura kullanıcısı olup olmadığını kontrol et
+    is_e_invoice_user = False
+    if hasattr(invoice.account, 'customer'):
+        is_e_invoice_user = invoice.account.customer.is_e_invoice_user
+    
+    if request.method == 'POST':
+        form = EDocumentCreateForm(request.POST, invoice=invoice, is_e_invoice_user=is_e_invoice_user)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Yeni e-belge oluştur
+                    edocument = EDocument.objects.create(
+                        invoice=invoice,
+                        document_type=form.cleaned_data['document_type'],
+                        status='DRAFT',
+                        notes=form.cleaned_data['notes'],
+                        created_by=request.user
+                    )
+                    
+                    # E-belge servisini çağır
+                    service = EDocumentService()
+                    
+                    # Belge türüne göre işlem yap
+                    if form.cleaned_data['document_type'] == 'EINVOICE':
+                        result = service.create_e_invoice(edocument)
+                    else:  # EARCHIVE
+                        result = service.create_e_archive_invoice(edocument)
+                    
+                    if result:
+                        messages.success(request, _("E-belge başarıyla oluşturuldu."))
+                        return redirect('accounting:edocument_detail', pk=edocument.pk)
+                    else:
+                        messages.error(request, _("E-belge oluşturulurken bir hata oluştu."))
+                        return redirect('accounting:invoice_detail', pk=invoice.pk)
+            
+            except Exception as e:
+                messages.error(request, _("E-belge oluşturulurken bir hata oluştu: {}").format(str(e)))
+                return redirect('accounting:invoice_detail', pk=invoice.pk)
+    else:
+        form = EDocumentCreateForm(invoice=invoice, is_e_invoice_user=is_e_invoice_user)
+    
+    return render(request, 'accounting/edocument_create.html', {
+        'form': form,
+        'invoice': invoice
+    })
+
+
+@login_required
+def check_edocument_status(request, pk):
+    """E-belge durumunu kontrol etme"""
+    edocument = get_object_or_404(EDocument, pk=pk)
+    
+    # Belge zaten sonuçlanmış ise güncelleme yapma
+    if edocument.is_finalized:
+        messages.info(request, _("Belge zaten sonuçlanmış durumda, durum güncellemesi yapılmadı."))
+        return redirect('accounting:edocument_detail', pk=edocument.pk)
+    
+    # E-belge servisi ile durum kontrolü yap
+    service = EDocumentService()
+    result = service.check_document_status(edocument)
+    
+    if result:
+        if result.get('status_changed', False):
+            messages.success(request, _("Belge durumu güncellendi: {}").format(edocument.get_status_display()))
+        else:
+            messages.info(request, _("Belge durumunda değişiklik yok: {}").format(edocument.get_status_display()))
+    else:
+        messages.error(request, _("Belge durumu kontrol edilirken bir hata oluştu."))
+    
+    return redirect('accounting:edocument_detail', pk=edocument.pk)
+
+
+@login_required
+def download_edocument(request, pk):
+    """E-belge PDF dosyasını indirme"""
+    edocument = get_object_or_404(EDocument, pk=pk)
+    
+    # Eğer PDF dosyası yoksa oluşturma işlemi yap
+    if not edocument.pdf_file:
+        service = EDocumentService()
+        result = service.download_document_pdf(edocument)
+        
+        if not result:
+            messages.error(request, _("PDF dosyası indirilemedi."))
+            return redirect('accounting:edocument_detail', pk=edocument.pk)
+    
+    # PDF dosyası varsa indir
+    try:
+        file_path = edocument.pdf_file.path
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as pdf:
+                response = HttpResponse(pdf.read(), content_type='application/pdf')
+                filename = edocument.get_pdf_filename()
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+        else:
+            messages.error(request, _("PDF dosyası bulunamadı."))
+    except Exception as e:
+        messages.error(request, _("PDF dosyası indirilirken bir hata oluştu: {}").format(str(e)))
+    
+    return redirect('accounting:edocument_detail', pk=edocument.pk)
+
+
+@login_required
+@require_POST
+def cancel_edocument(request, pk):
+    """E-belge iptali"""
+    edocument = get_object_or_404(EDocument, pk=pk)
+    
+    # Belge iptal edilebilir durumda mı kontrol et
+    if not edocument.can_be_canceled:
+        messages.error(request, _("Bu belge iptal edilemez."))
+        return redirect('accounting:edocument_detail', pk=edocument.pk)
+    
+    form = EDocumentCancelForm(request.POST)
+    if form.is_valid():
+        # E-belge servisi ile iptal et
+        service = EDocumentService()
+        result = service.cancel_document(edocument, form.cleaned_data['reason'])
+        
+        if result:
+            messages.success(request, _("Belge başarıyla iptal edildi."))
+        else:
+            messages.error(request, _("Belge iptal edilirken bir hata oluştu."))
+    else:
+        messages.error(request, _("İptal işlemi için geçerli bir neden belirtmelisiniz."))
+    
+    return redirect('accounting:edocument_detail', pk=edocument.pk)
+
+@login_required
+def edocument_settings(request):
+    """E-belge ayarları görünümü"""
+    # Aktif ayarları al veya yeni bir tane oluştur
+    try:
+        settings = EDocumentSettings.objects.filter(is_active=True).first()
+        if not settings:
+            settings = EDocumentSettings.objects.first()
+    except EDocumentSettings.DoesNotExist:
+        settings = None
+    
+    if request.method == 'POST':
+        # Mevcut ayarları güncelle veya yeni oluştur
+        if settings:
+            form = EDocumentSettingsForm(request.POST, instance=settings)
+        else:
+            form = EDocumentSettingsForm(request.POST)
+        
+        if form.is_valid():
+            # Eğer bu ayar aktif olarak işaretlendiyse, diğerlerini devre dışı bırak
+            if form.cleaned_data.get('is_active'):
+                EDocumentSettings.objects.all().update(is_active=False)
+            
+            settings = form.save()
+            messages.success(request, _("E-belge ayarları başarıyla kaydedildi."))
+            return redirect('accounting:edocument_settings')
+    else:
+        # Form oluştur
+        if settings:
+            form = EDocumentSettingsForm(instance=settings)
+        else:
+            form = EDocumentSettingsForm()
+    
+    return render(request, 'accounting/edocument_settings.html', {
+        'form': form,
+        'settings': settings
+    })
+
+# Günlük Görevler View'ları
+class DailyTaskListView(LoginRequiredMixin, ListView):
+    model = DailyTask
+    template_name = 'accounting/daily_tasks/task_list.html'
+    context_object_name = 'tasks'
+    
+    def get_queryset(self):
+        # Aktif olan ve kullanıcının henüz tamamlamadığı görevleri getir
+        completed_tasks = UserDailyTask.objects.filter(
+            user=self.request.user, 
+            completed=True
+        ).values_list('task_id', flat=True)
+        
+        return DailyTask.objects.filter(
+            active=True
+        ).exclude(
+            id__in=completed_tasks
+        )
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Kullanıcının tamamladığı görevleri de ekle
+        context['completed_tasks'] = UserDailyTask.objects.filter(
+            user=self.request.user,
+            completed=True
+        ).select_related('task')
+        return context
+
+
+class DailyTaskDetailView(LoginRequiredMixin, DetailView):
+    model = DailyTask
+    template_name = 'accounting/daily_tasks/task_detail.html'
+    context_object_name = 'task'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.get_object()
+        
+        # Görevin tamamlanma durumunu kontrol et
+        user_task = UserDailyTask.objects.filter(
+            user=self.request.user,
+            task=task
+        ).first()
+        
+        context['is_completed'] = user_task.completed if user_task else False
+        
+        # Görev için gerekli bilgi tabanı içeriklerini ekle
+        context['knowledge_requirements'] = task.knowledge_required.all()
+        
+        # Kullanıcının okuduğu bilgi tabanı içeriklerini kontrol et
+        if task.knowledge_required.exists():
+            read_knowledge = UserKnowledgeRead.objects.filter(
+                user=self.request.user,
+                knowledge__in=task.knowledge_required.all()
+            ).values_list('knowledge_id', flat=True)
+            context['unread_knowledge'] = task.knowledge_required.exclude(id__in=read_knowledge)
+        
+        return context
+
+
+class CompleteTaskView(LoginRequiredMixin, FormView):
+    template_name = 'accounting/daily_tasks/complete_task.html'
+    
+    def get_success_url(self):
+        return reverse('accounting:daily_task_list')
+    
+    def post(self, request, *args, **kwargs):
+        task_id = self.kwargs.get('pk')
+        try:
+            task = DailyTask.objects.get(pk=task_id, active=True)
+            
+            # Görevin daha önce tamamlanıp tamamlanmadığını kontrol et
+            user_task, created = UserDailyTask.objects.get_or_create(
+                user=request.user,
+                task=task,
+                defaults={'completed': False}
+            )
+            
+            if user_task.completed:
+                messages.warning(request, _('Bu görevi zaten tamamladınız.'))
+            else:
+                # Görevin tamamlanma durumunu güncelle
+                user_task.completed = True
+                user_task.completed_at = timezone.now()
+                user_task.save()
+                
+                # Kullanıcıya puan ekle
+                user_profile = request.user.userprofile
+                user_profile.total_points += task.points
+                user_profile.save()
+                
+                messages.success(request, _('Tebrikler! Görevi başarıyla tamamladınız ve {} puan kazandınız.').format(task.points))
+                
+                # Eğer bilgi tabanı içerikleri okunmadıysa otomatik olarak okundu olarak işaretle
+                for knowledge in task.knowledge_required.all():
+                    UserKnowledgeRead.objects.get_or_create(
+                        user=request.user,
+                        knowledge=knowledge,
+                        defaults={'read_at': timezone.now()}
+                    )
+            
+            return redirect(self.get_success_url())
+            
+        except DailyTask.DoesNotExist:
+            messages.error(request, _('Görev bulunamadı veya aktif değil.'))
+            return redirect('accounting:daily_task_list')
+
+
+# Bilgi Bankası View'ları
+class KnowledgeBaseListView(LoginRequiredMixin, ListView):
+    model = KnowledgeBase
+    template_name = 'accounting/knowledge/knowledge_list.html'
+    context_object_name = 'knowledge_items'
+    
+    def get_queryset(self):
+        return KnowledgeBase.objects.filter(active=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Kullanıcının okuduğu içerikleri işaretle
+        read_knowledge = UserKnowledgeRead.objects.filter(
+            user=self.request.user
+        ).values_list('knowledge_id', flat=True)
+        context['read_knowledge_ids'] = list(read_knowledge)
+        return context
+
+
+class KnowledgeBaseDetailView(LoginRequiredMixin, DetailView):
+    model = KnowledgeBase
+    template_name = 'accounting/knowledge/knowledge_detail.html'
+    context_object_name = 'knowledge'
+    
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        knowledge = self.get_object()
+        
+        # Okundu olarak işaretle
+        UserKnowledgeRead.objects.get_or_create(
+            user=request.user,
+            knowledge=knowledge,
+            defaults={'read_at': timezone.now()}
+        )
+        
+        return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        knowledge = self.get_object()
+        
+        # İlgili görevleri listele
+        context['related_tasks'] = knowledge.related_tasks.filter(active=True)
+        
+        return context
+
+
+# Kullanıcı istatistikleri
+class UserStatsView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounting/user_stats.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Günlük görev istatistikleri
+        completed_tasks = UserDailyTask.objects.filter(user=user, completed=True)
+        context['completed_tasks_count'] = completed_tasks.count()
+        context['total_points'] = completed_tasks.aggregate(
+            total=Sum('task__points'))['total'] or 0
+        
+        # Kategori bazında tamamlanan görevler
+        category_stats = completed_tasks.values('task__category').annotate(
+            count=Count('id'),
+            points=Sum('task__points')
+        ).order_by('-count')
+        
+        context['category_stats'] = category_stats
+        
+        # Zorluk seviyesine göre tamamlanan görevler
+        difficulty_stats = completed_tasks.values('task__difficulty').annotate(
+            count=Count('id'),
+            points=Sum('task__points')
+        ).order_by('task__difficulty')
+        
+        context['difficulty_stats'] = difficulty_stats
+        
+        # Okuma istatistikleri
+        read_articles = UserKnowledgeRead.objects.filter(user=user)
+        context['read_articles_count'] = read_articles.count()
+        context['total_reads'] = read_articles.aggregate(
+            total=Sum('read_count'))['total'] or 0
+        
+        # Kategori bazında okunan makaleler
+        read_category_stats = read_articles.values('knowledge__category').annotate(
+            count=Count('id'),
+            reads=Sum('read_count')
+        ).order_by('-reads')
+        
+        context['read_category_stats'] = read_category_stats
+        
+        return context
+
+class DailyTaskCreateView(LoginRequiredMixin, CreateView):
+    model = DailyTask
+    template_name = 'accounting/daily_task_form.html'
+    fields = ['title', 'description', 'category', 'difficulty', 'points', 'estimated_time', 'active', 'knowledge_required']
+    success_url = reverse_lazy('accounting:daily_task_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Günlük görev başarıyla oluşturuldu!'))
+        return super().form_valid(form)
+
+
+class DailyTaskUpdateView(LoginRequiredMixin, UpdateView):
+    model = DailyTask
+    template_name = 'accounting/daily_task_form.html'
+    fields = ['title', 'description', 'category', 'difficulty', 'points', 'estimated_time', 'active', 'knowledge_required']
+    success_url = reverse_lazy('accounting:daily_task_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Günlük görev başarıyla güncellendi!'))
+        return super().form_valid(form)
+
+
+class DailyTaskDeleteView(LoginRequiredMixin, DeleteView):
+    model = DailyTask
+    template_name = 'accounting/daily_task_confirm_delete.html'
+    success_url = reverse_lazy('accounting:daily_task_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, _('Günlük görev başarıyla silindi!'))
+        return super().delete(request, *args, **kwargs)
+
+
+class KnowledgeBaseCreateView(LoginRequiredMixin, CreateView):
+    model = KnowledgeBase
+    template_name = 'accounting/knowledge_base_form.html'
+    fields = ['title', 'content', 'summary', 'category', 'level', 'image', 'tags']
+    success_url = reverse_lazy('accounting:knowledge_base_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Bilgi bankası makalesi başarıyla oluşturuldu!'))
+        return super().form_valid(form)
+
+
+class KnowledgeBaseUpdateView(LoginRequiredMixin, UpdateView):
+    model = KnowledgeBase
+    template_name = 'accounting/knowledge_base_form.html'
+    fields = ['title', 'content', 'summary', 'category', 'level', 'image', 'tags']
+    success_url = reverse_lazy('accounting:knowledge_base_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Bilgi bankası makalesi başarıyla güncellendi!'))
+        return super().form_valid(form)
+
+
+class KnowledgeBaseDeleteView(LoginRequiredMixin, DeleteView):
+    model = KnowledgeBase
+    template_name = 'accounting/knowledge_base_confirm_delete.html'
+    success_url = reverse_lazy('accounting:knowledge_base_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, _('Bilgi bankası makalesi başarıyla silindi!'))
         return super().delete(request, *args, **kwargs)

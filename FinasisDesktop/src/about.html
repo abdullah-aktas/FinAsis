@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinAsis Hakkında</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: white;
+      color: #333;
+      user-select: none;
+    }
+
+    .about-container {
+      text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #2193b0;
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: #666;
+    }
+
+    .version {
+      font-size: 0.8rem;
+      margin-bottom: 20px;
+      color: #999;
+    }
+
+    .copyright {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 20px;
+    }
+
+    .divider {
+      height: 1px;
+      background: #eee;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="about-container">
+    <img src="assets/logo.png" alt="FinAsis Logo" class="logo">
+    <h1>FinAsis</h1>
+    <p>Finansal eğitim ve deneyim platformu</p>
+    <div class="version">Versiyon <span id="app-version">1.0.0</span></div>
+    
+    <div class="divider"></div>
+    
+    <p>FinAsis, finansal okuryazarlığı artırmak ve gerçek dünya deneyimlerini simüle etmek için tasarlanmış bir eğitim platformudur.</p>
+    
+    <div class="divider"></div>
+    
+    <div class="copyright">&copy; 2025 FinAsis. Tüm hakları saklıdır.</div>
+  </div>
+
+  <script>
+    // Uygulama versiyonunu göster
+    document.addEventListener('DOMContentLoaded', () => {
+      const versionElement = document.getElementById('app-version');
+      if (window.electron) {
+        versionElement.textContent = window.electron.getAppVersion() || '1.0.0';
+      }
+    });
+  </script>
+</body>
+</html> 

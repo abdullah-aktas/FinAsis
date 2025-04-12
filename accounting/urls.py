@@ -72,4 +72,31 @@ urlpatterns = [
     path('stok-hareketleri/ekle/', views.StockTransactionCreateView.as_view(), name='stock_transaction_create'),
     path('stok-hareketleri/<int:pk>/duzenle/', views.StockTransactionUpdateView.as_view(), name='stock_transaction_update'),
     path('stok-hareketleri/<int:pk>/sil/', views.StockTransactionDeleteView.as_view(), name='stock_transaction_delete'),
+    
+    # E-Belge URL'leri
+    path('e-belgeler/', views.EDocumentListView.as_view(), name='edocument_list'),
+    path('e-belge/<int:pk>/', views.EDocumentDetailView.as_view(), name='edocument_detail'),
+    path('fatura/<int:pk>/e-belge-olustur/', views.create_edocument, name='create_edocument'),
+    path('e-belge/<int:pk>/iptal/', views.cancel_edocument, name='cancel_edocument'),
+    path('e-belge/<int:pk>/durum-kontrol/', views.check_edocument_status, name='check_edocument_status'),
+    path('e-belge/<int:pk>/pdf-indir/', views.download_edocument_pdf, name='download_edocument_pdf'),
+    path('e-belge-ayarlari/', views.edocument_settings, name='edocument_settings'),
+    
+    # Günlük Görevler
+    path('gunluk-gorevler/', views.DailyTaskListView.as_view(), name='daily_task_list'),
+    path('gunluk-gorevler/<int:pk>/', views.DailyTaskDetailView.as_view(), name='daily_task_detail'),
+    path('gunluk-gorevler/ekle/', views.DailyTaskCreateView.as_view(), name='daily_task_create'),
+    path('gunluk-gorevler/<int:pk>/duzenle/', views.DailyTaskUpdateView.as_view(), name='daily_task_update'),
+    path('gunluk-gorevler/<int:pk>/sil/', views.DailyTaskDeleteView.as_view(), name='daily_task_delete'),
+    path('gunluk-gorevler/<int:pk>/tamamla/', views.CompleteTaskView.as_view(), name='daily_task_complete'),
+    
+    # Bilgi Bankası
+    path('bilgi-bankasi/', views.KnowledgeBaseListView.as_view(), name='knowledge_base_list'),
+    path('bilgi-bankasi/<int:pk>/', views.KnowledgeBaseDetailView.as_view(), name='knowledge_base_detail'),
+    path('bilgi-bankasi/ekle/', views.KnowledgeBaseCreateView.as_view(), name='knowledge_base_create'),
+    path('bilgi-bankasi/<int:pk>/duzenle/', views.KnowledgeBaseUpdateView.as_view(), name='knowledge_base_update'),
+    path('bilgi-bankasi/<int:pk>/sil/', views.KnowledgeBaseDeleteView.as_view(), name='knowledge_base_delete'),
+    
+    # Kullanıcı İstatistikleri
+    path('kullanici-istatistikleri/', views.UserStatsView.as_view(), name='user_statistics'),
 ] 

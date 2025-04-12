@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'whitenoise',
     'drf_yasg',
     'sslserver',  # SSL desteği için
+    'widget_tweaks',  # Form widget'ları için
     
     # Local apps
     'accounts.apps.AccountsConfig',
@@ -63,6 +64,9 @@ INSTALLED_APPS = [
     'education.apps.EducationConfig',
     'reporting.apps.ReportingConfig',  # Raporlama modülü
     'external_integrations.apps.ExternalIntegrationsConfig',  # Harici entegrasyonlar
+    'company_management',
+    'ursina_game',
+    'analytics',  # Analytics uygulamasını ekle
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -110,15 +114,11 @@ WSGI_APPLICATION = 'finasis.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'finasis'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'Miras.47'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'OPTIONS': {
-            'client_encoding': 'UTF8',
-            'options': '-c client_encoding=UTF8'
-        },
+        'NAME': 'finasis_db',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -277,22 +277,32 @@ LOGGING = {
     },
 }
 
-# Cache settings
+# Redis ve Celery ayarları
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Cache ayarları
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PARSER_CLASS': 'redis.connection.HiredisParser',
-            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
-            'CONNECTION_POOL_CLASS_KWARGS': {
-                'max_connections': 50,
-                'timeout': 20,
-            }
         }
     }
 }
+
+# Session ayarları
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # AI Assistant settings
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -317,8 +327,6 @@ SECURE_HSTS_PRELOAD = False
 USE_HTTPS = False
 
 # Session
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 86400  # 1 gün
 
 # E-Fatura Ayarları

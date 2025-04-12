@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.urls import reverse
+from django.templatetags.static import static
 
 # Create your views here.
 
@@ -90,28 +92,38 @@ def trade_trail(request):
 
 def trade_trail_3d(request):
     """
-    3D Ticaretin İzinde oyunu için view fonksiyonu.
-    Kullanıcılar Türkiye'nin farklı şehirlerinde ticaret yaparak finansal stratejiler geliştirir.
+    Ursina engine ile geliştirilmiş 3D ticaret simülasyonu oyununu başlatır.
     """
-    if request.method == 'POST':
-        # Oyun mantığı burada işlenecek
-        pass
+    from ursina_game.game import run_game
+    import threading
+    import sys
+    
+    # Oyunu ayrı bir thread'de başlat
+    def start_game_thread():
+        try:
+            run_game()
+        except Exception as e:
+            print(f"Oyun çalıştırılırken hata oluştu: {e}", file=sys.stderr)
+    
+    # Oyunu başlat
+    game_thread = threading.Thread(target=start_game_thread)
+    game_thread.daemon = True  # Ana thread sonlandığında bu thread de sonlanacak
+    game_thread.start()
     
     context = {
-        'title': 'Ticaretin İzinde 3D',
-        'description': 'Türkiye\'nin farklı şehirlerinde ticaret yaparak finansal stratejiler geliştirin.',
-        'initial_resources': {
-            'gold': 1000,
-            'goods': [],
-            'reputation': 0
-        },
-        'cities': [
-            {'name': 'Mardin', 'goods': ['Antik Eser', 'El Yapımı Halı', 'Baharat']},
-            {'name': 'Ankara', 'goods': ['Tiftik', 'Mobilya', 'Teknoloji']},
-            {'name': 'İzmir', 'goods': ['Zeytinyağı', 'İncir', 'Üzüm']},
-            {'name': 'Denizli', 'goods': ['Pamuk', 'Tekstil', 'Mermer']},
-            {'name': 'Erzurum', 'goods': ['Oltu Taşı', 'Bal', 'Peynir']},
-            {'name': 'Muş', 'goods': ['Kırmızı Mercimek', 'Bal', 'Yün']}
+        'title': '3D Ticaret Simülasyonu',
+        'description': 'Gerçekçi bir 3D ortamda ticaret ve borsa deneyimi yaşayın.',
+        'controls': [
+            {'key': 'W, A, S, D', 'action': 'Hareket etme'},
+            {'key': 'Mouse', 'action': 'Kamera kontrolü'},
+            {'key': 'Left Click', 'action': 'Şirket seçimi ve butonlara tıklama'},
+            {'key': 'ESC', 'action': 'Oyundan çıkış'}
+        ],
+        'tips': [
+            'Piyasa değişimlerini takip ederek alım-satım yapın.',
+            'Şirketlerin volatilitelerini göz önünde bulundurun.',
+            'Farklı sektörlere yatırım yaparak riskinizi dağıtın.',
+            'Günlük ekonomik haberleri takip edin.'
         ]
     }
     
@@ -259,3 +271,41 @@ def kobi_dashboard(request):
     }
     
     return render(request, 'game_app/kobi_dashboard.html', context)
+
+def games(request):
+    """
+    Oyunlar sayfasını gösterir.
+    """
+    context = {
+        'games': [
+            {
+                'title': 'Bütçe Planlama Mücadelesi',
+                'description': 'Kısıtlı bir bütçeyle işletmenizi büyütmeye çalışın ve finansal kararlar alın.',
+                'url': reverse('game_app:budget_challenge'),
+                'image': static('img/games/budget_challenge.jpg'),
+                'category': 'finans'
+            },
+            {
+                'title': 'Yatırım Simülatörü',
+                'description': 'Farklı yatırım araçlarını keşfedin ve portföy yönetimini öğrenin.',
+                'url': reverse('game_app:investment_simulator'),
+                'image': static('img/games/investment_simulator.jpg'),
+                'category': 'yatırım'
+            },
+            {
+                'title': 'Borsa Oyunu',
+                'description': 'Gerçek verilerle desteklenen sanal borsa ortamında alım-satım yapın.',
+                'url': reverse('game_app:stock_market'),
+                'image': static('img/games/stock_market.jpg'),
+                'category': 'borsa'
+            },
+            {
+                'title': 'Ticaret Yolu 3D',
+                'description': '3D dünyada ticaret stratejileri geliştirin ve küresel pazarı öğrenin.',
+                'url': reverse('game_app:trade_trail_3d'),
+                'image': static('img/games/trade_trail_3d.jpg'),
+                'category': 'ticaret'
+            }
+        ]
+    }
+    return render(request, 'game_app/games.html', context)

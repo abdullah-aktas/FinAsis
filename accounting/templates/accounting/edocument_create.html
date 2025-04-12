@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% translate "E-Belge Oluştur" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "E-Belge Oluştur" %}</h1>
+        <a href="{% url 'accounting:invoice_detail' invoice.id %}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left fa-sm"></i> {% translate "Faturaya Dön" %}
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Belge Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> {% translate "E-belge oluşturulduktan sonra iptal işlemi sadece belirli durumlarda yapılabilir." %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> {% translate "E-Belge Oluştur" %}
+                        </button>
+                        <a href="{% url 'accounting:invoice_detail' invoice.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> {% translate "İptal" %}
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Fatura Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <tr>
+                            <th width="30%">{% translate "Fatura No" %}</th>
+                            <td>{{ invoice.number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% translate "Tarih" %}</th>
+                            <td>{{ invoice.date|date:"d.m.Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% translate "Müşteri" %}</th>
+                            <td>{{ invoice.account.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% translate "VKN/TCKN" %}</th>
+                            <td>{{ invoice.account.tax_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% translate "Tutar" %}</th>
+                            <td>{{ invoice.total }} TL</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-info-circle fa-3x mb-3 text-info"></i>
+                        <h5>{% translate "Bilgilendirme" %}</h5>
+                        <p>
+                            {% if is_e_invoice_user %}
+                            {% translate "Müşteri e-fatura mükellefi olduğu için e-fatura oluşturulacaktır." %}
+                            {% else %}
+                            {% translate "Müşteri e-fatura mükellefi olmadığı için e-arşiv fatura oluşturulacaktır." %}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

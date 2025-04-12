@@ -103,3 +103,80 @@ class AIFeedback(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.model.name} - {self.rating}"
+
+class FinancialReport(models.Model):
+    """Finansal Raporlar"""
+    REPORT_TYPES = [
+        ('balance_sheet', 'Bilanço'),
+        ('income_statement', 'Gelir Tablosu'),
+        ('cash_flow', 'Nakit Akışı'),
+        ('budget', 'Bütçe'),
+        ('custom', 'Özel Rapor'),
+    ]
+
+    title = models.CharField(_('Rapor Başlığı'), max_length=255)
+    report_type = models.CharField(_('Rapor Tipi'), max_length=20, choices=REPORT_TYPES)
+    content = models.JSONField(_('Rapor İçeriği'))
+    parameters = models.JSONField(_('Rapor Parametreleri'), default=dict)
+    generated_by = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Finansal Rapor')
+        verbose_name_plural = _('Finansal Raporlar')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.get_report_type_display()}"
+
+class AnomalyDetection(models.Model):
+    """Anomali Tespiti"""
+    DETECTION_TYPES = [
+        ('transaction', 'İşlem Anomalisi'),
+        ('pattern', 'Örüntü Anomalisi'),
+        ('trend', 'Trend Anomalisi'),
+    ]
+
+    detection_type = models.CharField(_('Tespit Tipi'), max_length=20, choices=DETECTION_TYPES)
+    source_data = models.JSONField(_('Kaynak Veri'))
+    anomaly_score = models.FloatField(_('Anomali Skoru'))
+    description = models.TextField(_('Açıklama'))
+    is_resolved = models.BooleanField(_('Çözüldü mü?'), default=False)
+    resolution_notes = models.TextField(_('Çözüm Notları'), blank=True)
+    detected_by = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Anomali Tespiti')
+        verbose_name_plural = _('Anomali Tespitleri')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_detection_type_display()} - {self.created_at}"
+
+class TrendAnalysis(models.Model):
+    """Trend Analizi"""
+    ANALYSIS_TYPES = [
+        ('revenue', 'Gelir Trendi'),
+        ('expense', 'Gider Trendi'),
+        ('profit', 'Kâr Trendi'),
+        ('cash_flow', 'Nakit Akış Trendi'),
+    ]
+
+    analysis_type = models.CharField(_('Analiz Tipi'), max_length=20, choices=ANALYSIS_TYPES)
+    start_date = models.DateField(_('Başlangıç Tarihi'))
+    end_date = models.DateField(_('Bitiş Tarihi'))
+    trend_data = models.JSONField(_('Trend Verisi'))
+    prediction = models.JSONField(_('Tahmin Verisi'))
+    confidence_score = models.FloatField(_('Güven Skoru'))
+    insights = models.TextField(_('İçgörüler'))
+    analyzed_by = models.ForeignKey(AIModel, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Trend Analizi')
+        verbose_name_plural = _('Trend Analizleri')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_analysis_type_display()} ({self.start_date} - {self.end_date})"
