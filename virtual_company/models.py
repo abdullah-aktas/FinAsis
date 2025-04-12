@@ -1,19 +1,202 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
+
+User = get_user_model()
 
 class VirtualCompany(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-    capital = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-
-    def __str__(self):
-        return self.company_name
+    """Sanal şirket modeli"""
+    name = models.CharField(_('Şirket Adı'), max_length=255)
+    description = models.TextField(_('Açıklama'), blank=True)
+    logo = models.ImageField(_('Logo'), upload_to='virtual_companies/logos/', blank=True, null=True)
+    industry = models.CharField(_('Sektör'), max_length=100)
+    founded_date = models.DateField(_('Kuruluş Tarihi'))
+    website = models.URLField(_('Website'), blank=True)
+    email = models.EmailField(_('E-posta'))
+    phone = models.CharField(_('Telefon'), max_length=20)
+    address = models.TextField(_('Adres'))
+    tax_number = models.CharField(_('Vergi Numarası'), max_length=20)
+    tax_office = models.CharField(_('Vergi Dairesi'), max_length=100)
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_companies')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
-        verbose_name = 'Sanal Şirket'
-        verbose_name_plural = 'Sanal Şirketler'
+        verbose_name = _('Sanal Şirket')
+        verbose_name_plural = _('Sanal Şirketler')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+class Department(models.Model):
+    """Departman modeli"""
+    company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='departments')
+    name = models.CharField(_('Departman Adı'), max_length=100)
+    description = models.TextField(_('Açıklama'), blank=True)
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='managed_departments')
+    budget = models.DecimalField(_('Bütçe'), max_digits=15, decimal_places=2, default=0)
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Departman')
+        verbose_name_plural = _('Departmanlar')
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.company.name} - {self.name}"
+
+class Employee(models.Model):
+    """Çalışan modeli"""
+    ROLE_CHOICES = [
+        ('manager', _('Yönetici')),
+        ('employee', _('Çalışan')),
+        ('intern', _('Stajyer')),
+    ]
+
+    company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='employees')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='company_roles')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, related_name='employees')
+    role = models.CharField(_('Rol'), max_length=20, choices=ROLE_CHOICES)
+    position = models.CharField(_('Pozisyon'), max_length=100)
+    salary = models.DecimalField(_('Maaş'), max_digits=10, decimal_places=2)
+    hire_date = models.DateField(_('İşe Başlama Tarihi'))
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Çalışan')
+        verbose_name_plural = _('Çalışanlar')
+        ordering = ['user__username']
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.position}"
+
+class Project(models.Model):
+    """Proje modeli"""
+    STATUS_CHOICES = [
+        ('planned', _('Planlandı')),
+        ('in_progress', _('Devam Ediyor')),
+        ('completed', _('Tamamlandı')),
+        ('cancelled', _('İptal Edildi')),
+    ]
+
+    company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='projects')
+    name = models.CharField(_('Proje Adı'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='projects')
+    manager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, related_name='managed_projects')
+    start_date = models.DateField(_('Başlangıç Tarihi'))
+    end_date = models.DateField(_('Bitiş Tarihi'))
+    budget = models.DecimalField(_('Bütçe'), max_digits=15, decimal_places=2)
+    status = models.CharField(_('Durum'), max_length=20, choices=STATUS_CHOICES, default='planned')
+    progress = models.IntegerField(_('İlerleme'), validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Proje')
+        verbose_name_plural = _('Projeler')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.company.name} - {self.name}"
+
+class Task(models.Model):
+    """Görev modeli"""
+    PRIORITY_CHOICES = [
+        ('low', _('Düşük')),
+        ('medium', _('Orta')),
+        ('high', _('Yüksek')),
+        ('urgent', _('Acil')),
+    ]
+
+    STATUS_CHOICES = [
+        ('todo', _('Yapılacak')),
+        ('in_progress', _('Devam Ediyor')),
+        ('review', _('İncelemede')),
+        ('completed', _('Tamamlandı')),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(_('Başlık'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    assigned_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks')
+    priority = models.CharField(_('Öncelik'), max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    status = models.CharField(_('Durum'), max_length=20, choices=STATUS_CHOICES, default='todo')
+    start_date = models.DateField(_('Başlangıç Tarihi'))
+    due_date = models.DateField(_('Bitiş Tarihi'))
+    completed_date = models.DateField(_('Tamamlanma Tarihi'), null=True, blank=True)
+    progress = models.IntegerField(_('İlerleme'), validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Görev')
+        verbose_name_plural = _('Görevler')
+        ordering = ['priority', 'due_date']
+
+    def __str__(self):
+        return f"{self.project.name} - {self.title}"
+
+class Budget(models.Model):
+    """Bütçe modeli"""
+    TYPE_CHOICES = [
+        ('income', _('Gelir')),
+        ('expense', _('Gider')),
+    ]
+
+    company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='budgets')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='budgets')
+    type = models.CharField(_('Tür'), max_length=20, choices=TYPE_CHOICES)
+    amount = models.DecimalField(_('Miktar'), max_digits=15, decimal_places=2)
+    description = models.TextField(_('Açıklama'))
+    date = models.DateField(_('Tarih'))
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_budgets')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Bütçe')
+        verbose_name_plural = _('Bütçeler')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.company.name} - {self.get_type_display()} - {self.amount}"
+
+class Report(models.Model):
+    """Rapor modeli"""
+    TYPE_CHOICES = [
+        ('financial', _('Finansal')),
+        ('operational', _('Operasyonel')),
+        ('project', _('Proje')),
+        ('performance', _('Performans')),
+    ]
+
+    company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='reports')
+    title = models.CharField(_('Başlık'), max_length=255)
+    type = models.CharField(_('Tür'), max_length=20, choices=TYPE_CHOICES)
+    content = models.TextField(_('İçerik'))
+    file = models.FileField(_('Dosya'), upload_to='virtual_companies/reports/', blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_reports')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Rapor')
+        verbose_name_plural = _('Raporlar')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.company.name} - {self.title}"
 
 # Stok Yönetimi Modelleri
 class Product(models.Model):

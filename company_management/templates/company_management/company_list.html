@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Şirketler" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{% trans "Şirketler" %}</h1>
+        <a href="{% url 'company_management:company_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {% trans "Yeni Şirket" %}
+        </a>
+    </div>
+
+    <!-- Arama ve Filtreleme -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="{% trans 'Şirket ara...' %}" value="{{ search_query }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Şirket Listesi -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Logo" %}</th>
+                            <th>{% trans "Şirket Adı" %}</th>
+                            <th>{% trans "Vergi No" %}</th>
+                            <th>{% trans "E-posta" %}</th>
+                            <th>{% trans "Telefon" %}</th>
+                            <th>{% trans "Durum" %}</th>
+                            <th>{% trans "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        <tr>
+                            <td>
+                                {% if company.logo %}
+                                <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="company-logo" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="company-logo-placeholder">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'company_management:company_detail' company.pk %}" class="text-decoration-none">
+                                    {{ company.name }}
+                                </a>
+                            </td>
+                            <td>{{ company.tax_number }}</td>
+                            <td>{{ company.email }}</td>
+                            <td>{{ company.phone }}</td>
+                            <td>
+                                {% if company.is_active %}
+                                <span class="badge bg-success">{% trans "Aktif" %}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'company_management:company_detail' company.pk %}" class="btn btn-sm btn-info" title="{% trans 'Detay' %}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'company_management:company_edit' company.pk %}" class="btn btn-sm btn-warning" title="{% trans 'Düzenle' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'company_management:company_delete' company.pk %}" class="btn btn-sm btn-danger" title="{% trans 'Sil' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                {% trans "Henüz şirket bulunmuyor." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sayfalama -->
+            {% if companies.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if companies.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ companies.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in companies.paginator.page_range %}
+                    <li class="page-item {% if companies.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if companies.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ companies.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .company-logo-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+    .company-logo-placeholder i {
+        color: #6c757d;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %} 

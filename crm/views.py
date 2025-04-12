@@ -3,67 +3,117 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Prefetch, Count, Sum
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseForbidden
+from django.db import transaction
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
 from .models import Customer, Contact, Opportunity, Activity, Document
 from .forms import CustomerForm, ContactForm, OpportunityForm, ActivityForm, DocumentForm
 
+def check_object_permission(user, obj):
+    """Kullanıcının nesne üzerinde işlem yapma yetkisini kontrol eder."""
+    if hasattr(obj, 'assigned_to'):
+        return user == obj.assigned_to or user.is_staff
+    return user.is_staff
+
 # Müşteri view'ları
 @login_required
+@cache_page(60 * 15)  # 15 dakika cache
 def customer_list(request):
-    search_query = request.GET.get('search', '')
-    customers = Customer.objects.all()
-    
-    if search_query:
-        customers = customers.filter(
-            Q(name__icontains=search_query) |
-            Q(tax_number__icontains=search_query) |
-            Q(email__icontains=search_query)
+    try:
+        search_query = request.GET.get('search', '')
+        customers = Customer.objects.select_related('created_by').prefetch_related(
+            Prefetch('contacts', queryset=Contact.objects.select_related('customer')),
+            Prefetch('opportunities', queryset=Opportunity.objects.select_related('customer'))
+        ).annotate(
+            contact_count=Count('contacts'),
+            opportunity_count=Count('opportunities'),
+            total_opportunity_value=Sum('opportunities__value')
         )
-    
-    paginator = Paginator(customers, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'page_obj': page_obj,
-        'search_query': search_query,
-    }
-    return render(request, 'crm/customer_list.html', context)
+        
+        if search_query:
+            customers = customers.filter(
+                Q(name__icontains=search_query) |
+                Q(tax_number__icontains=search_query) |
+                Q(email__icontains=search_query)
+            )
+        
+        paginator = Paginator(customers, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        context = {
+            'page_obj': page_obj,
+            'search_query': search_query,
+        }
+        return render(request, 'crm/customer_list.html', context)
+    except Exception as e:
+        messages.error(request, _('Müşteri listesi alınırken bir hata oluştu.'))
+        return redirect('home')
 
 @login_required
 def customer_detail(request, pk):
-    customer = get_object_or_404(Customer, pk=pk)
-    contacts = customer.contacts.all()
-    opportunities = customer.opportunities.all()
-    activities = customer.activities.all()
-    documents = customer.documents.all()
-    
-    context = {
-        'customer': customer,
-        'contacts': contacts,
-        'opportunities': opportunities,
-        'activities': activities,
-        'documents': documents,
-    }
-    return render(request, 'crm/customer_detail.html', context)
+    try:
+        cache_key = f'customer_detail_{pk}'
+        customer_data = cache.get(cache_key)
+        
+        if customer_data is None:
+            customer = get_object_or_404(Customer.objects.select_related(
+                'created_by'
+            ).prefetch_related(
+                Prefetch('contacts', queryset=Contact.objects.select_related('customer')),
+                Prefetch('opportunities', queryset=Opportunity.objects.select_related('customer')),
+                Prefetch('activities', queryset=Activity.objects.select_related('customer')),
+                Prefetch('documents', queryset=Document.objects.select_related('customer'))
+            ), pk=pk)
+            
+            if not check_object_permission(request.user, customer):
+                raise PermissionDenied
+                
+            customer_data = {
+                'customer': customer,
+                'contacts': customer.contacts.all(),
+                'opportunities': customer.opportunities.all(),
+                'activities': customer.activities.all(),
+                'documents': customer.documents.all(),
+            }
+            cache.set(cache_key, customer_data, 60 * 5)  # 5 dakika cache
+        
+        return render(request, 'crm/customer_detail.html', customer_data)
+    except PermissionDenied:
+        messages.error(request, _('Bu işlem için yetkiniz bulunmamaktadır.'))
+        return HttpResponseForbidden()
+    except Exception as e:
+        messages.error(request, _('Müşteri detayları alınırken bir hata oluştu.'))
+        return redirect('crm:customer_list')
 
 @login_required
+@transaction.atomic
 def customer_create(request):
-    if request.method == 'POST':
-        form = CustomerForm(request.POST)
-        if form.is_valid():
-            customer = form.save()
-            messages.success(request, _('Müşteri başarıyla oluşturuldu.'))
-            return redirect('crm:customer_detail', pk=customer.pk)
-    else:
-        form = CustomerForm()
-    
-    context = {
-        'form': form,
-        'title': _('Yeni Müşteri'),
-    }
-    return render(request, 'crm/customer_form.html', context)
+    try:
+        if request.method == 'POST':
+            form = CustomerForm(request.POST)
+            if form.is_valid():
+                customer = form.save(commit=False)
+                customer.created_by = request.user
+                customer.save()
+                messages.success(request, _('Müşteri başarıyla oluşturuldu.'))
+                return redirect('crm:customer_detail', pk=customer.pk)
+        else:
+            form = CustomerForm()
+        
+        context = {
+            'form': form,
+            'title': _('Yeni Müşteri'),
+        }
+        return render(request, 'crm/customer_form.html', context)
+    except Exception as e:
+        messages.error(request, _('Müşteri oluşturulurken bir hata oluştu.'))
+        return redirect('crm:customer_list')
 
 @login_required
 def customer_update(request, pk):

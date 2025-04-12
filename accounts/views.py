@@ -2,8 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.models import User
-from .forms import UserRegistrationForm
 from django.contrib.auth.views import (
     PasswordResetView,
     PasswordResetDoneView,
@@ -12,6 +10,8 @@ from django.contrib.auth.views import (
 )
 from django.urls import reverse_lazy
 from django.conf import settings
+from .forms import UserRegistrationForm, UserUpdateForm
+from .models import User
 
 def login_view(request):
     """Kullanıcı girişi görünümü"""
@@ -65,7 +65,21 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html')
+    """Kullanıcı profili görünümü"""
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profiliniz başarıyla güncellendi.')
+            return redirect('accounts:profile')
+    else:
+        form = UserUpdateForm(instance=request.user)
+    
+    context = {
+        'form': form,
+        'user': request.user
+    }
+    return render(request, 'accounts/profile.html', context)
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
