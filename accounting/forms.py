@@ -3,7 +3,7 @@ from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from .models import (
     Account, Invoice, InvoiceLine,
-    Transaction, TransactionLine, Bank, Stock, StockTransaction, ChartOfAccounts, CashBox, EDocument, EDocumentSettings, DailyTask, KnowledgeBase
+    Transaction, TransactionLine, Bank, Stock, StockTransaction, ChartOfAccounts, CashBox, EDocument, EDocumentSettings, DailyTask, KnowledgeBase, KnowledgeBaseRelatedItem
 )
 
 class AccountForm(forms.ModelForm):
@@ -370,4 +370,24 @@ class KnowledgeBaseFilterForm(forms.Form):
         label=_('Ara'),
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _('Başlık, içerik...')})
-    ) 
+    )
+
+class TaskResourceForm(forms.ModelForm):
+    """Görev kaynağı formu"""
+    class Meta:
+        model = KnowledgeBaseRelatedItem
+        fields = ['title', 'description', 'url', 'resource_type']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'url': forms.URLInput(attrs={'class': 'form-control'}),
+            'resource_type': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+TaskResourceFormSet = inlineformset_factory(
+    DailyTask,
+    KnowledgeBaseRelatedItem,
+    form=TaskResourceForm,
+    extra=1,
+    can_delete=True
+) 

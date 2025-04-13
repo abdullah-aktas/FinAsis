@@ -6,7 +6,8 @@ app_name = 'accounting'
 urlpatterns = [
     # Ana Sayfa
     path('', views.dashboard, name='dashboard'),
-    
+    path('...', views.some_view, name='some_view_name'),
+
     # Hesap Planı URL'leri
     path('hesap-plani/', views.ChartOfAccountsListView.as_view(), name='chart_of_accounts_list'),
     path('hesap-plani/<int:pk>/', views.ChartOfAccountsDetailView.as_view(), name='chart_of_accounts_detail'),

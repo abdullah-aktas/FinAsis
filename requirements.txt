@@ -1,5 +1,5 @@
 # Temel Django paketleri
-Django>=5.0.2
+Django==5.0.2
 djangorestframework>=3.14.0
 djangorestframework-simplejwt>=5.3.0
 django-cors-headers>=4.3.0
@@ -61,7 +61,19 @@ coverage>=7.3.2
 factory-boy>=3.3.0
 
 # Diğer Paketler
-python-dotenv>=1.0.1
+python-dotenv==1.0.0
 openai>=1.12.0
 web3>=6.15.1
-requests>=2.31.0 
+requests==2.31.0
+
+# Kivy paketleri
+kivy==2.2.1
+kivymd==1.1.1
+kivy-garden.graph==0.4.0
+
+# Masaüstü Uygulaması
+PyQt6>=6.6.1
+PyQt6-Qt6>=6.6.1
+PyQt6-sip>=13.6.0
+SQLAlchemy>=2.0.27
+alembic>=1.13.1 

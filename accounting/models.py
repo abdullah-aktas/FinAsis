@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from virtual_company.models import VirtualCompany
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 import uuid
 from django.core.validators import MinValueValidator
@@ -112,6 +112,10 @@ class Invoice(BaseModel):
     recipient_vkn_tckn = models.CharField(_('VKN/TCKN'), max_length=11, blank=True, null=True)
     recipient_tax_office = models.CharField(_('Vergi Dairesi'), max_length=100, blank=True, null=True)
     recipient_email = models.EmailField(_('E-Posta'), blank=True, null=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.lines = None
 
     def __str__(self):
         return f"{self.number} - {self.account.name}"
@@ -409,6 +413,7 @@ class EDocumentSettings(BaseModel):
     email = models.EmailField(_('E-posta'), blank=True, null=True)
     
     integration_type = models.CharField(_('Entegrasyon Tipi'), max_length=20, choices=INTEGRATION_TYPE_CHOICES)
+    api_url = models.URLField(_('API URL'), blank=True, null=True)
     service_url = models.URLField(_('Servis URL'), blank=True, null=True)
     api_key = models.CharField(_('API Anahtarı'), max_length=255, blank=True, null=True)
     username = models.CharField(_('Kullanıcı Adı'), max_length=100, blank=True, null=True)
@@ -444,6 +449,7 @@ class EDocumentSettings(BaseModel):
             'address': self.address,
             'phone': self.phone,
             'email': self.email,
+            'api_url': self.api_url,
             'service_url': self.service_url,
             'api_key': self.api_key,
             'username': self.username,
@@ -563,6 +569,28 @@ class DailyTask(models.Model):
         ('intermediate', _('Orta')),
         ('advanced', _('İleri')),
     )
+
+    STATUS_CHOICES = (
+        ('pending', _('Beklemede')),
+        ('in_progress', _('Devam Ediyor')),
+        ('completed', _('Tamamlandı')),
+        ('canceled', _('İptal Edildi')),
+    )
+
+    PRIORITY_CHOICES = (
+        ('low', _('Düşük')),
+        ('medium', _('Orta')),
+        ('high', _('Yüksek')),
+        ('urgent', _('Acil')),
+    )
+
+    TASK_TYPE_CHOICES = (
+        ('invoice', _('Fatura')),
+        ('tax', _('Vergi')),
+        ('report', _('Rapor')),
+        ('document', _('Belge')),
+        ('other', _('Diğer')),
+    )
     
     title = models.CharField(_('Başlık'), max_length=255)
     description = models.TextField(_('Açıklama'))
@@ -580,6 +608,16 @@ class DailyTask(models.Model):
     knowledge_required = models.ManyToManyField('KnowledgeBase', related_name='related_tasks', blank=True)
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    # Yeni eklenen alanlar
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tasks', verbose_name=_('Atanan Kişi'))
+    status = models.CharField(_('Durum'), max_length=20, choices=STATUS_CHOICES, default='pending')
+    priority = models.CharField(_('Öncelik'), max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    task_type = models.CharField(_('Görev Tipi'), max_length=20, choices=TASK_TYPE_CHOICES, default='other')
+    due_date = models.DateTimeField(_('Son Tarih'), null=True, blank=True)
+    reminder_date = models.DateTimeField(_('Hatırlatma Tarihi'), null=True, blank=True)
+    invoice = models.ForeignKey('Invoice', on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks', verbose_name=_('İlgili Fatura'))
+    e_document = models.ForeignKey('EDocument', on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks', verbose_name=_('İlgili E-Belge'))
     
     class Meta:
         verbose_name = _('Günlük Görev')
@@ -680,6 +718,14 @@ class KnowledgeBaseRelatedItem(models.Model):
         related_name='related_items',
         verbose_name=_('Bilgi Bankası')
     )
+    task = models.ForeignKey(
+        DailyTask,
+        on_delete=models.CASCADE,
+        related_name='resources',
+        verbose_name=_('Görev'),
+        null=True,
+        blank=True
+    )
     title = models.CharField(_('Başlık'), max_length=255)
     description = models.TextField(_('Açıklama'), blank=True, null=True)
     url = models.URLField(_('URL'), blank=True, null=True)
@@ -698,6 +744,8 @@ class KnowledgeBaseRelatedItem(models.Model):
         ordering = ['order', 'created_at']
     
     def __str__(self):
+        if self.task:
+            return f"{self.task.title} - {self.title}"
         return f"{self.knowledge_base.title} - {self.title}"
 
 class UserKnowledgeRead(models.Model):
@@ -787,3 +835,126 @@ class CashFlow(BaseModel):
 
     def __str__(self):
         return f"{self.date} - {self.get_type_display()} - {self.amount} {self.currency}"
+
+    def get_type_display(self):
+        pass
+
+class Tax(BaseModel):
+    """Vergi"""
+    name = models.CharField(max_length=100, verbose_name="Vergi Adı")
+    code = models.CharField(max_length=20, unique=True, verbose_name="Vergi Kodu")
+    rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Vergi Oranı (%)")
+    type = models.CharField(max_length=20, choices=[
+        ('kdv', 'KDV'),
+        ('otv', 'ÖTV'),
+        ('damga', 'Damga Vergisi'),
+        ('diger', 'Diğer'),
+    ], verbose_name="Vergi Türü")
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+
+    def __str__(self):
+        return f"{self.name} ({self.rate}%)"
+
+    class Meta:
+        verbose_name = 'Vergi'
+        verbose_name_plural = 'Vergiler'
+        ordering = ['code']
+
+class Currency(BaseModel):
+    """Para Birimi"""
+    code = models.CharField(max_length=3, unique=True, verbose_name="Para Birimi Kodu")
+    name = models.CharField(max_length=50, verbose_name="Para Birimi Adı")
+    symbol = models.CharField(max_length=5, verbose_name="Sembol")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+    is_default = models.BooleanField(default=False, verbose_name="Varsayılan mı?")
+    decimal_places = models.IntegerField(default=2, verbose_name="Ondalık Basamak")
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        verbose_name = 'Para Birimi'
+        verbose_name_plural = 'Para Birimleri'
+        ordering = ['code']
+
+class ExchangeRate(BaseModel):
+    """Döviz Kuru"""
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='exchange_rates', verbose_name="Para Birimi")
+    date = models.DateField(verbose_name="Tarih")
+    rate = models.DecimalField(max_digits=10, decimal_places=4, verbose_name="Kur")
+    source = models.CharField(max_length=50, verbose_name="Kaynak")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+
+    def __str__(self):
+        return f"{self.currency.code} - {self.date} - {self.rate}"
+
+    class Meta:
+        verbose_name = 'Döviz Kuru'
+        verbose_name_plural = 'Döviz Kurları'
+        ordering = ['-date', 'currency']
+        unique_together = ['currency', 'date']
+
+class BudgetCategory(BaseModel):
+    """Bütçe Kategorisi"""
+    name = models.CharField(max_length=100, verbose_name="Kategori Adı")
+    code = models.CharField(max_length=20, unique=True, verbose_name="Kategori Kodu")
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children', verbose_name="Üst Kategori")
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        verbose_name = 'Bütçe Kategorisi'
+        verbose_name_plural = 'Bütçe Kategorileri'
+        ordering = ['code']
+
+class TaskCategory(BaseModel):
+    """Görev Kategorisi"""
+    name = models.CharField(max_length=100, verbose_name="Kategori Adı")
+    code = models.CharField(max_length=20, unique=True, verbose_name="Kategori Kodu")
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children', verbose_name="Üst Kategori")
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    class Meta:
+        verbose_name = 'Görev Kategorisi'
+        verbose_name_plural = 'Görev Kategorileri'
+        ordering = ['code']
+
+class TaskCompletion(BaseModel):
+    """Görev Tamamlama"""
+    task = models.ForeignKey(DailyTask, on_delete=models.CASCADE, related_name='completions', verbose_name="Görev")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='task_completions', verbose_name="Kullanıcı")
+    completed_at = models.DateTimeField(auto_now_add=True, verbose_name="Tamamlanma Tarihi")
+    notes = models.TextField(blank=True, null=True, verbose_name="Notlar")
+    points_earned = models.PositiveIntegerField(default=0, verbose_name="Kazanılan Puanlar")
+
+    def __str__(self):
+        return f"{self.task.title} - {self.user.username}"
+
+    class Meta:
+        verbose_name = 'Görev Tamamlama'
+        verbose_name_plural = 'Görev Tamamlamaları'
+        ordering = ['-completed_at']
+
+class TaskNote(BaseModel):
+    """Görev Notu"""
+    task = models.ForeignKey(DailyTask, on_delete=models.CASCADE, related_name='notes', verbose_name="Görev")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='task_notes', verbose_name="Kullanıcı")
+    content = models.TextField(verbose_name="İçerik")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")
+
+    def __str__(self):
+        return f"{self.task.title} - {self.user.username}"
+
+    class Meta:
+        verbose_name = 'Görev Notu'
+        verbose_name_plural = 'Görev Notları'
+        ordering = ['-created_at']

@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'education.apps.EducationConfig',
     'reporting.apps.ReportingConfig',  # Raporlama modülü
     'external_integrations.apps.ExternalIntegrationsConfig',  # Harici entegrasyonlar
-    'company_management',
+    'company_management.apps.CompanyManagementConfig',  # Şirket yönetimi
     'ursina_game',
     'analytics',  # Analytics uygulamasını ekle
 ]

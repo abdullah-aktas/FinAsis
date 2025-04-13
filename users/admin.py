@@ -23,3 +23,6 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'username', 'password1', 'password2'),
         }),
     )
+class AIModelAdmin(admin.ModelAdmin):
+    readonly_fields = ('last_trained',)
+    exclude = ('last_trained',)

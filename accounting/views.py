@@ -24,7 +24,7 @@ from django.views.decorators.http import require_POST
 from django.utils.translation import gettext_lazy as _
 from .services import EDocumentService
 from django.template.loader import render_to_string
-from django.contrib import transaction
+from django.db import transaction
 import os
 import mimetypes
 from datetime import datetime
