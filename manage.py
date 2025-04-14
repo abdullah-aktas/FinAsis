@@ -8,7 +8,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
-from kivy.garden.graph import Graph, MeshLinePlot
+from kivy_garden.graph import Graph, MeshLinePlot
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.lang import Builder

@@ -49,4 +49,13 @@ urlpatterns = [
     # E-fatura ve muhasebe entegrasyonu
     path('customers/<int:pk>/check-einvoice/', views.check_customer_einvoice, name='check_customer_einvoice'),
     path('customers/<int:pk>/sync-accounting/', views.sync_customer_accounting, name='sync_customer_accounting'),
+    path('analytics/', views.analytics_dashboard, name='analytics_dashboard'),
+    
+    # Kampanya URL'leri
+    path('campaigns/', views.campaign_list, name='campaign_list'),
+    path('campaigns/create/', views.campaign_create, name='campaign_create'),
+    path('campaigns/<int:pk>/', views.campaign_detail, name='campaign_detail'),
+    path('campaigns/<int:pk>/update/', views.campaign_update, name='campaign_update'),
+    path('campaigns/<int:pk>/delete/', views.campaign_delete, name='campaign_delete'),
+    path('campaigns/<int:pk>/performance/', views.campaign_performance, name='campaign_performance'),
 ] 

@@ -115,11 +115,32 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'finasis_db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': 'finasis_user',
+        'PASSWORD': 'finasis_password',
         'HOST': 'localhost',
         'PORT': '5432',
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
+}
+
+# Veritabanı bağlantı havuzu ayarları
+DB_POOL_SETTINGS = {
+    'MIN_SIZE': 5,
+    'MAX_SIZE': 20,
+    'STARTUP': True,
+    'RECYCLE': 300,
+    'TIMEOUT': 30,
+}
+
+# Veritabanı performans optimizasyonları
+DATABASE_OPTIMIZATIONS = {
+    'CONN_HEALTH_CHECKS': True,
+    'CONN_MAX_AGE': 600,
+    'ATOMIC_REQUESTS': False,
+    'AUTOCOMMIT': True,
 }
 
 # Karakter kodlaması ayarları

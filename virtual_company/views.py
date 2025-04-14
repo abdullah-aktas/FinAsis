@@ -5,13 +5,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils.translation import gettext_lazy as _
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, F
 from django.core.cache import cache
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from .models import (
     Product, StockMovement, ProductionOrder, BillOfMaterials, QualityControl,
     VirtualCompany, Department, Employee, Project,

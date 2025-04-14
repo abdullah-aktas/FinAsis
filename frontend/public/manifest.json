@@ -1,6 +1,6 @@
 {
   "short_name": "FinAsis",
-  "name": "FinAsis - Finansal Yönetim ve Eğitim Platformu",
+  "name": "FinAsis - Finansal Asistan",
   "icons": [
     {
       "src": "favicon.ico",
@@ -21,5 +21,10 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "description": "FinAsis - Kapsamlı Finansal Yönetim Sistemi",
+  "dir": "ltr",
+  "lang": "tr-TR",
+  "prefer_related_applications": false
 } 

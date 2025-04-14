@@ -11,7 +11,8 @@ django-environ>=0.12.0
 # Veritabanı ve Önbellek
 redis>=5.0.1
 django-redis>=5.4.0
-psycopg2-binary>=2.9.9
+psycopg2-binary==2.9.9
+django-db-connection-pool==1.2.3
 
 # Geliştirme Araçları
 pytest>=7.4.3

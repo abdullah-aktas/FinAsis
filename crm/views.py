@@ -17,10 +17,11 @@ import decimal
 import logging
 import requests
 from datetime import datetime
+from django.utils import timezone
 
-from .models import Customer, Contact, Opportunity, Activity, Document, Sale, Report, SaleItem, EDocumentStatus
+from .models import Customer, Contact, Opportunity, Activity, Document, Sale, Report, SaleItem, EDocumentStatus, CustomerAcquisitionAnalytics, Campaign, CampaignUsage, ReferralProgram, PremiumPackage, ConsultingService, TrainingProgram, APIPricing, ServiceSubscription
 from .forms import CustomerForm, ContactForm, OpportunityForm, ActivityForm, DocumentForm, SaleForm, ReportForm
-from .services import EDocumentService, AccountingIntegrationService
+from .services import EDocumentService, AccountingIntegrationService, CustomerAcquisitionService, CustomerAnalyticsService, CampaignService
 
 def check_object_permission(user, obj):
     """Kullanıcının nesne üzerinde işlem yapma yetkisini kontrol eder."""
@@ -1143,6 +1144,170 @@ def sync_customer_accounting(request, pk):
         messages.error(request, _('Müşteri muhasebe entegrasyonu başarısız: {}').format(str(e)))
     
     return redirect('customer_detail', pk=pk)
+
+@login_required
+def acquisition_dashboard(request):
+    """Müşteri edinme stratejileri dashboard'u"""
+    
+    # Servis örneği oluştur
+    acquisition_service = CustomerAcquisitionService()
+    
+    # Son 30 günlük metrikleri al
+    metrics = acquisition_service.get_acquisition_metrics()
+    
+    # Kanal metriklerini al
+    channel_metrics = CustomerAcquisitionAnalytics.objects.all()
+    
+    # Grafik için veri hazırla
+    channel_labels = [channel.get_channel_display() for channel in channel_metrics]
+    channel_data = [channel.total_customers for channel in channel_metrics]
+    
+    context = {
+        'total_customers': metrics['total_customers'],
+        'conversion_rate': metrics['conversion_rate'],
+        'acquisition_cost': metrics['acquisition_cost'],
+        'lifetime_value': sum(c.average_lifetime_value for c in channel_metrics) / len(channel_metrics) if channel_metrics else 0,
+        'channel_metrics': channel_metrics,
+        'channel_labels': json.dumps(channel_labels),
+        'channel_data': json.dumps(channel_data)
+    }
+    
+    return render(request, 'crm/acquisition_dashboard.html', context)
+
+@login_required
+def analytics_dashboard(request):
+    analytics_service = CustomerAnalyticsService()
+    
+    context = {
+        'value_segments': analytics_service.get_detailed_customer_segments()['value_segments'],
+        'behavior_segments': analytics_service.get_detailed_customer_segments()['behavior_segments'],
+        'demographic_segments': analytics_service.get_detailed_customer_segments()['demographic_segments'],
+        'engagement_segments': analytics_service.get_detailed_customer_segments()['engagement_segments'],
+        'market_analysis': analytics_service.get_market_analysis(),
+        'competitor_analysis': analytics_service.get_competitor_analysis(),
+        'predictive_analytics': analytics_service.get_predictive_analytics(),
+        'revenue_forecast': {
+            'labels': ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'],
+            'data': [10000, 12000, 15000, 14000, 16000, 18000]
+        }
+    }
+    
+    return render(request, 'crm/analytics_dashboard.html', context)
+
+@login_required
+def campaign_list(request):
+    """Kampanya listesini görüntüler"""
+    campaign_service = CampaignService()
+    active_campaigns = campaign_service.get_active_campaigns()
+    expired_campaigns = campaign_service.get_expired_campaigns()
+    
+    context = {
+        'active_campaigns': active_campaigns,
+        'expired_campaigns': expired_campaigns,
+    }
+    return render(request, 'crm/campaign_list.html', context)
+
+@login_required
+def campaign_detail(request, pk):
+    """Kampanya detaylarını görüntüler"""
+    campaign = get_object_or_404(Campaign, pk=pk)
+    campaign_service = CampaignService()
+    performance = campaign_service.get_campaign_performance(campaign)
+    
+    context = {
+        'campaign': campaign,
+        'performance': performance,
+    }
+    return render(request, 'crm/campaign_detail.html', context)
+
+@login_required
+def campaign_create(request):
+    """Yeni kampanya oluşturur"""
+    campaign_service = CampaignService()
+    
+    if request.method == 'POST':
+        campaign_type = request.POST.get('campaign_type')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        
+        try:
+            if campaign_type == 'student':
+                campaign = campaign_service.create_student_campaign(start_date, end_date)
+            elif campaign_type == 'startup':
+                campaign = campaign_service.create_startup_campaign(start_date, end_date)
+            elif campaign_type == 'referral':
+                campaign = campaign_service.create_referral_campaign(start_date, end_date)
+            else:
+                messages.error(request, 'Geçersiz kampanya tipi')
+                return redirect('campaign_list')
+            
+            messages.success(request, 'Kampanya başarıyla oluşturuldu')
+            return redirect('campaign_detail', pk=campaign.pk)
+            
+        except Exception as e:
+            messages.error(request, f'Kampanya oluşturulurken hata oluştu: {str(e)}')
+            return redirect('campaign_list')
+    
+    return render(request, 'crm/campaign_form.html')
+
+@login_required
+def campaign_update(request, pk):
+    """Kampanya bilgilerini günceller"""
+    campaign = get_object_or_404(Campaign, pk=pk)
+    
+    if request.method == 'POST':
+        try:
+            campaign.name = request.POST.get('name')
+            campaign.description = request.POST.get('description')
+            campaign.start_date = request.POST.get('start_date')
+            campaign.end_date = request.POST.get('end_date')
+            campaign.status = request.POST.get('status')
+            campaign.save()
+            
+            messages.success(request, 'Kampanya başarıyla güncellendi')
+            return redirect('campaign_detail', pk=campaign.pk)
+            
+        except Exception as e:
+            messages.error(request, f'Kampanya güncellenirken hata oluştu: {str(e)}')
+            return redirect('campaign_detail', pk=campaign.pk)
+    
+    context = {
+        'campaign': campaign,
+    }
+    return render(request, 'crm/campaign_form.html', context)
+
+@login_required
+def campaign_delete(request, pk):
+    """Kampanyayı siler"""
+    campaign = get_object_or_404(Campaign, pk=pk)
+    
+    if request.method == 'POST':
+        try:
+            campaign.delete()
+            messages.success(request, 'Kampanya başarıyla silindi')
+            return redirect('campaign_list')
+            
+        except Exception as e:
+            messages.error(request, f'Kampanya silinirken hata oluştu: {str(e)}')
+            return redirect('campaign_detail', pk=campaign.pk)
+    
+    context = {
+        'campaign': campaign,
+    }
+    return render(request, 'crm/campaign_confirm_delete.html', context)
+
+@login_required
+def campaign_performance(request, pk):
+    """Kampanya performans analizini görüntüler"""
+    campaign = get_object_or_404(Campaign, pk=pk)
+    campaign_service = CampaignService()
+    performance = campaign_service.get_campaign_performance(campaign)
+    
+    context = {
+        'campaign': campaign,
+        'performance': performance,
+    }
+    return render(request, 'crm/campaign_performance.html', context)
 
 class DecimalEncoder(json.JSONEncoder):
     """Decimal türündeki değerleri JSON'a dönüştürmek için encoder"""

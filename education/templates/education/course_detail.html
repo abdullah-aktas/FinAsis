@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'education:course_list' %}">Kurslar</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                {% if course.image %}
+                <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
+                {% else %}
+                <img src="{% static 'education/images/default-course.jpg' %}" class="card-img-top" alt="Varsayılan Kurs Görseli">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h1 class="card-title">{{ course.title }}</h1>
+                    <p class="card-text">{{ course.description }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-chalkboard-teacher"></i> Eğitmen: {{ course.teacher.get_full_name }}
+                            </small>
+                        </div>
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-users"></i> {{ course.enrolled_students.count }} Öğrenci
+                            </small>
+                        </div>
+                    </div>
+
+                    {% if user == course.teacher %}
+                    <div class="mb-4">
+                        <a href="{% url 'education:edit_course' course.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Kursu Düzenle
+                        </a>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteCourseModal">
+                            <i class="fas fa-trash"></i> Kursu Sil
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Dersler</h5>
+                    {% if user == course.teacher %}
+                    <a href="{% url 'education:create_lesson' course.id %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Yeni Ders Ekle
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for lesson in course.lessons.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ lesson.title }}</h6>
+                                <small class="text-muted">{{ lesson.description|truncatewords:20 }}</small>
+                            </div>
+                            <div>
+                                {% if lesson.completed %}
+                                <span class="badge badge-success"><i class="fas fa-check"></i> Tamamlandı</span>
+                                {% endif %}
+                                <a href="{% url 'education:lesson_detail' lesson.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-arrow-right"></i> Derse Git
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item text-center text-muted">
+                        Bu kursta henüz ders bulunmuyor.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Kurs İlerlemesi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%">
+                            {{ progress }}%
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <p>{{ completed_lessons }} / {{ total_lessons }} Ders Tamamlandı</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if not user == course.teacher %}
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if is_enrolled %}
+                    <button class="btn btn-danger btn-block" data-toggle="modal" data-target="#unenrollModal">
+                        Kurstan Ayrıl
+                    </button>
+                    {% else %}
+                    <form method="post" action="{% url 'education:enroll_course' course.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-block">Kursa Katıl</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user == course.teacher %}
+<!-- Kurs Silme Modal -->
+<div class="modal fade" id="deleteCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kursu Sil</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bu kursu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                <form method="post" action="{% url 'education:delete_course' course.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Kursu Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if is_enrolled %}
+<!-- Kurstan Ayrılma Modal -->
+<div class="modal fade" id="unenrollModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kurstan Ayrıl</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bu kurstan ayrılmak istediğinizden emin misiniz? Tüm ilerlemeniz kaydedilecektir.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                <form method="post" action="{% url 'education:unenroll_course' course.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Kurstan Ayrıl</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 
