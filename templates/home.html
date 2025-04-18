@@ -18,8 +18,16 @@
                 <p class="hero-subtitle">FinAsis ile muhasebe, finans ve eğitim ihtiyaçlarınızı tek platformda yönetin.</p>
                 <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">Hemen Başlayın</a>
             </div>
-            <div class="col-lg-6">
-                <img src="{% static 'img/hero-image.png' %}" alt="FinAsis Platform" class="img-fluid">
+            <div class="col-lg-6 text-center">
+                <div class="hero-illustration">
+                    <i class="fas fa-chart-line fa-5x mb-3"></i>
+                    <i class="fas fa-calculator fa-4x mx-4"></i>
+                    <i class="fas fa-coins fa-5x"></i>
+                    <div class="mt-4">
+                        <i class="fas fa-graduation-cap fa-4x mx-3"></i>
+                        <i class="fas fa-robot fa-4x mx-3"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -153,8 +161,9 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: url('{% static "img/pattern.png" %}') repeat;
-        opacity: 0.1;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 5%, transparent 8%);
+        background-size: 25px 25px;
+        opacity: 0.2;
     }
     
     .hero-content {
@@ -172,6 +181,11 @@
         font-size: 1.25rem;
         opacity: 0.9;
         margin-bottom: 2rem;
+    }
+    
+    .hero-illustration {
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     }
     
     .feature-card {

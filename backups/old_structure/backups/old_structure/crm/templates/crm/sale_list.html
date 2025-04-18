@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% translate "Satışlar" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "Satışlar" %}</h1>
+        <a href="{% url 'crm:sale_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> {% translate "Yeni Satış" %}
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Satış Listesi" %}</h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                    <div class="dropdown-header">{% translate "İşlemler" %}:</div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#filterModal">
+                        <i class="fas fa-filter fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {% translate "Filtrele" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'crm:sale_list' %}?export=csv">
+                        <i class="fas fa-download fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {% translate "CSV İndir" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="salesTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Numara" %}</th>
+                            <th>{% translate "Müşteri" %}</th>
+                            <th>{% translate "Tarih" %}</th>
+                            <th>{% translate "Toplam" %}</th>
+                            <th>{% translate "Durum" %}</th>
+                            <th>{% translate "E-Fatura" %}</th>
+                            <th>{% translate "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td><a href="{% url 'crm:sale_detail' sale.id %}">{{ sale.number }}</a></td>
+                            <td>{{ sale.customer.name }}</td>
+                            <td>{{ sale.date|date:"d.m.Y" }}</td>
+                            <td>{{ sale.total_with_tax }} ₺</td>
+                            <td>
+                                {% if sale.status == 'draft' %}
+                                <span class="badge badge-warning">{% translate "Taslak" %}</span>
+                                {% elif sale.status == 'confirmed' %}
+                                <span class="badge badge-success">{% translate "Onaylandı" %}</span>
+                                {% elif sale.status == 'canceled' %}
+                                <span class="badge badge-danger">{% translate "İptal Edildi" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if sale.e_document %}
+                                    {% if sale.e_document.status == 'waiting' %}
+                                    <span class="badge badge-info">{% translate "Bekliyor" %}</span>
+                                    {% elif sale.e_document.status == 'success' %}
+                                    <span class="badge badge-success">{% translate "Başarılı" %}</span>
+                                    {% elif sale.e_document.status == 'error' %}
+                                    <span class="badge badge-danger">{% translate "Hata" %}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-secondary">{% translate "Oluşturulmadı" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'crm:sale_detail' sale.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if sale.status == 'draft' %}
+                                    <a href="{% url 'crm:sale_update' sale.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'crm:sale_confirm' sale.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if sale.status == 'confirmed' and not sale.e_document %}
+                                    <a href="{% url 'crm:create_invoice' sale.id %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if sale.status == 'confirmed' and not sale.is_accounted %}
+                                    <a href="{% url 'crm:sync_accounting' sale.id %}" class="btn btn-sm btn-dark">
+                                        <i class="fas fa-sync"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">{% translate "Henüz satış kaydı bulunmamaktadır." %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if sales.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if sales.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in sales.paginator.page_range %}
+                        {% if i == sales.number %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                        {% elif i > sales.number|add:'-3' and i < sales.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if sales.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">{% translate "Satışları Filtrele" %}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="GET" action="{% url 'crm:sale_list' %}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="start_date">{% translate "Başlangıç Tarihi" %}</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">{% translate "Bitiş Tarihi" %}</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">{% translate "Durum" %}</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">{% translate "Tümü" %}</option>
+                            <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>{% translate "Taslak" %}</option>
+                            <option value="confirmed" {% if request.GET.status == 'confirmed' %}selected{% endif %}>{% translate "Onaylandı" %}</option>
+                            <option value="canceled" {% if request.GET.status == 'canceled' %}selected{% endif %}>{% translate "İptal Edildi" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="e_document">{% translate "E-Belge Durumu" %}</label>
+                        <select class="form-control" id="e_document" name="e_document">
+                            <option value="">{% translate "Tümü" %}</option>
+                            <option value="yes" {% if request.GET.e_document == 'yes' %}selected{% endif %}>{% translate "Oluşturuldu" %}</option>
+                            <option value="no" {% if request.GET.e_document == 'no' %}selected{% endif %}>{% translate "Oluşturulmadı" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% translate "Kapat" %}</button>
+                    <button type="submit" class="btn btn-primary">{% translate "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        $('#salesTable').DataTable({
+            "ordering": true,
+            "paging": false,
+            "searching": false,
+            "info": false,
+            "language": {
+                "url": "{% static 'vendor/datatables/tr.json' %}"
+            }
+        });
+    });
+</script>
+{% endblock %} 

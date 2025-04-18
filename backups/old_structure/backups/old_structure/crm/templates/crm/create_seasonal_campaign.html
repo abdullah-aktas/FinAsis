@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Yeni Sezonsal Kampanya - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Yeni Sezonsal Kampanya Oluştur</h1>
+        <a href="{% url 'revenue_dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Dashboard'a Dön
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Kampanya Bilgileri</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Kampanya Adı</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="campaign_type">Kampanya Tipi</label>
+                            <select class="form-control" id="campaign_type" name="campaign_type" required>
+                                <option value="summer">Yaz Kampanyası</option>
+                                <option value="winter">Kış Kampanyası</option>
+                                <option value="spring">Bahar Kampanyası</option>
+                                <option value="autumn">Sonbahar Kampanyası</option>
+                                <option value="holiday">Tatil Kampanyası</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Açıklama</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="start_date">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="end_date">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="discount_rate">İndirim Oranı (%)</label>
+                            <input type="number" class="form-control" id="discount_rate" name="discount_rate" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="min_purchase_amount">Minimum Alışveriş Tutarı (₺)</label>
+                            <input type="number" class="form-control" id="min_purchase_amount" name="min_purchase_amount" step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kampanya Oluştur</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

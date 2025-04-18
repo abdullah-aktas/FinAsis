@@ -1,0 +1,101 @@
+{% extends 'asset_management/base.html' %}
+
+{% block title %}Varlık Yönetimi - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Toplam Varlık</h5>
+                <h2 class="card-text">{{ total_assets }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Toplam Değer</h5>
+                <h2 class="card-text">{{ total_value|floatformat:2 }} TL</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Bekleyen Bakımlar</h5>
+                <h2 class="card-text">{{ pending_maintenances }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Son Transferler</h5>
+                <h2 class="card-text">{{ recent_transfers|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Son Transferler</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Varlık</th>
+                                <th>Kaynak</th>
+                                <th>Hedef</th>
+                                <th>Tarih</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transfer in recent_transfers %}
+                            <tr>
+                                <td>{{ transfer.asset.name }}</td>
+                                <td>{{ transfer.from_location }}</td>
+                                <td>{{ transfer.to_location }}</td>
+                                <td>{{ transfer.transfer_date }}</td>
+                                <td>
+                                    <span class="badge bg-{{ transfer.status|lower }}">
+                                        {{ transfer.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Henüz transfer kaydı bulunmuyor.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Hızlı İşlemler</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'asset_management:asset_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Yeni Varlık Ekle
+                    </a>
+                    <a href="{% url 'asset_management:asset_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Varlık Listesi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

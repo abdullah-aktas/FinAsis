@@ -1,43 +1,43 @@
 # Temel Django paketleri
-Django==5.0.2
-djangorestframework>=3.14.0
-djangorestframework-simplejwt>=5.3.0
-django-cors-headers>=4.3.0
-django-filter>=23.3
-django-crispy-forms>=2.0
-crispy-bootstrap5>=0.7
+Django>=5.0.0,<5.1.0
+djangorestframework>=3.14.0,<4.0.0
+djangorestframework-simplejwt>=5.3.0,<6.0.0
+django-cors-headers>=4.2.0,<5.0.0
+django-filter>=23.2,<24.0
+django-crispy-forms>=2.0,<3.0
+crispy-bootstrap5>=0.7,<1.0
 django-environ>=0.12.0
 
 # Veritabanı ve Önbellek
-redis>=5.0.1
-django-redis>=5.4.0
-psycopg2-binary==2.9.9
+redis>=4.6.0,<5.0.0
+django-redis>=5.3.0,<6.0.0
+psycopg2-binary>=2.9.7,<3.0.0
 django-db-connection-pool==1.2.3
 
 # Geliştirme Araçları
-pytest>=7.4.3
-pytest-django>=4.7.0
-pytest-cov>=4.1.0
-black>=23.11.0
-flake8>=6.1.0
-django-debug-toolbar>=4.2.0
+pytest>=7.4.0,<8.0.0
+pytest-django>=4.5.2,<5.0.0
+pytest-cov>=4.1.0,<5.0.0
+black>=23.7.0,<24.0.0
+flake8>=6.1.0,<7.0.0
+django-debug-toolbar>=4.2.0,<5.0.0
 django-extensions>=4.0
 
 # Dağıtım ve Statik Dosyalar
-gunicorn>=21.2.0
-whitenoise>=6.6.0
+gunicorn>=21.2.0,<22.0.0
+whitenoise>=6.5.0,<7.0.0
 django-storages>=1.14.2
 boto3>=1.29.3
 
 # Görev Yönetimi
-celery>=5.3.4
-django-celery-beat>=2.7.0
-django-celery-results>=2.6.0
+celery>=5.3.4,<6.0.0
+django-celery-beat>=2.5.0,<3.0.0
+django-celery-results>=2.5.1,<3.0.0
 
 # Kimlik Doğrulama ve API
-django-allauth>=0.61.0
+django-allauth>=0.57.0,<1.0.0
 django-rest-swagger>=2.2.0
-dj-rest-auth>=5.0.2
+dj-rest-auth>=4.0.1,<5.0.0
 
 # 3D Oyun Geliştirme
 ursina>=6.1.2
@@ -48,8 +48,7 @@ numpy>=1.24.3
 pandas>=2.0.3
 scikit-learn>=1.3.2
 # spacy>=3.7.2  # Geçici olarak devre dışı bırakıldı
-langchain-core>=0.1.22
-langchain>=0.1.9
+langchain>=0.0.27,<1.0.0
 
 # Güvenlik ve Yetkilendirme
 python-jose>=3.3.0
@@ -59,22 +58,37 @@ django-audit-log>=0.7.0
 
 # Test ve Kod Kalitesi
 coverage>=7.3.2
-factory-boy>=3.3.0
+factory-boy>=3.3.0,<4.0.0
 
 # Diğer Paketler
-python-dotenv==1.0.0
-openai>=1.12.0
+python-dotenv>=1.0.0,<2.0.0
+openai>=0.28.0,<1.0.0
 web3>=6.15.1
-requests==2.31.0
-
-# Kivy paketleri
-kivy==2.2.1
-kivymd==1.1.1
-kivy-garden.graph==0.4.0
+requests>=2.31.0,<3.0.0
 
 # Masaüstü Uygulaması
 PyQt6>=6.6.1
 PyQt6-Qt6>=6.6.1
 PyQt6-sip>=13.6.0
 SQLAlchemy>=2.0.27
-alembic>=1.13.1 
+alembic>=1.13.1
+
+# Diğer Paketler
+pygame==2.5.2
+
+# PWA Support
+django-pwa>=1.1.0,<2.0.0
+django-service-worker==0.3.0
+django-offline==0.1.0
+
+# Channels
+channels>=4.0.0,<5.0.0
+daphne>=4.0.0,<5.0.0
+
+# Development
+django-widget-tweaks>=1.4.12,<2.0.0
+isort>=5.12.0,<6.0.0
+
+# Miscellaneous
+Pillow>=10.0.0,<11.0.0
+python-dateutil>=2.8.2,<3.0.0 

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Yeni Danışmanlık Hizmeti - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Yeni Danışmanlık Hizmeti Oluştur</h1>
+        <a href="{% url 'revenue_dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Dashboard'a Dön
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hizmet Bilgileri</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Hizmet Adı</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Kategori</label>
+                            <select class="form-control" id="category" name="category" required>
+                                <option value="financial">Finansal Danışmanlık</option>
+                                <option value="tax">Vergi Danışmanlığı</option>
+                                <option value="investment">Yatırım Danışmanlığı</option>
+                                <option value="risk">Risk Yönetimi</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Açıklama</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Saatlik Ücret (₺)</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Tahmini Süre (Saat)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expertise_level">Uzmanlık Seviyesi</label>
+                            <select class="form-control" id="expertise_level" name="expertise_level" required>
+                                <option value="junior">Junior</option>
+                                <option value="mid">Mid-Level</option>
+                                <option value="senior">Senior</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deliverables">Teslim Edilecekler</label>
+                            <textarea class="form-control" id="deliverables" name="deliverables" rows="3" required 
+                                placeholder="Her teslim edilecek öğeyi yeni bir satıra yazın"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Hizmet Oluştur</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

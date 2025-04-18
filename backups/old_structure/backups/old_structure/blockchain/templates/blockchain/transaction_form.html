@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if transaction %}İşlem Düzenle{% else %}Yeni İşlem{% endif %} - FinAsis
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% if transaction %}İşlem Düzenle{% else %}Yeni İşlem{% endif %}</h1>
+        <a href="{% url 'blockchain:transaction_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Geri
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Başlık</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{{ transaction.title|default:'' }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="transaction_type" class="form-label">İşlem Tipi</label>
+                    <select class="form-select" id="transaction_type" name="transaction_type" required>
+                        <option value="">Seçiniz</option>
+                        {% for value, label in transaction_types %}
+                        <option value="{{ value }}" 
+                                {% if transaction.transaction_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="reference_id" class="form-label">Referans ID</label>
+                    <input type="text" class="form-control" id="reference_id" name="reference_id" 
+                           value="{{ transaction.reference_id|default:'' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="reference_model" class="form-label">Referans Model</label>
+                    <input type="text" class="form-control" id="reference_model" name="reference_model" 
+                           value="{{ transaction.reference_model|default:'' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notlar</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3">{{ transaction.notes|default:'' }}</textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

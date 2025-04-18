@@ -1,0 +1,61 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}İletişim Kişisi Sil{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">İletişim Kişisi Sil</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger mb-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Dikkat!</strong> Bu iletişim kişisini silmek istediğinizden emin misiniz?
+        </div>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <tr>
+                    <th style="width: 30%">Müşteri:</th>
+                    <td>{{ contact.customer.name }}</td>
+                </tr>
+                <tr>
+                    <th>Ad Soyad:</th>
+                    <td>{{ contact.name }}</td>
+                </tr>
+                <tr>
+                    <th>Pozisyon:</th>
+                    <td>{{ contact.position|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>Telefon:</th>
+                    <td>{{ contact.phone|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>E-posta:</th>
+                    <td>{{ contact.email|default:"-" }}</td>
+                </tr>
+                {% if contact.notes %}
+                <tr>
+                    <th>Notlar:</th>
+                    <td>{{ contact.notes|linebreaks }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'crm:contact_detail' pk=contact.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>İptal
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Sil
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

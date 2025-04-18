@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Sanal Şirket Oluştur{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-4">
+        <h1 class="display-4 text-accounting">Sanal Şirket Oluştur</h1>
+        <p class="lead">Kendi sanal şirketinizi kurun ve finansal deneyim kazanın</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-accounting">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="company-name" class="form-label">Şirket Adı</label>
+                        <input type="text" class="form-control" id="company-name" name="company_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="company-type" class="form-label">Şirket Türü</label>
+                        <select class="form-select" id="company-type" name="company_type" required>
+                            <option value="">Seçiniz</option>
+                            <option value="technology">Teknoloji</option>
+                            <option value="retail">Perakende</option>
+                            <option value="manufacturing">Üretim</option>
+                            <option value="service">Hizmet</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial-capital" class="form-label">Başlangıç Sermayesi (TL)</label>
+                        <input type="number" class="form-control" id="initial-capital" name="initial_capital" min="10000" step="1000" value="100000" required>
+                        <div class="form-text">Minimum 10.000 TL başlangıç sermayesi gereklidir.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="company-description" class="form-label">Şirket Açıklaması</label>
+                        <textarea class="form-control" id="company-description" name="company_description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="business-plan" class="form-label">İş Planı</label>
+                        <textarea class="form-control" id="business-plan" name="business_plan" rows="5" required></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-accounting">
+                            <i class="fas fa-building"></i> Şirketi Oluştur
+                        </button>
+                        <a href="{% url 'virtual_company:company_home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Geri Dön
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

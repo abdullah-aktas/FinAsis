@@ -1,0 +1,130 @@
+{% extends 'asset_management/base.html' %}
+
+{% block title %}{{ asset.name }} - Varlık Detayı{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Varlık Detayları</h5>
+                <div class="btn-group">
+                    <a href="{% url 'asset_management:asset_update' asset.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </a>
+                    <a href="{% url 'asset_management:asset_delete' asset.pk %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Kod:</strong> {{ asset.code }}</p>
+                        <p><strong>Ad:</strong> {{ asset.name }}</p>
+                        <p><strong>Kategori:</strong> {{ asset.category.name }}</p>
+                        <p><strong>Alım Tarihi:</strong> {{ asset.purchase_date }}</p>
+                        <p><strong>Alım Maliyeti:</strong> {{ asset.purchase_cost|floatformat:2 }} TL</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Güncel Değer:</strong> {{ asset.current_value|floatformat:2 }} TL</p>
+                        <p><strong>Konum:</strong> {{ asset.location }}</p>
+                        <p><strong>Durum:</strong> 
+                            <span class="badge bg-{{ asset.status|lower }}">
+                                {{ asset.get_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Seri No:</strong> {{ asset.serial_number|default:"-" }}</p>
+                        <p><strong>Üretici:</strong> {{ asset.manufacturer|default:"-" }}</p>
+                    </div>
+                </div>
+                {% if asset.description %}
+                <div class="mt-3">
+                    <h6>Açıklama:</h6>
+                    <p>{{ asset.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Amortisman Geçmişi -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Amortisman Geçmişi</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Amortisman Tutarı</th>
+                                <th>Kalan Değer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dep in asset.depreciation_set.all %}
+                            <tr>
+                                <td>{{ dep.date }}</td>
+                                <td>{{ dep.amount|floatformat:2 }} TL</td>
+                                <td>{{ dep.remaining_value|floatformat:2 }} TL</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">Amortisman kaydı bulunmuyor.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Bakım Geçmişi -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Bakım Geçmişi</h5>
+                <a href="{% url 'asset_management:maintenance_create' asset.pk %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Yeni Bakım
+                </a>
+            </div>
+            <div class="card-body">
+                {% for maintenance in asset.maintenance_set.all %}
+                <div class="mb-3">
+                    <h6>{{ maintenance.date }} - {{ maintenance.get_type_display }}</h6>
+                    <p class="mb-1">{{ maintenance.description }}</p>
+                    <small class="text-muted">Maliyet: {{ maintenance.cost|floatformat:2 }} TL</small>
+                </div>
+                {% empty %}
+                <p class="text-center">Bakım kaydı bulunmuyor.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Transfer Geçmişi -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Transfer Geçmişi</h5>
+                <a href="{% url 'asset_management:transfer_create' asset.pk %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-exchange-alt"></i> Yeni Transfer
+                </a>
+            </div>
+            <div class="card-body">
+                {% for transfer in asset.transfer_set.all %}
+                <div class="mb-3">
+                    <h6>{{ transfer.date }}</h6>
+                    <p class="mb-1">
+                        {{ transfer.source_location }} → {{ transfer.target_location }}
+                    </p>
+                    <small class="text-muted">{{ transfer.get_status_display }}</small>
+                </div>
+                {% empty %}
+                <p class="text-center">Transfer kaydı bulunmuyor.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

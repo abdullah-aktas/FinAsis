@@ -19,6 +19,14 @@
     <meta name="twitter:image" content="{% block twitter_image %}{% static 'img/logo.png' %}{% endblock %}">
     <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196f3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Finasis">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="apple-touch-icon" href="{% static 'icons/icon-192x192.png' %}">
+    
     <title>FinAsis - {% block title %}{% endblock %}</title>
     
     <!-- Favicon -->
@@ -58,6 +66,21 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </head>
 <body {% block body_attrs %}{% endblock %}>
     <!-- Navbar -->
@@ -87,12 +110,6 @@
                         <a class="nav-link {% if 'accounting' in request.path %}active{% endif %}" 
                            href="{% url 'accounting:dashboard' %}">
                             <i class="fas fa-file-invoice me-1"></i>Muhasebe
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'education' in request.path %}active{% endif %}" 
-                           href="{% url 'education:dashboard' %}">
-                            <i class="fas fa-graduation-cap me-1"></i>Eğitim
                         </a>
                     </li>
                 </ul>
@@ -165,7 +182,6 @@
                         <li><a href="{% url 'home' %}">Ana Sayfa</a></li>
                         <li><a href="{% url 'virtual_company:dashboard' %}">Sanal Şirketler</a></li>
                         <li><a href="{% url 'accounting:dashboard' %}">Muhasebe</a></li>
-                        <li><a href="{% url 'education:dashboard' %}">Eğitim</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

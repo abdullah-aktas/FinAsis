@@ -1,0 +1,247 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Aktiviteler{% endblock %}
+
+{% block actions %}
+<a href="{% url 'crm:activity_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Yeni Aktivite
+</a>
+{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Aktivite Listesi</h5>
+    </div>
+    <div class="card-body">
+        <!-- Filtreler -->
+        <form method="get" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Arama</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           placeholder="Konu veya açıklama..." value="{{ request.GET.search|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Tip</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="call" {% if request.GET.type == 'call' %}selected{% endif %}>Telefon</option>
+                        <option value="meeting" {% if request.GET.type == 'meeting' %}selected{% endif %}>Toplantı</option>
+                        <option value="email" {% if request.GET.type == 'email' %}selected{% endif %}>E-posta</option>
+                        <option value="task" {% if request.GET.type == 'task' %}selected{% endif %}>Görev</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Durum</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="planned" {% if request.GET.status == 'planned' %}selected{% endif %}>Planlandı</option>
+                        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Devam Ediyor</option>
+                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Tamamlandı</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>İptal Edildi</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="customer" class="form-label">Müşteri</label>
+                    <select name="customer" id="customer" class="form-select">
+                        <option value="">Tümü</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.pk }}" {% if request.GET.customer == customer.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="opportunity" class="form-label">Fırsat</label>
+                    <select name="opportunity" id="opportunity" class="form-select">
+                        <option value="">Tümü</option>
+                        {% for opportunity in opportunities %}
+                        <option value="{{ opportunity.pk }}" {% if request.GET.opportunity == opportunity.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ opportunity.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="assigned_to" class="form-label">Atanan Kişi</label>
+                    <select name="assigned_to" id="assigned_to" class="form-select">
+                        <option value="">Tümü</option>
+                        {% for user in users %}
+                        <option value="{{ user.pk }}" {% if request.GET.assigned_to == user.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ user.get_full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="due_date_start" class="form-label">Bitiş Tarihi (Başlangıç)</label>
+                    <input type="date" name="due_date_start" id="due_date_start" class="form-control" 
+                           value="{{ request.GET.due_date_start|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="due_date_end" class="form-label">Bitiş Tarihi (Bitiş)</label>
+                    <input type="date" name="due_date_end" id="due_date_end" class="form-control" 
+                           value="{{ request.GET.due_date_end|default:'' }}">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Filtrele
+                    </button>
+                    <a href="{% url 'crm:activity_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Temizle
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Aktivite Listesi -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tip</th>
+                        <th>Konu</th>
+                        <th>Müşteri</th>
+                        <th>Fırsat</th>
+                        <th>Atanan</th>
+                        <th>Durum</th>
+                        <th>Bitiş Tarihi</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr>
+                        <td>
+                            {% if activity.type == 'call' %}
+                            <i class="fas fa-phone text-primary" title="Telefon"></i>
+                            {% elif activity.type == 'meeting' %}
+                            <i class="fas fa-users text-success" title="Toplantı"></i>
+                            {% elif activity.type == 'email' %}
+                            <i class="fas fa-envelope text-info" title="E-posta"></i>
+                            {% elif activity.type == 'task' %}
+                            <i class="fas fa-tasks text-warning" title="Görev"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'crm:activity_detail' pk=activity.pk %}">
+                                {{ activity.subject }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if activity.customer %}
+                            <a href="{% url 'crm:customer_detail' pk=activity.customer.pk %}">
+                                {{ activity.customer.name }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if activity.opportunity %}
+                            <a href="{% url 'crm:opportunity_detail' pk=activity.opportunity.pk %}">
+                                {{ activity.opportunity.name }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if activity.assigned_to %}
+                            {{ activity.assigned_to.get_full_name }}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if activity.status == 'planned' %}
+                            <span class="badge bg-info">Planlandı</span>
+                            {% elif activity.status == 'in_progress' %}
+                            <span class="badge bg-warning">Devam Ediyor</span>
+                            {% elif activity.status == 'completed' %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                            {% elif activity.status == 'cancelled' %}
+                            <span class="badge bg-danger">İptal Edildi</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if activity.due_date %}
+                            {{ activity.due_date|date:"d.m.Y" }}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'crm:activity_detail' pk=activity.pk %}" class="btn btn-sm btn-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'crm:activity_update' pk=activity.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'crm:activity_delete' pk=activity.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-calendar-alt fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Henüz aktivite bulunmuyor.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sayfalama -->
+        {% if activities.has_other_pages %}
+        <nav aria-label="Sayfalama" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if activities.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ activities.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Önceki">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
+                </li>
+                {% endif %}
+
+                {% for num in activities.paginator.page_range %}
+                    {% if activities.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > activities.number|add:'-3' and num < activities.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if activities.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ activities.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Sonraki">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

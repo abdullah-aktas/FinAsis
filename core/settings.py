@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
+    'widget_tweaks',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -40,6 +41,11 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_celery_beat',
     'django_celery_results',
+    'django_filters',
+    'drf_yasg',
+    'channels',
+    'django_redis',
+    'pwa',
     
     # Local apps
     'accounts.apps.AccountsConfig',
@@ -49,10 +55,11 @@ INSTALLED_APPS = [
     'ext_services.apps.ExtServicesConfig',
     'seo_management.apps.SeoManagementConfig',
     'virtual_company.apps.VirtualCompanyConfig',
-    'education.apps.EducationConfig',
     'ai_assistant.apps.AiAssistantConfig',
     'blockchain.apps.BlockchainConfig',
     'accounting.apps.AccountingConfig',
+    'crm',
+    'reporting',
 ]
 
 MIDDLEWARE = [

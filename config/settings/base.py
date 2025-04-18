@@ -3,12 +3,16 @@ Temel Django ayarları
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+from datetime import timedelta
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-secret-key-here')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
@@ -23,24 +27,75 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'widget_tweaks',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'debug_toolbar',
+    'django_celery_beat',
+    'django_celery_results',
+    'django_filters',
     'drf_yasg',
+    'channels',
+    'django_redis',
+    'pwa',
     
-    # Local apps
+    # Core app
     'core',
-    'users',
-    'accounting',
-    'crm',
-    'permissions',
-    'backup_manager',
-    'integrations',
+    
+    # Local apps - organized by module
+    'apps.accounting',
+    'apps.crm',
+    'apps.hr_management',
+    'apps.stock_management',
+    'apps.checks',
+    'apps.permissions',
+    
+    # Games module
+    'apps.games.ursina_game',
+    'apps.games.game_app',
+    
+    # Integrations module
+    'apps.integrations',
+    'apps.integrations.efatura',
+    'apps.integrations.bank_integration',
+    'apps.integrations.external',
+    'apps.integrations.services',
+    
+    # Other features
+    'apps.blockchain',
+    'apps.ai_assistant',
+    'apps.seo',
+    'apps.virtual_company',
+    'apps.assets',
+    
+    # Finance apps
+    'apps.finance',
+    'apps.finance.accounting',
+    'apps.finance.banking',
+    'apps.finance.checks',
+    'apps.finance.einvoice',
+    
+    # Accounts app
+    'apps.accounts',
+    
+    # Analytics
+    'apps.analytics',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -48,9 +103,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-ROOT_URLCONF = 'finasis.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -63,12 +120,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'finasis.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 # Database
 DATABASES = {
@@ -101,21 +160,34 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Media files
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Auth settings
+AUTH_USER_MODEL = 'apps.accounts.User'
+
+# Django AllAuth settings
+SITE_ID = 1
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+
+# Crispy Forms settings
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -124,6 +196,47 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+# Authentication settings
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
-CORS_ALLOW_CREDENTIALS = True 
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 
+                                      'http://localhost:8000,http://127.0.0.1:8000').split(',')
+CORS_ALLOW_CREDENTIALS = True
+
+# OpenAI settings
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+# Blockchain settings
+BLOCKCHAIN_NETWORK = os.getenv('BLOCKCHAIN_NETWORK', 'testnet')
+BLOCKCHAIN_API_KEY = os.getenv('BLOCKCHAIN_API_KEY')
+
+# LangChain settings
+LANGCHAIN_WARNINGS = 'ignore'
+
+# E-Belge Ayarları
+EDOCUMENT_API_KEY = os.getenv('EDOCUMENT_API_KEY')
+EDOCUMENT_API_URL = os.getenv('EDOCUMENT_API_URL', 'https://api.example.com/edocument')
+EDOCUMENT_SERVICE_TYPE = os.getenv('EDOCUMENT_SERVICE_TYPE', 'earchive')
+
+# Şirket Bilgileri
+COMPANY_VKN = os.getenv('COMPANY_VKN')
+COMPANY_NAME = os.getenv('COMPANY_NAME')
+COMPANY_WEBSITE = os.getenv('COMPANY_WEBSITE')
+COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS')
+COMPANY_DISTRICT = os.getenv('COMPANY_DISTRICT')
+COMPANY_CITY = os.getenv('COMPANY_CITY')
+COMPANY_POSTAL_CODE = os.getenv('COMPANY_POSTAL_CODE')
+COMPANY_COUNTRY = os.getenv('COMPANY_COUNTRY', 'Türkiye')
+COMPANY_TAX_OFFICE = os.getenv('COMPANY_TAX_OFFICE')
+COMPANY_PHONE = os.getenv('COMPANY_PHONE')
+COMPANY_EMAIL = os.getenv('COMPANY_EMAIL') 

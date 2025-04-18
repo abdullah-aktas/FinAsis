@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Bilgi Ekle" %} | {% trans "Bilgi Bankası" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <div class="row">
+        <!-- Soldaki Sidebar -->
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{% trans "Bilgi Bankası" %}</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'virtual_company:knowledge_base_list' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left me-2"></i> {% trans "Listeye Dön" %}
+                    </a>
+                    
+                    <div class="list-group-item bg-light">
+                        <strong>{% trans "Bilgi Ekleme" %}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ana İçerik -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">{% trans "Yeni Bilgi Ekle" %}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{ form.title|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.is_featured|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.category|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.level|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {{ form.summary|as_crispy_field }}
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    {{ form.content.label_tag }}
+                                    <small class="text-muted ms-2">{% trans "(HTML içerik desteklenir)" %}</small>
+                                    {{ form.content }}
+                                    {% if form.content.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.content.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.image|as_crispy_field }}
+                                {% if form.instance.image %}
+                                    <div class="mb-3">
+                                        <img src="{{ form.instance.image.url }}" alt="Mevcut görsel" class="img-thumbnail" style="max-height: 150px;">
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" id="remove_image" name="remove_image">
+                                            <label class="form-check-label" for="remove_image">
+                                                {% trans "Görseli kaldır" %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.tags|as_crispy_field }}
+                                <small class="text-muted">{% trans "Etiketleri virgülle ayırarak giriniz." %}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="border-top pt-3 mt-3 d-flex justify-content-between">
+                            <a href="{% url 'virtual_company:knowledge_base_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> {% trans "İptal" %}
+                            </a>
+                            <div>
+                                <button type="submit" name="action" value="save_draft" class="btn btn-outline-primary me-2">
+                                    <i class="far fa-save me-1"></i> {% trans "Taslak Olarak Kaydet" %}
+                                </button>
+                                <button type="submit" name="action" value="publish" class="btn btn-success">
+                                    <i class="fas fa-check me-1"></i> {% trans "Yayınla" %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">{% trans "İçerik Yazma İpuçları" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>{% trans "Başlığınızı kısa ve açıklayıcı tutun." %}</li>
+                        <li>{% trans "İçeriği anlaşılır ve kısa paragraflarla yazın." %}</li>
+                        <li>{% trans "Önemli noktaları listeler ve kalın metinlerle vurgulayın." %}</li>
+                        <li>{% trans "Mümkünse görsel ekleyin - bir resim bin kelimeye bedeldir." %}</li>
+                        <li>{% trans "Alanınızla ilgili teknik terimleri açıklayın veya sözlüğe bağlantı verin." %}</li>
+                        <li>{% trans "Pratik örnekler ve gerçek hayattan uygulamalar ekleyin." %}</li>
+                        <li>{% trans "İçeriğin okunmasını kolaylaştırmak için alt başlıklar kullanın." %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/easymde.min.css' %}">
+<style>
+    .editor-toolbar.fullscreen, .CodeMirror-fullscreen, .EasyMDEContainer .CodeMirror-fullscreen {
+        z-index: 1050;
+    }
+    
+    .select2-container--default .select2-selection--multiple {
+        min-height: 38px;
+        border-color: #ced4da;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/easymde.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        // Zengin metin editörü
+        var easyMDE = new EasyMDE({
+            element: document.getElementById('id_content'),
+            spellChecker: false,
+            autosave: {
+                enabled: true,
+                uniqueId: "knowledge_editor",
+                delay: 1000,
+            },
+            toolbar: [
+                "bold", "italic", "heading", "|", 
+                "quote", "unordered-list", "ordered-list", "|",
+                "link", "image", "table", "|",
+                "preview", "side-by-side", "fullscreen", "|",
+                "guide"
+            ],
+            renderingConfig: {
+                codeSyntaxHighlighting: true,
+            },
+            placeholder: "{% trans 'İçeriği buraya yazın...' %}",
+            uploadImage: true,
+            imageUploadEndpoint: "{% url 'virtual_company:upload_image' %}",
+            imageUploadFunction: function(file, onSuccess, onError) {
+                var formData = new FormData();
+                formData.append('image', file);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                
+                $.ajax({
+                    url: "{% url 'virtual_company:upload_image' %}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        onSuccess(data.url);
+                    },
+                    error: function(error) {
+                        onError(error.responseText);
+                    }
+                });
+            }
+        });
+        
+        // Etiketler için Select2
+        $('#id_tags').select2({
+            tags: true,
+            tokenSeparators: [','],
+            placeholder: "{% trans 'Etiketleri girin...' %}",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %} 

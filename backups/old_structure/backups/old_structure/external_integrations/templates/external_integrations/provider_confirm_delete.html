@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ _('Entegrasyon Sağlayıcısını Sil') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ _('Entegrasyon Sağlayıcısını Sil') }}</h1>
+        <a href="{% url 'external_integrations:provider_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {{ _('Geri') }}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle"></i> {{ _('Dikkat!') }}
+                </h4>
+                <p>{{ _('Bu entegrasyon sağlayıcısını silmek istediğinizden emin misiniz?') }}</p>
+                <hr>
+                <p class="mb-0">
+                    <strong>{{ _('Sağlayıcı Adı:') }}</strong> {{ provider.name }}<br>
+                    <strong>{{ _('API Versiyonu:') }}</strong> {{ provider.api_version }}<br>
+                    <strong>{{ _('Entegrasyon Sayısı:') }}</strong> {{ provider.integrations.count }}
+                </p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="text-end">
+                    <a href="{% url 'external_integrations:provider_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> {{ _('İptal') }}
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> {{ _('Sil') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

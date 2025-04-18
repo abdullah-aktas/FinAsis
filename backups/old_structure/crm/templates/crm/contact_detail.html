@@ -1,0 +1,132 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}{{ contact.name }}{% endblock %}
+
+{% block actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'crm:contact_update' pk=contact.pk %}" class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Düzenle
+    </a>
+    <a href="{% url 'crm:contact_delete' pk=contact.pk %}" class="btn btn-danger">
+        <i class="fas fa-trash me-2"></i>Sil
+    </a>
+</div>
+{% endblock %}
+
+{% block main_content %}
+<div class="row">
+    <!-- İletişim Kişisi Bilgileri -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">İletişim Kişisi Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th style="width: 30%">Müşteri:</th>
+                        <td>
+                            <a href="{% url 'crm:customer_detail' pk=contact.customer.pk %}" class="text-decoration-none">
+                                {{ contact.customer.name }}
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Pozisyon:</th>
+                        <td>{{ contact.position|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Telefon:</th>
+                        <td>{{ contact.phone|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>E-posta:</th>
+                        <td>{{ contact.email|default:"-" }}</td>
+                    </tr>
+                    {% if contact.notes %}
+                    <tr>
+                        <th>Notlar:</th>
+                        <td>{{ contact.notes|linebreaks }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aktiviteler -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Aktiviteler</h5>
+                <a href="{% url 'crm:activity_create' %}?contact={{ contact.pk }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-2"></i>Yeni Ekle
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tür</th>
+                                <th>Konu</th>
+                                <th>Durum</th>
+                                <th>Tarih</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in activities %}
+                            <tr>
+                                <td>
+                                    {% if activity.type == 'call' %}
+                                    <i class="fas fa-phone text-primary" title="Telefon"></i>
+                                    {% elif activity.type == 'meeting' %}
+                                    <i class="fas fa-users text-success" title="Toplantı"></i>
+                                    {% elif activity.type == 'email' %}
+                                    <i class="fas fa-envelope text-info" title="E-posta"></i>
+                                    {% elif activity.type == 'task' %}
+                                    <i class="fas fa-tasks text-warning" title="Görev"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.subject }}</td>
+                                <td>
+                                    {% if activity.status == 'planned' %}
+                                    <span class="badge bg-primary">Planlandı</span>
+                                    {% elif activity.status == 'in_progress' %}
+                                    <span class="badge bg-warning">Devam Ediyor</span>
+                                    {% elif activity.status == 'completed' %}
+                                    <span class="badge bg-success">Tamamlandı</span>
+                                    {% elif activity.status == 'cancelled' %}
+                                    <span class="badge bg-danger">İptal Edildi</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.due_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'crm:activity_detail' pk=activity.pk %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'crm:activity_update' pk=activity.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'crm:activity_delete' pk=activity.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Henüz aktivite kaydı bulunmamaktadır.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

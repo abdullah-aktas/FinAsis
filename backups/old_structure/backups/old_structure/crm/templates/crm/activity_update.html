@@ -1,0 +1,178 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}{{ activity.subject }} - Aktivite Düzenle{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Aktivite Düzenle</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Aktivite Tipi -->
+                <div class="col-md-6 mb-3">
+                    <label for="type" class="form-label">Aktivite Tipi <span class="text-danger">*</span></label>
+                    <select class="form-select" id="type" name="type" required>
+                        <option value="">Seçiniz</option>
+                        <option value="call" {% if activity.type == 'call' %}selected{% endif %}>Telefon</option>
+                        <option value="meeting" {% if activity.type == 'meeting' %}selected{% endif %}>Toplantı</option>
+                        <option value="email" {% if activity.type == 'email' %}selected{% endif %}>E-posta</option>
+                        <option value="task" {% if activity.type == 'task' %}selected{% endif %}>Görev</option>
+                    </select>
+                    <div class="invalid-feedback">Lütfen aktivite tipini seçiniz.</div>
+                </div>
+
+                <!-- Durum -->
+                <div class="col-md-6 mb-3">
+                    <label for="status" class="form-label">Durum <span class="text-danger">*</span></label>
+                    <select class="form-select" id="status" name="status" required>
+                        <option value="">Seçiniz</option>
+                        <option value="planned" {% if activity.status == 'planned' %}selected{% endif %}>Planlandı</option>
+                        <option value="in_progress" {% if activity.status == 'in_progress' %}selected{% endif %}>Devam Ediyor</option>
+                        <option value="completed" {% if activity.status == 'completed' %}selected{% endif %}>Tamamlandı</option>
+                        <option value="cancelled" {% if activity.status == 'cancelled' %}selected{% endif %}>İptal Edildi</option>
+                    </select>
+                    <div class="invalid-feedback">Lütfen durumu seçiniz.</div>
+                </div>
+
+                <!-- Konu -->
+                <div class="col-md-12 mb-3">
+                    <label for="subject" class="form-label">Konu <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="subject" name="subject" value="{{ activity.subject }}" required>
+                    <div class="invalid-feedback">Lütfen konu giriniz.</div>
+                </div>
+
+                <!-- Müşteri -->
+                <div class="col-md-6 mb-3">
+                    <label for="customer" class="form-label">Müşteri</label>
+                    <select class="form-select" id="customer" name="customer">
+                        <option value="">Seçiniz</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.pk }}" {% if activity.customer_id == customer.pk %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Fırsat -->
+                <div class="col-md-6 mb-3">
+                    <label for="opportunity" class="form-label">Fırsat</label>
+                    <select class="form-select" id="opportunity" name="opportunity">
+                        <option value="">Seçiniz</option>
+                        {% for opportunity in opportunities %}
+                        <option value="{{ opportunity.pk }}" {% if activity.opportunity_id == opportunity.pk %}selected{% endif %}>
+                            {{ opportunity.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Atanan Kişi -->
+                <div class="col-md-6 mb-3">
+                    <label for="assigned_to" class="form-label">Atanan Kişi</label>
+                    <select class="form-select" id="assigned_to" name="assigned_to">
+                        <option value="">Seçiniz</option>
+                        {% for user in users %}
+                        <option value="{{ user.pk }}" {% if activity.assigned_to_id == user.pk %}selected{% endif %}>
+                            {{ user.get_full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Bitiş Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="due_date" class="form-label">Bitiş Tarihi <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="due_date" name="due_date" value="{{ activity.due_date|date:'Y-m-d' }}" required>
+                    <div class="invalid-feedback">Lütfen bitiş tarihini seçiniz.</div>
+                </div>
+
+                <!-- Açıklama -->
+                <div class="col-md-12 mb-3">
+                    <label for="description" class="form-label">Açıklama</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ activity.description }}</textarea>
+                </div>
+
+                <!-- Notlar -->
+                <div class="col-md-12 mb-3">
+                    <label for="notes" class="form-label">Notlar</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3">{{ activity.notes }}</textarea>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="{% url 'crm:activity_detail' pk=activity.pk %}" class="btn btn-secondary me-2">
+                    <i class="fas fa-times me-2"></i>İptal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form doğrulama
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Müşteri seçildiğinde fırsatları güncelle
+document.getElementById('customer').addEventListener('change', function() {
+    const customerId = this.value;
+    const opportunitySelect = document.getElementById('opportunity');
+    const currentOpportunityId = '{{ activity.opportunity_id }}';
+    
+    // Fırsat seçimini temizle
+    opportunitySelect.innerHTML = '<option value="">Seçiniz</option>';
+    
+    if (customerId) {
+        // AJAX ile müşterinin fırsatlarını getir
+        fetch(`/crm/api/customers/${customerId}/opportunities/`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(opportunity => {
+                    const option = document.createElement('option');
+                    option.value = opportunity.id;
+                    option.textContent = opportunity.name;
+                    if (opportunity.id == currentOpportunityId) {
+                        option.selected = true;
+                    }
+                    opportunitySelect.appendChild(option);
+                });
+            });
+    }
+});
+
+// Bitiş tarihi için minimum tarih kontrolü
+document.getElementById('due_date').addEventListener('change', function() {
+    const selectedDate = new Date(this.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        this.setCustomValidity('Bitiş tarihi bugünden önce olamaz');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %} 
