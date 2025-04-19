@@ -6,6 +6,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 
+# Log ayarlarını dahil et
+from config.settings.logging import LOGGING
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,6 +35,7 @@ INSTALLED_APPS = [
     # Third party apps - önemli olanlar
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
@@ -61,6 +65,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'apps.permissions.middleware.BruteForceProtectionMiddleware',
+    'apps.permissions.middleware.IPRestrictionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -88,8 +94,16 @@ ASGI_APPLICATION = 'config.asgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'finasis'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'connect_timeout': 10,
+        }
     }
 }
 
@@ -150,12 +164,31 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/hour',
+        'user': '1000/day',
+        'login': '5/minute',  # Özel login throttle
+    },
 }
 
 # JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 # Authentication settings
@@ -195,4 +228,18 @@ COMPANY_POSTAL_CODE = os.getenv('COMPANY_POSTAL_CODE')
 COMPANY_COUNTRY = os.getenv('COMPANY_COUNTRY', 'Türkiye')
 COMPANY_TAX_OFFICE = os.getenv('COMPANY_TAX_OFFICE')
 COMPANY_PHONE = os.getenv('COMPANY_PHONE')
-COMPANY_EMAIL = os.getenv('COMPANY_EMAIL') 
+COMPANY_EMAIL = os.getenv('COMPANY_EMAIL')
+
+# Brute-force koruma ayarları
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_BLOCK_TIME_MINUTES = 15
+BRUTE_FORCE_PROTECTED_URLS = [
+    '/api/token/',
+    '/api/token/refresh/',
+    '/accounts/login/',
+    '/admin/login/',
+]
+
+# IP kısıtlama ayarları (varsayılan olarak boş)
+RESTRICTED_IPS = []
+ALLOWED_IPS = [] 

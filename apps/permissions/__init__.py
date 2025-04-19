@@ -1,1 +1,5 @@
-# MVT yap�s� i�in olu�turuldu
+"""
+Rol tabanlı izin sistemi ve güvenlik iyileştirmeleri için modül.
+"""
+
+# MVT yapısı için oluşturuldu

@@ -14,6 +14,7 @@ urlpatterns = [
     path('crm/', include(('apps.crm.urls', 'crm'), namespace='crm')),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
+    path('api/', include('apps.api.urls')),
 ]
 
 if settings.DEBUG:
