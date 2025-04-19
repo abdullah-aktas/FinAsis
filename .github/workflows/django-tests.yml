@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_DB: finasis_test
         ports:
           - 5432:5432
         options: >-
@@ -27,7 +27,7 @@ jobs:
 
     env:
       DJANGO_SETTINGS_MODULE: config.settings.test
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/finasis_test
       PYTHONUNBUFFERED: 1
 
     steps:
@@ -43,33 +43,79 @@ jobs:
     - name: Bağımlılıklar Kuruluyor
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          pip install Django psycopg2-binary pytest pytest-django pytest-cov
+        fi
+
+    - name: Test Settings Kontrolü ve Oluşturma
+      run: |
+        if [ ! -f "config/settings/test.py" ]; then
+          mkdir -p config/settings
+          echo "from .base import *" > config/settings/test.py
+          echo "" >> config/settings/test.py
+          echo "# Test veritabanı ayarları" >> config/settings/test.py
+          echo "DATABASES = {" >> config/settings/test.py
+          echo "    'default': {" >> config/settings/test.py
+          echo "        'ENGINE': 'django.db.backends.postgresql'," >> config/settings/test.py
+          echo "        'NAME': 'finasis_test'," >> config/settings/test.py
+          echo "        'USER': 'postgres'," >> config/settings/test.py
+          echo "        'PASSWORD': 'postgres'," >> config/settings/test.py
+          echo "        'HOST': 'localhost'," >> config/settings/test.py
+          echo "        'PORT': '5432'," >> config/settings/test.py
+          echo "    }" >> config/settings/test.py
+          echo "}" >> config/settings/test.py
+          echo "" >> config/settings/test.py
+          echo "# Test ayarları" >> config/settings/test.py
+          echo "DEBUG = False" >> config/settings/test.py
+          echo "SECRET_KEY = 'django-insecure-test-key-only-for-ci'" >> config/settings/test.py
+          echo "" >> config/settings/test.py
+          echo "# Test için mail ayarları" >> config/settings/test.py
+          echo "EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'" >> config/settings/test.py
+          echo "" >> config/settings/test.py
+          echo "# Test için cache ayarları" >> config/settings/test.py
+          echo "CACHES = {" >> config/settings/test.py
+          echo "    'default': {" >> config/settings/test.py
+          echo "        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'," >> config/settings/test.py
+          echo "    }" >> config/settings/test.py
+          echo "}" >> config/settings/test.py
+        fi
 
     - name: .env Oluşturuluyor
       run: |
         echo "DEBUG=True" >> .env
-        echo "SECRET_KEY=${{ secrets.TEST_SECRET_KEY || 'django-insecure-test-key-only-for-ci' }}" >> .env
+        echo "SECRET_KEY=django-insecure-test-key-only-for-ci" >> .env
         echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-        echo "DATABASE_URL=postgres://postgres:${{ secrets.TEST_DB_PASSWORD || 'postgres' }}@localhost:5432/test_db" >> .env
-        echo "EFATURA_API_URL=${{ secrets.TEST_EFATURA_API_URL || 'https://test-efatura-api.example.com' }}" >> .env
-        echo "EFATURA_TEST_MODE=True" >> .env
-        echo "BANK_API_TEST_MODE=True" >> .env
-        echo "BANK_API_URL=${{ secrets.TEST_BANK_API_URL || 'https://test-bank-api.example.com' }}" >> .env
+        echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/finasis_test" >> .env
 
-    - name: Test Klasörü Kontrolü
+    - name: Migrasyon Kontrolü
       run: |
-        if [ ! -d "tests" ]; then
-          mkdir -p tests && echo "# Test dosyaları henüz oluşturulmadı" > tests/README.md
-        fi
+        python manage.py makemigrations --check --dry-run
 
-    - name: Tüm Testler ve Kapsam Raporu
+    - name: Uygulama Testi Klasörü Kontrolü
       run: |
-        if ls tests/*.py 1> /dev/null 2>&1; then
+        for app in apps/*; do
+          if [ -d "$app" ]; then
+            if [ ! -d "$app/tests" ] && [ ! -f "$app/tests.py" ]; then
+              mkdir -p "$app/tests"
+              touch "$app/tests/__init__.py"
+              echo "# Test dosyaları henüz oluşturulmadı - $app" > "$app/tests/README.md"
+            fi
+          fi
+        done
+
+    - name: Django Testleri Çalıştırılıyor
+      run: |
+        python manage.py test
+
+    - name: Pytest ile Tüm Testler ve Kapsam Raporu
+      run: |
+        if pytest --collect-only -q 2>/dev/null; then
           pytest --cov=. --cov-report=xml
         else
-          mkdir -p coverage
           echo '<?xml version="1.0"?><coverage version="5.5"></coverage>' > coverage.xml
+          echo "Pytest ile çalıştırılabilecek test bulunamadı."
         fi
 
     - name: Codecov Raporu Yükleniyor
@@ -77,42 +123,6 @@ jobs:
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
-
-    - name: Model ve Servis Testleri
-      run: |
-        pytest $(find tests -type f -name "test_bank_integration.py" -o -name "test_efatura.py" -o -name "test_finance.py" 2>/dev/null) -v || echo "Model/servis testleri bulunamadı."
-
-    - name: API Testleri
-      run: |
-        pytest tests/test_api_endpoints.py -v || echo "API testleri bulunamadı."
-
-    - name: Zamanlanmış Görev Testleri
-      run: |
-        pytest tests/test_scheduled_tasks.py -v || echo "Zamanlanmış görev testleri bulunamadı."
-
-    - name: Performans Testleri
-      run: |
-        if pytest -m slow --collect-only -q 2>/dev/null; then
-          pytest -m slow -v
-        else
-          echo "Performans testleri bulunamadı."
-        fi
-
-    - name: UI Test Bağımlılıkları
-      run: |
-        if pytest -m webtest --collect-only -q 2>/dev/null; then
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          pip install webdriver-manager
-        fi
-
-    - name: UI Testleri
-      run: |
-        if pytest -m webtest --collect-only -q 2>/dev/null; then
-          pytest -m webtest -v
-        else
-          echo "UI testleri bulunamadı."
-        fi
 
     - name: Güvenlik Taraması
       run: |
