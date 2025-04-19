@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'apps.virtual_company',
     'apps.accounting',
     'apps.crm',
+    'apps.permissions',
 ]
 
 MIDDLEWARE = [

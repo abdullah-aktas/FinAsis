@@ -88,22 +88,22 @@
                             <ul class="dropdown-menu" aria-labelledby="modulesDropdown">
                                 <li><a class="dropdown-item" href="{% url 'accounting:dashboard' %}">Muhasebe</a></li>
                                 <li><a class="dropdown-item" href="{% url 'crm:dashboard' %}">CRM</a></li>
-                                <!-- <li><a class="dropdown-item" href="{% url 'hr_management:dashboard' %}">İK Yönetimi</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="{% url 'stock_management:dashboard' %}">Stok Yönetimi</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="{% url 'checks:dashboard' %}">Çek Yönetimi</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="{% url 'integrations:dashboard' %}">Entegrasyonlar</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">İK Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Stok Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Çek Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Entegrasyonlar</a></li> -->
                                 <li><hr class="dropdown-divider"></li>
-                                <!-- <li><a class="dropdown-item" href="{% url 'games:dashboard' %}">Eğitim Oyunları</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Eğitim Oyunları</a></li> -->
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <!-- <a class="nav-link" href="{% url 'reporting:dashboard' %}">Raporlar</a> -->
+                            <!-- <a class="nav-link" href="#">Raporlar</a> -->
                         </li>
                         <li class="nav-item">
-                            <!-- <a class="nav-link" href="{% url 'education:dashboard' %}">Eğitim</a> -->
+                            <!-- <a class="nav-link" href="#">Eğitim</a> -->
                         </li>
                         <li class="nav-item">
-                            <!-- <a class="nav-link" href="{% url 'ai_assistant:dashboard' %}">AI Asistan</a> -->
+                            <!-- <a class="nav-link" href="#">AI Asistan</a> -->
                         </li>
                     </ul>
                     
@@ -117,7 +117,7 @@
                                 <span>{{ user.get_full_name|default:user.username }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <!-- <li><a class="dropdown-item" href="{% url 'dashboard' %}">Gösterge Paneli</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Gösterge Paneli</a></li> -->
                                 <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil</a></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">Ayarlar</a></li>
                                 {% if user.is_staff %}
@@ -140,7 +140,7 @@
                             <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
                                 <div class="dropdown-header d-flex justify-content-between align-items-center">
                                     <span>Bildirimler</span>
-                                    <!-- <a href="{% url 'notifications:mark_all_read' %}" class="text-primary small">Tümünü Okundu İşaretle</a> -->
+                                    <!-- <a href="#" class="text-primary small">Tümünü Okundu İşaretle</a> -->
                                 </div>
                                 <div class="notifications-container">
                                     {% if notifications %}
@@ -164,7 +164,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="dropdown-footer">
-                                    <!-- <a href="{% url 'notifications:list' %}" class="text-center d-block">Tüm Bildirimleri Gör</a> -->
+                                    <!-- <a href="#" class="text-center d-block">Tüm Bildirimleri Gör</a> -->
                                 </div>
                             </div>
                         </li>
@@ -181,8 +181,8 @@
                                 <i class="bi bi-globe"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                                <!-- <li><a class="dropdown-item" href="{% url 'set_language' %}?language=tr">Türkçe</a></li> -->
-                                <!-- <li><a class="dropdown-item" href="{% url 'set_language' %}?language=en">English</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">Türkçe</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="#">English</a></li> -->
                             </ul>
                         </li>
                     </ul>

@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('admin/', admin.site.urls),
-    path('users/', include('apps.hr_management.urls')),
+    path('users/', include(('apps.hr_management.urls', 'apps.hr_management'), namespace='hr_management')),
     path('customer-management/', include('customer_management.urls')),
     path('company-management/', include('company_management.urls')),
     path('ext-services/', include('apps.integrations.services.urls')),
