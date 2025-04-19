@@ -16,6 +16,7 @@ urlpatterns = [
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
     path('api/', include('apps.api.urls')),
     path('edocument/', include('edocument.urls')),
+    path('assistant/', include('apps.assistant.urls')),
 ]
 
 if settings.DEBUG:
