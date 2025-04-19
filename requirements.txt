@@ -114,10 +114,6 @@ alpha_vantage==2.3.1
 finnhub-python==2.4.18
 openweathermap==0.1.0
 
-# Environment Variables
-OPENWEATHER_API_KEY=your_openweather_api_key_here
-ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-
 # GİB Entegrasyonu
 lxml==4.9.3
 requests==2.31.0
