@@ -7,6 +7,9 @@ from django.db.models import Sum, Count, Avg
 from apps.invoice.models import Invoice, InvoiceItem
 from apps.customer.models import Customer
 from apps.product.models import Product
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from ..services.kpi_service import KPIService
 
 @login_required
 def pivot_table_view(request):
@@ -99,4 +102,26 @@ def prepare_product_pivot(start_date, end_date):
             'avg_price': invoice_items.aggregate(Avg('unit_price'))['unit_price__avg'] or 0
         })
     
-    return data 
+    return data
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'analytics/dashboard_cards.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        kpi_service = KPIService()
+        
+        # Kullanıcı yetkilerine göre KPI'ları filtrele
+        user = self.request.user
+        
+        context['cash_flow'] = kpi_service.get_cash_flow_summary()
+        context['overdue_receivables'] = kpi_service.get_overdue_receivables()
+        context['expense_trend'] = kpi_service.get_expense_trend()
+        context['sales_performance'] = kpi_service.get_sales_performance()
+        
+        # Sadece yetkili kullanıcılar için ek KPI'lar
+        if user.has_perm('analytics.view_all_kpis'):
+            context['pending_invoices'] = kpi_service.get_pending_invoices()
+            context['open_stock_requests'] = kpi_service.get_open_stock_requests()
+        
+        return context 
