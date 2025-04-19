@@ -38,7 +38,7 @@ jobs:
       POSTGRES_DB: ${{ secrets.DB_NAME }}
       POSTGRES_USER: ${{ secrets.DB_USER }}
       POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DJANGO_SETTINGS_MODULE: ${{ env.DJANGO_SETTINGS_MODULE }}
+      DJANGO_SETTINGS_MODULE: config.settings.ci
       SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
       PYTHONUNBUFFERED: 1
       DJANGO_TEST_RUNNER: django.test.runner.DiscoverRunner
