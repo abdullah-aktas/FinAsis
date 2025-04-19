@@ -26,6 +26,7 @@ urlpatterns = [
     path('crm/', include('crm.urls')),
     # path('api/', include('api.urls')),  # API URL'si geçici olarak kaldırıldı
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    path('offline-test/', TemplateView.as_view(template_name='offline_test.html'), name='offline_test'),
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
 ]
 
