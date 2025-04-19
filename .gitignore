@@ -114,3 +114,12 @@ venv.bak/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# Yedekleme
+backups/
+logs/
+*.sql
+*.tar.gz
+
+# Google Cloud
+*service-account*.json
