@@ -39,18 +39,16 @@ django-allauth==0.58.2
 django-rest-swagger==2.2.0
 dj-rest-auth==4.0.1
 
-# 3D Oyun Geliştirme
-# Kurulum sorunlarından dolayı yoruma alındı
-# ursina==6.1.2
-# panda3d==1.10.15
-
 # Yapay Zeka ve Makine Öğrenmesi
-# Derleyici gerektiren paketler yoruma alındı
-# numpy==1.24.3
-# pandas==2.0.3
-# scikit-learn==1.3.2
-# spacy>=3.7.2
-# langchain==0.0.27
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.3.2
+tensorflow==2.15.0
+prophet==1.1.4
+pytesseract==0.3.10
+opencv-python==4.8.1.78
+plotly==5.18.0
+joblib==1.3.2
 
 # Güvenlik ve Yetkilendirme
 python-jose==3.3.0
@@ -69,20 +67,11 @@ web3==6.15.1
 requests==2.31.0
 
 # Masaüstü Uygulaması
-# Kurulum sorunlarından dolayı yoruma alındı
-# PyQt6==6.6.1
-# PyQt6-Qt6==6.6.1
-# PyQt6-sip==13.6.0
 SQLAlchemy==2.0.27
 alembic==1.1.3
 
-# Diğer Paketler
-# pygame==2.5.2  # Kurulum sorunlarından dolayı yoruma alındı
-
 # PWA Support
 django-pwa==1.1.0
-# django-service-worker==0.3.1  # Bulunamadı
-# django-offline==0.1.1  # Bulunamadı
 
 # Channels
 channels==4.0.0
@@ -143,3 +132,16 @@ weasyprint==60.1
 tabulator-tables==5.5.0
 flatpickr==4.6.13
 htmx.org==1.9.6
+
+# Google Cloud Vision
+google-cloud-vision==3.4.4
+google-cloud-core==2.3.3
+google-api-core==2.11.1
+google-auth==2.22.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==1.0.0
+google-cloud-storage==2.10.0
+google-resumable-media==2.5.0
+googleapis-common-protos==1.60.0
+proto-plus==1.22.3
+protobuf==4.23.4
