@@ -67,6 +67,27 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
+class Contact(models.Model):
+    """Müşteri iletişim kişisi modeli"""
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='contacts', verbose_name='Müşteri')
+    name = models.CharField(max_length=100, verbose_name='Ad Soyad')
+    position = models.CharField(max_length=100, blank=True, verbose_name='Pozisyon')
+    email = models.EmailField(blank=True, verbose_name='E-posta')
+    phone = models.CharField(max_length=20, blank=True, verbose_name='Telefon')
+    is_primary = models.BooleanField(default=False, verbose_name='Ana İletişim Kişisi')
+    notes = models.TextField(blank=True, verbose_name='Notlar')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
+
+    class Meta:
+        verbose_name = 'İletişim Kişisi'
+        verbose_name_plural = 'İletişim Kişileri'
+        ordering = ['-is_primary', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.customer.name})"
+
 class CustomerNote(models.Model):
     """Müşteri notu modeli"""
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='notes', verbose_name='Müşteri')
@@ -86,7 +107,7 @@ class CustomerNote(models.Model):
 
 class CustomerDocument(models.Model):
     """Müşteri belgesi modeli"""
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='documents', verbose_name='Müşteri')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='customer_documents', verbose_name='Müşteri')
     title = models.CharField(max_length=200, verbose_name='Başlık')
     file = models.FileField(upload_to='customer_documents/', verbose_name='Dosya')
     description = models.TextField(blank=True, verbose_name='Açıklama')
@@ -178,7 +199,7 @@ class Sale(models.Model):
         ('other', _('Diğer')),
     )
     
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='sales', verbose_name=_('Müşteri'))
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='sales', verbose_name=_('Müşteri'))
     date = models.DateField(_('Satış Tarihi'), default=timezone.now)
     number = models.CharField(_('Satış Numarası'), max_length=50, unique=True)
     description = models.TextField(_('Açıklama'), blank=True)
@@ -305,7 +326,7 @@ class Document(models.Model):
     document_number = models.CharField(_('Belge Numarası'), max_length=50, blank=True, null=True)
     issue_date = models.DateField(_('Düzenleme Tarihi'))
     file = models.FileField(_('Dosya'), upload_to='documents/%Y/%m/')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='documents', null=True, blank=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='system_documents', null=True, blank=True)
     sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, related_name='documents', null=True, blank=True)
     notes = models.TextField(_('Notlar'), blank=True, null=True)
     uuid = models.CharField(_('UUID'), max_length=36, blank=True, null=True,
@@ -439,7 +460,7 @@ class Campaign(models.Model):
 
 class CampaignUsage(models.Model):
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='usages')
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='campaign_usages')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='campaign_usages')
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE, related_name='campaign_usages')
     discount_amount = models.DecimalField(_('İndirim Miktarı'), max_digits=10, decimal_places=2)
     bonus_amount = models.DecimalField(_('Bonus Miktarı'), max_digits=10, decimal_places=2, null=True, blank=True)
@@ -453,8 +474,8 @@ class CampaignUsage(models.Model):
         return f"{self.campaign.name} - {self.customer.name}"
 
 class ReferralProgram(models.Model):
-    referrer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='referrals_given')
-    referred = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='referrals_received')
+    referrer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='referrals_given')
+    referred = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='referrals_received')
     bonus_amount = models.DecimalField(_('Bonus Miktarı'), max_digits=10, decimal_places=2)
     status = models.CharField(_('Durum'), max_length=20, choices=[
         ('pending', 'Beklemede'),
@@ -592,7 +613,7 @@ class ServiceSubscription(models.Model):
         ('expired', 'Süresi Doldu'),
     ]
     
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='subscriptions')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='subscriptions')
     subscription_type = models.CharField(_('Abonelik Tipi'), max_length=20, choices=SUBSCRIPTION_TYPES)
     package = models.ForeignKey(PremiumPackage, on_delete=models.SET_NULL, null=True, blank=True)
     consulting_service = models.ForeignKey(ConsultingService, on_delete=models.SET_NULL, null=True, blank=True)
@@ -675,7 +696,7 @@ class LoyaltyLevel(models.Model):
 
 class CustomerLoyalty(models.Model):
     """Müşteri sadakat bilgileri modeli"""
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='loyalty_info')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='loyalty_info')
     program = models.ForeignKey(LoyaltyProgram, on_delete=models.CASCADE)
     current_level = models.ForeignKey(LoyaltyLevel, on_delete=models.SET_NULL, null=True)
     total_points = models.IntegerField(_('Toplam Puan'), default=0)

@@ -1,137 +1,105 @@
-# FinAsis Finansal Yönetim Sistemi
+# FinAsis - Finansal Yönetim ve Asistan Platformu
 
-FinAsis, şirketlerin finansal işlemlerini, müşteri ilişkilerini ve varlık yönetimini tek bir platform üzerinden yönetmelerine olanak tanıyan kapsamlı bir kurumsal kaynak planlama (ERP) çözümüdür.
+![FinAsis Logo](static/img/logo.png)
 
-## Proje Yapısı
+FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetimi süreçlerini dijitalleştirmesine yardımcı olan kapsamlı bir yazılım çözümüdür. Hem web uygulaması hem de masaüstü uygulaması olarak kullanılabilir.
 
-```
-/finasis_project         ← Ana dizin (git repo kökü)
-│
-├── manage.py            ← Django yönetim aracı
-├── Dockerfile           ← Docker yapılandırması
-├── docker-compose.yml   ← Docker Compose yapılandırması
-├── requirements.txt     ← Python bağımlılıkları
-├── README.md            ← Bu dosya
-├── .env                 ← Ortam değişkenleri (gizli)
-├── .gitignore           ← Git tarafından yok sayılacak dosyalar
-│
-├── /config              ← Ayarlar ve yönlendirmeler
-│   ├── __init__.py
-│   ├── settings/
-│   │   ├── __init__.py
-│   │   ├── base.py      ← Temel ayarlar
-│   │   ├── dev.py       ← Geliştirme ortamı ayarları
-│   │   └── prod.py      ← Üretim ortamı ayarları
-│   ├── urls.py          ← Ana URL yapılandırması
-│   ├── wsgi.py          ← WSGI uygulaması
-│   └── asgi.py          ← ASGI uygulaması
-│
-├── /apps                ← Tüm Django uygulamaları
-│   ├── accounting/      ← Muhasebe modülü
-│   ├── crm/             ← Müşteri İlişkileri ve Müşteri Yönetimi
-│   ├── hr_management/   ← İnsan Kaynakları ve Kullanıcı Yönetimi
-│   ├── stock_management/← Stok, Envanter ve Varlık Yönetimi
-│   ├── checks/          ← Çek Yönetimi
-│   ├── permissions/     ← İzin Sistemi
-│   ├── games/           ← Eğitim Oyunları
-│   │   ├── ursina_game/ ← 3D Finans Eğitim Oyunu
-│   │   └── game_app/    ← 2D Finans Oyunu
-│   └── integrations/    ← Dış Sistem Entegrasyonları
-│       ├── efatura/     ← E-Fatura entegrasyonu
-│       ├── bank_integration/ ← Banka entegrasyonları
-│       ├── external/    ← Diğer dış entegrasyonlar
-│       └── services/    ← Servis entegrasyonları
-│
-├── /core                ← Ortak modeller, utils, middleware
-│   ├── models.py        ← Temel model sınıfları
-│   ├── utils.py         ← Yardımcı fonksiyonlar
-│   ├── middleware.py    ← Özel middleware bileşenleri
-│   └── decorators.py    ← Özel decorator'lar
-│
-├── /templates           ← HTML şablonları
-│
-├── /static              ← Statik dosyalar (CSS, JS, img)
-│
-├── /tests               ← Uygulama dışı genel testler
-│
-├── /scripts             ← Yardımcı kurulum ve bakım betikleri
-│   ├── setup_postgres.sh
-│   └── create_superuser.py
-│
-└── /media               ← Kullanıcı tarafından yüklenen dosyalar
-```
+## Özellikler
+
+- **Muhasebe Yönetimi**: Hesap planı, faturalar, yevmiye kayıtları, vergi beyannameleri
+- **Müşteri İlişkileri (CRM)**: Müşteri yönetimi, fırsat takibi, aktivite planlaması
+- **E-Belge Entegrasyonu**: E-Fatura, E-Arşiv Fatura oluşturma ve yönetme
+- **Stok Yönetimi**: Ürün kataloğu, stok giriş/çıkış işlemleri, sayım
+- **Raporlama**: Mali tablolar, performans analizleri, iş zekası
+- **Sanal Şirket Simülasyonu**: Eğitim amaçlı sanal şirket oluşturma ve yönetme
+- **Masaüstü Uygulaması**: Çevrimiçi/çevrimdışı çalışma modu
 
 ## Kurulum
 
-### 1. Gereksinimleri Yükleme
+### Gereksinimler
 
+- Python 3.9 veya üzeri
+- pip (Python paket yöneticisi)
+- SQLite veya PostgreSQL
+
+### Web Uygulaması
+
+1. Projeyi klonlayın:
 ```bash
+git clone https://github.com/finasis/finasis.git
+cd finasis
+```
+
+2. Sanal ortam oluşturun ve etkinleştirin:
+```bash
+# Windows
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+venv\Scripts\activate
+
+# Linux/macOS
+python -m venv venv
+source venv/bin/activate
+```
+
+3. Bağımlılıkları yükleyin:
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Ortam Değişkenlerini Ayarlama
-
-`.env.example` dosyasını `.env` olarak kopyalayın ve gerekli değişkenleri ayarlayın:
-
-```bash
-cp .env.example .env
-# .env dosyasını düzenleyin
-```
-
-### 3. Veritabanını Kurma
-
+4. Veritabanını oluşturun:
 ```bash
 python manage.py migrate
 ```
 
-### 4. Süper Kullanıcı Oluşturma
-
+5. Yönetici kullanıcısı oluşturun:
 ```bash
 python manage.py createsuperuser
 ```
 
-### 5. Geliştirme Sunucusunu Başlatma
-
+6. Geliştirme sunucusunu başlatın:
 ```bash
 python manage.py runserver
 ```
 
-## Docker ile Kurulum
+7. Tarayıcınızda `http://127.0.0.1:8000` adresine giderek uygulamayı görüntüleyin.
 
+### Masaüstü Uygulaması
+
+#### Windows
 ```bash
-docker-compose up -d
+scripts\build_and_run.bat
 ```
 
-## Modüller
+#### Linux/macOS
+```bash
+chmod +x scripts/build_and_run.sh
+./scripts/build_and_run.sh
+```
 
-| Modül | Açıklama |
-|-------|----------|
-| Muhasebe | Genel muhasebe işlemleri, hesap planı, yevmiye fişleri |
-| CRM | Müşteri ilişkileri, teklifler, fırsatlar, görevler |
-| İK Yönetimi | Personel kayıtları, izinler, maaş bordroları |
-| Stok Yönetimi | Ürün, depo ve stok hareketleri yönetimi |
-| Banka | Banka hesapları ve işlemleri |
-| E-Fatura | Elektronik fatura entegrasyonu |
+## Dokümantasyon
 
-## Teknolojiler
+Detaylı dokümantasyon için `docs/` dizinine bakın:
 
-- Backend: Django, Django REST Framework
-- Frontend: HTML, CSS, JavaScript, React (bazı modüllerde)
-- Veritabanı: PostgreSQL
-- Cache: Redis
-- Görev Sıralaması: Celery, RabbitMQ
-- Konteynerizasyon: Docker, Docker Compose
+- [Kullanım Kılavuzu](docs/user_manual_tr.md) - Kullanıcılar için rehber
+- [Geliştirici Rehberi](docs/developer_guide_tr.md) - Geliştiriciler için teknik dokümantasyon
 
 ## Katkıda Bulunma
 
-Projeye katkıda bulunmak için lütfen bir pull request açın veya bir issue oluşturun.
+Projeye katkıda bulunmak isteyenler için adımlar:
+
+1. Projeyi fork edin
+2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun
 
 ## Lisans
 
-Bu proje özel lisans altında dağıtılmaktadır. Tüm hakları saklıdır.
+Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
----
+## İletişim
 
-© 2023-2025 FinAsis
+- Proje Websitesi: [https://finasis.com.tr](https://finasis.com.tr)
+- E-posta: [info@finasis.com.tr](mailto:info@finasis.com.tr)
+- Twitter: [@FinAsisTR](https://twitter.com/FinAsisTR)
+- LinkedIn: [FinAsis](https://www.linkedin.com/company/finasis/)

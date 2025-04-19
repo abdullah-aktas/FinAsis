@@ -6,7 +6,7 @@ class CustomerForm(forms.ModelForm):
     """Müşteri formu"""
     class Meta:
         model = Customer
-        fields = ['name', 'tax_number', 'tax_office', 'address', 'phone', 'email', 'notes']
+        fields = ['name', 'tax_number', 'tax_office', 'address', 'phone', 'email']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Müşteri Adı'}),
             'tax_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Vergi Numarası'}),
@@ -14,7 +14,6 @@ class CustomerForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Adres', 'rows': 3}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Telefon'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E-posta'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Notlar', 'rows': 3}),
         }
 
 class ContactForm(forms.ModelForm):
@@ -35,11 +34,11 @@ class OpportunityForm(forms.ModelForm):
     """Satış fırsatı formu"""
     class Meta:
         model = Opportunity
-        fields = ['customer', 'name', 'amount', 'probability', 'expected_close_date', 'status', 'notes']
+        fields = ['customer', 'name', 'value', 'probability', 'expected_close_date', 'status', 'notes']
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fırsat Adı'}),
-            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tutar'}),
+            'value': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Tutar'}),
             'probability': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Olasılık (%)'}),
             'expected_close_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
@@ -50,15 +49,16 @@ class ActivityForm(forms.ModelForm):
     """Aktivite formu"""
     class Meta:
         model = Activity
-        fields = ['customer', 'type', 'subject', 'description', 'due_date', 'status', 'notes']
+        fields = ['customer', 'opportunity', 'type', 'subject', 'description', 'due_date', 'completed', 'assigned_to']
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-control'}),
+            'opportunity': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Konu'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Açıklama', 'rows': 3}),
-            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Notlar', 'rows': 3}),
+            'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'assigned_to': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class DocumentForm(forms.ModelForm):

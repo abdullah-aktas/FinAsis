@@ -121,3 +121,22 @@ class EWaybill(models.Model):
 
     def __str__(self):
         return f"E-İrsaliye #{self.waybill_number} - {self.sender.name} -> {self.receiver.name}"
+
+class EDocumentSettings(models.Model):
+    """E-belge ayarları modeli."""
+    
+    company_name = models.CharField(max_length=255, verbose_name='Şirket Adı')
+    tax_id = models.CharField(max_length=20, verbose_name='Vergi Numarası')
+    api_key = models.CharField(max_length=255, verbose_name='API Anahtarı')
+    api_url = models.URLField(verbose_name='API URL')
+    certificate = models.FileField(upload_to='e-documents/certificates/', blank=True, null=True, verbose_name='Sertifika')
+    test_mode = models.BooleanField(default=True, verbose_name='Test Modu')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
+    
+    class Meta:
+        verbose_name = 'E-Belge Ayarı'
+        verbose_name_plural = 'E-Belge Ayarları'
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.tax_id}"

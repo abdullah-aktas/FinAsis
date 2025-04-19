@@ -29,68 +29,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     
-    # Third party apps
+    # Third party apps - önemli olanlar
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
     'widget_tweaks',
+    'debug_toolbar',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-    'debug_toolbar',
-    'django_celery_beat',
-    'django_celery_results',
-    'django_filters',
-    'drf_yasg',
-    'channels',
-    'django_redis',
-    'pwa',
     
-    # Core app
+    # Local apps
     'core',
-    
-    # Local apps - organized by module
+    'apps.accounts.apps.AccountsConfig',
+    'apps.virtual_company',
     'apps.accounting',
     'apps.crm',
-    'apps.hr_management',
-    'apps.stock_management',
-    'apps.checks',
-    'apps.permissions',
-    
-    # Games module
-    'apps.games.ursina_game',
-    'apps.games.game_app',
-    
-    # Integrations module
-    'apps.integrations',
-    'apps.integrations.efatura',
-    'apps.integrations.bank_integration',
-    'apps.integrations.external',
-    'apps.integrations.services',
-    
-    # Other features
-    'apps.blockchain',
-    'apps.ai_assistant',
-    'apps.seo',
-    'apps.virtual_company',
-    'apps.assets',
-    
-    # Finance apps
-    'apps.finance',
-    'apps.finance.accounting',
-    'apps.finance.banking',
-    'apps.finance.checks',
-    'apps.finance.einvoice',
-    
-    # Accounts app
-    'apps.accounts',
-    
-    # Analytics
-    'apps.analytics',
 ]
 
 MIDDLEWARE = [
@@ -172,7 +128,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth settings
-AUTH_USER_MODEL = 'apps.accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 # Django AllAuth settings
 SITE_ID = 1

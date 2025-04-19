@@ -1,11 +1,12 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}{{ _('FinAsis - Finansal Asistan ve Entegrasyon Platformu') }}{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}{{ _('finans, asistan, entegrasyon, muhasebe, crm, eğitim, yapay zeka') }}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}FinAsis - Finansal yönetim ve analiz sistemi{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}finans, muhasebe, stok yönetimi, crm, e-fatura{% endblock %}">
     <meta name="author" content="FinAsis">
     <meta name="robots" content="index, follow">
     <meta property="og:title" content="{% block og_title %}{{ _('FinAsis') }}{% endblock %}">
@@ -27,24 +28,21 @@
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <link rel="apple-touch-icon" href="{% static 'icons/icon-192x192.png' %}">
     
-    <title>FinAsis - {% block title %}{% endblock %}</title>
+    <title>{% block title %}FinAsis{% endblock %}</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link href="{% static 'css/main.css' %}" rel="stylesheet">
-    
-    {% block extra_css %}{% endblock %}
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -67,152 +65,185 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                    <img src="{% static 'img/logo.png' %}" alt="FinAsis Logo" height="36" class="me-2">
+                    <span class="fw-bold">FinAsis</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="modulesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Modüller
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="modulesDropdown">
+                                <li><a class="dropdown-item" href="{% url 'accounting:dashboard' %}">Muhasebe</a></li>
+                                <li><a class="dropdown-item" href="{% url 'crm:dashboard' %}">CRM</a></li>
+                                <!-- <li><a class="dropdown-item" href="{% url 'hr_management:dashboard' %}">İK Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="{% url 'stock_management:dashboard' %}">Stok Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="{% url 'checks:dashboard' %}">Çek Yönetimi</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="{% url 'integrations:dashboard' %}">Entegrasyonlar</a></li> -->
+                                <li><hr class="dropdown-divider"></li>
+                                <!-- <li><a class="dropdown-item" href="{% url 'games:dashboard' %}">Eğitim Oyunları</a></li> -->
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <!-- <a class="nav-link" href="{% url 'reporting:dashboard' %}">Raporlar</a> -->
+                        </li>
+                        <li class="nav-item">
+                            <!-- <a class="nav-link" href="{% url 'education:dashboard' %}">Eğitim</a> -->
+                        </li>
+                        <li class="nav-item">
+                            <!-- <a class="nav-link" href="{% url 'ai_assistant:dashboard' %}">AI Asistan</a> -->
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-circle bg-white text-primary me-2 d-flex align-items-center justify-content-center">
+                                    <span class="initials">{{ user.get_initials }}</span>
+                                </div>
+                                <span>{{ user.get_full_name|default:user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <!-- <li><a class="dropdown-item" href="{% url 'dashboard' %}">Gösterge Paneli</a></li> -->
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">Ayarlar</a></li>
+                                {% if user.is_staff %}
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Yönetim Paneli</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Çıkış Yap</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell position-relative">
+                                    {% if notification_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ notification_count }}
+                                    </span>
+                                    {% endif %}
+                                </i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
+                                <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <span>Bildirimler</span>
+                                    <!-- <a href="{% url 'notifications:mark_all_read' %}" class="text-primary small">Tümünü Okundu İşaretle</a> -->
+                                </div>
+                                <div class="notifications-container">
+                                    {% if notifications %}
+                                        {% for notification in notifications %}
+                                        <a href="{{ notification.url }}" class="dropdown-item notification-item {% if not notification.read %}unread{% endif %}">
+                                            <div class="d-flex">
+                                                <div class="notification-icon {{ notification.level }}">
+                                                    <i class="bi {{ notification.icon }}"></i>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <p class="mb-1">{{ notification.message }}</p>
+                                                    <small class="text-muted">{{ notification.created_at|timesince }} önce</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="dropdown-item text-center py-3">
+                                            <p class="text-muted mb-0">Bildirim bulunmuyor</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="dropdown-footer">
+                                    <!-- <a href="{% url 'notifications:list' %}" class="text-center d-block">Tüm Bildirimleri Gör</a> -->
+                                </div>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">Giriş Yap</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light ms-lg-2" href="{% url 'accounts:register' %}">Kayıt Ol</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-globe"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                                <!-- <li><a class="dropdown-item" href="{% url 'set_language' %}?language=tr">Türkçe</a></li> -->
+                                <!-- <li><a class="dropdown-item" href="{% url 'set_language' %}?language=en">English</a></li> -->
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    {% block breadcrumb %}{% endblock %}
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer mt-auto py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023-2025 FinAsis. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-white me-2"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'js/notifications.js' %}"></script>
+    {% endif %}
+    
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
             });
         }
     </script>
-</head>
-<body {% block body_attrs %}{% endblock %}>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-chart-line me-2"></i>FinAsis
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
-                           href="{% url 'home' %}">
-                            <i class="fas fa-home me-1"></i>Ana Sayfa
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'virtual-company' in request.path %}active{% endif %}" 
-                           href="{% url 'virtual_company:dashboard' %}">
-                            <i class="fas fa-building me-1"></i>Sanal Şirketler
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'accounting' in request.path %}active{% endif %}" 
-                           href="{% url 'accounting:dashboard' %}">
-                            <i class="fas fa-file-invoice me-1"></i>Muhasebe
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
-                               data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle me-1"></i>{{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                        <i class="fas fa-user-cog me-2"></i>Profil
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:settings' %}">
-                                        <i class="fas fa-cog me-2"></i>Ayarlar
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Çıkış
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i>Giriş
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:register' %}">
-                                <i class="fas fa-user-plus me-1"></i>Kayıt
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Ana İçerik -->
-    <main class="main-content">
-        <div class="container">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            {% block content %}{% endblock %}
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Hızlı Bağlantılar</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}">Ana Sayfa</a></li>
-                        <li><a href="{% url 'virtual_company:dashboard' %}">Sanal Şirketler</a></li>
-                        <li><a href="{% url 'accounting:dashboard' %}">Muhasebe</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>İletişim</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-envelope me-2"></i>info@finasis.com</li>
-                        <li><i class="fas fa-phone me-2"></i>+90 (555) 123 45 67</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i>İstanbul, Türkiye</li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Sosyal Medya</h5>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="mt-4 mb-3">
-            <div class="text-center">
-                <p class="mb-0">&copy; {% now "Y" %} FinAsis. Tüm hakları saklıdır.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{% static 'js/main.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

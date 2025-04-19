@@ -410,4 +410,34 @@ class FinancialReport(models.Model):
         verbose_name_plural = _("Mali Raporlar")
     
     def __str__(self):
-        return f"{self.name} ({self.start_date.strftime('%d.%m.%Y')} - {self.end_date.strftime('%d.%m.%Y')})" 
+        return f"{self.name} ({self.start_date.strftime('%d.%m.%Y')} - {self.end_date.strftime('%d.%m.%Y')})"
+
+
+class Invoice(models.Model):
+    """Fatura modeli."""
+    
+    customer = models.ForeignKey('Customer', on_delete=models.CASCADE, verbose_name='Müşteri')
+    invoice_number = models.CharField(max_length=50, unique=True, verbose_name='Fatura Numarası')
+    issue_date = models.DateField(verbose_name='Düzenleme Tarihi')
+    due_date = models.DateField(verbose_name='Vade Tarihi')
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Tutar')
+    status = models.CharField(max_length=20, choices=[
+        ('DRAFT', 'Taslak'),
+        ('APPROVED', 'Onaylandı'),
+        ('PAID', 'Ödendi'),
+        ('CANCELED', 'İptal Edildi')
+    ], default='DRAFT', verbose_name='Durum')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
+    
+    class Meta:
+        verbose_name = 'Fatura'
+        verbose_name_plural = 'Faturalar'
+        ordering = ['-issue_date']
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize the Invoice model with proper arguments."""
+        super().__init__(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.invoice_number} - {self.customer.name}" 

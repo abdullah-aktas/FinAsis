@@ -1,0 +1,157 @@
+# Türkçe çeviri dosyası.
+# This file is distributed under the same license as the FinAsis package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-15 10:00+0300\n"
+"PO-Revision-Date: 2023-05-15 10:00+0300\n"
+"Last-Translator: FinAsis Developer <developer@example.com>\n"
+"Language-Team: Turkish <tr@example.com>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: core/settings/base.py:125
+msgid "Türkçe"
+msgstr "Türkçe"
+
+#: core/settings/base.py:126
+msgid "English"
+msgstr "İngilizce"
+
+#: apps/finance/accounting/models.py:24
+msgid "Müşteri"
+msgstr "Müşteri"
+
+#: apps/finance/accounting/models.py:25
+msgid "Fatura Numarası"
+msgstr "Fatura Numarası"
+
+#: apps/finance/accounting/models.py:26
+msgid "Düzenleme Tarihi"
+msgstr "Düzenleme Tarihi"
+
+#: apps/finance/accounting/models.py:27
+msgid "Vade Tarihi"
+msgstr "Vade Tarihi"
+
+#: apps/finance/accounting/models.py:28
+msgid "Toplam Tutar"
+msgstr "Toplam Tutar"
+
+#: apps/finance/accounting/models.py:29
+msgid "Durum"
+msgstr "Durum"
+
+#: apps/finance/accounting/models.py:34
+msgid "Taslak"
+msgstr "Taslak"
+
+#: apps/finance/accounting/models.py:35
+msgid "Onaylandı"
+msgstr "Onaylandı"
+
+#: apps/finance/accounting/models.py:36
+msgid "Ödendi"
+msgstr "Ödendi"
+
+#: apps/finance/accounting/models.py:37
+msgid "İptal Edildi"
+msgstr "İptal Edildi"
+
+#: apps/finance/accounting/models.py:40
+msgid "Oluşturulma Tarihi"
+msgstr "Oluşturulma Tarihi"
+
+#: apps/finance/accounting/models.py:41
+msgid "Güncellenme Tarihi"
+msgstr "Güncellenme Tarihi"
+
+#: apps/finance/accounting/models.py:45
+msgid "Fatura"
+msgstr "Fatura"
+
+#: apps/finance/accounting/models.py:46
+msgid "Faturalar"
+msgstr "Faturalar"
+
+#: apps/integrations/efatura/models.py:15
+msgid "Şirket Adı"
+msgstr "Şirket Adı"
+
+#: apps/integrations/efatura/models.py:16
+msgid "Vergi Numarası"
+msgstr "Vergi Numarası"
+
+#: apps/integrations/efatura/models.py:17
+msgid "API Anahtarı"
+msgstr "API Anahtarı"
+
+#: apps/integrations/efatura/models.py:18
+msgid "API URL"
+msgstr "API URL"
+
+#: apps/integrations/efatura/models.py:19
+msgid "Sertifika"
+msgstr "Sertifika"
+
+#: apps/integrations/efatura/models.py:20
+msgid "Test Modu"
+msgstr "Test Modu"
+
+#: apps/integrations/efatura/models.py:24
+msgid "E-Belge Ayarı"
+msgstr "E-Belge Ayarı"
+
+#: apps/integrations/efatura/models.py:25
+msgid "E-Belge Ayarları"
+msgstr "E-Belge Ayarları"
+
+#: apps/integrations/bank_integration/models.py:16
+msgid "Hesap Adı"
+msgstr "Hesap Adı"
+
+#: apps/integrations/bank_integration/models.py:17
+msgid "Hesap Numarası"
+msgstr "Hesap Numarası"
+
+#: apps/integrations/bank_integration/models.py:18
+msgid "Para Birimi"
+msgstr "Para Birimi"
+
+#: apps/integrations/bank_integration/models.py:22
+msgid "Banka Hesabı"
+msgstr "Banka Hesabı"
+
+#: apps/integrations/bank_integration/models.py:23
+msgid "Banka Hesapları"
+msgstr "Banka Hesapları"
+
+#: apps/users/models.py:17
+msgid "E-posta Adresi"
+msgstr "E-posta Adresi"
+
+#: apps/users/models.py:19
+msgid "Ad"
+msgstr "Ad"
+
+#: apps/users/models.py:20
+msgid "Soyad"
+msgstr "Soyad"
+
+#: apps/users/models.py:21
+msgid "Aktif"
+msgstr "Aktif"
+
+#: apps/users/models.py:22
+msgid "Personel"
+msgstr "Personel"
+
+#: apps/users/models.py:23
+msgid "Yönetici"
+msgstr "Yönetici" 

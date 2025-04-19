@@ -7,11 +7,24 @@ from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, came
 from ursina.prefabs.first_person_controller import FirstPersonController
 
 # Django ayarlarını yükle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finasis.settings')
-import django
-django.setup()
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
-from company_management.models import Company, Department, Employee
+# Oyun içindeki şirket modelleri yerine sınıflar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
 
 # Oyun ayarları
 game_settings = {
