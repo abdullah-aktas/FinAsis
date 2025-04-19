@@ -1,12 +1,15 @@
 from django.urls import path
-from . import views
+from .views import dashboard, reports
 
 app_name = 'analytics'
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
-    path('reports/', views.reports, name='reports'),
-    path('reports/<int:report_id>/', views.report_detail, name='report_detail'),
-    path('charts/', views.charts, name='charts'),
-    path('export/', views.export_data, name='export_data'),
+    # Pivot Tablo
+    path('pivot/', dashboard.pivot_table_view, name='pivot_table'),
+    path('pivot-data/', dashboard.get_pivot_data, name='pivot_data'),
+    
+    # İşlem Grid'i
+    path('transactions/', reports.transaction_grid, name='transaction_grid'),
+    path('transactions/list/', reports.get_transactions, name='get_transactions'),
+    path('transactions/export/', reports.export_transactions, name='export_transactions'),
 ] 

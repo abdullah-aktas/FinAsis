@@ -74,7 +74,7 @@ requests==2.31.0
 # PyQt6-Qt6==6.6.1
 # PyQt6-sip==13.6.0
 SQLAlchemy==2.0.27
-alembic==1.13.1
+alembic==1.1.3
 
 # Diğer Paketler
 # pygame==2.5.2  # Kurulum sorunlarından dolayı yoruma alındı
@@ -94,4 +94,52 @@ isort==5.12.0
 
 # Miscellaneous
 Pillow==10.2.0
-python-dateutil==2.8.2 
+python-dateutil==2.8.2
+
+# API Documentation
+drf-yasg==1.21.7
+
+# Entegrasyon Paketleri
+fastapi==0.104.1
+uvicorn==0.24.0
+python-dotenv==1.0.0
+requests==2.31.0
+aiohttp==3.9.1
+shopify-python-api==12.3.0
+woocommerce==3.0.0
+magento-api-client==1.0.0
+iyzipay==1.0.37
+paytr==1.0.0
+payu-python==1.0.0
+zeep==4.2.1
+xmltodict==0.13.0
+cryptography==41.0.5
+python-jose==3.3.0
+redis==5.0.1
+celery==5.3.4
+
+# Hava Durumu ve Finans API'leri
+requests-ip-rotator==1.0.14
+yfinance==0.2.36
+alpha_vantage==2.3.1
+finnhub-python==2.4.18
+openweathermap==0.1.0
+
+# Environment Variables
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
+
+# GİB Entegrasyonu
+lxml==4.9.3
+requests==2.31.0
+python-dotenv==1.0.0
+xmlsig==0.1.1
+
+# Added from the code block
+pandas==2.1.0
+openpyxl==3.1.2
+xlsxwriter==3.1.2
+weasyprint==60.1
+tabulator-tables==5.5.0
+flatpickr==4.6.13
+htmx.org==1.9.6
