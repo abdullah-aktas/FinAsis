@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'apps.accounting',
     'apps.crm',
     'apps.permissions',
+    'edocument.apps.EdocumentConfig',
+    'apps.finance.apps.FinanceConfig',
 ]
 
 MIDDLEWARE = [
@@ -101,11 +103,32 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
         'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '5432'),
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 600,  # Bağlantı havuzu süresi (saniye)
         'OPTIONS': {
             'connect_timeout': 10,
-        }
+            'client_encoding': 'UTF8',
+            'timezone': 'UTC',
+            'sslmode': 'prefer',
+        },
+        'ATOMIC_REQUESTS': True,  # Her istek için otomatik transaction
+        'CONN_HEALTH_CHECKS': True,  # Bağlantı sağlık kontrolleri
     }
+}
+
+# PostgreSQL özel ayarları
+POSTGRES_OPTIMIZATIONS = {
+    'statement_timeout': 30000,  # 30 saniye
+    'lock_timeout': 10000,  # 10 saniye
+    'idle_in_transaction_session_timeout': 60000,  # 60 saniye
+    'work_mem': '64MB',  # Sıralama ve hash işlemleri için bellek
+    'maintenance_work_mem': '256MB',  # Bakım işlemleri için bellek
+    'effective_cache_size': '1GB',  # Önbellek boyutu
+    'random_page_cost': 1.1,  # SSD için optimize
+    'effective_io_concurrency': 200,  # Paralel I/O işlemleri
+    'max_worker_processes': 8,  # Worker process sayısı
+    'max_parallel_workers': 8,  # Paralel worker sayısı
+    'max_parallel_workers_per_gather': 4,  # Her sorgu için paralel worker
+    'max_parallel_maintenance_workers': 4,  # Bakım işlemleri için paralel worker
 }
 
 # Password validation
@@ -168,28 +191,50 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '20/hour',
         'user': '1000/day',
         'login': '5/minute',  # Özel login throttle
+        'token_obtain': '5/15minute',  # Token endpoint için özel kısıtlama
+        'token_refresh': '20/hour',  # Token yenileme için özel kısıtlama
     },
 }
 
 # JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    # Token süreleri - .env'den alınabilir
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', 60))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_LIFETIME_DAYS', 1))),
+    'MOBILE_ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_MOBILE_TOKEN_LIFETIME_MINUTES', 30))),
+    'ADMIN_ACCESS_TOKEN_LIFETIME': timedelta(hours=int(os.getenv('JWT_ADMIN_TOKEN_LIFETIME_HOURS', 2))),
+    'REMEMBER_ME_LIFETIME': timedelta(days=int(os.getenv('JWT_REMEMBER_ME_LIFETIME_DAYS', 7))),
+    
+    # Token yenileme ayarları
+    'ROTATE_REFRESH_TOKENS': True,  # Refresh token kullanıldığında yeni token üretilir
+    'BLACKLIST_AFTER_ROTATION': True,  # Eski token blacklist'e eklenir
+    
+    # Algoritma ve imzalama ayarları
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    
+    # Token içeriği ayarları
     'TOKEN_TYPE_CLAIM': 'token_type',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    
+    # Sliding token ayarları
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_SLIDING_TOKEN_LIFETIME_MINUTES', 30))),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=int(os.getenv('JWT_SLIDING_TOKEN_REFRESH_LIFETIME_DAYS', 1))),
+    
+    # Token yeniden kullanım ayarları
+    'JTI_CLAIM': 'jti',
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSerializer',
 }
 
 # Authentication settings
@@ -232,8 +277,8 @@ COMPANY_PHONE = os.getenv('COMPANY_PHONE')
 COMPANY_EMAIL = os.getenv('COMPANY_EMAIL')
 
 # Brute-force koruma ayarları
-MAX_LOGIN_ATTEMPTS = 5
-LOGIN_BLOCK_TIME_MINUTES = 15
+MAX_LOGIN_ATTEMPTS = int(os.getenv('MAX_LOGIN_ATTEMPTS', 5))
+LOGIN_BLOCK_TIME_MINUTES = int(os.getenv('LOGIN_BLOCK_TIME_MINUTES', 15))
 BRUTE_FORCE_PROTECTED_URLS = [
     '/api/token/',
     '/api/token/refresh/',

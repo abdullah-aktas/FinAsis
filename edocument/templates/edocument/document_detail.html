@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}E-Belge Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">E-Belge Detayı</h1>
+            
+            <!-- Belge Bilgileri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Belge Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Belge No:</strong> {{ document.invoice_number }}</p>
+                            <p><strong>Tip:</strong> {{ document.get_document_type_display }}</p>
+                            <p><strong>Durum:</strong> 
+                                <span class="badge bg-{{ document.status|lower }}">
+                                    {{ document.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Oluşturulma Tarihi:</strong> {{ document.created_at|date:"d.m.Y H:i" }}</p>
+                            <p><strong>Gönderim Tarihi:</strong> {{ document.sent_at|date:"d.m.Y H:i"|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alıcı Bilgileri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Alıcı Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>VKN:</strong> {{ document.receiver_vkn }}</p>
+                    <p><strong>Unvan:</strong> {{ document.receiver_name }}</p>
+                </div>
+            </div>
+            
+            <!-- XML İçeriği -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">XML İçeriği</h5>
+                    <button class="btn btn-sm btn-primary" id="previewXml">XML Önizle</button>
+                </div>
+                <div class="card-body">
+                    <pre id="xmlContent" style="display: none;"><code>{{ document.xml_content }}</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- İşlem Geçmişi -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">İşlem Geçmişi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for log in logs %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-{{ log.status|lower }}"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">{{ log.get_action_display }}</h6>
+                                <small class="text-muted">{{ log.created_at|date:"d.m.Y H:i" }}</small>
+                                <p class="mb-0">{{ log.message }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center">Henüz işlem geçmişi bulunmuyor.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.bg-success { background-color: #28a745 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('previewXml').addEventListener('click', async function() {
+    const xmlContent = document.getElementById('xmlContent');
+    if (xmlContent.style.display === 'none') {
+        try {
+            const response = await fetch(`/edocument/{{ document.uuid }}/preview-xml/`);
+            const data = await response.json();
+            xmlContent.querySelector('code').textContent = data.xml;
+            xmlContent.style.display = 'block';
+            this.textContent = 'XML Gizle';
+        } catch (error) {
+            alert('XML içeriği alınamadı: ' + error);
+        }
+    } else {
+        xmlContent.style.display = 'none';
+        this.textContent = 'XML Önizle';
+    }
+});
+</script>
+{% endblock %} 

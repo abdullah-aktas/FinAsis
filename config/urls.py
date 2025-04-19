@@ -15,6 +15,7 @@ urlpatterns = [
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
     path('api/', include('apps.api.urls')),
+    path('edocument/', include('edocument.urls')),
 ]
 
 if settings.DEBUG:

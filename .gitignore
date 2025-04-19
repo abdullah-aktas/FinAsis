@@ -33,6 +33,7 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media
+static/
 
 # Backup files
 *.bak
@@ -51,6 +52,8 @@ media
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+*.swp
+*.swo
 
 # Node
 node_modules/

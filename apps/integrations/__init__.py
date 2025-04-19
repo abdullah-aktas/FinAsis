@@ -7,3 +7,14 @@ Bu paket, farklı dış sistemlerle entegrasyonları içerir:
 - Banka entegrasyonları (bank_integration)
 - Diğer dış servis entegrasyonları (external, services)
 """
+
+"""
+FinAsis Entegrasyon Modülü
+
+Bu modül, çeşitli e-ticaret platformları, ödeme sistemleri ve ERP sistemleri ile
+entegrasyon sağlar.
+"""
+
+from .ecommerce.trendyol import TrendyolIntegration
+
+__all__ = ['TrendyolIntegration']

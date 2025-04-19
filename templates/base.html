@@ -25,8 +25,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Finasis">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <link rel="apple-touch-icon" href="{% static 'icons/icon-192x192.png' %}">
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/icons/icon-192x192.png' %}">
     
     <title>{% block title %}FinAsis{% endblock %}</title>
     
@@ -43,6 +43,38 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA ve IndexedDB Scripts -->
+    <script src="{% static 'pwa/indexeddb_service.js' %}"></script>
+    <script>
+        // ServiceWorker Kaydı
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/pwa/serviceworker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker başarıyla kaydedildi:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker kaydı başarısız:', error);
+                    });
+            });
+        }
+
+        // Çevrimdışı/Çevrimiçi Durum Göstergesi
+        function updateOnlineStatus() {
+            const statusIndicator = document.getElementById('connection-status');
+            if (navigator.onLine) {
+                statusIndicator.innerHTML = '<i class="bi bi-wifi"></i> Çevrimiçi';
+                statusIndicator.className = 'connection-status online';
+            } else {
+                statusIndicator.innerHTML = '<i class="bi bi-wifi-off"></i> Çevrimdışı';
+                statusIndicator.className = 'connection-status offline';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+    </script>
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -68,6 +100,9 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
+    <!-- Bağlantı Durumu Göstergesi -->
+    <div id="connection-status" class="connection-status"></div>
+    
     <!-- Header -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">

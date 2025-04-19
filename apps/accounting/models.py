@@ -960,3 +960,62 @@ class TaskNote(BaseModel):
         verbose_name = 'Görev Notu'
         verbose_name_plural = 'Görev Notları'
         ordering = ['-created_at']
+
+class JournalEntry(BaseModel):
+    """Yevmiye kaydı modeli"""
+    entry_number = models.CharField(max_length=20, unique=True, verbose_name='Kayıt Numarası')
+    date = models.DateField(verbose_name='Tarih')
+    description = models.TextField(verbose_name='Açıklama')
+    debit_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Borç')
+    credit_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Alacak')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
+    
+    class Meta:
+        verbose_name = 'Yevmiye Kaydı'
+        verbose_name_plural = 'Yevmiye Kayıtları'
+        ordering = ['-date']
+        
+    def __str__(self):
+        return f"{self.entry_number} - {self.date}"
+
+class AccountPlan(BaseModel):
+    """Hesap planı modeli"""
+    code = models.CharField(max_length=20, unique=True, verbose_name='Hesap Kodu')
+    name = models.CharField(max_length=200, verbose_name='Hesap Adı')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children', verbose_name='Üst Hesap')
+    level = models.PositiveIntegerField(verbose_name='Seviye')
+    type = models.CharField(max_length=20, choices=[
+        ('asset', 'Varlık'),
+        ('liability', 'Yükümlülük'),
+        ('equity', 'Özkaynak'),
+        ('income', 'Gelir'),
+        ('expense', 'Gider'),
+    ], verbose_name='Hesap Tipi')
+    
+    class Meta:
+        verbose_name = 'Hesap Planı'
+        verbose_name_plural = 'Hesap Planı'
+        ordering = ['code']
+        
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+class BalanceSheet(BaseModel):
+    """Bilanço modeli"""
+    date = models.DateField(verbose_name='Tarih')
+    total_assets = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Varlıklar')
+    total_liabilities = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Yükümlülükler')
+    total_equity = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Özkaynaklar')
+    
+    class Meta:
+        verbose_name = 'Bilanço'
+        verbose_name_plural = 'Bilançolar'
+        ordering = ['-date']
+        
+    def __str__(self):
+        return f"Bilanço - {self.date}"
+        
+    def save(self, *args, **kwargs):
+        # Toplam özkaynakları hesapla
+        self.total_equity = self.total_assets - self.total_liabilities
+        super().save(*args, **kwargs)

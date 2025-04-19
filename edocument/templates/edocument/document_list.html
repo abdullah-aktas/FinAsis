@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}E-Belgelerim{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">E-Belgelerim</h1>
+    
+    <!-- Filtreleme -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Durum</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Tümü</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block">Filtrele</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Belge Listesi -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Belge No</th>
+                    <th>Tip</th>
+                    <th>Durum</th>
+                    <th>Alıcı</th>
+                    <th>Tarih</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                <tr>
+                    <td>{{ document.invoice_number }}</td>
+                    <td>{{ document.get_document_type_display }}</td>
+                    <td>
+                        <span class="badge bg-{{ document.status|lower }}">
+                            {{ document.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ document.receiver_name }}</td>
+                    <td>{{ document.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'edocument:document_detail' document.uuid %}" 
+                           class="btn btn-sm btn-info">
+                            Detay
+                        </a>
+                        {% if document.status == 'DRAFT' %}
+                        <button class="btn btn-sm btn-success send-document" 
+                                data-uuid="{{ document.uuid }}">
+                            Gönder
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Henüz e-belge bulunmuyor.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Sayfalama -->
+    {% if documents.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if documents.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documents.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    Önceki
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in documents.paginator.page_range %}
+            <li class="page-item {% if documents.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+            
+            {% if documents.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documents.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    Sonraki
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.send-document').forEach(button => {
+    button.addEventListener('click', async function() {
+        const uuid = this.dataset.uuid;
+        if (confirm('Belgeyi göndermek istediğinize emin misiniz?')) {
+            try {
+                const response = await fetch(`/edocument/${uuid}/send/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('Belge başarıyla gönderildi.');
+                    location.reload();
+                } else {
+                    alert('Hata: ' + data.message);
+                }
+            } catch (error) {
+                alert('Bir hata oluştu: ' + error);
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

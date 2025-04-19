@@ -55,10 +55,121 @@
         background-color: #343a40;
         color: white;
     }
+    
+    /* Yeni Widget Stilleri */
+    .widget-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .weather-widget {
+        background: linear-gradient(135deg, #00b4db, #0083b0);
+        color: white;
+    }
+    
+    .finance-widget {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+    }
+    
+    .game-widget {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+    }
+    
+    .widget-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .widget-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .refresh-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .refresh-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Widgets Section -->
+<section class="container my-4">
+    <div class="row">
+        <!-- Hava Durumu Widget -->
+        <div class="col-md-4">
+            <div class="widget-card weather-widget">
+                <div class="widget-title">
+                    <i class="bi bi-cloud-sun"></i> Hava Durumu
+                </div>
+                <div class="widget-content">
+                    <div id="weather-info">
+                        <div class="location">📍 <span id="city">Yükleniyor...</span></div>
+                        <div class="temperature"><span id="temp">--</span>°C</div>
+                        <div class="condition"><span id="condition">--</span></div>
+                    </div>
+                    <button class="refresh-btn" onclick="updateWeather()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Borsa Bilgisi Widget -->
+        <div class="col-md-4">
+            <div class="widget-card finance-widget">
+                <div class="widget-title">
+                    <i class="bi bi-graph-up"></i> Piyasa Bilgileri
+                </div>
+                <div class="widget-content">
+                    <div id="finance-info">
+                        <div>BIST100: <span id="bist100">--</span></div>
+                        <div>USD/TRY: <span id="usd">--</span></div>
+                        <div>EUR/TRY: <span id="eur">--</span></div>
+                        <div>Altın: <span id="gold">--</span></div>
+                    </div>
+                    <button class="refresh-btn" onclick="updateFinance()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Oyun Modülü Widget -->
+        <div class="col-md-4">
+            <div class="widget-card game-widget">
+                <div class="widget-title">
+                    <i class="bi bi-controller"></i> Finansal Simülasyon Oyunu
+                </div>
+                <div class="widget-content">
+                    <div>
+                        <p>Şirket kur, bütçe yap, yatırımlarını yönet – öğrenirken eğlen!</p>
+                        <a href="{% url 'games:financial_simulation' %}" class="btn btn-light">
+                            <i class="bi bi-play-fill"></i> Oyunu Başlat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
@@ -326,4 +437,47 @@
         </div>
     </div>
 </footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Hava Durumu Güncelleme
+async function updateWeather() {
+    try {
+        const response = await fetch('/api/weather/');
+        const data = await response.json();
+        
+        document.getElementById('city').textContent = data.city;
+        document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('condition').textContent = data.condition;
+    } catch (error) {
+        console.error('Hava durumu güncellenirken hata:', error);
+    }
+}
+
+// Finans Bilgilerini Güncelleme
+async function updateFinance() {
+    try {
+        const response = await fetch('/api/finance/');
+        const data = await response.json();
+        
+        document.getElementById('bist100').textContent = data.bist100;
+        document.getElementById('usd').textContent = data.usd;
+        document.getElementById('eur').textContent = data.eur;
+        document.getElementById('gold').textContent = data.gold;
+    } catch (error) {
+        console.error('Finans bilgileri güncellenirken hata:', error);
+    }
+}
+
+// Sayfa yüklendiğinde widget'ları güncelle
+document.addEventListener('DOMContentLoaded', () => {
+    updateWeather();
+    updateFinance();
+    
+    // 15 dakikada bir otomatik güncelleme
+    setInterval(updateWeather, 15 * 60 * 1000);
+    setInterval(updateFinance, 15 * 60 * 1000);
+});
+</script>
 {% endblock %} 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+            xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+            targetNamespace="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+            xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+            elementFormDefault="qualified"
+            version="2.1">
+
+    <xs:import namespace="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" schemaLocation="UBLCommonAggregateComponents-2.1.xsd"/>
+    <xs:import namespace="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" schemaLocation="UBLCommonBasicComponents-2.1.xsd"/>
+
+    <xs:element name="Invoice" type="InvoiceType"/>
+    
+    <xs:complexType name="InvoiceType">
+        <xs:sequence>
+            <xs:element ref="cbc:UBLVersionID"/>
+            <xs:element ref="cbc:CustomizationID"/>
+            <xs:element ref="cbc:ProfileID"/>
+            <xs:element ref="cbc:ID"/>
+            <xs:element ref="cbc:UUID"/>
+            <xs:element ref="cbc:IssueDate"/>
+            <xs:element ref="cbc:IssueTime"/>
+            <xs:element ref="cbc:InvoiceTypeCode"/>
+            <xs:element ref="cbc:DocumentCurrencyCode"/>
+            <xs:element ref="cbc:LineCountNumeric"/>
+            <xs:element ref="cac:AccountingSupplierParty"/>
+            <xs:element ref="cac:AccountingCustomerParty"/>
+            <xs:element ref="cac:TaxTotal"/>
+            <xs:element ref="cac:LegalMonetaryTotal"/>
+            <xs:element ref="cac:InvoiceLine" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema> 

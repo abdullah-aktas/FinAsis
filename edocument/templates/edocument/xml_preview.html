@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}XML Önizleme{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/xml-preview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">XML Önizleme</h2>
+        </div>
+        <div class="card-body">
+            <div class="toolbar">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="lineNumbersToggle" checked>
+                    <label class="form-check-label" for="lineNumbersToggle">Satır Numaraları</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="wrapToggle">
+                    <label class="form-check-label" for="wrapToggle">Metin Sarma</label>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="formatBtn">
+                        <i class="fas fa-code"></i> Formatla
+                    </button>
+                    <button type="button" class="btn btn-info" id="validateBtn">
+                        <i class="fas fa-check"></i> Doğrula
+                    </button>
+                    <button type="button" class="btn btn-success" id="signBtn">
+                        <i class="fas fa-signature"></i> İmzala
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="downloadBtn">
+                        <i class="fas fa-download"></i> İndir
+                    </button>
+                </div>
+            </div>
+            <div class="xml-editor with-line-numbers" id="xmlEditor" contenteditable="true" spellcheck="false"></div>
+            <input type="hidden" id="xmlContent" value="{{ xml_content }}">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/xml-preview.js' %}"></script>
+{% endblock %} 

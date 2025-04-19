@@ -812,3 +812,27 @@ class Partner(models.Model):
     
     def __str__(self):
         return f"{self.company_name} - {self.program.name}"
+
+class InteractionLog(models.Model):
+    """Müşteri etkileşim kaydı modeli"""
+    INTERACTION_TYPES = [
+        ('call', 'Telefon'),
+        ('email', 'E-posta'),
+        ('meeting', 'Toplantı'),
+        ('note', 'Not'),
+    ]
+    
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='interactions', verbose_name='Müşteri')
+    interaction_type = models.CharField(max_length=20, choices=INTERACTION_TYPES, verbose_name='Etkileşim Tipi')
+    subject = models.CharField(max_length=200, verbose_name='Konu')
+    notes = models.TextField(verbose_name='Notlar')
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Tarih')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
+    
+    class Meta:
+        verbose_name = 'Etkileşim Kaydı'
+        verbose_name_plural = 'Etkileşim Kayıtları'
+        ordering = ['-date']
+        
+    def __str__(self):
+        return f"{self.customer.name} - {self.get_interaction_type_display()} - {self.subject}"

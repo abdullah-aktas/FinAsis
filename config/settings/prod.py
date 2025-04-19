@@ -20,7 +20,7 @@ X_FRAME_OPTIONS = 'DENY'
 # Static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Database - PostgreSQL
+# Database - PostgreSQL with connection pooling
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -32,6 +32,18 @@ DATABASES = {
         'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'connect_timeout': 10,
+            'client_encoding': 'UTF8',
+            'timezone': 'UTC',
+            'sslmode': 'prefer',
+        },
+        'ATOMIC_REQUESTS': True,
+        'CONN_HEALTH_CHECKS': True,
+        'POOL_OPTIONS': {
+            'POOL_SIZE': 20,  # Maksimum bağlantı sayısı
+            'MAX_OVERFLOW': 10,  # Ek bağlantı sayısı
+            'RECYCLE': 300,  # Bağlantı yenileme süresi (saniye)
+            'TIMEOUT': 30,  # Bağlantı zaman aşımı (saniye)
+            'PRE_PING': True,  # Bağlantı kontrolü
         }
     }
 }
@@ -60,11 +72,41 @@ CACHES = {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'CONNECTION_POOL_KWARGS': {'max_connections': 100},
             'PASSWORD': os.environ.get('REDIS_PASSWORD', None),
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+            'RETRY_ON_TIMEOUT': True,
+            'MAX_CONNECTIONS': 1000,
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
         },
         'KEY_PREFIX': 'finasis',
         'TIMEOUT': 600,
+    },
+    'session': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://redis:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
+            'PASSWORD': os.environ.get('REDIS_PASSWORD', None),
+        },
+        'KEY_PREFIX': 'session',
+    },
+    'query': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://redis:6379/3'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
+            'PASSWORD': os.environ.get('REDIS_PASSWORD', None),
+        },
+        'KEY_PREFIX': 'query',
+        'TIMEOUT': 300,
     }
 }
+
+# Session settings
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'session'
 
 # Logging
 LOGGING = {

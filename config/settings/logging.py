@@ -86,6 +86,14 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
+        'query_performance': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'query_performance.log'),
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'django': {
@@ -103,6 +111,11 @@ LOGGING = {
             'level': 'DEBUG' if os.environ.get('DJANGO_DEBUG', 'False') == 'True' else 'INFO',
             'propagate': False,
         },
+        'django.db.backends.postgresql': {
+            'handlers': ['file_database'],
+            'level': 'DEBUG' if os.environ.get('DJANGO_DEBUG', 'False') == 'True' else 'INFO',
+            'propagate': False,
+        },
         'django.security': {
             'handlers': ['file_security', 'mail_admins'],
             'level': 'INFO',
@@ -115,6 +128,11 @@ LOGGING = {
         },
         'security': {
             'handlers': ['console', 'file_security', 'mail_admins'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.db.backends.postgresql.performance': {
+            'handlers': ['query_performance'],
             'level': 'INFO',
             'propagate': False,
         },

@@ -2,14 +2,20 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 import json
 import logging
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import os
 from .services import FinancialAIService, ChatAIService
+from .models.cashflow_forecaster import CashFlowForecaster
+from .models.risk_scorer import CustomerRiskScorer
+from .services.ocr_service import OCRService
 
 logger = logging.getLogger(__name__)
 
@@ -116,3 +122,162 @@ def submit_feedback(request):
             {"error": "Geri bildirim kaydedilirken bir hata oluştu."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+# Nakit Akışı Tahmini
+@login_required
+def forecast_view(request):
+    """
+    Nakit akışı tahmini görünümü
+    """
+    return render(request, 'ai_assistant/forecast_dashboard.html')
+
+@login_required
+def forecast_api(request):
+    """
+    Nakit akışı tahmini API endpoint'i
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            model_type = data.get('model_type', 'prophet')
+            periods = int(data.get('periods', 90))
+            
+            # Geçmiş verileri al (örnek)
+            historical_data = {
+                'date': ['2024-01-01', '2024-01-02', '2024-01-03'],
+                'cash_in': [1000, 1500, 1200],
+                'cash_out': [800, 1000, 900]
+            }
+            
+            # Modeli oluştur ve eğit
+            forecaster = CashFlowForecaster(model_type=model_type)
+            forecaster.train(historical_data)
+            
+            # Tahmin yap
+            forecast_results = forecaster.forecast(periods=periods)
+            
+            # Grafik oluştur
+            fig = forecaster.plot_forecast(forecast_results)
+            
+            return JsonResponse({
+                'success': True,
+                'forecast': forecast_results,
+                'plot': fig.to_json()
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+            
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+# Risk Skorlama
+@login_required
+def risk_score_view(request, customer_id):
+    """
+    Müşteri risk skoru görünümü
+    """
+    try:
+        # Müşteri verilerini al (örnek)
+        customer_data = {
+            'payment_delay_avg': 5,
+            'payment_delay_count': 2,
+            'transaction_amount_avg': 2500,
+            'transaction_count': 10,
+            'days_since_last_payment': 15,
+            'sector_risk_score': 0.3
+        }
+        
+        # Risk skorunu hesapla
+        risk_scorer = CustomerRiskScorer()
+        risk_score = risk_scorer.predict_risk_score(customer_data)
+        
+        return render(request, 'ai_assistant/risk_score.html', {
+            'customer_id': customer_id,
+            'risk_score': risk_score
+        })
+        
+    except Exception as e:
+        return render(request, 'ai_assistant/error.html', {
+            'error_message': str(e)
+        })
+
+@login_required
+def risk_score_api(request, customer_id):
+    """
+    Müşteri risk skoru API endpoint'i
+    """
+    try:
+        # Müşteri verilerini al (örnek)
+        customer_data = {
+            'payment_delay_avg': 5,
+            'payment_delay_count': 2,
+            'transaction_amount_avg': 2500,
+            'transaction_count': 10,
+            'days_since_last_payment': 15,
+            'sector_risk_score': 0.3
+        }
+        
+        # Risk skorunu hesapla
+        risk_scorer = CustomerRiskScorer()
+        risk_score = risk_scorer.predict_risk_score(customer_data)
+        
+        return JsonResponse({
+            'success': True,
+            'risk_score': risk_score
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+# OCR İşlemleri
+@login_required
+def ocr_upload_view(request):
+    """
+    OCR yükleme görünümü
+    """
+    return render(request, 'ai_assistant/ocr_upload.html')
+
+@csrf_exempt
+@login_required
+def ocr_process_api(request):
+    """
+    OCR işleme API endpoint'i
+    """
+    if request.method == 'POST':
+        try:
+            # Dosyayı al
+            file = request.FILES.get('file')
+            if not file:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Dosya yüklenmedi'
+                })
+                
+            # Dosyayı kaydet
+            file_path = default_storage.save(
+                f'ocr_uploads/{file.name}',
+                ContentFile(file.read())
+            )
+            
+            # OCR işlemi
+            ocr_service = OCRService()
+            result = ocr_service.process_invoice(file_path)
+            
+            # Dosyayı sil
+            default_storage.delete(file_path)
+            
+            return JsonResponse(result)
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+            
+    return JsonResponse({'error': 'Method not allowed'}, status=405)

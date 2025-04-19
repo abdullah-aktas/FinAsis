@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}XML Önizleme{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/xml-preview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">XML Önizleme</h3>
+                </div>
+                <div class="card-body">
+                    <div class="toolbar">
+                        <button id="format-btn" class="btn btn-primary btn-sm">
+                            <i class="fas fa-code"></i> Formatla
+                        </button>
+                        <button id="validate-btn" class="btn btn-info btn-sm">
+                            <i class="fas fa-check"></i> Doğrula
+                        </button>
+                        <button id="sign-btn" class="btn btn-warning btn-sm">
+                            <i class="fas fa-signature"></i> İmzala
+                        </button>
+                        <button id="download-btn" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> İndir
+                        </button>
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="line-numbers-toggle" checked>
+                                Satır Numaraları
+                            </label>
+                            <label class="toggle-label">
+                                <input type="checkbox" id="wrap-toggle">
+                                Metin Sarma
+                            </label>
+                        </div>
+                    </div>
+                    <div class="xml-editor with-line-numbers" id="xml-editor" contenteditable="true"></div>
+                    <input type="hidden" id="xml-content" value="{{ xml_content }}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/xml-preview.js' %}"></script>
+{% endblock %} 

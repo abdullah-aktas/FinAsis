@@ -5,6 +5,8 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, ScopedRateThrottle
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -14,6 +16,7 @@ from apps.permissions.permissions import (
     IsAccountingStaff, IsSalesStaff, ActionBasedPermission, ModulePermission
 )
 from apps.permissions.models import Role, Permission, UserRole
+from .serializers import CustomTokenObtainPairSerializer, CustomTokenRefreshSerializer
 
 User = get_user_model()
 
@@ -206,4 +209,33 @@ class InvoiceAPIView(APIView):
             "message": "Yeni fatura oluşturuldu.",
             "user": request.user.username,
             "role": request.user.role
-        }, status=status.HTTP_201_CREATED) 
+        }, status=status.HTTP_201_CREATED)
+
+
+# Özel token throttle sınıfları
+class TokenObtainThrottle(ScopedRateThrottle):
+    scope = 'token_obtain'
+
+class TokenRefreshThrottle(ScopedRateThrottle):
+    scope = 'token_refresh'
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Özelleştirilmiş token alma view'ı. 
+    
+    Bu view, rate limiting uygular ve kullanıcı tipine göre 
+    farklı token süreleri sağlar.
+    """
+    serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [TokenObtainThrottle]
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """
+    Özelleştirilmiş token yenileme view'ı.
+    
+    Bu view, rate limiting uygular ve eski token'ları blacklist'e ekler.
+    """
+    serializer_class = CustomTokenRefreshSerializer
+    throttle_classes = [TokenRefreshThrottle] 

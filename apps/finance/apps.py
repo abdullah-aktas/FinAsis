@@ -10,15 +10,12 @@ class FinanceConfig(AppConfig):
     """Finans uygulaması yapılandırması"""
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.finance'
-    verbose_name = _('Finans Yönetimi')
+    verbose_name = _('Finans')
     label = 'finance'  # Benzersiz etiket
     
     def ready(self):
         """Uygulama başlatıldığında yapılacak işlemler"""
-        try:
-            import apps.finance.signals  # noqa
-        except ImportError:
-            pass
+        import apps.finance.signals  # noqa
 
     def get_urls(self):
         """
@@ -31,6 +28,18 @@ class FinanceConfig(AppConfig):
             path('finance/', views.finance_view),
         ]
         return urlpatterns
+
+    def get_model(self, model_name, require_ready=True):
+        """
+        Uygulama için belirtilen modeli döndürür.
+        """
+        return super().get_model(model_name, require_ready=require_ready)
+
+    def get_models(self, include_auto_created=True, include_swapped=True):
+        """
+        Uygulama için model tanımlarını döndürür.
+        """
+        return self.models.values()
 
     def get_app_config(self):
         """
@@ -67,20 +76,6 @@ class FinanceConfig(AppConfig):
         Uygulama için etiket döndürür.
         """
         return self.label
-
-    def get_models(self):
-        """
-        Uygulama için model tanımlarını döndürür.
-        """
-        from django.db.models.loading import get_models
-        return get_models()
-
-    def get_model(self, model_name):
-        """
-        Uygulama için belirtilen modeli döndürür.
-        """
-        from django.db.models.loading import get_model
-        return get_model(model_name)
 
     def get_app_dependencies(self):
         """

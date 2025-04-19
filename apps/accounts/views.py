@@ -12,10 +12,14 @@ from django.contrib.auth.views import (
 )
 from django.urls import reverse_lazy
 from django.conf import settings
+from django.utils import timezone
+from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
 from .forms import UserRegistrationForm, UserUpdateForm
 from .models import User
 from .tkinter_settings import open_settings_window
 import threading
+import json
 
 def login_view(request):
     """Kullanıcı girişi görünümü"""
@@ -27,13 +31,103 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
+            remember_me = request.POST.get('remember', 'off') == 'on'
             user = authenticate(username=username, password=password)
+            
             if user is not None:
+                # Kullanıcı adı ve şifre kontrolü başarılı
+                
+                # Hesabın kilitli olup olmadığını kontrol et
+                if hasattr(user, 'account_locked_until') and user.account_locked_until:
+                    if user.account_locked_until > timezone.now():
+                        messages.error(
+                            request, 
+                            f'Hesabınız geçici olarak kilitlendi. Lütfen daha sonra tekrar deneyin.'
+                        )
+                        return render(request, 'accounts/login.html', {'form': form})
+                
+                # Başarısız giriş sayacını sıfırla
+                if hasattr(user, 'failed_login_attempts'):
+                    user.failed_login_attempts = 0
+                    user.save(update_fields=['failed_login_attempts'])
+                
+                # Kullanıcı IP adresini kaydet
+                if hasattr(user, 'last_login_ip'):
+                    user.last_login_ip = get_client_ip(request)
+                    user.save(update_fields=['last_login_ip'])
+                
+                # Kullanıcı için giriş işlemi
                 login(request, user)
-                return redirect('home')
+                
+                # JWT token oluştur
+                token_info = get_tokens_for_user(user, remember_me)
+                
+                # AJAX isteği ise JSON yanıtı döndür
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'redirect': request.GET.get('next', 'home'),
+                        'tokens': token_info
+                    })
+                
+                # Normal form gönderimi ise yönlendir
+                next_url = request.GET.get('next', 'home')
+                response = redirect(next_url)
+                
+                # Token'ları cookie'ye ekle (opsiyonel güvenlik için)
+                return response
+            else:
+                # Kimlik doğrulama başarısız, hata mesajı göster
+                messages.error(request, 'Kullanıcı adı veya şifre hatalı.')
     else:
         form = AuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
+        
+    context = {
+        'form': form,
+        'session_expired': request.GET.get('session_expired', False)
+    }
+    
+    return render(request, 'accounts/login.html', context)
+
+def get_tokens_for_user(user, remember_me=False):
+    """
+    Kullanıcı için JWT token oluşturur
+    """
+    refresh = RefreshToken.for_user(user)
+    
+    # Remember me seçeneği için refresh token süresini uzat
+    if remember_me:
+        refresh.set_exp(
+            lifetime=getattr(settings, 'SIMPLE_JWT', {}).get(
+                'REMEMBER_ME_LIFETIME', 
+                timezone.timedelta(days=7)
+            )
+        )
+    
+    # Admin kullanıcıları için access token süresini uzat
+    if user.is_superuser or user.is_staff:
+        access_token_lifetime = getattr(settings, 'SIMPLE_JWT', {}).get(
+            'ADMIN_ACCESS_TOKEN_LIFETIME', 
+            timezone.timedelta(hours=2)
+        )
+        refresh.access_token.set_exp(lifetime=access_token_lifetime)
+    
+    # Token bilgilerini döndür
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+def get_client_ip(request):
+    """
+    İstemci IP adresini döndürür
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def register_view(request):
     """Kullanıcı kaydı görünümü"""
