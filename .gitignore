@@ -20,16 +20,22 @@ parts/
 sdist/
 var/
 wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
 # Django
 *.log
+*.pot
+*.pyc
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
-staticfiles/
-celerybeat-schedule
-celerybeat.pid
+media
+
+# Backup files
+*.bak
 
 # Environment variables
 .env
@@ -40,19 +46,17 @@ celerybeat.pid
 
 # IDE
 .idea/
-.vscode/
-*.swp
-*.swo
-*.sublime-workspace
-.project
-.pydevproject
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # Node
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
+npm-debug.log
+yarn-debug.log
+yarn-error.log
 
 # Mobile
 .expo/
@@ -66,22 +70,44 @@ web-build/
 
 # OS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Deployment
-*.dump
-*.bak
+# PyInstaller
+*.manifest
+*.spec
 
-# Testing
-.coverage
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 .hypothesis/
 .pytest_cache/
-coverage.xml
-nosetests.xml
 
-# Documentation
-/docs/_build/
-/site
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
