@@ -89,7 +89,6 @@ jobs:
           pytest --cov=. --cov-report=xml --cov-fail-under=70 -v
 
       - name: Upload coverage to Codecov
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
@@ -97,7 +96,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Test Sonuçlarını Slack'e Bildir
-        if: ${{ secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -129,14 +127,12 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Login to DockerHub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -150,7 +146,6 @@ jobs:
             BUILDKIT_INLINE_CACHE=1
 
       - name: Build Sonuçlarını Slack'e Bildir
-        if: ${{ secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -173,7 +168,6 @@ jobs:
 
     steps:
       - name: Deploy to production
-        if: ${{ secrets.PROD_HOST != '' && secrets.PROD_USER != '' && secrets.PROD_KEY != '' }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_HOST }}
@@ -209,7 +203,6 @@ jobs:
             echo "Deployment tamamlandı!"
 
       - name: Health check
-        if: ${{ secrets.PROD_URL != '' }}
         run: |
           echo "Health check başlıyor..."
           for i in {1..6}; do
@@ -224,7 +217,6 @@ jobs:
           exit 1
 
       - name: Deployment Sonuçlarını Slack'e Bildir
-        if: ${{ secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

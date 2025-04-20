@@ -12,6 +12,7 @@ class ChatSession(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
+        app_label = 'assistant'
 
 class ChatMessage(models.Model):
     session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages')
@@ -22,6 +23,7 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ['created_at']
+        app_label = 'assistant'
 
 class PagePrompt(models.Model):
     page_path = models.CharField(max_length=255)
@@ -31,4 +33,5 @@ class PagePrompt(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ['page_path'] 
+        unique_together = ['page_path']
+        app_label = 'assistant' 

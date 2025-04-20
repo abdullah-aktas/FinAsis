@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'apps.permissions',
     'edocument.apps.EdocumentConfig',
     'apps.finance.apps.FinanceConfig',
+    'apps.assistant.apps.AssistantConfig',  # AI Asistan uygulaması
 ]
 
 MIDDLEWARE = [

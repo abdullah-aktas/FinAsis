@@ -1,0 +1,167 @@
+.xml-editor {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    min-height: 400px;
+    white-space: pre;
+    overflow-x: auto;
+    position: relative;
+}
+
+.xml-editor:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.xml-editor.with-line-numbers {
+    padding-left: 50px;
+}
+
+.line-numbers {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    padding: 15px 5px;
+    background-color: #e9ecef;
+    border-right: 1px solid #dee2e6;
+    text-align: right;
+    color: #6c757d;
+    user-select: none;
+}
+
+.xml-editor.wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.toolbar {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 5px;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.toggle-group {
+    margin-left: auto;
+    display: flex;
+    gap: 15px;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+/* XML Syntax Highlighting */
+.xml-tag {
+    color: #905;
+}
+
+.xml-attribute {
+    color: #690;
+}
+
+.xml-string {
+    color: #07a;
+}
+
+.xml-comment {
+    color: #998;
+    font-style: italic;
+}
+
+.xml-cdata {
+    color: #07a;
+    font-style: italic;
+}
+
+.xml-processing-instruction {
+    color: #999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .toolbar {
+        flex-wrap: wrap;
+    }
+    
+    .toggle-group {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* Toolbar Buttons */
+.card-tools .btn-tool {
+    margin-left: 5px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+.card-tools .btn-tool:hover {
+    background-color: #e9ecef;
+}
+
+.card-tools .btn-tool.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .xml-editor {
+        padding: 0.5rem;
+    }
+    
+    .xml-editor pre {
+        font-size: 12px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Metin sarma özelliği için */
+.xml-editor.wrap-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Hata vurgulama */
+.error-line {
+    background-color: #ffe6e6;
+}
+
+/* Başarılı doğrulama vurgulama */
+.valid-xml {
+    background-color: #e6ffe6;
+} 

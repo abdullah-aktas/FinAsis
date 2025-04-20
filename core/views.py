@@ -9,6 +9,9 @@ import time
 def home(request):
     return render(request, 'home.html')
 
+def pricing(request):
+    return render(request, 'pricing.html')
+
 def health_check(request):
     """
     Sistem sağlık kontrolü endpoint'i.

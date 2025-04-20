@@ -8,83 +8,101 @@
 <style>
     .register-container {
         max-width: 650px;
-        margin: 2rem auto;
+        margin: 4rem auto;
     }
     
     .register-card {
-        border-radius: 10px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 151, 167, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .register-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 151, 167, 0.2);
     }
     
     .register-header {
-        background: linear-gradient(135deg, #0062cc, #0097a7);
-        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        padding: 2.5rem 2rem;
         text-align: center;
         color: white;
     }
     
     .register-header img {
-        width: 70px;
-        margin-bottom: 1rem;
+        width: 80px;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .register-header img:hover {
+        transform: scale(1.05);
     }
     
     .register-form {
-        padding: 2rem;
+        padding: 2.5rem;
+        background-color: var(--surface);
     }
     
     .form-floating > label {
-        color: #6c757d;
+        color: var(--text-secondary);
     }
     
     .form-check-label {
-        color: #6c757d;
+        color: var(--text-secondary);
         font-size: 0.9rem;
     }
     
     .progress {
         height: 8px;
-        margin-top: 8px;
+        margin-top: 12px;
+        border-radius: 10px;
+        background-color: rgba(0, 0, 0, 0.05);
     }
     
     .password-strength-meter {
         font-size: 0.8rem;
-        margin-top: 5px;
-        color: #6c757d;
+        margin-top: 8px;
+        color: var(--text-hint);
+        font-weight: 500;
     }
     
     .social-register {
         display: flex;
         justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
     
     .social-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
         color: white;
-        transition: transform 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     
     .social-btn:hover {
-        transform: translateY(-3px);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
     }
     
     .social-btn.google {
-        background-color: #DB4437;
+        background: linear-gradient(135deg, #DB4437, #f66d5b);
     }
     
     .social-btn.facebook {
-        background-color: #4267B2;
+        background: linear-gradient(135deg, #3b5998, #4c70ba);
     }
     
     .social-btn.apple {
-        background-color: #000000;
+        background: linear-gradient(135deg, #000000, #333333);
     }
     
     .divider {
@@ -96,13 +114,71 @@
     .divider-line {
         flex-grow: 1;
         height: 1px;
-        background-color: #e0e0e0;
+        background-color: var(--divider);
     }
     
     .divider-text {
         padding: 0 1rem;
-        color: #6c757d;
+        color: var(--text-hint);
         font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        border: 2px solid var(--divider);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 151, 167, 0.15);
+    }
+    
+    .btn-primary {
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 151, 167, 0.2);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 151, 167, 0.3);
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .alert-danger {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-color: transparent;
+        color: var(--error);
+        border-radius: 10px;
+    }
+    
+    .bg-danger {
+        background-color: var(--error) !important;
+    }
+    
+    .bg-warning {
+        background-color: var(--warning) !important;
+    }
+    
+    .bg-info {
+        background-color: var(--info) !important;
+    }
+    
+    .bg-success {
+        background-color: var(--success) !important;
     }
 </style>
 {% endblock %}
@@ -111,7 +187,7 @@
 <div class="container register-container">
     <div class="card register-card">
         <div class="register-header">
-            <img src="{% static 'img/logo-light.png' %}" alt="FinAsis Logo" class="mb-3">
+            <img src="{% static 'img/logo.png' %}" alt="FinAsis Logo" class="mb-3">
             <h2 class="fw-bold">Hesap Oluştur</h2>
             <p class="text-white-50 mb-0">FinAsis ile finansal süreçlerinizi en verimli şekilde yönetin</p>
         </div>
@@ -119,14 +195,14 @@
         <div class="register-form">
             <!-- Sosyal Medya Kayıt -->
             <div class="social-register">
-                <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
-                    <i class="bi bi-google"></i>
+                <a href="javascript:void(0)" onclick="showSocialRegisterMessage('Google')" class="social-btn google">
+                    <i class="bi bi-google fs-5"></i>
                 </a>
-                <a href="{% url 'social:begin' 'facebook' %}" class="social-btn facebook">
-                    <i class="bi bi-facebook"></i>
+                <a href="javascript:void(0)" onclick="showSocialRegisterMessage('Facebook')" class="social-btn facebook">
+                    <i class="bi bi-facebook fs-5"></i>
                 </a>
-                <a href="{% url 'social:begin' 'apple-id' %}" class="social-btn apple">
-                    <i class="bi bi-apple"></i>
+                <a href="javascript:void(0)" onclick="showSocialRegisterMessage('Apple')" class="social-btn apple">
+                    <i class="bi bi-apple fs-5"></i>
                 </a>
             </div>
             
@@ -197,15 +273,15 @@
                 <div class="mb-4 form-check">
                     <input class="form-check-input" type="checkbox" id="agreeTerms" required>
                     <label class="form-check-label" for="agreeTerms">
-                        <a href="{% url 'terms' %}" class="text-decoration-none" target="_blank">Kullanım Şartları</a> ve <a href="{% url 'privacy' %}" class="text-decoration-none" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                        <a href="javascript:void(0)" onclick="showTermsMessage()" class="text-decoration-none">Kullanım Şartları</a> ve <a href="javascript:void(0)" onclick="showPrivacyMessage()" class="text-decoration-none">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
                     </label>
                 </div>
                 
-                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Kayıt Ol</button>
+                <button type="submit" class="btn btn-primary w-100 py-3 mb-4">Kayıt Ol</button>
                 
-                <p class="text-center mb-0">
+                <p class="text-center mb-0 text-secondary">
                     Zaten bir hesabınız var mı? 
-                    <a href="{% url 'accounts:login' %}" class="text-primary fw-bold text-decoration-none">Giriş Yap</a>
+                    <a href="{% url 'accounts:login' %}" class="fw-bold text-decoration-none">Giriş Yap</a>
                 </p>
             </form>
         </div>
@@ -214,6 +290,20 @@
 
 {% block extra_js %}
 <script>
+    // Sosyal medya bağlantıları için mesaj
+    function showSocialRegisterMessage(platform) {
+        alert(`${platform} ile kayıt özelliği yakında eklenecektir. Şu an için e-posta ile kayıt olabilirsiniz.`);
+    }
+    
+    // Kullanım şartları ve gizlilik politikası için mesajlar
+    function showTermsMessage() {
+        alert('Kullanım şartları sayfası yakında eklenecektir.');
+    }
+    
+    function showPrivacyMessage() {
+        alert('Gizlilik politikası sayfası yakında eklenecektir.');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const passwordInput = document.getElementById('id_password1');
         const strengthMeter = document.getElementById('password-strength-meter');

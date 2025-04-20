@@ -76,7 +76,7 @@ class Contact(models.Model):
     phone = models.CharField(max_length=20, blank=True, verbose_name='Telefon')
     is_primary = models.BooleanField(default=False, verbose_name='Ana İletişim Kişisi')
     notes = models.TextField(blank=True, verbose_name='Notlar')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
 
@@ -154,7 +154,7 @@ class Opportunity(models.Model):
 
 class Activity(models.Model):
     """Müşteri aktivitesi modeli"""
-    ACTIVITY_TYPE_CHOICES = [
+    ACTIVITY_TYPES = [
         ('call', 'Telefon'),
         ('meeting', 'Toplantı'),
         ('email', 'E-posta'),
@@ -162,26 +162,27 @@ class Activity(models.Model):
         ('note', 'Not'),
     ]
     
-    type = models.CharField(max_length=20, choices=ACTIVITY_TYPE_CHOICES, verbose_name='Tür')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='activities', verbose_name='Müşteri')
-    opportunity = models.ForeignKey(Opportunity, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities', verbose_name='Fırsat')
-    subject = models.CharField(max_length=200, verbose_name='Konu')
-    description = models.TextField(blank=True, verbose_name='Açıklama')
-    due_date = models.DateTimeField(null=True, blank=True, verbose_name='Vade Tarihi')
-    completed = models.BooleanField(default=False, verbose_name='Tamamlandı')
-    completed_at = models.DateTimeField(null=True, blank=True, verbose_name='Tamamlanma Tarihi')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_activities', verbose_name='Atanan Kişi')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
+    type = models.CharField(max_length=50, choices=ACTIVITY_TYPES)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='activities')
+    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    subject = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    due_date = models.DateTimeField()
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='created_activities', null=True, blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='assigned_activities', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Aktivite'
-        verbose_name_plural = 'Aktiviteler'
+        verbose_name = 'Activity'
+        verbose_name_plural = 'Activities'
         ordering = ['-created_at']
+        app_label = 'crm'
 
     def __str__(self):
-        return self.subject
+        return f"{self.type} - {self.subject}"
 
 class Sale(models.Model):
     """Müşteri satış kaydı modeli"""

@@ -11,6 +11,98 @@ import socket
 import signal
 import tkinter as tk
 from tkinter import ttk, messagebox
+import logging
+import traceback
+from pathlib import Path
+
+# Loglama ayarları
+logging.basicConfig(
+    filename='finasis.log',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+def get_resource_path(relative_path):
+    """Get the path to a resource, works for dev and for PyInstaller"""
+    try:
+        if getattr(sys, 'frozen', False):
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+            logging.debug(f"Running in PyInstaller bundle. Base path: {base_path}")
+            logging.debug(f"Looking for resource: {relative_path}")
+            full_path = os.path.join(base_path, relative_path)
+            logging.debug(f"Full resource path: {full_path}")
+            logging.debug(f"Resource exists: {os.path.exists(full_path)}")
+            if os.path.exists(full_path):
+                if os.path.isdir(full_path):
+                    logging.debug(f"Directory contents: {os.listdir(full_path)}")
+            return full_path
+        return os.path.join(os.path.dirname(os.path.abspath(__file__)), relative_path)
+    except Exception as e:
+        logging.error(f"get_resource_path hatası: {str(e)}\n{traceback.format_exc()}")
+        raise
+
+def setup_django_environment():
+    """Setup Django environment for the application"""
+    try:
+        base_path = get_resource_path(".")
+        logging.debug(f"Django setup - Base path: {base_path}")
+        
+        # Python yolunu ayarla
+        if base_path not in sys.path:
+            sys.path.insert(0, base_path)
+        logging.debug(f"sys.path: {sys.path}")
+        
+        # Config dizinini kontrol et
+        config_path = os.path.join(base_path, "config")
+        if not os.path.exists(config_path):
+            logging.error(f"Config dizini bulunamadı: {config_path}")
+            return False
+        logging.debug(f"Config dizini içeriği: {os.listdir(config_path)}")
+        
+        # Settings dizinini kontrol et
+        settings_path = os.path.join(config_path, "settings")
+        if not os.path.exists(settings_path):
+            logging.error(f"Settings dizini bulunamadı: {settings_path}")
+            return False
+        logging.debug(f"Settings dizini içeriği: {os.listdir(settings_path)}")
+        
+        # Gerekli dizinleri oluştur
+        media_path = os.path.join(base_path, "media")
+        logs_path = os.path.join(base_path, "logs")
+        os.makedirs(media_path, exist_ok=True)
+        os.makedirs(logs_path, exist_ok=True)
+        
+        # Django ayarları için ortam değişkenlerini ayarla
+        os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.dev"
+        os.environ["DJANGO_SECRET_KEY"] = "django-insecure-development-key"
+        os.environ["DJANGO_DEBUG"] = "True"
+        os.environ["DJANGO_ALLOWED_HOSTS"] = "localhost,127.0.0.1"
+        
+        logging.debug(f"DJANGO_SETTINGS_MODULE: {os.environ.get('DJANGO_SETTINGS_MODULE')}")
+        
+        # Django'yu başlat
+        import django
+        logging.debug(f"Django sürümü: {django.get_version()}")
+        
+        # BASE_DIR'i ayarla
+        from django.conf import settings
+        import config.settings.base as base_settings
+        base_settings.BASE_DIR = Path(base_path)
+        
+        django.setup()
+        logging.debug("Django setup tamamlandı")
+        
+        # Ayarları kontrol et
+        logging.debug("Django setup başarılı")
+        logging.debug(f"BASE_DIR: {settings.BASE_DIR}")
+        logging.debug(f"INSTALLED_APPS: {settings.INSTALLED_APPS}")
+        logging.debug(f"DATABASES: {settings.DATABASES}")
+        
+        return True
+    except Exception as e:
+        logging.error(f"Django setup hatası: {str(e)}\n{traceback.format_exc()}")
+        return False
 
 class FinasisDesktopApp:
     def __init__(self, root):
@@ -23,11 +115,38 @@ class FinasisDesktopApp:
         self.root.title("FinAsis - Finansal Yönetim Sistemi")
         self.root.geometry("800x600")
         self.root.minsize(800, 600)
-        self.setup_ui()
         
-        # Check if the server is already running
-        self.check_server()
-        
+        try:
+            # Django ortamını ayarla
+            if not setup_django_environment():
+                error_msg = "Django yapılandırması yüklenemedi."
+                logging.error(error_msg)
+                self.show_error_and_exit(error_msg)
+                return
+            
+            self.setup_ui()
+            self.check_server()
+            
+            # Pencere kapatma olayını bağla
+            self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+            
+        except Exception as e:
+            error_msg = f"Uygulama başlatma hatası: {str(e)}"
+            logging.error(f"{error_msg}\n{traceback.format_exc()}")
+            self.show_error_and_exit(error_msg)
+    
+    def show_error_and_exit(self, message):
+        """Show error message and exit application"""
+        try:
+            messagebox.showerror("Hata", f"{message}\nDetaylar için finasis.log dosyasını kontrol edin.")
+        except:
+            logging.error("Hata mesajı gösterilemedi")
+        finally:
+            try:
+                self.root.quit()
+            except:
+                sys.exit(1)
+
     def setup_ui(self):
         # Create main frame
         main_frame = ttk.Frame(self.root, padding="20")
@@ -132,31 +251,88 @@ class FinasisDesktopApp:
         self.progress.start()
         self.status_label.config(text="Sunucu başlatılıyor...")
         
-        # Create a function to run the server in a separate thread
         def run_server():
             try:
-                # For Windows, create a new process group
+                # Python yolunu kontrol et
+                python_path = sys.executable
+                manage_py_path = get_resource_path("manage.py")
+                base_path = get_resource_path(".")
+                
+                # Dosya yollarını logla
+                logging.debug(f"Python path: {python_path}")
+                logging.debug(f"manage.py path: {manage_py_path}")
+                logging.debug(f"Base path: {base_path}")
+                logging.debug(f"Current working directory: {os.getcwd()}")
+                logging.debug(f"Directory contents: {os.listdir(base_path)}")
+                
+                if not os.path.exists(manage_py_path):
+                    error_msg = f"manage.py bulunamadı: {manage_py_path}"
+                    logging.error(error_msg)
+                    messagebox.showerror("Hata", error_msg)
+                    return
+                
+                # Ortam değişkenlerini ayarla
+                env = os.environ.copy()
+                env["PYTHONPATH"] = base_path
+                env["DJANGO_SETTINGS_MODULE"] = "config.settings.dev"
+                
+                # Veritabanı ayarlarını kontrol et
+                db_path = get_resource_path("db.sqlite3")
+                if not os.path.exists(db_path):
+                    logging.info("Veritabanı bulunamadı, migrate işlemi başlatılıyor...")
+                    try:
+                        migrate_result = subprocess.run(
+                            [python_path, manage_py_path, "migrate"],
+                            env=env,
+                            check=True,
+                            capture_output=True,
+                            text=True,
+                            cwd=base_path
+                        )
+                        logging.debug(f"Migrate çıktısı: {migrate_result.stdout}")
+                    except subprocess.CalledProcessError as e:
+                        error_msg = f"Migrate işlemi başarısız: {e.stderr}"
+                        logging.error(error_msg)
+                        messagebox.showerror("Hata", error_msg)
+                        return
+                
+                # Sunucuyu başlat
+                server_cmd = [python_path, manage_py_path, "runserver", "--noreload"]
+                logging.debug(f"Sunucu komutu: {' '.join(server_cmd)}")
+                
                 if platform.system() == "Windows":
                     self.server_process = subprocess.Popen(
-                        ["python", "manage.py", "runserver"],
+                        server_cmd,
                         creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         universal_newlines=True,
+                        env=env,
+                        cwd=base_path
                     )
-                else:  # For Unix-like systems
+                else:
                     self.server_process = subprocess.Popen(
-                        ["python", "manage.py", "runserver"],
+                        server_cmd,
                         preexec_fn=os.setsid,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         universal_newlines=True,
+                        env=env,
+                        cwd=base_path
                     )
                 
-                # Wait for the server to start
-                for i in range(30):  # Try for 30 seconds
+                # Sunucunun başlamasını bekle
+                for i in range(30):
                     time.sleep(1)
                     try:
+                        # Sunucu çıktısını kontrol et
+                        if self.server_process.poll() is not None:
+                            stdout, stderr = self.server_process.communicate()
+                            error_msg = f"Sunucu başlatma hatası:\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+                            logging.error(error_msg)
+                            raise Exception(error_msg)
+                        
+                        # Sunucuya bağlanmayı dene
                         conn = HTTPConnection("127.0.0.1", 8000, timeout=1)
                         conn.request("HEAD", "/")
                         response = conn.getresponse()
@@ -164,21 +340,29 @@ class FinasisDesktopApp:
                         if response.status < 400:
                             self.is_server_running = True
                             self.update_ui_server_running()
+                            logging.info("Sunucu başarıyla başlatıldı")
                             return
                     except (socket.error, socket.timeout):
-                        pass
+                        continue
+                    except Exception as e:
+                        logging.error(f"Bağlantı hatası: {str(e)}")
+                        continue
                 
-                # If we get here, the server didn't start
-                self.is_server_running = False
-                self.update_ui_server_stopped()
-                messagebox.showerror("Hata", "Sunucu başlatılamadı.")
+                # 30 saniye sonra hala başlamadıysa
+                stdout, stderr = self.server_process.communicate()
+                error_msg = f"Sunucu 30 saniye içinde başlatılamadı\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+                logging.error(error_msg)
+                messagebox.showerror("Hata", error_msg)
+                self.stop_server()
                 
             except Exception as e:
+                error_msg = f"Sunucu başlatılırken hata oluştu: {str(e)}\n{traceback.format_exc()}"
+                logging.error(error_msg)
+                messagebox.showerror("Hata", f"Sunucu başlatılamadı: {str(e)}")
                 self.is_server_running = False
                 self.update_ui_server_stopped()
-                messagebox.showerror("Hata", f"Sunucu başlatılırken hata oluştu: {str(e)}")
         
-        # Start the server in a separate thread
+        # Sunucuyu ayrı bir thread'de başlat
         threading.Thread(target=run_server, daemon=True).start()
     
     def stop_server(self):

@@ -31,12 +31,8 @@ INTERNAL_IPS = ['127.0.0.1']
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Celery settings
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_ALWAYS_EAGER = True  # Celery'yi senkron modda çalıştır
+CELERY_TASK_EAGER_PROPAGATES = True
 
 # E-Belge Dosya Ayarları
 EDOCUMENT_STORAGE_PATH = os.path.join(BASE_DIR, 'media', 'edocuments')
@@ -44,16 +40,16 @@ EDOCUMENT_PDF_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'pdf')
 EDOCUMENT_XML_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'xml')
 
 # E-Belge Arşivleme Ayarları
-EDOCUMENT_RETENTION_PERIOD = int(os.getenv('EDOCUMENT_RETENTION_PERIOD', '10'))  # Yıl
-EDOCUMENT_BACKUP_ENABLED = os.getenv('EDOCUMENT_BACKUP_ENABLED', 'True').lower() == 'true'
+EDOCUMENT_RETENTION_PERIOD = 10  # Yıl
+EDOCUMENT_BACKUP_ENABLED = True
 EDOCUMENT_BACKUP_PATH = os.path.join(BASE_DIR, 'backups', 'edocuments')
 
 # E-Belge Önbellek Ayarları
-EDOCUMENT_CACHE_ENABLED = os.getenv('EDOCUMENT_CACHE_ENABLED', 'True').lower() == 'true'
-EDOCUMENT_CACHE_TIMEOUT = int(os.getenv('EDOCUMENT_CACHE_TIMEOUT', '3600'))  # Saniye
+EDOCUMENT_CACHE_ENABLED = True
+EDOCUMENT_CACHE_TIMEOUT = 3600  # Saniye
 
 # E-Belge Log Ayarları
-EDOCUMENT_LOG_LEVEL = os.getenv('EDOCUMENT_LOG_LEVEL', 'INFO')
+EDOCUMENT_LOG_LEVEL = 'INFO'
 EDOCUMENT_LOG_FILE = os.path.join(BASE_DIR, 'logs', 'edocument.log')
 
 # Logging

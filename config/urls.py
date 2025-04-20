@@ -12,6 +12,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('accounting/', include(('apps.accounting.urls', 'accounting'), namespace='accounting')),
     path('crm/', include(('apps.crm.urls', 'crm'), namespace='crm')),
+    path('pricing/', views.pricing, name='pricing'),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
     path('api/', include('apps.api.urls')),

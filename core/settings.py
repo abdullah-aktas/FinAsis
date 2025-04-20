@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'accounting.apps.AccountingConfig',
     'crm',
     'reporting',
+    'games.apps.GamesConfig',
+    'apps.social',  # Sosyal medya uygulaması
 ]
 
 MIDDLEWARE = [

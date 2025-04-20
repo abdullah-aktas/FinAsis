@@ -17,14 +17,15 @@ urlpatterns = [
     path('ai-assistant/', include(('ai_assistant.urls', 'ai_assistant'), namespace='ai_assistant')),
     path('blockchain/', include(('blockchain.urls', 'blockchain'), namespace='blockchain')),
     path('virtual-company/', include(('virtual_company.urls', 'virtual_company'), namespace='virtual_company')),
-    # path('game/', include(('game_app.urls', 'game_app'), namespace='game_app')),
+    path('games/', include(('apps.games.urls', 'games'), namespace='games')),
+    path('social/', include('social_django.urls', namespace='social')),
     path('analytics/', include(('analytics.urls', 'analytics'), namespace='analytics')),
     path('api-auth/', include('rest_framework.urls')),
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     path('accounting/', include(('accounting.urls', 'accounting'), namespace='accounting')),
     path('crm/', include('crm.urls')),
-    # path('api/', include('api.urls')),  # API URL'si geçici olarak kaldırıldı
+    path('api/', include('apps.social.urls')),  # Sosyal medya API URL'leri
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('offline-test/', TemplateView.as_view(template_name='offline_test.html'), name='offline_test'),
     path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),

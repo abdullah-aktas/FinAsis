@@ -15,7 +15,7 @@ class BaseModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
-    virtual_company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, null=True, blank=True)
+    virtual_company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, null=True, blank=True, related_name='%(app_label)s_%(class)s_set')
     currency = models.CharField(max_length=3, default='TRY', choices=[
         ('TRY', 'Türk Lirası'),
         ('USD', 'Amerikan Doları'),
@@ -188,6 +188,7 @@ class Transaction(BaseModel):
     class Meta:
         verbose_name = 'Yevmiye Kaydı'
         verbose_name_plural = 'Yevmiye Kayıtları'
+        app_label = 'accounting'
 
 class TransactionLine(BaseModel):
     """Yevmiye Kaydı Kalemi"""
@@ -834,6 +835,7 @@ class CashFlow(BaseModel):
         verbose_name = 'Nakit Akışı'
         verbose_name_plural = 'Nakit Akışları'
         ordering = ['-date']
+        app_label = 'accounting'
 
     def __str__(self):
         return f"{self.date} - {self.get_type_display()} - {self.amount} {self.currency}"

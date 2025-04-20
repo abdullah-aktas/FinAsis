@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 from django.db import connection, reset_queries
 import random
 import string
+from locust import HttpUser, task, between
+from random import choice, randint
 
 User = get_user_model()
 
@@ -234,4 +236,65 @@ class BankAPIPerformanceTests(TestCase):
         print(f"Kullanılan sorgu sayısı: {query_count}")
         print(f"İşlem sayısı: {transactions.count()}")
         print(f"Toplam Alacak: {total_credit}")
-        print(f"Toplam Borç: {total_debit}") 
+        print(f"Toplam Borç: {total_debit}")
+
+class FinAsisUser(HttpUser):
+    wait_time = between(1, 3)  # Her istek arasında 1-3 saniye bekleme
+    
+    def on_start(self):
+        # Kullanıcı girişi
+        self.client.post("/api/auth/login/", {
+            "email": f"test_user_{randint(1,1000)}@finasis.com",
+            "password": "test1234"
+        })
+    
+    @task(3)
+    def view_dashboard(self):
+        self.client.get("/api/dashboard/")
+    
+    @task(2)
+    def view_transactions(self):
+        self.client.get("/api/transactions/")
+        
+    @task(2)
+    def create_invoice(self):
+        self.client.post("/api/invoices/", {
+            "customer": choice(["ABC Ltd.", "XYZ A.Ş.", "123 Ltd. Şti."]),
+            "amount": randint(100, 10000),
+            "description": f"Test fatura {randint(1,1000)}"
+        })
+    
+    @task(1)
+    def play_game(self):
+        self.client.get("/api/games/ticaretin-izinde/")
+        self.client.post("/api/games/ticaretin-izinde/score/", {
+            "score": randint(100, 1000),
+            "time_spent": randint(60, 300)
+        })
+    
+    @task(1)
+    def generate_report(self):
+        self.client.get("/api/reports/monthly/")
+    
+    @task(1)
+    def search_transactions(self):
+        self.client.get(f"/api/transactions/search/?q=test_{randint(1,100)}")
+
+class WebsiteUser(HttpUser):
+    wait_time = between(2, 5)
+    
+    @task(3)
+    def view_homepage(self):
+        self.client.get("/")
+    
+    @task(2)
+    def view_about(self):
+        self.client.get("/about/")
+    
+    @task(1)
+    def view_pricing(self):
+        self.client.get("/pricing/")
+    
+    @task(1)
+    def view_contact(self):
+        self.client.get("/contact/") 

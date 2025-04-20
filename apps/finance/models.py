@@ -22,6 +22,7 @@ class Transaction(BaseModel):
         verbose_name = 'İşlem'
         verbose_name_plural = 'İşlemler'
         ordering = ['-date']
+        app_label = 'finance'
         
     def __str__(self):
         return f"{self.get_transaction_type_display()} - {self.amount} {self.currency}"
@@ -49,6 +50,7 @@ class CashFlow(BaseModel):
         verbose_name = 'Nakit Akışı'
         verbose_name_plural = 'Nakit Akışları'
         ordering = ['-start_date']
+        app_label = 'finance'
         
     def __str__(self):
         return f"{self.get_period_display()} - {self.start_date} - {self.end_date}"

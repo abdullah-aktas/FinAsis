@@ -1,0 +1,110 @@
+{% extends 'games/base.html' %}
+
+{% block title %}{{ game.name }} - FinAsis{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">{{ game.name }}</li>
+{% endblock %}
+
+{% block game_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4">{{ game.name }}</h1>
+        <p class="lead">{{ game.description }}</p>
+        <div class="mb-3">
+            <small class="text-muted date-display">
+                <i class="bi bi-calendar"></i> {{ game.start_date|date:"d.m.Y" }} - {{ game.end_date|date:"d.m.Y" }}
+            </small>
+        </div>
+    </div>
+</div>
+
+{% if not player %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h4 class="alert-heading">Oyuna Katılın!</h4>
+            <p>Finansal simülasyona katılmak için aşağıdaki butona tıklayın.</p>
+            <form method="post" action="{% url 'games:join_game' game.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Oyuna Katıl</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Şirket Bilgileri</h5>
+                <p class="card-text">
+                    <strong>Şirket Adı:</strong> {{ player.company_name }}<br>
+                    <strong>Mevcut Bakiye:</strong> {{ player.current_balance }} TL<br>
+                    <strong>Puan:</strong> <span class="badge score-badge bg-primary">{{ player.score }}</span>
+                </p>
+                <a href="{% url 'games:make_transaction' player.pk %}" class="btn btn-success">İşlem Yap</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Son İşlemler</h5>
+                <div class="list-group transaction-list">
+                    {% for transaction in player.transactions.all|slice:":5" %}
+                    <div class="list-group-item transaction-item {% if transaction.transaction_type == 'income' %}income{% endif %}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ transaction.get_transaction_type_display }}</h6>
+                            <small class="date-display" data-date="{{ transaction.created_at|date:'c' }}">{{ transaction.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <p class="mb-1">{{ transaction.description }}</p>
+                        <small class="text-{% if transaction.transaction_type == 'income' %}success{% else %}danger{% endif %}">
+                            {{ transaction.amount }} TL
+                        </small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Henüz işlem yapılmamış.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Görevler</h2>
+        <div class="row">
+            {% for challenge in challenges %}
+            <div class="col-md-4 mb-4">
+                <div class="card challenge-card h-100 {% if challenge in player.player_challenges.all %}completed{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ challenge.title }}</h5>
+                        <p class="card-text">{{ challenge.description }}</p>
+                        <div class="mb-3">
+                            <span class="badge score-badge bg-primary">{{ challenge.points }} Puan</span>
+                        </div>
+                        {% if challenge in player.player_challenges.all %}
+                        <button class="btn btn-success" disabled>Tamamlandı</button>
+                        {% else %}
+                        <form method="post" action="{% url 'games:complete_challenge' challenge.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary challenge-complete-btn">Görevi Tamamla</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Bu oyun için henüz görev bulunmamaktadır.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 
