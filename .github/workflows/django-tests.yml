@@ -1,130 +1,117 @@
-name: Django Test CI
+name: Django Tests
 
 on:
   push:
-    branches: [main, master, dev, development]
+    branches: [ develop, feature/*, hotfix/* ]
   pull_request:
-    branches: [main, master, dev, development]
+    branches: [ develop ]
+
+env:
+  SLACK_CHANNEL: ${{ vars.SLACK_CHANNEL || 'genel' }}
+  DJANGO_SETTINGS_MODULE: config.settings.ci
+  PYTHON_VERSION: '3.11'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     services:
       postgres:
-        image: postgres:13
+        image: postgres:14
         env:
+          POSTGRES_DB: test_db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: finasis_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     env:
-      DJANGO_SETTINGS_MODULE: config.settings.test
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/finasis_test
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DJANGO_SETTINGS_MODULE: config.settings.ci
+      SECRET_KEY: test_secret_key
       PYTHONUNBUFFERED: 1
+      DEBUG: 0
 
     steps:
-    - name: Reposu Checkout Ediliyor
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Python Kurulumu
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
-    - name: Bağımlılıklar Kuruluyor
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-        else
-          pip install Django psycopg2-binary pytest pytest-django pytest-cov
-        fi
+          pip install flake8 pytest pytest-django pytest-cov
 
-    - name: Test Settings Kontrolü ve Oluşturma
-      run: |
-        if [ ! -f "config/settings/test.py" ]; then
-          mkdir -p config/settings
-          echo "from .base import *" > config/settings/test.py
-          echo "" >> config/settings/test.py
-          echo "# Test veritabanı ayarları" >> config/settings/test.py
-          echo "DATABASES = {" >> config/settings/test.py
-          echo "    'default': {" >> config/settings/test.py
-          echo "        'ENGINE': 'django.db.backends.postgresql'," >> config/settings/test.py
-          echo "        'NAME': 'finasis_test'," >> config/settings/test.py
-          echo "        'USER': 'postgres'," >> config/settings/test.py
-          echo "        'PASSWORD': 'postgres'," >> config/settings/test.py
-          echo "        'HOST': 'localhost'," >> config/settings/test.py
-          echo "        'PORT': '5432'," >> config/settings/test.py
-          echo "    }" >> config/settings/test.py
-          echo "}" >> config/settings/test.py
-          echo "" >> config/settings/test.py
-          echo "# Test ayarları" >> config/settings/test.py
-          echo "DEBUG = False" >> config/settings/test.py
-          echo "SECRET_KEY = 'django-insecure-test-key-only-for-ci'" >> config/settings/test.py
-          echo "" >> config/settings/test.py
-          echo "# Test için mail ayarları" >> config/settings/test.py
-          echo "EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'" >> config/settings/test.py
-          echo "" >> config/settings/test.py
-          echo "# Test için cache ayarları" >> config/settings/test.py
-          echo "CACHES = {" >> config/settings/test.py
-          echo "    'default': {" >> config/settings/test.py
-          echo "        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'," >> config/settings/test.py
-          echo "    }" >> config/settings/test.py
-          echo "}" >> config/settings/test.py
-        fi
+      - name: Kod kalite kontrolü (flake8)
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: .env Oluşturuluyor
-      run: |
-        echo "DEBUG=True" >> .env
-        echo "SECRET_KEY=django-insecure-test-key-only-for-ci" >> .env
-        echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-        echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/finasis_test" >> .env
+      - name: Kod stili kontrolü (black)
+        run: |
+          pip install black
+          black . --check
 
-    - name: Migrasyon Kontrolü
-      run: |
-        python manage.py makemigrations --check --dry-run
+      - name: Güvenlik taraması
+        run: |
+          pip install safety bandit
+          safety check
+          bandit -r . --exclude tests,venv,.venv
 
-    - name: Uygulama Testi Klasörü Kontrolü
-      run: |
-        for app in apps/*; do
-          if [ -d "$app" ]; then
-            if [ ! -d "$app/tests" ] && [ ! -f "$app/tests.py" ]; then
-              mkdir -p "$app/tests"
-              touch "$app/tests/__init__.py"
-              echo "# Test dosyaları henüz oluşturulmadı - $app" > "$app/tests/README.md"
-            fi
-          fi
-        done
+      - name: Dil dosyalarını derle
+        run: |
+          python manage.py compilemessages --locale=tr --locale=en --locale=de --locale=fr --locale=ar --locale=ku
 
-    - name: Django Testleri Çalıştırılıyor
-      run: |
-        python manage.py test
-
-    - name: Pytest ile Tüm Testler ve Kapsam Raporu
-      run: |
-        if pytest --collect-only -q 2>/dev/null; then
+      - name: Migrasyonları çalıştır
+        run: |
+          python manage.py migrate
+          
+      - name: Testleri çalıştır
+        run: |
           pytest --cov=. --cov-report=xml
-        else
-          echo '<?xml version="1.0"?><coverage version="5.5"></coverage>' > coverage.xml
-          echo "Pytest ile çalıştırılabilecek test bulunamadı."
-        fi
 
-    - name: Codecov Raporu Yükleniyor
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: false
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
 
-    - name: Güvenlik Taraması
-      run: |
-        pip install safety
-        safety check || echo "Güvenlik taraması tamamlandı."
+      - name: Test Sonuçlarını Slack'e Bildir
+        uses: rtCamp/action-slack-notify@v2
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_TITLE: "FinAsis Test Sonuçları"
+          SLACK_USERNAME: "FinAsis CI/CD Bot"
+          SLACK_MESSAGE: |
+            ${{ github.workflow }} işlem ${{ job.status }} durumunda.
+            Commit: ${{ github.event.head_commit.message }}
+            Branch: ${{ github.ref }}
+            Repository: ${{ github.repository }}
+            ${{ job.status == 'success' && '✅ Testler başarılı!' || '❌ Testler başarısız! Lütfen hataları kontrol edin.' }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_FOOTER: "FinAsis CI/CD Sistemi | ${{ github.event.head_commit.timestamp }}"
+          SLACK_ICON: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"

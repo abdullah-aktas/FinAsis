@@ -44,6 +44,7 @@ static/
 .env.development
 .env.test
 .env.production
+.env.prod
 
 # IDE
 .idea/
@@ -123,3 +124,58 @@ logs/
 
 # Google Cloud
 *service-account*.json
+
+# Docker ve Üretim
+postgres-data/
+redis-data/
+acme.json
+prometheus_data/
+grafana_data/
+postgres/data/
+prometheus/data/
+traefik/acme.json
+traefik/traefik.log
+traefik/traefik.toml
+
+# Docker TLS sertifikaları
+*.pem
+*.crt
+*.key
+
+# SSL sertifikaları
+ssl/
+nginx/ssl/
+certbot/
+
+# Geçici dosyalar
+*.tmp
+*.temp
+tmp/
+temp/
+*.swp
+
+# Önbellekler
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.eslintcache
+.npm
+.ruff_cache/
+
+# Yerel yapılandırma dosyaları
+.prettierrc
+.eslintrc
+.editorconfig
+pylintrc
+
+# Runtime oluşturulan dosyalar
+pid/
+*.pid
+*.sock
+celerybeat-schedule
+celerybeat.pid
+
+# Dağıtım betikleri
+deploy.log
+rollback.log
+deploy_history.txt

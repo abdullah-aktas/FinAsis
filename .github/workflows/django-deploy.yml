@@ -83,6 +83,10 @@ jobs:
         run: |
           python manage.py makemigrations --check --dry-run
 
+      - name: Derleme dil dosyalarını
+        run: |
+          python manage.py compilemessages --locale=tr --locale=en --locale=de --locale=fr --locale=ar --locale=ku
+
       - name: Run tests
         run: |
           python manage.py migrate
@@ -144,6 +148,7 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/finasis:buildcache,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            DJANGO_SETTINGS_MODULE=config.settings.prod
 
       - name: Build Sonuçlarını Slack'e Bildir
         uses: rtCamp/action-slack-notify@v2
@@ -193,6 +198,18 @@ jobs:
             # Yeni container'ları başlat
             echo "Yeni container'lar başlatılıyor..."
             docker-compose -f docker-compose.prod.yml up -d --build
+            
+            # Veritabanı migrasyonlarını çalıştır
+            echo "Veritabanı migrasyonları çalıştırılıyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+            
+            # Statik dosyaları topla
+            echo "Statik dosyalar toplanıyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
+            
+            # Dil dosyalarını derle
+            echo "Dil dosyaları derleniyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py compilemessages --locale=tr --locale=en --locale=de --locale=fr --locale=ar --locale=ku
             
             # Temizlik
             echo "Temizlik yapılıyor..."

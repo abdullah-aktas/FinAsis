@@ -55,12 +55,14 @@ INSTALLED_APPS = [
     'edocument.apps.EdocumentConfig',
     'apps.finance.apps.FinanceConfig',
     'apps.assistant.apps.AssistantConfig',  # AI Asistan uygulaması
+    'apps.users.apps.UsersConfig',  # Kullanıcı yönetimi uygulaması
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Çoklu dil desteği için
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,6 +89,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
+                'django.template.context_processors.i18n',  # Çoklu dil desteği için
             ],
         },
     },
@@ -153,6 +156,20 @@ LANGUAGE_CODE = 'tr-tr'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
 USE_TZ = True
+
+# Çoklu dil desteği
+LANGUAGES = [
+    ('tr', 'Türkçe'),
+    ('en', 'English'),
+    ('ar', 'العربية'),
+    ('ku', 'Kurdî'),
+    ('de', 'Deutsch'),
+]
+
+# Çeviri dosyalarının yerleri
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'

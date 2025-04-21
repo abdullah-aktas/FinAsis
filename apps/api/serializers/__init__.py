@@ -1,0 +1,3 @@
+"""
+API serileştiriciler modülü
+""" 

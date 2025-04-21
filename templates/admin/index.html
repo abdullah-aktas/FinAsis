@@ -1,0 +1,508 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Admin Paneli - FinAsis{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Gösterge Paneli</li>
+{% endblock %}
+
+{% block page_title %}Gösterge Paneli{% endblock %}
+{% block page_subtitle %}Sistem durumuna genel bakış{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dateRangeSelector" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-calendar3 me-1"></i> Son 7 Gün
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dateRangeSelector">
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="today">Bugün</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="yesterday">Dün</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="last7days">Son 7 Gün</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="last30days">Son 30 Gün</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="thisMonth">Bu Ay</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="lastMonth">Geçen Ay</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" data-range="custom">Özel Aralık</a></li>
+        </ul>
+    </div>
+    <a href="{% url 'admin:reports' %}" class="btn btn-outline-primary">
+        <i class="bi bi-file-earmark-text me-1"></i> Raporlar
+    </a>
+    <button class="btn btn-primary" id="refreshData">
+        <i class="bi bi-arrow-repeat me-1"></i> Yenile
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Custom Date Range Select (Default: Hidden) -->
+<div id="customDateRange" class="mb-4 row g-2 align-items-center" style="display: none;">
+    <div class="col-auto">
+        <label for="startDate" class="form-label mb-0">Başlangıç:</label>
+    </div>
+    <div class="col-auto">
+        <input type="date" id="startDate" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+        <label for="endDate" class="form-label mb-0">Bitiş:</label>
+    </div>
+    <div class="col-auto">
+        <input type="date" id="endDate" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+        <button id="applyDateFilter" class="btn btn-sm btn-primary">Uygula</button>
+    </div>
+</div>
+
+<!-- İstatistik Kartları -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <i class="bi bi-people card-icon"></i>
+            <div class="label">Toplam Kullanıcı</div>
+            <div class="value">1,254</div>
+            <div class="text-success">
+                <i class="bi bi-graph-up me-1"></i>
+                <small>%12 artış</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <i class="bi bi-currency-exchange card-icon"></i>
+            <div class="label">Toplam Gelir</div>
+            <div class="value">₺128,450</div>
+            <div class="text-success">
+                <i class="bi bi-graph-up me-1"></i>
+                <small>%8 artış</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <i class="bi bi-file-earmark-text card-icon"></i>
+            <div class="label">Toplam İşlem</div>
+            <div class="value">3,542</div>
+            <div class="text-danger">
+                <i class="bi bi-graph-down me-1"></i>
+                <small>%3 azalış</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <i class="bi bi-hdd-rack card-icon"></i>
+            <div class="label">Sistem Durumu</div>
+            <div class="value">%99.8</div>
+            <div class="text-success">
+                <i class="bi bi-check-circle me-1"></i>
+                <small>Normal</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <!-- Ana Grafik -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Gelir İstatistikleri</h5>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary active" data-chart-period="daily">Günlük</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-chart-period="weekly">Haftalık</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-chart-period="monthly">Aylık</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="300"></canvas>
+            </div>
+        </div>
+        
+        <!-- Son İşlemler -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Son İşlemler</h5>
+                <a href="{% url 'admin:transactions' %}" class="btn btn-sm btn-link">Tümünü Gör</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table admin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Kullanıcı</th>
+                                <th>İşlem</th>
+                                <th>Tarih</th>
+                                <th>Tutar</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#TR-3256</td>
+                                <td>Ahmet Yılmaz</td>
+                                <td>Satış</td>
+                                <td>12.06.2023</td>
+                                <td class="text-success">+₺1,200.00</td>
+                                <td><span class="badge bg-success">Tamamlandı</span></td>
+                            </tr>
+                            <tr>
+                                <td>#TR-3255</td>
+                                <td>Ayşe Demir</td>
+                                <td>Ödeme</td>
+                                <td>12.06.2023</td>
+                                <td class="text-danger">-₺850.50</td>
+                                <td><span class="badge bg-success">Tamamlandı</span></td>
+                            </tr>
+                            <tr>
+                                <td>#TR-3254</td>
+                                <td>Mehmet Kaya</td>
+                                <td>Satış</td>
+                                <td>11.06.2023</td>
+                                <td class="text-success">+₺3,670.00</td>
+                                <td><span class="badge bg-warning text-dark">İşleniyor</span></td>
+                            </tr>
+                            <tr>
+                                <td>#TR-3253</td>
+                                <td>Zeynep Öztürk</td>
+                                <td>İade</td>
+                                <td>11.06.2023</td>
+                                <td class="text-danger">-₺450.25</td>
+                                <td><span class="badge bg-danger">İptal Edildi</span></td>
+                            </tr>
+                            <tr>
+                                <td>#TR-3252</td>
+                                <td>Mustafa Aydın</td>
+                                <td>Abonelik</td>
+                                <td>10.06.2023</td>
+                                <td class="text-success">+₺149.90</td>
+                                <td><span class="badge bg-success">Tamamlandı</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Sistem Bildirimleri -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Sistem Bildirimleri</h5>
+                <span class="badge bg-danger">3 Yeni</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <div class="d-flex">
+                            <div class="notification-icon bg-warning-light text-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-1 fw-semibold">Düşük Disk Alanı</p>
+                                <p class="text-muted mb-1">Sunucu disk alanı %85'e ulaştı. Lütfen kontrol edin.</p>
+                                <small class="text-muted">2 saat önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="d-flex">
+                            <div class="notification-icon bg-success-light text-success">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-1 fw-semibold">Güncelleme Tamamlandı</p>
+                                <p class="text-muted mb-1">Sistem v2.3.4 versiyonuna başarıyla güncellendi.</p>
+                                <small class="text-muted">1 gün önce</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="d-flex">
+                            <div class="notification-icon bg-info-light text-info">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="mb-1 fw-semibold">Yeni Özellik</p>
+                                <p class="text-muted mb-1">API entegrasyonu için yeni özellikler kullanıma sunuldu.</p>
+                                <small class="text-muted">3 gün önce</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center p-2">
+                <a href="{% url 'admin:notifications' %}" class="btn btn-link">Tüm Bildirimleri Gör</a>
+            </div>
+        </div>
+        
+        <!-- Kullanıcı Aktivitesi -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Kullanıcı Aktivitesi</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="userActivityChart" height="240"></canvas>
+            </div>
+        </div>
+        
+        <!-- Hızlı Erişim -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Hızlı Erişim</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{% url 'admin:users_add' %}" class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="bi bi-person-plus fs-4 mb-1"></i>
+                            <span>Kullanıcı Ekle</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'admin:reports' %}" class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="bi bi-bar-chart fs-4 mb-1"></i>
+                            <span>Raporlar</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'admin:backups' %}" class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="bi bi-cloud-arrow-up fs-4 mb-1"></i>
+                            <span>Yedekleme</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'admin:settings' %}" class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="bi bi-gear fs-4 mb-1"></i>
+                            <span>Ayarlar</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gelir Grafiği
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    
+    const revenueData = {
+        daily: {
+            labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+            datasets: [{
+                label: 'Gelir',
+                data: [12500, 15000, 18000, 14500, 21000, 16500, 19500],
+                backgroundColor: 'rgba(0, 151, 167, 0.2)',
+                borderColor: chartColors.primary,
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        weekly: {
+            labels: ['Hafta 1', 'Hafta 2', 'Hafta 3', 'Hafta 4'],
+            datasets: [{
+                label: 'Gelir',
+                data: [65000, 71000, 85000, 92000],
+                backgroundColor: 'rgba(0, 151, 167, 0.2)',
+                borderColor: chartColors.primary,
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        monthly: {
+            labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz'],
+            datasets: [{
+                label: 'Gelir',
+                data: [250000, 290000, 325000, 380000, 360000, 410000],
+                backgroundColor: 'rgba(0, 151, 167, 0.2)',
+                borderColor: chartColors.primary,
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        }
+    };
+    
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: revenueData.daily,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₺' + value.toLocaleString('tr-TR');
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += '₺' + context.parsed.y.toLocaleString('tr-TR');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Grafik periyot değiştirme
+    document.querySelectorAll('[data-chart-period]').forEach(button => {
+        button.addEventListener('click', function() {
+            const period = this.dataset.chartPeriod;
+            
+            // Aktif sınıfını güncelle
+            document.querySelector('[data-chart-period].active').classList.remove('active');
+            this.classList.add('active');
+            
+            // Grafik verilerini güncelle
+            revenueChart.data = revenueData[period];
+            revenueChart.update();
+        });
+    });
+    
+    // Kullanıcı Aktivitesi Grafiği
+    const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+    
+    new Chart(userActivityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aktif', 'Pasif', 'Askıda'],
+            datasets: [{
+                data: [75, 20, 5],
+                backgroundColor: [
+                    chartColors.success,
+                    chartColors.warning,
+                    chartColors.danger
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '65%'
+        }
+    });
+    
+    // Tarih Aralığı Seçici
+    document.querySelectorAll('[data-range]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const rangeType = this.dataset.range;
+            const dropdownButton = document.getElementById('dateRangeSelector');
+            
+            let buttonText = '';
+            let startDate = new Date();
+            let endDate = new Date();
+            
+            switch(rangeType) {
+                case 'today':
+                    buttonText = 'Bugün';
+                    break;
+                case 'yesterday':
+                    buttonText = 'Dün';
+                    startDate.setDate(startDate.getDate() - 1);
+                    endDate.setDate(endDate.getDate() - 1);
+                    break;
+                case 'last7days':
+                    buttonText = 'Son 7 Gün';
+                    startDate.setDate(startDate.getDate() - 6);
+                    break;
+                case 'last30days':
+                    buttonText = 'Son 30 Gün';
+                    startDate.setDate(startDate.getDate() - 29);
+                    break;
+                case 'thisMonth':
+                    buttonText = 'Bu Ay';
+                    startDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                    break;
+                case 'lastMonth':
+                    buttonText = 'Geçen Ay';
+                    startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+                    endDate = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
+                    break;
+                case 'custom':
+                    buttonText = 'Özel Aralık';
+                    document.getElementById('customDateRange').style.display = 'flex';
+                    break;
+            }
+            
+            dropdownButton.innerHTML = `<i class="bi bi-calendar3 me-1"></i> ${buttonText}`;
+            
+            if (rangeType !== 'custom') {
+                document.getElementById('customDateRange').style.display = 'none';
+                
+                // Tarih aralığını formatlayıp input'lara yaz
+                document.getElementById('startDate').value = formatDate(startDate);
+                document.getElementById('endDate').value = formatDate(endDate);
+                
+                // Verileri filtrele
+                filterDataByDateRange(startDate, endDate);
+            }
+        });
+    });
+    
+    // Özel tarih aralığı uygulandığında
+    document.getElementById('applyDateFilter').addEventListener('click', function() {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        
+        // Verileri filtrele
+        filterDataByDateRange(startDate, endDate);
+        
+        // Dropdown butonunu güncelle
+        const dropdownButton = document.getElementById('dateRangeSelector');
+        dropdownButton.innerHTML = `<i class="bi bi-calendar3 me-1"></i> ${formatDate(startDate)} - ${formatDate(endDate)}`;
+    });
+    
+    // Yenile butonu
+    document.getElementById('refreshData').addEventListener('click', function() {
+        // Burada AJAX ile veri yenileme kodları olacak
+        // Şimdilik sadece bir yükleniyor animasyonu gösterelim
+        this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Yenileniyor...`;
+        this.disabled = true;
+        
+        setTimeout(() => {
+            // 1 saniye sonra sayfayı yenile
+            location.reload();
+        }, 1000);
+    });
+});
+
+// Tarih aralığına göre veri filtreleme fonksiyonu
+function filterDataByDateRange(startDate, endDate) {
+    console.log(`Filtering data from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    // Burada AJAX ile sunucudan ilgili tarih aralığındaki veriler alınacak
+    // ve grafik ve tablolar güncellenecek
+}
+</script>
+{% endblock %}

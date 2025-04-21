@@ -218,8 +218,7 @@
                                 <i class="bi bi-globe"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="languageDropdown">
-                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="showLanguageMessage('Türkçe')"><img src="{% static 'img/flags/tr.svg' %}" alt="Türkçe" width="20" class="me-2">Türkçe</a></li>
-                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="showLanguageMessage('English')"><img src="{% static 'img/flags/en.svg' %}" alt="English" width="20" class="me-2">English</a></li>
+                                {% include "includes/language_switcher.html" %}
                             </ul>
                         </li>
                     </ul>

@@ -1,0 +1,55 @@
+{% load i18n %}
+<form action="{% url 'set_language' %}" method="post" id="language-form" class="p-2">
+    {% csrf_token %}
+    <input name="next" type="hidden" value="{{ request.path }}">
+    <div class="language-options">
+        {% get_current_language as CURRENT_LANGUAGE %}
+        {% get_available_languages as LANGUAGES %}
+        {% get_language_info_list for LANGUAGES as languages %}
+
+        {% for language in languages %}
+        <button type="submit" 
+                name="language" 
+                value="{{ language.code }}" 
+                class="dropdown-item d-flex align-items-center justify-content-between {% if language.code == CURRENT_LANGUAGE %}active{% endif %}">
+            <span>
+                {% if language.code == 'tr' %}
+                    <img src="/static/img/flags/tr.svg" alt="Türkçe" width="20" class="me-2">
+                {% elif language.code == 'en' %}
+                    <img src="/static/img/flags/en.svg" alt="English" width="20" class="me-2">
+                {% elif language.code == 'ar' %}
+                    <img src="/static/img/flags/ar.svg" alt="العربية" width="20" class="me-2">
+                {% elif language.code == 'ku' %}
+                    <img src="/static/img/flags/ku.svg" alt="Kurdî" width="20" class="me-2">
+                {% elif language.code == 'de' %}
+                    <img src="/static/img/flags/de.svg" alt="Deutsch" width="20" class="me-2">
+                {% endif %}
+                {{ language.name_local }}
+            </span>
+            {% if language.code == CURRENT_LANGUAGE %}
+            <i class="bi bi-check text-primary ms-2"></i>
+            {% endif %}
+        </button>
+        {% endfor %}
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const languageButtons = document.querySelectorAll('#language-form button');
+    
+    languageButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const languageCode = this.value;
+            const languageForm = document.getElementById('language-form');
+            
+            // HTMX kullanılıyorsa
+            if (typeof window.htmx !== 'undefined') {
+                htmx.trigger(languageForm, 'submit');
+            } else {
+                languageForm.submit();
+            }
+        });
+    });
+});
+</script> 

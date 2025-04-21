@@ -9,12 +9,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,13 +68,14 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Dil arayüzü için
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -103,8 +104,38 @@ ASGI_APPLICATION = 'core.asgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
+        'CONN_MAX_AGE': int(os.getenv('DB_CONN_MAX_AGE', 600)),
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'options': '-c statement_timeout=30000',
+        },
+    }
+}
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            },
+            'MAX_CONNECTIONS': 1000,
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+        },
+        'KEY_PREFIX': 'finasis'
     }
 }
 
@@ -128,7 +159,31 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'tr-tr'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
+USE_L10N = True  # Yerel tarih, saat ve sayı biçimlendirmesi
 USE_TZ = True
+
+# Çoklu dil desteği
+from django.utils.translation import gettext_lazy as _
+LANGUAGES = [
+    ('tr', _('Türkçe')),
+    ('en', _('İngilizce')),
+    ('ar', _('Arapça')),
+    ('ku', _('Kürtçe')),
+    ('de', _('Almanca')),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
+
+# Dil algılama ayarları
+LANGUAGE_COOKIE_NAME = 'finasis_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 yıl
+LANGUAGE_COOKIE_DOMAIN = None
+LANGUAGE_COOKIE_PATH = '/'
+LANGUAGE_COOKIE_SECURE = not DEBUG
+LANGUAGE_COOKIE_HTTPONLY = True
+LANGUAGE_COOKIE_SAMESITE = 'Lax'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -252,4 +307,74 @@ EDOCUMENT_CACHE_TIMEOUT = int(os.getenv('EDOCUMENT_CACHE_TIMEOUT', '3600'))  # S
 
 # E-Belge Log Ayarları
 EDOCUMENT_LOG_LEVEL = os.getenv('EDOCUMENT_LOG_LEVEL', 'INFO')
-EDOCUMENT_LOG_FILE = os.path.join(BASE_DIR, 'logs', 'edocument.log') 
+EDOCUMENT_LOG_FILE = os.path.join(BASE_DIR, 'logs', 'edocument.log')
+
+# Güvenlik ayarları
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_HSTS_SECONDS = 31536000  # 1 yıl
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Şifreleme algoritması güçlendirme
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
+# Rate limiting ve güvenlik
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_VIEW = True
+RATELIMIT_KEY_FUNCTION = 'django_ratelimit.utils.get_client_ip'
+
+# SEO ayarları
+SEO_TITLE = "FinAsis - Finansal Asistan ve Entegrasyon Platformu"
+SEO_DESCRIPTION = "FinAsis, işletmenizi finansal olarak yönetmeyi kolaylaştıran entegre bir çözümdür. Muhasebe, fatura, stok, CRM ve daha fazlası."
+SEO_KEYWORDS = "finans, muhasebe, crm, işletme yönetimi, fatura, e-fatura, stok yönetimi, finansal analiz"
+SEO_AUTHOR = "FinAsis"
+SEO_IMAGE = "img/og-image.png"
+SEO_SITE_NAME = "FinAsis"
+SEO_TWITTER_CREATOR = "@finasis"
+SEO_TWITTER_SITE = "@finasis"
+SEO_ROBOTS = "index, follow"
+SEO_CANONICAL_URL = os.getenv('DJANGO_CANONICAL_URL', 'https://finasis.com.tr')
+
+# PWA Ayarları
+PWA_APP_NAME = 'FinAsis'
+PWA_APP_DESCRIPTION = 'Finansal Asistan ve Entegrasyon Platformu'
+PWA_APP_THEME_COLOR = '#0097a7'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'any'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/images/icons/icon-192x192.png',
+        'sizes': '192x192',
+        'type': 'image/png'
+    },
+    {
+        'src': '/static/images/icons/icon-512x512.png',
+        'sizes': '512x512',
+        'type': 'image/png'
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/images/icons/splash-640x1136.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+    }
+]
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'tr-TR'
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'serviceworker.js') 

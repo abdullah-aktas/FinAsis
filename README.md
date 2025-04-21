@@ -4,7 +4,7 @@
 
 FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetimi süreçlerini dijitalleştirmesine yardımcı olan kapsamlı bir yazılım çözümüdür. Hem web uygulaması hem de masaüstü uygulaması olarak kullanılabilir.
 
-## Özellikler
+## 🚀 Özellikler
 
 - **Muhasebe Yönetimi**: Hesap planı, faturalar, yevmiye kayıtları, vergi beyannameleri
 - **Müşteri İlişkileri (CRM)**: Müşteri yönetimi, fırsat takibi, aktivite planlaması
@@ -17,9 +17,19 @@ FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetim
 - **Çoklu Dil Desteği**: Türkçe, İngilizce, Kürtçe, Arapça ve Almanca dil desteği
 - **Güvenlik ve Kimlik Doğrulama**: JWT tabanlı kimlik doğrulama, 2FA desteği, rate limiting
 
-## Kurulum
+## �� Teknolojiler
 
-### Gereksinimler
+- **Backend**: Python/Django, Django Rest Framework
+- **Frontend**: HTML/CSS/JavaScript, Bootstrap 5, HTMX
+- **Veritabanı**: PostgreSQL
+- **Önbellek**: Redis
+- **Asenkron İşlemler**: Celery
+- **Yapay Zeka**: OpenAI, TensorFlow
+- **Konteynerleştirme**: Docker, Docker Compose
+- **İzleme**: Prometheus, Grafana
+- **CI/CD**: GitHub Actions
+
+## 📋 Gereksinimler
 
 - Python 3.9 veya üzeri
 - pip (Python paket yöneticisi)
@@ -28,15 +38,21 @@ FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetim
 - Redis 6+ (görev kuyruğu için)
 - Docker & Docker Compose (opsiyonel)
 
-### Web Uygulaması
+## 🛠 Kurulum
 
-1. Projeyi klonlayın:
+### Docker ile Kurulum (Önerilen)
+
 ```bash
-git clone https://github.com/finasis/finasis.git
-cd finasis
+# Geliştirme ortamı
+docker-compose up -d
+
+# Üretim ortamı
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-2. Sanal ortam oluşturun ve etkinleştirin:
+### Yerel Kurulum
+
+1. Projeyi klonlayın:
 ```bash
 # Windows
 python -m venv venv
