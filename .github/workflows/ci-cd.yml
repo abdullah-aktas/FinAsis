@@ -90,6 +90,11 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_PROJECT_KEY: finasis
+        SONAR_PROJECT_NAME: FinAsis
+        SONAR_PROJECT_VERSION: ${{ github.sha }}
+        SONAR_QUALITYGATE_WAIT: true
+        SONAR_SCANNER_OPTS: -Dsonar.verbose=true
     
     - name: Build Docker image
       run: docker build -t finasis:${{ github.sha }} .

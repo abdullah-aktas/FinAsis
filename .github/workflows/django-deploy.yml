@@ -13,6 +13,7 @@ env:
   SLACK_CHANNEL: ${{ vars.SLACK_CHANNEL || 'genel' }}
   DJANGO_SETTINGS_MODULE: config.settings.ci
   PYTHON_VERSION: '3.11'
+  DOCKER_COMPOSE_VERSION: '2.20.0'
 
 jobs:
   test:
@@ -149,6 +150,10 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
             DJANGO_SETTINGS_MODULE=config.settings.prod
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
 
       - name: Build Sonuçlarını Slack'e Bildir
         uses: rtCamp/action-slack-notify@v2
@@ -181,11 +186,17 @@ jobs:
           script: |
             set -e
             cd /var/www/finasis
-            echo "Deployment başlıyor..."
             
             # Yedekleme
             echo "Veritabanı yedekleniyor..."
-            docker-compose -f docker-compose.prod.yml exec -T db pg_dump -U ${{ secrets.DB_USER }} ${{ secrets.DB_NAME }} > backup_$(date +%Y%m%d_%H%M%S).sql
+            BACKUP_DIR="/var/www/finasis/backups"
+            mkdir -p $BACKUP_DIR
+            BACKUP_FILE="$BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S).sql"
+            docker-compose -f docker-compose.prod.yml exec -T db pg_dump -U ${{ secrets.DB_USER }} ${{ secrets.DB_NAME }} > $BACKUP_FILE
+            gzip $BACKUP_FILE
+            
+            # Eski yedekleri temizle (30 günden eski)
+            find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +30 -delete
             
             # Mevcut container'ları durdur
             echo "Mevcut container'lar durduruluyor..."
