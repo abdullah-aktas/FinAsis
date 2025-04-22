@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from apps.virtual_company.models import VirtualCompany
+from virtual_company.models import VirtualCompany
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

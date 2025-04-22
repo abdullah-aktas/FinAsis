@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ integration.name }} - {{ _('Entegrasyon') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ integration.name }}</h1>
+        <div class="btn-group">
+            <a href="{% url 'external_integrations:integration_update' integration.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> {{ _('Düzenle') }}
+            </a>
+            <a href="{% url 'external_integrations:integration_delete' integration.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {{ _('Sil') }}
+            </a>
+            <a href="{% url 'external_integrations:integration_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {{ _('Geri') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ _('Entegrasyon Bilgileri') }}</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">{{ _('Entegrasyon Adı') }}</dt>
+                        <dd class="col-sm-8">{{ integration.name }}</dd>
+
+                        <dt class="col-sm-4">{{ _('Sağlayıcı') }}</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'external_integrations:provider_detail' integration.provider.pk %}" class="text-decoration-none">
+                                {{ integration.provider.name }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Entegrasyon Tipi') }}</dt>
+                        <dd class="col-sm-8">{{ integration.get_integration_type_display }}</dd>
+
+                        <dt class="col-sm-4">{{ _('Webhook URL') }}</dt>
+                        <dd class="col-sm-8">
+                            {% if integration.webhook_url %}
+                                <a href="{{ integration.webhook_url }}" target="_blank" class="text-decoration-none">
+                                    {{ integration.webhook_url }}
+                                </a>
+                            {% else %}
+                                {{ _('Webhook URL belirtilmemiş') }}
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Durum') }}</dt>
+                        <dd class="col-sm-8">
+                            {% if integration.is_active %}
+                                <span class="badge bg-success">{{ _('Aktif') }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ _('Pasif') }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Oluşturan') }}</dt>
+                        <dd class="col-sm-8">{{ integration.created_by.get_full_name|default:integration.created_by.username }}</dd>
+
+                        <dt class="col-sm-4">{{ _('Oluşturulma Tarihi') }}</dt>
+                        <dd class="col-sm-8">{{ integration.created_at|date:"d.m.Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">{{ _('Son Güncelleme') }}</dt>
+                        <dd class="col-sm-8">{{ integration.updated_at|date:"d.m.Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ _('Ayarlar') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if integration.settings %}
+                        <pre class="bg-light p-3 rounded"><code>{{ integration.settings|pprint }}</code></pre>
+                    {% else %}
+                        <div class="alert alert-info">
+                            {{ _('Henüz ayar bulunmamaktadır.') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ _('Webhook Endpoint\'leri') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if webhooks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Endpoint Adı') }}</th>
+                                        <th>{{ _('URL') }}</th>
+                                        <th>{{ _('Durum') }}</th>
+                                        <th>{{ _('İşlemler') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for webhook in webhooks %}
+                                        <tr>
+                                            <td>{{ webhook.name }}</td>
+                                            <td>
+                                                <a href="{{ webhook.endpoint_url }}" target="_blank" class="text-decoration-none">
+                                                    {{ webhook.endpoint_url }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {% if webhook.is_active %}
+                                                    <span class="badge bg-success">{{ _('Aktif') }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">{{ _('Pasif') }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="#" class="btn btn-sm btn-info" title="{{ _('Detay') }}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-sm btn-warning" title="{{ _('Düzenle') }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-sm btn-danger" title="{{ _('Sil') }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-success test-webhook" 
+                                                            data-webhook-id="{{ webhook.pk }}" title="{{ _('Test Et') }}">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            {{ _('Bu entegrasyon için henüz webhook endpoint\'i bulunmamaktadır.') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const testButtons = document.querySelectorAll('.test-webhook');
+        
+        testButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const webhookId = this.dataset.webhookId;
+                const button = this;
+                
+                // Butonu devre dışı bırak ve yükleniyor göster
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                // API'ye istek gönder
+                fetch(`/external_integrations/api/webhooks/${webhookId}/test_webhook/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Sonucu göster
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ _("Başarılı") }}',
+                            text: data.message,
+                            confirmButtonText: '{{ _("Tamam") }}'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ _("Hata") }}',
+                            text: data.message,
+                            confirmButtonText: '{{ _("Tamam") }}'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ _("Hata") }}',
+                        text: '{{ _("Webhook testi sırasında bir hata oluştu.") }}',
+                        confirmButtonText: '{{ _("Tamam") }}'
+                    });
+                })
+                .finally(() => {
+                    // Butonu tekrar aktif et
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

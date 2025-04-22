@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% translate "E-Belge Ayarları" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "E-Belge Ayarları" %}</h1>
+        <a href="{% url 'accounting:edocument_list' %}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-list fa-sm"></i> {% translate "E-Belgelere Dön" %}
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Belge Entegrasyon Ayarları" %}</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            {% translate "E-belge entegrasyonu için gerekli ayarları burada tanımlayabilirsiniz. Aktif olarak işaretlenen ayarlar e-belge işlemlerinde kullanılacaktır." %}
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                {% translate "Şirket Bilgileri" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.company_name|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.vkn_tckn|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.tax_office|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.phone|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.email|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.address|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                {% translate "Entegrasyon Bilgileri" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.integration_type|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.api_url|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.username|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.password|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.api_key|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                {% translate "Ayarlar" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.is_test_mode|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.is_active|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {% translate "Ayarları Kaydet" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Belge Bilgisi" %}</h6>
+                </div>
+                <div class="card-body">
+                    <p>
+                        {% translate "E-Belge (E-Fatura, E-Arşiv, E-İrsaliye, vb.) entegrasyonu için, bir e-belge entegratörü veya GİB portali ile entegrasyon yapmanız gerekmektedir." %}
+                    </p>
+                    
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle"></i> {% translate "Dikkat" %}</h5>
+                        <p>
+                            {% translate "E-belge entegrasyon ayarlarını yaparken dikkatli olun. Yanlış yapılandırılmış ayarlar, e-belge işlemlerinin başarısız olmasına neden olabilir." %}
+                        </p>
+                    </div>
+                    
+                    <h6>{% translate "Entegrasyon Tipleri" %}:</h6>
+                    <ul>
+                        <li><strong>GİB Portal:</strong> {% translate "Gelir İdaresi Başkanlığı Portal üzerinden e-belge oluşturma." %}</li>
+                        <li><strong>E-Fatura Entegratörü:</strong> {% translate "Genel e-fatura entegratörleri (Logo, Digital Planet, vb.)." %}</li>
+                        <li><strong>E-Finans:</strong> {% translate "Finansbank E-Finans entegrasyonu." %}</li>
+                        <li><strong>T.C. E-Fatura:</strong> {% translate "Türkiye Cumhuriyeti E-Fatura sistemi." %}</li>
+                        <li><strong>Özel Entegrasyon:</strong> {% translate "Özel entegrasyon API'leri." %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

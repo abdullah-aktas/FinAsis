@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Muhasebe Modülü{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Muhasebe Modülü</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'accounting:accountplan_list' %}" class="list-group-item list-group-item-action">Hesap Planı</a>
+                <a href="{% url 'accounting:balancesheet_list' %}" class="list-group-item list-group-item-action">Bilanço</a>
+                <a href="{% url 'accounting:cashflow_list' %}" class="list-group-item list-group-item-action">Nakit Akışı</a>
+                <a href="{% url 'accounting:journalentry_list' %}" class="list-group-item list-group-item-action">Yevmiye Kayıtları</a>
+                <a href="{% url 'accounting:einvoice_settings_list' %}" class="list-group-item list-group-item-action">E-Fatura Ayarları</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% block accounting_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -12,7 +12,7 @@ class FinancialTransactionTest(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.finance.accounting.models import FinancialTransaction, Account
+        from finance.accounting.models import FinancialTransaction, Account
         
         self.account = Account.objects.create(
             name="Ana Kasa",
@@ -31,7 +31,7 @@ class FinancialTransactionTest(TestCase):
     
     def test_transaction_creation(self):
         """Finansal işlem oluşturma testi."""
-        from apps.finance.accounting.models import FinancialTransaction
+        from finance.accounting.models import FinancialTransaction
         
         transaction = FinancialTransaction.objects.get(id=self.transaction.id)
         self.assertEqual(transaction.amount, Decimal("500.00"))
@@ -40,7 +40,7 @@ class FinancialTransactionTest(TestCase):
     
     def test_account_balance_update(self):
         """Hesap bakiyesi güncelleme testi."""
-        from apps.finance.accounting.models import Account
+        from finance.accounting.models import Account
         
         # İşlem sonrası hesap bakiyesini kontrol et
         account = Account.objects.get(id=self.account.id)
@@ -51,7 +51,7 @@ class InvoiceTest(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Invoice, InvoiceItem, Customer
+        from finance.accounting.models import Invoice, InvoiceItem, Customer
         
         self.customer = Customer.objects.create(
             name="Test Müşteri",
@@ -80,7 +80,7 @@ class InvoiceTest(TestCase):
     
     def test_invoice_creation(self):
         """Fatura oluşturma testi."""
-        from apps.finance.accounting.models import Invoice
+        from finance.accounting.models import Invoice
         
         invoice = Invoice.objects.get(id=self.invoice.id)
         self.assertEqual(invoice.invoice_number, "INV-2023-001")
@@ -89,7 +89,7 @@ class InvoiceTest(TestCase):
     
     def test_invoice_approval(self):
         """Fatura onaylama testi."""
-        from apps.finance.accounting.models import Invoice
+        from finance.accounting.models import Invoice
         
         # Faturayı onayla
         self.invoice.status = "APPROVED"
@@ -105,7 +105,7 @@ class PaymentTest(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Payment, Invoice, Customer
+        from finance.accounting.models import Payment, Invoice, Customer
         
         self.customer = Customer.objects.create(
             name="Test Müşteri",
@@ -132,14 +132,14 @@ class PaymentTest(TestCase):
     
     def test_payment_creation(self):
         """Ödeme oluşturma testi."""
-        from apps.finance.accounting.models import Payment
+        from finance.accounting.models import Payment
         
         payment = Payment.objects.get(id=self.payment.id)
         self.assertEqual(payment.amount, Decimal("1180.00"))
         self.assertEqual(payment.payment_method, "BANK_TRANSFER")
         self.assertEqual(payment.status, "COMPLETED")
     
-    @patch('apps.finance.banking.services.BankService')
+    @patch('finance.banking.services.BankService')
     def test_bank_payment_processing(self, mock_bank_service):
         """Banka ödemesi işleme testi."""
         mock_instance = MagicMock()
@@ -151,7 +151,7 @@ class PaymentTest(TestCase):
         mock_bank_service.return_value = mock_instance
         
         # Banka servisi ile ödeme işlemi
-        from apps.finance.banking.services import process_bank_payment
+        from finance.banking.services import process_bank_payment
         result = process_bank_payment(
             invoice_id=self.invoice.id,
             amount=Decimal("1180.00"),

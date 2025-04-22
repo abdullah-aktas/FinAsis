@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Nakit Akışı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Nakit Akışı</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'finance:cashflow_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Nakit Akışı Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                    <th>Tip</th>
+                    <th>Kategori</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cashflow in cashflows %}
+                <tr>
+                    <td>{{ cashflow.date|date:"d.m.Y" }}</td>
+                    <td>{{ cashflow.description|truncatechars:50 }}</td>
+                    <td>{{ cashflow.amount|floatformat:2 }} TL</td>
+                    <td>
+                        {% if cashflow.flow_type == 'in' %}
+                            <span class="badge bg-success">Giriş</span>
+                        {% else %}
+                            <span class="badge bg-danger">Çıkış</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ cashflow.get_category_display }}</td>
+                    <td>
+                        <a href="{% url 'finance:cashflow_detail' cashflow.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'finance:cashflow_update' cashflow.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'finance:cashflow_delete' cashflow.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Henüz nakit akışı kaydı bulunmuyor.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

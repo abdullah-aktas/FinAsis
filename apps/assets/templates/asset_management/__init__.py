@@ -1,1 +1,0 @@
-# MVT yapýsý için oluþturuldu

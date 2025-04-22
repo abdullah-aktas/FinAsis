@@ -147,3 +147,6 @@ dj-database-url==2.1.0
 # Monitoring ve Sağlık Kontrolleri
 sentry-sdk==1.40.6
 django-health-check==3.17.0
+
+# Security Vulnerability Scanning
+bandit

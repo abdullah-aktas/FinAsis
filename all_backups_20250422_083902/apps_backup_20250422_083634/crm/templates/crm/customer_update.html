@@ -1,0 +1,159 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}{{ customer.name }} - Müşteri Düzenle{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Müşteri Düzenle</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row g-3">
+                <!-- Müşteri Tipi -->
+                <div class="col-md-6">
+                    <label for="id_type" class="form-label">Müşteri Tipi <span class="text-danger">*</span></label>
+                    <select name="type" id="id_type" class="form-select {% if form.type.errors %}is-invalid{% endif %}" required>
+                        <option value="">Seçiniz</option>
+                        <option value="individual" {% if form.type.value == 'individual' %}selected{% endif %}>Bireysel</option>
+                        <option value="company" {% if form.type.value == 'company' %}selected{% endif %}>Kurumsal</option>
+                    </select>
+                    {% if form.type.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.type.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Müşteri Durumu -->
+                <div class="col-md-6">
+                    <label for="id_status" class="form-label">Durum <span class="text-danger">*</span></label>
+                    <select name="status" id="id_status" class="form-select {% if form.status.errors %}is-invalid{% endif %}" required>
+                        <option value="">Seçiniz</option>
+                        <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>Aktif</option>
+                        <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>Pasif</option>
+                        <option value="lead" {% if form.status.value == 'lead' %}selected{% endif %}>Potansiyel</option>
+                    </select>
+                    {% if form.status.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.status.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Müşteri Adı -->
+                <div class="col-md-12">
+                    <label for="id_name" class="form-label">Müşteri Adı <span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" required>
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.name.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- E-posta -->
+                <div class="col-md-6">
+                    <label for="id_email" class="form-label">E-posta <span class="text-danger">*</span></label>
+                    <input type="email" name="email" id="id_email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.email.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Telefon -->
+                <div class="col-md-6">
+                    <label for="id_phone" class="form-label">Telefon <span class="text-danger">*</span></label>
+                    <input type="tel" name="phone" id="id_phone" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" value="{{ form.phone.value|default:'' }}" required>
+                    {% if form.phone.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.phone.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Kurumsal Müşteri Alanları -->
+                <div id="company-fields" class="d-none">
+                    <!-- Vergi Numarası -->
+                    <div class="col-md-6">
+                        <label for="id_tax_number" class="form-label">Vergi Numarası</label>
+                        <input type="text" name="tax_number" id="id_tax_number" class="form-control {% if form.tax_number.errors %}is-invalid{% endif %}" value="{{ form.tax_number.value|default:'' }}">
+                        {% if form.tax_number.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.tax_number.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Vergi Dairesi -->
+                    <div class="col-md-6">
+                        <label for="id_tax_office" class="form-label">Vergi Dairesi</label>
+                        <input type="text" name="tax_office" id="id_tax_office" class="form-control {% if form.tax_office.errors %}is-invalid{% endif %}" value="{{ form.tax_office.value|default:'' }}">
+                        {% if form.tax_office.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.tax_office.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Adres -->
+                <div class="col-md-12">
+                    <label for="id_address" class="form-label">Adres</label>
+                    <textarea name="address" id="id_address" class="form-control {% if form.address.errors %}is-invalid{% endif %}" rows="3">{{ form.address.value|default:'' }}</textarea>
+                    {% if form.address.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.address.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Notlar -->
+                <div class="col-md-12">
+                    <label for="id_notes" class="form-label">Notlar</label>
+                    <textarea name="notes" id="id_notes" class="form-control {% if form.notes.errors %}is-invalid{% endif %}" rows="3">{{ form.notes.value|default:'' }}</textarea>
+                    {% if form.notes.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.notes.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Kaydet
+                </button>
+                <a href="{% url 'crm:customer_detail' pk=customer.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('id_type');
+        const companyFields = document.getElementById('company-fields');
+        
+        function toggleCompanyFields() {
+            if (typeSelect.value === 'company') {
+                companyFields.classList.remove('d-none');
+            } else {
+                companyFields.classList.add('d-none');
+            }
+        }
+        
+        typeSelect.addEventListener('change', toggleCompanyFields);
+        toggleCompanyFields(); // Sayfa yüklendiğinde mevcut değere göre alanları göster/gizle
+    });
+</script>
+{% endblock %} 

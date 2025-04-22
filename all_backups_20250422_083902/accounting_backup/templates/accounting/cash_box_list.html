@@ -1,0 +1,60 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Kasalar</h5>
+        <a href="{% url 'accounting:cash_box_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Kasa
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Kasa Kodu</th>
+                        <th>Kasa Adı</th>
+                        <th>Bakiye</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cash_box in cash_boxes %}
+                    <tr>
+                        <td>{{ cash_box.code }}</td>
+                        <td>{{ cash_box.name }}</td>
+                        <td class="{% if cash_box.balance > 0 %}text-success{% elif cash_box.balance < 0 %}text-danger{% endif %}">
+                            {{ cash_box.balance|floatformat:2 }} ₺
+                        </td>
+                        <td>
+                            {% if cash_box.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                            {% else %}
+                            <span class="badge bg-danger">Pasif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'accounting:cash_box_detail' cash_box.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'accounting:cash_box_edit' cash_box.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'accounting:cash_box_delete' cash_box.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Henüz kasa bulunmamaktadır.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

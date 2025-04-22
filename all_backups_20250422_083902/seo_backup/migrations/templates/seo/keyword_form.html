@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}
+    {{ form.instance.keyword }} - Anahtar Kelime Düzenle
+{% else %}
+    Yeni Anahtar Kelime
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            {% if form.instance.pk %}
+                {{ form.instance.keyword }} - Anahtar Kelime Düzenle
+            {% else %}
+                Yeni Anahtar Kelime
+            {% endif %}
+        </h1>
+        <a href="{% url 'seo:keyword_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Geri
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.keyword.id_for_label }}" class="form-label">Anahtar Kelime</label>
+                        {{ form.keyword }}
+                        {% if form.keyword.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.keyword.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.search_volume.id_for_label }}" class="form-label">Arama Hacmi</label>
+                        {{ form.search_volume }}
+                        {% if form.search_volume.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.search_volume.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.competition.id_for_label }}" class="form-label">Rekabet</label>
+                        {{ form.competition }}
+                        {% if form.competition.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.competition.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.ranking.id_for_label }}" class="form-label">Sıralama</label>
+                        {{ form.ranking }}
+                        {% if form.ranking.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.ranking.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.last_checked.id_for_label }}" class="form-label">Son Kontrol Tarihi</label>
+                    {{ form.last_checked }}
+                    {% if form.last_checked.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.last_checked.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">Notlar</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.notes.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form alanlarına Bootstrap sınıflarını ekle
+    document.querySelectorAll('input[type="text"], input[type="number"], textarea, select').forEach(function(element) {
+        element.classList.add('form-control');
+    });
+
+    // Tarih alanı için datetime-local input kullan
+    document.getElementById('{{ form.last_checked.id_for_label }}').type = 'datetime-local';
+</script>
+{% endblock %} 

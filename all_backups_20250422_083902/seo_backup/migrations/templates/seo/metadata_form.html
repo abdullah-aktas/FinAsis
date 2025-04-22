@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}
+    {{ form.instance.title }} - Metadata Düzenle
+{% else %}
+    Yeni SEO Metadata
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            {% if form.instance.pk %}
+                {{ form.instance.title }} - Metadata Düzenle
+            {% else %}
+                Yeni SEO Metadata
+            {% endif %}
+        </h1>
+        <a href="{% url 'seo:metadata_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Geri
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.page_url.id_for_label }}" class="form-label">Sayfa URL</label>
+                        {{ form.page_url }}
+                        {% if form.page_url.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.page_url.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Başlık</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.title.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Açıklama</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.description.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.keywords.id_for_label }}" class="form-label">Anahtar Kelimeler</label>
+                    {{ form.keywords }}
+                    {% if form.keywords.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.keywords.errors }}
+                    </div>
+                    {% endif %}
+                    <div class="form-text">Virgülle ayırarak birden fazla anahtar kelime girebilirsiniz.</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Open Graph Meta Etiketleri</h5>
+                        <div class="mb-3">
+                            <label for="{{ form.og_title.id_for_label }}" class="form-label">OG Başlık</label>
+                            {{ form.og_title }}
+                            {% if form.og_title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.og_title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.og_description.id_for_label }}" class="form-label">OG Açıklama</label>
+                            {{ form.og_description }}
+                            {% if form.og_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.og_description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.og_image.id_for_label }}" class="form-label">OG Görsel URL</label>
+                            {{ form.og_image }}
+                            {% if form.og_image.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.og_image.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Twitter Card Meta Etiketleri</h5>
+                        <div class="mb-3">
+                            <label for="{{ form.twitter_title.id_for_label }}" class="form-label">Twitter Başlık</label>
+                            {{ form.twitter_title }}
+                            {% if form.twitter_title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.twitter_title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.twitter_description.id_for_label }}" class="form-label">Twitter Açıklama</label>
+                            {{ form.twitter_description }}
+                            {% if form.twitter_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.twitter_description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.twitter_image.id_for_label }}" class="form-label">Twitter Görsel URL</label>
+                            {{ form.twitter_image }}
+                            {% if form.twitter_image.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.twitter_image.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            Aktif
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form alanlarına Bootstrap sınıflarını ekle
+    document.querySelectorAll('input[type="text"], input[type="url"], textarea').forEach(function(element) {
+        element.classList.add('form-control');
+    });
+
+    // Select2 için anahtar kelimeler alanını yapılandır
+    $(document).ready(function() {
+        $('#{{ form.keywords.id_for_label }}').select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            placeholder: 'Anahtar kelimeleri girin veya seçin'
+        });
+    });
+</script>
+{% endblock %} 

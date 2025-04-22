@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hesap Ayarları{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ayarlar Menüsü</h5>
+                    <div class="list-group">
+                        <a href="#profile" class="list-group-item list-group-item-action active">Profil Bilgileri</a>
+                        <a href="#security" class="list-group-item list-group-item-action">Güvenlik</a>
+                        <a href="#notifications" class="list-group-item list-group-item-action">Bildirimler</a>
+                        <a href="#preferences" class="list-group-item list-group-item-action">Tercihler</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profil Bilgileri</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Şifre Değiştir</h5>
+                    <form method="post" action="{% url 'accounts:password_change' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Mevcut Şifre</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Yeni Şifre (Tekrar)</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Şifreyi Değiştir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

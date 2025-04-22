@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FinAsis - Eğitici Oyunlar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-section {
+        padding: 4rem 0;
+        background-color: #f8f9fa;
+    }
+    
+    .section-title {
+        color: #2193b0;
+        margin-bottom: 2.5rem;
+        text-align: center;
+        font-weight: bold;
+        font-size: 2.5rem;
+    }
+    
+    .game-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        background-color: white;
+        height: 100%;
+        border: none;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .game-image {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .game-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .game-card:hover .game-image img {
+        transform: scale(1.1);
+    }
+    
+    .game-category {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: #2193b0;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .game-content {
+        padding: 1.5rem;
+    }
+    
+    .game-title {
+        color: #2193b0;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .game-description {
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .btn-play {
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5be 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-play:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(33, 147, 176, 0.4);
+        color: white;
+    }
+    
+    .btn-play i {
+        margin-right: 10px;
+    }
+    
+    .filters {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 3rem;
+    }
+    
+    .filter-btn {
+        background-color: white;
+        border: 2px solid #2193b0;
+        color: #2193b0;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .filter-btn.active, .filter-btn:hover {
+        background-color: #2193b0;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="section-title">Eğitici Finansal Oyunlar</h1>
+    <p class="text-center mb-5">Eğlenerek öğrenin, finansal yetkinliklerinizi geliştirin ve gerçek dünya senaryolarını deneyimleyin.</p>
+    
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">Tümü</button>
+        <button class="filter-btn" data-filter="finans">Finans</button>
+        <button class="filter-btn" data-filter="yatırım">Yatırım</button>
+        <button class="filter-btn" data-filter="borsa">Borsa</button>
+        <button class="filter-btn" data-filter="ticaret">Ticaret</button>
+    </div>
+    
+    <div class="row g-4 game-container">
+        {% for game in games %}
+        <div class="col-md-6 col-lg-4 game-item" data-category="{{ game.category }}">
+            <div class="game-card">
+                <div class="game-image">
+                    <img src="{{ game.image }}" alt="{{ game.title }}" onerror="this.src='{% static 'img/games/default.jpg' %}'">
+                    <div class="game-category">{{ game.category }}</div>
+                </div>
+                <div class="game-content">
+                    <h3 class="game-title">{{ game.title }}</h3>
+                    <p class="game-description">{{ game.description }}</p>
+                    <a href="{{ game.url }}" class="btn btn-play"><i class="fas fa-gamepad"></i> Oyna</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h2 class="mb-4 text-primary">Oyunla Öğrenme</h2>
+            <p>FinAsis'in eğitici oyunları, finans dünyasının karmaşık kavramlarını eğlenceli ve interaktif bir şekilde öğrenmenizi sağlar. Gerçek dünya senaryolarını simüle eden oyunlarımızla risk almadan deneyim kazanabilirsiniz.</p>
+            <p>Oyunlarımız aracılığıyla:</p>
+            <ul>
+                <li>Finansal karar alma becerilerinizi geliştirebilir</li>
+                <li>Yatırım stratejilerini risk almadan test edebilir</li>
+                <li>Borsa ve piyasa dinamiklerini anlayabilir</li>
+                <li>Bütçe planlama ve nakit akışı yönetimini öğrenebilirsiniz</li>
+            </ul>
+        </div>
+        <div class="col-lg-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h3 class="card-title text-primary mb-4">Yakında Yeni Oyunlar</h3>
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-line fa-2x text-primary"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h4 class="h5">Kriptopara Simülatörü</h4>
+                            <p class="mb-0">Sanal kripto paraları alıp satarak blockchain teknolojisini ve kriptopara piyasasını keşfedin.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-building fa-2x text-primary"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h4 class="h5">İşletme İmparatorluğu</h4>
+                            <p class="mb-0">Kendi işletmenizi kurarak büyütün ve rekabetçi bir pazarda ayakta kalmayı öğrenin.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-globe fa-2x text-primary"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h4 class="h5">Küresel Ekonomi Simülasyonu</h4>
+                            <p class="mb-0">Ekonomik olayları analiz ederek doğru yatırım kararları vermeyi öğrenin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const gameItems = document.querySelectorAll('.game-item');
+        
+        // Filtre butonlarına tıklama olayını ekle
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Aktif sınıfını kaldır
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Tıklanan butona aktif sınıfını ekle
+                button.classList.add('active');
+                
+                const filter = button.getAttribute('data-filter');
+                
+                // Oyunları filtrele
+                gameItems.forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

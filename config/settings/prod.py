@@ -3,21 +3,22 @@
 """
 from .base import *
 from datetime import timedelta
+import os
 
 DEBUG = False
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'finasis.com.tr').split(',')
 
 # Security Settings
-SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
-SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
-CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
-SECURE_BROWSER_XSS_FILTER = env.bool('SECURE_BROWSER_XSS_FILTER', default=True)
-SECURE_CONTENT_TYPE_NOSNIFF = env.bool('SECURE_CONTENT_TYPE_NOSNIFF', default=True)
-X_FRAME_OPTIONS = env('X_FRAME_OPTIONS', default='DENY')
-SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)  # 1 yıl
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True)
-SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=True)
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True') == 'True'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True') == 'True'
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True') == 'True'
+SECURE_BROWSER_XSS_FILTER = os.environ.get('SECURE_BROWSER_XSS_FILTER', 'True') == 'True'
+SECURE_CONTENT_TYPE_NOSNIFF = os.environ.get('SECURE_CONTENT_TYPE_NOSNIFF', 'True') == 'True'
+X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'DENY')
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))  # 1 yıl
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True') == 'True'
+SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'True') == 'True'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Content Security Policy
@@ -36,18 +37,18 @@ CSP_FRAME_ANCESTORS = ("'self'",)
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE'),
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
         'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'connect_timeout': 10,
             'client_encoding': 'UTF8',
             'application_name': 'FinAsis',
-            'sslmode': env('DB_SSL_MODE', default='prefer'),
+            'sslmode': os.environ.get('DB_SSL_MODE', 'prefer'),
         },
         'ATOMIC_REQUESTS': True,
         'CONN_HEALTH_CHECKS': True,
@@ -55,20 +56,20 @@ DATABASES = {
 }
 
 # Veritabanı yedekleme için ikinci bağlantı (salt okunur)
-if env.bool('DB_USE_READONLY_REPLICA', default=False):
+if os.environ.get('DB_USE_READONLY_REPLICA', 'False') == 'True':
     DATABASES['replica'] = {
-        'ENGINE': env('DB_ENGINE'),
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_REPLICA_USER', default=env('DB_USER')),
-        'PASSWORD': env('DB_REPLICA_PASSWORD', default=env('DB_PASSWORD')),
-        'HOST': env('DB_REPLICA_HOST', default=env('DB_HOST')),
-        'PORT': env('DB_REPLICA_PORT', default=env('DB_PORT')),
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_REPLICA_USER', os.environ.get('DB_USER')),
+        'PASSWORD': os.environ.get('DB_REPLICA_PASSWORD', os.environ.get('DB_PASSWORD')),
+        'HOST': os.environ.get('DB_REPLICA_HOST', os.environ.get('DB_HOST')),
+        'PORT': os.environ.get('DB_REPLICA_PORT', os.environ.get('DB_PORT')),
         'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'connect_timeout': 10,
             'client_encoding': 'UTF8',
             'application_name': 'FinAsis-ReadOnly',
-            'sslmode': env('DB_SSL_MODE', default='prefer'),
+            'sslmode': os.environ.get('DB_SSL_MODE', 'prefer'),
         },
     }
 
@@ -76,7 +77,7 @@ if env.bool('DB_USE_READONLY_REPLICA', default=False):
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_URL'),
+        'LOCATION': os.environ.get('REDIS_URL'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'SOCKET_CONNECT_TIMEOUT': 5,
@@ -91,7 +92,7 @@ CACHES = {
     },
     'sessions': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_URL'),
+        'LOCATION': os.environ.get('REDIS_URL'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'SOCKET_CONNECT_TIMEOUT': 5,
@@ -104,7 +105,7 @@ CACHES = {
     },
     'throttling': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_URL'),
+        'LOCATION': os.environ.get('REDIS_URL'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'SOCKET_CONNECT_TIMEOUT': 5,
@@ -124,14 +125,14 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env.int('EMAIL_PORT')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = env('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False') == 'True'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
 EMAIL_TIMEOUT = 30  # 30 saniye timeout
 EMAIL_SUBJECT_PREFIX = '[FinAsis] '
 
@@ -212,12 +213,12 @@ STATIC_ROOT = '/app/staticfiles'
 MEDIA_ROOT = '/app/media'
 
 # AWS S3 Configuration for static and media files
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default=None)
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default=None)
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default=None)
-AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='eu-central-1')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', None)
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', None)
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'eu-central-1')
 AWS_DEFAULT_ACL = None
-AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN', default=f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com')
+AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN', f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com')
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400,s-maxage=86400',
     'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
@@ -242,21 +243,21 @@ else:
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
     'csp.middleware.CSPMiddleware',
-    'apps.core.middleware.HealthCheckMiddleware',  # Sağlık kontrolü için middleware
-    'apps.core.middleware.SecurityHeadersMiddleware',  # Ek güvenlik başlıkları
+    'core.middleware.HealthCheckMiddleware',  # Sağlık kontrolü için middleware
+    'core.middleware.SecurityHeadersMiddleware',  # Ek güvenlik başlıkları
 ]
 
 # Rate Limiting
-RATELIMIT_ENABLE = env.bool('RATELIMIT_ENABLE', default=True)
+RATELIMIT_ENABLE = os.environ.get('RATELIMIT_ENABLE', 'True') == 'True'
 RATELIMIT_USE_CACHE = 'throttling'
-RATELIMIT_KEY_PREFIX = env('RATELIMIT_KEY_PREFIX', default='finasis_prod')
-RATELIMIT_RATE = env('RATELIMIT_RATE', default='100/h')
-RATELIMIT_BLOCK = env.bool('RATELIMIT_BLOCK', default=True)
-RATELIMIT_VIEW = 'apps.core.views.rate_limited'
+RATELIMIT_KEY_PREFIX = os.environ.get('RATELIMIT_KEY_PREFIX', 'finasis_prod')
+RATELIMIT_RATE = os.environ.get('RATELIMIT_RATE', '100/h')
+RATELIMIT_BLOCK = os.environ.get('RATELIMIT_BLOCK', 'True') == 'True'
+RATELIMIT_VIEW = 'core.views.rate_limited'
 
 # Celery Configuration
-CELERY_BROKER_URL = env('REDIS_URL')
-CELERY_RESULT_BACKEND = env('REDIS_URL')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -280,7 +281,7 @@ CELERY_IGNORE_RESULT = False
 CELERY_TASK_STORE_ERRORS_EVEN_IF_IGNORED = True
 
 # Sentry Configuration
-SENTRY_DSN = env('SENTRY_DSN', default=None)
+SENTRY_DSN = os.environ.get('SENTRY_DSN', None)
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
@@ -294,11 +295,11 @@ if SENTRY_DSN:
             CeleryIntegration(),
             RedisIntegration(),
         ],
-        traces_sample_rate=env.float('SENTRY_TRACES_SAMPLE_RATE', default=0.1),
+        traces_sample_rate=float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
         send_default_pii=True,
-        environment=env('SENTRY_ENVIRONMENT', default='production'),
-        release=env('RELEASE_VERSION', default='0.1.0'),
-        sample_rate=env.float('SENTRY_SAMPLE_RATE', default=0.2),
+        environment=os.environ.get('SENTRY_ENVIRONMENT', 'production'),
+        release=os.environ.get('RELEASE_VERSION', '0.1.0'),
+        sample_rate=float(os.environ.get('SENTRY_SAMPLE_RATE', '0.2')),
         max_breadcrumbs=50,
         attach_stacktrace=True,
         in_app_include=['finasis', 'apps', 'core', 'edocument'],
@@ -319,11 +320,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': env('THROTTLE_RATE_ANON', default='100/day'),
-        'user': env('THROTTLE_RATE_USER', default='1000/day'),
-        'login': env('THROTTLE_RATE_LOGIN', default='5/minute'),
-        'token_obtain': env('THROTTLE_RATE_TOKEN_OBTAIN', default='5/minute'),
-        'token_refresh': env('THROTTLE_RATE_TOKEN_REFRESH', default='20/hour'),
+        'anon': os.environ.get('THROTTLE_RATE_ANON', '100/day'),
+        'user': os.environ.get('THROTTLE_RATE_USER', '1000/day'),
+        'login': os.environ.get('THROTTLE_RATE_LOGIN', '5/minute'),
+        'token_obtain': os.environ.get('THROTTLE_RATE_TOKEN_OBTAIN', '5/minute'),
+        'token_refresh': os.environ.get('THROTTLE_RATE_TOKEN_REFRESH', '20/hour'),
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -334,17 +335,17 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': env.int('REST_API_PAGE_SIZE', default=10),
+    'PAGE_SIZE': int(os.environ.get('REST_API_PAGE_SIZE', '10')),
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',
     'ALLOWED_VERSIONS': ['v1', 'v2'],
-    'EXCEPTION_HANDLER': 'apps.api.handlers.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'api.handlers.custom_exception_handler',
 }
 
 # JWT Settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=env.int('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', 60)),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=env.int('JWT_REFRESH_TOKEN_LIFETIME_DAYS', 1)),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', '60'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.environ.get('JWT_REFRESH_TOKEN_LIFETIME_DAYS', '1'))),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
@@ -367,11 +368,7 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-    'https://finasis.com.tr',
-    'https://www.finasis.com.tr',
-    'https://api.finasis.com.tr',
-])
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://finasis.com.tr,https://www.finasis.com.tr,https://api.finasis.com.tr').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -448,11 +445,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
     {
-        'NAME': 'apps.accounts.validators.PasswordStrengthValidator',
+        'NAME': 'accounts.validators.PasswordStrengthValidator',
     },
 ]
 
 # Admin site ayarları
-ADMIN_URL = env('ADMIN_URL', default='admin/')
-ADMINS = [tuple(admin.split(':')) for admin in env.list('ADMINS', default=['Admin:admin@finasis.com.tr'])]
+ADMIN_URL = os.environ.get('ADMIN_URL', 'admin/')
+ADMINS = [tuple(admin.split(':')) for admin in os.environ.get('ADMINS', 'Admin:admin@finasis.com.tr').split(',')]
 MANAGERS = ADMINS 

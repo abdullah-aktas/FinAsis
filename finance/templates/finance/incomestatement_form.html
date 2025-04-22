@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Gelir Tablosu Düzenle{% else %}Yeni Gelir Tablosu Ekle{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                {% if form.instance.pk %}
+                    Gelir Tablosu Düzenle
+                {% else %}
+                    Yeni Gelir Tablosu Ekle
+                {% endif %}
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.period_start.id_for_label }}" class="form-label">Dönem Başlangıcı</label>
+                            {{ form.period_start }}
+                            {% if form.period_start.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.period_start.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.period_end.id_for_label }}" class="form-label">Dönem Bitişi</label>
+                            {{ form.period_end }}
+                            {% if form.period_end.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.period_end.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.revenue.id_for_label }}" class="form-label">Gelir</label>
+                            <div class="input-group">
+                                {{ form.revenue }}
+                                <span class="input-group-text">TL</span>
+                            </div>
+                            {% if form.revenue.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.revenue.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.expenses.id_for_label }}" class="form-label">Gider</label>
+                            <div class="input-group">
+                                {{ form.expenses }}
+                                <span class="input-group-text">TL</span>
+                            </div>
+                            {% if form.expenses.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.expenses.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.net_income.id_for_label }}" class="form-label">Net Gelir</label>
+                    <div class="input-group">
+                        {{ form.net_income }}
+                        <span class="input-group-text">TL</span>
+                    </div>
+                    {% if form.net_income.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.net_income.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'finance:incomestatement_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

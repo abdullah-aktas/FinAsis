@@ -1,1 +1,4 @@
-# MVT yapısı için oluşturuldu
+# -*- coding: utf-8 -*-
+"""
+inventory modÃ¼lÃ¼
+"""

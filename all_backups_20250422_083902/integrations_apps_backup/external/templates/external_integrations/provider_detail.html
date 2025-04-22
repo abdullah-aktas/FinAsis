@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ provider.name }} - {{ _('Entegrasyon Sağlayıcısı') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ provider.name }}</h1>
+        <div class="btn-group">
+            <a href="{% url 'external_integrations:provider_update' provider.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> {{ _('Düzenle') }}
+            </a>
+            <a href="{% url 'external_integrations:provider_delete' provider.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {{ _('Sil') }}
+            </a>
+            <a href="{% url 'external_integrations:provider_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {{ _('Geri') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ _('Sağlayıcı Bilgileri') }}</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">{{ _('Sağlayıcı Adı') }}</dt>
+                        <dd class="col-sm-8">{{ provider.name }}</dd>
+
+                        <dt class="col-sm-4">{{ _('API Versiyonu') }}</dt>
+                        <dd class="col-sm-8">{{ provider.api_version }}</dd>
+
+                        <dt class="col-sm-4">{{ _('API Temel URL') }}</dt>
+                        <dd class="col-sm-8">
+                            <a href="{{ provider.api_base_url }}" target="_blank" class="text-decoration-none">
+                                {{ provider.api_base_url }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Dokümantasyon') }}</dt>
+                        <dd class="col-sm-8">
+                            {% if provider.documentation_url %}
+                                <a href="{{ provider.documentation_url }}" target="_blank" class="text-decoration-none">
+                                    {{ _('Dokümantasyonu Görüntüle') }}
+                                </a>
+                            {% else %}
+                                {{ _('Dokümantasyon URL\'i belirtilmemiş') }}
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Durum') }}</dt>
+                        <dd class="col-sm-8">
+                            {% if provider.is_active %}
+                                <span class="badge bg-success">{{ _('Aktif') }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ _('Pasif') }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{{ _('Oluşturulma Tarihi') }}</dt>
+                        <dd class="col-sm-8">{{ provider.created_at|date:"d.m.Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">{{ _('Son Güncelleme') }}</dt>
+                        <dd class="col-sm-8">{{ provider.updated_at|date:"d.m.Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ _('Entegrasyonlar') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if integrations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Entegrasyon Adı') }}</th>
+                                        <th>{{ _('Tip') }}</th>
+                                        <th>{{ _('Durum') }}</th>
+                                        <th>{{ _('İşlemler') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for integration in integrations %}
+                                        <tr>
+                                            <td>{{ integration.name }}</td>
+                                            <td>{{ integration.get_integration_type_display }}</td>
+                                            <td>
+                                                {% if integration.is_active %}
+                                                    <span class="badge bg-success">{{ _('Aktif') }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">{{ _('Pasif') }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="#" class="btn btn-sm btn-info" title="{{ _('Detay') }}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-sm btn-warning" title="{{ _('Düzenle') }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-sm btn-danger" title="{{ _('Sil') }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            {{ _('Bu sağlayıcı için henüz hiç entegrasyon bulunmamaktadır.') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

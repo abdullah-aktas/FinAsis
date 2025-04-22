@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Kayıt Ol - FinAsis{% endblock %}
+
+{% block body_attrs %}class="auth-page"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5be 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+    .register-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+    .register-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .register-header h1 {
+        font-size: 2.5rem;
+        color: #2193b0;
+        margin-bottom: 0.5rem;
+    }
+    .register-header p {
+        color: #666;
+        font-size: 1.2rem;
+    }
+    .tab-buttons {
+        display: flex;
+        margin-bottom: 2rem;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .tab-button {
+        flex: 1;
+        padding: 1rem;
+        text-align: center;
+        background: #f5f5f5;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    .tab-button.active {
+        background: #2193b0;
+        color: white;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+    }
+    .form-control:focus {
+        border-color: #2193b0;
+        box-shadow: 0 0 0 0.2rem rgba(33, 147, 176, 0.25);
+    }
+    .btn-register {
+        background: #2193b0;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem;
+        width: 100%;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        transition: all 0.3s;
+    }
+    .btn-register:hover {
+        background: #1a7b94;
+    }
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .login-link a {
+        color: #2193b0;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .error-text {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .form-check {
+        margin: 1rem 0;
+    }
+    .form-check-input:checked {
+        background-color: #2193b0;
+        border-color: #2193b0;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="register-container">
+                <div class="register-header">
+                    <h1>FinAsis</h1>
+                    <p>İş süreçlerinizi optimize edin</p>
+                </div>
+                
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-type="business">İşletme</button>
+                    <button class="tab-button" data-type="student">Öğrenci</button>
+                </div>
+
+                <form method="post" id="registerForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_type" id="userType" value="business">
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Lütfen formu eksiksiz ve doğru bir şekilde doldurunuz.
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ad</label>
+                                {{ form.first_name|attr:"class:form-control"|attr:"placeholder:Adınız" }}
+                                {% if form.first_name.errors %}
+                                <div class="error-text">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Soyad</label>
+                                {{ form.last_name|attr:"class:form-control"|attr:"placeholder:Soyadınız" }}
+                                {% if form.last_name.errors %}
+                                <div class="error-text">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>E-posta</label>
+                        {{ form.email|attr:"class:form-control"|attr:"placeholder:E-posta adresiniz" }}
+                        {% if form.email.errors %}
+                        <div class="error-text">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kullanıcı Adı</label>
+                        {{ form.username|attr:"class:form-control"|attr:"placeholder:Kullanıcı adınız" }}
+                        {% if form.username.errors %}
+                        <div class="error-text">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Şifre</label>
+                                {{ form.password1|attr:"class:form-control"|attr:"placeholder:Şifreniz" }}
+                                {% if form.password1.errors %}
+                                <div class="error-text">{{ form.password1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Şifre Tekrar</label>
+                                {{ form.password2|attr:"class:form-control"|attr:"placeholder:Şifrenizi tekrar girin" }}
+                                {% if form.password2.errors %}
+                                <div class="error-text">{{ form.password2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Kullanım koşullarını ve gizlilik politikasını kabul ediyorum
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-register">Kayıt Ol</button>
+                    
+                    <div class="login-link">
+                        <p>Zaten hesabınız var mı? <a href="{% url 'accounts:login' %}">Giriş Yap</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+        // Tab değiştirme
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Kullanıcı tipini güncelleme
+        document.getElementById('userType').value = button.dataset.type;
+    });
+});
+</script>
+{% endblock %} 

@@ -13,7 +13,7 @@ class InvoiceReminderTaskTests(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Invoice, Customer
+        from finance.accounting.models import Invoice, Customer
         
         # Test müşterisi oluştur
         self.customer = Customer.objects.create(
@@ -43,11 +43,11 @@ class InvoiceReminderTaskTests(TestCase):
             status="APPROVED"
         )
     
-    @patch('apps.finance.tasks.email_service.send_email')
+    @patch('finance.tasks.email_service.send_email')
     def test_send_overdue_invoice_reminders(self, mock_send_email):
         """Vadesi geçmiş fatura hatırlatması gönderme testi."""
         # Hatırlatma görevini içe aktar
-        from apps.finance.tasks.invoice_tasks import send_overdue_invoice_reminders
+        from finance.tasks.invoice_tasks import send_overdue_invoice_reminders
         
         # Görevi çalıştır
         result = send_overdue_invoice_reminders()
@@ -64,11 +64,11 @@ class InvoiceReminderTaskTests(TestCase):
         )
         self.assertEqual(result['sent_count'], 1)
     
-    @patch('apps.finance.tasks.email_service.send_email')
+    @patch('finance.tasks.email_service.send_email')
     def test_send_due_soon_invoice_reminders(self, mock_send_email):
         """Vadesi yaklaşan fatura hatırlatması gönderme testi."""
         # Hatırlatma görevini içe aktar
-        from apps.finance.tasks.invoice_tasks import send_due_soon_invoice_reminders
+        from finance.tasks.invoice_tasks import send_due_soon_invoice_reminders
         
         # Görevi çalıştır
         result = send_due_soon_invoice_reminders()
@@ -91,7 +91,7 @@ class BankStatementSyncTaskTests(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.integrations.bank_integration.models import BankAccount, BankTransaction
+        from integrations.bank_integration.models import BankAccount, BankTransaction
         
         # Test banka hesabı oluştur
         self.bank_account = BankAccount.objects.create(
@@ -100,7 +100,7 @@ class BankStatementSyncTaskTests(TestCase):
             currency="TRY"
         )
     
-    @patch('apps.integrations.bank_integration.services.BankAPIClient')
+    @patch('integrations.bank_integration.services.BankAPIClient')
     def test_sync_bank_statements(self, mock_api_client):
         """Banka hesap ekstrelerini senkronize etme testi."""
         # Mock API yanıtı oluştur
@@ -124,7 +124,7 @@ class BankStatementSyncTaskTests(TestCase):
         mock_api_client.return_value = mock_instance
         
         # Senkronizasyon görevini içe aktar
-        from apps.integrations.bank_integration.tasks import sync_bank_statements
+        from integrations.bank_integration.tasks import sync_bank_statements
         
         # Görevi çalıştır
         result = sync_bank_statements()
@@ -134,7 +134,7 @@ class BankStatementSyncTaskTests(TestCase):
         self.assertEqual(result['transactions_created'], 2)
         
         # İşlemlerin veritabanına eklendiğini doğrula
-        from apps.integrations.bank_integration.models import BankTransaction
+        from integrations.bank_integration.models import BankTransaction
         transactions = BankTransaction.objects.filter(account=self.bank_account)
         self.assertEqual(transactions.count(), 2)
 
@@ -144,7 +144,7 @@ class MonthlyFinancialReportTaskTests(TestCase):
     
     def setUp(self):
         # İlgili modelleri import et
-        from apps.finance.accounting.models import FinancialTransaction, Account
+        from finance.accounting.models import FinancialTransaction, Account
         
         # Test hesapları oluştur
         self.income_account = Account.objects.create(
@@ -183,8 +183,8 @@ class MonthlyFinancialReportTaskTests(TestCase):
             transaction_date=last_month_start + timedelta(days=15)
         )
     
-    @patch('apps.finance.tasks.report_service.generate_pdf_report')
-    @patch('apps.finance.tasks.email_service.send_email_with_attachment')
+    @patch('finance.tasks.report_service.generate_pdf_report')
+    @patch('finance.tasks.email_service.send_email_with_attachment')
     def test_generate_and_send_monthly_report(self, mock_send_email, mock_generate_report):
         """Aylık rapor oluşturma ve gönderme testi."""
         # PDF raporu için mock dönüş
@@ -198,7 +198,7 @@ class MonthlyFinancialReportTaskTests(TestCase):
         }
         
         # Rapor görevini içe aktar
-        from apps.finance.tasks.report_tasks import generate_and_send_monthly_financial_report
+        from finance.tasks.report_tasks import generate_and_send_monthly_financial_report
         
         # Görevi çalıştır
         result = generate_and_send_monthly_financial_report()

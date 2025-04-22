@@ -44,7 +44,7 @@ class InvoiceUITests(LiveServerTestCase):
         )
         
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Invoice, Customer
+        from finance.accounting.models import Invoice, Customer
         
         # Test müşterisi oluştur
         self.customer = Customer.objects.create(
@@ -168,7 +168,7 @@ class FinancialDashboardUITests(LiveServerTestCase):
         )
         
         # İlgili modelleri import et
-        from apps.finance.accounting.models import FinancialTransaction, Account
+        from finance.accounting.models import FinancialTransaction, Account
         
         # Test hesapları oluştur
         self.income_account = Account.objects.create(

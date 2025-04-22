@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Yapay Zeka Asistanı{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-4 text-ai">FinAsis Yapay Zeka Asistanı</h1>
+        <p class="lead">Yapay zeka destekli finansal danışmanlık ve analiz araçları</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card border-ai">
+            <div class="card-body">
+                <h2 class="card-title text-ai">Yapay Zeka Destekli Finansal Danışmanlık</h2>
+                <p class="card-text">FinAsis Yapay Zeka Asistanı ile finansal sorularınızı sorun, yatırım tavsiyeleri alın ve finansal kararlarınızı destekleyin. Gelişmiş yapay zeka teknolojisi ile kişiselleştirilmiş finansal danışmanlık hizmeti sunuyoruz.</p>
+                <a href="{% url 'ai_assistant:chat' %}" class="btn btn-ai">Asistanla Konuş</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-ai">
+            <div class="card-body">
+                <h5 class="card-title text-ai"><i class="fas fa-comments"></i> Finansal Sohbet</h5>
+                <p class="card-text">Finansal konularda sorularınızı sorun ve anında yanıtlar alın. Yapay zeka asistanımız finans dünyasındaki tüm konularda size yardımcı olabilir.</p>
+                <a href="{% url 'ai_assistant:chat' %}" class="btn btn-ai">Sohbete Başla</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-ai">
+            <div class="card-body">
+                <h5 class="card-title text-ai"><i class="fas fa-chart-pie"></i> Finansal Analiz</h5>
+                <p class="card-text">Şirket finansallarını analiz edin, finansal oranları hesaplayın ve finansal durumunuzu değerlendirin.</p>
+                <a href="{% url 'ai_assistant:analysis' %}" class="btn btn-ai">Analiz Yap</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-ai">
+            <div class="card-body">
+                <h5 class="card-title text-ai"><i class="fas fa-lightbulb"></i> Yatırım Tavsiyeleri</h5>
+                <p class="card-text">Kişiselleştirilmiş yatırım tavsiyeleri alın, portföy çeşitlendirmesi yapın ve yatırım stratejilerinizi geliştirin.</p>
+                <a href="{% url 'ai_assistant:recommendations' %}" class="btn btn-ai">Tavsiyeler Al</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

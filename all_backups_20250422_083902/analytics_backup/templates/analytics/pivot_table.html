@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pivot Tablo Analizi{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Pivot Tablo Analizi</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="module-select">Modül Seçin</label>
+                            <select id="module-select" class="form-control">
+                                {% for module in modules %}
+                                <option value="{{ module.id }}">{{ module.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start-date">Başlangıç Tarihi</label>
+                            <input type="text" id="start-date" class="form-control datepicker">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end-date">Bitiş Tarihi</label>
+                            <input type="text" id="end-date" class="form-control datepicker">
+                        </div>
+                        <div class="col-md-3">
+                            <label>&nbsp;</label>
+                            <button id="refresh-btn" class="btn btn-primary btn-block">
+                                <i class="fas fa-sync"></i> Yenile
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="pivot-table"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tarih seçici ayarları
+    flatpickr(".datepicker", {
+        locale: "tr",
+        dateFormat: "Y-m-d",
+        defaultDate: "today"
+    });
+
+    // Pivot tablo oluşturma
+    let table = new Tabulator("#pivot-table", {
+        layout: "fitColumns",
+        pagination: true,
+        paginationSize: 25,
+        movableColumns: true,
+        resizableColumns: true,
+        initialSort: [
+            {column: "date", dir: "desc"}
+        ]
+    });
+
+    // Veri yenileme fonksiyonu
+    function refreshData() {
+        const module = document.getElementById('module-select').value;
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        fetch(`/analytics/pivot-data/?module=${module}&start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                table.setData(data.data);
+            })
+            .catch(error => {
+                console.error('Veri yükleme hatası:', error);
+                alert('Veriler yüklenirken bir hata oluştu.');
+            });
+    }
+
+    // Yenile butonu click eventi
+    document.getElementById('refresh-btn').addEventListener('click', refreshData);
+
+    // Sayfa yüklendiğinde ilk veriyi yükle
+    refreshData();
+});
+</script>
+{% endblock %} 

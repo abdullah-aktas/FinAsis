@@ -3,7 +3,7 @@ E-fatura entegrasyonları için test dosyası.
 """
 import pytest
 from django.test import TestCase
-from apps.integrations.efatura.models import EInvoice, EInvoiceItem
+from integrations.efatura.models import EInvoice, EInvoiceItem
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 from decimal import Decimal
@@ -50,7 +50,7 @@ class EInvoiceModelTest(TestCase):
 class EInvoiceIntegrationTest(TestCase):
     """E-fatura entegrasyon testleri."""
     
-    @patch('apps.integrations.efatura.services.EInvoiceProvider')
+    @patch('integrations.efatura.services.EInvoiceProvider')
     def test_send_einvoice(self, mock_provider):
         """E-fatura gönderme testi."""
         mock_instance = MagicMock()
@@ -72,13 +72,13 @@ class EInvoiceIntegrationTest(TestCase):
         )
         
         # E-fatura servisini kullanarak test işlemi
-        from apps.integrations.efatura.services import send_einvoice
+        from integrations.efatura.services import send_einvoice
         result = send_einvoice(einvoice.id)
         
         self.assertEqual(result["status"], "success")
         self.assertEqual(result["document_id"], "12345678-1234-1234-1234-123456789012")
     
-    @patch('apps.integrations.efatura.services.EInvoiceProvider')
+    @patch('integrations.efatura.services.EInvoiceProvider')
     def test_get_einvoice_status(self, mock_provider):
         """E-fatura durumu sorgulama testi."""
         mock_instance = MagicMock()
@@ -89,7 +89,7 @@ class EInvoiceIntegrationTest(TestCase):
         mock_provider.return_value = mock_instance
         
         # E-fatura servisini kullanarak test işlemi
-        from apps.integrations.efatura.services import get_einvoice_status
+        from integrations.efatura.services import get_einvoice_status
         status_info = get_einvoice_status("12345678-1234-1234-1234-123456789012")
         
         self.assertEqual(status_info["status"], "delivered")

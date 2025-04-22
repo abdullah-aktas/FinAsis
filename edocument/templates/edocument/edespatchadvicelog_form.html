@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Log Düzenle{% else %}Yeni Log Ekle{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                {% if form.instance.pk %}
+                    Log Düzenle
+                {% else %}
+                    Yeni Log Ekle
+                {% endif %}
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.despatch_advice.id_for_label }}" class="form-label">İrsaliye</label>
+                    {{ form.despatch_advice }}
+                    {% if form.despatch_advice.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.despatch_advice.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Durum</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">Mesaj</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.message.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.error_details.id_for_label }}" class="form-label">Hata Detayları</label>
+                    {{ form.error_details }}
+                    {% if form.error_details.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.error_details.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'edocument:edespatchadvicelog_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

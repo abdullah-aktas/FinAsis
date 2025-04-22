@@ -9,7 +9,7 @@ from django.db import transaction
 from django.core.files.base import ContentFile
 
 from .models import Customer, Opportunity, Activity, Sale, Document, Campaign, CampaignUsage, ReferralProgram, PremiumPackage, ConsultingService, TrainingProgram, APIPricing, ServiceSubscription, LoyaltyProgram, LoyaltyLevel, CustomerLoyalty, SeasonalCampaign, PartnershipProgram, Partner
-from apps.accounting.models import Account, Invoice, InvoiceLine
+from accounting.models import Account, Invoice, InvoiceLine
 
 logger = logging.getLogger(__name__)
 

@@ -1,1 +1,0 @@
-# Core uygulama özel komutları 

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Muhasebe" %} - {% translate "Genel Bakış" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">{% translate "Muhasebe Yönetimi" %}</h1>
+    
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Hesap İstatistikleri -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {% translate "Hesaplar" %}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ account_count }}</div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {% translate "Aktif" %}: {{ active_account_count }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Toplam Fiş Sayısı -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {% translate "Toplam Fiş" %}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ voucher_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onaylanmış Fişler -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {% translate "Onaylanmış Fişler" %}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ voucher_posted_count }}</div>
+                            <div class="progress progress-sm mr-2 mt-2">
+                                <div class="progress-bar bg-info" role="progressbar"
+                                    style="width: {% if voucher_count %}{{ voucher_posted_count|floatformat:0 }}%{% else %}0%{% endif %}"
+                                    aria-valuenow="{{ voucher_posted_count }}" aria-valuemin="0" aria-valuemax="{{ voucher_count }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Taslak Fişler -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                {% translate "Taslak Fişler" %}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ voucher_draft_count }}</div>
+                            <div class="progress progress-sm mr-2 mt-2">
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                    style="width: {% if voucher_count %}{{ voucher_draft_count|floatformat:0 }}%{% else %}0%{% endif %}"
+                                    aria-valuenow="{{ voucher_draft_count }}" aria-valuemin="0" aria-valuemax="{{ voucher_count }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Son Onaylanan Fişler -->
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Son Muhasebe Fişleri" %}</h6>
+                    <a href="{% url 'accounting:voucher_list' %}" class="btn btn-sm btn-primary">
+                        {% translate "Tümünü Gör" %} <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% translate "Fiş No" %}</th>
+                                    <th>{% translate "Tarih" %}</th>
+                                    <th>{% translate "Tür" %}</th>
+                                    <th>{% translate "Açıklama" %}</th>
+                                    <th>{% translate "Referans" %}</th>
+                                    <th>{% translate "Durum" %}</th>
+                                    <th>{% translate "İşlemler" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for voucher in recent_vouchers %}
+                                <tr>
+                                    <td>{{ voucher.number }}</td>
+                                    <td>{{ voucher.date|date:"d.m.Y" }}</td>
+                                    <td>{{ voucher.type.name }}</td>
+                                    <td>{{ voucher.description|truncatechars:50 }}</td>
+                                    <td>{{ voucher.reference|default:"-" }}</td>
+                                    <td>
+                                        {% if voucher.state == 'DRAFT' %}
+                                        <span class="badge badge-warning">{% translate "Taslak" %}</span>
+                                        {% elif voucher.state == 'POSTED' %}
+                                        <span class="badge badge-success">{% translate "Onaylandı" %}</span>
+                                        {% elif voucher.state == 'CANCELLED' %}
+                                        <span class="badge badge-danger">{% translate "İptal" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'accounting:voucher_detail' voucher.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if voucher.state == 'DRAFT' %}
+                                        <a href="{% url 'accounting:voucher_update' voucher.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">{% translate "Henüz muhasebe fişi oluşturulmamış." %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Hızlı Erişim Kartları -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Hesap İşlemleri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounting:account_list' %}" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-list text-primary mr-2"></i> {% translate "Hesap Listesi" %}
+                        </a>
+                        <a href="{% url 'accounting:account_create' %}" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-plus text-success mr-2"></i> {% translate "Yeni Hesap" %}
+                        </a>
+                        <a href="{% url 'accounting:account_type_list' %}" class="btn btn-light btn-block text-left">
+                            <i class="fas fa-tags text-info mr-2"></i> {% translate "Hesap Türleri" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Fiş İşlemleri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounting:voucher_list' %}" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-file-invoice text-primary mr-2"></i> {% translate "Fiş Listesi" %}
+                        </a>
+                        <a href="{% url 'accounting:voucher_create' %}" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-plus text-success mr-2"></i> {% translate "Yeni Fiş" %}
+                        </a>
+                        <a href="{% url 'accounting:voucher_type_list' %}" class="btn btn-light btn-block text-left">
+                            <i class="fas fa-tags text-info mr-2"></i> {% translate "Fiş Türleri" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Raporlar" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-balance-scale text-primary mr-2"></i> {% translate "Mizan" %}
+                        </a>
+                        <a href="#" class="btn btn-light btn-block text-left mb-2">
+                            <i class="fas fa-chart-line text-success mr-2"></i> {% translate "Gelir Tablosu" %}
+                        </a>
+                        <a href="#" class="btn btn-light btn-block text-left">
+                            <i class="fas fa-clipboard-list text-info mr-2"></i> {% translate "Bilanço" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

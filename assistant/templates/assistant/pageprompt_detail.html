@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ prompt.title }} - Detay{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>{{ prompt.title }}</h2>
+            <div>
+                <a href="{% url 'assistant:pageprompt_update' prompt.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'assistant:pageprompt_delete' prompt.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sayfa Tipi</h5>
+                    <p>{{ prompt.get_page_type_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Durum</h5>
+                    <p>
+                        {% if prompt.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                            <span class="badge bg-danger">Pasif</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>İçerik</h5>
+                    <div class="border p-3 bg-light">
+                        {{ prompt.content|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'assistant:pageprompt_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

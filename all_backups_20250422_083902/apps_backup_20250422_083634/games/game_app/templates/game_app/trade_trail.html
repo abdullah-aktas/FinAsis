@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="text-center mb-4">{{ title }}</h1>
+            <p class="lead text-center mb-5">{{ description }}</p>
+            
+            <!-- Kaynaklar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Kaynaklarınız</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1">Altın: <span id="gold">{{ initial_resources.gold }}</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1">Mallar: <span id="goods">{{ initial_resources.goods|join:", " }}</span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1">İtibar: <span id="reputation">{{ initial_resources.reputation }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Şehirler -->
+            <div class="row">
+                {% for city in cities %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ city.name }}</h5>
+                            <p class="card-text">
+                                <strong>Mevcut Mallar:</strong><br>
+                                {% for good in city.goods %}
+                                <span class="badge bg-primary me-2">{{ good }}</span>
+                                {% endfor %}
+                            </p>
+                            <button class="btn btn-primary" onclick="visitCity('{{ city.name }}')">
+                                Şehri Ziyaret Et
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Oyun durumu
+let gameState = {
+    gold: {{ initial_resources.gold }},
+    goods: {{ initial_resources.goods|safe }},
+    reputation: {{ initial_resources.reputation }},
+    currentCity: null
+};
+
+// Şehir ziyaret fonksiyonu
+function visitCity(cityName) {
+    gameState.currentCity = cityName;
+    const city = {{ cities|safe }}.find(c => c.name === cityName);
+    
+    if (!city) return;
+    
+    // Şehir bilgilerini göster
+    const cityInfo = document.createElement('div');
+    cityInfo.className = 'alert alert-info mt-3';
+    cityInfo.innerHTML = `
+        <h5>${city.name}</h5>
+        <p>Mevcut Mallar:</p>
+        <div class="mb-3">
+            ${city.goods.map(good => `
+                <button class="btn btn-outline-primary me-2 mb-2" 
+                        onclick="buyGood('${good}', '${cityName}')">
+                    ${good}
+                </button>
+            `).join('')}
+        </div>
+        <button class="btn btn-secondary" onclick="sellGoods('${cityName}')">
+            Malları Sat
+        </button>
+    `;
+    
+    // Önceki şehir bilgilerini temizle
+    const existingInfo = document.querySelector('.alert-info');
+    if (existingInfo) existingInfo.remove();
+    
+    // Yeni şehir bilgilerini ekle
+    document.querySelector('.container').appendChild(cityInfo);
+}
+
+// Mal satın alma fonksiyonu
+function buyGood(good, cityName) {
+    const basePrice = 100; // Temel fiyat
+    const price = Math.floor(basePrice * (1 + Math.random() * 0.5)); // Rastgele fiyat artışı
+    
+    if (gameState.gold >= price) {
+        gameState.gold -= price;
+        gameState.goods.push(good);
+        updateUI();
+        alert(`${good} satın alındı! ${price} altın harcandı.`);
+    } else {
+        alert('Yeterli altınınız yok!');
+    }
+}
+
+// Malları satma fonksiyonu
+function sellGoods(cityName) {
+    if (gameState.goods.length === 0) {
+        alert('Satacak malınız yok!');
+        return;
+    }
+    
+    let totalEarnings = 0;
+    const soldGoods = [...gameState.goods];
+    gameState.goods = [];
+    
+    soldGoods.forEach(good => {
+        const basePrice = 150; // Satış temel fiyatı
+        const price = Math.floor(basePrice * (1 + Math.random() * 0.3)); // Rastgele kâr
+        totalEarnings += price;
+    });
+    
+    gameState.gold += totalEarnings;
+    gameState.reputation += soldGoods.length;
+    updateUI();
+    alert(`Tüm mallarınızı sattınız! ${totalEarnings} altın kazandınız.`);
+}
+
+// UI güncelleme fonksiyonu
+function updateUI() {
+    document.getElementById('gold').textContent = gameState.gold;
+    document.getElementById('goods').textContent = gameState.goods.join(', ') || 'Boş';
+    document.getElementById('reputation').textContent = gameState.reputation;
+}
+
+// Sayfa yüklendiğinde UI'ı güncelle
+document.addEventListener('DOMContentLoaded', updateUI);
+</script>
+{% endblock %}
+{% endblock %} 

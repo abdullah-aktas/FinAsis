@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from apps.accounting.models import BaseModel, Account
+from accounting.models import BaseModel, Account
 from decimal import Decimal
 
 User = get_user_model()
@@ -159,7 +159,7 @@ class Sale(models.Model):
         ('other', _('Diğer')),
     )
     
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='sales', verbose_name=_('Müşteri'))
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='sales', verbose_name=_('Müşteri'))
     date = models.DateField(_('Satış Tarihi'), default=timezone.now)
     number = models.CharField(_('Satış Numarası'), max_length=50, unique=True)
     description = models.TextField(_('Açıklama'), blank=True)
@@ -420,7 +420,7 @@ class Campaign(models.Model):
 
 class CampaignUsage(models.Model):
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='usages')
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='campaign_usages')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='campaign_usages')
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE, related_name='campaign_usages')
     discount_amount = models.DecimalField(_('İndirim Miktarı'), max_digits=10, decimal_places=2)
     bonus_amount = models.DecimalField(_('Bonus Miktarı'), max_digits=10, decimal_places=2, null=True, blank=True)
@@ -434,8 +434,8 @@ class CampaignUsage(models.Model):
         return f"{self.campaign.name} - {self.customer.name}"
 
 class ReferralProgram(models.Model):
-    referrer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='referrals_given')
-    referred = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='referrals_received')
+    referrer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='referrals_given')
+    referred = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='referrals_received')
     bonus_amount = models.DecimalField(_('Bonus Miktarı'), max_digits=10, decimal_places=2)
     status = models.CharField(_('Durum'), max_length=20, choices=[
         ('pending', 'Beklemede'),
@@ -573,7 +573,7 @@ class ServiceSubscription(models.Model):
         ('expired', 'Süresi Doldu'),
     ]
     
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='subscriptions')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='subscriptions')
     subscription_type = models.CharField(_('Abonelik Tipi'), max_length=20, choices=SUBSCRIPTION_TYPES)
     package = models.ForeignKey(PremiumPackage, on_delete=models.SET_NULL, null=True, blank=True)
     consulting_service = models.ForeignKey(ConsultingService, on_delete=models.SET_NULL, null=True, blank=True)
@@ -656,7 +656,7 @@ class LoyaltyLevel(models.Model):
 
 class CustomerLoyalty(models.Model):
     """Müşteri sadakat bilgileri modeli"""
-    customer = models.ForeignKey('apps.crm.Customer', on_delete=models.CASCADE, related_name='loyalty_info')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='loyalty_info')
     program = models.ForeignKey(LoyaltyProgram, on_delete=models.CASCADE)
     current_level = models.ForeignKey(LoyaltyLevel, on_delete=models.SET_NULL, null=True)
     total_points = models.IntegerField(_('Toplam Puan'), default=0)

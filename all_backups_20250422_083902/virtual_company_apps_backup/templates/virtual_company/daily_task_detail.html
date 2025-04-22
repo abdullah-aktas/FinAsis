@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ task.title }} | {% trans "Görev Detayı" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Geri Düğmesi ve Başlık -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-3">
+                <a href="{% url 'virtual_company:daily_task_list' %}" class="btn btn-sm btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i> {% trans "Görevlere Dön" %}
+                </a>
+                <h1 class="h3 mb-0 text-gray-800">{{ task.title }}</h1>
+                {% if task.user_task.status == 'completed' %}
+                <span class="badge bg-success ms-3">{% trans "Tamamlandı" %}</span>
+                {% elif task.user_task.status == 'in_progress' %}
+                <span class="badge bg-primary ms-3">{% trans "Devam Ediyor" %}</span>
+                {% endif %}
+            </div>
+            <div class="d-flex flex-wrap mb-3">
+                <span class="badge bg-primary me-2">{{ task.category_display }}</span>
+                <span class="badge {% if task.difficulty == 'easy' %}bg-success{% elif task.difficulty == 'medium' %}bg-warning{% else %}bg-danger{% endif %} me-2">
+                    {{ task.difficulty_display }}
+                </span>
+                <span class="badge bg-info me-2">
+                    <i class="fas fa-clock me-1"></i> {{ task.estimated_time }} {% trans "dakika" %}
+                </span>
+                <span class="badge bg-secondary">
+                    <i class="fas fa-trophy me-1"></i> {{ task.points }} {% trans "puan" %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sol Taraf: Görev Detayı ve İlerleme -->
+        <div class="col-lg-8">
+            <!-- Görev Detayı -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Görev Açıklaması" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        {{ task.description|linebreaks }}
+                    </div>
+
+                    {% if task.steps %}
+                    <div class="mt-4">
+                        <h5>{% trans "Görev Adımları" %}</h5>
+                        <div class="list-group mt-3">
+                            {% for step in task_steps %}
+                            <div class="list-group-item {% if step.is_completed %}list-group-item-success{% endif %}">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        {% if step.is_completed %}
+                                        <i class="fas fa-check-circle text-success me-3 fa-lg"></i>
+                                        {% else %}
+                                        <i class="far fa-circle text-muted me-3 fa-lg"></i>
+                                        {% endif %}
+                                        
+                                        <div>
+                                            <h6 class="mb-1">{{ step.title }}</h6>
+                                            <p class="mb-0 text-muted">{{ step.description }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if not task.user_task.status == 'completed' and not step.is_completed %}
+                                    <form method="post" action="{% url 'virtual_company:complete_task_step' task.id step.order %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-check me-1"></i> {% trans "Tamamla" %}
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if task.resources %}
+                    <div class="mt-4">
+                        <h5>{% trans "Kaynaklar" %}</h5>
+                        <div class="list-group mt-3">
+                            {% for resource in task_resources %}
+                            <a href="{{ resource.url }}" target="_blank" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1">{{ resource.title }}</h6>
+                                        <p class="mb-0 text-muted">{{ resource.description }}</p>
+                                    </div>
+                                    <i class="fas fa-external-link-alt text-muted"></i>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- İlerleme ve Durum -->
+            {% if task.user_task %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "İlerleme ve Durum" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if task.user_task.status != 'completed' %}
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                            style="width: {{ task.user_task.progress_percentage }}%;" 
+                            aria-valuenow="{{ task.user_task.progress_percentage }}" 
+                            aria-valuemin="0" aria-valuemax="100">
+                            {{ task.user_task.progress_percentage }}%
+                        </div>
+                    </div>
+                    <p class="text-center mb-4">
+                        <small class="text-muted">
+                            {% trans "İlerleme:" %} {{ task.user_task.completed_steps }} / {{ task.user_task.total_steps }} {% trans "adım" %}
+                        </small>
+                    </p>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="mb-1"><strong>{% trans "Başlangıç:" %}</strong></p>
+                            <p class="text-muted">{{ task.user_task.start_date|date:"d F Y H:i" }}</p>
+                        </div>
+                        
+                        {% if task.user_task.completion_date %}
+                        <div>
+                            <p class="mb-1"><strong>{% trans "Tamamlanma:" %}</strong></p>
+                            <p class="text-muted">{{ task.user_task.completion_date|date:"d F Y H:i" }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="mb-1"><strong>{% trans "Geçen Süre:" %}</strong></p>
+                            <p class="text-muted">{{ task.user_task.duration }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if task.user_task.status == 'completed' %}
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-trophy me-2"></i> 
+                        {% blocktrans with points=task.points %}
+                        Tebrikler! Bu görevi tamamlayarak <strong>{{ points }} puan</strong> kazandınız.
+                        {% endblocktrans %}
+                    </div>
+                    {% elif task.user_task.status == 'in_progress' %}
+                    <div class="d-grid gap-2 mt-4">
+                        <form method="post" action="{% url 'virtual_company:complete_daily_task' task.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check-circle me-1"></i> {% trans "Görevi Tamamla" %}
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="d-grid gap-2 mt-4">
+                        <form method="post" action="{% url 'virtual_company:start_daily_task' task.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-play me-1"></i> {% trans "Göreve Başla" %}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                    <h5>{% trans "Göreve Henüz Başlamadınız" %}</h5>
+                    <p class="text-muted mb-4">
+                        {% trans "Bu göreve başlamak için aşağıdaki düğmeye tıklayın." %}
+                    </p>
+                    <form method="post" action="{% url 'virtual_company:start_daily_task' task.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-lg btn-primary">
+                            <i class="fas fa-play me-1"></i> {% trans "Göreve Başla" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sağ Taraf: İpuçları ve İlgili Bilgiler -->
+        <div class="col-lg-4">
+            <!-- İpuçları -->
+            {% if task.hints %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb text-warning me-1"></i> {% trans "İpuçları" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="hintsAccordion">
+                        {% for hint in task_hints %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button collapsed" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" 
+                                    aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                    {% trans "İpucu" %} #{{ forloop.counter }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" 
+                                aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#hintsAccordion">
+                                <div class="accordion-body">
+                                    {{ hint.content|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- İlgili Kaynaklar -->
+            {% if task.related_items %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-link text-info me-1"></i> {% trans "İlgili İçerikler" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for item in related_items %}
+                        <a href="{{ item.url }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ item.title }}</h6>
+                                <small>
+                                    {% if item.type == 'article' %}
+                                    <i class="fas fa-file-alt text-primary"></i>
+                                    {% elif item.type == 'video' %}
+                                    <i class="fas fa-video text-danger"></i>
+                                    {% elif item.type == 'task' %}
+                                    <i class="fas fa-tasks text-success"></i>
+                                    {% else %}
+                                    <i class="fas fa-link text-secondary"></i>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <p class="mb-1 text-muted small">{{ item.description|truncatechars:100 }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Eğitim Bilgisi -->
+            {% if task.educational_content %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-graduation-cap text-primary me-1"></i> {% trans "Eğitim Bilgisi" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ task.educational_content|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Yönetici İşlemleri -->
+            {% if user.is_staff %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cog text-secondary me-1"></i> {% trans "Yönetici İşlemleri" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'virtual_company:daily_task_update' task.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> {% trans "Görevi Düzenle" %}
+                        </a>
+                        <a href="{% url 'virtual_company:daily_task_delete' task.id %}" class="btn btn-outline-danger"
+                            onclick="return confirm('{% trans "Bu görevi silmek istediğinize emin misiniz? Bu işlem geri alınamaz." %}')">
+                            <i class="fas fa-trash me-1"></i> {% trans "Görevi Sil" %}
+                        </a>
+                        <hr>
+                        <div class="form-check form-switch">
+                            <form method="post" action="{% url 'virtual_company:toggle_daily_task' task.id %}" id="toggleTaskForm">
+                                {% csrf_token %}
+                                <input class="form-check-input" type="checkbox" role="switch" id="taskActiveSwitch" 
+                                    {% if task.active %}checked{% endif %} onchange="document.getElementById('toggleTaskForm').submit()">
+                                <label class="form-check-label" for="taskActiveSwitch">
+                                    {% if task.active %}
+                                    {% trans "Görev aktif" %}
+                                    {% else %}
+                                    {% trans "Görev pasif" %}
+                                    {% endif %}
+                                </label>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Adım tamamlama onayı
+        $('.complete-step-btn').click(function(e) {
+            if (!confirm("{% trans 'Bu adımı tamamlamak istediğinize emin misiniz?' %}")) {
+                e.preventDefault();
+            }
+        });
+        
+        // Görevi tamamlama onayı
+        $('form[action*="complete_daily_task"]').submit(function(e) {
+            if (!confirm("{% trans 'Bu görevi tamamlamak istediğinize emin misiniz? Tüm adımları tamamladığınızdan emin olun.' %}")) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %} 

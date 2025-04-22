@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div id="game-container" style="width: 100vw; height: 100vh;"></div>
+    
+    <!-- Oyun Arayüzü -->
+    <div id="game-ui" class="position-fixed top-0 start-0 p-3" style="z-index: 1000;">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h5>Kaynaklarınız</h5>
+                <p>Altın: <span id="gold">{{ initial_resources.gold }}</span></p>
+                <p>Mallar: <span id="goods">{{ initial_resources.goods|join:", " }}</span></p>
+                <p>İtibar: <span id="reputation">{{ initial_resources.reputation }}</span></p>
+                <p>Seviye: <span id="level">1</span></p>
+                <p>Deneyim: <span id="experience">0</span>/100</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Görev Paneli -->
+    <div id="quest-panel" class="position-fixed top-0 end-0 p-3" style="z-index: 1000;">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h5>Aktif Görevler</h5>
+                <div id="active-quests"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Şehir Seçim Menüsü -->
+    <div id="city-menu" class="position-fixed top-50 start-50 translate-middle d-none">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h5 class="card-title">Şehir Seçin</h5>
+                <div class="list-group">
+                    {% for city in cities %}
+                    <button class="list-group-item list-group-item-action" onclick="selectCity('{{ city.name }}')">
+                        {{ city.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/ursina@1.0.0/dist/ursina.min.js"></script>
+<script>
+// Oyun durumu
+let gameState = {
+    gold: {{ initial_resources.gold }},
+    goods: {{ initial_resources.goods|safe }},
+    reputation: {{ initial_resources.reputation }},
+    currentCity: null,
+    cities: {{ cities|safe }},
+    level: 1,
+    experience: 0,
+    quests: [],
+    weather: 'sunny',
+    time: 0,
+    inventory: {
+        capacity: 10,
+        items: []
+    }
+};
+
+// Ursina oyun motoru başlatma
+const app = new Ursina();
+
+// Dünya oluşturma
+const ground = new Entity({
+    model: 'plane',
+    scale: (100, 1, 100),
+    color: color.green,
+    texture: 'grass',
+    collider: 'box'
+});
+
+// Gökyüzü
+const sky = new Entity({
+    model: 'sphere',
+    scale: 1000,
+    color: color.cyan,
+    texture: 'sky',
+    double_sided: true
+});
+
+// Şehirler için 3D modeller
+const cityModels = {};
+gameState.cities.forEach((city, index) => {
+    const angle = (index / gameState.cities.length) * Math.PI * 2;
+    const radius = 20;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    
+    // Şehir binası
+    cityModels[city.name] = new Entity({
+        model: 'cube',
+        scale: (2, 4, 2),
+        position: (x, 2, z),
+        color: color.azure,
+        collider: 'box',
+        texture: 'white_cube'
+    });
+    
+    // Şehir ismi
+    new Entity({
+        model: 'quad',
+        scale: 2,
+        position: (x, 5, z),
+        billboard: true,
+        text: city.name
+    });
+    
+    // Şehir çevresi
+    new Entity({
+        model: 'sphere',
+        scale: 3,
+        position: (x, 0, z),
+        color: color.gray,
+        texture: 'white_cube'
+    });
+});
+
+// Oyuncu karakteri
+const player = new Entity({
+    model: 'cube',
+    scale: 1,
+    color: color.red,
+    position: (0, 1, 0),
+    texture: 'white_cube'
+});
+
+// Kamera kontrolü
+camera.position = (0, 10, -20);
+camera.look_at(player);
+
+// Hava durumu sistemi
+function updateWeather() {
+    const weathers = ['sunny', 'rainy', 'cloudy'];
+    gameState.weather = weathers[Math.floor(Math.random() * weathers.length)];
+    
+    // Hava durumuna göre efektler
+    if (gameState.weather === 'rainy') {
+        // Yağmur efekti
+        for (let i = 0; i < 100; i++) {
+            new Entity({
+                model: 'sphere',
+                scale: 0.1,
+                position: (Math.random() * 100 - 50, Math.random() * 20, Math.random() * 100 - 50),
+                color: color.cyan,
+                texture: 'white_cube'
+            });
+        }
+    }
+}
+
+// Görev sistemi
+function generateQuest() {
+    const questTypes = ['trade', 'collect', 'deliver'];
+    const type = questTypes[Math.floor(Math.random() * questTypes.length)];
+    
+    const quest = {
+        id: Date.now(),
+        type: type,
+        description: '',
+        reward: {
+            gold: Math.floor(Math.random() * 500) + 100,
+            experience: Math.floor(Math.random() * 50) + 10
+        },
+        completed: false
+    };
+    
+    switch(type) {
+        case 'trade':
+            const city = gameState.cities[Math.floor(Math.random() * gameState.cities.length)];
+            const good = city.goods[Math.floor(Math.random() * city.goods.length)];
+            quest.description = `${city.name} şehrinde ${good} satın al ve başka bir şehirde sat`;
+            quest.target = {
+                city: city.name,
+                good: good
+            };
+            break;
+        case 'collect':
+            quest.description = 'Belirli miktarda altın topla';
+            quest.target = {
+                amount: Math.floor(Math.random() * 1000) + 500
+            };
+            break;
+        case 'deliver':
+            const sourceCity = gameState.cities[Math.floor(Math.random() * gameState.cities.length)];
+            const targetCity = gameState.cities[Math.floor(Math.random() * gameState.cities.length)];
+            const deliverGood = sourceCity.goods[Math.floor(Math.random() * sourceCity.goods.length)];
+            quest.description = `${sourceCity.name} şehrinden ${targetCity.name} şehrine ${deliverGood} teslim et`;
+            quest.target = {
+                source: sourceCity.name,
+                target: targetCity.name,
+                good: deliverGood
+            };
+            break;
+    }
+    
+    gameState.quests.push(quest);
+    updateQuestUI();
+}
+
+// Görev UI güncelleme
+function updateQuestUI() {
+    const questPanel = document.getElementById('active-quests');
+    questPanel.innerHTML = gameState.quests.map(quest => `
+        <div class="quest-item mb-2">
+            <h6>${quest.description}</h6>
+            <small>Ödül: ${quest.reward.gold} Altın, ${quest.reward.experience} Deneyim</small>
+        </div>
+    `).join('');
+}
+
+// Deneyim ve seviye sistemi
+function addExperience(amount) {
+    gameState.experience += amount;
+    if (gameState.experience >= 100) {
+        gameState.level++;
+        gameState.experience -= 100;
+        gameState.inventory.capacity += 2;
+        alert(`Tebrikler! Seviye ${gameState.level}'e yükseldiniz!`);
+    }
+    updateUI();
+}
+
+// Şehir seçim fonksiyonu
+function selectCity(cityName) {
+    const city = cityModels[cityName];
+    if (city) {
+        const targetPos = city.position;
+        player.position = targetPos;
+        gameState.currentCity = cityName;
+        
+        // Şehir menüsünü göster
+        showCityMenu(cityName);
+        
+        // Yeni görev oluştur
+        if (Math.random() < 0.3) {
+            generateQuest();
+        }
+    }
+}
+
+// Şehir menüsünü göster
+function showCityMenu(cityName) {
+    const city = gameState.cities.find(c => c.name === cityName);
+    if (!city) return;
+    
+    const menu = document.getElementById('city-menu');
+    menu.classList.remove('d-none');
+    
+    // Malları listele
+    const goodsList = city.goods.map(good => {
+        const basePrice = 100;
+        const price = Math.floor(basePrice * (1 + Math.random() * 0.5));
+        return `
+            <button class="list-group-item list-group-item-action" 
+                    onclick="buyGood('${good}', '${cityName}', ${price})">
+                ${good} - ${price} Altın
+            </button>
+        `;
+    }).join('');
+    
+    menu.querySelector('.card-body').innerHTML = `
+        <h5 class="card-title">${cityName}</h5>
+        <p class="text-muted">Hava Durumu: ${gameState.weather}</p>
+        <div class="list-group mb-3">
+            ${goodsList}
+        </div>
+        <button class="btn btn-primary" onclick="sellGoods('${cityName}')">
+            Malları Sat
+        </button>
+        <button class="btn btn-secondary" onclick="closeCityMenu()">
+            Kapat
+        </button>
+    `;
+}
+
+// Menüyü kapat
+function closeCityMenu() {
+    document.getElementById('city-menu').classList.add('d-none');
+}
+
+// Mal satın alma
+function buyGood(good, cityName, price) {
+    if (gameState.inventory.items.length >= gameState.inventory.capacity) {
+        alert('Envanteriniz dolu!');
+        return;
+    }
+    
+    if (gameState.gold >= price) {
+        gameState.gold -= price;
+        gameState.inventory.items.push({
+            name: good,
+            city: cityName,
+            price: price
+        });
+        updateUI();
+        addExperience(5);
+        alert(`${good} satın alındı! ${price} altın harcandı.`);
+    } else {
+        alert('Yeterli altınınız yok!');
+    }
+}
+
+// Malları satma
+function sellGoods(cityName) {
+    if (gameState.inventory.items.length === 0) {
+        alert('Satacak malınız yok!');
+        return;
+    }
+    
+    let totalEarnings = 0;
+    const soldGoods = [...gameState.inventory.items];
+    gameState.inventory.items = [];
+    
+    soldGoods.forEach(item => {
+        const price = Math.floor(item.price * (1 + Math.random() * 0.3));
+        totalEarnings += price;
+    });
+    
+    gameState.gold += totalEarnings;
+    gameState.reputation += soldGoods.length;
+    addExperience(soldGoods.length * 2);
+    updateUI();
+    alert(`Tüm mallarınızı sattınız! ${totalEarnings} altın kazandınız.`);
+}
+
+// UI güncelleme
+function updateUI() {
+    document.getElementById('gold').textContent = gameState.gold;
+    document.getElementById('goods').textContent = gameState.inventory.items.map(item => item.name).join(', ') || 'Boş';
+    document.getElementById('reputation').textContent = gameState.reputation;
+    document.getElementById('level').textContent = gameState.level;
+    document.getElementById('experience').textContent = gameState.experience;
+}
+
+// Oyunu başlat
+app.run();
+
+// Periyodik güncellemeler
+setInterval(updateWeather, 30000); // Her 30 saniyede bir hava durumu değişir
+setInterval(() => {
+    gameState.time = (gameState.time + 1) % 24;
+    if (gameState.time === 0) {
+        generateQuest(); // Her gün yeni görev
+    }
+}, 60000); // Her dakika zaman ilerler
+</script>
+{% endblock %} 

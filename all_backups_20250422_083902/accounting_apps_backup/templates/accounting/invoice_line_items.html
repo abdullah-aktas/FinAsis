@@ -1,0 +1,130 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Fatura Kalemleri</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" id="line-items-form">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            
+            <div class="table-responsive">
+                <table class="table table-bordered" id="line-items-table">
+                    <thead>
+                        <tr>
+                            <th>Açıklama</th>
+                            <th>Miktar</th>
+                            <th>Birim Fiyat</th>
+                            <th>KDV Oranı</th>
+                            <th>KDV Tutarı</th>
+                            <th>Toplam</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                        <tr class="line-item">
+                            <td>{{ form.description }}</td>
+                            <td>{{ form.quantity }}</td>
+                            <td>{{ form.unit_price }}</td>
+                            <td>{{ form.vat_rate }}</td>
+                            <td>{{ form.vat_amount }}</td>
+                            <td>{{ form.total }}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm delete-line-item">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>Ara Toplam:</strong></td>
+                            <td colspan="3">{{ invoice.subtotal }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>Toplam KDV:</strong></td>
+                            <td colspan="3">{{ invoice.total_vat }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>Genel Toplam:</strong></td>
+                            <td colspan="3">{{ invoice.total_amount }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="mt-3">
+                <button type="button" class="btn btn-success" id="add-line-item">
+                    <i class="fas fa-plus"></i> Yeni Kalem Ekle
+                </button>
+            </div>
+            
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+                <a href="{% url 'accounting:invoice_detail' invoice.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Yeni kalem ekleme
+        $('#add-line-item').click(function() {
+            var formCount = parseInt($('#id_form-TOTAL_FORMS').val());
+            var row = $('.line-item:first').clone(true);
+            
+            row.find('input, select').each(function() {
+                var name = $(this).attr('name').replace('-0-', '-' + formCount + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('');
+            });
+            
+            row.find('label').each(function() {
+                var newFor = $(this).attr('for').replace('-0-', '-' + formCount + '-');
+                $(this).attr('for', newFor);
+            });
+            
+            $('#line-items-table tbody').append(row);
+            $('#id_form-TOTAL_FORMS').val(formCount + 1);
+        });
+        
+        // Kalem silme
+        $('.delete-line-item').click(function() {
+            if ($('.line-item').length > 1) {
+                $(this).closest('tr').remove();
+                updateFormIndexes();
+            }
+        });
+        
+        // Form indekslerini güncelleme
+        function updateFormIndexes() {
+            $('.line-item').each(function(index) {
+                $(this).find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    var newName = name.replace(/-\d+-/, '-' + index + '-');
+                    var id = 'id_' + newName;
+                    $(this).attr({'name': newName, 'id': id});
+                });
+                
+                $(this).find('label').each(function() {
+                    var newFor = $(this).attr('for').replace(/-\d+-/, '-' + index + '-');
+                    $(this).attr('for', newFor);
+                });
+            });
+            
+            $('#id_form-TOTAL_FORMS').val($('.line-item').length);
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 

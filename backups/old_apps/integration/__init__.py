@@ -1,1 +1,4 @@
-# MVT yapısı için oluşturuldu
+# -*- coding: utf-8 -*-
+"""
+integration modÃ¼lÃ¼
+"""

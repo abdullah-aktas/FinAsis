@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}İşlem Grid'i{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<style>
+    .transaction-filters {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+    .transaction-table th {
+        background: #f8f9fa;
+    }
+    .pagination {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">İşlem Grid'i</h3>
+                    <div>
+                        <button class="btn btn-success" hx-get="{% url 'analytics:export_transactions' %}?format=excel"
+                                hx-trigger="click">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-danger" hx-get="{% url 'analytics:export_transactions' %}?format=pdf"
+                                hx-trigger="click">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filtreler -->
+                    <div class="transaction-filters">
+                        <form hx-get="{% url 'analytics:get_transactions' %}"
+                              hx-trigger="change from:#filter-form"
+                              hx-target="#transaction-list"
+                              hx-indicator=".htmx-indicator">
+                            <div class="row" id="filter-form">
+                                <div class="col-md-2">
+                                    <label for="start-date">Başlangıç Tarihi</label>
+                                    <input type="text" id="start-date" name="start_date" class="form-control datepicker">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="end-date">Bitiş Tarihi</label>
+                                    <input type="text" id="end-date" name="end_date" class="form-control datepicker">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="customer">Müşteri</label>
+                                    <select id="customer" name="customer" class="form-control">
+                                        <option value="">Tümü</option>
+                                        {% for customer in customers %}
+                                        <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="product">Ürün</label>
+                                    <select id="product" name="product" class="form-control">
+                                        <option value="">Tümü</option>
+                                        {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="type">İşlem Türü</label>
+                                    <select id="type" name="type" class="form-control">
+                                        <option value="">Tümü</option>
+                                        {% for type in transaction_types %}
+                                        <option value="{{ type.id }}">{{ type.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="search">Arama</label>
+                                    <input type="text" id="search" name="search" class="form-control" 
+                                           placeholder="Fatura no, müşteri...">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- İşlem Listesi -->
+                    <div id="transaction-list" hx-get="{% url 'analytics:get_transactions' %}"
+                         hx-trigger="load"
+                         hx-indicator=".htmx-indicator">
+                        <div class="htmx-indicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Yükleniyor...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tarih seçici ayarları
+    flatpickr(".datepicker", {
+        locale: "tr",
+        dateFormat: "Y-m-d",
+        defaultDate: "today"
+    });
+});
+</script>
+{% endblock %} 

@@ -28,10 +28,10 @@ MODULE_MERGES = {
     'asset_management': 'apps.stock_management',
     
     # Integrations modülü altında toplanan alt modüller
-    'efatura': 'apps.integrations.efatura',
-    'bank_integration': 'apps.integrations.bank_integration',
-    'external_integrations': 'apps.integrations.external',
-    'ext_services': 'apps.integrations.services',
+    'efatura': 'integrations.efatura',
+    'bank_integration': 'integrations.bank_integration',
+    'external_integrations': 'integrations.external',
+    'ext_services': 'integrations.services',
     
     # Diğer modül eşleştirmeleri
     'backup_manager': 'apps.backup_manager',
@@ -41,14 +41,14 @@ MODULE_MERGES = {
     'seo_management': 'apps.seo',
     'virtual_company': 'apps.virtual_company',
     'analytics': 'apps.analytics',
-    'game_app': 'apps.games.game_app',
-    'ursina_game': 'apps.games.ursina_game',
+    'game_app': 'games.game_app',
+    'ursina_game': 'games.ursina_game',
     'accounting': 'apps.accounting',
     'finance': 'apps.finance',
-    'finance.accounting': 'apps.finance.accounting',
-    'finance.banking': 'apps.finance.banking',
-    'finance.checks': 'apps.finance.checks',
-    'finance.einvoice': 'apps.finance.einvoice',
+    'finance.accounting': 'finance.accounting',
+    'finance.banking': 'finance.banking',
+    'finance.checks': 'finance.checks',
+    'finance.einvoice': 'finance.einvoice',
     'checks': 'apps.checks',
 }
 

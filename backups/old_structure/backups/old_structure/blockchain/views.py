@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import BlockchainTransaction, BlockchainLog
-from apps.virtual_company.models import VirtualCompany
+from virtual_company.models import VirtualCompany
 
 @login_required
 def transaction_list(request):

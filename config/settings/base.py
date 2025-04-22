@@ -41,21 +41,22 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'widget_tweaks',
     'debug_toolbar',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    # allauth geçici olarak devre dışı bırakıldı
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
     
     # Local apps
     'core',
-    'apps.accounts.apps.AccountsConfig',
-    'apps.virtual_company',
-    'apps.accounting',
-    'apps.crm',
-    'apps.permissions',
-    'edocument.apps.EdocumentConfig',
-    'apps.finance.apps.FinanceConfig',
-    'apps.assistant.apps.AssistantConfig',  # AI Asistan uygulaması
-    'apps.users.apps.UsersConfig',  # Kullanıcı yönetimi uygulaması
+    'accounts..AccountsConfig',
+    'virtual_company',
+    'accounting',
+    'crm',
+    'permissions',
+    'edocument..EdocumentConfig',
+    'finance..FinanceConfig',
+    'assistant..AssistantConfig',  # AI Asistan uygulaması
+    'users..UsersConfig',  # Kullanıcı yönetimi uygulaması
 ]
 
 MIDDLEWARE = [
@@ -69,10 +70,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware', # allauth geçici olarak devre dışı
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'apps.permissions.middleware.BruteForceProtectionMiddleware',
-    'apps.permissions.middleware.IPRestrictionMiddleware',
+    'permissions.middleware.BruteForceProtectionMiddleware',
+    'permissions.middleware.IPRestrictionMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -258,7 +259,7 @@ SIMPLE_JWT = {
 # Authentication settings
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend', # allauth geçici olarak devre dışı
 ]
 
 # CORS settings

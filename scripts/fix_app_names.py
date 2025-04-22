@@ -25,12 +25,12 @@ APP_PATHS = {
     'accounting': 'apps.accounting',
     'users': 'apps.users',
     'backup_manager': 'apps.backup_manager',
-    'game_app': 'apps.games.game_app',
-    'ursina_game': 'apps.games.ursina_game',
-    'efatura': 'apps.integrations.efatura',
-    'bank_integration': 'apps.integrations.bank_integration',
-    'external_integrations': 'apps.integrations.external',
-    'ext_services': 'apps.integrations.services',
+    'game_app': 'games.game_app',
+    'ursina_game': 'games.ursina_game',
+    'efatura': 'integrations.efatura',
+    'bank_integration': 'integrations.bank_integration',
+    'external_integrations': 'integrations.external',
+    'ext_services': 'integrations.services',
     'accounts': 'apps.accounts',
 }
 

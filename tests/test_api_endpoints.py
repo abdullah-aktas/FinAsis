@@ -26,7 +26,7 @@ class InvoiceAPITests(APITestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Invoice, Customer
+        from finance.accounting.models import Invoice, Customer
         
         # Test müşterisi oluştur
         self.customer = Customer.objects.create(
@@ -116,7 +116,7 @@ class BankIntegrationAPITests(APITestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from apps.integrations.bank_integration.models import BankAccount
+        from integrations.bank_integration.models import BankAccount
         
         # Test banka hesabı oluştur
         self.bank_account = BankAccount.objects.create(
@@ -133,7 +133,7 @@ class BankIntegrationAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
     
-    @patch('apps.integrations.bank_integration.services.BankAPIClient')
+    @patch('integrations.bank_integration.services.BankAPIClient')
     def test_get_account_balance(self, mock_api_client):
         """Hesap bakiyesi alma API testi."""
         mock_instance = mock_api_client.return_value
@@ -146,7 +146,7 @@ class BankIntegrationAPITests(APITestCase):
         self.assertEqual(response.data['balance'], 5000)
         self.assertEqual(response.data['currency'], 'TRY')
     
-    @patch('apps.integrations.bank_integration.services.BankAPIClient')
+    @patch('integrations.bank_integration.services.BankAPIClient')
     def test_initiate_transfer(self, mock_api_client):
         """Para transferi başlatma API testi."""
         mock_instance = mock_api_client.return_value
@@ -179,7 +179,7 @@ class EFaturaAPITests(APITestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from apps.integrations.efatura.models import EInvoice
+        from integrations.efatura.models import EInvoice
         
         # Test e-fatura oluştur
         self.einvoice = EInvoice.objects.create(
@@ -200,7 +200,7 @@ class EFaturaAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
     
-    @patch('apps.integrations.efatura.services.EInvoiceProvider')
+    @patch('integrations.efatura.services.EInvoiceProvider')
     def test_send_einvoice(self, mock_provider):
         """E-fatura gönderme API testi."""
         mock_instance = mock_provider.return_value
@@ -216,7 +216,7 @@ class EFaturaAPITests(APITestCase):
         self.assertEqual(response.data['status'], 'success')
         self.assertEqual(response.data['document_id'], '12345678-1234-1234-1234-123456789012')
     
-    @patch('apps.integrations.efatura.services.EInvoiceProvider')
+    @patch('integrations.efatura.services.EInvoiceProvider')
     def test_get_einvoice_status(self, mock_provider):
         """E-fatura durumu sorgulama API testi."""
         mock_instance = mock_provider.return_value

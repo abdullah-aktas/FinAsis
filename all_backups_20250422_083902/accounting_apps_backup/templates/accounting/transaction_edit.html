@@ -1,0 +1,179 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">{% if transaction %}İşlem Düzenle{% else %}Yeni İşlem{% endif %}</h5>
+    </div>
+    <div class="card-body">
+        {% if error_message %}
+        <div class="alert alert-danger">
+            {{ error_message }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="number" class="form-label">İşlem No</label>
+                        <input type="text" class="form-control" id="number" name="number" value="{{ transaction.number|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Tarih</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ transaction.date|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">İşlem Türü</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="income" {% if transaction.type == 'income' %}selected{% endif %}>Gelir</option>
+                            <option value="expense" {% if transaction.type == 'expense' %}selected{% endif %}>Gider</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="account" class="form-label">Hesap</label>
+                        <select class="form-select" id="account" name="account" required>
+                            <option value="">Hesap Seçin</option>
+                            {% for account in accounts %}
+                            <option value="{{ account.id }}" {% if transaction.account.id == account.id %}selected{% endif %}>
+                                {{ account.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Tutar</label>
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="{{ transaction.amount|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Açıklama</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ transaction.description|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">İşlem Detayları</h6>
+                    <button type="button" class="btn btn-primary btn-sm" id="addEntry">
+                        <i class="fas fa-plus"></i> Detay Ekle
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="entriesTable">
+                            <thead>
+                                <tr>
+                                    <th>Hesap</th>
+                                    <th>Borç</th>
+                                    <th>Alacak</th>
+                                    <th>Açıklama</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in transaction.entries.all %}
+                                <tr>
+                                    <td>
+                                        <select class="form-select" name="entry_account[]" required>
+                                            <option value="">Hesap Seçin</option>
+                                            {% for account in accounts %}
+                                            <option value="{{ account.id }}" {% if entry.account.id == account.id %}selected{% endif %}>
+                                                {{ account.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" class="form-control" name="entry_debit[]" value="{{ entry.debit_amount|default:'' }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" class="form-control" name="entry_credit[]" value="{{ entry.credit_amount|default:'' }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="entry_description[]" value="{{ entry.description|default:'' }}">
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm deleteEntry">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Toplam</th>
+                                    <th class="text-success">{{ transaction.total_debit|floatformat:2 }} ₺</th>
+                                    <th class="text-danger">{{ transaction.total_credit|floatformat:2 }} ₺</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+                <a href="{% url 'accounting:transaction_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const entriesTable = document.getElementById('entriesTable');
+    const addEntryBtn = document.getElementById('addEntry');
+
+    // Yeni detay satırı ekleme
+    addEntryBtn.addEventListener('click', function() {
+        const tbody = entriesTable.querySelector('tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>
+                <select class="form-select" name="entry_account[]" required>
+                    <option value="">Hesap Seçin</option>
+                    {% for account in accounts %}
+                    <option value="{{ account.id }}">{{ account.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <input type="number" step="0.01" class="form-control" name="entry_debit[]">
+            </td>
+            <td>
+                <input type="number" step="0.01" class="form-control" name="entry_credit[]">
+            </td>
+            <td>
+                <input type="text" class="form-control" name="entry_description[]">
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm deleteEntry">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(newRow);
+    });
+
+    // Detay satırı silme
+    entriesTable.addEventListener('click', function(e) {
+        if (e.target.closest('.deleteEntry')) {
+            const row = e.target.closest('tr');
+            row.remove();
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

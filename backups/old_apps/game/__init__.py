@@ -1,1 +1,4 @@
-# MVT yapısı için oluşturuldu
+# -*- coding: utf-8 -*-
+"""
+game modÃ¼lÃ¼
+"""

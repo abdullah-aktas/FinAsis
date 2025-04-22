@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ object.name }} - {% trans 'Departman Detayı' %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ object.name }}</h1>
+        <div>
+            <a href="{% url 'virtual_company:department_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans 'Geri Dön' %}
+            </a>
+            <a href="{% url 'virtual_company:department_update' object.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> {% trans 'Düzenle' %}
+            </a>
+            <a href="{% url 'virtual_company:department_delete' object.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {% trans 'Sil' %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Departman Bilgileri -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> {% trans 'Departman Bilgileri' %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">{% trans 'Şirket' %}</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'virtual_company:company_detail' object.company.pk %}">
+                                {{ object.company }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">{% trans 'Yönetici' %}</dt>
+                        <dd class="col-sm-8">
+                            {% if object.manager %}
+                                <a href="{% url 'virtual_company:employee_detail' object.manager.pk %}">
+                                    {{ object.manager }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{% trans 'Atanmamış' %}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{% trans 'Bütçe' %}</dt>
+                        <dd class="col-sm-8">{{ object.budget|default:_('Belirtilmemiş') }}</dd>
+
+                        <dt class="col-sm-4">{% trans 'Konum' %}</dt>
+                        <dd class="col-sm-8">{{ object.location|default:_('Belirtilmemiş') }}</dd>
+
+                        <dt class="col-sm-4">{% trans 'Durum' %}</dt>
+                        <dd class="col-sm-8">
+                            {% if object.is_active %}
+                                <span class="badge bg-success">{% trans 'Aktif' %}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{% trans 'Pasif' %}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{% trans 'Oluşturulma' %}</dt>
+                        <dd class="col-sm-8">{{ object.created_at|date:"d.m.Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">{% trans 'Güncellenme' %}</dt>
+                        <dd class="col-sm-8">{{ object.updated_at|date:"d.m.Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departman İstatistikleri -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar"></i> {% trans 'İstatistikler' %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-4">
+                            <div class="border rounded p-3">
+                                <h3 class="mb-0">{{ object.employees.count }}</h3>
+                                <small class="text-muted">{% trans 'Çalışan' %}</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-4">
+                            <div class="border rounded p-3">
+                                <h3 class="mb-0">{{ object.projects.count }}</h3>
+                                <small class="text-muted">{% trans 'Proje' %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Çalışanlar -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-users"></i> {% trans 'Çalışanlar' %}
+            </h5>
+            <a href="{% url 'virtual_company:employee_create' %}?department={{ object.pk }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans 'Yeni Çalışan' %}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if object.employees.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Ad Soyad' %}</th>
+                                <th>{% trans 'Pozisyon' %}</th>
+                                <th>{% trans 'E-posta' %}</th>
+                                <th>{% trans 'Telefon' %}</th>
+                                <th>{% trans 'Durum' %}</th>
+                                <th>{% trans 'İşlemler' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in object.employees.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'virtual_company:employee_detail' employee.pk %}">
+                                            {{ employee }}
+                                        </a>
+                                    </td>
+                                    <td>{{ employee.position }}</td>
+                                    <td>{{ employee.email }}</td>
+                                    <td>{{ employee.phone }}</td>
+                                    <td>
+                                        {% if employee.is_active %}
+                                            <span class="badge bg-success">{% trans 'Aktif' %}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{% trans 'Pasif' %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'virtual_company:employee_update' employee.pk %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'virtual_company:employee_delete' employee.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">{% trans 'Bu departmanda henüz çalışan bulunmuyor.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Projeler -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-project-diagram"></i> {% trans 'Projeler' %}
+            </h5>
+            <a href="{% url 'virtual_company:project_create' %}?department={{ object.pk }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans 'Yeni Proje' %}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if object.projects.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Proje Adı' %}</th>
+                                <th>{% trans 'Başlangıç' %}</th>
+                                <th>{% trans 'Bitiş' %}</th>
+                                <th>{% trans 'Bütçe' %}</th>
+                                <th>{% trans 'Durum' %}</th>
+                                <th>{% trans 'İşlemler' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in object.projects.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'virtual_company:project_detail' project.pk %}">
+                                            {{ project.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ project.start_date|date:"d.m.Y" }}</td>
+                                    <td>{{ project.end_date|date:"d.m.Y" }}</td>
+                                    <td>{{ project.budget }}</td>
+                                    <td>
+                                        {% if project.is_active %}
+                                            <span class="badge bg-success">{% trans 'Aktif' %}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{% trans 'Pasif' %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'virtual_company:project_update' project.pk %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'virtual_company:project_delete' project.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">{% trans 'Bu departmanda henüz proje bulunmuyor.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

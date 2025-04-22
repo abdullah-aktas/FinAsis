@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Gelir Tablosu Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Gelir Tablosu Sil</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Bu gelir tablosu kaydını silmek istediğinizden emin misiniz?</p>
+            <p class="text-danger">Bu işlem geri alınamaz!</p>
+            
+            <div class="alert alert-info">
+                <strong>Gelir Tablosu Detayları:</strong><br>
+                Dönem: {{ object.period_start|date:"d.m.Y" }} - {{ object.period_end|date:"d.m.Y" }}<br>
+                Gelir: {{ object.revenue|floatformat:2 }} TL<br>
+                Gider: {{ object.expenses|floatformat:2 }} TL<br>
+                Net Gelir: {{ object.net_income|floatformat:2 }} TL
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'finance:incomestatement_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

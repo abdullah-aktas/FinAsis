@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Anahtar Kelime Sıralamaları{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Anahtar Kelime Sıralamaları</h1>
+        <a href="{% url 'seo:keyword_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Anahtar Kelime
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Anahtar Kelime</th>
+                            <th>Arama Hacmi</th>
+                            <th>Rekabet</th>
+                            <th>Sıralama</th>
+                            <th>Son Kontrol</th>
+                            <th>Oluşturan</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for keyword in keyword_list %}
+                        <tr>
+                            <td>{{ keyword.keyword }}</td>
+                            <td>{{ keyword.search_volume }}</td>
+                            <td>
+                                {% if keyword.competition == 'low' %}
+                                <span class="badge bg-success">Düşük</span>
+                                {% elif keyword.competition == 'medium' %}
+                                <span class="badge bg-warning">Orta</span>
+                                {% else %}
+                                <span class="badge bg-danger">Yüksek</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ keyword.ranking }}</td>
+                            <td>{{ keyword.last_checked|date:"d.m.Y H:i" }}</td>
+                            <td>{{ keyword.created_by.get_full_name }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'seo:keyword_detail' keyword.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'seo:keyword_update' keyword.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'seo:keyword_delete' keyword.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Henüz anahtar kelime sıralaması bulunmamaktadır.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,65 @@
+runtime: python310
+
+env_variables:
+  DJANGO_SETTINGS_MODULE: "config.settings.prod"
+  DJANGO_SECRET_KEY: "your-secret-key-here"
+  DJANGO_DEBUG: "False"
+  DJANGO_ALLOWED_HOSTS: "finasis.com.tr,www.finasis.com.tr"
+  
+  # Database Cloud SQL örneği
+  DB_ENGINE: "django.db.backends.postgresql"
+  DB_NAME: "finasis_db"
+  DB_USER: "postgres"
+  DB_PASSWORD: "your-password-here"
+  DB_HOST: "/cloudsql/your-project:region:instance-name"
+  DB_PORT: ""
+  
+  # Redis memorystore
+  REDIS_URL: "redis://10.0.0.1:6379/0"
+  
+  # Email ayarları
+  EMAIL_HOST: "smtp.example.com"
+  EMAIL_PORT: "587"
+  EMAIL_HOST_USER: "your-email@example.com"
+  EMAIL_HOST_PASSWORD: "your-email-password"
+  EMAIL_USE_TLS: "True"
+  DEFAULT_FROM_EMAIL: "your-email@example.com"
+  
+  # Güvenlik ayarları
+  SECURE_SSL_REDIRECT: "True"
+  SESSION_COOKIE_SECURE: "True"
+  CSRF_COOKIE_SECURE: "True"
+  SECURE_BROWSER_XSS_FILTER: "True"
+  SECURE_CONTENT_TYPE_NOSNIFF: "True"
+  X_FRAME_OPTIONS: "DENY"
+  
+  # CORS ayarları
+  CORS_ALLOWED_ORIGINS: "https://finasis.com.tr,https://www.finasis.com.tr,https://api.finasis.com.tr"
+
+handlers:
+- url: /static
+  static_dir: staticfiles/
+  secure: always
+
+- url: /media
+  static_dir: media/
+  secure: always
+
+- url: /.*
+  script: auto
+  secure: always
+
+entrypoint: gunicorn -b :$PORT config.wsgi:application --timeout=120 --workers=2
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 5
+  min_idle_instances: 1
+  max_idle_instances: 1
+  min_pending_latency: 30ms
+  max_pending_latency: 200ms
+  target_cpu_utilization: 0.65
+  target_throughput_utilization: 0.6
+
+inbound_services:
+- warmup 

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Yatırım Simülatörü{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Yatırım Simülatörü</h1>
+            <div class="card border-info">
+                <div class="card-body">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-chart-pie"></i> Yatırım Stratejilerinizi Test Edin
+                    </h5>
+                    <p class="card-text">
+                        Bu oyunda farklı yatırım stratejilerini test edebilir ve sonuçlarını görebilirsiniz.
+                        Başlangıç sermayeniz 20,000 TL ve amacınız bu sermayeyi en verimli şekilde yönetmek.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Yatırım Seçenekleri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Hisse Senedi</h5>
+                                    <p class="card-text">Risk: Yüksek, Getiri: Yüksek</p>
+                                    <div class="form-group">
+                                        <label for="stockAmount">Yatırım Miktarı (TL)</label>
+                                        <input type="number" class="form-control" id="stockAmount" value="5000">
+                                    </div>
+                                    <button class="btn btn-primary w-100 mt-2">Yatırım Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Tahvil</h5>
+                                    <p class="card-text">Risk: Düşük, Getiri: Düşük</p>
+                                    <div class="form-group">
+                                        <label for="bondAmount">Yatırım Miktarı (TL)</label>
+                                        <input type="number" class="form-control" id="bondAmount" value="5000">
+                                    </div>
+                                    <button class="btn btn-primary w-100 mt-2">Yatırım Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Altın</h5>
+                                    <p class="card-text">Risk: Orta, Getiri: Orta</p>
+                                    <div class="form-group">
+                                        <label for="goldAmount">Yatırım Miktarı (TL)</label>
+                                        <input type="number" class="form-control" id="goldAmount" value="5000">
+                                    </div>
+                                    <button class="btn btn-primary w-100 mt-2">Yatırım Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Döviz</h5>
+                                    <p class="card-text">Risk: Orta, Getiri: Orta</p>
+                                    <div class="form-group">
+                                        <label for="forexAmount">Yatırım Miktarı (TL)</label>
+                                        <input type="number" class="form-control" id="forexAmount" value="5000">
+                                    </div>
+                                    <button class="btn btn-primary w-100 mt-2">Yatırım Yap</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Portföyüm</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Toplam Sermaye</h6>
+                        <p class="h4 text-success">20,000 TL</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Kullanılabilir Sermaye</h6>
+                        <p class="h4">20,000 TL</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Toplam Yatırım</h6>
+                        <p class="h4">0 TL</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Tahmini Getiri</h6>
+                        <p class="h4 text-success">0 TL</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Piyasa Durumu</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span>Borsa:</span>
+                        <span class="float-end text-success">+1.2%</span>
+                    </div>
+                    <div class="mb-2">
+                        <span>Tahvil:</span>
+                        <span class="float-end text-success">+0.3%</span>
+                    </div>
+                    <div class="mb-2">
+                        <span>Altın:</span>
+                        <span class="float-end text-danger">-0.5%</span>
+                    </div>
+                    <div class="mb-2">
+                        <span>Dolar:</span>
+                        <span class="float-end text-success">+0.8%</span>
+                    </div>
+                    <button class="btn btn-warning w-100 mt-3" id="simulateMarket">Piyasayı Simüle Et</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Oyun başlatma fonksiyonu
+    function startGame() {
+        alert("Yatırım Simülatörü başlatılıyor...");
+        // Oyun mantığı burada olacak
+    }
+    
+    // Sayfa yüklendiğinde oyunu başlat
+    document.addEventListener('DOMContentLoaded', function() {
+        // Oyun başlatma kodları burada olacak
+    });
+</script>
+{% endblock %}
+{% endblock %} 

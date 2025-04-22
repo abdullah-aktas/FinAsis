@@ -3,7 +3,7 @@ Banka entegrasyonları için test dosyası.
 """
 import pytest
 from django.test import TestCase
-from apps.integrations.bank_integration.models import BankAccount, BankTransaction
+from integrations.bank_integration.models import BankAccount, BankTransaction
 from unittest.mock import patch, MagicMock
 
 class BankAccountModelTest(TestCase):
@@ -48,7 +48,7 @@ class BankTransactionTest(TestCase):
 class BankAPIIntegrationTest(TestCase):
     """Banka API entegrasyon testleri."""
     
-    @patch('apps.integrations.bank_integration.services.BankAPIClient')
+    @patch('integrations.bank_integration.services.BankAPIClient')
     def test_get_account_balance(self, mock_api_client):
         """Hesap bakiyesi alma testi."""
         mock_instance = MagicMock()
@@ -56,13 +56,13 @@ class BankAPIIntegrationTest(TestCase):
         mock_api_client.return_value = mock_instance
         
         # Banka API istemcisini kullanarak test işlemi
-        from apps.integrations.bank_integration.services import get_account_balance
+        from integrations.bank_integration.services import get_account_balance
         balance_info = get_account_balance("TR123456789012345678901234")
         
         self.assertEqual(balance_info["balance"], 5000)
         self.assertEqual(balance_info["currency"], "TRY")
     
-    @patch('apps.integrations.bank_integration.services.BankAPIClient')
+    @patch('integrations.bank_integration.services.BankAPIClient')
     def test_transfer_money(self, mock_api_client):
         """Para transferi testi."""
         mock_instance = MagicMock()
@@ -70,7 +70,7 @@ class BankAPIIntegrationTest(TestCase):
         mock_api_client.return_value = mock_instance
         
         # Banka API istemcisini kullanarak test işlemi
-        from apps.integrations.bank_integration.services import transfer_money
+        from integrations.bank_integration.services import transfer_money
         result = transfer_money(
             from_account="TR123456789012345678901234",
             to_account="TR987654321098765432109876",

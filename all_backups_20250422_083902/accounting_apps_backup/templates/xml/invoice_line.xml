@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cac:InvoiceLine>
+    <cbc:ID>{line_id}</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="{unit_code}">{quantity}</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="{currency}">{line_total}</cbc:LineExtensionAmount>
+    
+    <cac:Item>
+        <cbc:Name>{item_name}</cbc:Name>
+        <cbc:Description>{item_description}</cbc:Description>
+    </cac:Item>
+    
+    <cac:Price>
+        <cbc:PriceAmount currencyID="{currency}">{unit_price}</cbc:PriceAmount>
+    </cac:Price>
+    
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="{currency}">{line_tax_amount}</cbc:TaxAmount>
+        <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="{currency}">{line_subtotal}</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="{currency}">{line_tax_amount}</cbc:TaxAmount>
+            <cbc:Percent>{tax_rate}</cbc:Percent>
+        </cac:TaxSubtotal>
+    </cac:TaxTotal>
+</cac:InvoiceLine> 

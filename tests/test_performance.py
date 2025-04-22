@@ -35,7 +35,7 @@ class FinancialTransactionPerformanceTests(TransactionTestCase):
         )
         
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Account
+        from finance.accounting.models import Account
         
         # Test hesabı oluştur
         self.account = Account.objects.create(
@@ -47,7 +47,7 @@ class FinancialTransactionPerformanceTests(TransactionTestCase):
     
     def test_bulk_transaction_creation_performance(self):
         """Toplu işlem oluşturma performans testi."""
-        from apps.finance.accounting.models import FinancialTransaction
+        from finance.accounting.models import FinancialTransaction
         
         num_transactions = 100
         start_time = time.time()
@@ -103,7 +103,7 @@ class InvoiceAPIPerformanceTests(TestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from apps.finance.accounting.models import Customer
+        from finance.accounting.models import Customer
         
         # Test müşterileri oluştur
         for i in range(20):
@@ -115,7 +115,7 @@ class InvoiceAPIPerformanceTests(TestCase):
     
     def test_invoice_list_api_performance(self):
         """Fatura listesi API performans testi."""
-        from apps.finance.accounting.models import Invoice, Customer
+        from finance.accounting.models import Invoice, Customer
         
         # Test faturaları oluştur (100 fatura)
         customers = Customer.objects.all()
@@ -172,7 +172,7 @@ class BankAPIPerformanceTests(TestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from apps.integrations.bank_integration.models import BankAccount, BankTransaction
+        from integrations.bank_integration.models import BankAccount, BankTransaction
         
         # Test banka hesabı oluştur
         self.bank_account = BankAccount.objects.create(
@@ -198,7 +198,7 @@ class BankAPIPerformanceTests(TestCase):
     def test_bank_statement_query_performance(self):
         """Banka hesap ekstresi sorgulama performans testi."""
         from django.db.models import Sum
-        from apps.integrations.bank_integration.models import BankTransaction
+        from integrations.bank_integration.models import BankTransaction
         
         # Tarih aralığı belirle
         start_date = datetime.now().date() - timedelta(days=60)
