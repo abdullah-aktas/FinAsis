@@ -17,7 +17,7 @@ FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetim
 - **Çoklu Dil Desteği**: Türkçe, İngilizce, Kürtçe, Arapça ve Almanca dil desteği
 - **Güvenlik ve Kimlik Doğrulama**: JWT tabanlı kimlik doğrulama, 2FA desteği, rate limiting
 
-## �� Teknolojiler
+## 🛠 Teknolojiler
 
 - **Backend**: Python/Django, Django Rest Framework
 - **Frontend**: HTML/CSS/JavaScript, Bootstrap 5, HTMX
