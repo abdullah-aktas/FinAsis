@@ -54,6 +54,12 @@ docker-compose -f docker-compose.prod.yml up -d
 
 1. Projeyi klonlayın:
 ```bash
+git clone https://github.com/abdullah-aktas/FinAsis.git
+cd FinAsis
+```
+
+2. Sanal ortam oluşturun ve aktifleştirin:
+```bash
 # Windows
 python -m venv venv
 venv\Scripts\activate
@@ -97,28 +103,17 @@ python manage.py runserver
 
 9. Tarayıcınızda `http://127.0.0.1:8000` adresine giderek uygulamayı görüntüleyin.
 
-### Docker ile Kurulum
+## 📝 Lisans
 
-```bash
-# Geliştirme ortamı
-docker-compose up -d
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
-# Üretim ortamı
-docker-compose -f docker-compose.prod.yml up -d
-```
+## 🤝 Katkıda Bulunma
 
-### Masaüstü Uygulaması
-
-#### Windows
-```bash
-scripts\build_and_run.bat
-```
-
-#### Linux/macOS
-```bash
-chmod +x scripts/build_and_run.sh
-./scripts/build_and_run.sh
-```
+1. Bu depoyu fork edin
+2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Bir Pull Request oluşturun
 
 ## Dokümantasyon
 
@@ -138,20 +133,6 @@ Detaylı dokümantasyon için `docs/` dizinine bakın:
 - [API Dokümantasyonu](docs/api_documentation.md) - API kullanımı
 - [Dağıtım Kılavuzu](docs/deployment_guide.md) - Üretim ortamına dağıtım
 - [Sürüm Notları](docs/release_notes.md) - Sürüm değişiklikleri
-
-## Katkıda Bulunma
-
-Projeye katkıda bulunmak isteyenler için adımlar:
-
-1. Projeyi fork edin
-2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
-
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ## İletişim
 
