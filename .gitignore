@@ -34,6 +34,7 @@ db.sqlite3
 db.sqlite3-journal
 media
 static/
+staticfiles/
 
 # Backup files
 *.bak
@@ -179,3 +180,12 @@ celerybeat.pid
 deploy.log
 rollback.log
 deploy_history.txt
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Database
+*.db
+*.sqlite3

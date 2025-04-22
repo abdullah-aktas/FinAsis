@@ -1,17 +1,28 @@
 from django.urls import path
-from . import views
+from .views.generic import (
+    LoginView, TwoFactorView, register_view, logout_view,
+    profile_view, settings_view, CustomPasswordResetView,
+    CustomPasswordResetDoneView, CustomPasswordResetConfirmView,
+    CustomPasswordResetCompleteView, CustomPasswordChangeView
+)
 
 app_name = 'accounts'
 
 urlpatterns = [
-    path('login/', views.login_view, name='login'),
-    path('register/', views.register_view, name='register'),
-    path('logout/', views.logout_view, name='logout'),
-    path('profile/', views.profile_view, name='profile'),
-    path('settings/', views.settings_view, name='settings'),
-    path('password-reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
-    path('password-reset/done/', views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('password-reset/confirm/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('password-reset/complete/', views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('password-change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
+    # Kimlik doğrulama
+    path('login/', LoginView.as_view(), name='login'),
+    path('two-factor/', TwoFactorView.as_view(), name='two_factor'),
+    path('register/', register_view, name='register'),
+    path('logout/', logout_view, name='logout'),
+    
+    # Profil ve ayarlar
+    path('profile/', profile_view, name='profile'),
+    path('settings/', settings_view, name='settings'),
+    
+    # Şifre işlemleri
+    path('password/reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password/reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password/reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password/reset/complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('password/change/', CustomPasswordChangeView.as_view(), name='password_change'),
 ] 

@@ -1,15 +1,15 @@
 # Temel Django paketleri
-Django==5.0.2
-djangorestframework==3.14.0
-djangorestframework-simplejwt==5.3.1
-django-cors-headers==4.3.1
-django-filter==23.5
-django-crispy-forms==2.1
+Django>=4.2
+djangorestframework>=3.14.0
+djangorestframework-simplejwt>=5.3.1
+django-cors-headers>=4.3.1
+django-filter>=23.5
+django-crispy-forms>=2.0
 crispy-bootstrap5==2023.10
-django-environ==0.11.2
+django-environ>=0.11.2
 
 # Veritabanı ve Önbellek
-redis>=4.5.0
+redis>=5.0.1
 django-redis==5.3.0
 psycopg2-binary==2.9.9
 django-db-connection-pool==1.2.3
@@ -20,22 +20,22 @@ pytest-django==4.7.0
 pytest-cov==4.1.0
 black==23.7.0
 flake8==6.1.0
-django-debug-toolbar==4.3.0
-django-extensions==4.1.0
+django-debug-toolbar>=4.2.0
+django-extensions>=3.2.3
 
 # Dağıtım ve Statik Dosyalar
-gunicorn==21.2.0
-whitenoise==6.6.0
-django-storages==1.14.2
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+django-storages>=1.14.2
 boto3==1.29.3
 
 # Görev Yönetimi
-celery==5.3.6
+celery>=5.3.6
 django-celery-beat==2.5.0
 django-celery-results==2.5.1
 
 # Kimlik Doğrulama ve API
-django-allauth==0.61.1
+django-allauth>=0.57.0
 django-rest-swagger==2.2.0
 dj-rest-auth==4.0.1
 
@@ -61,7 +61,7 @@ coverage==7.3.2
 factory-boy==3.3.0
 
 # Diğer Paketler
-python-dotenv==1.0.0
+python-dotenv>=1.0.0
 openai==1.6.1
 web3==6.15.1
 requests==2.31.0
@@ -83,7 +83,7 @@ django-widget-tweaks==1.4.12
 isort==5.12.0
 
 # Miscellaneous
-Pillow==10.2.0
+Pillow>=10.0.0
 python-dateutil==2.8.2
 
 # API Documentation
@@ -150,3 +150,7 @@ django-health-check==3.17.0
 
 # Security Vulnerability Scanning
 bandit
+
+# Added from the code block
+pyotp>=2.9.0
+django-cacheops>=7.0

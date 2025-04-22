@@ -1,34 +1,47 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from virtual_company.models import VirtualCompany
+from django.core.cache import cache
+import logging
 
 User = get_user_model()
 
 @receiver(post_save, sender=User)
-def create_virtual_company(sender, instance, created, **kwargs):
-    """
-    Kullanıcı oluşturulduğunda, eğer öğrenci veya öğretmen rolündeyse
-    otomatik olarak sanal şirket oluşturur.
-    """
-    if created and instance.role in ['student', 'teacher']:
-        # Kullanıcıyı sanal şirket kullanıcısı olarak işaretle
-        instance.is_virtual_company_user = True
-        instance.save(update_fields=['is_virtual_company_user'])
+def handle_user_post_save(sender, instance, created, **kwargs):
+    """Kullanıcı kaydedildikten sonra yapılacak işlemler"""
+    if created:
+        # Yeni kullanıcı için varsayılan ayarları yapılandır
+        logger.info(f"Yeni kullanıcı oluşturuldu: {instance.username}")
         
-        # Sanal şirket oluştur
-        VirtualCompany.objects.create(
-            name=f"{instance.get_full_name() or instance.username} Ltd. Şti.",
-            description="Sanal şirket açıklaması",
-            industry="Teknoloji",
-            founded_date="2024-01-01",
-            email=instance.email,
-            phone="5555555555",
-            address="Sanal adres",
-            tax_number="1234567890",
-            tax_office="Sanal Vergi Dairesi",
-            created_by=instance
-        )
+        # İki faktörlü kimlik doğrulama için secret oluştur
+        if instance.two_factor_enabled:
+            instance.generate_two_factor_secret()
+    
+    # Cache'i temizle
+    cache_key = f'login_attempts_{instance.username}'
+    cache.delete(cache_key)
+
+@receiver(pre_save, sender=User)
+def handle_user_pre_save(sender, instance, **kwargs):
+    """Kullanıcı kaydedilmeden önce yapılacak işlemler"""
+    if instance.pk:  # Güncelleme işlemi
+        try:
+            old_instance = User.objects.get(pk=instance.pk)
+            
+            # Şifre değişikliği kontrolü
+            if instance.password != old_instance.password:
+                instance.last_password_change = timezone.now()
+                instance.password_expiry_date = timezone.now() + timezone.timedelta(days=90)
+                logger.info(f"Kullanıcı şifresi değiştirildi: {instance.username}")
+            
+            # Başarısız giriş denemeleri kontrolü
+            if instance.failed_login_attempts >= 5:
+                instance.account_locked_until = timezone.now() + timezone.timedelta(minutes=15)
+                logger.warning(f"Kullanıcı hesabı kilitlendi: {instance.username}")
+            
+        except User.DoesNotExist:
+            pass
 
 """
 Kullanıcı kimlik doğrulama ve hesap işlemleri için sinyaller.
