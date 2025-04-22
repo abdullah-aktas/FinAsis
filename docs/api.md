@@ -1,424 +1,228 @@
 # FinAsis API Dokümantasyonu
 
-Bu dokümantasyon, FinAsis uygulamasının API'lerini detaylı olarak açıklamaktadır.
+*Son Güncelleme: 22.04.2025*
 
-## Kimlik Doğrulama
+## 📋 Genel Bakış
 
-Tüm API istekleri JWT (JSON Web Token) tabanlı kimlik doğrulama gerektirir.
+FinAsis API, tüm modüllerin işlevselliğine programatik olarak erişim sağlayan RESTful bir API'dir.
 
-### Token Alma
+## 🔑 Kimlik Doğrulama
 
+### API Anahtarı
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" https://api.finasis.com/v1/endpoint
 ```
-POST /api/token/
+
+### OAuth 2.0
+```bash
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" https://api.finasis.com/v1/endpoint
 ```
 
-**İstek**
+## 📊 Endpoint'ler
 
-```json
+### Fatura Yönetimi
+
+#### Fatura Oluşturma
+```http
+POST /v1/invoices
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
 {
-    "username": "kullanici",
-    "password": "sifre123"
-}
-```
-
-**Yanıt**
-
-```json
-{
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-### Token Yenileme
-
-```
-POST /api/token/refresh/
-```
-
-**İstek**
-
-```json
-{
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-**Yanıt**
-
-```json
-{
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-## Fatura API'leri
-
-### Fatura Listesi 
-
-```
-GET /api/invoices/
-```
-
-**Yetki** 
-
-`invoice.view_invoice` yetkisi gerektirir.
-
-**Sorgu Parametreleri**
-
-- `start_date`: Başlangıç tarihi (YYYY-MM-DD formatında)
-- `end_date`: Bitiş tarihi (YYYY-MM-DD formatında)
-- `status`: Fatura durumu (DRAFT, APPROVED, PAID, CANCELED)
-- `customer`: Müşteri ID'si
-
-**Yanıt**
-
-```json
-{
-    "count": 2,
-    "next": null,
-    "previous": null,
-    "results": [
+    "customer_id": 1,
+    "items": [
         {
-            "id": 1,
-            "invoice_number": "INV-2023-001",
-            "issue_date": "2023-05-15",
-            "due_date": "2023-06-15",
-            "total_amount": "1180.00",
-            "status": "APPROVED",
-            "customer": {
-                "id": 1,
-                "name": "Test Müşteri"
-            },
-            "created_at": "2023-05-15T10:30:00Z",
-            "updated_at": "2023-05-15T10:30:00Z"
+            "name": "Ürün 1",
+            "quantity": 2,
+            "price": 100
+        }
+    ]
+}
+```
+
+#### Fatura Listeleme
+```http
+GET /v1/invoices?status=pending&start_date=2025-01-01&end_date=2025-12-31
+Authorization: Bearer YOUR_API_KEY
+```
+
+### CRM
+
+#### Müşteri Oluşturma
+```http
+POST /v1/customers
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+    "name": "Ahmet Yılmaz",
+    "email": "ahmet@example.com",
+    "phone": "+905551234567"
+}
+```
+
+#### Müşteri Listeleme
+```http
+GET /v1/customers?segment=premium&status=active
+Authorization: Bearer YOUR_API_KEY
+```
+
+### Muhasebe
+
+#### İşlem Kaydı
+```http
+POST /v1/transactions
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+    "date": "2025-04-22",
+    "description": "Satış geliri",
+    "entries": [
+        {
+            "account": "100",
+            "debit": 1000
         },
         {
-            "id": 2,
-            "invoice_number": "INV-2023-002",
-            "issue_date": "2023-05-16",
-            "due_date": "2023-06-16",
-            "total_amount": "2360.00",
-            "status": "DRAFT",
-            "customer": {
-                "id": 1,
-                "name": "Test Müşteri"
-            },
-            "created_at": "2023-05-16T09:45:00Z",
-            "updated_at": "2023-05-16T09:45:00Z"
+            "account": "400",
+            "credit": 1000
         }
     ]
 }
 ```
 
-### Fatura Detayı
+### Stok Yönetimi
 
-```
-GET /api/invoices/{id}/
-```
+#### Ürün Oluşturma
+```http
+POST /v1/products
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
 
-**Yetki** 
-
-`invoice.view_invoice` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
 {
-    "id": 1,
-    "invoice_number": "INV-2023-001",
-    "issue_date": "2023-05-15",
-    "due_date": "2023-06-15",
-    "total_amount": "1180.00",
-    "status": "APPROVED",
-    "customer": {
-        "id": 1,
-        "name": "Test Müşteri",
-        "tax_id": "1234567890",
-        "address": "Test Adres"
-    },
+    "name": "Laptop",
+    "code": "LT001",
+    "category": "Elektronik",
+    "min_stock": 5
+}
+```
+
+#### Stok Hareketi
+```http
+POST /v1/stock-movements
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+    "product_id": 1,
+    "type": "in",
+    "quantity": 10,
+    "warehouse": "Merkez Depo"
+}
+```
+
+### E-Belge Sistemi
+
+#### E-Fatura Oluşturma
+```http
+POST /v1/e-invoices
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+    "customer_id": 1,
     "items": [
         {
-            "id": 1,
-            "description": "Test Ürün",
+            "name": "Ürün 1",
             "quantity": 2,
-            "unit_price": "500.00",
-            "tax_rate": "18.00",
-            "line_total": "1000.00",
-            "tax_amount": "180.00"
-        }
-    ],
-    "created_at": "2023-05-15T10:30:00Z",
-    "updated_at": "2023-05-15T10:30:00Z"
-}
-```
-
-### Fatura Oluşturma
-
-```
-POST /api/invoices/
-```
-
-**Yetki** 
-
-`invoice.add_invoice` yetkisi gerektirir.
-
-**İstek**
-
-```json
-{
-    "invoice_number": "INV-2023-003",
-    "issue_date": "2023-05-17",
-    "due_date": "2023-06-17",
-    "customer": 1,
-    "status": "DRAFT",
-    "items": [
-        {
-            "description": "Test Ürün 1",
-            "quantity": 2,
-            "unit_price": "1000.00",
-            "tax_rate": "18.00"
+            "price": 100
         }
     ]
 }
 ```
 
-**Yanıt**
+### Analitik
 
-```json
+#### Dashboard Oluşturma
+```http
+POST /v1/dashboards
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
 {
-    "id": 3,
-    "invoice_number": "INV-2023-003",
-    "issue_date": "2023-05-17",
-    "due_date": "2023-06-17",
-    "total_amount": "2360.00",
-    "status": "DRAFT",
-    "customer": {
-        "id": 1,
-        "name": "Test Müşteri"
-    },
-    "items": [
+    "name": "Finansal Özet",
+    "widgets": [
         {
-            "id": 3,
-            "description": "Test Ürün 1",
-            "quantity": 2,
-            "unit_price": "1000.00",
-            "tax_rate": "18.00",
-            "line_total": "2000.00",
-            "tax_amount": "360.00"
-        }
-    ],
-    "created_at": "2023-05-17T11:15:00Z",
-    "updated_at": "2023-05-17T11:15:00Z"
-}
-```
-
-### Fatura Güncelleme
-
-```
-PATCH /api/invoices/{id}/
-```
-
-**Yetki** 
-
-`invoice.change_invoice` yetkisi gerektirir.
-
-**İstek**
-
-```json
-{
-    "status": "APPROVED"
-}
-```
-
-**Yanıt**
-
-```json
-{
-    "id": 3,
-    "invoice_number": "INV-2023-003",
-    "issue_date": "2023-05-17",
-    "due_date": "2023-06-17",
-    "total_amount": "2360.00",
-    "status": "APPROVED",
-    "customer": {
-        "id": 1,
-        "name": "Test Müşteri"
-    },
-    "created_at": "2023-05-17T11:15:00Z",
-    "updated_at": "2023-05-17T11:20:00Z"
-}
-```
-
-## Banka Entegrasyonu API'leri
-
-### Banka Hesapları Listesi
-
-```
-GET /api/bank-accounts/
-```
-
-**Yetki** 
-
-`bank_integration.view_bankaccount` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
-{
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": 1,
-            "name": "Test Hesabı",
-            "account_number": "TR123456789012345678901234",
-            "currency": "TRY",
-            "created_at": "2023-05-01T09:00:00Z",
-            "updated_at": "2023-05-01T09:00:00Z"
+            "type": "line_chart",
+            "title": "Aylık Gelir",
+            "data_source": "revenue_monthly"
         }
     ]
 }
 ```
 
-### Hesap Bakiyesi Sorgulama
-
-```
-GET /api/bank-accounts/{id}/balance/
-```
-
-**Yetki** 
-
-`bank_integration.view_bankaccount` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
-{
-    "balance": 5000,
-    "currency": "TRY",
-    "last_updated": "2023-05-17T12:30:00Z"
-}
-```
-
-### Para Transferi
-
-```
-POST /api/bank-transfer/
-```
-
-**Yetki** 
-
-`bank_integration.add_banktransaction` yetkisi gerektirir.
-
-**İstek**
-
-```json
-{
-    "from_account": 1,
-    "to_account": "TR987654321098765432109876",
-    "amount": "1000.00",
-    "description": "Test Transfer"
-}
-```
-
-**Yanıt**
-
-```json
-{
-    "status": "success",
-    "transaction_id": "12345",
-    "from_account": 1,
-    "to_account": "TR987654321098765432109876",
-    "amount": "1000.00",
-    "description": "Test Transfer",
-    "timestamp": "2023-05-17T12:45:00Z"
-}
-```
-
-## E-Fatura API'leri
-
-### E-Fatura Listesi
-
-```
-GET /api/einvoices/
-```
-
-**Yetki** 
-
-`efatura.view_einvoice` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
-{
-    "count": 1,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": 1,
-            "invoice_number": "INV-2023-001",
-            "issue_date": "2023-05-15",
-            "due_date": "2023-05-15",
-            "total_amount": "1000.00",
-            "tax_amount": "180.00",
-            "customer_name": "Test Müşteri",
-            "customer_tax_id": "1234567890",
-            "document_id": "12345678-1234-1234-1234-123456789012",
-            "status": "delivered",
-            "created_at": "2023-05-15T10:30:00Z",
-            "updated_at": "2023-05-15T10:30:00Z"
-        }
-    ]
-}
-```
-
-### E-Fatura Gönderme
-
-```
-POST /api/einvoices/{id}/send/
-```
-
-**Yetki** 
-
-`efatura.change_einvoice` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
-{
-    "status": "success",
-    "document_id": "12345678-1234-1234-1234-123456789012"
-}
-```
-
-### E-Fatura Durumu Sorgulama
-
-```
-GET /api/einvoices/{id}/status/
-```
-
-**Yetki** 
-
-`efatura.view_einvoice` yetkisi gerektirir.
-
-**Yanıt**
-
-```json
-{
-    "status": "delivered",
-    "timestamp": "2023-06-15T14:30:00Z"
-}
-```
-
-## Hata Kodları
+## 🔍 Hata Kodları
 
 | Kod | Açıklama |
 |-----|----------|
-| 400 | Bad Request - İstek parametreleri hatalı |
-| 401 | Unauthorized - Kimlik doğrulama başarısız |
-| 403 | Forbidden - Yetkisiz erişim |
-| 404 | Not Found - Kaynak bulunamadı |
-| 500 | Internal Server Error - Sunucu hatası | 
+| 400 | Geçersiz istek |
+| 401 | Yetkisiz erişim |
+| 403 | Erişim engellendi |
+| 404 | Kaynak bulunamadı |
+| 429 | Çok fazla istek |
+| 500 | Sunucu hatası |
+
+## 📈 Rate Limiting
+
+- Standart plan: 100 istek/dakika
+- Pro plan: 1000 istek/dakika
+- Enterprise plan: 10000 istek/dakika
+
+## 🔒 Güvenlik
+
+- Tüm istekler HTTPS üzerinden yapılmalıdır
+- API anahtarları güvenli bir şekilde saklanmalıdır
+- Rate limiting kurallarına uyulmalıdır
+- IP kısıtlamaları dikkate alınmalıdır
+
+## 📚 Örnek Kodlar
+
+### Python
+```python
+import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://api.finasis.com/v1/invoices",
+    headers=headers,
+    json={
+        "customer_id": 1,
+        "items": [{"name": "Ürün 1", "quantity": 2, "price": 100}]
+    }
+)
+```
+
+### JavaScript
+```javascript
+const response = await fetch('https://api.finasis.com/v1/invoices', {
+    method: 'POST',
+    headers: {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        customer_id: 1,
+        items: [{name: 'Ürün 1', quantity: 2, price: 100}]
+    })
+});
+```
+
+## 📞 Destek
+
+- API Desteği: api-support@finasis.com
+- Dokümantasyon: docs.finasis.com/api
+- GitHub: github.com/finasis/api-examples 

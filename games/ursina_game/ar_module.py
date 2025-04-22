@@ -12,6 +12,7 @@ from ursina import *
 import threading
 import time
 import os
+import mediapipe as mp
 
 class ARManager:
     """
@@ -57,6 +58,16 @@ class ARManager:
             [0.0, 0.0, 1.0]
         ])
         self.dist_coeffs = np.zeros((4, 1))  # Varsayılan distorsiyon katsayıları
+        
+        self.mp_hands = mp.solutions.hands
+        self.hands = self.mp_hands.Hands(
+            max_num_hands=2,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.7
+        )
+        
+        self.ar_nesneleri = []
+        self.ar_etkilesimleri = []
     
     def start(self):
         """AR modülünü başlat"""
@@ -105,6 +116,8 @@ class ARManager:
         if self.camera_entity:
             destroy(self.camera_entity)
             self.camera_entity = None
+        
+        self.kapat()
     
     def create_camera_background(self, width, height):
         """
@@ -311,6 +324,69 @@ class ARManager:
         except Exception as e:
             print(f"Kalibrasyon yükleme hatası: {str(e)}")
             return False
+    
+    def kamera_baslat(self):
+        self.cap = cv2.VideoCapture(0)
+        
+    def ar_nesne_ekle(self, nesne_tipi, konum, olcek):
+        ar_nesne = {
+            'tip': nesne_tipi,
+            'konum': konum,
+            'olcek': olcek,
+            'durum': 'aktif'
+        }
+        self.ar_nesneleri.append(ar_nesne)
+        
+    def el_takibi(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            return None
+            
+        frame = cv2.flip(frame, 1)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = self.hands.process(rgb_frame)
+        
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                # El hareketlerini analiz et
+                parmak_konumlari = []
+                for landmark in hand_landmarks.landmark:
+                    x, y = int(landmark.x * frame.shape[1]), int(landmark.y * frame.shape[0])
+                    parmak_konumlari.append((x, y))
+                    
+                # AR nesneleriyle etkileşim kontrolü
+                self.etkilesim_kontrol(parmak_konumlari)
+                
+        return frame
+        
+    def etkilesim_kontrol(self, parmak_konumlari):
+        for nesne in self.ar_nesneleri:
+            if nesne['durum'] == 'aktif':
+                # Nesne ile parmak konumlarının çakışma kontrolü
+                for parmak in parmak_konumlari:
+                    if self.cakisma_kontrol(parmak, nesne['konum']):
+                        self.ar_etkilesimleri.append({
+                            'nesne': nesne,
+                            'etkilesim_tipi': 'dokunma',
+                            'zaman': time.time()
+                        })
+                        
+    def cakisma_kontrol(self, parmak_konum, nesne_konum):
+        # Basit çakışma kontrolü
+        mesafe = np.sqrt((parmak_konum[0] - nesne_konum[0])**2 + 
+                        (parmak_konum[1] - nesne_konum[1])**2)
+        return mesafe < 50  # 50 piksel mesafe eşiği
+        
+    def ar_nesne_guncelle(self):
+        # AR nesnelerinin durumlarını güncelle
+        for nesne in self.ar_nesneleri:
+            if nesne['durum'] == 'aktif':
+                # Nesne animasyonları ve güncellemeleri
+                pass
+                
+    def kapat(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
 
 # Kullanım örneği
 if __name__ == '__main__':

@@ -14,6 +14,12 @@ from tkinter import ttk, messagebox
 import logging
 import traceback
 from pathlib import Path
+import json
+import requests
+from packaging import version
+import sqlite3
+import shutil
+from datetime import datetime
 
 # Loglama ayarları
 logging.basicConfig(
@@ -110,11 +116,42 @@ class FinasisDesktopApp:
         self.server_process = None
         self.server_url = "http://127.0.0.1:8000"
         self.is_server_running = False
+        self.current_version = "1.0.0"
+        self.latest_version = None
+        self.is_offline_mode = False
+        self.last_sync_time = None
+        self.local_db_path = os.path.join(os.path.expanduser("~"), ".finasis", "local.db")
+        
+        # Tema renkleri
+        self.colors = {
+            'primary': '#2c3e50',
+            'secondary': '#34495e',
+            'accent': '#3498db',
+            'success': '#2ecc71',
+            'warning': '#f1c40f',
+            'danger': '#e74c3c',
+            'light': '#ecf0f1',
+            'dark': '#2c3e50',
+            'background': '#f5f6fa'
+        }
+        
+        # Loglama ayarları
+        self.setup_logging()
+        
+        # Yerel veritabanı ayarları
+        self.setup_local_database()
         
         # Window setup
         self.root.title("FinAsis - Finansal Yönetim Sistemi")
-        self.root.geometry("800x600")
+        self.root.geometry("1024x768")
         self.root.minsize(800, 600)
+        
+        # Tema ayarları
+        self.style = ttk.Style()
+        self.style.configure('TFrame', background=self.colors['background'])
+        self.style.configure('TLabel', background=self.colors['background'], foreground=self.colors['dark'])
+        self.style.configure('TButton', background=self.colors['primary'], foreground='white')
+        self.style.configure('TProgressbar', background=self.colors['accent'])
         
         try:
             # Django ortamını ayarla
@@ -126,6 +163,7 @@ class FinasisDesktopApp:
             
             self.setup_ui()
             self.check_server()
+            self.check_for_updates()
             
             # Pencere kapatma olayını bağla
             self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -147,22 +185,171 @@ class FinasisDesktopApp:
             except:
                 sys.exit(1)
 
+    def setup_logging(self):
+        """Gelişmiş loglama ayarları"""
+        log_dir = os.path.join(os.path.expanduser("~"), ".finasis", "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        
+        log_file = os.path.join(log_dir, f"finasis_{datetime.now().strftime('%Y%m%d')}.log")
+        
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(log_file),
+                logging.StreamHandler()
+            ]
+        )
+        
+        # Hata yakalama
+        sys.excepthook = self.handle_exception
+
+    def handle_exception(self, exc_type, exc_value, exc_traceback):
+        """Genel hata yakalama"""
+        logging.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+        messagebox.showerror("Hata", f"Beklenmeyen bir hata oluştu: {str(exc_value)}")
+
+    def setup_local_database(self):
+        """Yerel veritabanı kurulumu"""
+        try:
+            os.makedirs(os.path.dirname(self.local_db_path), exist_ok=True)
+            
+            conn = sqlite3.connect(self.local_db_path)
+            cursor = conn.cursor()
+            
+            # Veritabanı tablolarını oluştur
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS sync_status (
+                    id INTEGER PRIMARY KEY,
+                    last_sync_time TEXT,
+                    sync_status TEXT,
+                    error_message TEXT
+                )
+            ''')
+            
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS offline_data (
+                    id INTEGER PRIMARY KEY,
+                    table_name TEXT,
+                    data TEXT,
+                    sync_status TEXT,
+                    created_at TEXT
+                )
+            ''')
+            
+            conn.commit()
+            conn.close()
+            
+            logging.info("Yerel veritabanı başarıyla oluşturuldu")
+        except Exception as e:
+            logging.error(f"Yerel veritabanı oluşturma hatası: {str(e)}")
+            messagebox.showerror("Hata", "Yerel veritabanı oluşturulamadı")
+
+    def check_internet_connection(self):
+        """İnternet bağlantısını kontrol et"""
+        try:
+            requests.get("https://www.google.com", timeout=5)
+            return True
+        except:
+            return False
+
+    def start_offline_mode(self):
+        """Offline modu başlat"""
+        if not self.is_offline_mode:
+            self.is_offline_mode = True
+            self.status_label.config(text="Offline mod aktif")
+            logging.info("Offline mod başlatıldı")
+            
+            # Offline modda çalışacak işlemleri başlat
+            threading.Thread(target=self.sync_local_data, daemon=True).start()
+
+    def sync_local_data(self):
+        """Yerel verileri senkronize et"""
+        try:
+            while self.is_offline_mode:
+                if self.check_internet_connection():
+                    # İnternet bağlantısı varsa senkronizasyon yap
+                    self.sync_with_server()
+                time.sleep(300)  # 5 dakikada bir kontrol et
+        except Exception as e:
+            logging.error(f"Senkronizasyon hatası: {str(e)}")
+
+    def sync_with_server(self):
+        """Sunucu ile senkronizasyon"""
+        try:
+            conn = sqlite3.connect(self.local_db_path)
+            cursor = conn.cursor()
+            
+            # Senkronize edilmemiş verileri al
+            cursor.execute("SELECT * FROM offline_data WHERE sync_status = 'pending'")
+            pending_data = cursor.fetchall()
+            
+            for data in pending_data:
+                try:
+                    # Veriyi sunucuya gönder
+                    response = requests.post(
+                        f"{self.server_url}/api/sync",
+                        json=json.loads(data[2])
+                    )
+                    
+                    if response.status_code == 200:
+                        # Başarılı senkronizasyon
+                        cursor.execute(
+                            "UPDATE offline_data SET sync_status = 'synced' WHERE id = ?",
+                            (data[0],)
+                        )
+                    else:
+                        # Başarısız senkronizasyon
+                        cursor.execute(
+                            "UPDATE offline_data SET sync_status = 'failed' WHERE id = ?",
+                            (data[0],)
+                        )
+                except Exception as e:
+                    logging.error(f"Veri senkronizasyon hatası: {str(e)}")
+            
+            conn.commit()
+            conn.close()
+            
+            self.last_sync_time = datetime.now()
+            logging.info("Senkronizasyon tamamlandı")
+        except Exception as e:
+            logging.error(f"Senkronizasyon hatası: {str(e)}")
+
     def setup_ui(self):
-        # Create main frame
+        # Ana frame
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Logo and title
+        # Üst menü çubuğu
+        menu_bar = tk.Menu(self.root)
+        self.root.config(menu=menu_bar)
+        
+        # Dosya menüsü
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Dosya", menu=file_menu)
+        file_menu.add_command(label="Ayarlar", command=self.show_settings)
+        file_menu.add_separator()
+        file_menu.add_command(label="Çıkış", command=self.on_closing)
+        
+        # Yardım menüsü
+        help_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Yardım", menu=help_menu)
+        help_menu.add_command(label="Kullanıcı Kılavuzu", command=self.show_user_guide)
+        help_menu.add_command(label="Güncellemeleri Kontrol Et", command=self.check_for_updates)
+        help_menu.add_separator()
+        help_menu.add_command(label="Hakkında", command=self.show_about)
+        
+        # Logo ve başlık
         logo_frame = ttk.Frame(main_frame)
         logo_frame.pack(pady=20)
         
-        title_label = ttk.Label(logo_frame, text="FinAsis", font=("Arial", 24, "bold"))
+        title_label = ttk.Label(logo_frame, text="FinAsis", font=("Arial", 32, "bold"), foreground=self.colors['primary'])
         title_label.pack()
         
-        subtitle_label = ttk.Label(logo_frame, text="Finansal Yönetim Sistemi", font=("Arial", 14))
+        subtitle_label = ttk.Label(logo_frame, text="Finansal Yönetim Sistemi", font=("Arial", 16), foreground=self.colors['secondary'])
         subtitle_label.pack()
         
-        # Status frame
+        # Durum çerçevesi
         status_frame = ttk.LabelFrame(main_frame, text="Sunucu Durumu", padding="10")
         status_frame.pack(fill=tk.X, pady=20)
         
@@ -172,32 +359,55 @@ class FinasisDesktopApp:
         self.progress = ttk.Progressbar(status_frame, orient=tk.HORIZONTAL, length=300, mode='indeterminate')
         self.progress.pack(pady=10)
         
-        # Buttons frame
+        # Butonlar çerçevesi
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.pack(pady=20)
         
-        # Start server button
-        self.start_button = ttk.Button(buttons_frame, text="Sunucuyu Başlat", command=self.start_server)
+        # Sunucu başlat butonu
+        self.start_button = ttk.Button(buttons_frame, text="Sunucuyu Başlat", command=self.start_server, style='Accent.TButton')
         self.start_button.grid(row=0, column=0, padx=10, pady=10)
         
-        # Stop server button
-        self.stop_button = ttk.Button(buttons_frame, text="Sunucuyu Durdur", command=self.stop_server, state=tk.DISABLED)
+        # Sunucu durdur butonu
+        self.stop_button = ttk.Button(buttons_frame, text="Sunucuyu Durdur", command=self.stop_server, state=tk.DISABLED, style='Danger.TButton')
         self.stop_button.grid(row=0, column=1, padx=10, pady=10)
         
-        # Open browser button
-        self.browser_button = ttk.Button(buttons_frame, text="Tarayıcıda Aç", command=self.open_browser, state=tk.DISABLED)
+        # Tarayıcıda aç butonu
+        self.browser_button = ttk.Button(buttons_frame, text="Tarayıcıda Aç", command=self.open_browser, state=tk.DISABLED, style='Success.TButton')
         self.browser_button.grid(row=0, column=2, padx=10, pady=10)
         
-        # Footer
+        # Offline mod butonu
+        self.offline_button = ttk.Button(
+            buttons_frame,
+            text="Offline Mod",
+            command=self.toggle_offline_mode,
+            style='Warning.TButton'
+        )
+        self.offline_button.grid(row=0, column=3, padx=10, pady=10)
+        
+        # Sistem bilgileri
+        info_frame = ttk.LabelFrame(main_frame, text="Sistem Bilgileri", padding="10")
+        info_frame.pack(fill=tk.X, pady=20)
+        
+        self.version_label = ttk.Label(info_frame, text=f"Versiyon: {self.current_version}")
+        self.version_label.pack(anchor=tk.W)
+        
+        self.update_label = ttk.Label(info_frame, text="Güncelleme durumu kontrol ediliyor...")
+        self.update_label.pack(anchor=tk.W)
+        
+        # Senkronizasyon durumu
+        sync_frame = ttk.LabelFrame(main_frame, text="Senkronizasyon Durumu", padding="10")
+        sync_frame.pack(fill=tk.X, pady=20)
+        
+        self.sync_label = ttk.Label(sync_frame, text="Senkronizasyon durumu kontrol ediliyor...")
+        self.sync_label.pack(pady=10)
+        
+        # Alt bilgi
         footer_frame = ttk.Frame(main_frame)
         footer_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=20)
         
-        version_label = ttk.Label(footer_frame, text="Versiyon 1.0.0")
-        version_label.pack(side=tk.LEFT)
-        
         copyright_label = ttk.Label(footer_frame, text="© 2023-2025 FinAsis")
         copyright_label.pack(side=tk.RIGHT)
-        
+
     def check_server(self):
         """Check if Django server is already running"""
         self.progress.start()
@@ -420,6 +630,88 @@ class FinasisDesktopApp:
             self.stop_server()
         
         self.root.destroy()
+
+    def check_for_updates(self):
+        """Güncellemeleri kontrol et"""
+        try:
+            self.update_label.config(text="Güncellemeler kontrol ediliyor...")
+            response = requests.get("https://api.finasis.com/version")
+            if response.status_code == 200:
+                data = response.json()
+                self.latest_version = data.get('version')
+                if version.parse(self.latest_version) > version.parse(self.current_version):
+                    self.update_label.config(text=f"Yeni güncelleme mevcut: {self.latest_version}")
+                    if messagebox.askyesno("Güncelleme", "Yeni bir güncelleme mevcut. Şimdi güncellemek ister misiniz?"):
+                        self.download_update()
+                else:
+                    self.update_label.config(text="Uygulama güncel")
+            else:
+                self.update_label.config(text="Güncelleme kontrolü başarısız")
+        except Exception as e:
+            logging.error(f"Güncelleme kontrolü hatası: {str(e)}")
+            self.update_label.config(text="Güncelleme kontrolü başarısız")
+
+    def download_update(self):
+        """Güncellemeyi indir ve kur"""
+        try:
+            self.update_label.config(text="Güncelleme indiriliyor...")
+            
+            # Güncelleme dosyasını indir
+            response = requests.get(f"https://api.finasis.com/download/{self.latest_version}")
+            if response.status_code == 200:
+                # Güncelleme dosyasını kaydet
+                update_file = os.path.join(os.path.expanduser("~"), ".finasis", "update.exe")
+                with open(update_file, "wb") as f:
+                    f.write(response.content)
+                
+                # Güncelleme işlemini başlat
+                if platform.system() == "Windows":
+                    subprocess.Popen([update_file, "/SILENT"])
+                else:
+                    subprocess.Popen(["chmod", "+x", update_file])
+                    subprocess.Popen([update_file])
+                
+                messagebox.showinfo("Güncelleme", "Güncelleme başarıyla tamamlandı. Uygulama yeniden başlatılacak.")
+                sys.exit(0)
+            else:
+                raise Exception("Güncelleme dosyası indirilemedi")
+        except Exception as e:
+            logging.error(f"Güncelleme hatası: {str(e)}")
+            messagebox.showerror("Hata", "Güncelleme sırasında bir hata oluştu.")
+
+    def show_settings(self):
+        """Ayarlar penceresini göster"""
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("Ayarlar")
+        settings_window.geometry("400x300")
+        
+        # Ayarlar içeriği burada oluşturulacak
+        ttk.Label(settings_window, text="Ayarlar").pack(pady=20)
+
+    def show_user_guide(self):
+        """Kullanıcı kılavuzunu göster"""
+        webbrowser.open("https://docs.finasis.com/user-guide")
+
+    def show_about(self):
+        """Hakkında penceresini göster"""
+        about_window = tk.Toplevel(self.root)
+        about_window.title("Hakkında")
+        about_window.geometry("300x200")
+        
+        ttk.Label(about_window, text="FinAsis", font=("Arial", 16, "bold")).pack(pady=20)
+        ttk.Label(about_window, text=f"Versiyon: {self.current_version}").pack()
+        ttk.Label(about_window, text="© 2023-2025 FinAsis").pack(pady=20)
+
+    def toggle_offline_mode(self):
+        """Offline modu aç/kapat"""
+        if not self.is_offline_mode:
+            self.start_offline_mode()
+            self.offline_button.config(text="Online Mod")
+        else:
+            self.is_offline_mode = False
+            self.offline_button.config(text="Offline Mod")
+            self.status_label.config(text="Online mod aktif")
+            logging.info("Online moda geçildi")
 
 def set_app_id():
     """Set application ID for Windows taskbar"""

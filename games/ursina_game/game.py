@@ -5,6 +5,13 @@ from datetime import datetime, timedelta
 import json
 from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application
 from ursina.prefabs.first_person_controller import FirstPersonController
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+import time
+import platform
+from typing import Dict, List, Optional
+import threading
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -260,29 +267,296 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-def run_game():
+class FinansalDunya(Entity):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yöneticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolü
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yöneticisini başlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # Dünya oluşturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iş yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # İnitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayıt
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+        
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye göstergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan göstergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye göstergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # İşlem butonları
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # Menü butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seçimi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seçimini değiştir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'ı güncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """Menüyü aç/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # Menü panelini göster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # Menü butonları
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Yükle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Çıkış',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # Menü panelini kaldır
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolü
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun güncellemeleri
+        if held_keys['left mouse']:
+            self.alis_yap()
+            
+        if held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR güncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay güncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay süresi doldu, yeni olay oluştur
+                olay['tip'] = random.choice([
+                    'Borsa Yükselişi', 'Borsa Düşüşü',
+                    'Enflasyon Artışı', 'Enflasyon Düşüşü',
+                    'Faiz Artışı', 'Faiz Düşüşü',
+                    'Döviz Dalgalanması', 'Altın Fiyatı Değişimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
     """Oyunu başlat"""
-    # Ursina uygulamasını başlat
     app = Ursina()
-    
-    # Pencere ayarları
-    window.title = 'FinAsis - Finansal Eğitim Simülasyonu'
-    window.borderless = False
-    window.fullscreen = game_settings['fullscreen']
-    window.exit_button.visible = False
-    window.fps_counter.enabled = True
-    
-    # UI oluştur
-    create_ui()
-    
-    # Görev sistemini başlat
-    initialize_quest_system()
-    
-    # Eğitim modunu kontrol et
-    if game_settings['tutorial_enabled'] and not player['tutorial_progress']['basic_trading']:
-        start_tutorial()
-    
-    # Ana oyun döngüsünü başlat
+    dunya = FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():

@@ -1,0 +1,51 @@
+{
+    "game": {
+        "title": "Finansal Simülasyon",
+        "menu": {
+            "continue": "Devam Et",
+            "save": "Kaydet",
+            "load": "Yükle",
+            "settings": "Ayarlar",
+            "exit": "Çıkış"
+        },
+        "stats": {
+            "balance": "Bakiye",
+            "score": "Puan",
+            "level": "Seviye",
+            "experience": "Deneyim"
+        },
+        "transactions": {
+            "buy": "Alış",
+            "sell": "Satış",
+            "success": "İşlem başarılı!",
+            "fail": "İşlem başarısız!",
+            "insufficient_balance": "Yetersiz bakiye!"
+        },
+        "events": {
+            "stock_rise": "Borsa Yükselişi",
+            "stock_fall": "Borsa Düşüşü",
+            "inflation_rise": "Enflasyon Artışı",
+            "inflation_fall": "Enflasyon Düşüşü",
+            "interest_rise": "Faiz Artışı",
+            "interest_fall": "Faiz Düşüşü",
+            "currency_fluctuation": "Döviz Dalgalanması",
+            "gold_price_change": "Altın Fiyatı Değişimi"
+        },
+        "buildings": {
+            "bank": "Banka",
+            "stock_exchange": "Borsa",
+            "investment": "Yatırım",
+            "insurance": "Sigorta"
+        },
+        "workplaces": {
+            "technology": "Teknoloji",
+            "food": "Gıda",
+            "automotive": "Otomotiv",
+            "energy": "Enerji",
+            "health": "Sağlık",
+            "retail": "Perakende",
+            "construction": "İnşaat",
+            "logistics": "Lojistik"
+        }
+    }
+} 

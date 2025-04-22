@@ -6,6 +6,9 @@ import os
 import re
 import sys
 from pathlib import Path
+import tkinter as tk
+from tkinter import ttk, scrolledtext
+import threading
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -356,5 +359,64 @@ def analyze_mvt_structure():
     print("   c. *_form.html - Ekleme/düzenleme formu")
     print("   d. *_confirm_delete.html - Silme onayı")
 
+class MVTCheckerGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("FinAsis MVT Yapı Analiz Aracı")
+        self.root.geometry("800x600")
+        
+        # Ana frame
+        self.main_frame = ttk.Frame(root, padding="10")
+        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Kontrol butonu
+        self.check_button = ttk.Button(self.main_frame, text="Analiz Başlat", command=self.start_analysis)
+        self.check_button.grid(row=0, column=0, pady=10)
+        
+        # Sonuç alanı
+        self.result_text = scrolledtext.ScrolledText(self.main_frame, width=80, height=30)
+        self.result_text.grid(row=1, column=0, pady=10)
+        
+        # İlerleme çubuğu
+        self.progress = ttk.Progressbar(self.main_frame, length=400, mode='indeterminate')
+        self.progress.grid(row=2, column=0, pady=10)
+    
+    def start_analysis(self):
+        self.check_button.config(state='disabled')
+        self.progress.start()
+        self.result_text.delete(1.0, tk.END)
+        
+        # Analizi ayrı bir thread'de başlat
+        analysis_thread = threading.Thread(target=self.run_analysis)
+        analysis_thread.start()
+    
+    def run_analysis(self):
+        try:
+            # Analiz sonuçlarını yakala
+            import io
+            from contextlib import redirect_stdout
+            
+            output = io.StringIO()
+            with redirect_stdout(output):
+                analyze_mvt_structure()
+            
+            # Sonuçları göster
+            self.result_text.insert(tk.END, output.getvalue())
+            
+        except Exception as e:
+            self.result_text.insert(tk.END, f"Hata oluştu: {str(e)}")
+        
+        finally:
+            self.progress.stop()
+            self.check_button.config(state='normal')
+
+def main():
+    root = tk.Tk()
+    app = MVTCheckerGUI(root)
+    root.mainloop()
+
 if __name__ == "__main__":
-    analyze_mvt_structure() 
+    if len(sys.argv) > 1 and sys.argv[1] == "--gui":
+        main()
+    else:
+        analyze_mvt_structure() 
