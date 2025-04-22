@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Finansal Öneriler{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4">Finansal Öneriler</h2>
+            
+            <!-- Piyasa Analizi Kartı -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Piyasa Analizi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Kısa Vadeli Trend</h6>
+                            <p class="text-success">{{ market_analysis.trends.short_term }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Orta Vadeli Trend</h6>
+                            <p class="text-info">{{ market_analysis.trends.medium_term }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Uzun Vadeli Trend</h6>
+                            <p class="text-primary">{{ market_analysis.trends.long_term }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Öneriler Listesi -->
+            {% for recommendation in recommendations %}
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{{ recommendation.title }}</h5>
+                    <span class="badge bg-{{ recommendation.priority == 'high' ? 'danger' : 'warning' }}">
+                        {{ recommendation.priority }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in recommendation.recommendations %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>{{ item }}</span>
+                                {% if recommendation.action_required %}
+                                <button class="btn btn-sm btn-primary">Uygula</button>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sağ Sidebar -->
+        <div class="col-md-4">
+            <!-- Risk Göstergeleri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Risk Göstergeleri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Volatilite</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-{{ market_analysis.risk_indicators.volatility == 'high' ? 'danger' : 'warning' }}" 
+                                 style="width: {{ market_analysis.risk_indicators.volatility == 'high' ? '75' : '50' }}%">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h6>Piyasa Duyarlılığı</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-{{ market_analysis.risk_indicators.market_sentiment == 'positive' ? 'success' : 'danger' }}" 
+                                 style="width: {{ market_analysis.risk_indicators.market_sentiment == 'positive' ? '75' : '25' }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bildirimler -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bildirimler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.title }}</h6>
+                                <small>{{ notification.time }}</small>
+                            </div>
+                            <p class="mb-1">{{ notification.message }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

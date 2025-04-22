@@ -6,40 +6,13 @@
 {% block meta_description %}{% trans "Bir sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin veya yardım için bizimle iletişime geçin." %}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
-            <div class="error-page my-5">
-                <h1 class="display-1 text-danger">500</h1>
-                <h2 class="mb-4">{% trans "Sunucu Hatası" %}</h2>
-                <p class="lead mb-4">{% trans "Maalesef bir şeyler yanlış gitti. Sunucu isteğinizi işleyemedi." %}</p>
-                
-                <div class="alert alert-info" role="alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    {% trans "Bu hata kaydedildi ve teknik ekibimiz tarafından incelenecek. Lütfen daha sonra tekrar deneyin." %}
-                </div>
-                
-                <div class="error-actions mt-4">
-                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-house-door me-2"></i>{% trans "Ana Sayfaya Dön" %}
-                    </a>
-                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg ms-2">
-                        <i class="bi bi-arrow-left me-2"></i>{% trans "Geri Dön" %}
-                    </a>
-                </div>
-                
-                <div class="mt-5">
-                    <p class="text-muted">{% trans "Sorun devam ederse lütfen bizimle iletişime geçin:" %}</p>
-                    <div class="d-flex justify-content-center">
-                        <a href="mailto:support@finasis.com.tr" class="btn btn-outline-primary me-2">
-                            <i class="bi bi-envelope me-2"></i>{% trans "E-posta Gönder" %}
-                        </a>
-                        <a href="tel:+902121234567" class="btn btn-outline-primary">
-                            <i class="bi bi-telephone me-2"></i>{% trans "Bizi Arayın" %}
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <h1 class="display-1 text-danger">500</h1>
+            <h2 class="mb-4">{% trans "Sunucu Hatası" %}</h2>
+            <p class="lead">{% trans "Bir hata oluştu. Lütfen daha sonra tekrar deneyin." %}</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Ana Sayfaya Dön" %}</a>
         </div>
     </div>
 </div>

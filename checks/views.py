@@ -3,8 +3,23 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, F
 from django.utils import timezone
-from .models import Bank, Check, PromissoryNote, CheckTransaction, PromissoryNoteTransaction
+from .models import Bank, Check, PromissoryNote, CheckTransaction, PromissoryNoteTransaction, CheckCategory, CheckType, CheckRule, CheckResult, CheckSchedule
 from .forms import BankForm, CheckForm, PromissoryNoteForm, CheckTransactionForm, PromissoryNoteTransactionForm
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.cache import cache
+from .serializers import (
+    CheckCategorySerializer, CheckTypeSerializer, CheckRuleSerializer,
+    CheckResultSerializer, CheckScheduleSerializer
+)
+from .permissions import IsAdminOrReadOnly
+from .tasks import run_check
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def bank_list(request):
@@ -181,3 +196,141 @@ def dashboard(request):
         'recent_transactions': recent_transactions,
     }
     return render(request, 'check_management/dashboard.html', context)
+
+class CheckCategoryViewSet(viewsets.ModelViewSet):
+    queryset = CheckCategory.objects.all()
+    serializer_class = CheckCategorySerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name', 'priority', 'is_active']
+
+    @action(detail=True, methods=['get'])
+    def types(self, request, pk=None):
+        category = self.get_object()
+        types = category.checktype_set.all()
+        serializer = CheckTypeSerializer(types, many=True)
+        return Response(serializer.data)
+
+class CheckTypeViewSet(viewsets.ModelViewSet):
+    queryset = CheckType.objects.select_related('category').all()
+    serializer_class = CheckTypeSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name', 'code', 'category', 'severity', 'is_active']
+
+    @action(detail=True, methods=['get'])
+    def rules(self, request, pk=None):
+        check_type = self.get_object()
+        rules = check_type.checkrule_set.all()
+        serializer = CheckRuleSerializer(rules, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def results(self, request, pk=None):
+        check_type = self.get_object()
+        results = check_type.checkresult_set.all()
+        serializer = CheckResultSerializer(results, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def run(self, request, pk=None):
+        check_type = self.get_object()
+        try:
+            result = run_check.delay(check_type.id)
+            return Response({
+                'task_id': result.id,
+                'status': 'started',
+                'message': f'{check_type.name} kontrolü başlatıldı'
+            })
+        except Exception as e:
+            logger.error(f"Kontrol çalıştırma hatası: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class CheckRuleViewSet(viewsets.ModelViewSet):
+    queryset = CheckRule.objects.select_related('check_type').all()
+    serializer_class = CheckRuleSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name', 'check_type', 'is_active']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+class CheckResultViewSet(viewsets.ModelViewSet):
+    queryset = CheckResult.objects.select_related('check_type').all()
+    serializer_class = CheckResultSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['check_type', 'status', 'score']
+
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        cache_key = 'check_results_statistics'
+        data = cache.get(cache_key)
+        
+        if not data:
+            data = {
+                'total_checks': self.queryset.count(),
+                'passed_checks': self.queryset.filter(status='passed').count(),
+                'failed_checks': self.queryset.filter(status='failed').count(),
+                'warning_checks': self.queryset.filter(status='warning').count(),
+                'error_checks': self.queryset.filter(status='error').count(),
+                'average_score': self.queryset.aggregate(avg_score=Avg('score'))['avg_score'],
+                'max_score': self.queryset.aggregate(max_score=Max('score'))['max_score'],
+                'min_score': self.queryset.aggregate(min_score=Min('score'))['min_score'],
+                'check_type_stats': self.queryset.values('check_type__name').annotate(
+                    count=Count('id'),
+                    avg_score=Avg('score')
+                ),
+                'status_trend': self.queryset.values('created_at__date').annotate(
+                    passed=Count('id', filter=Q(status='passed')),
+                    failed=Count('id', filter=Q(status='failed')),
+                    warning=Count('id', filter=Q(status='warning')),
+                    error=Count('id', filter=Q(status='error'))
+                ).order_by('created_at__date')[:30]
+            }
+            cache.set(cache_key, data, 300)  # 5 dakika cache
+
+        return Response(data)
+
+class CheckScheduleViewSet(viewsets.ModelViewSet):
+    queryset = CheckSchedule.objects.select_related('check_type').all()
+    serializer_class = CheckScheduleSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['check_type', 'is_active']
+
+    @action(detail=False, methods=['get'])
+    def due(self, request):
+        now = timezone.now()
+        due_schedules = self.queryset.filter(
+            is_active=True,
+            next_run__lte=now
+        )
+        serializer = self.get_serializer(due_schedules, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def run_now(self, request, pk=None):
+        schedule = self.get_object()
+        try:
+            result = run_check.delay(schedule.check_type.id)
+            schedule.last_run = timezone.now()
+            schedule.save()
+            return Response({
+                'task_id': result.id,
+                'status': 'started',
+                'message': f'{schedule.check_type.name} kontrolü başlatıldı'
+            })
+        except Exception as e:
+            logger.error(f"Zamanlanmış kontrol çalıştırma hatası: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

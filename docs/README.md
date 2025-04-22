@@ -1,66 +1,85 @@
-# FinAsis Dokümantasyon
+# FinAsis Dokümantasyon Merkezi
 
-Bu dizin, FinAsis projesinin tüm dokümantasyonunu içerir.
+## Dokümantasyon Kategorileri
 
-## 📚 Dokümantasyon Yapısı
-
-### 1. Başlangıç
-- [Kurulum Kılavuzu](01_kurulum_ve_gelistirme.md)
+### 1. Başlangıç Kılavuzları
 - [Hızlı Başlangıç](quickstart.md)
 - [Sistem Gereksinimleri](system_requirements.md)
+- [Kurulum Kılavuzu](installation_guide.md)
 
-### 2. Kullanıcı Kılavuzları
-- [Türkçe Kullanıcı Kılavuzu](user_manual_tr.md)
-- [English User Manual](user_manual_en.md)
-- [Deutsch Benutzerhandbuch](user_manual_de.md)
-- [دليل المستخدم العربي](user_manual_ar.md)
-- [Bernameya Bikarhêner a Kurdî](user_manual_ku.md)
+### 2. Kullanıcı Dokümantasyonu
+- [Kullanıcı Kılavuzu](user_guide.md)
+- [Masaüstü Uygulama Kılavuzu](DESKTOP_APP_GUIDE.md)
+- [Çoklu Dil Desteği](07_i18n.md)
+  - [Türkçe](user_manual_tr.md)
+  - [İngilizce](user_manual_en.md)
+  - [Almanca](user_manual_de.md)
+  - [Arapça](user_manual_ar.md)
+  - [Kürtçe](user_manual_ku.md)
 
 ### 3. Geliştirici Dokümantasyonu
-- [Geliştirici Rehberi](developer_guide_tr.md)
-- [API Dokümantasyonu](api_documentation.md)
-- [Veritabanı Yapısı](02_veritabani_ve_altyapi.md)
+- [Geliştirici Kılavuzu](developer_guide.md)
+- [API Dokümantasyonu](api.md)
+- [Veritabanı Yapısı](03_veritabani.md)
 - [Entegrasyonlar](integrations.md)
 
-### 4. Modül Dokümantasyonu
-- [Muhasebe Modülü](modules/accounting.md)
-- [CRM Modülü](modules/crm.md)
-- [Stok Yönetimi](modules/stock_management.md)
-- [E-Belge Sistemi](04_edocument.md)
-- [Yapay Zeka Asistanı](03_ai_assistant.md)
-- [Analitik ve Dashboard](05_analytics.md)
-- [PWA ve Çevrimdışı Kullanım](06_pwa.md)
-
-### 5. Dağıtım ve Operasyon
+### 4. Dağıtım ve Operasyon
 - [Dağıtım Kılavuzu](deployment_guide.md)
-- [CI/CD Süreçleri](08_cicd.md)
-- [Güvenlik Rehberi](09_security.md)
-- [İzleme ve Alarmlar](monitoring_alerting_kilavuzu.md)
-- [Felaket Kurtarma](disaster_recovery.md)
+- [Dağıtım Prosedürü](deployment_proseduru.md)
 - [Geri Alma Prosedürü](rollback_proseduru.md)
+- [Felaket Kurtarma](disaster_recovery.md)
 
-### 6. Uluslararasılaştırma
-- [Dil ve Yerelleştirme](07_i18n.md)
+### 5. Güvenlik ve İzleme
+- [Güvenlik Kılavuzu](09_security.md)
+- [İzleme ve Uyarı Sistemi](monitoring_alerting_kilavuzu.md)
 
-### 7. Sürüm Notları
+### 6. Modüler Yapı
+- [E-Doküman Sistemi](04_edocument.md)
+- [Yapay Zeka Asistanı](03_ai_assistant.md)
+- [Progressive Web App](06_pwa.md)
+- [Analitik Sistemi](05_analytics.md)
+
+### 7. Sürekli Entegrasyon ve Dağıtım
+- [CI/CD Kılavuzu](08_cicd.md)
+
+## Dokümantasyon Standartları
+
+### 1. Format
+- Markdown (.md) formatı kullanılır
+- Her dosya UTF-8 kodlamalıdır
+- Başlıklar hiyerarşik olarak düzenlenir
+- Kod örnekleri için syntax highlighting kullanılır
+
+### 2. İçerik Yapısı
+- Her doküman bir başlık ile başlar
+- İçindekiler tablosu bulunur
+- Bölümler mantıksal olarak ayrılır
+- Örnekler ve kullanım senaryoları içerir
+
+### 3. Güncelleme Süreci
+- Her yeni özellik için dokümantasyon güncellenir
+- Değişiklikler versiyon kontrolünde takip edilir
+- Düzenli olarak gözden geçirilir
+- Kullanıcı geri bildirimleri değerlendirilir
+
+## Katkıda Bulunma
+
+1. Dokümantasyona katkıda bulunmak için:
+   - Fork yapın
+   - Değişikliklerinizi yapın
+   - Pull request gönderin
+
+2. Katkı kuralları:
+   - Markdown formatına uyun
+   - Açık ve anlaşılır dil kullanın
+   - Örnekler ve görseller ekleyin
+   - Türkçe karakterlere dikkat edin
+
+## Sürüm Geçmişi
+
 - [Sürüm Notları](release_notes.md)
-
-## 📝 Dokümantasyon Güncelleme Kuralları
-
-1. Tüm dokümanlar Markdown formatında yazılmalıdır
-2. Her doküman başlığında tarih ve sürüm bilgisi bulunmalıdır
-3. Dokümanlar düzenli olarak güncellenmelidir
-4. Yeni özellikler eklendiğinde ilgili dokümanlar güncellenmelidir
-5. Dokümanlar hem Türkçe hem İngilizce olarak hazırlanmalıdır
-
-## 🤝 Katkıda Bulunma
-
-Dokümantasyona katkıda bulunmak için:
-
-1. İlgili dokümanı düzenleyin
-2. Değişikliklerinizi commit edin
-3. Pull Request oluşturun
-4. PR'ınızın onaylanmasını bekleyin
+- Her sürüm için dokümantasyon güncellemeleri
+- Önemli değişiklikler ve iyileştirmeler
 
 ## 📞 İletişim
 

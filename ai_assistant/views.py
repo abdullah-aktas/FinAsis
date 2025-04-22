@@ -21,8 +21,9 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import (
     UserInteraction, FinancialPrediction, FinancialReport,
-    AnomalyDetection, TrendAnalysis
+    AnomalyDetection, TrendAnalysis, Recommendation, Notification
 )
+from .services import get_market_analysis
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +45,29 @@ def financial_analysis(request):
     return render(request, 'ai_assistant/analysis.html')
 
 @login_required
-def recommendations(request):
-    """Öneriler sayfası"""
-    return render(request, 'ai_assistant/recommendations.html')
+def recommendations_view(request):
+    # Kullanıcının önerilerini al
+    recommendations = Recommendation.objects.filter(
+        user=request.user,
+        is_active=True
+    ).order_by('-created_at')[:5]
+
+    # Piyasa analizini al
+    market_analysis = get_market_analysis()
+
+    # Kullanıcının bildirimlerini al
+    notifications = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).order_by('-created_at')[:5]
+
+    context = {
+        'recommendations': recommendations,
+        'market_analysis': market_analysis,
+        'notifications': notifications
+    }
+
+    return render(request, 'ai_assistant/recommendations.html', context)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

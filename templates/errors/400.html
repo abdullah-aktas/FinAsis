@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Geçersiz İstek - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-warning">400</h1>
+            <h2 class="mb-4">Geçersiz İstek</h2>
+            <p class="lead">Gönderdiğiniz istek geçersiz veya hatalıdır.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">Ana Sayfaya Dön</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

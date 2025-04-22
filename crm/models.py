@@ -5,7 +5,12 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from accounting.models import BaseModel, Account
 from decimal import Decimal
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
+import uuid
+import logging
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class Lead(models.Model):
@@ -47,46 +52,249 @@ class Lead(models.Model):
 
 class Customer(models.Model):
     """Müşteri modeli"""
-    name = models.CharField(max_length=200, verbose_name='Müşteri Adı')
-    email = models.EmailField(verbose_name='E-posta')
-    phone = models.CharField(max_length=20, blank=True, verbose_name='Telefon')
-    company = models.CharField(max_length=200, blank=True, verbose_name='Şirket')
-    address = models.TextField(blank=True, verbose_name='Adres')
-    tax_number = models.CharField(max_length=20, blank=True, verbose_name='Vergi Numarası')
-    tax_office = models.CharField(max_length=100, blank=True, verbose_name='Vergi Dairesi')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
-    is_active = models.BooleanField(default=True, verbose_name='Aktif')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer_profile')
+    company_name = models.CharField(_('Şirket Adı'), max_length=255)
+    tax_number = models.CharField(_('Vergi Numarası'), max_length=20, unique=True)
+    tax_office = models.CharField(_('Vergi Dairesi'), max_length=100)
+    address = models.TextField(_('Adres'))
+    phone = models.CharField(_('Telefon'), max_length=20)
+    email = models.EmailField(_('E-posta'))
+    website = models.URLField(_('Web Sitesi'), blank=True)
+    industry = models.CharField(_('Sektör'), max_length=100)
+    employee_count = models.IntegerField(_('Çalışan Sayısı'), validators=[MinValueValidator(1)])
+    annual_revenue = models.DecimalField(_('Yıllık Gelir'), max_digits=15, decimal_places=2)
+    credit_score = models.IntegerField(_('Kredi Skoru'), validators=[MinValueValidator(0), MaxValueValidator(1000)])
+    risk_level = models.CharField(_('Risk Seviyesi'), max_length=20, choices=[
+        ('LOW', _('Düşük')),
+        ('MEDIUM', _('Orta')),
+        ('HIGH', _('Yüksek')),
+    ])
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
-        verbose_name = 'Müşteri'
-        verbose_name_plural = 'Müşteriler'
+        verbose_name = _('Müşteri')
+        verbose_name_plural = _('Müşteriler')
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['company_name']),
+            models.Index(fields=['tax_number']),
+            models.Index(fields=['email']),
+            models.Index(fields=['risk_level']),
+        ]
 
     def __str__(self):
-        return self.name
+        return f"{self.company_name} ({self.tax_number})"
+
+    def clean(self):
+        if self.credit_score < 0 or self.credit_score > 1000:
+            raise ValidationError(_('Kredi skoru 0-1000 arasında olmalıdır.'))
 
 class Contact(models.Model):
-    """Müşteri iletişim kişisi modeli"""
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='contacts', verbose_name='Müşteri')
-    name = models.CharField(max_length=100, verbose_name='Ad Soyad')
-    position = models.CharField(max_length=100, blank=True, verbose_name='Pozisyon')
-    email = models.EmailField(blank=True, verbose_name='E-posta')
-    phone = models.CharField(max_length=20, blank=True, verbose_name='Telefon')
-    is_primary = models.BooleanField(default=False, verbose_name='Ana İletişim Kişisi')
-    notes = models.TextField(blank=True, verbose_name='Notlar')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Oluşturan', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
+    """İletişim kişisi modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='contacts')
+    first_name = models.CharField(_('Ad'), max_length=100)
+    last_name = models.CharField(_('Soyad'), max_length=100)
+    position = models.CharField(_('Pozisyon'), max_length=100)
+    department = models.CharField(_('Departman'), max_length=100)
+    phone = models.CharField(_('Telefon'), max_length=20)
+    mobile = models.CharField(_('Cep Telefonu'), max_length=20)
+    email = models.EmailField(_('E-posta'))
+    is_primary = models.BooleanField(_('Birincil İletişim'), default=False)
+    notes = models.TextField(_('Notlar'), blank=True)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
-        verbose_name = 'İletişim Kişisi'
-        verbose_name_plural = 'İletişim Kişileri'
-        ordering = ['-is_primary', 'name']
+        verbose_name = _('İletişim Kişisi')
+        verbose_name_plural = _('İletişim Kişileri')
+        ordering = ['-is_primary', 'last_name', 'first_name']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['email']),
+            models.Index(fields=['is_primary']),
+        ]
 
     def __str__(self):
-        return f"{self.name} ({self.customer.name})"
+        return f"{self.first_name} {self.last_name} ({self.position})"
+
+class Opportunity(models.Model):
+    """Fırsat modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='opportunities')
+    title = models.CharField(_('Başlık'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    amount = models.DecimalField(_('Tutar'), max_digits=15, decimal_places=2)
+    probability = models.IntegerField(_('Olasılık'), validators=[MinValueValidator(0), MaxValueValidator(100)])
+    stage = models.CharField(_('Aşama'), max_length=20, choices=[
+        ('PROSPECTING', _('Araştırma')),
+        ('QUALIFICATION', _('Nitelendirme')),
+        ('NEEDS_ANALYSIS', _('İhtiyaç Analizi')),
+        ('VALUE_PROPOSITION', _('Değer Önerisi')),
+        ('ID_DECISION_MAKERS', _('Karar Vericiler')),
+        ('PERCEPTION_ANALYSIS', _('Algı Analizi')),
+        ('PROPOSAL_PRICE_QUOTE', _('Teklif')),
+        ('NEGOTIATION_REVIEW', _('Pazarlık')),
+        ('CLOSED_WON', _('Kazanıldı')),
+        ('CLOSED_LOST', _('Kaybedildi')),
+    ])
+    expected_close_date = models.DateField(_('Beklenen Kapanış Tarihi'))
+    actual_close_date = models.DateField(_('Gerçekleşen Kapanış Tarihi'), null=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='opportunities')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Fırsat')
+        verbose_name_plural = _('Fırsatlar')
+        ordering = ['-expected_close_date']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['stage']),
+            models.Index(fields=['owner']),
+            models.Index(fields=['expected_close_date']),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.customer.company_name}"
+
+    def clean(self):
+        if self.probability < 0 or self.probability > 100:
+            raise ValidationError(_('Olasılık 0-100 arasında olmalıdır.'))
+
+class Activity(models.Model):
+    """Aktivite modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name='activities')
+    type = models.CharField(_('Tür'), max_length=20, choices=[
+        ('CALL', _('Telefon Görüşmesi')),
+        ('MEETING', _('Toplantı')),
+        ('EMAIL', _('E-posta')),
+        ('TASK', _('Görev')),
+        ('NOTE', _('Not')),
+    ])
+    subject = models.CharField(_('Konu'), max_length=255)
+    description = models.TextField(_('Açıklama'))
+    due_date = models.DateTimeField(_('Bitiş Tarihi'))
+    completed = models.BooleanField(_('Tamamlandı'), default=False)
+    completed_at = models.DateTimeField(_('Tamamlanma Tarihi'), null=True, blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='activities')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Aktivite')
+        verbose_name_plural = _('Aktiviteler')
+        ordering = ['-due_date']
+        indexes = [
+            models.Index(fields=['opportunity']),
+            models.Index(fields=['type']),
+            models.Index(fields=['assigned_to']),
+            models.Index(fields=['due_date']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_type_display()} - {self.subject}"
+
+class Document(models.Model):
+    """Doküman modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='documents')
+    title = models.CharField(_('Başlık'), max_length=255)
+    description = models.TextField(_('Açıklama'), blank=True)
+    file = models.FileField(_('Dosya'), upload_to='documents/')
+    type = models.CharField(_('Tür'), max_length=20, choices=[
+        ('CONTRACT', _('Sözleşme')),
+        ('PROPOSAL', _('Teklif')),
+        ('INVOICE', _('Fatura')),
+        ('REPORT', _('Rapor')),
+        ('OTHER', _('Diğer')),
+    ])
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='documents')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Doküman')
+        verbose_name_plural = _('Dokümanlar')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['type']),
+            models.Index(fields=['uploaded_by']),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.customer.company_name}"
+
+class Communication(models.Model):
+    """İletişim kaydı modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='communications')
+    contact = models.ForeignKey(Contact, on_delete=models.SET_NULL, null=True, related_name='communications')
+    type = models.CharField(_('Tür'), max_length=20, choices=[
+        ('CALL', _('Telefon Görüşmesi')),
+        ('EMAIL', _('E-posta')),
+        ('MEETING', _('Toplantı')),
+        ('CHAT', _('Sohbet')),
+        ('LETTER', _('Mektup')),
+    ])
+    subject = models.CharField(_('Konu'), max_length=255)
+    content = models.TextField(_('İçerik'))
+    direction = models.CharField(_('Yön'), max_length=10, choices=[
+        ('INBOUND', _('Gelen')),
+        ('OUTBOUND', _('Giden')),
+    ])
+    status = models.CharField(_('Durum'), max_length=20, choices=[
+        ('PENDING', _('Beklemede')),
+        ('COMPLETED', _('Tamamlandı')),
+        ('FAILED', _('Başarısız')),
+    ])
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='communications')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('İletişim Kaydı')
+        verbose_name_plural = _('İletişim Kayıtları')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['contact']),
+            models.Index(fields=['type']),
+            models.Index(fields=['direction']),
+            models.Index(fields=['status']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_type_display()} - {self.subject}"
+
+class Note(models.Model):
+    """Not modeli"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='notes')
+    title = models.CharField(_('Başlık'), max_length=255)
+    content = models.TextField(_('İçerik'))
+    is_private = models.BooleanField(_('Özel'), default=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='notes')
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Not')
+        verbose_name_plural = _('Notlar')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['created_by']),
+            models.Index(fields=['is_private']),
+        ]
+
+    def __str__(self):
+        return f"{self.title} - {self.customer.company_name}"
 
 class CustomerNote(models.Model):
     """Müşteri notu modeli"""
@@ -103,7 +311,7 @@ class CustomerNote(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.customer.name} - {self.title}"
+        return f"{self.customer.company_name} - {self.title}"
 
 class CustomerDocument(models.Model):
     """Müşteri belgesi modeli"""
@@ -121,7 +329,7 @@ class CustomerDocument(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.customer.name} - {self.title}"
+        return f"{self.customer.company_name} - {self.title}"
 
 class Opportunity(models.Model):
     """Fırsat modeli"""
@@ -151,38 +359,6 @@ class Opportunity(models.Model):
 
     def __str__(self):
         return self.name
-
-class Activity(models.Model):
-    """Müşteri aktivitesi modeli"""
-    ACTIVITY_TYPES = [
-        ('call', 'Telefon'),
-        ('meeting', 'Toplantı'),
-        ('email', 'E-posta'),
-        ('task', 'Görev'),
-        ('note', 'Not'),
-    ]
-    
-    type = models.CharField(max_length=50, choices=ACTIVITY_TYPES)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='activities')
-    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
-    subject = models.CharField(max_length=200)
-    description = models.TextField(null=True, blank=True)
-    due_date = models.DateTimeField()
-    completed = models.BooleanField(default=False)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='created_activities', null=True, blank=True)
-    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='assigned_activities', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Activity'
-        verbose_name_plural = 'Activities'
-        ordering = ['-created_at']
-        app_label = 'crm'
-
-    def __str__(self):
-        return f"{self.type} - {self.subject}"
 
 class Sale(models.Model):
     """Müşteri satış kaydı modeli"""
@@ -228,7 +404,7 @@ class Sale(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.number} - {self.customer.name}"
+        return f"{self.number} - {self.customer.company_name}"
     
     def save(self, *args, **kwargs):
         # Satış numarası otomatik oluşturma
@@ -311,38 +487,6 @@ class EDocumentStatus(models.Model):
     
     def __str__(self):
         return f"{self.get_document_type_display()} - {self.document_number}"
-
-class Document(models.Model):
-    """Elektronik belgeleri ve ilgili dosyaları tutan model"""
-    DOCUMENT_TYPES = (
-        ('e_invoice', _('E-Fatura')),
-        ('e_archive', _('E-Arşiv Fatura')),
-        ('e_dispatch', _('E-İrsaliye')),
-        ('contract', _('Sözleşme')),
-        ('other', _('Diğer')),
-    )
-    
-    title = models.CharField(_('Başlık'), max_length=255)
-    document_type = models.CharField(_('Belge Tipi'), max_length=20, choices=DOCUMENT_TYPES)
-    document_number = models.CharField(_('Belge Numarası'), max_length=50, blank=True, null=True)
-    issue_date = models.DateField(_('Düzenleme Tarihi'))
-    file = models.FileField(_('Dosya'), upload_to='documents/%Y/%m/')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='system_documents', null=True, blank=True)
-    sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, related_name='documents', null=True, blank=True)
-    notes = models.TextField(_('Notlar'), blank=True, null=True)
-    uuid = models.CharField(_('UUID'), max_length=36, blank=True, null=True,
-                          help_text=_('E-belge sistemindeki ETTN/UUID değeri'))
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='documents')
-    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
-    
-    def __str__(self):
-        return f"{self.get_document_type_display()} - {self.document_number or self.title}"
-    
-    class Meta:
-        verbose_name = _('Belge')
-        verbose_name_plural = _('Belgeler')
-        ordering = ['-issue_date']
 
 class CustomerAcquisitionAnalytics(models.Model):
     """Müşteri edinme analitikleri modeli"""
@@ -472,7 +616,7 @@ class CampaignUsage(models.Model):
         verbose_name_plural = _('Kampanya Kullanımları')
     
     def __str__(self):
-        return f"{self.campaign.name} - {self.customer.name}"
+        return f"{self.campaign.name} - {self.customer.company_name}"
 
 class ReferralProgram(models.Model):
     referrer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='referrals_given')
@@ -491,7 +635,7 @@ class ReferralProgram(models.Model):
         verbose_name_plural = _('Referans Programları')
     
     def __str__(self):
-        return f"{self.referrer.name} -> {self.referred.name}"
+        return f"{self.referrer.company_name} -> {self.referred.company_name}"
 
 class PremiumPackage(models.Model):
     """Premium paket modeli"""
@@ -632,7 +776,7 @@ class ServiceSubscription(models.Model):
         verbose_name_plural = _('Hizmet Abonelikleri')
     
     def __str__(self):
-        return f"{self.customer.name} - {self.get_subscription_type_display()}"
+        return f"{self.customer.company_name} - {self.get_subscription_type_display()}"
     
     @property
     def is_active(self):
@@ -715,7 +859,7 @@ class CustomerLoyalty(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.customer.name} - {self.program.name}"
+        return f"{self.customer.company_name} - {self.program.name}"
 
 class SeasonalCampaign(models.Model):
     """Sezonsal kampanya modeli"""
@@ -836,4 +980,4 @@ class InteractionLog(models.Model):
         ordering = ['-date']
         
     def __str__(self):
-        return f"{self.customer.name} - {self.get_interaction_type_display()} - {self.subject}"
+        return f"{self.customer.company_name} - {self.get_interaction_type_display()} - {self.subject}"

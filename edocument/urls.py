@@ -1,21 +1,36 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from . import views
 
 app_name = 'edocument'
 
+# Ana router
+router = DefaultRouter()
+router.register(r'documents', views.EDocumentViewSet, basename='document')
+router.register(r'despatches', views.EDespatchAdviceViewSet, basename='despatch')
+
+# E-Fatura nested router
+document_router = routers.NestedDefaultRouter(router, r'documents', lookup='document')
+document_router.register(r'items', views.EDocumentItemViewSet, basename='document-item')
+document_router.register(r'logs', views.EDocumentLogViewSet, basename='document-log')
+
+# E-İrsaliye nested router
+despatch_router = routers.NestedDefaultRouter(router, r'despatches', lookup='despatch')
+despatch_router.register(r'items', views.EDespatchAdviceItemViewSet, basename='despatch-item')
+despatch_router.register(r'logs', views.EDespatchAdviceLogViewSet, basename='despatch-log')
+
+# Template view URL'leri
 urlpatterns = [
-    # E-Fatura URL'leri
-    path('', views.document_list, name='document_list'),
-    path('<uuid:uuid>/', views.document_detail, name='document_detail'),
-    path('<uuid:uuid>/send/', views.send_document, name='send_document'),
-    path('<uuid:uuid>/preview-xml/', views.preview_xml, name='preview_xml'),
+    # API URL'leri
+    path('api/', include(router.urls)),
+    path('api/', include(document_router.urls)),
+    path('api/', include(despatch_router.urls)),
     
-    # E-İrsaliye URL'leri
-    path('despatch/', views.despatch_list, name='despatch_list'),
-    path('despatch/<uuid:uuid>/', views.despatch_detail, name='despatch_detail'),
-    path('despatch/<uuid:uuid>/send/', views.send_despatch, name='send_despatch'),
-    path('despatch/<uuid:uuid>/preview-xml/', views.preview_despatch_xml, name='preview_despatch_xml'),
-    path('despatch/<uuid:uuid>/accept/', views.accept_despatch, name='accept_despatch'),
-    path('despatch/<uuid:uuid>/reject/', views.reject_despatch, name='reject_despatch'),
-    path('document/<int:document_id>/xml-preview/', views.xml_preview, name='xml_preview'),
+    # Template view URL'leri
+    path('despatch-logs/', views.EDespatchAdviceLogListView.as_view(), name='edespatchadvicelog_list'),
+    path('despatch-logs/<int:pk>/', views.EDespatchAdviceLogDetailView.as_view(), name='edespatchadvicelog_detail'),
+    path('despatch-logs/create/', views.EDespatchAdviceLogCreateView.as_view(), name='edespatchadvicelog_create'),
+    path('despatch-logs/<int:pk>/update/', views.EDespatchAdviceLogUpdateView.as_view(), name='edespatchadvicelog_update'),
+    path('despatch-logs/<int:pk>/delete/', views.EDespatchAdviceLogDeleteView.as_view(), name='edespatchadvicelog_delete'),
 ] 

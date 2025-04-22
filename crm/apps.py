@@ -6,12 +6,9 @@ class CrmConfig(AppConfig):
     """CRM ve Müşteri Yönetimi uygulaması yapılandırması"""
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'crm'
-    verbose_name = _('CRM ve Müşteri Yönetimi')
+    verbose_name = 'Müşteri İlişkileri Yönetimi'
     label = 'crm'
     
     def ready(self):
-        """Uygulama başlatıldığında yapılacak işlemler"""
-        try:
-            import crm.signals  # noqa
-        except ImportError:
-            pass
+        """Uygulama hazır olduğunda sinyalleri yükle"""
+        import crm.signals

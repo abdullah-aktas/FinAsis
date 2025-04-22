@@ -10,12 +10,12 @@ Bu kılavuz, FinAsis uygulamasına katkıda bulunmak isteyen geliştiriciler iç
 
 ### Gereksinimler
 - Python 3.9+
-- Node.js 14+
-- Docker 20.10+
-- Git 2.30+
-- IDE (VS Code, PyCharm vb.)
+- PostgreSQL 15
+- Redis 7
+- Node.js 18+
+- Docker ve Docker Compose
 
-### Ortam Kurulumu
+### Kurulum
 ```bash
 # Projeyi klonla
 git clone https://github.com/finasis/finasis.git
@@ -27,27 +27,33 @@ source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 
 # Bağımlılıkları yükle
-pip install -r requirements/dev.txt
-npm install
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Veritabanını oluştur
+python manage.py migrate
+
+# Test veritabanını oluştur
+python manage.py test
 ```
 
 ## 📚 Kod Standartları
 
 ### Python
-- PEP 8 standartlarına uyun
-- Black formatter kullanın
-- Flake8 linter kullanın
-- Docstring'leri Google formatında yazın
+- PEP 8 standartlarına uygun kod
+- Black formatter kullanımı
+- Flake8 linting
+- MyPy tip kontrolü
 
-### JavaScript
-- ESLint kurallarına uyun
-- Prettier formatter kullanın
-- JSDoc formatında dokümantasyon yazın
+### JavaScript/TypeScript
+- ESLint kuralları
+- Prettier formatı
+- TypeScript strict mode
 
 ### Git
-- Semantic commit mesajları kullanın
-- Feature branch workflow'u takip edin
-- Pull request'lerde detaylı açıklama yazın
+- Semantic commit messages
+- Feature branch workflow
+- Pull request template
 
 ## 🛠️ Geliştirme Süreci
 
@@ -263,3 +269,129 @@ def api_view(request):
 - Yanıt süresi: 24 saat
 - Çözüm süresi: 72 saat
 - Code review süresi: 48 saat 
+
+## Test Geliştirme
+
+### Test Tipleri
+- Unit testler
+- Integration testler
+- End-to-end testler
+- Performance testler
+
+### Test Araçları
+- pytest
+- pytest-django
+- pytest-cov
+- Selenium
+
+## API Geliştirme
+
+### RESTful API Standartları
+- Resource-based URL'ler
+- HTTP metodlarının doğru kullanımı
+- Hata yönetimi
+- Versiyonlama
+
+### API Dokümantasyonu
+- OpenAPI/Swagger
+- API test örnekleri
+- Postman koleksiyonları
+
+## Veritabanı
+
+### Model Tasarımı
+- İlişkisel modelleme
+- Performans optimizasyonu
+- Migrasyon yönetimi
+
+### Sorgu Optimizasyonu
+- Index kullanımı
+- Query plan analizi
+- N+1 problemi çözümü
+
+## Güvenlik
+
+### Güvenlik Kontrolleri
+- Input validasyonu
+- SQL injection koruması
+- XSS koruması
+- CSRF koruması
+
+### Yetkilendirme
+- JWT token yönetimi
+- Role-based access control
+- Permission sistemleri
+
+## Performans
+
+### Önbellek Stratejisi
+- Redis kullanımı
+- Cache invalidation
+- Cache warming
+
+### Asenkron İşlemler
+- Celery task yönetimi
+- Background job'lar
+- Event-driven mimari
+
+## Deployment
+
+### CI/CD Pipeline
+- GitHub Actions
+- Docker build
+- Automated testing
+- Deployment automation
+
+### Monitoring
+- Prometheus metrics
+- Grafana dashboards
+- Log aggregation
+- Alerting
+
+## Modüler Geliştirme
+
+### Plugin Sistemi
+- Plugin interface
+- Hook sistemi
+- Event handling
+
+### Microservice Mimari
+- Service discovery
+- API gateway
+- Circuit breaker
+
+## Dokümantasyon
+
+### Kod Dokümantasyonu
+- Docstring standartları
+- Type hints
+- Code examples
+
+### Teknik Dokümantasyon
+- Architecture diagrams
+- Flow charts
+- Sequence diagrams
+
+## Hata Ayıklama
+
+### Debug Araçları
+- Django debug toolbar
+- pdb/ipdb
+- Chrome DevTools
+
+### Logging
+- Structured logging
+- Log levels
+- Log rotation
+
+## Performans Optimizasyonu
+
+### Profiling
+- cProfile
+- memory_profiler
+- line_profiler
+
+### Optimization Techniques
+- Query optimization
+- Caching strategies
+- Lazy loading 

@@ -10,12 +10,12 @@ class FinanceConfig(AppConfig):
     """Finans uygulaması yapılandırması"""
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'finance'
-    verbose_name = _('Finans')
+    verbose_name = _('Finans Yönetimi')
     label = 'finance'  # Benzersiz etiket
     
     def ready(self):
-        """Uygulama başlatıldığında yapılacak işlemler"""
-        import finance.signals  # noqa
+        """Uygulama hazır olduğunda sinyalleri yükle"""
+        import finance.signals
 
     def get_urls(self):
         """

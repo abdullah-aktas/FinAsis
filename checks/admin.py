@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Bank, Check, PromissoryNote, CheckTransaction, PromissoryNoteTransaction
+from django.utils.translation import gettext_lazy as _
+from .models import (
+    Bank, Check, PromissoryNote, CheckTransaction, PromissoryNoteTransaction,
+    CheckCategory, CheckType, CheckRule,
+    CheckResult, CheckSchedule
+)
 
 @admin.register(Bank)
 class BankAdmin(admin.ModelAdmin):
@@ -34,3 +39,44 @@ class PromissoryNoteTransactionAdmin(admin.ModelAdmin):
     search_fields = ('promissory_note__note_number', 'reference_number', 'notes')
     list_filter = ('transaction_type', 'transaction_date', 'created_by')
     date_hierarchy = 'transaction_date'
+
+@admin.register(CheckCategory)
+class CheckCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'priority', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('name', 'description')
+    ordering = ('-priority', 'name')
+
+@admin.register(CheckType)
+class CheckTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'category', 'severity', 'is_active', 'created_at')
+    list_filter = ('category', 'severity', 'is_active', 'created_at')
+    search_fields = ('name', 'code', 'description')
+    ordering = ('category', 'severity', 'name')
+    raw_id_fields = ('category',)
+
+@admin.register(CheckRule)
+class CheckRuleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'check_type', 'weight', 'is_active', 'created_at')
+    list_filter = ('check_type', 'is_active', 'created_at')
+    search_fields = ('name', 'description', 'condition')
+    ordering = ('check_type', 'weight')
+    raw_id_fields = ('check_type',)
+
+@admin.register(CheckResult)
+class CheckResultAdmin(admin.ModelAdmin):
+    list_display = ('check_type', 'status', 'score', 'started_at', 'completed_at', 'duration')
+    list_filter = ('check_type', 'status', 'started_at')
+    search_fields = ('check_type__name', 'details')
+    ordering = ('-started_at',)
+    raw_id_fields = ('check_type',)
+    readonly_fields = ('started_at', 'completed_at', 'duration')
+
+@admin.register(CheckSchedule)
+class CheckScheduleAdmin(admin.ModelAdmin):
+    list_display = ('check_type', 'schedule', 'is_active', 'last_run', 'next_run')
+    list_filter = ('is_active', 'last_run', 'next_run')
+    search_fields = ('check_type__name', 'schedule')
+    ordering = ('next_run',)
+    raw_id_fields = ('check_type',)
+    readonly_fields = ('last_run',)

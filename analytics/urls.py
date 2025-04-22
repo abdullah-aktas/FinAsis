@@ -1,17 +1,20 @@
 from django.urls import path
-from .views import dashboard, reports
-from .views.dashboard import DashboardView
+from . import views
 
 app_name = 'analytics'
 
 urlpatterns = [
-    # Pivot Tablo
-    path('pivot/', dashboard.pivot_table_view, name='pivot_table'),
-    path('pivot-data/', dashboard.get_pivot_data, name='pivot_data'),
+    # Dashboard URLs
+    path('dashboard/<int:dashboard_id>/', views.dashboard_view, name='dashboard'),
     
-    # İşlem Grid'i
-    path('transactions/', reports.transaction_grid, name='transaction_grid'),
-    path('transactions/list/', reports.get_transactions, name='get_transactions'),
-    path('transactions/export/', reports.export_transactions, name='export_transactions'),
-    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    # Widget URLs
+    path('api/widget/<int:widget_id>/data/', views.get_widget_data, name='widget_data'),
+    
+    # Report URLs
+    path('api/reports/create/', views.create_report, name='create_report'),
+    path('api/reports/<int:report_id>/data/', views.get_report_data, name='report_data'),
+    
+    # Data Source URLs
+    path('api/data-sources/add/', views.add_data_source, name='add_data_source'),
+    path('api/data-sources/<int:source_id>/sync/', views.sync_data_source, name='sync_data_source'),
 ] 

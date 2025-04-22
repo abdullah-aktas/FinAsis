@@ -53,4 +53,6 @@ urlpatterns = [
     path('api/ocr/process/', views.ocr_process_api, name='ocr_process_api'),
     path('ocr/process/', ocr.process_document, name='ocr_process'),
     path('ocr/status/', ocr.ocr_status, name='ocr_status'),
+
+    path('recommendations/', views.recommendations_view, name='recommendations'),
 ] 

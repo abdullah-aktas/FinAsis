@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ session.title|default:"Sohbet Detayı" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ session.title|default:"Başlıksız Sohbet" }}</h5>
+                    <div>
+                        <span class="badge {% if session.status == 'active' %}bg-success{% elif session.status == 'paused' %}bg-warning{% else %}bg-secondary{% endif %} me-2">
+                            {{ session.get_status_display }}
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateStatus('{{ session.id }}', 'paused')">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success ms-2" onclick="updateStatus('{{ session.id }}', 'active')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="chat-container" style="height: 500px; overflow-y: auto;">
+                        {% for message in messages %}
+                            <div class="message {% if message.is_user %}user-message{% else %}assistant-message{% endif %} mb-3">
+                                <div class="message-header d-flex justify-content-between">
+                                    <span class="message-sender">
+                                        {% if message.is_user %}
+                                            <i class="fas fa-user"></i> Siz
+                                        {% else %}
+                                            <i class="fas fa-robot"></i> Asistan
+                                        {% endif %}
+                                    </span>
+                                    <span class="message-time">{{ message.created_at|timesince }} önce</span>
+                                </div>
+                                <div class="message-content p-3 rounded">
+                                    {% if message.message_type == 'text' %}
+                                        {{ message.content|linebreaks }}
+                                    {% elif message.message_type == 'code' %}
+                                        <pre><code>{{ message.content }}</code></pre>
+                                    {% elif message.message_type == 'image' %}
+                                        <img src="{{ message.content }}" alt="Gönderilen resim" class="img-fluid">
+                                    {% endif %}
+                                </div>
+                                {% if not message.is_user %}
+                                    <div class="message-actions mt-2">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="regenerateMessage('{{ message.id }}')">
+                                            <i class="fas fa-sync"></i> Yeniden Oluştur
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="message-input mt-4">
+                        <form id="messageForm" onsubmit="sendMessage(event)">
+                            <div class="input-group">
+                                <input type="text" id="messageContent" class="form-control" placeholder="Mesajınızı yazın...">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Gönder
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.message {
+    max-width: 80%;
+}
+
+.user-message {
+    margin-left: auto;
+}
+
+.assistant-message {
+    margin-right: auto;
+}
+
+.message-content {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.user-message .message-content {
+    background-color: #007bff;
+    color: white;
+}
+
+pre {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendMessage(event) {
+    event.preventDefault();
+    const content = document.getElementById('messageContent').value;
+    if (!content.trim()) return;
+
+    fetch('/api/process-message/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            session_id: '{{ session.id }}',
+            content: content,
+            message_type: 'text'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        alert('Mesaj gönderilirken bir hata oluştu.');
+    });
+}
+
+function updateStatus(sessionId, newStatus) {
+    fetch(`/api/sessions/${sessionId}/update_status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        alert('Durum güncellenirken bir hata oluştu.');
+    });
+}
+
+function regenerateMessage(messageId) {
+    fetch(`/api/messages/${messageId}/regenerate/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        alert('Mesaj yeniden oluşturulurken bir hata oluştu.');
+    });
+}
+</script>
+{% endblock %} 

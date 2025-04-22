@@ -154,3 +154,10 @@ bandit
 # Added from the code block
 pyotp>=2.9.0
 django-cacheops>=7.0
+
+# Celery ve İlgili Paketler
+celery==5.3.6
+django-celery-beat==2.5.0
+django-celery-results==2.5.1
+redis==5.0.1
+flower==2.0.1  # Celery monitoring

@@ -1,12 +1,14 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-app_name = 'blockchain'
+router = DefaultRouter()
+router.register(r'networks', views.BlockchainNetworkViewSet, basename='network')
+router.register(r'contracts', views.SmartContractViewSet, basename='contract')
+router.register(r'transactions', views.TransactionViewSet, basename='transaction')
+router.register(r'wallets', views.WalletViewSet, basename='wallet')
+router.register(r'tokens', views.TokenViewSet, basename='token')
 
 urlpatterns = [
-    path('transactions/', views.transaction_list, name='transaction_list'),
-    path('transactions/create/', views.transaction_create, name='transaction_create'),
-    path('transactions/<int:pk>/', views.transaction_detail, name='transaction_detail'),
-    path('transactions/<int:pk>/update/', views.transaction_update, name='transaction_update'),
-    path('transactions/<int:pk>/delete/', views.transaction_delete, name='transaction_delete'),
+    path('api/', include(router.urls)),
 ] 

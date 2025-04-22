@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 class AIModel(models.Model):
     """Yapay zeka modellerinin versiyonlarını ve performansını takip etmek için model"""
@@ -180,3 +182,98 @@ class TrendAnalysis(models.Model):
 
     def __str__(self):
         return f"{self.get_analysis_type_display()} ({self.start_date} - {self.end_date})"
+
+class UserPreference(models.Model):
+    """Kullanıcı AI tercihleri"""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                               related_name='ai_preferences')
+    language = models.CharField(_('Dil'), max_length=10, default='tr')
+    risk_tolerance = models.CharField(_('Risk Toleransı'), max_length=20,
+                                    choices=[('low', _('Düşük')),
+                                            ('medium', _('Orta')),
+                                            ('high', _('Yüksek'))])
+    investment_horizon = models.CharField(_('Yatırım Vadesi'), max_length=20,
+                                       choices=[('short', _('Kısa')),
+                                               ('medium', _('Orta')),
+                                               ('long', _('Uzun'))])
+    notification_preferences = models.JSONField(_('Bildirim Tercihleri'), default=dict)
+    ai_interaction_history = models.JSONField(_('AI Etkileşim Geçmişi'), default=list)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Kullanıcı Tercihi')
+        verbose_name_plural = _('Kullanıcı Tercihleri')
+
+    def __str__(self):
+        return f"{self.user.username} tercihleri"
+
+class AIInsight(models.Model):
+    """AI içgörüleri ve önerileri"""
+    INSIGHT_TYPES = [
+        ('investment', _('Yatırım Önerisi')),
+        ('risk', _('Risk Uyarısı')),
+        ('opportunity', _('Fırsat Bildirimi')),
+        ('trend', _('Trend Analizi')),
+    ]
+
+    PRIORITY_LEVELS = [
+        ('low', _('Düşük')),
+        ('medium', _('Orta')),
+        ('high', _('Yüksek')),
+        ('urgent', _('Acil')),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                            related_name='ai_insights')
+    insight_type = models.CharField(_('İçgörü Tipi'), max_length=20, choices=INSIGHT_TYPES)
+    title = models.CharField(_('Başlık'), max_length=200)
+    content = models.TextField(_('İçerik'))
+    priority = models.CharField(_('Öncelik'), max_length=20, choices=PRIORITY_LEVELS)
+    action_required = models.BooleanField(_('Aksiyon Gerekli'), default=False)
+    action_description = models.TextField(_('Aksiyon Açıklaması'), blank=True)
+    is_read = models.BooleanField(_('Okundu'), default=False)
+    is_archived = models.BooleanField(_('Arşivlendi'), default=False)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    expires_at = models.DateTimeField(_('Geçerlilik Sonu'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('AI İçgörüsü')
+        verbose_name_plural = _('AI İçgörüleri')
+        ordering = ['-priority', '-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
+
+class Recommendation(models.Model):
+    PRIORITY_CHOICES = [
+        ('low', 'Düşük'),
+        ('medium', 'Orta'),
+        ('high', 'Yüksek')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    recommendations = models.JSONField()
+    category = models.CharField(max_length=100)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES)
+    action_required = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']

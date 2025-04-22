@@ -1,12 +1,12 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import HealthCheckViewSet, DashboardView, ErrorView
 
-app_name = 'core'
+router = DefaultRouter()
+router.register(r'health', HealthCheckViewSet, basename='health')
 
 urlpatterns = [
-    # ... existing code ...
-    
-    # API Endpoints
-    path('api/weather/', views.get_weather_data, name='weather_api'),
-    path('api/finance/', views.get_finance_data, name='finance_api'),
+    path('', DashboardView.as_view(), name='dashboard'),
+    path('api/', include(router.urls)),
+    path('error/<int:code>/<str:message>/', ErrorView.as_view(), name='error'),
 ] 

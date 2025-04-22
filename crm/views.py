@@ -6,6 +6,48 @@ from .models import (
     SeasonalCampaign, PartnershipProgram, Partner,
     InteractionLog
 )
+from django.shortcuts import get_object_or_404
+from django.db.models import Q, Count, Sum, F, Case, When, Value, IntegerField
+from django.db.models.functions import Coalesce
+from django.utils import timezone
+from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
+from rest_framework import viewsets, status, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
+import logging
+from .models import (
+    Customer, Contact, Opportunity, Activity,
+    Document, Communication, Note
+)
+from .serializers import (
+    CustomerSerializer, ContactSerializer,
+    OpportunitySerializer, ActivitySerializer,
+    DocumentSerializer, CommunicationSerializer,
+    NoteSerializer
+)
+from .permissions import (
+    IsAdminOrReadOnly, IsCustomerOwner,
+    CanManageOpportunities, CanManageActivities,
+    CanManageDocuments, CanManageCommunications,
+    CanViewCustomerDetails, CanViewOpportunityDetails,
+    CanViewActivityDetails, CanViewDocumentDetails,
+    CanViewCommunicationDetails, IsInSalesTeam,
+    IsInCustomerServiceTeam, IsInManagementTeam,
+    CanExportData, CanImportData, CanDeleteRecords,
+    CanViewReports, CanManageSettings
+)
+from .filters import (
+    CustomerFilter, ContactFilter,
+    OpportunityFilter, ActivityFilter,
+    DocumentFilter, CommunicationFilter
+)
+
+logger = logging.getLogger(__name__)
 
 # LoyaltyProgram Views
 class LoyaltyProgramListView(LoginRequiredMixin, ListView):
@@ -194,4 +236,231 @@ class InteractionLogUpdateView(LoginRequiredMixin, UpdateView):
 class InteractionLogDeleteView(LoginRequiredMixin, DeleteView):
     model = InteractionLog
     template_name = 'crm/interactionlog_confirm_delete.html'
-    success_url = reverse_lazy('crm:interactionlog_list') 
+    success_url = reverse_lazy('crm:interactionlog_list')
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    """Müşteri yönetimi için viewset"""
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CustomerFilter
+    permission_classes = [
+        IsAdminOrReadOnly | IsCustomerOwner,
+        CanViewCustomerDetails
+    ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+    @action(detail=True, methods=['get'])
+    def contacts(self, request, pk=None):
+        """Müşterinin iletişim kişilerini listeler"""
+        customer = self.get_object()
+        contacts = customer.contacts.all()
+        serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def opportunities(self, request, pk=None):
+        """Müşterinin fırsatlarını listeler"""
+        customer = self.get_object()
+        opportunities = customer.opportunities.all()
+        serializer = OpportunitySerializer(opportunities, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def activities(self, request, pk=None):
+        """Müşterinin aktivitelerini listeler"""
+        customer = self.get_object()
+        activities = Activity.objects.filter(
+            Q(opportunity__customer=customer) |
+            Q(customer=customer)
+        )
+        serializer = ActivitySerializer(activities, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def documents(self, request, pk=None):
+        """Müşterinin dokümanlarını listeler"""
+        customer = self.get_object()
+        documents = customer.documents.all()
+        serializer = DocumentSerializer(documents, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def communications(self, request, pk=None):
+        """Müşterinin iletişim kayıtlarını listeler"""
+        customer = self.get_object()
+        communications = customer.communications.all()
+        serializer = CommunicationSerializer(communications, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def notes(self, request, pk=None):
+        """Müşterinin notlarını listeler"""
+        customer = self.get_object()
+        notes = customer.notes.all()
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        """Müşteri istatistiklerini getirir"""
+        if not request.user.has_perm('crm.view_reports'):
+            return Response(
+                {'error': 'Bu işlem için yetkiniz yok.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        queryset = self.get_queryset()
+        stats = {
+            'total_customers': queryset.count(),
+            'active_customers': queryset.filter(is_active=True).count(),
+            'by_industry': queryset.values('industry').annotate(count=Count('id')),
+            'by_risk_level': queryset.values('risk_level').annotate(count=Count('id')),
+            'total_revenue': queryset.aggregate(total=Sum('annual_revenue'))['total'],
+            'avg_credit_score': queryset.aggregate(avg=Avg('credit_score'))['avg'],
+        }
+        return Response(stats)
+
+class ContactViewSet(viewsets.ModelViewSet):
+    """İletişim kişisi yönetimi için viewset"""
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ContactFilter
+    permission_classes = [CanManageContacts]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(customer__owner=self.request.user) |
+                Q(created_by=self.request.user)
+            )
+        return queryset
+
+class OpportunityViewSet(viewsets.ModelViewSet):
+    """Fırsat yönetimi için viewset"""
+    queryset = Opportunity.objects.all()
+    serializer_class = OpportunitySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = OpportunityFilter
+    permission_classes = [CanManageOpportunities, CanViewOpportunityDetails]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(customer__owner=self.request.user) |
+                Q(assigned_to=self.request.user)
+            )
+        return queryset
+
+    @action(detail=True, methods=['post'])
+    def update_stage(self, request, pk=None):
+        """Fırsat aşamasını günceller"""
+        opportunity = self.get_object()
+        new_stage = request.data.get('stage')
+        
+        if new_stage not in dict(Opportunity.STAGE_CHOICES):
+            return Response(
+                {'error': 'Geçersiz aşama.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        opportunity.stage = new_stage
+        opportunity.save()
+        return Response({'status': 'Aşama güncellendi.'})
+
+class ActivityViewSet(viewsets.ModelViewSet):
+    """Aktivite yönetimi için viewset"""
+    queryset = Activity.objects.all()
+    serializer_class = ActivitySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ActivityFilter
+    permission_classes = [CanManageActivities, CanViewActivityDetails]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(opportunity__customer__owner=self.request.user) |
+                Q(assigned_to=self.request.user)
+            )
+        return queryset
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        """Aktiviteyi tamamlandı olarak işaretler"""
+        activity = self.get_object()
+        activity.completed = True
+        activity.completed_at = timezone.now()
+        activity.save()
+        return Response({'status': 'Aktivite tamamlandı.'})
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    """Doküman yönetimi için viewset"""
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = DocumentFilter
+    permission_classes = [CanManageDocuments, CanViewDocumentDetails]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(customer__owner=self.request.user) |
+                Q(uploaded_by=self.request.user)
+            )
+        return queryset
+
+class CommunicationViewSet(viewsets.ModelViewSet):
+    """İletişim kaydı yönetimi için viewset"""
+    queryset = Communication.objects.all()
+    serializer_class = CommunicationSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CommunicationFilter
+    permission_classes = [CanManageCommunications, CanViewCommunicationDetails]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(customer__owner=self.request.user) |
+                Q(created_by=self.request.user)
+            )
+        return queryset
+
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        """İletişim kaydını okundu olarak işaretler"""
+        communication = self.get_object()
+        communication.is_read = True
+        communication.read_at = timezone.now()
+        communication.save()
+        return Response({'status': 'İletişim kaydı okundu olarak işaretlendi.'})
+
+class NoteViewSet(viewsets.ModelViewSet):
+    """Not yönetimi için viewset"""
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(customer__owner=self.request.user) |
+                Q(created_by=self.request.user)
+            )
+        return queryset 

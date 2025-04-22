@@ -3,8 +3,9 @@ API URLs yapılandırması
 """
 
 from django.urls import path, include
-from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 from rest_framework.documentation import include_docs_urls
+from rest_framework.schemas import get_schema_view
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +16,10 @@ from api.views import (
     bank_views, 
     finance_views,
     user_views,
+    FinanceViewSet,
+    CRMViewSet,
+    AccountingViewSet,
+    AnalyticsViewSet
 )
 
 # API Schema için
@@ -32,11 +37,11 @@ schema_view = get_schema_view(
 )
 
 # DRF Router
-router = routers.DefaultRouter()
-router.register(r'users', user_views.UserViewSet)
-router.register(r'bank-accounts', bank_views.BankAccountViewSet)
-router.register(r'transactions', bank_views.TransactionViewSet)
-router.register(r'einvoices', finance_views.EInvoiceViewSet)
+router = DefaultRouter()
+router.register(r'finance', FinanceViewSet, basename='finance')
+router.register(r'crm', CRMViewSet, basename='crm')
+router.register(r'accounting', AccountingViewSet, basename='accounting')
+router.register(r'analytics', AnalyticsViewSet, basename='analytics')
 
 # API URL patterns
 urlpatterns = [
@@ -46,12 +51,28 @@ urlpatterns = [
     path('docs/', include_docs_urls(title=_('FinAsis API Dokümantasyonu'))),
     
     # API v1
-    path('v1/', include(router.urls)),
-    path('v1/auth/', include('rest_framework.urls')),
-    
-    # JWT token
-    path('v1/token/', user_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('v1/token/refresh/', user_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('v1/', include([
+        # Ana API Endpoint'leri
+        path('', include(router.urls)),
+        
+        # Dokümantasyon
+        path('schema/', get_schema_view(
+            title='FinAsis API',
+            description='FinAsis Finansal Yönetim Sistemi API Dokümantasyonu',
+            version='1.0.0',
+            public=True,
+        )),
+        
+        # Kimlik Doğrulama
+        path('auth/', include('rest_framework.urls')),
+        path('token/', include('rest_framework_social_oauth2.urls')),
+        
+        # Modül Bazlı API'ler
+        path('finance/', include('api.finance.urls')),
+        path('crm/', include('api.crm.urls')),
+        path('accounting/', include('api.accounting.urls')),
+        path('analytics/', include('api.analytics.urls')),
+    ])),
     
     # Sağlık kontrolü
     path('health/', health_views.api_health_check, name='api_health_check'),

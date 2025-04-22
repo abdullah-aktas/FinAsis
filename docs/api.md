@@ -225,4 +225,116 @@ const response = await fetch('https://api.finasis.com/v1/invoices', {
 
 - API Desteği: api-support@finasis.com
 - Dokümantasyon: docs.finasis.com/api
-- GitHub: github.com/finasis/api-examples 
+- GitHub: github.com/finasis/api-examples
+
+## Öneri Sistemi API'leri
+
+### 1. Öneri Oluşturma
+
+```http
+POST /api/recommendations/generate/
+```
+
+**İstek Gövdesi:**
+```json
+{
+    "context": {
+        "portfolio_value": 100000,
+        "risk_level": "medium",
+        "investment_goals": ["retirement", "growth"]
+    }
+}
+```
+
+**Başarılı Yanıt:**
+```json
+{
+    "recommendations": [
+        {
+            "title": "Portföy Optimizasyonu",
+            "recommendations": [
+                "Hisse senetleri ağırlığını %60'a çıkarın",
+                "Tahvil pozisyonunu %30'a düşürün"
+            ],
+            "category": "portfolio",
+            "priority": "high",
+            "action_required": true
+        }
+    ],
+    "market_analysis": {
+        "trends": {
+            "short_term": "Yükseliş trendi",
+            "medium_term": "Dengeli",
+            "long_term": "Pozitif"
+        },
+        "risk_indicators": {
+            "volatility": "medium",
+            "market_sentiment": "positive"
+        }
+    }
+}
+```
+
+### 2. Bildirim Sistemi
+
+```http
+POST /api/notifications/create/
+```
+
+**İstek Gövdesi:**
+```json
+{
+    "insight_id": "123",
+    "notification_type": "recommendation",
+    "priority": "high"
+}
+```
+
+### 3. Performans Metrikleri
+
+```http
+GET /api/metrics/
+```
+
+**Başarılı Yanıt:**
+```json
+{
+    "response_time": {
+        "average": 1.2,
+        "p95": 2.5,
+        "p99": 3.8
+    },
+    "recommendation_quality": {
+        "accuracy": 0.85,
+        "relevance": 0.92,
+        "actionability": 0.78
+    },
+    "user_engagement": {
+        "daily_active_users": 1500,
+        "recommendation_acceptance_rate": 0.65
+    }
+}
+```
+
+## Hata Kodları
+
+| Kod | Açıklama |
+|-----|----------|
+| 400 | Geçersiz istek |
+| 401 | Yetkisiz erişim |
+| 403 | Erişim engellendi |
+| 404 | Kaynak bulunamadı |
+| 429 | Çok fazla istek |
+| 500 | Sunucu hatası |
+
+## Rate Limiting
+
+- Maksimum istek sayısı: 60/dakika
+- Maksimum içerik boyutu: 1MB
+- İstek zaman aşımı: 30 saniye
+
+## Güvenlik
+
+- Tüm API istekleri HTTPS üzerinden yapılmalıdır
+- Her istek için geçerli bir API anahtarı gereklidir
+- İstek imzası doğrulaması yapılır 

@@ -4,67 +4,64 @@ services:
   # Django web uygulaması
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn finasis.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=1
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
     depends_on:
       - db
+      - redis
+    environment:
+      - DEBUG=0
+      - SECRET_KEY=your-secret-key
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
+      - REDIS_URL=redis://redis:6379/0
 
   # PostgreSQL veritabanı
   db:
-    image: postgres:13
+    image: postgres:15
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=finasis
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
   # Redis (önbellek ve mesaj kuyruğu için)
   redis:
-    image: redis:6
+    image: redis:7
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
 
   # Celery worker (arka plan görevleri için)
-  celery:
+  celery_worker:
     build: .
-    command: celery -A config worker -l INFO
+    command: celery -A finasis worker -l INFO
     volumes:
       - .:/app
-    env_file:
-      - .env
     depends_on:
       - web
       - redis
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.prod
-      - DB_HOST=db
-      - DB_PORT=5432
+      - DEBUG=0
+      - SECRET_KEY=your-secret-key
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
       - REDIS_URL=redis://redis:6379/0
 
   # Celery beat (zamanlanmış görevler için)
-  celery-beat:
+  celery_beat:
     build: .
-    command: celery -A config beat -l INFO
+    command: celery -A finasis beat -l INFO
     volumes:
       - .:/app
-    env_file:
-      - .env
     depends_on:
       - web
       - redis
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.prod
-      - DB_HOST=db
-      - DB_PORT=5432
+      - DEBUG=0
+      - SECRET_KEY=your-secret-key
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
       - REDIS_URL=redis://redis:6379/0
 
   # Nginx (statik dosya sunumu ve proxy için)
@@ -78,6 +75,14 @@ services:
       - media_volume:/app/media
     depends_on:
       - web
+
+  flower:
+    image: mher/flower
+    command: flower --port=5555 --broker=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:

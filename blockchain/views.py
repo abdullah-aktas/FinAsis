@@ -6,6 +6,29 @@ from .models import BlockchainTransaction, BlockchainLog, BaseModel
 from virtual_company.models import VirtualCompany
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Q
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
+from .models import BlockchainNetwork, SmartContract, Transaction, Wallet, Token
+from .serializers import (
+    BlockchainNetworkSerializer,
+    SmartContractSerializer,
+    TransactionSerializer,
+    WalletSerializer,
+    TokenSerializer,
+)
+from .permissions import IsWalletOwner, IsContractOwner
+from .tasks import sync_transaction_status, sync_wallet_balance
+import logging
+from web3 import Web3
+from decimal import Decimal
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def transaction_list(request):
@@ -154,3 +177,134 @@ class BaseModelDeleteView(DeleteView):
     model = BaseModel
     template_name = 'blockchain/basemodel_confirm_delete.html'
     success_url = reverse_lazy('blockchain:basemodel_list')
+
+class BlockchainNetworkViewSet(viewsets.ModelViewSet):
+    queryset = BlockchainNetwork.objects.filter(is_active=True)
+    serializer_class = BlockchainNetworkSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @method_decorator(cache_page(60 * 15))  # 15 dakika önbellek
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60 * 60))  # 1 saat önbellek
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+class SmartContractViewSet(viewsets.ModelViewSet):
+    queryset = SmartContract.objects.all()
+    serializer_class = SmartContractSerializer
+    permission_classes = [permissions.IsAuthenticated, IsContractOwner]
+
+    def get_queryset(self):
+        return SmartContract.objects.filter(
+            Q(network__is_active=True) | Q(is_verified=True)
+        )
+
+    @action(detail=True, methods=['post'])
+    def verify(self, request, pk=None):
+        contract = self.get_object()
+        # Contract verification logic here
+        contract.is_verified = True
+        contract.save()
+        return Response({'status': 'verified'})
+
+    @action(detail=True, methods=['get'])
+    def abi(self, request, pk=None):
+        contract = self.get_object()
+        return Response({'abi': contract.abi})
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Transaction.objects.filter(
+            Q(from_address__in=user.wallets.values_list('address', flat=True)) |
+            Q(to_address__in=user.wallets.values_list('address', flat=True))
+        ).order_by('-created_at')
+
+    @action(detail=True, methods=['post'])
+    def sync_status(self, request, pk=None):
+        transaction = self.get_object()
+        sync_transaction_status.delay(transaction.id)
+        return Response({'status': 'syncing'})
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Transaction validation
+        try:
+            web3 = Web3(Web3.HTTPProvider(serializer.validated_data['network'].rpc_url))
+            if not web3.is_connected():
+                return Response(
+                    {'error': 'Network connection failed'},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+        except Exception as e:
+            logger.error(f"Transaction validation failed: {str(e)}")
+            return Response(
+                {'error': 'Network validation failed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class WalletViewSet(viewsets.ModelViewSet):
+    queryset = Wallet.objects.all()
+    serializer_class = WalletSerializer
+    permission_classes = [permissions.IsAuthenticated, IsWalletOwner]
+
+    def get_queryset(self):
+        return Wallet.objects.filter(user=self.request.user, is_active=True)
+
+    @action(detail=True, methods=['post'])
+    def sync_balance(self, request, pk=None):
+        wallet = self.get_object()
+        sync_wallet_balance.delay(wallet.id)
+        return Response({'status': 'syncing'})
+
+    @action(detail=True, methods=['get'])
+    def transactions(self, request, pk=None):
+        wallet = self.get_object()
+        transactions = Transaction.objects.filter(
+            Q(from_address=wallet.address) | Q(to_address=wallet.address)
+        ).order_by('-created_at')
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+
+class TokenViewSet(viewsets.ModelViewSet):
+    queryset = Token.objects.all()
+    serializer_class = TokenSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Token.objects.filter(
+            Q(owner__user=user) | Q(contract__network__is_active=True)
+        )
+
+    @action(detail=True, methods=['get'])
+    def metadata(self, request, pk=None):
+        token = self.get_object()
+        return Response(token.metadata)
+
+    @action(detail=True, methods=['post'])
+    def transfer(self, request, pk=None):
+        token = self.get_object()
+        to_address = request.data.get('to_address')
+        amount = Decimal(request.data.get('amount', 0))
+
+        if not to_address or amount <= 0:
+            return Response(
+                {'error': 'Invalid transfer parameters'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Transfer logic here
+        return Response({'status': 'transfer initiated'})

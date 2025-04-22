@@ -1,17 +1,25 @@
 from django.urls import path
 from . import views
+from rest_framework.routers import DefaultRouter
 
 app_name = 'assets'
 
+# API Router
+router = DefaultRouter()
+router.register(r'api/assets', views.AssetViewSet, basename='asset')
+router.register(r'api/categories', views.AssetCategoryViewSet, basename='category')
+router.register(r'api/maintenances', views.MaintenanceViewSet, basename='maintenance')
+router.register(r'api/rentals', views.AssetRentalViewSet, basename='rental')
+
 urlpatterns = [
-    path('', views.asset_dashboard, name='dashboard'),
-    path('assets/', views.asset_list, name='asset_list'),
-    path('assets/create/', views.asset_create, name='asset_create'),
-    path('assets/<int:pk>/', views.asset_detail, name='asset_detail'),
-    path('assets/<int:pk>/update/', views.asset_update, name='asset_update'),
-    path('assets/<int:pk>/delete/', views.asset_delete, name='asset_delete'),
-    path('assets/<int:asset_pk>/depreciation/create/', views.depreciation_create, name='depreciation_create'),
-    path('assets/<int:asset_pk>/maintenance/create/', views.maintenance_create, name='maintenance_create'),
-    path('assets/<int:asset_pk>/transfer/create/', views.asset_transfer_create, name='asset_transfer_create'),
-    path('assets/<int:asset_pk>/disposal/create/', views.asset_disposal_create, name='asset_disposal_create'),
+    # Web Views
+    path('', views.AssetListView.as_view(), name='asset_list'),
+    path('dashboard/', views.AssetDashboardView.as_view(), name='dashboard'),
+    path('asset/<int:pk>/', views.AssetDetailView.as_view(), name='asset_detail'),
+    path('asset/create/', views.AssetCreateView.as_view(), name='asset_create'),
+    path('asset/<int:pk>/update/', views.AssetUpdateView.as_view(), name='asset_update'),
+    path('asset/<int:pk>/delete/', views.AssetDeleteView.as_view(), name='asset_delete'),
+    
+    # API URLs
+    *router.urls,
 ] 
