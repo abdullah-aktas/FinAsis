@@ -1,88 +1,61 @@
-# FinAsis Dokümantasyon Merkezi
+# FinAsis Documentation
 
-## Dokümantasyon Kategorileri
+Welcome to the FinAsis documentation repository. This repository contains comprehensive documentation for both developers and users in multiple languages.
 
-### 1. Başlangıç Kılavuzları
-- [Hızlı Başlangıç](quickstart.md)
-- [Sistem Gereksinimleri](system_requirements.md)
-- [Kurulum Kılavuzu](installation_guide.md)
+## Available Languages
 
-### 2. Kullanıcı Dokümantasyonu
-- [Kullanıcı Kılavuzu](user_guide.md)
-- [Masaüstü Uygulama Kılavuzu](DESKTOP_APP_GUIDE.md)
-- [Çoklu Dil Desteği](07_i18n.md)
-  - [Türkçe](user_manual_tr.md)
-  - [İngilizce](user_manual_en.md)
-  - [Almanca](user_manual_de.md)
-  - [Arapça](user_manual_ar.md)
-  - [Kürtçe](user_manual_ku.md)
+- [Türkçe (Turkish)](/docs/tr)
+  - [Geliştirici Kılavuzu](/docs/tr/GELISTIRICI_KILAVUZU.md)
+  - [Kullanıcı Kılavuzu](/docs/tr/KULLANICI_KILAVUZU.md)
 
-### 3. Geliştirici Dokümantasyonu
-- [Geliştirici Kılavuzu](developer_guide.md)
-- [API Dokümantasyonu](api.md)
-- [Veritabanı Yapısı](03_veritabani.md)
-- [Entegrasyonlar](integrations.md)
+- [English](/docs/en)
+  - [Developer Guide](/docs/en/DEVELOPER_GUIDE.md)
+  - [User Guide](/docs/en/USER_GUIDE.md)
 
-### 4. Dağıtım ve Operasyon
-- [Dağıtım Kılavuzu](deployment_guide.md)
-- [Dağıtım Prosedürü](deployment_proseduru.md)
-- [Geri Alma Prosedürü](rollback_proseduru.md)
-- [Felaket Kurtarma](disaster_recovery.md)
+- [Deutsch (German)](/docs/de)
+  - [Entwicklerhandbuch](/docs/de/ENTWICKLERHANDBUCH.md)
+  - [Benutzerhandbuch](/docs/de/BENUTZERHANDBUCH.md)
 
-### 5. Güvenlik ve İzleme
-- [Güvenlik Kılavuzu](09_security.md)
-- [İzleme ve Uyarı Sistemi](monitoring_alerting_kilavuzu.md)
+- [Kurdî (Kurdish)](/docs/ku)
+  - [Rêbernameya Pêşkêşkeran](/docs/ku/RÊBERNAMEYA_PÊŞKÊŞKERAN.md)
+  - [Rêbernameya Bikarhêneran](/docs/ku/RÊBERNAMEYA_BIKARHÊNERAN.md)
 
-### 6. Modüler Yapı
-- [E-Doküman Sistemi](04_edocument.md)
-- [Yapay Zeka Asistanı](03_ai_assistant.md)
-- [Progressive Web App](06_pwa.md)
-- [Analitik Sistemi](05_analytics.md)
+## Documentation Structure
 
-### 7. Sürekli Entegrasyon ve Dağıtım
-- [CI/CD Kılavuzu](08_cicd.md)
+Each language directory contains:
 
-## Dokümantasyon Standartları
+1. Developer Documentation
+   - Project structure
+   - Setup instructions
+   - Coding standards
+   - Module development
+   - Testing guidelines
+   - Deployment process
 
-### 1. Format
-- Markdown (.md) formatı kullanılır
-- Her dosya UTF-8 kodlamalıdır
-- Başlıklar hiyerarşik olarak düzenlenir
-- Kod örnekleri için syntax highlighting kullanılır
+2. User Documentation
+   - System requirements
+   - Account management
+   - Module usage
+   - Reporting features
+   - Support information
 
-### 2. İçerik Yapısı
-- Her doküman bir başlık ile başlar
-- İçindekiler tablosu bulunur
-- Bölümler mantıksal olarak ayrılır
-- Örnekler ve kullanım senaryoları içerir
+## Contributing to Documentation
 
-### 3. Güncelleme Süreci
-- Her yeni özellik için dokümantasyon güncellenir
-- Değişiklikler versiyon kontrolünde takip edilir
-- Düzenli olarak gözden geçirilir
-- Kullanıcı geri bildirimleri değerlendirilir
+We welcome contributions to improve our documentation. Please follow these guidelines:
 
-## Katkıda Bulunma
+1. Fork the repository
+2. Create a new branch for your changes
+3. Make your changes
+4. Submit a pull request
 
-1. Dokümantasyona katkıda bulunmak için:
-   - Fork yapın
-   - Değişikliklerinizi yapın
-   - Pull request gönderin
+## Documentation Updates
 
-2. Katkı kuralları:
-   - Markdown formatına uyun
-   - Açık ve anlaşılır dil kullanın
-   - Örnekler ve görseller ekleyin
-   - Türkçe karakterlere dikkat edin
+The documentation is regularly updated to reflect:
+- New features
+- System changes
+- Best practices
+- User feedback
 
-## Sürüm Geçmişi
+## Support
 
-- [Sürüm Notları](release_notes.md)
-- Her sürüm için dokümantasyon güncellemeleri
-- Önemli değişiklikler ve iyileştirmeler
-
-## 📞 İletişim
-
-Dokümantasyon ile ilgili sorularınız için:
-- E-posta: docs@finasis.com.tr
-- GitHub Issues: https://github.com/abdullah-aktas/FinAsis/issues 
+If you need help with the documentation or have suggestions for improvement, please contact our support team at support@finasis.com 
