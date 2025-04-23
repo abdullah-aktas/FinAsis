@@ -1,3 +1,100 @@
+/*
+ * Ana JavaScript dosyası
+ * Modern ve modüler yapıda JavaScript kodu
+ */
+
+// ES6+ modül sistemi
+import { initNotifications } from './modules/notifications.js';
+import { initForms } from './modules/forms.js';
+import { initUI } from './modules/ui.js';
+import { initAPI } from './modules/api.js';
+
+// Ana uygulama sınıfı
+class FinAsisApp {
+    constructor() {
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Modülleri başlat
+            await this.initializeModules();
+            
+            // PWA desteği
+            if ('serviceWorker' in navigator) {
+                this.registerServiceWorker();
+            }
+            
+            // Çevrimdışı desteği
+            this.setupOfflineSupport();
+            
+            // Performans izleme
+            this.setupPerformanceMonitoring();
+        } catch (error) {
+            console.error('Uygulama başlatma hatası:', error);
+        }
+    }
+
+    async initializeModules() {
+        // Modülleri paralel olarak başlat
+        await Promise.all([
+            initNotifications(),
+            initForms(),
+            initUI(),
+            initAPI()
+        ]);
+    }
+
+    registerServiceWorker() {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker başarıyla kaydedildi:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('ServiceWorker kaydı başarısız:', error);
+                });
+        });
+    }
+
+    setupOfflineSupport() {
+        window.addEventListener('online', () => {
+            this.showNotification('Bağlantı yeniden sağlandı', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            this.showNotification('Çevrimdışı moda geçildi', 'warning');
+        });
+    }
+
+    setupPerformanceMonitoring() {
+        // Performans ölçümleri
+        if ('performance' in window) {
+            const timing = performance.timing;
+            const loadTime = timing.loadEventEnd - timing.navigationStart;
+            console.log(`Sayfa yüklenme süresi: ${loadTime}ms`);
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Bildirim göster
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+}
+
+// Uygulamayı başlat
+document.addEventListener('DOMContentLoaded', () => {
+    new FinAsisApp();
+});
+
 // Sayfa yüklendiğinde çalışacak fonksiyonlar
 document.addEventListener('DOMContentLoaded', function() {
     // Aktif menü öğesini işaretle

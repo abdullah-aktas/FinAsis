@@ -1,21 +1,123 @@
 # Turkish translations for FinAsis project.
-# Copyright (C) 2023 FinAsis
-# This file is distributed under the same license as the FinAsis package.
-# Contributors:
-#
+# Copyright (C) 2024 FinAsis
+# This file is distributed under the same license as the FinAsis project.
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.0\n"
+"Project-Id-Version: FinAsis 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-24 10:00+0300\n"
-"PO-Revision-Date: 2023-10-24 10:00+0300\n"
-"Last-Translator: FinAsis Team <info@finasis.com>\n"
-"Language-Team: Turkish <tr@li.org>\n"
+"POT-Creation-Date: 2024-04-20 20:00+0300\n"
+"PO-Revision-Date: 2024-04-20 20:00+0300\n"
+"Last-Translator: \n"
+"Language-Team: Turkish\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: integrations/base.py
+msgid "Integration Error"
+msgstr "Entegrasyon Hatası"
+
+#: integrations/base.py
+msgid "Authentication failed"
+msgstr "Kimlik doğrulama başarısız"
+
+#: integrations/base.py
+msgid "Invalid credentials"
+msgstr "Geçersiz kimlik bilgileri"
+
+#: integrations/base.py
+msgid "Rate limit exceeded"
+msgstr "İstek limiti aşıldı"
+
+#: integrations/base.py
+msgid "Service unavailable"
+msgstr "Servis kullanılamıyor"
+
+#: integrations/base.py
+msgid "Invalid response format"
+msgstr "Geçersiz yanıt formatı"
+
+#: integrations/bank_integration/service.py
+msgid "Bank account not found"
+msgstr "Banka hesabı bulunamadı"
+
+#: integrations/bank_integration/service.py
+msgid "Insufficient funds"
+msgstr "Yetersiz bakiye"
+
+#: integrations/bank_integration/service.py
+msgid "Invalid transaction"
+msgstr "Geçersiz işlem"
+
+#: integrations/ecommerce/service.py
+msgid "Product not found"
+msgstr "Ürün bulunamadı"
+
+#: integrations/ecommerce/service.py
+msgid "Out of stock"
+msgstr "Stokta yok"
+
+#: integrations/ecommerce/service.py
+msgid "Invalid order"
+msgstr "Geçersiz sipariş"
+
+#: integrations/e_invoice/service.py
+msgid "Invoice not found"
+msgstr "Fatura bulunamadı"
+
+#: integrations/e_invoice/service.py
+msgid "Invalid invoice format"
+msgstr "Geçersiz fatura formatı"
+
+#: integrations/erp/service.py
+msgid "Department not found"
+msgstr "Departman bulunamadı"
+
+#: integrations/erp/service.py
+msgid "Employee not found"
+msgstr "Çalışan bulunamadı"
+
+#: integrations/erp/service.py
+msgid "Project not found"
+msgstr "Proje bulunamadı"
+
+#: integrations/payment/service.py
+msgid "Payment failed"
+msgstr "Ödeme başarısız"
+
+#: integrations/payment/service.py
+msgid "Invalid payment method"
+msgstr "Geçersiz ödeme yöntemi"
+
+#: integrations/payment/service.py
+msgid "Payment declined"
+msgstr "Ödeme reddedildi"
+
+#: integrations/external_services/service.py
+msgid "Service not available"
+msgstr "Servis kullanılamıyor"
+
+#: integrations/external_services/service.py
+msgid "Invalid request"
+msgstr "Geçersiz istek"
+
+#: integrations/external_services/service.py
+msgid "Data not found"
+msgstr "Veri bulunamadı"
+
+#: integrations/services.py
+msgid "Cache error"
+msgstr "Önbellek hatası"
+
+#: integrations/services.py
+msgid "Configuration error"
+msgstr "Yapılandırma hatası"
+
+#: integrations/services.py
+msgid "Validation error"
+msgstr "Doğrulama hatası"
 
 #: apps/users/models.py:15
 msgid "E-posta adresi zorunludur"

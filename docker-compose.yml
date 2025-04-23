@@ -4,18 +4,17 @@ services:
   # Django web uygulaması
   web:
     build: .
-    command: gunicorn finasis.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn social.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
       - redis
+      - db
     environment:
-      - DEBUG=0
-      - SECRET_KEY=your-secret-key
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
+      - DJANGO_SETTINGS_MODULE=social.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/social
       - REDIS_URL=redis://redis:6379/0
 
   # PostgreSQL veritabanı
@@ -24,44 +23,44 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=finasis
+      - POSTGRES_DB=social
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
 
   # Redis (önbellek ve mesaj kuyruğu için)
   redis:
-    image: redis:7
+    image: redis:7.2
     ports:
       - "6379:6379"
 
   # Celery worker (arka plan görevleri için)
   celery_worker:
     build: .
-    command: celery -A finasis worker -l INFO
+    command: celery -A social worker -l INFO
     volumes:
       - .:/app
     depends_on:
-      - web
       - redis
+      - db
     environment:
-      - DEBUG=0
-      - SECRET_KEY=your-secret-key
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
+      - DJANGO_SETTINGS_MODULE=social.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/social
       - REDIS_URL=redis://redis:6379/0
 
   # Celery beat (zamanlanmış görevler için)
   celery_beat:
     build: .
-    command: celery -A finasis beat -l INFO
+    command: celery -A social beat -l INFO
     volumes:
       - .:/app
     depends_on:
-      - web
       - redis
+      - db
     environment:
-      - DEBUG=0
-      - SECRET_KEY=your-secret-key
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/finasis
+      - DJANGO_SETTINGS_MODULE=social.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/social
       - REDIS_URL=redis://redis:6379/0
 
   # Nginx (statik dosya sunumu ve proxy için)

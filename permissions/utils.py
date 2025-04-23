@@ -3,9 +3,20 @@ Rol tabanlı izin kontrolü için yardımcı fonksiyonlar.
 """
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
+from django.core.cache import cache
+from django.contrib.auth.models import User, Permission, Group
+from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
+from .models import Role, UserRole, PermissionDelegation, IPWhitelist, TwoFactorAuth
+from .apps import get_setting
+import logging
+import ipaddress
+import pyotp
+import qrcode
+from io import BytesIO
+import base64
 
-from apps.permissions import ROLE_PERMISSIONS_MAP, MODULE_DEPENDENCIES
-
+logger = logging.getLogger(__name__)
 
 def check_user_role(user, required_roles):
     """
@@ -94,37 +105,224 @@ def check_module_permission(user, module, permission_type='view', check_dependen
 
 def get_user_permissions(user):
     """
-    Kullanıcının tüm izinlerini döndürür.
-    
-    Parameters:
-    -----------
-    user : User
-        İzinleri alınacak kullanıcı.
-    
-    Returns:
-    --------
-    dict
-        Kullanıcının tüm izinleri.
+    Kullanıcının tüm izinlerini döndürür (roller, gruplar ve devredilen izinler dahil)
     """
-    if not user.is_authenticated:
-        return {}
+    cache_key = f'user_permissions:{user.id}'
+    permissions = cache.get(cache_key)
     
-    # Süper kullanıcılar için tüm izinleri döndür
-    if user.is_superuser:
-        all_modules = set()
-        all_permissions = {'create', 'view', 'update', 'delete'}
+    if permissions is None:
+        # Rol bazlı izinler
+        role_permissions = Permission.objects.filter(
+            role__userrole__user=user,
+            role__userrole__is_active=True
+        )
         
-        # Tüm modülleri topla
-        for role_perms in ROLE_PERMISSIONS_MAP.values():
-            for module in role_perms:
-                if module != 'all':
-                    all_modules.add(module)
+        # Grup bazlı izinler
+        group_permissions = Permission.objects.filter(
+            group__user=user
+        )
         
-        # Tüm modüller için tüm izinleri ver
-        return {'all': list(all_permissions), **{module: list(all_permissions) for module in all_modules}}
+        # Devredilen izinler
+        delegated_permissions = Permission.objects.filter(
+            permissiondelegation__delegatee=user,
+            permissiondelegation__is_active=True,
+            permissiondelegation__expires_at__gt=timezone.now()
+        )
+        
+        # Tüm izinleri birleştir
+        permissions = (role_permissions | group_permissions | delegated_permissions).distinct()
+        
+        # Cache'e kaydet
+        cache.set(cache_key, permissions, get_setting('CACHE_TIMEOUT'))
     
-    # Normal kullanıcılar için rol bazlı izinleri döndür
-    return ROLE_PERMISSIONS_MAP.get(user.role, {})
+    return permissions
+
+
+def has_permission(user, permission_codename):
+    """
+    Kullanıcının belirli bir izne sahip olup olmadığını kontrol eder
+    """
+    return get_user_permissions(user).filter(codename=permission_codename).exists()
+
+
+def get_user_roles(user):
+    """
+    Kullanıcının aktif rollerini döndürür
+    """
+    cache_key = f'user_roles:{user.id}'
+    roles = cache.get(cache_key)
+    
+    if roles is None:
+        roles = Role.objects.filter(
+            userrole__user=user,
+            userrole__is_active=True
+        ).distinct()
+        cache.set(cache_key, roles, get_setting('CACHE_TIMEOUT'))
+    
+    return roles
+
+
+def is_ip_whitelisted(ip_address):
+    """
+    IP adresinin beyaz listede olup olmadığını kontrol eder
+    """
+    if not get_setting('IP_WHITELIST_ENABLED'):
+        return True
+    
+    cache_key = f'ip_whitelist:{ip_address}'
+    is_whitelisted = cache.get(cache_key)
+    
+    if is_whitelisted is None:
+        try:
+            ip = ipaddress.ip_address(ip_address)
+            is_whitelisted = IPWhitelist.objects.filter(
+                ip_address=ip_address,
+                is_active=True
+            ).exists()
+            cache.set(cache_key, is_whitelisted, get_setting('CACHE_TIMEOUT'))
+        except ValueError:
+            is_whitelisted = False
+    
+    return is_whitelisted
+
+
+def setup_2fa(user):
+    """
+    İki faktörlü kimlik doğrulama için gerekli ayarları yapar
+    """
+    if not get_setting('TWO_FACTOR_ENABLED'):
+        return None
+    
+    # Mevcut 2FA ayarlarını kontrol et
+    existing_2fa = TwoFactorAuth.objects.filter(user=user).first()
+    if existing_2fa and existing_2fa.is_active:
+        return existing_2fa
+    
+    # Yeni 2FA ayarları oluştur
+    secret = pyotp.random_base32()
+    totp = pyotp.TOTP(secret)
+    
+    # QR kod oluştur
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(totp.provisioning_uri(user.email, issuer_name=get_setting('APP_NAME')))
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    qr_code = base64.b64encode(buffer.getvalue()).decode()
+    
+    # 2FA kaydını oluştur
+    two_factor = TwoFactorAuth.objects.create(
+        user=user,
+        secret=secret,
+        is_active=False
+    )
+    
+    return {
+        'secret': secret,
+        'qr_code': qr_code,
+        'two_factor': two_factor
+    }
+
+
+def verify_2fa(user, code):
+    """
+    İki faktörlü kimlik doğrulama kodunu doğrular
+    """
+    two_factor = TwoFactorAuth.objects.filter(user=user, is_active=True).first()
+    if not two_factor:
+        return False
+    
+    totp = pyotp.TOTP(two_factor.secret)
+    return totp.verify(code)
+
+
+def delegate_permission(delegator, delegatee, permission, expires_at=None):
+    """
+    İzin devri oluşturur
+    """
+    if not get_setting('PERMISSION_DELEGATION_ENABLED'):
+        return None
+    
+    # Devir yetkisini kontrol et
+    if not has_permission(delegator, 'permissions.delegate_permission'):
+        logger.warning(f"İzin devri başarısız: {delegator.username} yetkisiz")
+        return None
+    
+    # İzin devrini oluştur
+    delegation = PermissionDelegation.objects.create(
+        delegator=delegator,
+        delegatee=delegatee,
+        permission=permission,
+        expires_at=expires_at
+    )
+    
+    # Cache'i temizle
+    cache.delete_pattern(f'user_permissions:{delegatee.id}:*')
+    
+    logger.info(f"İzin devri oluşturuldu: {delegator.username} -> {delegatee.username}")
+    return delegation
+
+
+def revoke_permission(delegation_id):
+    """
+    İzin devrini iptal eder
+    """
+    try:
+        delegation = PermissionDelegation.objects.get(id=delegation_id)
+        delegation.is_active = False
+        delegation.save()
+        
+        # Cache'i temizle
+        cache.delete_pattern(f'user_permissions:{delegation.delegatee.id}:*')
+        
+        logger.info(f"İzin devri iptal edildi: {delegation.delegator.username} -> {delegation.delegatee.username}")
+        return True
+    except PermissionDelegation.DoesNotExist:
+        logger.error(f"İzin devri bulunamadı: {delegation_id}")
+        return False
+
+
+def check_permission_expiry():
+    """
+    Süresi dolmuş izin devirlerini kontrol eder ve devre dışı bırakır
+    """
+    expired_delegations = PermissionDelegation.objects.filter(
+        is_active=True,
+        expires_at__lt=timezone.now()
+    )
+    
+    for delegation in expired_delegations:
+        delegation.is_active = False
+        delegation.save()
+        
+        # Cache'i temizle
+        cache.delete_pattern(f'user_permissions:{delegation.delegatee.id}:*')
+        
+        logger.info(f"İzin devri süresi doldu: {delegation.delegator.username} -> {delegation.delegatee.username}")
+
+
+def get_audit_logs(user=None, action=None, model=None, start_date=None, end_date=None):
+    """
+    Denetim kayıtlarını filtreler ve döndürür
+    """
+    from .models import AuditLog
+    
+    queryset = AuditLog.objects.all()
+    
+    if user:
+        queryset = queryset.filter(user=user)
+    if action:
+        queryset = queryset.filter(action=action)
+    if model:
+        queryset = queryset.filter(model=model)
+    if start_date:
+        queryset = queryset.filter(created_at__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(created_at__lte=end_date)
+    
+    return queryset.order_by('-created_at')
 
 
 def assert_module_permission(user, module, permission_type='view', check_dependencies=True,

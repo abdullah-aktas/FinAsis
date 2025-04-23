@@ -1,0 +1,116 @@
+groups:
+  - name: finasis-alerts
+    rules:
+      # Web uygulaması alertleri
+      - alert: HighRequestLatency
+        expr: http_request_duration_seconds{quantile="0.9"} > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek istek gecikmesi"
+          description: "Web uygulamasında 90. yüzdelik dilimdeki istek gecikmesi 1 saniyeyi aştı"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Yüksek hata oranı"
+          description: "Web uygulamasında 5xx hata oranı %5'i aştı"
+
+      # Redis alertleri
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis servisi çalışmıyor"
+          description: "Redis servisi 1 dakikadır erişilemez durumda"
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis yüksek bellek kullanımı"
+          description: "Redis bellek kullanımı %90'ı aştı"
+
+      # PostgreSQL alertleri
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL servisi çalışmıyor"
+          description: "PostgreSQL servisi 1 dakikadır erişilemez durumda"
+
+      - alert: PostgresHighConnections
+        expr: pg_stat_activity_count > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL yüksek bağlantı sayısı"
+          description: "PostgreSQL aktif bağlantı sayısı 100'ü aştı"
+
+      # Node exporter alertleri
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek CPU kullanımı"
+          description: "CPU kullanımı %80'i aştı"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek bellek kullanımı"
+          description: "Bellek kullanımı %85'i aştı"
+
+      - alert: HighDiskUsage
+        expr: 100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek disk kullanımı"
+          description: "Disk kullanımı %85'i aştı"
+
+      # Traefik alertleri
+      - alert: TraefikDown
+        expr: traefik_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Traefik servisi çalışmıyor"
+          description: "Traefik servisi 1 dakikadır erişilemez durumda"
+
+      # cAdvisor alertleri
+      - alert: ContainerHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Konteyner yüksek CPU kullanımı"
+          description: "Konteyner CPU kullanımı %80'i aştı"
+
+      - alert: ContainerHighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Konteyner yüksek bellek kullanımı"
+          description: "Konteyner bellek kullanımı %90'ı aştı" 

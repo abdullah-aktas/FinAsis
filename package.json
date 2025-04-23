@@ -1,35 +1,63 @@
 {
   "name": "finasis",
   "version": "1.0.0",
-  "description": "FinAsis - Finansal Yönetim ve Eğitim Platformu",
+  "private": true,
+  "description": "Finansal Analiz ve Yapay Zeka Destekli Yatırım Platformu",
+  "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "format": "prettier --write src/**/*.{ts,tsx}",
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@material-ui/core": "^4.12.4",
-    "@material-ui/icons": "^4.11.3",
-    "@material-ui/lab": "^4.0.0-alpha.61",
-    "@mui/icons-material": "^7.0.2",
-    "@mui/material": "^7.0.2",
-    "axios": "^0.27.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.30.0",
-    "react-scripts": "5.0.1",
-    "recharts": "^2.15.2"
+    "@apollo/client": "^3.8.10",
+    "@emotion/react": "^11.11.3",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.15.10",
+    "@reduxjs/toolkit": "^2.2.1",
+    "@tensorflow/tfjs": "^4.17.0",
+    "axios": "^1.6.7",
+    "chart.js": "^4.4.1",
+    "d3": "^7.8.5",
+    "compression": "^1.7.4",
+    "helmet": "^7.1.0",
+    "pandas-js": "^0.3.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-redux": "^9.1.0",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/react": "^18.2.6",
-    "@types/react-dom": "^18.2.4",
-    "typescript": "^4.9.5"
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "cypress": "^13.6.4",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.5",
+    "sonar-scanner": "^3.1.0",
+    "typescript": "^5.3.3"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "airbnb",
+      "prettier"
+    ]
   },
   "browserslist": {
     "production": [

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{{ user_detail.get_full_name|default:user_detail.username }} - {% trans "Kullanıcı Detayı" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Sol Kolon: Profil Bilgileri -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    {% if user_detail.profile.profile_image %}
+                        <img src="{{ user_detail.profile.profile_image.url }}" 
+                             class="rounded-circle mb-3" 
+                             alt="{% trans 'Profil Resmi' %}"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle mb-3 bg-light d-flex align-items-center justify-content-center mx-auto"
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h4 class="mb-1">{{ user_detail.get_full_name|default:user_detail.username }}</h4>
+                    <p class="text-muted mb-2">{{ user_detail.email }}</p>
+                    
+                    {% if user_detail.profile.website %}
+                        <a href="{{ user_detail.profile.website }}" target="_blank" class="text-primary">
+                            <i class="fas fa-globe"></i> {% trans "Web Sitesi" %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- İletişim Bilgileri -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "İletişim Bilgileri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        {% if user_detail.profile.phone %}
+                            <li class="mb-2">
+                                <i class="fas fa-phone text-primary mr-2"></i>
+                                {{ user_detail.profile.phone }}
+                            </li>
+                        {% endif %}
+                        {% if user_detail.profile.address %}
+                            <li class="mb-2">
+                                <i class="fas fa-map-marker-alt text-primary mr-2"></i>
+                                {{ user_detail.profile.address }}
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Kolon: Aktivite Geçmişi -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "Son Aktiviteler" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if activities %}
+                        <div class="list-group">
+                            {% for activity in activities %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ activity.action }}</h6>
+                                        <small class="text-muted">{{ activity.created_at|timesince }} {% trans "önce" %}</small>
+                                    </div>
+                                    <p class="mb-1">{{ activity.details }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> 
+                                        {{ activity.ip_address }} - {{ activity.user_agent }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">{% trans "Henüz aktivite kaydı bulunmuyor." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -7,9 +7,19 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.conf import settings
+from functools import wraps
+from django.core.exceptions import PermissionDenied
+from django.utils.decorators import available_attrs
+from .utils import (
+    has_permission, is_ip_whitelisted, verify_2fa,
+    get_user_permissions, get_user_roles
+)
+from .apps import get_setting
+import logging
 
 from apps.permissions import ROLE_PERMISSIONS_MAP, MODULE_DEPENDENCIES
 
+logger = logging.getLogger(__name__)
 
 def check_role(required_roles, redirect_to=None, message=None):
     """
@@ -235,4 +245,132 @@ def check_module_permission(module, permission_type='view', check_dependencies=T
         
         return _wrapped_view
     
+    return decorator
+
+def require_permission(permission_codename):
+    """
+    Belirli bir izne sahip olmayı gerektiren dekoratör
+    """
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                return HttpResponseForbidden("Bu işlem için giriş yapmanız gerekiyor.")
+            
+            if not has_permission(request.user, permission_codename):
+                logger.warning(f"İzin reddedildi: {request.user.username} - {permission_codename}")
+                raise PermissionDenied("Bu işlem için yetkiniz bulunmuyor.")
+            
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
+def require_role(role_codes):
+    """
+    Belirli bir role sahip olmayı gerektiren dekoratör
+    """
+    if isinstance(role_codes, str):
+        role_codes = [role_codes]
+    
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                return HttpResponseForbidden("Bu işlem için giriş yapmanız gerekiyor.")
+            
+            user_roles = get_user_roles(request.user)
+            if not any(role.code in role_codes for role in user_roles):
+                logger.warning(f"Rol reddedildi: {request.user.username} - {role_codes}")
+                raise PermissionDenied("Bu işlem için gerekli role sahip değilsiniz.")
+            
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
+def require_ip_whitelist(view_func):
+    """
+    IP beyaz listesi kontrolü yapan dekoratör
+    """
+    @wraps(view_func, assigned=available_attrs(view_func))
+    def _wrapped_view(request, *args, **kwargs):
+        if not get_setting('IP_WHITELIST_ENABLED'):
+            return view_func(request, *args, **kwargs)
+        
+        client_ip = request.META.get('REMOTE_ADDR')
+        if not is_ip_whitelisted(client_ip):
+            logger.warning(f"IP erişimi reddedildi: {client_ip}")
+            raise PermissionDenied("Bu IP adresinden erişim izniniz bulunmuyor.")
+        
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def require_2fa(view_func):
+    """
+    İki faktörlü kimlik doğrulama gerektiren dekoratör
+    """
+    @wraps(view_func, assigned=available_attrs(view_func))
+    def _wrapped_view(request, *args, **kwargs):
+        if not get_setting('TWO_FACTOR_ENABLED'):
+            return view_func(request, *args, **kwargs)
+        
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden("Bu işlem için giriş yapmanız gerekiyor.")
+        
+        if not verify_2fa(request.user, request.session.get('2fa_verified')):
+            logger.warning(f"2FA doğrulaması başarısız: {request.user.username}")
+            raise PermissionDenied("İki faktörlü kimlik doğrulama gerekiyor.")
+        
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def audit_log(action, model=None):
+    """
+    Denetim kaydı oluşturan dekoratör
+    """
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            from .models import AuditLog
+            
+            response = view_func(request, *args, **kwargs)
+            
+            if request.user.is_authenticated and get_setting('AUDIT_LOG_ENABLED'):
+                try:
+                    object_id = kwargs.get('pk') or kwargs.get('id')
+                    details = f"{action} işlemi gerçekleştirildi"
+                    
+                    if model:
+                        details += f" - Model: {model}"
+                    if object_id:
+                        details += f" - ID: {object_id}"
+                    
+                    AuditLog.objects.create(
+                        user=request.user,
+                        action=action,
+                        model=model,
+                        object_id=object_id,
+                        details=details
+                    )
+                except Exception as e:
+                    logger.error(f"Denetim kaydı oluşturulamadı: {str(e)}")
+            
+            return response
+        return _wrapped_view
+    return decorator
+
+def cache_permissions(timeout=None):
+    """
+    İzin sonuçlarını önbelleğe alan dekoratör
+    """
+    def decorator(view_func):
+        @wraps(view_func, assigned=available_attrs(view_func))
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                return view_func(request, *args, **kwargs)
+            
+            cache_timeout = timeout or get_setting('CACHE_TIMEOUT')
+            permissions = get_user_permissions(request.user)
+            
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
     return decorator 

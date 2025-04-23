@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from datetime import datetime
 from unittest.mock import patch
+from rest_framework.test import APIClient
 
 User = get_user_model()
 
@@ -234,4 +235,60 @@ class EFaturaAPITests(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['status'], 'delivered')
-        self.assertEqual(response.data['timestamp'], '2023-06-15T14:30:00Z') 
+        self.assertEqual(response.data['timestamp'], '2023-06-15T14:30:00Z')
+
+@pytest.mark.django_db
+class TestAPIEndpoints:
+    @pytest.fixture
+    def api_client(self):
+        return APIClient()
+
+    def test_health_check(self, api_client):
+        response = api_client.get(reverse('api:health-check'))
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data['status'] == 'healthy'
+        assert 'timestamp' in data
+        assert 'services' in data
+
+    def test_authentication_required(self, api_client):
+        response = api_client.get(reverse('api:protected-endpoint'))
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_rate_limiting(self, api_client):
+        for _ in range(100):
+            response = api_client.get(reverse('api:rate-limited'))
+        assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+
+    def test_input_validation(self, api_client):
+        invalid_data = {'invalid_field': 'value'}
+        response = api_client.post(
+            reverse('api:create-resource'),
+            data=json.dumps(invalid_data),
+            content_type='application/json'
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert 'errors' in response.json()
+
+    def test_pagination(self, api_client):
+        response = api_client.get(reverse('api:list-resources'))
+        data = response.json()
+        assert 'count' in data
+        assert 'next' in data
+        assert 'previous' in data
+        assert 'results' in data
+        assert len(data['results']) <= 10  # Sayfa başına maksimum 10 sonuç
+
+    def test_error_handling(self, api_client):
+        response = api_client.get(reverse('api:error-endpoint'))
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        data = response.json()
+        assert 'error' in data
+        assert 'message' in data
+        assert 'code' in data
+
+    def test_cors_headers(self, api_client):
+        response = api_client.get(reverse('api:health-check'))
+        assert 'Access-Control-Allow-Origin' in response.headers
+        assert 'Access-Control-Allow-Methods' in response.headers
+        assert 'Access-Control-Allow-Headers' in response.headers 

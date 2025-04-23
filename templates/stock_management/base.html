@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block page_title %}{% endblock %} - Stok Yönetimi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stock_management.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sol Menü -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}" 
+                           href="{% url 'stock_management:product_list' %}">
+                            <i class="fas fa-box"></i> Ürünler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" 
+                           href="{% url 'stock_management:category_list' %}">
+                            <i class="fas fa-tags"></i> Kategoriler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'movement_create' %}active{% endif %}" 
+                           href="{% url 'stock_management:movement_create' %}">
+                            <i class="fas fa-exchange-alt"></i> Stok Hareketleri
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'stock_alert_list' %}active{% endif %}" 
+                           href="{% url 'stock_management:stock_alert_list' %}">
+                            <i class="fas fa-bell"></i> Stok Uyarıları
+                            {% if unread_alerts_count %}
+                            <span class="badge bg-danger">{{ unread_alerts_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'stock_report' %}active{% endif %}" 
+                           href="{% url 'stock_management:stock_report' %}">
+                            <i class="fas fa-chart-bar"></i> Raporlar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Ana İçerik -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block page_title %}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block stock_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/stock_management.js' %}"></script>
+{% endblock %} 

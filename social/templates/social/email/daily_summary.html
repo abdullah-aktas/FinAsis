@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Günlük Bildirim Özeti" %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .notification {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .notification-type {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .notification-time {
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>{% trans "Merhaba" %} {{ user.user.username }},</h2>
+        <p>{% trans "Son 24 saatteki bildirimleriniz:" %}</p>
+    </div>
+    
+    <div class="content">
+        {% for notification in notifications %}
+            <div class="notification">
+                <span class="notification-type">
+                    {% if notification.notification_type == 'like' %}
+                        {% trans "Beğeni" %}
+                    {% elif notification.notification_type == 'comment' %}
+                        {% trans "Yorum" %}
+                    {% elif notification.notification_type == 'follow' %}
+                        {% trans "Takip" %}
+                    {% endif %}
+                </span>
+                <span class="notification-time">
+                    {{ notification.created_at|date:"d.m.Y H:i" }}
+                </span>
+                <p>
+                    {% if notification.notification_type == 'like' %}
+                        {% trans "Gönderiniz beğenildi:" %}
+                        {{ notification.post.content|truncatechars:100 }}
+                    {% elif notification.notification_type == 'comment' %}
+                        {% trans "Gönderinize yorum yapıldı:" %}
+                        {{ notification.post.content|truncatechars:100 }}
+                    {% elif notification.notification_type == 'follow' %}
+                        {% trans "Yeni bir takipçiniz var!" %}
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+        
+        <a href="{{ settings.SITE_URL }}{% url 'social:notifications' %}" class="button">
+            {% trans "Tüm Bildirimleri Görüntüle" %}
+        </a>
+    </div>
+    
+    <div class="footer">
+        <p>{% trans "Bu e-posta" %} {{ settings.SITE_NAME }} {% trans "tarafından gönderilmiştir." %}</p>
+        <p>
+            <a href="{{ settings.SITE_URL }}{% url 'social:notification_settings' %}">
+                {% trans "Bildirim ayarlarınızı değiştirin" %}
+            </a>
+        </p>
+    </div>
+</body>
+</html> 

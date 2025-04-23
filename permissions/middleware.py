@@ -9,6 +9,10 @@ from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
+from django.utils.deprecation import MiddlewareMixin
+from .utils import is_ip_whitelisted, verify_2fa
+from .apps import get_setting
 
 logger = logging.getLogger('security')
 
@@ -177,3 +181,130 @@ class BruteForceProtectionMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip 
+
+
+class IPWhitelistMiddleware(MiddlewareMixin):
+    """
+    IP beyaz listesi kontrolü yapan middleware
+    """
+    def process_request(self, request):
+        if not get_setting('IP_WHITELIST_ENABLED'):
+            return None
+        
+        client_ip = request.META.get('REMOTE_ADDR')
+        if not is_ip_whitelisted(client_ip):
+            logger.warning(f"IP erişimi reddedildi: {client_ip}")
+            raise PermissionDenied("Bu IP adresinden erişim izniniz bulunmuyor.")
+        
+        return None
+
+
+class TwoFactorAuthMiddleware(MiddlewareMixin):
+    """
+    İki faktörlü kimlik doğrulama kontrolü yapan middleware
+    """
+    def process_request(self, request):
+        if not get_setting('TWO_FACTOR_ENABLED'):
+            return None
+        
+        if not request.user.is_authenticated:
+            return None
+        
+        # 2FA doğrulaması gerektirmeyen URL'ler
+        excluded_paths = [
+            '/admin/login/',
+            '/admin/logout/',
+            '/2fa/setup/',
+            '/2fa/verify/',
+            '/2fa/disable/',
+        ]
+        
+        if any(request.path.startswith(path) for path in excluded_paths):
+            return None
+        
+        if not verify_2fa(request.user, request.session.get('2fa_verified')):
+            logger.warning(f"2FA doğrulaması başarısız: {request.user.username}")
+            raise PermissionDenied("İki faktörlü kimlik doğrulama gerekiyor.")
+        
+        return None
+
+
+class PermissionMiddleware(MiddlewareMixin):
+    """
+    İzin kontrollerini yapan middleware
+    """
+    def process_request(self, request):
+        if not request.user.is_authenticated:
+            return None
+        
+        # Admin paneli için özel kontrol
+        if request.path.startswith('/admin/'):
+            if not request.user.is_staff:
+                logger.warning(f"Admin erişimi reddedildi: {request.user.username}")
+                raise PermissionDenied("Admin paneline erişim izniniz bulunmuyor.")
+            return None
+        
+        return None
+
+
+class AuditLogMiddleware(MiddlewareMixin):
+    """
+    Denetim kayıtlarını tutan middleware
+    """
+    def process_response(self, request, response):
+        if not get_setting('AUDIT_LOG_ENABLED'):
+            return response
+        
+        if not request.user.is_authenticated:
+            return response
+        
+        # Denetim kaydı gerektirmeyen HTTP metodları
+        if request.method not in ['POST', 'PUT', 'DELETE', 'PATCH']:
+            return response
+        
+        try:
+            from .models import AuditLog
+            
+            action = {
+                'POST': 'CREATE',
+                'PUT': 'UPDATE',
+                'PATCH': 'UPDATE',
+                'DELETE': 'DELETE'
+            }.get(request.method)
+            
+            if not action:
+                return response
+            
+            # Model ve ID bilgilerini al
+            model = None
+            object_id = None
+            
+            if hasattr(request, 'resolver_match'):
+                view = request.resolver_match.func
+                if hasattr(view, 'model'):
+                    model = view.model.__name__
+                object_id = request.resolver_match.kwargs.get('pk')
+            
+            # Detay bilgisini oluştur
+            details = f"{action} işlemi gerçekleştirildi"
+            if model:
+                details += f" - Model: {model}"
+            if object_id:
+                details += f" - ID: {object_id}"
+            
+            # Denetim kaydını oluştur
+            AuditLog.objects.create(
+                user=request.user,
+                action=action,
+                model=model,
+                object_id=object_id,
+                details=details,
+                request_path=request.path,
+                request_method=request.method,
+                response_status=response.status_code
+            )
+            
+        except Exception as e:
+            logger.error(f"Denetim kaydı oluşturulamadı: {str(e)}")
+        
+        return response 

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Oturumlar" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{% trans "Aktif Oturumlar" %}</h4>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-light" id="terminateAll">
+                                <i class="fas fa-power-off"></i> {% trans "Tümünü Sonlandır" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Oturum Listesi -->
+                    <div class="list-group">
+                        {% for session in sessions %}
+                            <div class="list-group-item list-group-item-action {% if session.is_current %}list-group-item-primary{% endif %}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3">
+                                            {% if session.device_type == 'desktop' %}
+                                                <i class="fas fa-desktop fa-2x text-primary"></i>
+                                            {% elif session.device_type == 'tablet' %}
+                                                <i class="fas fa-tablet-alt fa-2x text-primary"></i>
+                                            {% elif session.device_type == 'mobile' %}
+                                                <i class="fas fa-mobile-alt fa-2x text-primary"></i>
+                                            {% else %}
+                                                <i class="fas fa-question-circle fa-2x text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">
+                                                {% if session.is_current %}
+                                                    <span class="badge badge-primary">{% trans "Mevcut Oturum" %}</span>
+                                                {% endif %}
+                                                {{ session.browser }} {{ session.browser_version }}
+                                            </h5>
+                                            <p class="mb-1">
+                                                <i class="fas fa-map-marker-alt"></i> {{ session.location }}
+                                                <br>
+                                                <i class="fas fa-network-wired"></i> {{ session.ip_address }}
+                                            </p>
+                                            <small class="text-muted">
+                                                <i class="far fa-clock"></i> {% trans "Son aktivite:" %} {{ session.last_activity|naturaltime }}
+                                                <br>
+                                                <i class="fas fa-calendar-alt"></i> {% trans "Başlangıç:" %} {{ session.created_at|date:"d.m.Y H:i" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% if not session.is_current %}
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-danger terminate-session" data-id="{{ session.id }}">
+                                                <i class="fas fa-power-off"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-user-lock fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">{% trans "Aktif oturum bulunmuyor." %}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Sayfalama -->
+                    {% if is_paginated %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'profile' %}" class="text-muted">
+                        <i class="fas fa-arrow-left"></i> {% trans "Profili Düzenle" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tüm oturumları sonlandır
+    document.getElementById('terminateAll').addEventListener('click', function() {
+        if (confirm('{% trans "Tüm oturumları sonlandırmak istediğinize emin misiniz? Bu işlem sizi de çıkış yaptıracaktır." %}')) {
+            fetch('{% url "terminate_all_sessions" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '{% url "login" %}';
+                }
+            });
+        }
+    });
+
+    // Tekil oturum sonlandırma
+    document.querySelectorAll('.terminate-session').forEach(button => {
+        button.addEventListener('click', function() {
+            const sessionId = this.dataset.id;
+            if (confirm('{% trans "Bu oturumu sonlandırmak istediğinize emin misiniz?" %}')) {
+                fetch(`/sessions/${sessionId}/terminate/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

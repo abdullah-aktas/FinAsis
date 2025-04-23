@@ -4,6 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import Warehouse, Product, Stock, StockMovement, StockCount, StockCountItem
 from .forms import WarehouseForm, ProductForm, StockForm, StockMovementForm, StockCountForm, StockCountItemForm
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.db.models import Sum, F, Q
+from django.utils import timezone
+from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
+from .models import Category, StockAlert
+from .forms import CategoryForm
+from .utils import check_stock_alerts
 
 # Create your views here.
 
@@ -73,3 +83,164 @@ def warehouse_delete(request, pk):
     })
 
 # Diğer model view tanımları buraya eklenecek...
+
+class ProductListView(LoginRequiredMixin, ListView):
+    model = Product
+    template_name = 'stock_management/product_list.html'
+    context_object_name = 'products'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Product.objects.select_related('category').all()
+        
+        # Arama filtresi
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) |
+                Q(sku__icontains=search_query) |
+                Q(barcode__icontains=search_query)
+            )
+        
+        # Kategori filtresi
+        category_id = self.request.GET.get('category')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        
+        # Stok durumu filtresi
+        stock_status = self.request.GET.get('stock_status')
+        if stock_status == 'low':
+            queryset = queryset.annotate(
+                current_stock=Sum('stock_movements__quantity')
+            ).filter(current_stock__lte=F('min_stock_level'))
+        elif stock_status == 'high':
+            queryset = queryset.annotate(
+                current_stock=Sum('stock_movements__quantity')
+            ).filter(current_stock__gte=F('max_stock_level'))
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['stock_alerts'] = StockAlert.objects.filter(is_read=False)[:5]
+        return context
+
+class ProductDetailView(LoginRequiredMixin, DetailView):
+    model = Product
+    template_name = 'stock_management/product_detail.html'
+    context_object_name = 'product'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.get_object()
+        
+        # Son stok hareketleri
+        context['recent_movements'] = product.stock_movements.select_related(
+            'created_by'
+        ).order_by('-created_at')[:10]
+        
+        # Stok grafiği verileri
+        context['stock_history'] = product.stock_movements.values(
+            'created_at__date'
+        ).annotate(
+            total=Sum('quantity')
+        ).order_by('created_at__date')
+        
+        return context
+
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'stock_management/product_form.html'
+    permission_required = 'stock_management.add_product'
+    success_url = reverse_lazy('stock_management:product_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Ürün başarıyla oluşturuldu.')
+        return response
+
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'stock_management/product_form.html'
+    permission_required = 'stock_management.change_product'
+    success_url = reverse_lazy('stock_management:product_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Ürün başarıyla güncellendi.')
+        return response
+
+class StockMovementCreateView(LoginRequiredMixin, CreateView):
+    model = StockMovement
+    form_class = StockMovementForm
+    template_name = 'stock_management/stock_movement_form.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        product_id = self.request.GET.get('product')
+        if product_id:
+            initial['product'] = get_object_or_404(Product, id=product_id)
+        return initial
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        response = super().form_valid(form)
+        
+        # Stok uyarılarını kontrol et
+        check_stock_alerts(form.instance.product)
+        
+        messages.success(self.request, 'Stok hareketi başarıyla kaydedildi.')
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('stock_management:product_detail', kwargs={'pk': self.object.product.id})
+
+def stock_alert_list(request):
+    if not request.user.has_perm('stock_management.view_stockalert'):
+        raise PermissionDenied
+    
+    alerts = StockAlert.objects.select_related('product').order_by('-created_at')
+    return render(request, 'stock_management/stock_alert_list.html', {'alerts': alerts})
+
+def mark_alert_read(request, alert_id):
+    if not request.user.has_perm('stock_management.change_stockalert'):
+        raise PermissionDenied
+    
+    alert = get_object_or_404(StockAlert, id=alert_id)
+    alert.is_read = True
+    alert.save()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success'})
+    
+    return redirect('stock_management:stock_alert_list')
+
+def stock_report(request):
+    if not request.user.has_perm('stock_management.view_stockreport'):
+        raise PermissionDenied
+    
+    # Stok raporu verileri
+    products = Product.objects.annotate(
+        current_stock=Sum('stock_movements__quantity')
+    ).filter(current_stock__isnull=False)
+    
+    # Düşük stoklu ürünler
+    low_stock = products.filter(current_stock__lte=F('min_stock_level'))
+    
+    # Yüksek stoklu ürünler
+    high_stock = products.filter(current_stock__gte=F('max_stock_level'))
+    
+    # Stok değeri
+    total_value = sum(product.stock_value for product in products)
+    
+    context = {
+        'products': products,
+        'low_stock': low_stock,
+        'high_stock': high_stock,
+        'total_value': total_value,
+    }
+    
+    return render(request, 'stock_management/stock_report.html', context)

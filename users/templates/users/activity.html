@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Aktivite Geçmişi" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{% trans "Aktivite Geçmişi" %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Filtreler -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form method="get" class="form-inline">
+                                <div class="form-group mr-3">
+                                    <label for="action_type" class="mr-2">{% trans "Aksiyon:" %}</label>
+                                    <select name="action_type" id="action_type" class="form-control">
+                                        <option value="">{% trans "Tümü" %}</option>
+                                        <option value="login" {% if request.GET.action_type == 'login' %}selected{% endif %}>{% trans "Giriş" %}</option>
+                                        <option value="logout" {% if request.GET.action_type == 'logout' %}selected{% endif %}>{% trans "Çıkış" %}</option>
+                                        <option value="profile_update" {% if request.GET.action_type == 'profile_update' %}selected{% endif %}>{% trans "Profil Güncelleme" %}</option>
+                                        <option value="password_change" {% if request.GET.action_type == 'password_change' %}selected{% endif %}>{% trans "Şifre Değiştirme" %}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-3">
+                                    <label for="date_from" class="mr-2">{% trans "Başlangıç:" %}</label>
+                                    <input type="date" name="date_from" id="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                                </div>
+                                <div class="form-group mr-3">
+                                    <label for="date_to" class="mr-2">{% trans "Bitiş:" %}</label>
+                                    <input type="date" name="date_to" id="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Aktivite Listesi -->
+                    <div class="timeline">
+                        {% for activity in activities %}
+                            <div class="timeline-item">
+                                <div class="timeline-badge">
+                                    {% if activity.action_type == 'login' %}
+                                        <i class="fas fa-sign-in-alt text-success"></i>
+                                    {% elif activity.action_type == 'logout' %}
+                                        <i class="fas fa-sign-out-alt text-danger"></i>
+                                    {% elif activity.action_type == 'profile_update' %}
+                                        <i class="fas fa-user-edit text-primary"></i>
+                                    {% elif activity.action_type == 'password_change' %}
+                                        <i class="fas fa-key text-warning"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle text-info"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h5 class="timeline-title">
+                                            {% if activity.action_type == 'login' %}
+                                                {% trans "Giriş Yapıldı" %}
+                                            {% elif activity.action_type == 'logout' %}
+                                                {% trans "Çıkış Yapıldı" %}
+                                            {% elif activity.action_type == 'profile_update' %}
+                                                {% trans "Profil Güncellendi" %}
+                                            {% elif activity.action_type == 'password_change' %}
+                                                {% trans "Şifre Değiştirildi" %}
+                                            {% else %}
+                                                {{ activity.action_type }}
+                                            {% endif %}
+                                        </h5>
+                                        <p class="text-muted">
+                                            <small>
+                                                <i class="far fa-clock"></i> {{ activity.created_at|naturaltime }}
+                                            </small>
+                                        </p>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <p>{{ activity.details }}</p>
+                                        {% if activity.ip_address %}
+                                            <p class="text-muted mb-0">
+                                                <small>
+                                                    <i class="fas fa-globe"></i> {{ activity.ip_address }}
+                                                    {% if activity.user_agent %}
+                                                        <br>
+                                                        <i class="fas fa-desktop"></i> {{ activity.user_agent }}
+                                                    {% endif %}
+                                                </small>
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">{% trans "Henüz aktivite kaydı bulunmuyor." %}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Sayfalama -->
+                    {% if is_paginated %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if request.GET.action_type %}&action_type={{ request.GET.action_type }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.action_type %}&action_type={{ request.GET.action_type }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if request.GET.action_type %}&action_type={{ request.GET.action_type }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.action_type %}&action_type={{ request.GET.action_type }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.action_type %}&action_type={{ request.GET.action_type }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'profile' %}" class="text-muted">
+                        <i class="fas fa-arrow-left"></i> {% trans "Profili Düzenle" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    background: #fff;
+    border: 2px solid #007bff;
+    z-index: 1;
+}
+
+.timeline-panel {
+    position: relative;
+    margin-left: 60px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.timeline-panel:before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 20px 10px 0;
+    border-color: transparent #dee2e6 transparent transparent;
+}
+
+.timeline-panel:after {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 20px 10px 0;
+    border-color: transparent #fff transparent transparent;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+}
+
+.timeline-body p {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %} 

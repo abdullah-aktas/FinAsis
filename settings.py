@@ -44,6 +44,17 @@ ANALYTICS_REPORT_SETTINGS = {
 
 # Middleware Ayarları
 MIDDLEWARE = [
-    # ... existing middleware ...
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'permissions.middleware.IPWhitelistMiddleware',
+    'permissions.middleware.TwoFactorAuthMiddleware',
+    'permissions.middleware.PermissionMiddleware',
+    'permissions.middleware.AuditLogMiddleware',
     'analytics.middleware.AnalyticsErrorMiddleware',
 ] 

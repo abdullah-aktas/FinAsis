@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Yeni Bildirim" %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .content {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>{% trans "Merhaba" %} {{ user.user.username }},</h2>
+    </div>
+    
+    <div class="content">
+        {% if notification_type == 'new_post' %}
+            <p>{% trans "Yeni bir gönderi paylaşıldı:" %}</p>
+            <p>{{ post.content|truncatechars:200 }}</p>
+            {% if post.image %}
+                <p><img src="{{ post.image.url }}" alt="{% trans 'Gönderi resmi' %}" style="max-width: 100%;"></p>
+            {% endif %}
+        {% elif notification_type == 'like' %}
+            <p>{% trans "Gönderiniz beğenildi:" %}</p>
+            <p>{{ post.content|truncatechars:200 }}</p>
+        {% elif notification_type == 'comment' %}
+            <p>{% trans "Gönderinize yorum yapıldı:" %}</p>
+            <p>{{ post.content|truncatechars:200 }}</p>
+        {% elif notification_type == 'follow' %}
+            <p>{% trans "Yeni bir takipçiniz var!" %}</p>
+        {% endif %}
+        
+        <a href="{{ settings.SITE_URL }}{% url 'social:post_detail' post.id %}" class="button">
+            {% trans "Gönderiyi Görüntüle" %}
+        </a>
+    </div>
+    
+    <div class="footer">
+        <p>{% trans "Bu e-posta" %} {{ settings.SITE_NAME }} {% trans "tarafından gönderilmiştir." %}</p>
+        <p>
+            <a href="{{ settings.SITE_URL }}{% url 'social:notification_settings' %}">
+                {% trans "Bildirim ayarlarınızı değiştirin" %}
+            </a>
+        </p>
+    </div>
+</body>
+</html> 

@@ -8,6 +8,28 @@ from django.conf.urls.i18n import i18n_patterns
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+
+from permissions.views import (
+    RoleViewSet,
+    ResourceViewSet,
+    PermissionViewSet,
+    PermissionDelegationViewSet,
+    AuditLogViewSet,
+    IPWhitelistViewSet,
+    TwoFactorSetupView,
+    TwoFactorVerifyView,
+    TwoFactorDisableView,
+    CheckPermissionView,
+    UserPermissionsView,
+    DelegatePermissionView,
+    RevokePermissionView,
+)
 
 # Language-independent URLs
 urlpatterns = [
@@ -63,6 +85,45 @@ urlpatterns += i18n_patterns(
     
     prefix_default_language=True  # Varsayılan dil için de prefix ekle
 )
+
+# API Router
+router = DefaultRouter()
+router.register(r'roles', RoleViewSet, basename='role')
+router.register(r'resources', ResourceViewSet, basename='resource')
+router.register(r'permissions', PermissionViewSet, basename='permission')
+router.register(r'permission-delegations', PermissionDelegationViewSet, basename='permission-delegation')
+router.register(r'audit-logs', AuditLogViewSet, basename='audit-log')
+router.register(r'ip-whitelist', IPWhitelistViewSet, basename='ip-whitelist')
+
+# API URL'leri
+urlpatterns += [
+    path('api/', include(router.urls)),
+    
+    # JWT Token URL'leri
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    
+    # İki faktörlü kimlik doğrulama URL'leri
+    path('api/2fa/setup/', TwoFactorSetupView.as_view(), name='2fa_setup'),
+    path('api/2fa/verify/', TwoFactorVerifyView.as_view(), name='2fa_verify'),
+    path('api/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa_disable'),
+    
+    # İzin yönetimi URL'leri
+    path('api/check-permission/', CheckPermissionView.as_view(), name='check_permission'),
+    path('api/user-permissions/', UserPermissionsView.as_view(), name='user_permissions'),
+    path('api/delegate-permission/', DelegatePermissionView.as_view(), name='delegate_permission'),
+    path('api/revoke-permission/', RevokePermissionView.as_view(), name='revoke_permission'),
+    
+    # Kullanıcı yönetimi URL'leri
+    path('api/users/', include('users.urls')),
+    
+    # Django REST Framework auth URL'leri
+    path('api-auth/', include('rest_framework.urls')),
+    
+    # Django Allauth URL'leri
+    path('accounts/', include('allauth.urls')),
+]
 
 # Debug araçları
 if settings.DEBUG:

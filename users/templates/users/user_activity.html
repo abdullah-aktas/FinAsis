@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Aktivite Geçmişi" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{% trans "Aktivite Geçmişi" %}</h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#filterModal">
+                            <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+                        </button>
+                        <a href="{% url 'user_activity' %}?export=csv" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-download"></i> {% trans "Dışa Aktar" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if activities %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Tarih" %}</th>
+                                        <th>{% trans "Aksiyon" %}</th>
+                                        <th>{% trans "Detay" %}</th>
+                                        <th>{% trans "IP Adresi" %}</th>
+                                        <th>{% trans "Tarayıcı" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activity in activities %}
+                                        <tr>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ activity.created_at|date:"d.m.Y H:i" }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ activity.get_action_type_class }}">
+                                                    {{ activity.action }}
+                                                </span>
+                                            </td>
+                                            <td>{{ activity.details }}</td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ activity.ip_address }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ activity.user_agent|truncatechars:30 }}
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Sayfalama -->
+                        {% if is_paginated %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">{% trans "Henüz aktivite kaydı bulunmuyor." %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">{% trans "Aktivite Filtrele" %}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get">
+                    <div class="form-group">
+                        <label>{% trans "Tarih Aralığı" %}</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="start_date">
+                            <div class="input-group-prepend input-group-append">
+                                <span class="input-group-text">-</span>
+                            </div>
+                            <input type="date" class="form-control" name="end_date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Aksiyon Türü" %}</label>
+                        <select class="form-control" name="action_type">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="login">{% trans "Giriş" %}</option>
+                            <option value="logout">{% trans "Çıkış" %}</option>
+                            <option value="profile_update">{% trans "Profil Güncelleme" %}</option>
+                            <option value="password_change">{% trans "Şifre Değiştirme" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "IP Adresi" %}</label>
+                        <input type="text" class="form-control" name="ip_address" placeholder="{% trans 'IP adresi girin' %}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "İptal" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

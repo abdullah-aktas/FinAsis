@@ -1,0 +1,205 @@
+{% extends "stock_management/base.html" %}
+{% load static %}
+
+{% block page_title %}{{ product.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:product_update' product.pk %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> Düzenle
+    </a>
+    <a href="{% url 'stock_management:movement_create' %}?product={{ product.pk }}" class="btn btn-sm btn-outline-success">
+        <i class="fas fa-exchange-alt"></i> Stok Hareketi
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> Sil
+    </button>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ürün Sil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ product.name }} ürününü silmek istediğinizden emin misiniz?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <form method="post" action="{% url 'stock_management:product_delete' product.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Ürün Bilgileri -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Ürün Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">SKU</dt>
+                    <dd class="col-sm-8">{{ product.sku }}</dd>
+
+                    <dt class="col-sm-4">Barkod</dt>
+                    <dd class="col-sm-8">{{ product.barcode|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Kategori</dt>
+                    <dd class="col-sm-8">{{ product.category.name|default:"-" }}</dd>
+
+                    <dt class="col-sm-4">Açıklama</dt>
+                    <dd class="col-sm-8">{{ product.description|default:"-"|linebreaks }}</dd>
+
+                    <dt class="col-sm-4">Birim Fiyat</dt>
+                    <dd class="col-sm-8">{{ product.unit_price }} ₺</dd>
+
+                    <dt class="col-sm-4">Vergi Oranı</dt>
+                    <dd class="col-sm-8">%{{ product.tax_rate }}</dd>
+
+                    <dt class="col-sm-4">Minimum Stok</dt>
+                    <dd class="col-sm-8">{{ product.min_stock_level }}</dd>
+
+                    <dt class="col-sm-4">Maksimum Stok</dt>
+                    <dd class="col-sm-8">{{ product.max_stock_level }}</dd>
+
+                    <dt class="col-sm-4">Durum</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge {% if product.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ product.is_active|yesno:"Aktif,Pasif" }}
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stok Bilgileri -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Stok Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Mevcut Stok</h6>
+                                <h3 class="mb-0 {% if product.current_stock <= product.min_stock_level %}text-danger{% elif product.current_stock >= product.max_stock_level %}text-warning{% else %}text-success{% endif %}">
+                                    {{ product.current_stock }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Stok Değeri</h6>
+                                <h3 class="mb-0">{{ product.stock_value }} ₺</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6>Stok Durumu</h6>
+                    <div class="progress">
+                        <div class="progress-bar {% if product.current_stock <= product.min_stock_level %}bg-danger{% elif product.current_stock >= product.max_stock_level %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" 
+                             style="width: {% widthratio product.current_stock product.max_stock_level 100 %}%"
+                             aria-valuenow="{{ product.current_stock }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="{{ product.max_stock_level }}">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        Minimum: {{ product.min_stock_level }} | 
+                        Maksimum: {{ product.max_stock_level }}
+                    </small>
+                </div>
+
+                <div class="mb-4">
+                    <h6>Stok Devir Hızı</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-info" 
+                                     role="progressbar" 
+                                     style="width: {% widthratio stock_turnover.turnover_rate 1 100 %}%"
+                                     aria-valuenow="{{ stock_turnover.turnover_rate }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <span class="badge bg-info">{{ stock_turnover.turnover_rate|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        Son 30 günlük ortalama: {{ stock_turnover.average_stock|floatformat:0 }} | 
+                        Satış: {{ stock_turnover.sales_quantity|floatformat:0 }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Son Stok Hareketleri -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Son Stok Hareketleri</h5>
+        <a href="{% url 'stock_management:movement_create' %}?product={{ product.pk }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Yeni Hareket
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Hareket Tipi</th>
+                        <th>Miktar</th>
+                        <th>Referans</th>
+                        <th>Notlar</th>
+                        <th>İşlem Yapan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in recent_movements %}
+                    <tr>
+                        <td>{{ movement.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <span class="badge {% if movement.movement_type == 'IN' %}bg-success{% elif movement.movement_type == 'OUT' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ movement.get_movement_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ movement.quantity }}</td>
+                        <td>{{ movement.reference|default:"-" }}</td>
+                        <td>{{ movement.notes|default:"-"|truncatechars:50 }}</td>
+                        <td>{{ movement.created_by.get_full_name|default:movement.created_by.username }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Henüz stok hareketi bulunmuyor.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,29 @@
+{% trans "Merhaba" %} {{ user.user.username }},
+
+{% trans "Son 24 saatteki bildirimleriniz:" %}
+
+{% for notification in notifications %}
+{% if notification.notification_type == 'like' %}
+{% trans "Beğeni" %} - {{ notification.created_at|date:"d.m.Y H:i" }}
+{% trans "Gönderiniz beğenildi:" %}
+{{ notification.post.content|truncatechars:100 }}
+
+{% elif notification.notification_type == 'comment' %}
+{% trans "Yorum" %} - {{ notification.created_at|date:"d.m.Y H:i" }}
+{% trans "Gönderinize yorum yapıldı:" %}
+{{ notification.post.content|truncatechars:100 }}
+
+{% elif notification.notification_type == 'follow' %}
+{% trans "Takip" %} - {{ notification.created_at|date:"d.m.Y H:i" }}
+{% trans "Yeni bir takipçiniz var!" %}
+
+{% endif %}
+{% endfor %}
+
+{% trans "Tüm bildirimleri görüntülemek için tıklayın:" %}
+{{ settings.SITE_URL }}{% url 'social:notifications' %}
+
+---
+{% trans "Bu e-posta" %} {{ settings.SITE_NAME }} {% trans "tarafından gönderilmiştir." %}
+{% trans "Bildirim ayarlarınızı değiştirmek için:" %}
+{{ settings.SITE_URL }}{% url 'social:notification_settings' %} 

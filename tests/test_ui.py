@@ -12,8 +12,94 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from decimal import Decimal
 from datetime import datetime, timedelta
+from selenium.common.exceptions import TimeoutException
 
 User = get_user_model()
+
+@pytest.fixture(scope='session')
+def browser():
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(options=options)
+    yield driver
+    driver.quit()
+
+class TestUI:
+    def test_home_page_loads(self, browser, live_server):
+        browser.get(live_server.url)
+        assert "FinAsis" in browser.title
+
+    def test_login_form(self, browser, live_server):
+        browser.get(f"{live_server.url}/login")
+        
+        username = browser.find_element(By.NAME, "username")
+        password = browser.find_element(By.NAME, "password")
+        submit = browser.find_element(By.CSS_SELECTOR, "button[type='submit']")
+        
+        username.send_keys("testuser")
+        password.send_keys("testpass123")
+        submit.click()
+        
+        try:
+            WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".alert-success"))
+            )
+            assert True
+        except TimeoutException:
+            assert False, "Login başarısız"
+
+    def test_responsive_design(self, browser, live_server):
+        browser.get(live_server.url)
+        
+        # Mobil görünüm
+        browser.set_window_size(375, 812)  # iPhone X
+        assert browser.find_element(By.CSS_SELECTOR, ".navbar-toggler").is_displayed()
+        
+        # Tablet görünüm
+        browser.set_window_size(768, 1024)  # iPad
+        assert not browser.find_element(By.CSS_SELECTOR, ".navbar-toggler").is_displayed()
+        
+        # Masaüstü görünüm
+        browser.set_window_size(1920, 1080)
+        assert not browser.find_element(By.CSS_SELECTOR, ".navbar-toggler").is_displayed()
+
+    def test_form_validation(self, browser, live_server):
+        browser.get(f"{live_server.url}/register")
+        
+        submit = browser.find_element(By.CSS_SELECTOR, "button[type='submit']")
+        submit.click()
+        
+        error_messages = browser.find_elements(By.CSS_SELECTOR, ".invalid-feedback")
+        assert len(error_messages) > 0
+
+    def test_ajax_loading(self, browser, live_server):
+        browser.get(live_server.url)
+        
+        # AJAX tetikleyici buton
+        button = browser.find_element(By.CSS_SELECTOR, ".load-data")
+        button.click()
+        
+        try:
+            WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".loading-spinner"))
+            )
+            WebDriverWait(browser, 10).until(
+                EC.invisibility_of_element_located((By.CSS_SELECTOR, ".loading-spinner"))
+            )
+            assert True
+        except TimeoutException:
+            assert False, "AJAX yükleme başarısız"
+
+    def test_error_pages(self, browser, live_server):
+        # 404 sayfası
+        browser.get(f"{live_server.url}/non-existent-page")
+        assert "404" in browser.page_source
+        
+        # 500 sayfası
+        browser.get(f"{live_server.url}/error-test")
+        assert "500" in browser.page_source
 
 @pytest.mark.webtest
 class InvoiceUITests(LiveServerTestCase):

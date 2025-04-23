@@ -8,355 +8,311 @@ from pathlib import Path
 import json
 import sys
 import re
+import logging
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Set
+from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor
+import hashlib
+
+# Logging konfigürasyonu
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/migration_fix.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+@dataclass
+class ModuleMerge:
+    old_module: str
+    new_module: str
+    is_submodule: bool = False
+    dependencies: List[str] = None
+
+    def __post_init__(self):
+        if self.dependencies is None:
+            self.dependencies = []
+
 # Modül birleştirmeleri - yeni değer, tam olarak yeni modül yolunu içermelidir
-MODULE_MERGES = {
+MODULE_MERGES: Dict[str, ModuleMerge] = {
     # CRM ve Customers modülleri birleştirildi
-    'customers': 'apps.crm',
-    'customer_management': 'apps.crm',
+    'customers': ModuleMerge('customers', 'apps.crm', False, ['apps.crm']),
+    'customer_management': ModuleMerge('customer_management', 'apps.crm', False, ['apps.crm']),
     
     # User ve HR modülleri birleştirildi
-    'users': 'apps.hr_management',
+    'users': ModuleMerge('users', 'apps.hr_management', False, ['apps.hr_management']),
     
     # Inventory, Stock ve Assets modülleri birleştirildi
-    'inventory': 'apps.stock_management',
-    'assets': 'apps.stock_management',
-    'asset_management': 'apps.stock_management',
+    'inventory': ModuleMerge('inventory', 'apps.stock_management', False, ['apps.stock_management']),
+    'assets': ModuleMerge('assets', 'apps.stock_management', False, ['apps.stock_management']),
+    'asset_management': ModuleMerge('asset_management', 'apps.stock_management', False, ['apps.stock_management']),
     
     # Integrations modülü altında toplanan alt modüller
-    'efatura': 'integrations.efatura',
-    'bank_integration': 'integrations.bank_integration',
-    'external_integrations': 'integrations.external',
-    'ext_services': 'integrations.services',
+    'efatura': ModuleMerge('efatura', 'integrations.efatura', False, ['integrations.efatura']),
+    'bank_integration': ModuleMerge('bank_integration', 'integrations.bank_integration', False, ['integrations.bank_integration']),
+    'external_integrations': ModuleMerge('external_integrations', 'integrations.external', False, ['integrations.external']),
+    'ext_services': ModuleMerge('ext_services', 'integrations.services', False, ['integrations.services']),
     
     # Diğer modül eşleştirmeleri
-    'backup_manager': 'apps.backup_manager',
-    'permissions': 'apps.permissions',
-    'blockchain': 'apps.blockchain',
-    'ai_assistant': 'apps.ai_assistant',
-    'seo_management': 'apps.seo',
-    'virtual_company': 'apps.virtual_company',
-    'analytics': 'apps.analytics',
-    'game_app': 'games.game_app',
-    'ursina_game': 'games.ursina_game',
-    'accounting': 'apps.accounting',
-    'finance': 'apps.finance',
-    'finance.accounting': 'finance.accounting',
-    'finance.banking': 'finance.banking',
-    'finance.checks': 'finance.checks',
-    'finance.einvoice': 'finance.einvoice',
-    'checks': 'apps.checks',
+    'backup_manager': ModuleMerge('backup_manager', 'apps.backup_manager', False, ['apps.backup_manager']),
+    'permissions': ModuleMerge('permissions', 'apps.permissions', False, ['apps.permissions']),
+    'blockchain': ModuleMerge('blockchain', 'apps.blockchain', False, ['apps.blockchain']),
+    'ai_assistant': ModuleMerge('ai_assistant', 'apps.ai_assistant', False, ['apps.ai_assistant']),
+    'seo_management': ModuleMerge('seo_management', 'apps.seo', False, ['apps.seo']),
+    'virtual_company': ModuleMerge('virtual_company', 'apps.virtual_company', False, ['apps.virtual_company']),
+    'analytics': ModuleMerge('analytics', 'apps.analytics', False, ['apps.analytics']),
+    'game_app': ModuleMerge('game_app', 'games.game_app', False, ['games.game_app']),
+    'ursina_game': ModuleMerge('ursina_game', 'games.ursina_game', False, ['games.ursina_game']),
+    'accounting': ModuleMerge('accounting', 'apps.accounting', False, ['apps.accounting']),
+    'finance': ModuleMerge('finance', 'apps.finance', False, ['apps.finance']),
+    'finance.accounting': ModuleMerge('finance.accounting', 'finance.accounting', True, ['finance.accounting']),
+    'finance.banking': ModuleMerge('finance.banking', 'finance.banking', True, ['finance.banking']),
+    'finance.checks': ModuleMerge('finance.checks', 'finance.checks', True, ['finance.checks']),
+    'finance.einvoice': ModuleMerge('finance.einvoice', 'finance.einvoice', True, ['finance.einvoice']),
+    'checks': ModuleMerge('checks', 'apps.checks', False, ['apps.checks']),
 }
 
-# Migrasyonları yedekle
-def backup_migrations():
+def calculate_file_hash(file_path: Path) -> str:
+    """Dosyanın SHA-256 hash değerini hesapla"""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def backup_migrations() -> str:
     """Mevcut migrasyonları yedekle"""
-    backup_dir = os.path.join(BASE_DIR, 'scripts', 'migration_backups', datetime.now().strftime('%Y%m%d_%H%M%S'))
-    os.makedirs(backup_dir, exist_ok=True)
+    backup_dir = BASE_DIR / 'scripts' / 'migration_backups' / datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_dir.mkdir(parents=True, exist_ok=True)
     
-    print(f"Migrasyonlar {backup_dir} dizinine yedekleniyor...")
+    logger.info(f"Migrasyonlar {backup_dir} dizinine yedekleniyor...")
+    
+    def backup_module_migrations(module_path: Path, backup_path: Path) -> None:
+        """Tek bir modülün migrasyonlarını yedekle"""
+        migrations_path = module_path / 'migrations'
+        if migrations_path.exists():
+            backup_path.mkdir(parents=True, exist_ok=True)
+            
+            # Migrasyon dosyalarını hash ile birlikte yedekle
+            for file in migrations_path.glob('*.py'):
+                dst = backup_path / file.name
+                shutil.copy2(file, dst)
+                file_hash = calculate_file_hash(file)
+                hash_file = backup_path / f"{file.name}.sha256"
+                hash_file.write_text(file_hash)
+                logger.info(f"  Yedeklendi: {file} -> {dst} (Hash: {file_hash})")
     
     # Ana modülleri ve alt modülleri tara
-    for old_module, new_module in MODULE_MERGES.items():
-        module_path = os.path.join(BASE_DIR, old_module.replace('.', os.path.sep))
-        migrations_path = os.path.join(module_path, 'migrations')
-        
-        if os.path.exists(migrations_path):
-            module_backup_dir = os.path.join(backup_dir, old_module.replace('.', '_'))
-            os.makedirs(module_backup_dir, exist_ok=True)
-            
-            # Migrasyonları kopyala
-            for file in os.listdir(migrations_path):
-                if file.endswith('.py'):
-                    src = os.path.join(migrations_path, file)
-                    dst = os.path.join(module_backup_dir, file)
-                    shutil.copy2(src, dst)
-                    print(f"  Yedeklendi: {src} -> {dst}")
+    with ThreadPoolExecutor() as executor:
+        for old_module, merge_info in MODULE_MERGES.items():
+            module_path = BASE_DIR / old_module.replace('.', os.path.sep)
+            module_backup_dir = backup_dir / old_module.replace('.', '_')
+            executor.submit(backup_module_migrations, module_path, module_backup_dir)
     
     # apps altındaki modülleri de yedekle
-    apps_dir = os.path.join(BASE_DIR, 'apps')
-    if os.path.exists(apps_dir):
-        for module in os.listdir(apps_dir):
-            module_path = os.path.join(apps_dir, module)
-            if os.path.isdir(module_path):
-                migrations_path = os.path.join(module_path, 'migrations')
-                if os.path.exists(migrations_path):
-                    module_backup_dir = os.path.join(backup_dir, f"apps_{module}")
-                    os.makedirs(module_backup_dir, exist_ok=True)
+    apps_dir = BASE_DIR / 'apps'
+    if apps_dir.exists():
+        with ThreadPoolExecutor() as executor:
+            for module in apps_dir.iterdir():
+                if module.is_dir():
+                    module_backup_dir = backup_dir / f"apps_{module.name}"
+                    executor.submit(backup_module_migrations, module, module_backup_dir)
                     
-                    # Migrasyonları kopyala
-                    for file in os.listdir(migrations_path):
-                        if file.endswith('.py'):
-                            src = os.path.join(migrations_path, file)
-                            dst = os.path.join(module_backup_dir, file)
-                            shutil.copy2(src, dst)
-                            print(f"  Yedeklendi: {src} -> {dst}")
-                
-                # Alt modüller varsa onları da yedekle
-                for subdir in os.listdir(module_path):
-                    submodule_path = os.path.join(module_path, subdir)
-                    if os.path.isdir(submodule_path):
-                        migrations_path = os.path.join(submodule_path, 'migrations')
-                        if os.path.exists(migrations_path):
-                            module_backup_dir = os.path.join(backup_dir, f"apps_{module}_{subdir}")
-                            os.makedirs(module_backup_dir, exist_ok=True)
-                            
-                            # Migrasyonları kopyala
-                            for file in os.listdir(migrations_path):
-                                if file.endswith('.py'):
-                                    src = os.path.join(migrations_path, file)
-                                    dst = os.path.join(module_backup_dir, file)
-                                    shutil.copy2(src, dst)
-                                    print(f"  Yedeklendi: {src} -> {dst}")
+                    # Alt modüller varsa onları da yedekle
+                    for subdir in module.iterdir():
+                        if subdir.is_dir():
+                            submodule_backup_dir = backup_dir / f"apps_{module.name}_{subdir.name}"
+                            executor.submit(backup_module_migrations, subdir, submodule_backup_dir)
     
-    return backup_dir
+    return str(backup_dir)
 
-# Migrasyon dosyalarını temizle
-def clean_migrations():
+def clean_migrations() -> None:
     """Migrasyon dosyalarını temizle - eski modüllerin migrasyonlarını temizle"""
-    for old_module, new_module in MODULE_MERGES.items():
-        if '.' in old_module:  # Alt modüller için path doğru oluştur
-            parts = old_module.split('.')
-            old_module_path = os.path.join(BASE_DIR, *parts)
-        else:
-            old_module_path = os.path.join(BASE_DIR, old_module)
+    for old_module, merge_info in MODULE_MERGES.items():
+        old_module_path = BASE_DIR / old_module.replace('.', os.path.sep)
+        old_migrations_path = old_module_path / 'migrations'
         
-        old_migrations_path = os.path.join(old_module_path, 'migrations')
-        
-        if os.path.exists(old_migrations_path):
+        if old_migrations_path.exists():
             # Sadece __init__.py'yi bırak, diğer migrasyonları sil
-            for file in os.listdir(old_migrations_path):
-                if file.endswith('.py') and file != '__init__.py':
-                    file_path = os.path.join(old_migrations_path, file)
+            for file in old_migrations_path.glob('*.py'):
+                if file.name != '__init__.py':
                     try:
-                        os.remove(file_path)
-                        print(f"Silindi: {file_path}")
+                        file.unlink()
+                        logger.info(f"Silindi: {file}")
                     except Exception as e:
-                        print(f"Hata: {file_path} silinemedi: {e}")
+                        logger.error(f"Hata: {file} silinemedi: {e}")
 
-# Migrasyonları güncelle
-def update_migrations():
+def update_migrations() -> None:
     """Model referans yollarını ve import ifadelerini güncelle"""
-    # Yeni modül yollarına göre migrasyonları güncelle
-    for old_module, new_module in MODULE_MERGES.items():
-        # Yeni modül yolu
-        if '.' in new_module:  # Alt modül için
-            parts = new_module.split('.')
-            new_module_path = os.path.join(BASE_DIR, *parts)
-        else:
-            new_module_path = os.path.join(BASE_DIR, new_module)
-        
-        # Yeni modülün migrations klasörü
-        new_migrations_path = os.path.join(new_module_path, 'migrations')
-        
-        if os.path.exists(new_migrations_path):
-            for file in os.listdir(new_migrations_path):
-                if file.endswith('.py') and file != '__init__.py':
-                    migration_file = os.path.join(new_migrations_path, file)
-                    update_migration_file(migration_file, old_module, new_module)
-
-def update_migration_file(file_path, old_module, new_module):
-    """Migrasyon dosyasındaki referansları güncelle"""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Model import yollarını güncelle
-        old_module_dotted = old_module.replace('.', r'\.')
-        pattern = rf"from\s+{old_module_dotted}\.models\s+import"
-        replacement = f"from {new_module}.models import"
-        content = re.sub(pattern, replacement, content)
-        
-        # ForeignKey ve model referanslarını güncelle
-        pattern = rf"to\s*=\s*['\"]({old_module_dotted})\.(\w+)['\"]"
-        replacement = f"to=\'{new_module}.\\2\'"
-        content = re.sub(pattern, replacement, content)
-        
-        # Migrasyon bağımlılıklarını güncelle
-        pattern = rf"dependencies\s*=\s*\[\s*\(?['\"]({old_module_dotted})['\"]"
-        replacement = f"dependencies = [('{new_module}'"
-        content = re.sub(pattern, replacement, content)
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        print(f"Güncellendi: {file_path}")
-    except Exception as e:
-        print(f"Hata: {file_path} dosyası güncellenirken bir sorun oluştu: {e}")
-
-# Fake migrasyon komutu oluştur
-def create_fake_migration_script():
-    """Migrasyon sorunlarını çözmek için fake migrasyon betiği oluştur"""
-    script_path = os.path.join(BASE_DIR, 'scripts', 'apply_migrations.py')
+    def update_migration_file(file_path: Path, old_module: str, new_module: str) -> None:
+        """Migrasyon dosyasındaki referansları güncelle"""
+        try:
+            content = file_path.read_text(encoding='utf-8')
+            original_content = content
+            
+            # Model import yollarını güncelle
+            old_module_dotted = old_module.replace('.', r'\.')
+            patterns = [
+                (rf"from\s+{old_module_dotted}\.models\s+import", f"from {new_module}.models import"),
+                (rf"to\s*=\s*['\"]({old_module_dotted})\.(\w+)['\"]", f"to=\'{new_module}.\\2\'"),
+                (rf"dependencies\s*=\s*\[\s*\(?['\"]({old_module_dotted})['\"]", f"dependencies = [('{new_module}'")
+            ]
+            
+            for pattern, replacement in patterns:
+                content = re.sub(pattern, replacement, content)
+            
+            if content != original_content:
+                file_path.write_text(content, encoding='utf-8')
+                logger.info(f"Güncellendi: {file_path}")
+            
+        except Exception as e:
+            logger.error(f"Hata: {file_path} dosyası güncellenirken bir sorun oluştu: {e}")
     
-    with open(script_path, 'w', encoding='utf-8') as f:
-        f.write("""#!/usr/bin/env python
-"""
+    # Yeni modül yollarına göre migrasyonları güncelle
+    with ThreadPoolExecutor() as executor:
+        for old_module, merge_info in MODULE_MERGES.items():
+            new_module_path = BASE_DIR / merge_info.new_module.replace('.', os.path.sep)
+            new_migrations_path = new_module_path / 'migrations'
+            
+            if new_migrations_path.exists():
+                for file in new_migrations_path.glob('*.py'):
+                    if file.name != '__init__.py':
+                        executor.submit(update_migration_file, file, old_module, merge_info.new_module)
+
+def create_fake_migration_script() -> None:
+    """Migrasyon sorunlarını çözmek için fake migrasyon betiği oluştur"""
+    script_path = BASE_DIR / 'scripts' / 'apply_migrations.py'
+    
+    script_content = """#!/usr/bin/env python
+\"\"\"
 Migration uygulama programı.
 Bu script, modül birleştirme işleminin ardından migrasyonları düzgün bir şekilde uygulamak için kullanılır.
-"""
+\"\"\"
 
 import os
 import sys
 import django
-import subprocess
+import logging
 from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Set
+from concurrent.futures import ThreadPoolExecutor
+
+# Logging konfigürasyonu
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/migration_apply.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Django ayarlarını yükleme
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 django.setup()
 
-from django.conf import settings
-from django.core.management import call_command
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.db.migrations.recorder import MigrationRecorder
 
-# Modül birleştirme haritası
-MODULE_MERGES = {
-    'customers': 'crm',
-    'users': 'hr_management',
-    'inventory': 'stock_management',
-    'assets': 'stock_management',
-    'efatura': 'integrations.efatura',
-    'bank_integration': 'integrations.bank_integration',
-    'ext_services': 'integrations.services',
-    'external_integrations': 'integrations.external',
-}
+def get_applied_migrations() -> Set[str]:
+    \"\"\"Uygulanmış migrasyonları al\"\"\"
+    recorder = MigrationRecorder(connection)
+    return {m.app + '.' + m.name for m in recorder.applied_migrations()}
 
-def log(message):
-    """Log mesajını zaman damgası ile ekrana yazdır."""
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}")
-
-def apply_migrations_with_fake_initial():
-    """Tüm modüller için --fake-initial kullanarak migrasyonları uygular."""
-    log("Migrasyonlar uygulanıyor (fake-initial ile)...")
+def apply_migrations(apps: List[str]) -> None:
+    \"\"\"Belirtilen uygulamalar için migrasyonları uygula\"\"\"
+    executor = MigrationExecutor(connection)
+    applied = get_applied_migrations()
     
-    apps_dir = os.path.join(settings.BASE_DIR, 'apps')
-    
-    # Önce Ana Uygulamalar
-    primary_apps = ['accounting', 'crm', 'hr_management', 'stock_management', 'checks', 'permissions']
-    for app in primary_apps:
-        if os.path.exists(os.path.join(apps_dir, app, 'migrations')):
-            try:
-                log(f"'{app}' uygulaması için migrasyonlar uygulanıyor...")
-                call_command('migrate', f'apps.{app}', '--fake-initial')
-                log(f"'{app}' migrasyonları başarıyla uygulandı.")
-            except Exception as e:
-                log(f"HATA: '{app}' migrasyonlarını uygularken bir sorun oluştu: {str(e)}")
-    
-    # Sonra Entegrasyon Uygulamaları
-    integration_apps = ['integrations.efatura', 'integrations.bank_integration', 
-                        'integrations.services', 'integrations.external']
-    for app in integration_apps:
-        if os.path.exists(os.path.join(apps_dir, app.replace('.', '/'), 'migrations')):
-            try:
-                log(f"'{app}' uygulaması için migrasyonlar uygulanıyor...")
-                call_command('migrate', f'apps.{app}', '--fake-initial')
-                log(f"'{app}' migrasyonları başarıyla uygulandı.")
-            except Exception as e:
-                log(f"HATA: '{app}' migrasyonlarını uygularken bir sorun oluştu: {str(e)}")
+    for app in apps:
+        try:
+            logger.info(f"{app} uygulaması için migrasyonlar uygulanıyor...")
+            executor.migrate([app])
+            logger.info(f"{app} uygulaması için migrasyonlar başarıyla uygulandı.")
+        except Exception as e:
+            logger.error(f"{app} uygulaması için migrasyon uygulanırken hata oluştu: {e}")
 
-    # Son olarak Django dahili uygulamaları
-    log("Django dahili uygulamaları için migrasyonlar uygulanıyor...")
-    call_command('migrate', 'admin')
-    call_command('migrate', 'auth')
-    call_command('migrate', 'contenttypes')
-    call_command('migrate', 'sessions')
-    log("Django dahili uygulama migrasyonları başarıyla uygulandı.")
-
-def perform_full_migration():
-    """Tüm sistemi migrate eder."""
-    log("Tüm migrasyonlar uygulanıyor...")
+def main() -> None:
+    \"\"\"Ana fonksiyon\"\"\"
     try:
-        call_command('migrate')
-        log("Tüm migrasyonlar başarıyla uygulandı.")
-        return True
+        # Önce temel uygulamalar
+        base_apps = [
+            'apps.crm',
+            'apps.hr_management',
+            'apps.stock_management',
+            'apps.accounting',
+            'apps.finance'
+        ]
+        apply_migrations(base_apps)
+        
+        # Sonra entegrasyonlar
+        integration_apps = [
+            'integrations.efatura',
+            'integrations.bank_integration',
+            'integrations.external',
+            'integrations.services'
+        ]
+        apply_migrations(integration_apps)
+        
+        # Son olarak diğer uygulamalar
+        other_apps = [
+            'apps.backup_manager',
+            'apps.permissions',
+            'apps.blockchain',
+            'apps.ai_assistant',
+            'apps.seo',
+            'apps.virtual_company',
+            'apps.analytics',
+            'apps.checks',
+            'games.game_app',
+            'games.ursina_game'
+        ]
+        apply_migrations(other_apps)
+        
     except Exception as e:
-        log(f"HATA: Migrasyonlar uygulanırken bir sorun oluştu: {str(e)}")
-        return False
+        logger.error(f"Migrasyon uygulama sırasında hata oluştu: {e}")
+        sys.exit(1)
 
-def check_for_issues():
-    """Django check komutunu çalıştırarak olası sorunları kontrol eder."""
-    log("Sistem sorunları kontrol ediliyor...")
-    try:
-        call_command('check')
-        log("Sistem kontrolleri başarıyla tamamlandı.")
-        return True
-    except Exception as e:
-        log(f"HATA: Sistem kontrolünde sorunlar tespit edildi: {str(e)}")
-        return False
-
-def main():
-    """Ana program akışı."""
-    log("MVT Dönüşümü sonrası migrasyon uygulama işlemi başlatılıyor...")
-    
-    # Sistem kontrolü
-    if not check_for_issues():
-        log("UYARI: Devam etmeden önce yukarıdaki sorunları çözün.")
-        return
-
-    # Kullanıcı onayı
-    confirmation = input("Bu işlem migrasyon durumunu değiştirecektir. Devam etmek istiyor musunuz? (e/h): ")
-    if confirmation.lower() != 'e':
-        log("İşlem kullanıcı tarafından iptal edildi.")
-        return
-
-    # İlk olarak fake-initial ile migrasyon uygula
-    apply_migrations_with_fake_initial()
-    
-    # Tüm sistemi migrate et
-    perform_full_migration()
-    
-    log("İşlem tamamlandı. Veritabanı yapısını ve uygulama işlevselliğini kontrol edin.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
-""")
+"""
     
-    print(f"Migrasyon uygulama betiği oluşturuldu: {script_path}")
-    
-    # Windows için .bat, Unix için .sh dosyası oluştur
-    if os.name == 'nt':
-        batch_path = os.path.join(BASE_DIR, 'scripts', 'apply_migrations.bat')
-        with open(batch_path, 'w', encoding='utf-8') as f:
-            f.write('@echo off\ncd "%~dp0.."\npython scripts/apply_migrations.py\npause')
-        print(f"Windows batch dosyası oluşturuldu: {batch_path}")
-    else:
-        shell_path = os.path.join(BASE_DIR, 'scripts', 'apply_migrations.sh')
-        with open(shell_path, 'w', encoding='utf-8') as f:
-            f.write('#!/bin/bash\ncd "$(dirname "$0")/.."\npython scripts/apply_migrations.py')
-        os.chmod(shell_path, 0o755)
-        print(f"Unix shell betiği oluşturuldu: {shell_path}")
+    script_path.write_text(script_content, encoding='utf-8')
+    script_path.chmod(0o755)  # Çalıştırılabilir yap
+    logger.info(f"Fake migrasyon betiği oluşturuldu: {script_path}")
 
-def main():
+def main() -> None:
     """Ana fonksiyon"""
-    print("=== MVT Migrasyon Düzeltici ===")
-    
-    # Onay al
-    response = input("Bu işlem mevcut migrasyon dosyalarını düzenleyecek ve yedekleyecektir. Devam etmek istiyor musunuz? (e/h): ")
-    if response.lower() != 'e':
-        print("İşlem iptal edildi.")
-        return
-    
-    # Yedekle
-    backup_dir = backup_migrations()
-    
-    # Temizle
-    clean_migrations()
-    
-    # Güncelle
-    update_migrations()
-    
-    # Fake migrasyon betiği oluştur
-    create_fake_migration_script()
-    
-    print("\nMigrasyon düzeltme işlemi tamamlandı!")
-    print(f"Migrasyonların yedeği: {backup_dir}")
-    print("Sonraki adım olarak şu komutları çalıştırın:")
-    print("  1. python manage.py makemigrations")
-    print("  2. python scripts/apply_migrations.py")
+    try:
+        # Migrasyonları yedekle
+        backup_dir = backup_migrations()
+        logger.info(f"Migrasyonlar başarıyla yedeklendi: {backup_dir}")
+        
+        # Eski migrasyonları temizle
+        clean_migrations()
+        logger.info("Eski migrasyonlar temizlendi")
+        
+        # Migrasyonları güncelle
+        update_migrations()
+        logger.info("Migrasyonlar güncellendi")
+        
+        # Fake migrasyon betiği oluştur
+        create_fake_migration_script()
+        logger.info("Fake migrasyon betiği oluşturuldu")
+        
+    except Exception as e:
+        logger.error(f"İşlem sırasında bir hata oluştu: {e}")
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

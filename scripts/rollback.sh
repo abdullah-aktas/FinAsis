@@ -4,7 +4,8 @@
 # Kullanım: ./rollback.sh [YEDEK_TARIH] [SLACK_WEBHOOK_URL (opsiyonel)]
 # Örnek: ./rollback.sh 20231225_120000 https://hooks.slack.com/services/xxx/xxx/xxx
 
-set -e
+set -euo pipefail
+IFS=$'\n\t'
 
 # Renk tanımları
 RED='\033[0;31m'
@@ -13,16 +14,61 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Sabitler
+MAX_RETRIES=6
+RETRY_DELAY=10
+HEALTH_CHECK_TIMEOUT=60
+DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
+BACKUP_DIR="backups"
+LOG_DIR="logs"
+ROLLBACK_LOG="$LOG_DIR/rollback_$(date +%Y%m%d_%H%M%S).log"
+
+# Dizinleri oluştur
+mkdir -p "$BACKUP_DIR" "$LOG_DIR"
+
+# Fonksiyonlar
+log_info() {
+    local message="$1"
+    echo -e "${BLUE}[BİLGİ]${NC} $message" | tee -a "$ROLLBACK_LOG"
+}
+
+log_success() {
+    local message="$1"
+    echo -e "${GREEN}[BAŞARILI]${NC} $message" | tee -a "$ROLLBACK_LOG"
+}
+
+log_warning() {
+    local message="$1"
+    echo -e "${YELLOW}[UYARI]${NC} $message" | tee -a "$ROLLBACK_LOG"
+}
+
+log_error() {
+    local message="$1"
+    echo -e "${RED}[HATA]${NC} $message" | tee -a "$ROLLBACK_LOG"
+}
+
+# Hata yakalama
+trap 'handle_error $LINENO' ERR
+
+handle_error() {
+    local line=$1
+    log_error "Hata oluştu (Satır: $line)"
+    send_slack_notification "error" "Rollback işlemi sırasında beklenmeyen bir hata oluştu (Satır: $line)"
+    exit 1
+}
+
 # Parametreleri al
-BACKUP_DATE=${1:-$(ls -t backup_*.sql | head -n1 | sed 's/backup_\(.*\).sql/\1/')}
-SLACK_WEBHOOK_URL=$2
+BACKUP_DATE=${1:-$(ls -t "$BACKUP_DIR"/backup_*.sql | head -n1 | sed 's/.*backup_\(.*\).sql/\1/')}
+SLACK_WEBHOOK_URL=${2:-}
 
 # Ortam değişkenlerini yükle
 if [ -f ".env" ]; then
-    echo -e "${BLUE}[BİLGİ]${NC} Ortam değişkenleri .env dosyasından yükleniyor..."
+    log_info "Ortam değişkenleri .env dosyasından yükleniyor..."
+    set -a
     source .env
+    set +a
 else
-    echo -e "${YELLOW}[UYARI]${NC} .env dosyası bulunamadı, devam edilecek..."
+    log_warning ".env dosyası bulunamadı, devam edilecek..."
 fi
 
 # Slack'e bildirim gönderme fonksiyonu
@@ -30,25 +76,25 @@ send_slack_notification() {
     local status=$1
     local message=$2
     
-    # Webhook URL kontrol et
     if [ -z "$SLACK_WEBHOOK_URL" ]; then
-        echo -e "${YELLOW}[UYARI]${NC} Slack webhook URL'si belirtilmediği için bildirim gönderilmiyor."
+        log_warning "Slack webhook URL'si belirtilmediği için bildirim gönderilmiyor."
         return 0
     fi
     
-    # Emojileri ve renkleri ayarla
     local emoji="❌"
     local color="#FF0000"
     
-    if [ "$status" == "success" ]; then
-        emoji="✅"
-        color="#36a64f"
-    elif [ "$status" == "warning" ]; then
-        emoji="⚠️"
-        color="#FFA500"
-    fi
+    case "$status" in
+        "success")
+            emoji="✅"
+            color="#36a64f"
+            ;;
+        "warning")
+            emoji="⚠️"
+            color="#FFA500"
+            ;;
+    esac
     
-    # Slack payload
     local payload="{
         \"attachments\": [
             {
@@ -65,6 +111,16 @@ send_slack_notification() {
                         \"title\": \"Sunucu\",
                         \"value\": \"$(hostname)\",
                         \"short\": true
+                    },
+                    {
+                        \"title\": \"Kullanıcı\",
+                        \"value\": \"$(whoami)\",
+                        \"short\": true
+                    },
+                    {
+                        \"title\": \"Log Dosyası\",
+                        \"value\": \"$ROLLBACK_LOG\",
+                        \"short\": false
                     }
                 ],
                 \"footer\": \"FinAsis Teknik Operasyon Ekibi\",
@@ -73,88 +129,100 @@ send_slack_notification() {
         ]
     }"
     
-    # Slack'e gönder
-    curl -s -X POST -H 'Content-type: application/json' --data "$payload" $SLACK_WEBHOOK_URL > /dev/null
-    
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[BAŞARILI]${NC} Slack bildirimi gönderildi."
+    if curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL" > /dev/null; then
+        log_success "Slack bildirimi gönderildi."
     else
-        echo -e "${RED}[HATA]${NC} Slack bildirimi gönderilemedi."
+        log_error "Slack bildirimi gönderilemedi."
     fi
 }
 
-echo -e "${BLUE}[BİLGİ]${NC} FinAsis rollback işlemi başlatılıyor..."
-echo -e "${BLUE}[BİLGİ]${NC} Kullanılacak yedek tarihi: $BACKUP_DATE"
-
 # Yedek dosyasının varlığını kontrol et
-BACKUP_FILE="backup_${BACKUP_DATE}.sql"
+BACKUP_FILE="$BACKUP_DIR/backup_${BACKUP_DATE}.sql"
 if [ ! -f "$BACKUP_FILE" ]; then
-    echo -e "${RED}[HATA]${NC} Belirtilen yedek dosyası bulunamadı: $BACKUP_FILE"
+    log_error "Belirtilen yedek dosyası bulunamadı: $BACKUP_FILE"
     send_slack_notification "error" "Rollback başarısız! Belirtilen yedek dosyası ($BACKUP_FILE) bulunamadı."
     exit 1
 fi
 
 # Önceki durumu yedekle
-echo -e "${BLUE}[BİLGİ]${NC} Mevcut durumun yedeği alınıyor..."
-CURRENT_BACKUP="backup_before_rollback_$(date +%Y%m%d_%H%M%S).sql"
-docker-compose -f docker-compose.prod.yml exec -T db pg_dump -U $DB_USER $DB_NAME > $CURRENT_BACKUP
-
-if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}[UYARI]${NC} Mevcut durumun yedeğini alırken bir sorun oluştu, rollback işlemine devam ediliyor..."
+log_info "Mevcut durumun yedeği alınıyor..."
+CURRENT_BACKUP="$BACKUP_DIR/backup_before_rollback_$(date +%Y%m%d_%H%M%S).sql"
+if ! docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T db pg_dump -U "$DB_USER" "$DB_NAME" > "$CURRENT_BACKUP"; then
+    log_warning "Mevcut durumun yedeğini alırken bir sorun oluştu, rollback işlemine devam ediliyor..."
     send_slack_notification "warning" "Mevcut durumun yedeğini alırken bir sorun oluştu, rollback işlemine devam ediliyor. ⚠️"
 else
-    echo -e "${GREEN}[BAŞARILI]${NC} Mevcut durum yedeği alındı: $CURRENT_BACKUP"
+    log_success "Mevcut durum yedeği alındı: $CURRENT_BACKUP"
 fi
 
 # Docker image'ı etiketleme
 PREVIOUS_IMAGE=$(docker images | grep finasis | grep -v latest | head -n1 | awk '{print $1":"$2}')
 if [ -n "$PREVIOUS_IMAGE" ]; then
-    echo -e "${BLUE}[BİLGİ]${NC} Önceki Docker image: $PREVIOUS_IMAGE"
-    docker tag $PREVIOUS_IMAGE finasis:rollback
-    docker tag $PREVIOUS_IMAGE finasis:latest
-    echo -e "${GREEN}[BAŞARILI]${NC} Docker image etiketlendi."
+    log_info "Önceki Docker image: $PREVIOUS_IMAGE"
+    docker tag "$PREVIOUS_IMAGE" finasis:rollback
+    docker tag "$PREVIOUS_IMAGE" finasis:latest
+    log_success "Docker image etiketlendi."
 else
-    echo -e "${YELLOW}[UYARI]${NC} Önceki Docker image bulunamadı, rollback için mevcut image kullanılacak..."
+    log_warning "Önceki Docker image bulunamadı, rollback için mevcut image kullanılacak..."
     send_slack_notification "warning" "Önceki Docker image bulunamadı, rollback için mevcut image kullanılacak. ⚠️"
 fi
 
 # Servisleri durdur
-echo -e "${BLUE}[BİLGİ]${NC} Servisler durduruluyor..."
-docker-compose -f docker-compose.prod.yml down
+log_info "Servisler durduruluyor..."
+docker-compose -f "$DOCKER_COMPOSE_FILE" down
 
 # Veritabanını geri yükle
-echo -e "${BLUE}[BİLGİ]${NC} Veritabanı geri yükleniyor: $BACKUP_FILE"
-docker-compose -f docker-compose.prod.yml up -d db
-sleep 10 # Veritabanının başlamasını bekliyoruz
+log_info "Veritabanı geri yükleniyor: $BACKUP_FILE"
+docker-compose -f "$DOCKER_COMPOSE_FILE" up -d db
+
+# Veritabanının başlamasını bekle
+log_info "Veritabanının başlaması bekleniyor..."
+for i in $(seq 1 $MAX_RETRIES); do
+    if docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T db pg_isready -U "$DB_USER" -d "$DB_NAME"; then
+        log_success "Veritabanı başlatıldı."
+        break
+    fi
+    if [ $i -eq $MAX_RETRIES ]; then
+        log_error "Veritabanı başlatılamadı!"
+        send_slack_notification "error" "Veritabanı başlatılamadı! Teknik ekiple iletişime geçiniz."
+        exit 1
+    fi
+    log_warning "Deneme $i başarısız, $RETRY_DELAY saniye bekleniyor..."
+    sleep $RETRY_DELAY
+done
 
 # Veritabanını temizle ve geri yükle
-docker-compose -f docker-compose.prod.yml exec -T db psql -U $DB_USER -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" $DB_NAME
-docker-compose -f docker-compose.prod.yml exec -T db psql -U $DB_USER $DB_NAME < $BACKUP_FILE
+log_info "Veritabanı temizleniyor..."
+if ! docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T db psql -U "$DB_USER" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" "$DB_NAME"; then
+    log_error "Veritabanı temizleme başarısız!"
+    send_slack_notification "error" "Veritabanı temizleme başarısız! Teknik ekiple iletişime geçiniz."
+    exit 1
+fi
 
-if [ $? -ne 0 ]; then
-    echo -e "${RED}[HATA]${NC} Veritabanı geri yükleme başarısız!"
+log_info "Veritabanı geri yükleniyor..."
+if ! docker-compose -f "$DOCKER_COMPOSE_FILE" exec -T db psql -U "$DB_USER" "$DB_NAME" < "$BACKUP_FILE"; then
+    log_error "Veritabanı geri yükleme başarısız!"
     send_slack_notification "error" "Veritabanı geri yükleme başarısız! Teknik ekiple iletişime geçiniz."
     exit 1
 else
-    echo -e "${GREEN}[BAŞARILI]${NC} Veritabanı geri yüklendi."
+    log_success "Veritabanı geri yüklendi."
 fi
 
 # Servisleri başlat
-echo -e "${BLUE}[BİLGİ]${NC} Servisler yeniden başlatılıyor..."
-docker-compose -f docker-compose.prod.yml up -d
+log_info "Servisler yeniden başlatılıyor..."
+docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
 
 # Sağlık kontrolü
-echo -e "${BLUE}[BİLGİ]${NC} Sağlık kontrolü yapılıyor..."
-for i in {1..6}; do
-    if curl -s -f http://localhost:8000/health/ > /dev/null; then
-        echo -e "${GREEN}[BAŞARILI]${NC} Sağlık kontrolü başarılı!"
+log_info "Sağlık kontrolü yapılıyor..."
+for i in $(seq 1 $MAX_RETRIES); do
+    if curl -s -f --max-time $HEALTH_CHECK_TIMEOUT http://localhost:8000/health/ > /dev/null; then
+        log_success "Sağlık kontrolü başarılı!"
         send_slack_notification "success" "Rollback işlemi başarıyla tamamlandı. Sistem $BACKUP_DATE tarihindeki durumuna geri döndürüldü."
         exit 0
     fi
-    echo -e "${YELLOW}[UYARI]${NC} Deneme $i başarısız, 10 saniye bekleniyor..."
-    sleep 10
+    log_warning "Deneme $i başarısız, $RETRY_DELAY saniye bekleniyor..."
+    sleep $RETRY_DELAY
 done
 
-echo -e "${RED}[HATA]${NC} Sağlık kontrolü başarısız! Servisler düzgün çalışmıyor olabilir."
+log_error "Sağlık kontrolü başarısız! Servisler düzgün çalışmıyor olabilir."
 send_slack_notification "error" "Rollback işlemi tamamlandı ancak sağlık kontrolü başarısız! Servisler düzgün çalışmıyor olabilir."
 exit 1 
