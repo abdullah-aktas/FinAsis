@@ -9,6 +9,7 @@ import importlib
 import sys
 from pathlib import Path
 from collections import defaultdict
+from typing import Dict, List
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -169,6 +170,196 @@ def check_templates_for_model(module_name, model_name):
     
     return len(template_files) > 0, template_files
 
+def check_model_relationships(model_content: str) -> Dict[str, List[str]]:
+    """
+    Model ilişkilerini kontrol eder
+    
+    Args:
+        model_content: Model dosyasının içeriği
+        
+    Returns:
+        Dict[str, List[str]]: İlişki türlerine göre tespit edilen alanlar
+    """
+    relationships = {
+        'foreign_key': [],
+        'one_to_one': [],
+        'many_to_many': [],
+        'missing_related_name': [],
+        'missing_on_delete': []
+    }
+    
+    # ForeignKey ve OneToOne ilişkilerini bul
+    fk_pattern = r'(\w+)\s*=\s*models\.(?:ForeignKey|OneToOneField)\((.*?)\)'
+    for match in re.finditer(fk_pattern, model_content, re.DOTALL):
+        field_name = match.group(1)
+        params = match.group(2)
+        
+        if 'ForeignKey' in match.group(0):
+            relationships['foreign_key'].append(field_name)
+        else:
+            relationships['one_to_one'].append(field_name)
+        
+        # related_name kontrolü
+        if 'related_name' not in params:
+            relationships['missing_related_name'].append(field_name)
+        
+        # on_delete kontrolü
+        if 'on_delete' not in params:
+            relationships['missing_on_delete'].append(field_name)
+    
+    # ManyToMany ilişkilerini bul
+    m2m_pattern = r'(\w+)\s*=\s*models\.ManyToManyField\((.*?)\)'
+    for match in re.finditer(m2m_pattern, model_content, re.DOTALL):
+        field_name = match.group(1)
+        relationships['many_to_many'].append(field_name)
+        
+        # related_name kontrolü
+        if 'related_name' not in match.group(2):
+            relationships['missing_related_name'].append(field_name)
+    
+    return relationships
+
+def check_model_validations(model_content: str) -> Dict[str, List[str]]:
+    """
+    Model validasyonlarını kontrol eder
+    
+    Args:
+        model_content: Model dosyasının içeriği
+        
+    Returns:
+        Dict[str, List[str]]: Validasyon türlerine göre tespit edilen alanlar
+    """
+    validations = {
+        'unique': [],
+        'unique_together': [],
+        'custom_validators': [],
+        'missing_validators': []
+    }
+    
+    # Unique alanları bul
+    unique_pattern = r'(\w+)\s*=\s*models\.\w+Field\(.*?unique\s*=\s*True'
+    for match in re.finditer(unique_pattern, model_content):
+        validations['unique'].append(match.group(1))
+    
+    # Unique_together tanımlarını bul
+    unique_together_pattern = r'unique_together\s*=\s*\[(.*?)\]'
+    for match in re.finditer(unique_together_pattern, model_content, re.DOTALL):
+        fields = [f.strip().strip("'") for f in match.group(1).split(',')]
+        validations['unique_together'].extend(fields)
+    
+    # Custom validatörleri bul
+    validator_pattern = r'validators\s*=\s*\[(.*?)\]'
+    for match in re.finditer(validator_pattern, model_content):
+        if 'django.core.validators' not in match.group(1):
+            validations['custom_validators'].append(match.group(1))
+    
+    # Validatör eksikliği olan alanları bul
+    field_pattern = r'(\w+)\s*=\s*models\.\w+Field\(\)'
+    for match in re.finditer(field_pattern, model_content):
+        field_name = match.group(1)
+        if field_name not in validations['unique'] and field_name not in validations['unique_together']:
+            validations['missing_validators'].append(field_name)
+    
+    return validations
+
+def check_model_performance(model_content: str) -> Dict[str, List[str]]:
+    """
+    Model performans optimizasyonlarını kontrol eder
+    
+    Args:
+        model_content: Model dosyasının içeriği
+        
+    Returns:
+        Dict[str, List[str]]: Performans özelliklerine göre tespit edilen alanlar
+    """
+    performance = {
+        'indexes': [],
+        'missing_indexes': [],
+        'select_related': [],
+        'prefetch_related': []
+    }
+    
+    # İndeksleri bul
+    index_pattern = r'class\s+Meta:.*?indexes\s*=\s*\[(.*?)\]'
+    for match in re.finditer(index_pattern, model_content, re.DOTALL):
+        indexes = [i.strip().strip("'") for i in match.group(1).split(',')]
+        performance['indexes'].extend(indexes)
+    
+    # ForeignKey ve OneToOne alanları için indeks kontrolü
+    fk_pattern = r'(\w+)\s*=\s*models\.(?:ForeignKey|OneToOneField)'
+    for match in re.finditer(fk_pattern, model_content):
+        field_name = match.group(1)
+        if field_name not in performance['indexes']:
+            performance['missing_indexes'].append(field_name)
+    
+    # Select_related ve prefetch_related kullanımlarını bul
+    query_pattern = r'\.(?:select_related|prefetch_related)\((.*?)\)'
+    for match in re.finditer(query_pattern, model_content):
+        fields = [f.strip().strip("'") for f in match.group(1).split(',')]
+        if 'select_related' in match.group(0):
+            performance['select_related'].extend(fields)
+        else:
+            performance['prefetch_related'].extend(fields)
+    
+    return performance
+
+def check_model_security(model_content: str) -> Dict[str, List[str]]:
+    """
+    Model güvenlik kontrollerini yapar
+    
+    Args:
+        model_content: Model dosyasının içeriği
+        
+    Returns:
+        Dict[str, List[str]]: Güvenlik özelliklerine göre tespit edilen alanlar
+    """
+    security = {
+        'sensitive_fields': [],
+        'encrypted_fields': [],
+        'permission_checks': [],
+        'missing_permissions': []
+    }
+    
+    # Hassas veri alanlarını bul
+    sensitive_patterns = [
+        r'password',
+        r'secret',
+        r'key',
+        r'token',
+        r'credit',
+        r'card',
+        r'pin',
+        r'passport',
+        r'identity'
+    ]
+    
+    for pattern in sensitive_patterns:
+        for match in re.finditer(fr'(\w+)\s*=\s*models\.\w+Field\(.*?{pattern}', model_content, re.IGNORECASE):
+            field_name = match.group(1)
+            if field_name not in security['sensitive_fields']:
+                security['sensitive_fields'].append(field_name)
+    
+    # Şifrelenmiş alanları bul
+    encrypted_pattern = r'(\w+)\s*=\s*Encrypted(?:Char|TextField)'
+    for match in re.finditer(encrypted_pattern, model_content):
+        field_name = match.group(1)
+        security['encrypted_fields'].append(field_name)
+    
+    # İzin kontrollerini bul
+    permission_pattern = r'@permission_required\([\'"](.*?)[\'"]\)'
+    for match in re.finditer(permission_pattern, model_content):
+        permission = match.group(1)
+        security['permission_checks'].append(permission)
+    
+    # Eksik izin kontrollerini bul
+    view_pattern = r'def\s+(\w+)\s*\(.*?\):'
+    for match in re.finditer(view_pattern, model_content):
+        view_name = match.group(1)
+        if view_name not in [p.split('.')[-1] for p in security['permission_checks']]:
+            security['missing_permissions'].append(view_name)
+    
+    return security
+
 def analyze_project():
     """
     Projeyi analiz eder ve bir rapor oluşturur
@@ -183,6 +374,10 @@ def analyze_project():
     model_view_map = {}
     model_template_map = {}
     module_urls_map = {}
+    model_relationships = {}
+    model_validations = {}
+    model_performance = {}
+    model_security = {}
     
     # Modelleri topla
     for module in modules:
@@ -193,8 +388,26 @@ def analyze_project():
         has_urls, patterns = check_urls_for_module(module)
         module_urls_map[module] = {'has_urls': has_urls, 'patterns': patterns}
         
-        # Her model için view ve şablonları kontrol et
+        # Her model için detaylı analiz yap
         for model in models:
+            model_path = os.path.join(BASE_DIR, module, 'models.py')
+            if os.path.exists(model_path):
+                with open(model_path, 'r', encoding='utf-8') as f:
+                    model_content = f.read()
+                
+                # Model ilişkilerini kontrol et
+                model_relationships[f"{module}.{model}"] = check_model_relationships(model_content)
+                
+                # Model validasyonlarını kontrol et
+                model_validations[f"{module}.{model}"] = check_model_validations(model_content)
+                
+                # Model performansını kontrol et
+                model_performance[f"{module}.{model}"] = check_model_performance(model_content)
+                
+                # Model güvenliğini kontrol et
+                model_security[f"{module}.{model}"] = check_model_security(model_content)
+            
+            # View ve şablonları kontrol et
             has_views, view_references = check_views_for_model(module, model)
             has_templates, template_files = check_templates_for_model(module, model)
             
@@ -231,6 +444,38 @@ def analyze_project():
                 print(f"      ✅ Template: Var ({len(model_template_map[model_key]['template_files'])} şablon)")
             else:
                 print(f"      ❌ Template: Yok")
+            
+            # İlişkiler
+            relationships = model_relationships.get(model_key, {})
+            if relationships:
+                print("      🔗 İlişkiler:")
+                for rel_type, fields in relationships.items():
+                    if fields:
+                        print(f"        - {rel_type}: {', '.join(fields)}")
+            
+            # Validasyonlar
+            validations = model_validations.get(model_key, {})
+            if validations:
+                print("      ✓ Validasyonlar:")
+                for val_type, fields in validations.items():
+                    if fields:
+                        print(f"        - {val_type}: {', '.join(fields)}")
+            
+            # Performans
+            performance = model_performance.get(model_key, {})
+            if performance:
+                print("      ⚡ Performans:")
+                for perf_type, fields in performance.items():
+                    if fields:
+                        print(f"        - {perf_type}: {', '.join(fields)}")
+            
+            # Güvenlik
+            security = model_security.get(model_key, {})
+            if security:
+                print("      🔒 Güvenlik:")
+                for sec_type, fields in security.items():
+                    if fields:
+                        print(f"        - {sec_type}: {', '.join(fields)}")
     
     # Eksikleri raporla
     print("\n⚠️ Eksiklikler")
@@ -248,6 +493,30 @@ def analyze_project():
     if missing_templates:
         print(f"❌ Template eksik modeller: {', '.join(missing_templates)}")
     
+    # İlişki eksiklikleri
+    for model_key, relationships in model_relationships.items():
+        if relationships['missing_related_name']:
+            print(f"❌ Related name eksik ilişkiler ({model_key}): {', '.join(relationships['missing_related_name'])}")
+        if relationships['missing_on_delete']:
+            print(f"❌ On_delete eksik ilişkiler ({model_key}): {', '.join(relationships['missing_on_delete'])}")
+    
+    # Validasyon eksiklikleri
+    for model_key, validations in model_validations.items():
+        if validations['missing_validators']:
+            print(f"❌ Validatör eksik alanlar ({model_key}): {', '.join(validations['missing_validators'])}")
+    
+    # Performans eksiklikleri
+    for model_key, performance in model_performance.items():
+        if performance['missing_indexes']:
+            print(f"❌ İndeks eksik alanlar ({model_key}): {', '.join(performance['missing_indexes'])}")
+    
+    # Güvenlik eksiklikleri
+    for model_key, security in model_security.items():
+        if security['sensitive_fields'] and not security['encrypted_fields']:
+            print(f"❌ Şifrelenmemiş hassas alanlar ({model_key}): {', '.join(security['sensitive_fields'])}")
+        if security['missing_permissions']:
+            print(f"❌ İzin kontrolü eksik view'lar ({model_key}): {', '.join(security['missing_permissions'])}")
+    
     print("\n✅ Analiz tamamlandı!")
     
     # Öneriler
@@ -258,7 +527,12 @@ def analyze_project():
     print("2. Eksik view tanımı olan modeller için view fonksiyonları veya sınıfları oluşturun.")
     print("3. Eksik şablonları tamamlayın (model_list.html, model_detail.html, model_form.html).")
     print("4. Her modülün urls.py dosyasında app_name tanımladığınızdan emin olun.")
-    print("5. Her modülün apps.py dosyasında AppConfig sınıfını doğru yapılandırdığınızdan emin olun.\n")
+    print("5. Her modülün apps.py dosyasında AppConfig sınıfını doğru yapılandırdığınızdan emin olun.")
+    print("6. İlişkilerde related_name ve on_delete parametrelerini belirtin.")
+    print("7. Hassas veri alanlarını şifreleyin.")
+    print("8. Performans için gerekli indeksleri ekleyin.")
+    print("9. View'larda gerekli izin kontrollerini yapın.")
+    print("10. Validasyon kurallarını eksiksiz tanımlayın.\n")
 
 if __name__ == "__main__":
     analyze_project() 

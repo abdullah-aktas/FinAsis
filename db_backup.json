@@ -1,0 +1,208 @@
+{
+    "version": "1.0.0",
+    "last_updated": "2024-03-20T12:00:00Z",
+    "backup_config": {
+        "enabled": true,
+        "schedule": {
+            "type": "cron",
+            "expression": "0 2 * * *",
+            "timezone": "Europe/Istanbul"
+        },
+        "retention": {
+            "daily": 7,
+            "weekly": 4,
+            "monthly": 12,
+            "yearly": 5
+        },
+        "compression": {
+            "enabled": true,
+            "algorithm": "gzip",
+            "level": 6
+        },
+        "encryption": {
+            "enabled": true,
+            "algorithm": "AES-256-GCM",
+            "key_rotation_days": 30
+        }
+    },
+    "databases": [
+        {
+            "name": "finasis_main",
+            "type": "postgresql",
+            "host": "localhost",
+            "port": 5432,
+            "username": "backup_user",
+            "password": "encrypted_password_here",
+            "exclude_tables": [
+                "django_session",
+                "django_migrations"
+            ],
+            "include_schemas": [
+                "public"
+            ],
+            "backup_options": {
+                "format": "custom",
+                "clean": true,
+                "if_exists": "overwrite"
+            }
+        },
+        {
+            "name": "finasis_analytics",
+            "type": "postgresql",
+            "host": "localhost",
+            "port": 5432,
+            "username": "backup_user",
+            "password": "encrypted_password_here",
+            "exclude_tables": [],
+            "include_schemas": [
+                "public",
+                "analytics"
+            ],
+            "backup_options": {
+                "format": "custom",
+                "clean": true,
+                "if_exists": "overwrite"
+            }
+        }
+    ],
+    "storage": {
+        "local": {
+            "enabled": true,
+            "path": "/backups/database",
+            "max_size_gb": 100,
+            "cleanup_strategy": "oldest_first"
+        },
+        "s3": {
+            "enabled": true,
+            "bucket": "finasis-backups",
+            "region": "eu-central-1",
+            "path": "database/",
+            "storage_class": "STANDARD_IA",
+            "lifecycle_rules": {
+                "transition_to_glacier_days": 90,
+                "expiration_days": 365
+            }
+        },
+        "azure": {
+            "enabled": false,
+            "container": "database-backups",
+            "account_name": "finasisbackup",
+            "path": "database/"
+        }
+    },
+    "monitoring": {
+        "enabled": true,
+        "notifications": {
+            "email": {
+                "enabled": true,
+                "recipients": [
+                    "sysadmin@finasis.com",
+                    "dba@finasis.com"
+                ],
+                "on_success": true,
+                "on_failure": true,
+                "on_warning": true
+            },
+            "slack": {
+                "enabled": true,
+                "webhook_url": "encrypted_webhook_url_here",
+                "channel": "#backup-alerts",
+                "on_success": true,
+                "on_failure": true
+            }
+        },
+        "metrics": {
+            "enabled": true,
+            "prometheus": {
+                "enabled": true,
+                "push_gateway": "http://localhost:9091"
+            },
+            "grafana": {
+                "enabled": true,
+                "dashboard_id": "backup-monitoring"
+            }
+        }
+    },
+    "validation": {
+        "enabled": true,
+        "checks": [
+            {
+                "type": "size",
+                "min_size_mb": 1,
+                "max_size_mb": 10000
+            },
+            {
+                "type": "integrity",
+                "algorithm": "sha256"
+            },
+            {
+                "type": "restore_test",
+                "frequency": "weekly",
+                "keep_test_db": false
+            }
+        ]
+    },
+    "security": {
+        "access_control": {
+            "allowed_ips": [
+                "10.0.0.0/8",
+                "192.168.0.0/16"
+            ],
+            "require_ssh_tunnel": true
+        },
+        "encryption": {
+            "at_rest": true,
+            "in_transit": true,
+            "key_management": {
+                "type": "aws_kms",
+                "region": "eu-central-1",
+                "key_id": "alias/backup-key"
+            }
+        },
+        "audit_logging": {
+            "enabled": true,
+            "retention_days": 365
+        }
+    },
+    "maintenance": {
+        "vacuum_analyze": {
+            "enabled": true,
+            "schedule": {
+                "type": "cron",
+                "expression": "0 1 * * *"
+            }
+        },
+        "cleanup": {
+            "enabled": true,
+            "schedule": {
+                "type": "cron",
+                "expression": "0 3 * * *"
+            },
+            "remove_orphaned_backups": true
+        }
+    },
+    "emergency_procedures": {
+        "contact_persons": [
+            {
+                "name": "SysAdmin",
+                "phone": "+901234567890",
+                "email": "emergency@finasis.com"
+            },
+            {
+                "name": "DBAdmin",
+                "phone": "+901234567891",
+                "email": "dba-emergency@finasis.com"
+            }
+        ],
+        "recovery_procedures": {
+            "documentation_url": "https://docs.finasis.com/backup-recovery",
+            "estimated_recovery_time": "4h",
+            "priority_levels": {
+                "critical": "1h",
+                "high": "4h",
+                "medium": "8h",
+                "low": "24h"
+            }
+        }
+    }
+}

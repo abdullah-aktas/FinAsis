@@ -14,9 +14,10 @@ from django.core.cache import cache
 
 User = get_user_model()
 
-class Company(models.Model):
+class VirtualCompany(models.Model):
     """Sanal şirket modeli."""
     
+    id = models.AutoField(primary_key=True)
     name = models.CharField(_('Şirket Adı'), max_length=100)
     tax_number = models.CharField(_('Vergi Numarası'), max_length=20, unique=True)
     address = models.TextField(_('Adres'))
@@ -31,8 +32,8 @@ class Company(models.Model):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
     
     class Meta:
-        verbose_name = _('Şirket')
-        verbose_name_plural = _('Şirketler')
+        verbose_name = _('Sanal Şirket')
+        verbose_name_plural = _('Sanal Şirketler')
         ordering = ['-created_at']
     
     def __str__(self):
@@ -40,7 +41,18 @@ class Company(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        cache.delete(f'company_{self.id}')
+        cache.delete(f'virtual_company_{self.id}')
+
+class Company(VirtualCompany):
+    """Sanal şirket modeli."""
+    
+    class Meta:
+        verbose_name = _('Şirket')
+        verbose_name_plural = _('Şirketler')
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.name
 
 class Department(models.Model):
     """Şirket departmanı modeli."""
@@ -171,29 +183,32 @@ class PerformanceReview(models.Model):
         return f"{self.employee.user.get_full_name()} - {self.review_date}"
 
 class Budget(models.Model):
-    """Bütçe modeli"""
-    TYPE_CHOICES = [
+    """Bütçe modeli."""
+    
+    TYPE_CHOICES = (
         ('income', _('Gelir')),
         ('expense', _('Gider')),
-    ]
-
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='budgets')
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='budgets')
-    type = models.CharField(_('Tür'), max_length=20, choices=TYPE_CHOICES)
-    amount = models.DecimalField(_('Miktar'), max_digits=15, decimal_places=2)
+    )
+    
+    type = models.CharField(_('Tür'), max_length=10, choices=TYPE_CHOICES)
+    amount = models.DecimalField(_('Miktar'), max_digits=10, decimal_places=2, default=Decimal('0.00'))
     description = models.TextField(_('Açıklama'))
     date = models.DateField(_('Tarih'))
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_budgets')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='budgets')
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
-
+    
     class Meta:
         verbose_name = _('Bütçe')
         verbose_name_plural = _('Bütçeler')
         ordering = ['-date']
-
+    
     def __str__(self):
-        return f"{self.company.name} - {self.get_type_display()} - {self.amount}"
+        return f"{self.type_display} - {self.amount} TL"
+    
+    @property
+    def type_display(self):
+        return dict(self.TYPE_CHOICES).get(self.type, self.type)
 
 class Report(models.Model):
     """Rapor modeli"""
@@ -364,7 +379,7 @@ class DailyTask(models.Model):
     xp_reward = models.PositiveIntegerField(verbose_name='XP Ödülü')
     money_reward = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Para Ödülü')
     knowledge_reward = models.JSONField(default=dict, blank=True, verbose_name='Bilgi Ödülü')
-    steps = models.JSONField(default=list, verbose_name='Adımlar')
+    steps = models.JSONField(default=list, verbose_name='Adımlar', help_text='Görevin adımları JSON formatında')
     is_active = models.BooleanField(default=True, verbose_name='Aktif')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')
@@ -375,6 +390,7 @@ class DailyTask(models.Model):
     class Meta:
         verbose_name = 'Günlük Görev'
         verbose_name_plural = 'Günlük Görevler'
+        ordering = ['-created_at']
 
 class UserDailyTask(models.Model):
     STATUS_CHOICES = (

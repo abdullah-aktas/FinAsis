@@ -19,6 +19,7 @@ from .models import (
     Task, Budget, Report, KnowledgeBase, KnowledgeBaseRelatedItem,
     DailyTask,
     UserDailyTask,
+    Analysis
 )
 from .serializers import (
     ProductSerializer, StockMovementSerializer, ProductionOrderSerializer,
@@ -29,7 +30,7 @@ from .forms import (
     VirtualCompanyForm, DepartmentForm, EmployeeForm,
     ProjectForm, TaskForm, BudgetForm, ReportForm,
     KnowledgeBaseForm, KnowledgeBaseRelatedItemFormSet,
-    DailyTaskForm
+    DailyTaskForm, AnalysisForm
 )
 from django.utils import timezone
 from django.contrib.admin.views.decorators import staff_member_required
@@ -38,6 +39,12 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy, reverse
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm
+from django.http import HttpRequest
+
+User = get_user_model()
 
 @login_required
 def company_home(request):
@@ -439,261 +446,343 @@ def budget_create(request, company_pk):
     return render(request, 'virtual_company/budget_form.html', context)
 
 # Rapor View'ları
-@login_required
-def report_list(request, company_pk):
-    company = get_object_or_404(VirtualCompany, pk=company_pk, created_by=request.user)
-    reports = company.reports.all()
-    
-    context = {
-        'company': company,
-        'reports': reports,
-    }
-    return render(request, 'virtual_company/report_list.html', context)
-
-@login_required
-def report_create(request, company_pk):
-    company = get_object_or_404(VirtualCompany, pk=company_pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        form = ReportForm(request.POST, request.FILES)
-        if form.is_valid():
-            report = form.save(commit=False)
-            report.company = company
-            report.created_by = request.user
-            report.save()
-            messages.success(request, _('Rapor başarıyla oluşturuldu.'))
-            return redirect('virtual_company:report_list', company_pk=company.pk)
-    else:
-        form = ReportForm()
-    
-    context = {
-        'form': form,
-        'company': company,
-        'title': _('Yeni Rapor'),
-    }
-    return render(request, 'virtual_company/report_form.html', context)
-
-# API View'ları
-@login_required
-@require_POST
-def update_task_status(request, task_pk):
-    task = get_object_or_404(Task, pk=task_pk)
-    if task.project.company.created_by != request.user:
-        raise PermissionDenied
-    
-    status = request.POST.get('status')
-    if status in dict(Task.STATUS_CHOICES):
-        task.status = status
-        task.save()
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'}, status=400)
-
-@login_required
-@require_POST
-def update_task_progress(request, task_pk):
-    task = get_object_or_404(Task, pk=task_pk)
-    if task.project.company.created_by != request.user:
-        raise PermissionDenied
-    
-    progress = request.POST.get('progress')
-    try:
-        progress = int(progress)
-        if 0 <= progress <= 100:
-            task.progress = progress
-            task.save()
-            return JsonResponse({'status': 'success'})
-    except ValueError:
-        pass
-    return JsonResponse({'status': 'error'}, status=400)
-
-@login_required
-def knowledge_base_list(request):
-    """Bilgi bankası listesi görünümü"""
-    
-    # Filtreler
-    category = request.GET.get('category', '')
-    level = request.GET.get('level', '')
-    tag = request.GET.get('tag', '')
-    query = request.GET.get('q', '')
-    
-    knowledge_items = KnowledgeBase.objects.all()
-    
-    # Kullanıcı yönetici değilse aktif içerikleri göster
-    if not request.user.is_staff:
-        knowledge_items = knowledge_items.filter(active=True)
+class ReportForm(ModelForm):
+    """Rapor formu"""
+    class Meta:
+        model = Report
+        fields = ['title', 'content', 'is_public']
         
-    # Filtreleri uygula
-    if category:
-        knowledge_items = knowledge_items.filter(category=category)
-    if level:
-        knowledge_items = knowledge_items.filter(level=level)
-    if tag:
-        knowledge_items = knowledge_items.filter(tags__icontains=tag)
-    if query:
-        knowledge_items = knowledge_items.filter(
-            Q(title__icontains=query) | 
-            Q(summary__icontains=query) | 
-            Q(content__icontains=query)
-        )
-    
-    # Öne çıkarılanları üste al ve tarihe göre sırala
-    knowledge_items = knowledge_items.order_by('-is_featured', '-created_at')
-    
-    # Kategorileri getir
-    categories = dict(KnowledgeBase.CATEGORY_CHOICES)
-    
-    # Seviyeleri getir
-    levels = dict(KnowledgeBase.LEVEL_CHOICES)
-    
-    # Tüm etiketleri getir
-    all_tags = []
-    for item in KnowledgeBase.objects.values_list('tags', flat=True):
-        if item:
-            all_tags.extend([tag.strip() for tag in item.split(',') if tag.strip()])
-    all_tags = sorted(list(set(all_tags)))
-    
-    context = {
-        'knowledge_items': knowledge_items,
-        'categories': categories,
-        'levels': levels,
-        'all_tags': all_tags,
-        'selected_category': category,
-        'selected_level': level,
-        'selected_tag': tag,
-        'query': query,
-    }
-    
-    return render(request, 'virtual_company/knowledge_base_list.html', context)
+    def clean_content(self):
+        """İçeriğin doğruluğunu kontrol eder"""
+        content = self.cleaned_data.get('content')
+        if not content or len(content.strip()) < 10:
+            raise ValidationError(_('Rapor içeriği en az 10 karakter olmalıdır.'))
+        return content
 
-@login_required
-def knowledge_base_detail(request, pk):
-    """Bilgi bankası detay görünümü"""
-    
-    knowledge_item = get_object_or_404(KnowledgeBase, pk=pk)
-    
-    # Kullanıcı yönetici değilse ve içerik aktif değilse 404 hatası göster
-    if not request.user.is_staff and not knowledge_item.active:
-        raise Http404(_("Bu içerik şu anda aktif değil"))
-    
-    # İlişkili öğeleri getir
-    related_items = knowledge_item.knowledgebaserelateditem_set.order_by('order')
-    
-    # İlgili diğer bilgi bankası içeriklerini bul (benzer etiketlere sahip)
-    if knowledge_item.tags:
-        tags = [tag.strip() for tag in knowledge_item.tags.split(',') if tag.strip()]
-        similar_items = KnowledgeBase.objects.filter(active=True)
-        
-        q_objects = Q()
-        for tag in tags:
-            q_objects |= Q(tags__icontains=tag)
-        
-        similar_items = similar_items.filter(q_objects).exclude(pk=pk).distinct()[:3]
-    else:
-        similar_items = KnowledgeBase.objects.filter(active=True, category=knowledge_item.category).exclude(pk=pk)[:3]
-    
-    context = {
-        'knowledge_item': knowledge_item,
-        'related_items': related_items,
-        'similar_items': similar_items
-    }
-    
-    return render(request, 'virtual_company/knowledge_base_detail.html', context)
+class BaseViewMixin:
+    """Temel view karışımı"""
+    def get_context_data(self, **kwargs):
+        """Bağlam verilerini hazırlar"""
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
 
-@login_required
-@staff_member_required
-def knowledge_base_create(request):
-    """Bilgi bankası oluşturma görünümü"""
+class BaseListView(LoginRequiredMixin, BaseViewMixin, ListView):
+    """Temel liste görünümü"""
+    paginate_by = 10
     
-    if request.method == 'POST':
-        form = KnowledgeBaseForm(request.POST, request.FILES)
-        formset = KnowledgeBaseRelatedItemFormSet(request.POST, prefix='related_items')
+    def get_queryset(self):
+        """Nesneleri filtreler"""
+        queryset = super().get_queryset()
         
-        if form.is_valid() and formset.is_valid():
-            knowledge_item = form.save(commit=False)
-            knowledge_item.created_by = request.user
-            knowledge_item.save()
+        # Arama filtresi
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
             
-            # İlişkili öğeleri kaydet
-            formset.instance = knowledge_item
-            formset.save()
+        # Sıralama
+        sort_by = self.request.GET.get('sort_by', '-created_at')
+        if sort_by in ['title', '-title', 'created_at', '-created_at']:
+            queryset = queryset.order_by(sort_by)
             
-            messages.success(request, _('Bilgi bankası başarıyla oluşturuldu'))
-            return redirect('knowledge_base_detail', pk=knowledge_item.pk)
-    else:
-        form = KnowledgeBaseForm()
-        formset = KnowledgeBaseRelatedItemFormSet(prefix='related_items')
-    
-    context = {
-        'form': form,
-        'formset': formset,
-        'form_title': _('Yeni Bilgi Bankası Öğesi Ekle'),
-        'submit_text': _('Kaydet')
-    }
-    
-    return render(request, 'virtual_company/knowledge_base_form.html', context)
+        return queryset
 
-@login_required
-@staff_member_required
-def knowledge_base_update(request, pk):
-    """Bilgi bankası güncelleme görünümü"""
-    
-    knowledge_item = get_object_or_404(KnowledgeBase, pk=pk)
-    
-    if request.method == 'POST':
-        form = KnowledgeBaseForm(request.POST, request.FILES, instance=knowledge_item)
-        formset = KnowledgeBaseRelatedItemFormSet(request.POST, instance=knowledge_item, prefix='related_items')
+class BaseDetailView(LoginRequiredMixin, BaseViewMixin, DetailView):
+    """Temel detay görünümü"""
+    pass
+
+class BaseCreateView(LoginRequiredMixin, BaseViewMixin, CreateView):
+    """Temel oluşturma görünümü"""
+    def form_valid(self, form):
+        """Form geçerliyse kullanıcıyı atar"""
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+class BaseUpdateView(LoginRequiredMixin, BaseViewMixin, UpdateView):
+    """Temel güncelleme görünümü"""
+    def get_queryset(self):
+        """Nesne erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+
+class BaseDeleteView(LoginRequiredMixin, BaseViewMixin, DeleteView):
+    """Temel silme görünümü"""
+    def get_queryset(self):
+        """Nesne erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+
+class ReportListView(BaseListView):
+    """Rapor listesi görünümü"""
+    model = Report
+    template_name = 'virtual_company/report_list.html'
+    context_object_name = 'reports'
+    paginate_by = 10
+
+    def get_queryset(self):
+        """Raporları filtreler"""
+        queryset = Report.objects.all()
         
-        if form.is_valid() and formset.is_valid():
-            knowledge_item = form.save(commit=False)
-            knowledge_item.updated_at = timezone.now()
-            knowledge_item.updated_by = request.user
-            knowledge_item.save()
+        # Kullanıcı yönetici değilse sadece kendi raporlarını ve genel raporları göster
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(created_by=self.request.user) | Q(is_public=True)
+            )
             
-            # İlişkili öğeleri kaydet
-            formset.save()
+        # Arama filtresi
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query)
+            )
             
-            messages.success(request, _('Bilgi bankası başarıyla güncellendi'))
-            return redirect('knowledge_base_detail', pk=knowledge_item.pk)
-    else:
-        form = KnowledgeBaseForm(instance=knowledge_item)
-        formset = KnowledgeBaseRelatedItemFormSet(instance=knowledge_item, prefix='related_items')
+        # Sıralama
+        sort_by = self.request.GET.get('sort_by', '-created_at')
+        if sort_by in ['title', '-title', 'created_at', '-created_at']:
+            queryset = queryset.order_by(sort_by)
+            
+        return queryset
     
-    context = {
-        'form': form,
-        'formset': formset,
-        'knowledge_item': knowledge_item,
-        'form_title': _('Bilgi Bankası Öğesini Düzenle'),
-        'submit_text': _('Güncelle')
-    }
-    
-    return render(request, 'virtual_company/knowledge_base_form.html', context)
+    def get_context_data(self, **kwargs):
+        """Bağlam verilerini hazırlar"""
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort_by'] = self.request.GET.get('sort_by', '-created_at')
+        return context
 
-@login_required
-@staff_member_required
-def knowledge_base_delete(request, pk):
-    """Bilgi bankası silme görünümü"""
-    
-    knowledge_item = get_object_or_404(KnowledgeBase, pk=pk)
-    
-    if request.method == 'POST':
-        knowledge_item.delete()
-        messages.success(request, _('Bilgi bankası başarıyla silindi'))
-        return redirect('knowledge_base_list')
-    
-    context = {
-        'knowledge_item': knowledge_item
-    }
-    
-    return render(request, 'virtual_company/knowledge_base_confirm_delete.html', context)
+class ReportDetailView(BaseDetailView):
+    """Rapor detay görünümü"""
+    model = Report
+    template_name = 'virtual_company/report_detail.html'
+    context_object_name = 'report'
 
-# Günlük Görevler
-class DailyTaskListView(LoginRequiredMixin, ListView):
+    def get_queryset(self):
+        """Rapor erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(created_by=self.request.user) | Q(is_public=True)
+            )
+        return queryset
+
+class ReportCreateView(BaseCreateView):
+    """Rapor oluşturma görünümü"""
+    model = Report
+    template_name = 'virtual_company/report_form.html'
+    form_class = ReportForm
+
+    def form_valid(self, form):
+        """Form geçerliyse kullanıcıyı atar ve başarı mesajı gösterir"""
+        form.instance.created_by = self.request.user
+        messages.success(self.request, _('Rapor başarıyla oluşturuldu.'))
+        return super().form_valid(form)
+
+class ReportUpdateView(BaseUpdateView):
+    """Rapor güncelleme görünümü"""
+    model = Report
+    template_name = 'virtual_company/report_form.html'
+    form_class = ReportForm
+
+    def get_queryset(self):
+        """Rapor erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+        
+    def form_valid(self, form):
+        """Form geçerliyse başarı mesajı gösterir"""
+        messages.success(self.request, _('Rapor başarıyla güncellendi.'))
+        return super().form_valid(form)
+
+class ReportDeleteView(BaseDeleteView):
+    """Rapor silme görünümü"""
+    model = Report
+    template_name = 'virtual_company/report_confirm_delete.html'
+
+    def get_queryset(self):
+        """Rapor erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+        
+    def delete(self, request, *args, **kwargs):
+        """Raporu siler ve başarı mesajı gösterir"""
+        messages.success(request, _('Rapor başarıyla silindi.'))
+        return super().delete(request, *args, **kwargs)
+
+# Analizler
+class AnalysisForm(ModelForm):
+    """Analiz formu"""
+    class Meta:
+        model = Analysis
+        fields = ['title', 'description', 'data', 'is_public']
+        
+    def clean_data(self):
+        """Verinin doğruluğunu kontrol eder"""
+        data = self.cleaned_data.get('data')
+        if not data or not isinstance(data, dict):
+            raise ValidationError(_('Analiz verisi geçerli bir JSON nesnesi olmalıdır.'))
+        return data
+
+class AnalysisListView(BaseListView):
+    """Analiz listesi görünümü"""
+    model = Analysis
+    template_name = 'virtual_company/analysis_list.html'
+    context_object_name = 'analyses'
+    paginate_by = 10
+
+    def get_queryset(self):
+        """Analizleri filtreler"""
+        queryset = Analysis.objects.all()
+        
+        # Kullanıcı yönetici değilse sadece kendi analizlerini ve genel analizleri göster
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(created_by=self.request.user) | Q(is_public=True)
+            )
+            
+        # Arama filtresi
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
+            
+        # Sıralama
+        sort_by = self.request.GET.get('sort_by', '-created_at')
+        if sort_by in ['title', '-title', 'created_at', '-created_at']:
+            queryset = queryset.order_by(sort_by)
+            
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        """Bağlam verilerini hazırlar"""
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort_by'] = self.request.GET.get('sort_by', '-created_at')
+        return context
+
+class AnalysisDetailView(BaseDetailView):
+    """Analiz detay görünümü"""
+    model = Analysis
+    template_name = 'virtual_company/analysis_detail.html'
+    context_object_name = 'analysis'
+
+    def get_queryset(self):
+        """Analiz erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                Q(created_by=self.request.user) | Q(is_public=True)
+            )
+        return queryset
+
+class AnalysisCreateView(BaseCreateView):
+    """Analiz oluşturma görünümü"""
+    model = Analysis
+    template_name = 'virtual_company/analysis_form.html'
+    form_class = AnalysisForm
+
+    def form_valid(self, form):
+        """Form geçerliyse kullanıcıyı atar ve başarı mesajı gösterir"""
+        form.instance.created_by = self.request.user
+        messages.success(self.request, _('Analiz başarıyla oluşturuldu.'))
+        return super().form_valid(form)
+
+class AnalysisUpdateView(BaseUpdateView):
+    """Analiz güncelleme görünümü"""
+    model = Analysis
+    template_name = 'virtual_company/analysis_form.html'
+    form_class = AnalysisForm
+
+    def get_queryset(self):
+        """Analiz erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+        
+    def form_valid(self, form):
+        """Form geçerliyse başarı mesajı gösterir"""
+        messages.success(self.request, _('Analiz başarıyla güncellendi.'))
+        return super().form_valid(form)
+
+class AnalysisDeleteView(BaseDeleteView):
+    """Analiz silme görünümü"""
+    model = Analysis
+    template_name = 'virtual_company/analysis_confirm_delete.html'
+
+    def get_queryset(self):
+        """Analiz erişim kontrolü"""
+        queryset = super().get_queryset()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+        
+    def delete(self, request, *args, **kwargs):
+        """Analizi siler ve başarı mesajı gösterir"""
+        messages.success(request, _('Analiz başarıyla silindi.'))
+        return super().delete(request, *args, **kwargs)
+
+class AddDailyTaskNoteView(LoginRequiredMixin, View):
+    """Günlük görev notu ekleme görünümü"""
+    def post(self, request, pk):
+        task = get_object_or_404(DailyTask, pk=pk)
+        user_task = get_object_or_404(UserDailyTask, user=request.user, task=task)
+        
+        note = request.POST.get('note', '').strip()
+        if not note:
+            messages.warning(request, _("Not boş olamaz."))
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': _("Not boş olamaz.")
+                }, status=400)
+            return redirect('virtual_company:daily_task_detail', pk=pk)
+            
+        user_task.notes = note
+        user_task.save()
+        
+        messages.success(request, _("Not başarıyla kaydedildi."))
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': _("Not başarıyla kaydedildi."),
+                'note': note
+            })
+            
+        return redirect('virtual_company:daily_task_detail', pk=pk)
+
+class DailyTaskListView(BaseListView):
+    """Günlük görev listesi görünümü"""
     model = DailyTask
     template_name = 'virtual_company/daily_task_list.html'
     context_object_name = 'tasks'
-    
+    paginate_by = 12
+
     def get_queryset(self):
+        """Aktif görevleri ve filtreleri uygular"""
         queryset = DailyTask.objects.filter(is_active=True)
+        
+        # Arama filtresi
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query)
+            )
         
         # Kategori filtreleme
         category = self.request.GET.get('category')
@@ -705,9 +794,15 @@ class DailyTaskListView(LoginRequiredMixin, ListView):
         if difficulty:
             queryset = queryset.filter(difficulty=difficulty)
             
+        # Sıralama
+        sort_by = self.request.GET.get('sort_by', '-created_at')
+        if sort_by in ['title', '-title', 'created_at', '-created_at', 'difficulty', '-difficulty']:
+            queryset = queryset.order_by(sort_by)
+            
         return queryset
     
     def get_context_data(self, **kwargs):
+        """Bağlam verilerini hazırlar"""
         context = super().get_context_data(**kwargs)
         user_tasks = {ut.task_id: ut for ut in UserDailyTask.objects.filter(user=self.request.user)}
         
@@ -718,33 +813,32 @@ class DailyTaskListView(LoginRequiredMixin, ListView):
             else:
                 task.user_task = None
         
+        # Filtreleme seçenekleri
         context['categories'] = DailyTask.CATEGORY_CHOICES
         context['difficulties'] = DailyTask.DIFFICULTY_CHOICES
-        return context
-
-class DailyTaskDetailView(LoginRequiredMixin, DetailView):
-    model = DailyTask
-    template_name = 'virtual_company/daily_task_detail.html'
-    context_object_name = 'task'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        task = self.get_object()
+        context['search_query'] = self.request.GET.get('search', '')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_difficulty'] = self.request.GET.get('difficulty', '')
+        context['sort_by'] = self.request.GET.get('sort_by', '-created_at')
         
-        user_task, created = UserDailyTask.objects.get_or_create(
+        # İstatistikler
+        context['total_tasks'] = DailyTask.objects.filter(is_active=True).count()
+        context['completed_tasks'] = UserDailyTask.objects.filter(
             user=self.request.user,
-            task=task,
-            defaults={'status': 'BASLAMADI'}
-        )
+            status='TAMAMLANDI'
+        ).count()
+        context['in_progress_tasks'] = UserDailyTask.objects.filter(
+            user=self.request.user,
+            status='DEVAM_EDIYOR'
+        ).count()
         
-        context['user_task'] = user_task
-        context['steps'] = enumerate(task.steps) if task.steps else []
-        return context
+        return context 
 
 class StartDailyTaskView(LoginRequiredMixin, View):
+    """Günlük görev başlatma görünümü"""
     def post(self, request, pk):
         task = get_object_or_404(DailyTask, pk=pk)
-        user_task, created = UserDailyTask.objects.get_or_create(
+        user_task, _ = UserDailyTask.objects.get_or_create(
             user=request.user,
             task=task,
             defaults={'status': 'BASLAMADI'}
@@ -756,9 +850,17 @@ class StartDailyTaskView(LoginRequiredMixin, View):
         else:
             messages.info(request, "Bu görev zaten başlatılmış.")
             
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'status': user_task.status,
+                'message': f"'{task.title}' görevi başlatıldı."
+            })
+            
         return redirect('virtual_company:daily_task_detail', pk=pk)
 
 class CompleteDailyTaskStepView(LoginRequiredMixin, View):
+    """Günlük görev adımı tamamlama görünümü"""
     def post(self, request, pk, step_index):
         task = get_object_or_404(DailyTask, pk=pk)
         user_task = get_object_or_404(UserDailyTask, user=request.user, task=task)
@@ -777,12 +879,14 @@ class CompleteDailyTaskStepView(LoginRequiredMixin, View):
             return JsonResponse({
                 'success': True,
                 'status': user_task.status,
-                'completed_steps': user_task.completed_steps
+                'completed_steps': user_task.completed_steps,
+                'message': f"Adım {step_index+1} tamamlandı."
             })
         
         return redirect('virtual_company:daily_task_detail', pk=pk)
 
 class CompleteDailyTaskView(LoginRequiredMixin, View):
+    """Günlük görev tamamlama görünümü"""
     def post(self, request, pk):
         task = get_object_or_404(DailyTask, pk=pk)
         user_task = get_object_or_404(UserDailyTask, user=request.user, task=task)
@@ -791,74 +895,35 @@ class CompleteDailyTaskView(LoginRequiredMixin, View):
             if user_task.complete_task():
                 messages.success(request, f"'{task.title}' görevi tamamlandı! XP ve ödülleriniz hesabınıza eklendi.")
                 
-                # TODO: Kullanıcıya XP ve ödülleri ver
-                # user_profile = request.user.profile
-                # user_profile.add_xp(task.xp_reward)
-                # user_profile.add_money(task.money_reward)
+                # Kullanıcıya XP ve ödülleri ver
+                user_profile = request.user.profile
+                user_profile.add_xp(task.xp_reward)
+                user_profile.add_money(task.money_reward)
+                user_profile.add_knowledge(task.knowledge_reward)
             else:
                 messages.error(request, "Görev tamamlanırken bir hata oluştu.")
         else:
             messages.info(request, "Bu görev zaten tamamlanmış.")
             
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'status': user_task.status,
+                'message': f"'{task.title}' görevi tamamlandı!"
+            })
+            
         return redirect('virtual_company:daily_task_detail', pk=pk)
 
-class DailyTaskCreateView(LoginRequiredMixin, CreateView):
-    model = DailyTask
-    form_class = DailyTaskForm
-    template_name = 'virtual_company/daily_task_form.html'
-    
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            messages.error(request, _('Bu sayfaya erişim izniniz bulunmamaktadır.'))
-            return redirect('virtual_company:daily_task_list')
-        return super().dispatch(request, *args, **kwargs)
-    
-    def form_valid(self, form):
-        messages.success(self.request, _('Günlük görev başarıyla oluşturuldu.'))
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse('virtual_company:daily_task_detail', kwargs={'pk': self.object.pk})
-
-class DailyTaskUpdateView(LoginRequiredMixin, UpdateView):
-    model = DailyTask
-    form_class = DailyTaskForm
-    template_name = 'virtual_company/daily_task_form.html'
-    
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            messages.error(request, _('Bu sayfaya erişim izniniz bulunmamaktadır.'))
-            return redirect('virtual_company:daily_task_list')
-        return super().dispatch(request, *args, **kwargs)
-    
-    def form_valid(self, form):
-        messages.success(self.request, _('Günlük görev başarıyla güncellendi.'))
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse('virtual_company:daily_task_detail', kwargs={'pk': self.object.pk})
-
-class DailyTaskDeleteView(LoginRequiredMixin, DeleteView):
-    model = DailyTask
-    template_name = 'virtual_company/daily_task_confirm_delete.html'
-    
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            messages.error(request, _('Bu sayfaya erişim izniniz bulunmamaktadır.'))
-            return redirect('virtual_company:daily_task_list')
-        return super().dispatch(request, *args, **kwargs)
-    
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, _('Günlük görev başarıyla silindi.'))
-        return super().delete(request, *args, **kwargs)
-    
-    def get_success_url(self):
-        return reverse('virtual_company:daily_task_list')
-
 class ToggleDailyTaskActiveView(LoginRequiredMixin, View):
+    """Günlük görev aktiflik durumu değiştirme görünümü"""
     def post(self, request, pk):
         if not request.user.is_staff:
             messages.error(request, _('Bu işlemi gerçekleştirme izniniz bulunmamaktadır.'))
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': _('Bu işlemi gerçekleştirme izniniz bulunmamaktadır.')
+                }, status=403)
             return redirect('virtual_company:daily_task_list')
             
         task = get_object_or_404(DailyTask, pk=pk)
@@ -868,19 +933,11 @@ class ToggleDailyTaskActiveView(LoginRequiredMixin, View):
         status_message = _('etkinleştirildi') if task.is_active else _('devre dışı bırakıldı')
         messages.success(request, _(f"'{task.title}' görevi {status_message}."))
         
-        return redirect('virtual_company:daily_task_detail', pk=task.pk)
-
-class AddDailyTaskNoteView(LoginRequiredMixin, View):
-    def post(self, request, pk):
-        task = get_object_or_404(DailyTask, pk=pk)
-        user_task = get_object_or_404(UserDailyTask, user=request.user, task=task)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'is_active': task.is_active,
+                'message': _(f"'{task.title}' görevi {status_message}.")
+            })
         
-        note = request.POST.get('note', '').strip()
-        if note:
-            user_task.notes = note
-            user_task.save()
-            messages.success(request, "Not başarıyla kaydedildi.")
-        else:
-            messages.warning(request, "Not boş olamaz.")
-            
-        return redirect('virtual_company:daily_task_detail', pk=pk) 
+        return redirect('virtual_company:daily_task_detail', pk=task.pk) 

@@ -1,0 +1,28 @@
+{
+    "games": [
+        {
+            "name": "FinansOgretici",
+            "main_file": "apps/games/ursina_game/finans_ogretici.py",
+            "icon": "build/assets/icon.ico",
+            "hidden_imports": ["ursina", "pygame"]
+        },
+        {
+            "name": "TicaretinIzinde",
+            "main_file": "apps/games/game_app/game.py",
+            "icon": "build/assets/icon.ico",
+            "hidden_imports": ["pygame", "PyQt6"]
+        },
+        {
+            "name": "TicaretinIzindeAR",
+            "main_file": "apps/games/game_app/ar_trade_trail.py",
+            "icon": "build/assets/icon.ico",
+            "hidden_imports": ["opencv-python", "numpy"]
+        },
+        {
+            "name": "PiyasaSimulasyonu",
+            "main_file": "apps/games/ursina_game/game.py",
+            "icon": "build/assets/icon.ico",
+            "hidden_imports": ["ursina", "numpy"]
+        }
+    ]
+} 

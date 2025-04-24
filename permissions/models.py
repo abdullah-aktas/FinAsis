@@ -48,6 +48,7 @@ class Permission(models.Model):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('İzin')
         verbose_name_plural = _('İzinler')
         unique_together = ('module', 'permission_type')
@@ -86,6 +87,7 @@ class Role(models.Model):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('Rol')
         verbose_name_plural = _('Roller')
         ordering = ['name']

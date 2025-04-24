@@ -14,9 +14,12 @@ import re
 import sys
 import logging
 import importlib
-from pathlib import Path
+import datetime
 import subprocess
 import json
+import time
+from pathlib import Path
+from typing import Tuple, Dict, List, Any
 
 # Logging ayarları
 logging.basicConfig(
@@ -33,19 +36,29 @@ logger = logging.getLogger(__name__)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 BASE_DIR = Path(__file__).resolve().parent
 
-def run_command(command):
+def run_command(command: str) -> Tuple[int, str, str]:
     """
     Sistem komutu çalıştırır ve sonucunu döndürür
+    
+    Args:
+        command: Çalıştırılacak komut
+        
+    Returns:
+        Tuple[int, str, str]: (returncode, stdout, stderr)
     """
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         return result.returncode, result.stdout, result.stderr
     except Exception as e:
+        logger.error(f"Komut çalıştırma hatası: {e}")
         return -1, "", str(e)
 
-def check_settings_security():
+def check_settings_security() -> bool:
     """
     Güvenlik ayarlarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Güvenlik Ayarlarını Kontrol Ediliyor...")
     
@@ -71,6 +84,19 @@ def check_settings_security():
         if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['*']:
             logger.warning("⚠️ ALLOWED_HOSTS güvenli ayarlanmamış. Canlı ortamda belirli domain'lere izin verilmeli.")
         
+        # Güvenlik başlıkları kontrolü
+        from config.settings.base import MIDDLEWARE
+        security_middleware = [
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
+        ]
+        
+        missing_middleware = [mw for mw in security_middleware if mw not in MIDDLEWARE]
+        if missing_middleware:
+            logger.warning(f"⚠️ Eksik güvenlik middleware'leri: {', '.join(missing_middleware)}")
+        
         logger.info("✅ Güvenlik ayarları kontrol edildi.")
         
     except ImportError as e:
@@ -79,9 +105,12 @@ def check_settings_security():
     
     return True
 
-def check_database_settings():
+def check_database_settings() -> bool:
     """
     Veritabanı ayarlarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Veritabanı Ayarlarını Kontrol Ediliyor...")
     
@@ -101,6 +130,10 @@ def check_database_settings():
         if PROD_DATABASES['default'].get('USER') in ['postgres', 'root', 'admin']:
             logger.warning("⚠️ Varsayılan veritabanı kullanıcı adı kullanılıyor. Güvenlik için değiştirilmeli.")
         
+        # Veritabanı şifreleme kontrolü
+        if not PROD_DATABASES['default'].get('OPTIONS', {}).get('sslmode', ''):
+            logger.warning("⚠️ SSL modu ayarlanmamış. Veritabanı bağlantısı şifrelenmeli.")
+        
         logger.info("✅ Veritabanı ayarları kontrol edildi.")
         
     except ImportError as e:
@@ -109,9 +142,12 @@ def check_database_settings():
     
     return True
 
-def check_static_files():
+def check_static_files() -> bool:
     """
     Statik dosya ayarlarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Statik Dosya Ayarlarını Kontrol Ediliyor...")
     
@@ -135,6 +171,10 @@ def check_static_files():
         if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
             logger.warning("⚠️ WhiteNoiseMiddleware MIDDLEWARE listesinde bulunamadı. Statik dosyalar için önerilir.")
         
+        # CDN kontrolü
+        if not STATIC_URL.startswith('https://'):
+            logger.warning("⚠️ STATIC_URL HTTPS ile başlamıyor. CDN kullanımı önerilir.")
+        
         logger.info("✅ Statik dosya ayarları kontrol edildi.")
         
     except ImportError as e:
@@ -143,9 +183,12 @@ def check_static_files():
     
     return True
 
-def check_installed_apps():
+def check_installed_apps() -> bool:
     """
     Yüklü uygulamaları kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Yüklü Uygulamalar Kontrol Ediliyor...")
     
@@ -167,6 +210,19 @@ def check_installed_apps():
         if invalid_apps:
             logger.warning(f"⚠️ Şu uygulamaların AppConfig tanımı hatalı: {', '.join(invalid_apps)}")
         
+        # Güvenlik uygulamaları kontrolü
+        security_apps = [
+            'django.contrib.sessions',
+            'django.contrib.messages',
+            'django.contrib.staticfiles',
+            'corsheaders',
+            'axes',
+        ]
+        
+        missing_security = [app for app in security_apps if app not in INSTALLED_APPS]
+        if missing_security:
+            logger.warning(f"⚠️ Eksik güvenlik uygulamaları: {', '.join(missing_security)}")
+        
         logger.info("✅ Yüklü uygulamalar kontrol edildi.")
         
     except ImportError as e:
@@ -175,9 +231,12 @@ def check_installed_apps():
     
     return True
 
-def check_migrations():
+def check_migrations() -> bool:
     """
     Veritabanı migrasyonlarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Veritabanı Migrasyonlarını Kontrol Ediliyor...")
     
@@ -231,9 +290,12 @@ def check_url_patterns():
     
     return True
 
-def check_debug_settings():
+def check_debug_settings() -> bool:
     """
     Debug ayarlarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
     """
     logger.info("\n📋 Debug Ayarlarını Kontrol Ediliyor...")
     
@@ -246,10 +308,28 @@ def check_debug_settings():
             logger.error("❌ Canlı ortam ayarlarında DEBUG = True! Bu mutlaka False olmalı.")
             return False
         
-        # Diğer debug ayarları
-        from config.settings.base import INTERNAL_IPS
-        if INTERNAL_IPS and '0.0.0.0' in INTERNAL_IPS:
-            logger.warning("⚠️ INTERNAL_IPS çok geniş tanımlanmış.")
+        # Debug araçlarının kontrolü
+        try:
+            from config.settings.base import INSTALLED_APPS
+            debug_apps = ['debug_toolbar', 'django_extensions']
+            for app in debug_apps:
+                if app in INSTALLED_APPS:
+                    logger.warning(f"⚠️ Debug aracı '{app}' INSTALLED_APPS içinde. Canlı ortamda kaldırılmalı.")
+        except ImportError:
+            logger.info("ℹ️ INSTALLED_APPS ayarı bulunamadı, debug araçları kontrolü atlanıyor.")
+        
+        # Debug middleware kontrolü
+        try:
+            from config.settings.base import MIDDLEWARE
+            debug_middleware = [
+                'debug_toolbar.middleware.DebugToolbarMiddleware',
+                'django.contrib.admindocs.middleware.XViewMiddleware'
+            ]
+            for mw in debug_middleware:
+                if mw in MIDDLEWARE:
+                    logger.warning(f"⚠️ Debug middleware '{mw}' aktif. Canlı ortamda kaldırılmalı.")
+        except ImportError:
+            logger.info("ℹ️ MIDDLEWARE ayarı bulunamadı, debug middleware kontrolü atlanıyor.")
         
         logger.info("✅ Debug ayarları kontrol edildi.")
         
@@ -418,7 +498,564 @@ def check_logging_settings():
     
     return True
 
-def create_deployment_report():
+def check_docker_containers() -> bool:
+    """
+    Docker konteynerlerini kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n📋 Docker Konteynerleri Kontrol Ediliyor...")
+    
+    try:
+        # Docker servis durumu
+        returncode, stdout, stderr = run_command("docker info")
+        if returncode != 0:
+            logger.error("❌ Docker servisi çalışmıyor!")
+            return False
+        
+        # Konteyner durumları
+        returncode, stdout, stderr = run_command("docker ps -a")
+        if returncode != 0:
+            logger.error("❌ Docker konteynerleri listelenemedi!")
+            return False
+        
+        # Gerekli konteynerler
+        required_containers = ['web', 'db', 'redis', 'nginx']
+        running_containers = [line.split()[-1] for line in stdout.splitlines()[1:]]
+        
+        # Eksik konteynerler
+        missing_containers = [cont for cont in required_containers if cont not in running_containers]
+        if missing_containers:
+            logger.warning(f"⚠️ Eksik konteynerler: {', '.join(missing_containers)}")
+        
+        # Konteyner sağlık durumları
+        for container in running_containers:
+            returncode, stdout, stderr = run_command(f"docker inspect --format='{{{{.State.Health.Status}}}}' {container}")
+            if returncode == 0 and stdout.strip() != "healthy":
+                logger.warning(f"⚠️ {container} konteyneri sağlıklı değil!")
+        
+        # Konteyner kaynak kullanımı
+        returncode, stdout, stderr = run_command("docker stats --no-stream")
+        if returncode == 0:
+            for line in stdout.splitlines()[1:]:
+                container, cpu, mem, _ = line.split()[:4]
+                if float(cpu.replace('%', '')) > 80:
+                    logger.warning(f"⚠️ {container} yüksek CPU kullanıyor: {cpu}")
+                if float(mem.replace('%', '')) > 80:
+                    logger.warning(f"⚠️ {container} yüksek bellek kullanıyor: {mem}")
+        
+        logger.info("✅ Docker konteynerleri kontrol edildi.")
+        
+    except Exception as e:
+        logger.error(f"❌ Docker kontrolü sırasında hata: {e}")
+        return False
+    
+    return True
+
+def check_ssl_certificates() -> bool:
+    """
+    SSL sertifikalarını kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n📋 SSL Sertifikaları Kontrol Ediliyor...")
+    
+    try:
+        # Sertifika dizini kontrolü
+        cert_dir = "/etc/letsencrypt/live"
+        if not os.path.exists(cert_dir):
+            logger.error("❌ SSL sertifika dizini bulunamadı!")
+            return False
+        
+        # Sertifika dosyaları
+        cert_files = {
+            "fullchain.pem": "Sertifika zinciri",
+            "privkey.pem": "Özel anahtar",
+            "cert.pem": "Sertifika",
+            "chain.pem": "Ara sertifika"
+        }
+        
+        # Her domain için sertifika kontrolü
+        for domain in os.listdir(cert_dir):
+            domain_path = os.path.join(cert_dir, domain)
+            if not os.path.isdir(domain_path):
+                continue
+            
+            logger.info(f"\n🔍 {domain} domain'i için sertifika kontrolü:")
+            
+            # Sertifika dosyalarını kontrol et
+            for file, desc in cert_files.items():
+                file_path = os.path.join(domain_path, file)
+                if not os.path.exists(file_path):
+                    logger.warning(f"⚠️ {desc} dosyası bulunamadı: {file_path}")
+                    continue
+                
+                # Dosya izinlerini kontrol et
+                if file == "privkey.pem":
+                    mode = os.stat(file_path).st_mode
+                    if mode & 0o777 != 0o600:
+                        logger.warning(f"⚠️ Özel anahtar dosyası izinleri güvenli değil: {oct(mode)}")
+            
+            # Sertifika geçerlilik süresini kontrol et
+            returncode, stdout, stderr = run_command(f"openssl x509 -in {os.path.join(domain_path, 'cert.pem')} -noout -enddate")
+            if returncode == 0:
+                expiry_date = stdout.split('=')[1].strip()
+                logger.info(f"✅ Sertifika son kullanma tarihi: {expiry_date}")
+                
+                # 30 günden az kaldıysa uyarı ver
+                from datetime import datetime
+                expiry = datetime.strptime(expiry_date, "%b %d %H:%M:%S %Y %Z")
+                days_left = (expiry - datetime.now()).days
+                if days_left < 30:
+                    logger.warning(f"⚠️ Sertifikanın süresi dolmak üzere! Kalan gün: {days_left}")
+        
+        logger.info("✅ SSL sertifikaları kontrol edildi.")
+        
+    except Exception as e:
+        logger.error(f"❌ SSL sertifika kontrolü sırasında hata: {e}")
+        return False
+    
+    return True
+
+def collect_performance_metrics() -> bool:
+    """
+    Performans metriklerini toplar
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n📊 Performans Metrikleri Toplanıyor...")
+    
+    try:
+        metrics = {
+            "web": {},
+            "db": {},
+            "redis": {},
+            "system": {}
+        }
+        
+        # Web sunucusu metrikleri
+        returncode, stdout, stderr = run_command("curl -s http://localhost/health/")
+        if returncode == 0:
+            try:
+                health_data = json.loads(stdout)
+                metrics["web"].update(health_data)
+            except json.JSONDecodeError:
+                logger.warning("⚠️ Health endpoint'inden JSON parse edilemedi")
+        
+        # Veritabanı metrikleri
+        returncode, stdout, stderr = run_command("docker-compose exec db psql -U postgres -c \"SELECT * FROM pg_stat_database WHERE datname = 'finasis';\"")
+        if returncode == 0:
+            # PostgreSQL metriklerini parse et
+            pass  # TODO: PostgreSQL metriklerini parse et
+        
+        # Redis metrikleri
+        returncode, stdout, stderr = run_command("docker-compose exec redis redis-cli info")
+        if returncode == 0:
+            for line in stdout.splitlines():
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    metrics["redis"][key] = value
+        
+        # Sistem metrikleri
+        returncode, stdout, stderr = run_command("top -bn1")
+        if returncode == 0:
+            # CPU ve bellek kullanımını parse et
+            pass  # TODO: Sistem metriklerini parse et
+        
+        # Metrikleri kaydet
+        with open("performance_metrics.json", "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        logger.info("✅ Performans metrikleri toplandı ve kaydedildi.")
+        
+    except Exception as e:
+        logger.error(f"❌ Performans metrikleri toplanırken hata: {e}")
+        return False
+    
+    return True
+
+def apply_fixes(suggestions: Dict[str, List[str]]) -> bool:
+    """
+    Otomatik düzeltme komutlarını uygular
+    
+    Args:
+        suggestions: Düzeltme önerileri
+        
+    Returns:
+        bool: Tüm düzeltmeler başarılı mı?
+    """
+    logger.info("\n🛠️ Otomatik Düzeltmeler Uygulanıyor...")
+    success = True
+    
+    try:
+        # Güvenlik düzeltmeleri
+        if "Ortam değişkenleri dosyası (.env) oluşturulmalı" in suggestions["güvenlik"]:
+            logger.info("📝 .env dosyası oluşturuluyor...")
+            with open(".env", "w") as f:
+                f.write("# Güvenli ortam değişkenleri\n")
+                f.write("DJANGO_SECRET_KEY=your-secret-key-here\n")
+                f.write("DEBUG=False\n")
+                f.write("ALLOWED_HOSTS=your-domain.com\n")
+        
+        # Performans düzeltmeleri
+        if "Statik dosyalar toplanmalı" in suggestions["performans"]:
+            logger.info("📦 Statik dosyalar toplanıyor...")
+            returncode, stdout, stderr = run_command("python manage.py collectstatic --noinput")
+            if returncode != 0:
+                logger.error(f"❌ Statik dosyalar toplanırken hata: {stderr}")
+                success = False
+        
+        # Docker düzeltmeleri
+        if "Docker servisleri başlatılmalı" in suggestions["docker"]:
+            logger.info("🐳 Docker servisleri başlatılıyor...")
+            returncode, stdout, stderr = run_command("docker-compose up -d")
+            if returncode != 0:
+                logger.error(f"❌ Docker servisleri başlatılırken hata: {stderr}")
+                success = False
+        
+        # SSL düzeltmeleri
+        if "SSL sertifikaları oluşturulmalı" in suggestions["ssl"]:
+            logger.info("🔒 SSL sertifikaları oluşturuluyor...")
+            returncode, stdout, stderr = run_command("certbot --nginx -d your-domain.com")
+            if returncode != 0:
+                logger.error(f"❌ SSL sertifikaları oluşturulurken hata: {stderr}")
+                success = False
+        
+        # Veritabanı düzeltmeleri
+        if "Bekleyen migrasyonlar uygulanmalı" in suggestions["veritabanı"]:
+            logger.info("💾 Veritabanı migrasyonları uygulanıyor...")
+            returncode, stdout, stderr = run_command("python manage.py migrate")
+            if returncode != 0:
+                logger.error(f"❌ Migrasyonlar uygulanırken hata: {stderr}")
+                success = False
+        
+        # Loglama düzeltmeleri
+        if "Log dizini oluşturulmalı" in suggestions["loglama"]:
+            logger.info("📝 Log dizini oluşturuluyor...")
+            os.makedirs("logs", exist_ok=True)
+        
+        if success:
+            logger.info("✅ Tüm düzeltmeler başarıyla uygulandı.")
+        else:
+            logger.warning("⚠️ Bazı düzeltmeler başarısız oldu.")
+        
+    except Exception as e:
+        logger.error(f"❌ Düzeltmeler uygulanırken hata: {e}")
+        success = False
+    
+    return success
+
+def collect_extended_metrics() -> bool:
+    """
+    Genişletilmiş performans metriklerini toplar
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n📊 Genişletilmiş Performans Metrikleri Toplanıyor...")
+    
+    try:
+        metrics = {
+            "web": {},
+            "db": {},
+            "redis": {},
+            "system": {},
+            "network": {},
+            "storage": {}
+        }
+        
+        # Web sunucusu detaylı metrikleri
+        returncode, stdout, stderr = run_command("curl -s http://localhost/metrics/")
+        if returncode == 0:
+            try:
+                metrics_data = json.loads(stdout)
+                metrics["web"].update(metrics_data)
+            except json.JSONDecodeError:
+                logger.warning("⚠️ Metrics endpoint'inden JSON parse edilemedi")
+        
+        # Veritabanı detaylı metrikleri
+        db_metrics = [
+            "SELECT * FROM pg_stat_database WHERE datname = 'finasis';",
+            "SELECT * FROM pg_stat_user_tables;",
+            "SELECT * FROM pg_stat_user_indexes;",
+            "SELECT * FROM pg_stat_activity;"
+        ]
+        
+        for query in db_metrics:
+            returncode, stdout, stderr = run_command(f"docker-compose exec db psql -U postgres -c \"{query}\"")
+            if returncode == 0:
+                # PostgreSQL metriklerini parse et ve kaydet
+                pass
+        
+        # Redis detaylı metrikleri
+        redis_commands = [
+            "INFO memory",
+            "INFO clients",
+            "INFO stats",
+            "INFO replication"
+        ]
+        
+        for cmd in redis_commands:
+            returncode, stdout, stderr = run_command(f"docker-compose exec redis redis-cli {cmd}")
+            if returncode == 0:
+                for line in stdout.splitlines():
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        metrics["redis"][f"{cmd.split()[1]}_{key}"] = value
+        
+        # Sistem detaylı metrikleri
+        system_commands = {
+            "top": "top -bn1",
+            "vmstat": "vmstat 1 2",
+            "iostat": "iostat -x 1 2",
+            "netstat": "netstat -s"
+        }
+        
+        for name, cmd in system_commands.items():
+            returncode, stdout, stderr = run_command(cmd)
+            if returncode == 0:
+                metrics["system"][name] = stdout
+        
+        # Ağ metrikleri
+        network_commands = {
+            "bandwidth": "vnstat -i eth0 --json",
+            "connections": "netstat -an | grep ESTABLISHED | wc -l",
+            "latency": "ping -c 4 google.com"
+        }
+        
+        for name, cmd in network_commands.items():
+            returncode, stdout, stderr = run_command(cmd)
+            if returncode == 0:
+                metrics["network"][name] = stdout
+        
+        # Depolama metrikleri
+        storage_commands = {
+            "disk_usage": "df -h",
+            "inode_usage": "df -i",
+            "file_count": "find / -type f | wc -l"
+        }
+        
+        for name, cmd in storage_commands.items():
+            returncode, stdout, stderr = run_command(cmd)
+            if returncode == 0:
+                metrics["storage"][name] = stdout
+        
+        # Metrikleri kaydet
+        with open("extended_metrics.json", "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        logger.info("✅ Genişletilmiş performans metrikleri toplandı ve kaydedildi.")
+        
+    except Exception as e:
+        logger.error(f"❌ Genişletilmiş performans metrikleri toplanırken hata: {e}")
+        return False
+    
+    return True
+
+def run_security_scan() -> bool:
+    """
+    Güvenlik taraması yapar
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n🔒 Güvenlik Taraması Yapılıyor...")
+    
+    try:
+        security_issues = {
+            "critical": [],
+            "high": [],
+            "medium": [],
+            "low": []
+        }
+        
+        # Bağımlılık güvenlik taraması
+        returncode, stdout, stderr = run_command("safety check")
+        if returncode != 0:
+            security_issues["critical"].append("Güvenlik açığı olan bağımlılıklar tespit edildi")
+        
+        # Kod güvenlik taraması
+        returncode, stdout, stderr = run_command("bandit -r .")
+        if returncode != 0:
+            security_issues["high"].append("Kod güvenlik açıkları tespit edildi")
+        
+        # SSL/TLS güvenlik taraması
+        returncode, stdout, stderr = run_command("testssl.sh your-domain.com")
+        if returncode != 0:
+            security_issues["medium"].append("SSL/TLS güvenlik sorunları tespit edildi")
+        
+        # Dosya izinleri kontrolü
+        sensitive_files = [
+            ".env",
+            "config/settings/prod.py",
+            "manage.py"
+        ]
+        
+        for file in sensitive_files:
+            if os.path.exists(file):
+                mode = os.stat(file).st_mode
+                if mode & 0o777 != 0o600:
+                    security_issues["high"].append(f"{file} dosyasının izinleri güvenli değil")
+        
+        # Güvenlik raporunu kaydet
+        with open("security_scan.json", "w") as f:
+            json.dump(security_issues, f, indent=2)
+        
+        # Kritik ve yüksek öncelikli sorunları logla
+        for level in ["critical", "high"]:
+            for issue in security_issues[level]:
+                logger.error(f"❌ {level.upper()}: {issue}")
+        
+        logger.info("✅ Güvenlik taraması tamamlandı.")
+        
+    except Exception as e:
+        logger.error(f"❌ Güvenlik taraması sırasında hata: {e}")
+        return False
+    
+    return True
+
+def check_backups() -> bool:
+    """
+    Yedekleme durumunu kontrol eder
+    
+    Returns:
+        bool: Kontrol başarılı mı?
+    """
+    logger.info("\n💾 Yedekleme Durumu Kontrol Ediliyor...")
+    
+    try:
+        backup_status = {
+            "database": {},
+            "files": {},
+            "config": {}
+        }
+        
+        # Veritabanı yedekleri
+        backup_dir = "/backups/database"
+        if os.path.exists(backup_dir):
+            db_backups = [f for f in os.listdir(backup_dir) if f.endswith('.sql')]
+            if db_backups:
+                latest_backup = max(db_backups, key=lambda x: os.path.getctime(os.path.join(backup_dir, x)))
+                backup_time = os.path.getctime(os.path.join(backup_dir, latest_backup))
+                backup_age = (time.time() - backup_time) / 3600  # Saat cinsinden
+                
+                backup_status["database"] = {
+                    "latest": latest_backup,
+                    "age_hours": backup_age,
+                    "size_mb": os.path.getsize(os.path.join(backup_dir, latest_backup)) / (1024 * 1024)
+                }
+                
+                if backup_age > 24:
+                    logger.warning(f"⚠️ Son veritabanı yedeği {backup_age:.1f} saat önce alınmış")
+            else:
+                logger.error("❌ Veritabanı yedeği bulunamadı")
+        
+        # Dosya yedekleri
+        file_backup_dir = "/backups/files"
+        if os.path.exists(file_backup_dir):
+            file_backups = [f for f in os.listdir(file_backup_dir) if f.endswith('.tar.gz')]
+            if file_backups:
+                latest_backup = max(file_backups, key=lambda x: os.path.getctime(os.path.join(file_backup_dir, x)))
+                backup_time = os.path.getctime(os.path.join(file_backup_dir, latest_backup))
+                backup_age = (time.time() - backup_time) / 3600
+                
+                backup_status["files"] = {
+                    "latest": latest_backup,
+                    "age_hours": backup_age,
+                    "size_mb": os.path.getsize(os.path.join(file_backup_dir, latest_backup)) / (1024 * 1024)
+                }
+                
+                if backup_age > 24:
+                    logger.warning(f"⚠️ Son dosya yedeği {backup_age:.1f} saat önce alınmış")
+            else:
+                logger.error("❌ Dosya yedeği bulunamadı")
+        
+        # Yapılandırma yedekleri
+        config_backup_dir = "/backups/config"
+        if os.path.exists(config_backup_dir):
+            config_backups = [f for f in os.listdir(config_backup_dir) if f.endswith('.json')]
+            if config_backups:
+                latest_backup = max(config_backups, key=lambda x: os.path.getctime(os.path.join(config_backup_dir, x)))
+                backup_time = os.path.getctime(os.path.join(config_backup_dir, latest_backup))
+                backup_age = (time.time() - backup_time) / 3600
+                
+                backup_status["config"] = {
+                    "latest": latest_backup,
+                    "age_hours": backup_age,
+                    "size_mb": os.path.getsize(os.path.join(config_backup_dir, latest_backup)) / (1024 * 1024)
+                }
+                
+                if backup_age > 24:
+                    logger.warning(f"⚠️ Son yapılandırma yedeği {backup_age:.1f} saat önce alınmış")
+            else:
+                logger.error("❌ Yapılandırma yedeği bulunamadı")
+        
+        # Yedekleme durumunu kaydet
+        with open("backup_status.json", "w") as f:
+            json.dump(backup_status, f, indent=2)
+        
+        logger.info("✅ Yedekleme durumu kontrol edildi.")
+        
+    except Exception as e:
+        logger.error(f"❌ Yedekleme kontrolü sırasında hata: {e}")
+        return False
+    
+    return True
+
+def suggest_fixes() -> Dict[str, List[str]]:
+    """
+    Otomatik düzeltme önerileri oluşturur
+    
+    Returns:
+        Dict[str, List[str]]: Kategoriye göre düzeltme önerileri
+    """
+    suggestions = {
+        "güvenlik": [],
+        "performans": [],
+        "docker": [],
+        "ssl": [],
+        "veritabanı": [],
+        "loglama": []
+    }
+    
+    try:
+        # Güvenlik önerileri
+        if not os.path.exists(".env"):
+            suggestions["güvenlik"].append("Ortam değişkenleri dosyası (.env) oluşturulmalı")
+        
+        # Performans önerileri
+        if not os.path.exists("staticfiles"):
+            suggestions["performans"].append("Statik dosyalar toplanmalı: python manage.py collectstatic")
+        
+        # Docker önerileri
+        returncode, stdout, stderr = run_command("docker-compose ps")
+        if returncode != 0:
+            suggestions["docker"].append("Docker servisleri başlatılmalı: docker-compose up -d")
+        
+        # SSL önerileri
+        cert_dir = "/etc/letsencrypt/live"
+        if not os.path.exists(cert_dir):
+            suggestions["ssl"].append("SSL sertifikaları oluşturulmalı: certbot --nginx")
+        
+        # Veritabanı önerileri
+        returncode, stdout, stderr = run_command("python manage.py showmigrations --list")
+        if returncode == 0 and " [ ] " in stdout:
+            suggestions["veritabanı"].append("Bekleyen migrasyonlar uygulanmalı: python manage.py migrate")
+        
+        # Loglama önerileri
+        if not os.path.exists("logs"):
+            suggestions["loglama"].append("Log dizini oluşturulmalı: mkdir logs")
+        
+        return suggestions
+        
+    except Exception as e:
+        logger.error(f"❌ Düzeltme önerileri oluşturulurken hata: {e}")
+        return suggestions
+
+def create_deployment_report() -> None:
     """
     Canlıya alma kontrollerini çalıştırır ve bir rapor oluşturur
     """
@@ -429,53 +1066,40 @@ def create_deployment_report():
     logger.info(f"Tarih: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}")
     logger.info(f"Proje Dizini: {BASE_DIR}")
     
-    # Güvenlik ayarları
-    if not check_settings_security():
-        success = False
+    # Kontrolleri çalıştır
+    checks = [
+        (check_settings_security, "Güvenlik Ayarları"),
+        (check_database_settings, "Veritabanı Ayarları"),
+        (check_static_files, "Statik Dosya Ayarları"),
+        (check_installed_apps, "Yüklü Uygulamalar"),
+        (check_migrations, "Veritabanı Migrasyonları"),
+        (check_url_patterns, "URL Yapılandırması"),
+        (check_debug_settings, "Debug Ayarları"),
+        (check_media_files, "Media Dosya Ayarları"),
+        (check_api_endpoints, "API Endpoint'leri"),
+        (check_template_settings, "Template Ayarları"),
+        (check_requirements, "Gerekli Paketler"),
+        (check_logging_settings, "Loglama Ayarları"),
+        (check_docker_containers, "Docker Konteynerleri"),
+        (check_ssl_certificates, "SSL Sertifikaları"),
+        (collect_performance_metrics, "Performans Metrikleri"),
+        (collect_extended_metrics, "Genişletilmiş Performans Metrikleri"),
+        (run_security_scan, "Güvenlik Taraması"),
+        (check_backups, "Yedekleme Durumu"),
+    ]
     
-    # Veritabanı ayarları
-    if not check_database_settings():
-        success = False
+    for check_func, check_name in checks:
+        logger.info(f"\n🔍 {check_name} Kontrol Ediliyor...")
+        if not check_func():
+            success = False
     
-    # Statik dosya ayarları
-    if not check_static_files():
-        success = False
+    # Düzeltme önerilerini al
+    suggestions = suggest_fixes()
     
-    # Yüklü uygulamalar
-    if not check_installed_apps():
-        success = False
-    
-    # Migrasyonlar
-    if not check_migrations():
-        success = False
-    
-    # URL desenleri
-    if not check_url_patterns():
-        success = False
-    
-    # Debug ayarları
-    if not check_debug_settings():
-        success = False
-    
-    # Media dosya ayarları
-    if not check_media_files():
-        success = False
-    
-    # API endpoint'leri
-    if not check_api_endpoints():
-        success = False
-    
-    # Template ayarları
-    if not check_template_settings():
-        success = False
-    
-    # Gerekli paketler
-    if not check_requirements():
-        success = False
-    
-    # Loglama ayarları
-    if not check_logging_settings():
-        success = False
+    # Otomatik düzeltmeleri uygula
+    if suggestions:
+        if not apply_fixes(suggestions):
+            success = False
     
     # Sonuç
     if success:
@@ -485,17 +1109,34 @@ def create_deployment_report():
         logger.warning("\n⚠️ DİKKAT! Bazı kontroller başarısız oldu.")
         logger.warning("Yukarıdaki uyarıları dikkate alarak gerekli düzeltmeleri yapın ve testi tekrarlayın.")
     
+    # Düzeltme önerilerini göster
+    logger.info("\n💡 DÜZELTME ÖNERİLERİ:")
+    for category, items in suggestions.items():
+        if items:
+            logger.info(f"\n{category.upper()}:")
+            for item in items:
+                logger.info(f"  - {item}")
+    
     # HTML rapor oluştur
-    html_report = generate_html_report()
+    html_report = generate_html_report(suggestions)
     with open("deployment_report.html", "w") as f:
         f.write(html_report)
     
     logger.info(f"\nDetaylı rapor 'deployment_report.html' dosyasına kaydedildi.")
-    logger.info(f"Log dosyası 'deployment_check.log' içinde bulunabilir.\n")
+    logger.info(f"Log dosyası 'deployment_check.log' içinde bulunabilir.")
+    logger.info(f"Performans metrikleri 'performance_metrics.json' ve 'extended_metrics.json' dosyalarında bulunabilir.")
+    logger.info(f"Güvenlik taraması sonuçları 'security_scan.json' dosyasında bulunabilir.")
+    logger.info(f"Yedekleme durumu 'backup_status.json' dosyasında bulunabilir.\n")
 
-def generate_html_report():
+def generate_html_report(suggestions: Dict[str, List[str]]) -> str:
     """
     HTML formatında rapor oluşturur
+    
+    Args:
+        suggestions: Düzeltme önerileri
+        
+    Returns:
+        str: HTML raporu
     """
     html = """<!DOCTYPE html>
 <html lang="tr">
@@ -608,6 +1249,43 @@ def generate_html_report():
             <li>Yük testi yapın</li>
         </ul>
         
+        <h2>Düzeltme Önerileri</h2>
+        <div class="suggestions">
+    """
+    
+    for category, items in suggestions.items():
+        if items:
+            html += f"""
+            <h3>{category.title()}</h3>
+            <ul>
+            """
+            for item in items:
+                html += f"<li>{item}</li>"
+            html += "</ul>"
+    
+    html += """
+        </div>
+        <style>
+            .suggestions {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+            .suggestions h3 {
+                color: #2c3e50;
+                margin-top: 15px;
+            }
+            .suggestions ul {
+                margin-left: 20px;
+            }
+            .suggestions li {
+                margin: 5px 0;
+            }
+        </style>
+    """
+    
+    html += """
         <div class="footer">
             <p>Bu rapor otomatik olarak oluşturulmuştur. Daha detaylı bilgi için log dosyasını inceleyebilirsiniz.</p>
         </div>

@@ -1,63 +1,134 @@
 #!/bin/bash
-# compile_messages.sh - Django çeviri dosyalarını derler
-set -e
+# compile_messages.sh - Django çeviri dosyalarını derler ve yönetir
+set -euo pipefail
 
-echo "FinAsis Çeviri Derleme Betiği"
-echo "============================="
+# Renk tanımlamaları
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Sanal ortamın etkin olup olmadığını kontrol et
-if [[ "$VIRTUAL_ENV" == "" ]]; then
-    echo "Hata: Sanal ortam (virtualenv) etkin değil!"
-    echo "Lütfen önce sanal ortamı etkinleştirin:"
-    echo "  source venv/bin/activate    # Linux/macOS"
-    echo "  venv\\Scripts\\activate       # Windows"
-    exit 1
-fi
+# Log dosyası
+LOG_FILE="compile_messages.log"
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 
-# Django'nun yüklü olup olmadığını kontrol et
-if ! python -c "import django" &> /dev/null; then
-    echo "Hata: Django yüklü değil!"
-    echo "Lütfen önce gerekli paketleri yükleyin:"
-    echo "  pip install -r requirements.txt"
-    exit 1
-fi
+# Log fonksiyonu
+log() {
+    local level=$1
+    local message=$2
+    echo -e "[$TIMESTAMP] [$level] $message" | tee -a "$LOG_FILE"
+}
 
-# gettext'in yüklü olup olmadığını kontrol et
-if ! command -v msgfmt &> /dev/null; then
-    echo "Hata: gettext yüklü değil!"
-    echo "Lütfen gettext paketini yükleyin:"
-    echo "  sudo apt-get install gettext    # Ubuntu/Debian"
-    echo "  brew install gettext            # macOS"
-    echo "  choco install gettext           # Windows (Chocolatey)"
-    exit 1
-fi
+# Hata yönetimi
+handle_error() {
+    local error_code=$1
+    local error_message=$2
+    log "ERROR" "${RED}$error_message${NC}"
+    exit $error_code
+}
 
-# Çeviri Derle
-echo "Çeviri dosyaları derleniyor..."
-python manage.py compilemessages
+# Başlık yazdırma
+print_header() {
+    echo -e "\n${BLUE}FinAsis Çeviri Yönetim Sistemi${NC}"
+    echo -e "${BLUE}===============================${NC}\n"
+}
 
-if [ $? -eq 0 ]; then
-    echo "✓ Çeviri dosyaları başarıyla derlendi."
-else
-    echo "✗ Çeviri dosyaları derlenirken bir hata oluştu!"
-    exit 1
-fi
+# Bağımlılık kontrolü
+check_dependencies() {
+    log "INFO" "Bağımlılıklar kontrol ediliyor..."
+    
+    # Sanal ortam kontrolü
+    if [[ "$VIRTUAL_ENV" == "" ]]; then
+        handle_error 1 "Sanal ortam (virtualenv) etkin değil!\nLütfen önce sanal ortamı etkinleştirin:\n  source venv/bin/activate    # Linux/macOS\n  venv\\Scripts\\activate       # Windows"
+    fi
+    
+    # Django kontrolü
+    if ! python -c "import django" &> /dev/null; then
+        handle_error 1 "Django yüklü değil!\nLütfen önce gerekli paketleri yükleyin:\n  pip install -r requirements.txt"
+    fi
+    
+    # gettext kontrolü
+    if ! command -v msgfmt &> /dev/null; then
+        handle_error 1 "gettext yüklü değil!\nLütfen gettext paketini yükleyin:\n  sudo apt-get install gettext    # Ubuntu/Debian\n  brew install gettext            # macOS\n  choco install gettext           # Windows (Chocolatey)"
+    fi
+    
+    log "INFO" "${GREEN}✓ Tüm bağımlılıklar mevcut.${NC}"
+}
+
+# Çeviri dosyalarını derle
+compile_messages() {
+    log "INFO" "Çeviri dosyaları derleniyor..."
+    
+    if python manage.py compilemessages; then
+        log "INFO" "${GREEN}✓ Çeviri dosyaları başarıyla derlendi.${NC}"
+    else
+        handle_error 1 "Çeviri dosyaları derlenirken bir hata oluştu!"
+    fi
+}
 
 # Çevrilebilir metinleri çıkar
-echo "Çevrilebilir metinler çıkartılıyor..."
-python manage.py makemessages -l tr
-python manage.py makemessages -l en
-python manage.py makemessages -l ar
-python manage.py makemessages -l ku
-python manage.py makemessages -l de
+extract_messages() {
+    local languages=("tr" "en" "ar" "ku" "de")
+    local success=true
+    
+    log "INFO" "Çevrilebilir metinler çıkartılıyor..."
+    
+    for lang in "${languages[@]}"; do
+        log "INFO" "Dil: $lang için metinler çıkartılıyor..."
+        if ! python manage.py makemessages -l "$lang"; then
+            log "WARNING" "${YELLOW}Uyarı: $lang dili için metin çıkarma başarısız oldu.${NC}"
+            success=false
+        fi
+    done
+    
+    if $success; then
+        log "INFO" "${GREEN}✓ Tüm diller için çevrilebilir metinler başarıyla çıkartıldı.${NC}"
+    else
+        log "WARNING" "${YELLOW}Bazı diller için metin çıkarma işlemi başarısız oldu.${NC}"
+    fi
+}
 
-if [ $? -eq 0 ]; then
-    echo "✓ Çevrilebilir metinler başarıyla çıkartıldı."
-else
-    echo "✗ Çevrilebilir metinler çıkartılırken bir hata oluştu!"
-    exit 1
-fi
+# Çeviri istatistiklerini hesapla
+calculate_stats() {
+    log "INFO" "Çeviri istatistikleri hesaplanıyor..."
+    
+    local total_messages=0
+    local translated_messages=0
+    local fuzzy_messages=0
+    
+    for po_file in $(find locale -name "*.po"); do
+        local stats=$(msgfmt --statistics "$po_file" 2>&1)
+        local messages=$(echo "$stats" | grep -o '[0-9]* translated messages' | grep -o '[0-9]*')
+        local fuzzy=$(echo "$stats" | grep -o '[0-9]* fuzzy translations' | grep -o '[0-9]*')
+        local untranslated=$(echo "$stats" | grep -o '[0-9]* untranslated messages' | grep -o '[0-9]*')
+        
+        total_messages=$((total_messages + messages + fuzzy + untranslated))
+        translated_messages=$((translated_messages + messages))
+        fuzzy_messages=$((fuzzy_messages + fuzzy))
+    done
+    
+    local percentage=$((translated_messages * 100 / total_messages))
+    
+    log "INFO" "Çeviri İstatistikleri:"
+    log "INFO" "- Toplam Mesaj: $total_messages"
+    log "INFO" "- Çevrilen: $translated_messages (%$percentage)"
+    log "INFO" "- Bulanık: $fuzzy_messages"
+    log "INFO" "- Çevrilmemiş: $((total_messages - translated_messages - fuzzy_messages))"
+}
 
-echo ""
-echo "Şimdi 'locale/' dizinindeki .po dosyalarını düzenleyebilirsiniz."
-echo "Düzenlemeyi tamamladıktan sonra bu betiği tekrar çalıştırın." 
+# Ana fonksiyon
+main() {
+    print_header
+    check_dependencies
+    compile_messages
+    extract_messages
+    calculate_stats
+    
+    log "INFO" "\nÇeviri işlemleri tamamlandı."
+    log "INFO" "Düzenlemeler için 'locale/' dizinindeki .po dosyalarını kontrol edin."
+    log "INFO" "Düzenlemeleri tamamladıktan sonra bu betiği tekrar çalıştırın."
+}
+
+# Betiği çalıştır
+main "$@" 

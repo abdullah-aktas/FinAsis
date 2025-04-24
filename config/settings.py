@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     
     # Local apps
     'checks',
+    'permissions.apps.PermissionsConfig',
 ]
 
 MIDDLEWARE = [

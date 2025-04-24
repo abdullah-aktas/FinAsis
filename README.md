@@ -1,118 +1,132 @@
-# FinAsis - Finansal Yönetim ve Asistan Platformu
+# FinAsis ERP
 
-![FinAsis Logo](static/img/logo.png)
+FinAsis ERP, modern ve kullanıcı dostu bir kurumsal kaynak planlama (ERP) sistemidir. Türkiye'ye özgü vergi ve muhasebe kurallarına uygun olarak geliştirilmiş, e-devlet entegrasyonları ile güçlendirilmiş ve mobil uygulama desteği ile zenginleştirilmiş bir çözümdür.
 
-FinAsis, işletmelerin finansal yönetim, müşteri ilişkileri ve stok yönetimi süreçlerini dijitalleştirmesine yardımcı olan kapsamlı bir yazılım çözümüdür. Hem web uygulaması hem de masaüstü uygulaması olarak kullanılabilir.
+## Özellikler
 
-## 🚀 Özellikler
+### Temel Özellikler
+- Kullanıcı dostu arayüz
+- İki faktörlü kimlik doğrulama
+- Veri şifreleme ve güvenlik
+- Mobil uygulama desteği
+- Gerçek zamanlı bildirimler
 
-- **Muhasebe Yönetimi**: Hesap planı, faturalar, yevmiye kayıtları, vergi beyannameleri
-- **Müşteri İlişkileri (CRM)**: Müşteri yönetimi, fırsat takibi, aktivite planlaması
-- **E-Belge Entegrasyonu**: E-Fatura, E-Arşiv Fatura, E-İrsaliye ve E-Defter oluşturma ve yönetme
-- **Stok Yönetimi**: Ürün kataloğu, stok giriş/çıkış işlemleri, sayım
-- **Raporlama ve Analitik**: Mali tablolar, performans analizleri, iş zekası, özelleştirilebilir dashboardlar
-- **Yapay Zeka Asistanı**: Nakit akışı tahmini, müşteri risk skorlaması, OCR ile belge işleme
-- **Sanal Şirket Simülasyonu**: Eğitim amaçlı sanal şirket oluşturma ve yönetme
-- **Progressive Web App (PWA)**: Çevrimiçi/çevrimdışı çalışma modu, mobil uyumlu arayüz
-- **Çoklu Dil Desteği**: Türkçe, İngilizce, Kürtçe, Arapça ve Almanca dil desteği
-- **Güvenlik ve Kimlik Doğrulama**: JWT tabanlı kimlik doğrulama, 2FA desteği, rate limiting
+### Muhasebe Modülü
+- Türkiye'ye özgü vergi hesaplamaları
+- KDV, stopaj ve tevkifat hesaplamaları
+- E-fatura ve e-arşiv entegrasyonu
+- Banka entegrasyonları
+- Otomatik raporlama
 
-## 🛠 Teknolojiler
+### CRM Modülü
+- Müşteri yönetimi
+- Potansiyel müşteri takibi
+- Fırsat yönetimi
+- Müşteri iletişim geçmişi
+- E-posta entegrasyonu
 
-- **Backend**: Python/Django, Django Rest Framework
-- **Frontend**: HTML/CSS/JavaScript, Bootstrap 5, HTMX
-- **Veritabanı**: PostgreSQL
-- **Önbellek**: Redis
-- **Asenkron İşlemler**: Celery
-- **Yapay Zeka**: OpenAI, TensorFlow
-- **Konteynerleştirme**: Docker, Docker Compose
-- **İzleme**: Prometheus, Grafana
-- **CI/CD**: GitHub Actions
+### İK Modülü
+- Personel yönetimi
+- İzin ve devam takibi
+- Performans değerlendirme
+- SGK entegrasyonu
+- Bordro yönetimi
 
-## 📋 Gereksinimler
+### Stok Yönetimi
+- Stok takibi
+- Depo yönetimi
+- Sipariş yönetimi
+- Tedarikçi yönetimi
+- Envanter raporlama
 
-- Python 3.9 veya üzeri
-- pip (Python paket yöneticisi)
-- PostgreSQL 13+ (önerilen) veya SQLite
-- Node.js 14+ ve npm 6+
-- Redis 6+ (görev kuyruğu için)
-- Docker & Docker Compose (opsiyonel)
+## Kurulum
 
-## 🛠 Kurulum
+### Gereksinimler
+- Python 3.8+
+- Django 4.2+
+- PostgreSQL 13+
+- Redis 6+
 
-### Docker ile Kurulum (Önerilen)
-
+### Kurulum Adımları
+1. Sanal ortam oluştur:
 ```bash
-# Geliştirme ortamı
-docker-compose up -d
-
-# Üretim ortamı
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Yerel Kurulum
-
-1. Projeyi klonlayın:
-```bash
-git clone https://github.com/abdullah-aktas/FinAsis.git
-cd FinAsis
-```
-
-2. Sanal ortam oluşturun ve aktifleştirin:
-```bash
-# Windows
 python -m venv venv
-venv\Scripts\activate
-
-# Linux/macOS
-python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
-3. Bağımlılıkları yükleyin:
+2. Bağımlılıkları yükle:
 ```bash
 pip install -r requirements.txt
-npm install
 ```
 
-4. Ortam değişkenlerini ayarlayın:
-```bash
-cp .env.example .env
-# .env dosyasını düzenleyin
-```
-
-5. Veritabanını oluşturun:
+3. Veritabanını oluştur:
 ```bash
 python manage.py migrate
 ```
 
-6. Yönetici kullanıcısı oluşturun:
-```bash
-python manage.py createsuperuser
-```
-
-7. Statik dosyaları toplayın:
-```bash
-python manage.py collectstatic
-```
-
-8. Geliştirme sunucusunu başlatın:
+4. Geliştirme sunucusunu başlat:
 ```bash
 python manage.py runserver
 ```
 
-9. Tarayıcınızda `http://127.0.0.1:8000` adresine giderek uygulamayı görüntüleyin.
+## Docker ile Kurulum
 
-## 📝 Lisans
+1. Docker imajını oluştur:
+```bash
+docker-compose build
+```
+
+2. Konteynerleri başlat:
+```bash
+docker-compose up -d
+```
+
+## Mobil Uygulama
+
+FinAsis ERP mobil uygulaması, web uygulamasının tüm özelliklerini mobil cihazlarda kullanmanıza olanak sağlar.
+
+### Özellikler
+- Çevrimdışı çalışma
+- Anlık bildirimler
+- QR kod ile hızlı giriş
+- Biyometrik kimlik doğrulama
+- Veri senkronizasyonu
+
+## Güvenlik
+
+FinAsis ERP, en son güvenlik standartlarını kullanarak verilerinizi korur:
+
+- İki faktörlü kimlik doğrulama
+- Veri şifreleme
+- Güvenlik duvarı
+- DDoS koruması
+- Düzenli yedekleme
+
+## E-Devlet Entegrasyonları
+
+- Vergi borcu sorgulama
+- SGK bilgileri sorgulama
+- Firma bilgileri sorgulama
+- E-fatura entegrasyonu
+- E-arşiv entegrasyonu
+
+## Lisans
 
 Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
-## 🤝 Katkıda Bulunma
+## İletişim
+
+- E-posta: info@finasis.com
+- Web: https://www.finasis.com
+- Telefon: +90 212 123 45 67
+
+## Katkıda Bulunma
 
 1. Bu depoyu fork edin
-2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+2. Yeni bir özellik dalı oluşturun (`git checkout -b feature/yeni-ozellik`)
+3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik eklendi'`)
+4. Dalınıza push edin (`git push origin feature/yeni-ozellik`)
 5. Bir Pull Request oluşturun
 
 ## Dokümantasyon

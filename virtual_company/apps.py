@@ -7,4 +7,7 @@ class VirtualCompanyConfig(AppConfig):
     verbose_name = _('Sanal Şirket')
 
     def ready(self):
+        """
+        Uygulama başlatıldığında sinyalleri yükle.
+        """
         import virtual_company.signals  # noqa 

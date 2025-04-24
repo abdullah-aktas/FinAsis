@@ -2,6 +2,8 @@
 Rol tabanlı izin sistemi ve güvenlik iyileştirmeleri için modül.
 """
 
+default_app_config = 'permissions.apps.PermissionsConfig'
+
 # MVT yapısı için oluşturuldu
 
 # Rol-İzin Haritası

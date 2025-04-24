@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from django_celery_beat.schedulers import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -354,4 +355,66 @@ CACHEOPS = {
     'auth.*': {'ops': 'all', 'timeout': 60*15},
     'games.*': {'ops': 'all', 'timeout': 60*15},
     '*.*': {'ops': (), 'timeout': 60*15},
-} 
+}
+
+# Ethereum Blockchain Ayarları
+ETHEREUM_NODE_URL = 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'  # Testnet için: https://ropsten.infura.io/v3/YOUR_INFURA_PROJECT_ID
+ETHEREUM_PRIVATE_KEY = 'YOUR_PRIVATE_KEY'  # Güvenli bir şekilde saklanmalı
+ETHEREUM_CHAIN_ID = 1  # Mainnet için 1, Ropsten için 3
+ETHEREUM_CONTRACT_ADDRESS = 'YOUR_CONTRACT_ADDRESS'
+ETHEREUM_CONTRACT_ABI = [
+    {
+        "inputs": [
+            {"name": "title", "type": "string"},
+            {"name": "description", "type": "string"},
+            {"name": "amount", "type": "uint256"},
+            {"name": "parties", "type": "address[]"}
+        ],
+        "name": "createContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "title",
+        "outputs": [{"name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "description",
+        "outputs": [{"name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "amount",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "parties",
+        "outputs": [{"name": "", "type": "address[]"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "status",
+        "outputs": [{"name": "", "type": "uint8"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "createdAt",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }
+] 

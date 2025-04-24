@@ -15,11 +15,11 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     
     # Şirket URL'leri
-    path('', views.company_list, name='company_list'),
-    path('create/', views.company_create, name='company_create'),
-    path('<int:pk>/', views.company_detail, name='company_detail'),
-    path('<int:pk>/update/', views.company_update, name='company_update'),
-    path('<int:pk>/delete/', views.company_delete, name='company_delete'),
+    path('company/', views.CompanyListView.as_view(), name='company_list'),
+    path('company/<int:pk>/', views.CompanyDetailView.as_view(), name='company_detail'),
+    path('company/create/', views.CompanyCreateView.as_view(), name='company_create'),
+    path('company/<int:pk>/update/', views.CompanyUpdateView.as_view(), name='company_update'),
+    path('company/<int:pk>/delete/', views.CompanyDeleteView.as_view(), name='company_delete'),
     
     # Departman URL'leri
     path('<int:company_pk>/departments/', views.department_list, name='department_list'),

@@ -14,6 +14,12 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
   - Eksik Template dizinleri: `assets`, `checks`, `hr_management`, `seo`, `stock_management`
 - [ ] Eksik view tanımları oluşturuldu (41 eksik view)
 - [ ] Eksik template dosyaları oluşturuldu (102 eksik template)
+- [ ] API versiyonlama kontrol edildi ve yapılandırıldı
+- [ ] GraphQL endpoint'leri kontrol edildi (varsa)
+- [ ] WebSocket bağlantıları kontrol edildi
+- [ ] Middleware zinciri optimize edildi
+- [ ] Signal handlers kontrol edildi
+- [ ] Celery task'ları kontrol edildi
 
 ## 2. Güvenlik Kontrolleri
 
@@ -32,6 +38,13 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Django admin URL'i özelleştirildi
 - [ ] Kullanıcı yetkilendirme sistemi kontrol edildi
 - [ ] Dosya yükleme kısıtlamaları yapılandırıldı
+- [ ] OWASP Top 10 güvenlik açıkları kontrol edildi
+- [ ] Dependency check (güvenlik açığı taraması) yapıldı
+- [ ] Penetrasyon testi yapıldı
+- [ ] API güvenlik testleri yapıldı
+- [ ] JWT token yönetimi kontrol edildi
+- [ ] 2FA (İki Faktörlü Doğrulama) kontrol edildi
+- [ ] Güvenlik duvarı kuralları kontrol edildi
 
 ## 3. Veritabanı Kontrolleri
 
@@ -46,6 +59,12 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Atomik işlemler kontrol edildi
 - [ ] Büyük veri kümeleri için sayfalama yapılandırıldı
 - [ ] Gereksiz model alanları temizlendi
+- [ ] Veritabanı replikasyonu kontrol edildi
+- [ ] Veritabanı şifreleme kontrol edildi
+- [ ] Veritabanı performans metrikleri tanımlandı
+- [ ] Veritabanı yedekleme ve geri yükleme testleri yapıldı
+- [ ] Veritabanı sürüm kontrolü yapıldı
+- [ ] Veritabanı izleme sistemi kuruldu
 
 ## 4. Performans Kontrolleri
 
@@ -62,6 +81,12 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Resim boyutları optimize edildi
 - [ ] JavaScript/CSS küçültme yapılandırıldı
 - [ ] Yük testi yapıldı ve sonuçları değerlendirildi
+- [ ] API response time optimizasyonu yapıldı
+- [ ] Lazy loading kontrol edildi
+- [ ] Code splitting yapılandırıldı
+- [ ] Service Worker yapılandırması kontrol edildi
+- [ ] Progressive Web App (PWA) performansı kontrol edildi
+- [ ] Core Web Vitals metrikleri optimize edildi
 
 ## 5. Hata Yakalama ve Loglama
 
@@ -75,6 +100,11 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Hata raporlama servisi entegre edildi (Sentry veya benzeri)
 - [ ] Exception middleware yapılandırıldı
 - [ ] API hata yanıtları standardize edildi
+- [ ] Distributed tracing yapılandırıldı
+- [ ] Log aggregation sistemi kuruldu
+- [ ] Log analiz ve görselleştirme araçları entegre edildi
+- [ ] Audit logging yapılandırıldı
+- [ ] Log retention politikası belirlendi
 
 ## 6. Dağıtım ve Altyapı
 
@@ -92,6 +122,11 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Yedeklilik (redundancy) kontrol edildi
 - [ ] Otomatik ölçeklendirme yapılandırıldı (gerekirse)
 - [ ] Envanter yönetimi yapılandırıldı
+- [ ] Infrastructure as Code (IaC) kontrol edildi
+- [ ] Cloud provider yapılandırması kontrol edildi
+- [ ] Load balancing yapılandırması kontrol edildi
+- [ ] Disaster recovery planı hazırlandı
+- [ ] Zero-downtime deployment stratejisi belirlendi
 
 ## 7. Kullanıcı Deneyimi ve Son Kontroller
 
@@ -110,6 +145,10 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Arama motoru dostu URL'ler kontrol edildi
 - [ ] Kullanım kılavuzu hazırlandı
 - [ ] Sistem dokümantasyonu güncellendi
+- [ ] Kullanıcı geri bildirim mekanizması kuruldu
+- [ ] A/B test altyapısı hazırlandı
+- [ ] Kullanıcı davranış analizi yapılandırıldı
+- [ ] Kullanıcı segmentasyonu kontrol edildi
 
 ## 8. İzleme ve Bakım
 
@@ -125,6 +164,25 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - [ ] Kullanıcı geribildirimi toplamak için mekanizmalar kuruldu
 - [ ] Kesinti bildirimleri için plan oluşturuldu
 - [ ] Düzenli bakım takvimi oluşturuldu
+- [ ] SLA (Service Level Agreement) metrikleri tanımlandı
+- [ ] Incident response planı hazırlandı
+- [ ] Capacity planning yapıldı
+- [ ] Cost optimization kontrol edildi
+
+## 9. Yasal ve Uyumluluk Kontrolleri
+
+*Bu bölümde, yasal ve uyumluluk ile ilgili kontroller bulunur.*
+
+- [ ] KVKK/GDPR uyumluluğu kontrol edildi
+- [ ] Çerez politikası hazırlandı
+- [ ] Gizlilik politikası hazırlandı
+- [ ] Kullanım şartları hazırlandı
+- [ ] Telif hakkı bildirimleri kontrol edildi
+- [ ] Lisans uyumluluğu kontrol edildi
+- [ ] Finansal düzenlemelere uygunluk kontrol edildi
+- [ ] Veri saklama politikası belirlendi
+- [ ] Veri silme politikası belirlendi
+- [ ] Veri transfer politikası belirlendi
 
 ## Notlar
 
@@ -133,17 +191,44 @@ Bu belge, FinAsis projesinin canlı ortama alınmadan önce kontrol edilmesi ger
 - Canlıya geçiş öncesi bir toplantı düzenlenerek bu liste gözden geçirilmelidir.
 - Canlıya geçiş sonrası için bir izleme planı oluşturulmalıdır.
 - Sorun durumunda geri alma (rollback) planı hazırlanmalıdır.
+- Her madde için öncelik seviyesi belirlenmelidir (Kritik, Yüksek, Orta, Düşük).
+- Her madde için test senaryoları hazırlanmalıdır.
+- Her madde için dokümantasyon gereksinimleri belirlenmelidir.
 
 ## Son Kontrol
 
-Projeyi canlıya almadan önce, şu komutu çalıştırarak MVT yapısını kontrol ediniz:
+Projeyi canlıya almadan önce, şu komutları çalıştırarak kontrolleri yapınız:
 
 ```bash
+# MVT yapısı kontrolü
 python mvt_checker.py
+
+# Django kontrol mekanizması
+python manage.py check --deploy
+
+# Güvenlik taraması
+python manage.py check --deploy --settings=settings.prod
+
+# Performans testi
+python manage.py test --settings=settings.prod
+
+# Dependency check
+safety check
+
+# Code quality check
+flake8 .
+black --check .
+isort --check-only .
+
+# Test coverage
+pytest --cov=. --cov-report=html
 ```
 
-Ve şu komutu çalıştırarak Django'nun kendi kontrol mekanizmasını çalıştırınız:
+## Rollback Planı
 
-```bash
-python manage.py check --deploy
-``` 
+1. Veritabanı yedeği alın
+2. Kod versiyonu yedeği alın
+3. Rollback senaryoları hazırlanmış olmalı
+4. Rollback testleri yapılmış olmalı
+5. Rollback süresi belirlenmiş olmalı
+6. Rollback sorumluları belirlenmiş olmalı 

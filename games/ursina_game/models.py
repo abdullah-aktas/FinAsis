@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 from virtual_company.models import VirtualCompany
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,3 +81,14 @@ class UserGameAchievement(BaseModel):
     class Meta:
         verbose_name = 'Kullanıcı Oyun Başarısı'
         verbose_name_plural = 'Kullanıcı Oyun Başarıları'
+
+class GameState(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    virtual_company = models.ForeignKey('virtual_company.VirtualCompany', on_delete=models.CASCADE, null=True, blank=True)
+    score = models.IntegerField(default=0)
+    level = models.IntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Game State"

@@ -17,6 +17,9 @@ class User(AbstractUser):
     )
     phone = models.CharField(_('Telefon'), validators=[phone_regex], max_length=17, blank=True)
     
+    # Profil ilişkisi
+    profile = models.OneToOneField('UserProfile', on_delete=models.CASCADE, related_name='user_profile', null=True, blank=True)
+    
     # Profil bilgileri
     profile_picture = models.ImageField(_('Profil Resmi'), upload_to='profile_pictures/', blank=True)
     bio = models.TextField(_('Hakkımda'), max_length=500, blank=True)
@@ -29,6 +32,10 @@ class User(AbstractUser):
     
     # Güvenlik
     two_factor_enabled = models.BooleanField(_('İki Faktörlü Doğrulama'), default=False)
+    two_factor_secret = models.CharField(max_length=100, blank=True)
+    last_device_id = models.CharField(max_length=100, blank=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    fcm_token = models.CharField(max_length=200, blank=True)
     last_password_change = models.DateTimeField(_('Son Şifre Değişikliği'), auto_now=True)
     
     # Ayarlar
@@ -69,6 +76,11 @@ class UserProfile(models.Model):
     website = models.URLField(_('web sitesi'), blank=True)
     created_at = models.DateTimeField(_('oluşturulma tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('güncellenme tarihi'), auto_now=True)
+    two_factor_enabled = models.BooleanField(default=False)
+    two_factor_secret = models.CharField(max_length=100, blank=True)
+    last_device_id = models.CharField(max_length=100, blank=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    fcm_token = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name = _('kullanıcı profili')

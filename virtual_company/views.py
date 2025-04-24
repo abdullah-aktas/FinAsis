@@ -2,38 +2,39 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import (
-    VirtualCompany, Employee, Project, Budget, Report,
+    Company, Employee, Project, Budget, Report,
     Product, StockMovement, ProductionOrder, BillOfMaterials,
     QualityControl, ModuleSetting, UserDailyTask,
     KnowledgeBaseRelatedItem
 )
+from .forms import CompanyForm, EmployeeForm, ProjectForm
 
-# VirtualCompany Views
-class VirtualCompanyListView(LoginRequiredMixin, ListView):
-    model = VirtualCompany
-    template_name = 'virtual_company/virtualcompany_list.html'
+# Company Views
+class CompanyListView(LoginRequiredMixin, ListView):
+    model = Company
+    template_name = 'virtual_company/company_list.html'
     context_object_name = 'companies'
 
-class VirtualCompanyDetailView(LoginRequiredMixin, DetailView):
-    model = VirtualCompany
-    template_name = 'virtual_company/virtualcompany_detail.html'
+class CompanyDetailView(LoginRequiredMixin, DetailView):
+    model = Company
+    template_name = 'virtual_company/company_detail.html'
 
-class VirtualCompanyCreateView(LoginRequiredMixin, CreateView):
-    model = VirtualCompany
-    template_name = 'virtual_company/virtualcompany_form.html'
-    fields = '__all__'
-    success_url = reverse_lazy('virtual_company:virtualcompany_list')
+class CompanyCreateView(LoginRequiredMixin, CreateView):
+    model = Company
+    template_name = 'virtual_company/company_form.html'
+    form_class = CompanyForm
+    success_url = reverse_lazy('virtual_company:company_list')
 
-class VirtualCompanyUpdateView(LoginRequiredMixin, UpdateView):
-    model = VirtualCompany
-    template_name = 'virtual_company/virtualcompany_form.html'
-    fields = '__all__'
-    success_url = reverse_lazy('virtual_company:virtualcompany_list')
+class CompanyUpdateView(LoginRequiredMixin, UpdateView):
+    model = Company
+    template_name = 'virtual_company/company_form.html'
+    form_class = CompanyForm
+    success_url = reverse_lazy('virtual_company:company_list')
 
-class VirtualCompanyDeleteView(LoginRequiredMixin, DeleteView):
-    model = VirtualCompany
-    template_name = 'virtual_company/virtualcompany_confirm_delete.html'
-    success_url = reverse_lazy('virtual_company:virtualcompany_list')
+class CompanyDeleteView(LoginRequiredMixin, DeleteView):
+    model = Company
+    template_name = 'virtual_company/company_confirm_delete.html'
+    success_url = reverse_lazy('virtual_company:company_list')
 
 # Employee Views
 class EmployeeListView(LoginRequiredMixin, ListView):
