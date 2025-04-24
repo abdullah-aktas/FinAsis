@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 from .models import Game, Player, Transaction, Challenge, PlayerChallenge
 from .forms import GameForm, PlayerForm, TransactionForm, ChallengeForm
+from ursina_game.game_manager import GameManager
 
 @login_required
 def game_list(request):
@@ -77,4 +79,62 @@ def complete_challenge(request, pk):
         player.save()
         
         messages.success(request, 'Görev başarıyla tamamlandı!')
-    return redirect('game_detail', pk=player_challenge.player.game.pk) 
+    return redirect('game_detail', pk=player_challenge.player.game.pk)
+
+@login_required
+def start_game(request, game_id):
+    """Oyunu başlatır ve Ursina oyununa yönlendirir"""
+    game = get_object_or_404(Game, id=game_id)
+    player, created = Player.objects.get_or_create(
+        user=request.user,
+        game=game,
+        defaults={
+            'company_name': f"{request.user.username}'s Company",
+            'initial_balance': 10000,
+            'current_balance': 10000
+        }
+    )
+    
+    return render(request, 'games/game.html', {
+        'game': game,
+        'player': player
+    })
+
+@login_required
+def get_game_state(request, player_id):
+    """Oyun durumunu döndürür"""
+    player = get_object_or_404(Player, id=player_id, user=request.user)
+    game_manager = GameManager(player_id)
+    
+    return JsonResponse(game_manager.get_player_data())
+
+@login_required
+def save_game_state(request, player_id):
+    """Oyun durumunu kaydeder"""
+    if request.method == 'POST':
+        player = get_object_or_404(Player, id=player_id, user=request.user)
+        game_manager = GameManager(player_id)
+        
+        game_state = request.POST.get('game_state')
+        if game_state:
+            game_manager.save_game_state(game_state)
+            return JsonResponse({'status': 'success'})
+            
+    return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def record_transaction(request, player_id):
+    """Oyuncu işlemini kaydeder"""
+    if request.method == 'POST':
+        player = get_object_or_404(Player, id=player_id, user=request.user)
+        game_manager = GameManager(player_id)
+        
+        transaction_type = request.POST.get('type')
+        amount = float(request.POST.get('amount', 0))
+        description = request.POST.get('description', '')
+        
+        if transaction_type and amount:
+            game_manager.record_transaction(transaction_type, amount, description)
+            return JsonResponse({'status': 'success'})
+            
+    return JsonResponse({'status': 'error'}, status=400) 

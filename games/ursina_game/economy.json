@@ -1,0 +1,42 @@
+{
+    "raw_materials": {
+        "wood": {
+            "base_price": 100,
+            "volatility": 0.1,
+            "unit": "m3"
+        },
+        "steel": {
+            "base_price": 500,
+            "volatility": 0.15,
+            "unit": "kg"
+        },
+        "plastic": {
+            "base_price": 200,
+            "volatility": 0.12,
+            "unit": "kg"
+        }
+    },
+    "market_conditions": {
+        "trends": ["bull", "bear", "stable"],
+        "trend_duration": [300, 600],
+        "event_chance": 0.2
+    },
+    "products": {
+        "furniture": {
+            "materials": {
+                "wood": 2,
+                "steel": 1
+            },
+            "base_price": 1000,
+            "production_time": 60
+        },
+        "electronics": {
+            "materials": {
+                "steel": 2,
+                "plastic": 3
+            },
+            "base_price": 2000,
+            "production_time": 120
+        }
+    }
+} 
