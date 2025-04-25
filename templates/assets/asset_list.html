@@ -1,0 +1,142 @@
+{% extends "assets/base.html" %}
+{% load i18n %}
+
+{% block assets_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Varlıklar" %}</h3>
+        <div class="card-tools">
+            <a href="{% url 'assets:asset_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans "Yeni Varlık" %}
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Kod" %}</th>
+                        <th>{% trans "Ad" %}</th>
+                        <th>{% trans "Kategori" %}</th>
+                        <th>{% trans "Alım Tarihi" %}</th>
+                        <th>{% trans "Alım Bedeli" %}</th>
+                        <th>{% trans "Güncel Değer" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    <tr>
+                        <td>{{ asset.code }}</td>
+                        <td>{{ asset.name }}</td>
+                        <td>{{ asset.category.name }}</td>
+                        <td>{{ asset.purchase_date|date:"d.m.Y" }}</td>
+                        <td class="text-right">{{ asset.purchase_price|floatformat:2 }} ₺</td>
+                        <td class="text-right">{{ asset.current_value|floatformat:2 }} ₺</td>
+                        <td>
+                            <span class="badge badge-{{ asset.get_status_color }}">
+                                {{ asset.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'assets:asset_detail' asset.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'assets:asset_update' asset.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'assets:asset_delete' asset.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">{% trans "Henüz varlık bulunmuyor." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{% trans "Varlık Dağılımı" %}</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="assetDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{% trans "Değer Değişimi" %}</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="valueChangeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Varlık dağılımı grafiği
+    var distCtx = document.getElementById('assetDistributionChart').getContext('2d');
+    new Chart(distCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                data: {{ category_data|safe }},
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(153, 102, 255)',
+                    'rgb(255, 159, 64)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Değer değişimi grafiği
+    var valueCtx = document.getElementById('valueChangeChart').getContext('2d');
+    new Chart(valueCtx, {
+        type: 'line',
+        data: {
+            labels: {{ value_labels|safe }},
+            datasets: [{
+                label: '{% trans "Toplam Değer" %}',
+                data: {{ value_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

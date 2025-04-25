@@ -210,3 +210,80 @@ class BlockchainLog(BaseModel):
         verbose_name = 'Blockchain Log'
         verbose_name_plural = 'Blockchain Logları'
         ordering = ['-created_at']
+
+class TokenContract(models.Model):
+    """
+    FinAsis Token Sözleşmesi
+    """
+    CONTRACT_STATUS = [
+        ('draft', 'Taslak'),
+        ('active', 'Aktif'),
+        ('paused', 'Duraklatıldı'),
+        ('terminated', 'Sonlandırıldı'),
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='token_contracts')
+    contract_address = models.CharField(max_length=42, unique=True)
+    token_name = models.CharField(max_length=100)
+    token_symbol = models.CharField(max_length=10)
+    total_supply = models.DecimalField(max_digits=36, decimal_places=18, default=Decimal('1000000'))
+    decimals = models.IntegerField(default=18)
+    status = models.CharField(max_length=20, choices=CONTRACT_STATUS, default='draft')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Token Sözleşmesi'
+        verbose_name_plural = 'Token Sözleşmeleri'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.token_name} ({self.token_symbol})"
+
+class TokenBalance(models.Model):
+    """
+    Token Bakiyesi
+    """
+    contract = models.ForeignKey(TokenContract, on_delete=models.CASCADE, related_name='balances')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='token_balances')
+    balance = models.DecimalField(max_digits=36, decimal_places=18, default=Decimal('0'))
+    locked_balance = models.DecimalField(max_digits=36, decimal_places=18, default=Decimal('0'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Token Bakiyesi'
+        verbose_name_plural = 'Token Bakiyeleri'
+        unique_together = ['contract', 'user']
+        ordering = ['-updated_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.contract.token_symbol}: {self.balance}"
+
+class TokenTransaction(models.Model):
+    """
+    Token İşlemi
+    """
+    TRANSACTION_TYPES = [
+        ('mint', 'Token Oluşturma'),
+        ('burn', 'Token Yakma'),
+        ('transfer', 'Transfer'),
+        ('lock', 'Kilitli Bakiye'),
+        ('unlock', 'Kilit Açma'),
+    ]
+    
+    contract = models.ForeignKey(TokenContract, on_delete=models.CASCADE, related_name='transactions')
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_transactions')
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_transactions')
+    amount = models.DecimalField(max_digits=36, decimal_places=18)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    transaction_hash = models.CharField(max_length=66, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Token İşlemi'
+        verbose_name_plural = 'Token İşlemleri'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.get_transaction_type_display()} - {self.amount} {self.contract.token_symbol}"

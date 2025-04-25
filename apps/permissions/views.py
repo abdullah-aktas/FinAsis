@@ -18,6 +18,12 @@ import pyotp
 import qrcode
 import io
 from django.conf import settings
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
+from .forms import PermissionForm, RoleForm
 
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
@@ -273,4 +279,130 @@ class RevokePermissionView(viewsets.ViewSet):
             return Response(
                 {'error': 'Delegation not found'},
                 status=status.HTTP_404_NOT_FOUND
-            ) 
+            )
+
+@login_required
+@permission_required('permissions.view_permission')
+def permission_list(request):
+    """İzin listesi görünümü"""
+    permissions = Permission.objects.all()
+    
+    # Arama filtresi
+    search_query = request.GET.get('search', '')
+    if search_query:
+        permissions = permissions.filter(
+            Q(name__icontains=search_query) |
+            Q(codename__icontains=search_query)
+        )
+    
+    # Sayfalama
+    paginator = Paginator(permissions, 10)
+    page = request.GET.get('page')
+    permissions = paginator.get_page(page)
+    
+    context = {
+        'permissions': permissions,
+    }
+    return render(request, 'permissions/list.html', context)
+
+@login_required
+@permission_required('permissions.add_permission')
+def permission_create(request):
+    """Yeni izin oluşturma görünümü"""
+    if request.method == 'POST':
+        form = PermissionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'İzin başarıyla oluşturuldu.')
+            return redirect('permissions:list')
+    else:
+        form = PermissionForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'permissions/form.html', context)
+
+@login_required
+@permission_required('permissions.view_role')
+def role_list(request):
+    """Rol listesi görünümü"""
+    roles = Role.objects.all()
+    
+    # Arama filtresi
+    search_query = request.GET.get('search', '')
+    if search_query:
+        roles = roles.filter(name__icontains=search_query)
+    
+    # Sayfalama
+    paginator = Paginator(roles, 10)
+    page = request.GET.get('page')
+    roles = paginator.get_page(page)
+    
+    context = {
+        'roles': roles,
+    }
+    return render(request, 'permissions/roles.html', context)
+
+@login_required
+@permission_required('permissions.add_role')
+def role_create(request):
+    """Yeni rol oluşturma görünümü"""
+    if request.method == 'POST':
+        form = RoleForm(request.POST)
+        if form.is_valid():
+            role = form.save()
+            messages.success(request, 'Rol başarıyla oluşturuldu.')
+            return redirect('permissions:roles')
+    else:
+        form = RoleForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'permissions/role_form.html', context)
+
+@login_required
+@permission_required('permissions.view_userrole')
+def user_roles(request):
+    """Kullanıcı rolleri görünümü"""
+    user_roles = UserRole.objects.all()
+    
+    # Arama filtresi
+    search_query = request.GET.get('search', '')
+    if search_query:
+        user_roles = user_roles.filter(
+            Q(user__username__icontains=search_query) |
+            Q(role__name__icontains=search_query)
+        )
+    
+    # Sayfalama
+    paginator = Paginator(user_roles, 10)
+    page = request.GET.get('page')
+    user_roles = paginator.get_page(page)
+    
+    context = {
+        'user_roles': user_roles,
+    }
+    return render(request, 'permissions/user_roles.html', context)
+
+@login_required
+@permission_required('permissions.add_userrole')
+def assign_role(request):
+    """Rol atama görünümü"""
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        role_id = request.POST.get('role')
+        
+        user_role = UserRole.objects.create(
+            user_id=user_id,
+            role_id=role_id
+        )
+        messages.success(request, 'Rol başarıyla atandı.')
+        return redirect('permissions:user_roles')
+    
+    context = {
+        'users': User.objects.all(),
+        'roles': Role.objects.all(),
+    }
+    return render(request, 'permissions/assign_role.html', context) 

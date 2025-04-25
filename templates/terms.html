@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Kullanım Koşulları ve Abonelik Şartları - FinAsis{% endblock %}
+{% block title %}Kullanım Koşulları - FinAsis{% endblock %}
 
 {% block meta_description %}FinAsis kullanım koşulları ve abonelik şartları. Hizmetimizi kullanmadan önce lütfen bu şartları dikkatlice okuyun.{% endblock %}
 
@@ -69,164 +69,54 @@
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<header class="terms-header">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-3">Kullanım Koşulları ve Abonelik Şartları</h1>
-        <p class="lead">Son Güncelleme: 15 Nisan 2025</p>
-    </div>
-</header>
-
-<!-- Terms Content -->
-<div class="container">
-    <div class="terms-container">
-        <div class="terms-section">
-            <h2>1. Giriş</h2>
-            <p>Bu Kullanım Koşulları ve Abonelik Şartları ("Koşullar"), FinAsis finansal yönetim platformunu ("Hizmet") kullanmanız için geçerli olan şartları belirler.</p>
-            <p>Platforma kaydolarak veya Hizmeti kullanarak, bu Koşulları kabul etmiş sayılırsınız. Eğer bu Koşulları kabul etmiyorsanız, lütfen Hizmeti kullanmayın.</p>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4">Kullanım Koşulları</h1>
             
-            <div class="highlighted-box">
-                <h4>Önemli Not</h4>
-                <p>Bu belge yasal bir sözleşmedir ve platformumuzu kullanma haklarınızı ve yükümlülüklerinizi içerir. Lütfen dikkatle okuyun.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">1. Genel Hükümler</h2>
+                <p>FinAsis platformunu kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız. Lütfen bu koşulları dikkatle okuyunuz.</p>
             </div>
-        </div>
-        
-        <div class="terms-section">
-            <h2>2. Hizmet Tanımı</h2>
-            <p>FinAsis, işletmelerin finansal yönetim süreçlerini daha verimli hale getirmek için tasarlanmış çevrimiçi bir yazılım platformudur. Hizmetimiz muhasebe, CRM, e-fatura ve diğer iş yönetimi özelliklerini içermektedir.</p>
             
-            <h3>2.1 Kullanım Amacı</h3>
-            <p>Bu Hizmet, ticari faaliyetleri desteklemek amacıyla tasarlanmıştır ve yalnızca yasal iş operasyonları için kullanılabilir.</p>
-            
-            <h3>2.2 Kullanım Sınırlamaları</h3>
-            <p>Kullanıcı, Hizmeti şu amaçlarla kullanamaz:</p>
-            <ul>
-                <li>Yasadışı faaliyetler veya yasalara aykırı içerik oluşturmak</li>
-                <li>Başkalarının fikri mülkiyet haklarını ihlal etmek</li>
-                <li>Hizmeti kötüye kullanmak veya kesintiye uğratmak</li>
-                <li>Zararlı yazılım veya kod yaymak</li>
-                <li>Yetkisiz erişim sağlamak veya güvenlik önlemlerini atlatmak</li>
-            </ul>
-        </div>
-        
-        <div class="terms-section">
-            <h2>3. Hesap Kaydı ve Güvenlik</h2>
-            <p>FinAsis'i kullanabilmek için bir hesap oluşturmanız gerekmektedir. Kayıt sırasında verdiğiniz bilgilerin doğru, güncel ve eksiksiz olmasından sorumlusunuz.</p>
-            
-            <h3>3.1 Hesap Güvenliği</h3>
-            <p>Hesap güvenliğinizden ve tüm aktivitelerden siz sorumlusunuz. Şifrenizi güvende tutun ve izinsiz erişim fark ederseniz hemen bize bildirin.</p>
-            
-            <h3>3.2 Hesap Yetkilendirmesi</h3>
-            <p>Hesap açan kişi veya kuruluş, tüm kullanıcıları yetkilendirme hakkına sahiptir ve her bir kullanıcının faaliyetlerinden sorumludur.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>4. Abonelik ve Ödeme</h2>
-            <p>FinAsis çeşitli abonelik planları sunmaktadır. Abonelik şartları ve koşulları aşağıda belirtilmiştir.</p>
-            
-            <h3>4.1 Abonelik Planları</h3>
-            <p>Standart, Profesyonel ve Kurumsal abonelik planları sunuyoruz. Her bir planın kendine özgü özellikleri, kısıtlamaları ve fiyatları vardır.</p>
-            
-            <h3>4.2 Ücretsiz Deneme</h3>
-            <p>14 günlük ücretsiz deneme süresi sunmaktayız. Deneme süresi sonunda herhangi bir ücretli abonelik seçmezseniz, hesabınız otomatik olarak sınırlandırılır ancak verileriniz 30 gün daha saklanır.</p>
-            
-            <h3>4.3 Faturalandırma</h3>
-            <p>Aylık veya yıllık abonelik seçeneğine bağlı olarak faturalandırma gerçekleştirilir. Yıllık abonelikler için indirim sunulmaktadır. Ödemeler, kredi kartı veya banka havalesi ile gerçekleştirilebilir.</p>
-            
-            <h3>4.4 Otomatik Yenileme</h3>
-            <p>Aboneliğiniz, iptal edilmediği sürece otomatik olarak yenilenir. Yenileme işlemi, mevcut abonelik döneminin bitiminden önce gerçekleştirilir.</p>
-            
-            <h3>4.5 Fiyat Değişiklikleri</h3>
-            <p>Hizmet fiyatlarını değiştirme hakkını saklı tutarız. Fiyat değişiklikleri mevcut abonelik dönemini etkilemez, yalnızca yenileme sırasında geçerli olur. Fiyat değişiklikleri en az 30 gün önceden bildirilir.</p>
-            
-            <h3>4.6 Para İade Politikası</h3>
-            <p>Ödeme tarihinden itibaren 30 gün içinde talep edildiği takdirde, ücret iade edilebilir. İade işlemi için kullanım verileri silinir ve iade süreci 5-10 iş günü içinde tamamlanır.</p>
-            
-            <div class="highlighted-box">
-                <h4>Para İade Garantisi</h4>
-                <p>30 gün içinde memnun kalmazsanız, herhangi bir soru sorulmadan paranızı iade ediyoruz. Hiçbir gizli şart veya koşul yoktur.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">2. Hizmet Kullanımı</h2>
+                <ul>
+                    <li>Platformu yasal amaçlar için kullanmalısınız</li>
+                    <li>Diğer kullanıcıların haklarına saygı göstermelisiniz</li>
+                    <li>Platformun güvenliğini tehlikeye atmamalısınız</li>
+                    <li>Yanlış veya yanıltıcı bilgi paylaşmamalısınız</li>
+                </ul>
             </div>
-        </div>
-        
-        <div class="terms-section">
-            <h2>5. Abonelik İptali</h2>
-            <p>Aboneliğinizi istediğiniz zaman hesap ayarlarınızdan veya müşteri hizmetleri ile iletişime geçerek iptal edebilirsiniz.</p>
             
-            <h3>5.1 İptal Süreci</h3>
-            <p>Abonelik iptali mevcut dönem sonunda geçerli olur ve yeni bir faturalandırma yapılmaz. İptal edilen abonelikler, mevcut dönem sonuna kadar aktif kalır.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">3. Hesap Güvenliği</h2>
+                <p>Hesap bilgilerinizin güvenliğinden siz sorumlusunuz. Şüpheli bir durum fark ettiğinizde derhal bizimle iletişime geçmelisiniz.</p>
+            </div>
             
-            <h3>5.2 Veri Saklama ve Silme</h3>
-            <p>Abonelik iptalinden sonra verileriniz 90 gün boyunca saklanır ve bu süre içinde yeniden aktifleştirme yapabilirsiniz. 90 günün sonunda tüm verileriniz kalıcı olarak silinir.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>6. Kullanıcı Verileri ve Gizlilik</h2>
-            <p>Gizliliğinizi önemsiyoruz. Veri toplama ve kullanma uygulamalarımız <a href="{% url 'privacy' %}">Gizlilik Politikamızda</a> detaylı olarak açıklanmıştır.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">4. Fikri Mülkiyet</h2>
+                <p>Platform üzerindeki tüm içerik, yazılım ve tasarımlar FinAsis'in fikri mülkiyetidir. İzinsiz kullanılamaz.</p>
+            </div>
             
-            <h3>6.1 Veri Sahipliği</h3>
-            <p>FinAsis'e yüklediğiniz veya FinAsis üzerinde oluşturduğunuz tüm içerik ve verilerin sahibi sizsiniz. Bu verileri yedekleme, taşıma ve silme hakkına sahipsiniz.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">5. Sorumluluk Sınırlaması</h2>
+                <p>FinAsis, platform üzerinden alınan kararların sonuçlarından sorumlu değildir. Yatırım kararlarınızı kendi sorumluluğunuzda almalısınız.</p>
+            </div>
             
-            <h3>6.2 Veri Güvenliği</h3>
-            <p>Verilerinizi korumak için endüstri standardı güvenlik önlemleri uyguluyoruz. Verilerinizi güvende tutmak için sürekli olarak güvenlik protokollerimizi güncelliyor ve geliştiriyoruz.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>7. Fikri Mülkiyet Hakları</h2>
-            <p>FinAsis platformu, içeriği, logo, marka ve ilgili tüm fikri mülkiyet hakları şirketimize aittir. Hizmeti kullanma hakkınız, bu fikri mülkiyet haklarının size devredildiği anlamına gelmez.</p>
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">6. Değişiklikler</h2>
+                <p>Bu koşullar zaman zaman güncellenebilir. Değişikliklerden haberdar olmak için düzenli olarak kontrol etmenizi öneririz.</p>
+            </div>
             
-            <h3>7.1 Lisans</h3>
-            <p>Size, Hizmeti bu Koşullar çerçevesinde kullanmanız için sınırlı, münhasır olmayan, devredilemez bir lisans veriyoruz.</p>
-            
-            <h3>7.2 Kısıtlamalar</h3>
-            <p>Yazılımımızı kopyalamak, değiştirmek, dağıtmak, satmak, kiralamak veya tersine mühendislik yapmak yasaktır.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>8. Hizmet Seviyesi ve Destek</h2>
-            <p>FinAsis, yüksek kaliteli bir hizmet sunmayı ve kesintisiz bir deneyim sağlamayı hedefler.</p>
-            
-            <h3>8.1 Çalışma Süresi Garantisi</h3>
-            <p>Platformumuz için %99.9 çalışma süresi garantisi veriyoruz. Planlı bakım süreleri bu garanti dışındadır ve önceden bildirilir.</p>
-            
-            <h3>8.2 Destek</h3>
-            <p>Abonelik planınıza bağlı olarak e-posta, canlı sohbet veya telefon desteği sunuyoruz. Standart yanıt süresi 24 saattir.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>9. Yasal Sorumluluklar</h2>
-            <p>FinAsis, yasalara uygun işlemler yapmanız için gerekli araçları sunar, ancak yasal uyumluluk sizin sorumluluğunuzdadır.</p>
-            
-            <h3>9.1 Vergi ve Muhafaza Yükümlülükleri</h3>
-            <p>FinAsis, yasal defterlerinizi ve belgelerinizi oluşturmanıza yardımcı olur, ancak bu belgeleri uygun şekilde saklamak ve ilgili vergi yükümlülüklerini yerine getirmek sizin sorumluluğunuzdadır.</p>
-            
-            <h3>9.2 Yasal Belgelerin Doğruluğu</h3>
-            <p>FinAsis aracılığıyla oluşturulan tüm belgelerin doğruluğunu kontrol etme sorumluluğu size aittir.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>10. Sorumluluk Sınırlaması</h2>
-            <p>FinAsis, herhangi bir dolaylı, arızi, özel, sonuç olarak ortaya çıkan veya cezalandırıcı zararlardan sorumlu değildir.</p>
-            <p>Sorumluluğumuz, son 12 ay içinde ödediğiniz abonelik ücretleri ile sınırlıdır.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>11. Anlaşmazlık Çözümü</h2>
-            <p>Bu Koşullardan veya Hizmetin kullanımından kaynaklanan herhangi bir anlaşmazlık, Türkiye Cumhuriyeti yasalarına tabi olacaktır.</p>
-            <p>Herhangi bir anlaşmazlık durumunda, öncelikle sorunları doğrudan çözmeye çalışacağız. Çözülememesi durumunda İstanbul Mahkemeleri yetkili olacaktır.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>12. Değişiklikler ve Güncellemeler</h2>
-            <p>Bu Koşulları herhangi bir zamanda güncelleme hakkını saklı tutarız. Önemli değişiklikler e-posta yoluyla bildirilecek ve platformda yayınlanacaktır.</p>
-            <p>Koşullardaki değişikliklerden sonra Hizmeti kullanmaya devam etmeniz, güncellenmiş koşulları kabul ettiğiniz anlamına gelir.</p>
-        </div>
-        
-        <div class="terms-section">
-            <h2>13. İletişim</h2>
-            <p>Bu Koşullar veya Hizmet hakkında herhangi bir sorunuz veya endişeniz varsa, lütfen bizimle iletişime geçin:</p>
-            <p>E-posta: info@finasis.com.tr<br>
-            Telefon: +90 212 123 4567<br>
-            Adres: İstanbul Teknopark, D Blok No:101, 34398 Maslak, İstanbul</p>
+            <div class="terms-section">
+                <h2 class="h4 mb-3">7. İletişim</h2>
+                <p>Kullanım koşulları ile ilgili sorularınız için:</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> support@finasis.com.tr</li>
+                    <li><i class="fas fa-phone me-2"></i> +90 212 123 45 67</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

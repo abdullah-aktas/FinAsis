@@ -1,0 +1,67 @@
+{% extends "accounting/base.html" %}
+{% load i18n %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Nakit Akışı" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm mr-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{% trans "Başlangıç" %}</span>
+                    </div>
+                    <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{% trans "Bitiş" %}</span>
+                    </div>
+                    <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> {% trans "Filtrele" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tarih" %}</th>
+                        <th>{% trans "Açıklama" %}</th>
+                        <th class="text-right">{% trans "Giriş" %}</th>
+                        <th class="text-right">{% trans "Çıkış" %}</th>
+                        <th class="text-right">{% trans "Bakiye" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="font-weight-bold">{% trans "Açılış Bakiyesi" %}</td>
+                        <td class="text-right font-weight-bold">{{ opening_balance|floatformat:2 }}</td>
+                    </tr>
+                    {% for flow in cash_flows %}
+                    <tr>
+                        <td>{{ flow.date|date:"d.m.Y" }}</td>
+                        <td>{{ flow.description }}</td>
+                        <td class="text-right">{{ flow.inflow|default:"-"|floatformat:2 }}</td>
+                        <td class="text-right">{{ flow.outflow|default:"-"|floatformat:2 }}</td>
+                        <td class="text-right">{{ flow.balance|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="font-weight-bold">
+                        <td colspan="2">{% trans "Toplam" %}</td>
+                        <td class="text-right">{{ total_inflow|floatformat:2 }}</td>
+                        <td class="text-right">{{ total_outflow|floatformat:2 }}</td>
+                        <td class="text-right">{{ closing_balance|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

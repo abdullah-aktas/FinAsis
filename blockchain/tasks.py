@@ -1,9 +1,11 @@
 from celery import shared_task
 from django.core.cache import cache
-from .models import Transaction, Wallet
+from .models import Transaction, Wallet, TokenContract, TokenBalance, TokenTransaction
 from web3 import Web3
 import logging
 from decimal import Decimal
+from django.contrib.auth import get_user_model
+from .ethereum import deploy_contract, mint_token, transfer_token
 
 logger = logging.getLogger(__name__)
 
@@ -86,4 +88,146 @@ def cleanup_old_transactions():
         pass
     except Exception as e:
         logger.error(f"Error cleaning up old transactions: {str(e)}")
-        raise 
+        raise
+
+@shared_task
+def create_token_contract(user_id, token_name, token_symbol, total_supply):
+    """
+    Yeni token sözleşmesi oluştur
+    """
+    try:
+        user = get_user_model().objects.get(id=user_id)
+        
+        # Sözleşmeyi blockchain'e deploy et
+        contract_address = deploy_contract(
+            token_name=token_name,
+            token_symbol=token_symbol,
+            total_supply=total_supply
+        )
+        
+        # Veritabanında sözleşmeyi oluştur
+        contract = TokenContract.objects.create(
+            user=user,
+            contract_address=contract_address,
+            token_name=token_name,
+            token_symbol=token_symbol,
+            total_supply=total_supply,
+            status='active'
+        )
+        
+        # Kullanıcı için başlangıç bakiyesi oluştur
+        TokenBalance.objects.create(
+            contract=contract,
+            user=user,
+            balance=total_supply
+        )
+        
+        return {
+            'status': 'success',
+            'contract_id': contract.id,
+            'contract_address': contract_address
+        }
+        
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': str(e)
+        }
+
+@shared_task
+def mint_tokens(contract_id, amount):
+    """
+    Yeni token oluştur
+    """
+    try:
+        contract = TokenContract.objects.get(id=contract_id)
+        
+        # Blockchain'de token oluştur
+        transaction_hash = mint_token(
+            contract_address=contract.contract_address,
+            amount=amount
+        )
+        
+        # Veritabanında işlemi kaydet
+        TokenTransaction.objects.create(
+            contract=contract,
+            from_user=contract.user,
+            to_user=contract.user,
+            amount=amount,
+            transaction_type='mint',
+            transaction_hash=transaction_hash
+        )
+        
+        # Bakiyeyi güncelle
+        balance = TokenBalance.objects.get(
+            contract=contract,
+            user=contract.user
+        )
+        balance.balance += amount
+        balance.save()
+        
+        return {
+            'status': 'success',
+            'transaction_hash': transaction_hash
+        }
+        
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': str(e)
+        }
+
+@shared_task
+def transfer_tokens(contract_id, from_user_id, to_user_id, amount):
+    """
+    Token transferi yap
+    """
+    try:
+        contract = TokenContract.objects.get(id=contract_id)
+        from_user = get_user_model().objects.get(id=from_user_id)
+        to_user = get_user_model().objects.get(id=to_user_id)
+        
+        # Blockchain'de transfer yap
+        transaction_hash = transfer_token(
+            contract_address=contract.contract_address,
+            from_address=from_user.wallets.first().address,
+            to_address=to_user.wallets.first().address,
+            amount=amount
+        )
+        
+        # Veritabanında işlemi kaydet
+        TokenTransaction.objects.create(
+            contract=contract,
+            from_user=from_user,
+            to_user=to_user,
+            amount=amount,
+            transaction_type='transfer',
+            transaction_hash=transaction_hash
+        )
+        
+        # Bakiyeleri güncelle
+        from_balance = TokenBalance.objects.get(
+            contract=contract,
+            user=from_user
+        )
+        from_balance.balance -= amount
+        from_balance.save()
+        
+        to_balance, _ = TokenBalance.objects.get_or_create(
+            contract=contract,
+            user=to_user,
+            defaults={'balance': Decimal('0')}
+        )
+        to_balance.balance += amount
+        to_balance.save()
+        
+        return {
+            'status': 'success',
+            'transaction_hash': transaction_hash
+        }
+        
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': str(e)
+        } 

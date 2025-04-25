@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+    <!-- Yan Menü -->
+    <div class="col-md-3">
+        {% include "education/sidebar.html" %}
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div class="col-md-9">
+        {% block education_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %} 

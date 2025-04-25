@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}FinAsis - Finansal Asistan ve Yönetim Sistemi{% endblock %}
+{% block title %}FinAsis - Finansal Yapay Zeka Asistanı{% endblock %}
 
 {% block meta_description %}FinAsis, işletmenizin finansal süreçlerini kolaylaştıran, kapsamlı bir finansal yönetim ve analiz sistemidir. Muhasebe, CRM, stok yönetimi ve daha fazlası tek platformda.{% endblock %}
 
@@ -31,10 +31,8 @@
     
     /* Hero Bölümü - Okunabilirlik Geliştirmeleri */
     .hero-section {
-        position: relative;
-        padding: 140px 0 120px;
-        overflow: hidden;
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+        padding: 100px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
     
     .hero-section::before {
@@ -320,20 +318,21 @@
     
     /* Özellik Kartları */
     .feature-card {
-        border: none;
-        border-radius: 12px;
-        overflow: hidden;
-        height: 100%;
-        transition: all 0.3s ease;
+        padding: 30px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
     }
     
-    .feature-icon {
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-card i {
         font-size: 2.5rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #0d6efd;
+        margin-bottom: 20px;
     }
     
     /* Widget Kartları - Yeniden tasarım */
@@ -516,591 +515,161 @@
             margin-bottom: 20px;
         }
     }
+
+    .token-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+    }
+
+    .token-benefits {
+        list-style: none;
+        padding: 0;
+    }
+
+    .token-benefits li {
+        margin-bottom: 10px;
+        padding-left: 25px;
+        position: relative;
+    }
+
+    .token-benefits li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #0d6efd;
+    }
+
+    .legal-card {
+        padding: 20px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section text-white">
+<div class="hero-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 hero-content fade-in">
-                <div class="hero-badge">
-                    <i class="bi bi-stars me-2"></i> TÜRKİYE'NİN YENİ NESİL FİNANSAL PLATFORMU
-                </div>
-                <h1 class="hero-title">İşletmenizi Geleceğe<br>Taşıyan Finansal Asistan</h1>
-                <p class="hero-subtitle">Muhasebe, CRM, E-Fatura ve çok daha fazlası.<br>Tek platformda, her zaman, her yerden erişim.</p>
-                <div class="hero-buttons">
-                    <a href="{% url 'accounts:register' %}" class="btn-start">
-                        Ücretsiz Başla <i class="bi bi-arrow-right"></i>
-                    </a>
-                    <a href="#" class="btn-demo" onclick="showDemoMessage(event)">
-                        <i class="bi bi-play-circle"></i> Demo İzle
-                    </a>
-                </div>
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <div class="hero-stat-icon">
-                            <i class="bi bi-star"></i>
-                        </div>
-                        <div>
-                            <div class="rating-stars fw-bold">
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-half"></i>
-                                <span class="text-white ms-2">4.8/5</span>
-                            </div>
-                            <div class="text-white-50 small">Müşteri memnuniyeti</div>
-                        </div>
-                    </div>
-                    <div class="vr bg-white opacity-25" style="height: 40px;"></div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-icon">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-white">5000+</div>
-                            <div class="text-white-50 small">Aktif kullanıcı</div>
-                        </div>
-                    </div>
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Finansal Geleceğinizi Yapay Zeka ile Şekillendirin</h1>
+                <p class="lead">FinAsis ile finansal kararlarınızı akıllıca yönetin, yatırımlarınızı optimize edin ve geleceğinize güvenle bakın.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2" data-bs-toggle="modal" data-bs-target="#signupModal">Hemen Başla</button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg px-4">Daha Fazla Bilgi</button>
                 </div>
             </div>
-            <div class="col-lg-6 text-center fade-in-delay-1">
-                <img src="{% static 'img/dashboard-preview.png' %}" alt="FinAsis Dashboard" class="img-fluid hero-image" style="max-width: 95%;">
+            <div class="col-lg-6">
+                <img src="{% static 'images/hero-image.png' %}" class="img-fluid" alt="FinAsis Hero Image">
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Widgets Section -->
-<section class="container widget-row">
-    <div class="row">
-        <!-- Finansal Özet Widget -->
-        <div class="col-lg-4 mb-4 fade-in-delay-1">
-            <div class="widget-card finance-widget">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="widget-title">
-                        <i class="bi bi-graph-up-arrow"></i> Piyasa Bilgileri
-                    </div>
-                    <button class="refresh-btn" onclick="updateFinance()">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </button>
-                </div>
-                <div class="widget-content">
-                    <div id="finance-info" class="w-100">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <span>BIST100</span>
-                                <span id="bist100" class="fw-bold">--</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <span>USD/TRY</span>
-                                <span id="usd" class="fw-bold">--</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 65%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <span>EUR/TRY</span>
-                                <span id="eur" class="fw-bold">--</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="d-flex justify-content-between">
-                                <span>Altın (gr)</span>
-                                <span id="gold" class="fw-bold">--</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 55%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Hava Durumu Widget -->
-        <div class="col-lg-4 mb-4 fade-in-delay-1">
-            <div class="widget-card weather-widget">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="widget-title">
-                        <i class="bi bi-cloud-sun"></i> Hava Durumu
-                    </div>
-                    <button class="refresh-btn" onclick="updateWeather()">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </button>
-                </div>
-                <div class="widget-content">
-                    <div id="weather-info" class="w-100 text-center">
-                        <div class="mb-3">
-                            <i class="bi bi-geo-alt-fill me-1"></i> <span id="city" class="fw-semibold">Yükleniyor...</span>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="bi bi-sun fs-1 me-3"></i>
-                            <div>
-                                <div class="temperature"><span id="temp">--</span>°C</div>
-                                <div class="condition"><span id="condition">--</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Eğitim Widget -->
-        <div class="col-lg-4 mb-4 fade-in-delay-2">
-            <div class="widget-card game-widget">
-                <div class="widget-title">
-                    <i class="bi bi-controller"></i> Finansal Eğitim
-                </div>
-                <div class="widget-content">
-                    <div class="w-100">
-                        <p class="mb-4">Finansal kavramları eğlenceli şekilde öğrenin, şirket kurun, yatırım yapın!</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-simulator w-100 py-2" onclick="showSimulationMessage(event)">
-                                <i class="bi bi-play-fill me-1"></i> Simülasyonu Başlat
-                            </a>
-                            <a href="#" class="btn btn-simulator outline py-2" onclick="showInfoMessage(event)">
-                                <i class="bi bi-info-circle"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Tanıtım Bölümü -->
-<section class="container my-5 py-5">
-    <div class="row align-items-center">
-        <div class="col-lg-6 fade-in">
-            <div class="position-relative mb-4">
-                <span class="badge text-bg-primary rounded-pill position-relative px-4 py-2 mb-3">Neden FinAsis?</span>
-            </div>
-            <h2 class="display-5 fw-bold mb-4">Finansal Yönetimde<br>Yeni Bir Dönem</h2>
-            <p class="lead text-secondary mb-4">FinAsis, işletmenizin finansal süreçlerini dijitalleştirmenize ve daha verimli hale getirmenize yardımcı olan kapsamlı bir çözümdür.</p>
-            
-            <div class="d-flex align-items-start mb-4">
-                <div class="feature-check me-3 mt-1">
-                    <i class="bi bi-check-circle-fill text-primary fs-4"></i>
-                </div>
-                <div>
-                    <h5 class="fw-semibold">Kolay Kullanım</h5>
-                    <p class="text-secondary">Sezgisel arayüz ile finansal işlemlerinizi kolayca yönetin.</p>
-                </div>
-            </div>
-            
-            <div class="d-flex align-items-start mb-4">
-                <div class="feature-check me-3 mt-1">
-                    <i class="bi bi-check-circle-fill text-primary fs-4"></i>
-                </div>
-                <div>
-                    <h5 class="fw-semibold">Bulut Tabanlı</h5>
-                    <p class="text-secondary">Her yerden, her cihazdan işlemlerinize güvenle erişin.</p>
-                </div>
-            </div>
-            
-            <div class="d-flex align-items-start">
-                <div class="feature-check me-3 mt-1">
-                    <i class="bi bi-check-circle-fill text-primary fs-4"></i>
-                </div>
-                <div>
-                    <h5 class="fw-semibold">7/24 Destek</h5>
-                    <p class="text-secondary">Uzman ekibimiz tüm sorularınızda yanınızda.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 text-center fade-in-delay-1">
-            <img src="{% static 'img/features-illustration.png' %}" alt="FinAsis Özellikleri" class="img-fluid rounded-4 shadow-lg" style="max-width: 90%;">
-        </div>
-    </div>
-</section>
-
-<!-- Özellikler Bölümü -->
-<section class="container my-5 py-5">
-    <div class="text-center mb-5 fade-in">
-        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Çözümlerimiz</span>
-        <h2 class="display-5 fw-bold mb-3">Tüm İhtiyaçlarınız İçin<br>Tek Platform</h2>
-        <p class="lead text-secondary col-lg-8 mx-auto">İşletmenizin tüm finansal yönetim ihtiyaçlarını karşılayan modüller</p>
-    </div>
-    
-    <div class="row g-4">
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-calculator"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">Muhasebe Yönetimi</h3>
-                    <p class="text-secondary mb-4">Genel muhasebe işlemleri, hesap planı ve yevmiye fişleri oluşturma ve yönetme imkanı.</p>
-                    <a href="#" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'Muhasebe Yönetimi')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">Müşteri İlişkileri</h3>
-                    <p class="text-secondary mb-4">Müşterilerinizi takip edin, teklifler hazırlayın ve fırsatları kaçırmayın.</p>
-                    <a href="#" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'Müşteri İlişkileri')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">Stok Yönetimi</h3>
-                    <p class="text-secondary mb-4">Ürünlerinizi, depolarınızı ve stok hareketlerinizi etkin bir şekilde yönetin.</p>
-                    <a href="javascript:void(0)" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'Stok Yönetimi')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-bank"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">Bankacılık İşlemleri</h3>
-                    <p class="text-secondary mb-4">Banka hesaplarınızı ve işlemlerinizi kolaylıkla takip edin.</p>
-                    <a href="javascript:void(0)" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'Bankacılık İşlemleri')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">E-Fatura Entegrasyonu</h3>
-                    <p class="text-secondary mb-4">E-Fatura ve E-Arşiv süreçlerinizi yasal mevzuata uygun şekilde yönetin.</p>
-                    <a href="javascript:void(0)" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'E-Fatura Entegrasyonu')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 col-sm-6 fade-in">
-            <div class="card h-100 feature-card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="feature-icon mb-4">
-                        <i class="bi bi-bar-chart"></i>
-                    </div>
-                    <h3 class="fs-4 mb-3 fw-semibold">Analitik Raporlama</h3>
-                    <p class="text-secondary mb-4">Kapsamlı analiz ve raporlarla işletmenizi daha iyi anlayın ve doğru kararlar alın.</p>
-                    <a href="javascript:void(0)" class="icon-link text-decoration-none" onclick="showFeatureMessage(event, 'Analitik Raporlama')">
-                        Detaylı Bilgi <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Abonelik Paketleri Bölümü -->
-<section class="pricing-brief">
+<section class="features-section py-5">
     <div class="container">
-        <h2>Esnek Abonelik Paketleri</h2>
+        <h2 class="text-center mb-5">Neden FinAsis?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Yapay Zeka Destekli Analiz</h3>
+                    <p>Gelişmiş algoritmalar ile finansal verilerinizi analiz eder ve size özel öneriler sunar.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Blockchain Entegrasyonu</h3>
+                    <p>Her abonemiz için özel token oluşturur ve finansal katılımınızı blockchain ile güvence altına alırız.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Güvenli ve Şeffaf</h3>
+                    <p>En yüksek güvenlik standartları ve şeffaf işlem takibi ile finansal verileriniz güvende.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="token-section py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2>FinAsis Token Sistemi</h2>
+                <p>Her abonemiz için özel olarak oluşturulan tokenlar ile:</p>
+                <ul class="token-benefits">
+                    <li>Platform içi özel ayrıcalıklar</li>
+                    <li>Yatırım fırsatlarına erken erişim</li>
+                    <li>Topluluk kararlarına katılım hakkı</li>
+                    <li>Özel eğitim ve danışmanlık hizmetleri</li>
+                </ul>
+                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#tokenInfoModal">Token Detayları</button>
+            </div>
+            <div class="col-lg-6">
+                <div class="token-visualization">
+                    <!-- Token görselleştirme bileşeni -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="legal-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Yasal Bilgilendirme</h2>
         <div class="row">
-            <!-- Standart Paket -->
-            <div class="col-lg-4 mb-4">
-                <div class="pricing-brief-card">
-                    <div class="pricing-brief-header">
-                        <div class="pricing-brief-name">Standart</div>
-                        <div class="pricing-brief-price">₺299</div>
-                        <div class="pricing-brief-period">/ ay</div>
-                    </div>
-                    <div class="pricing-brief-features">
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>1 Kullanıcı</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>5 GB Depolama</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Muhasebe Modülü</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Aylık 100 E-Fatura</span>
-                        </div>
-                    </div>
-                    <div class="pricing-brief-footer">
-                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary">Ücretsiz Başla</a>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">14 gün ücretsiz deneme</small>
-                        </div>
-                    </div>
+            <div class="col-md-6">
+                <div class="legal-card">
+                    <h3>KVKK ve Gizlilik</h3>
+                    <p>Kişisel verileriniz 6698 sayılı KVKK kapsamında korunmaktadır. Detaylı bilgi için <a href="{% url 'privacy_policy' %}">Gizlilik Politikası</a>'nı inceleyebilirsiniz.</p>
                 </div>
             </div>
-            
-            <!-- Profesyonel Paket -->
-            <div class="col-lg-4 mb-4">
-                <div class="pricing-brief-card popular">
-                    <div class="pricing-brief-header">
-                        <div class="pricing-brief-name">Profesyonel</div>
-                        <div class="pricing-brief-price">₺599</div>
-                        <div class="pricing-brief-period">/ ay</div>
-                    </div>
-                    <div class="pricing-brief-features">
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>5 Kullanıcı</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>25 GB Depolama</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>CRM Tam Sürüm</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Aylık 500 E-Fatura</span>
-                        </div>
-                    </div>
-                    <div class="pricing-brief-footer">
-                        <a href="{% url 'accounts:register' %}" class="btn btn-primary">Ücretsiz Başla</a>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">14 gün ücretsiz deneme</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Kurumsal Paket -->
-            <div class="col-lg-4 mb-4">
-                <div class="pricing-brief-card">
-                    <div class="pricing-brief-header">
-                        <div class="pricing-brief-name">Kurumsal</div>
-                        <div class="pricing-brief-price">₺1299</div>
-                        <div class="pricing-brief-period">/ ay</div>
-                    </div>
-                    <div class="pricing-brief-features">
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Sınırsız Kullanıcı</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>100 GB Depolama</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Sınırsız E-Fatura</span>
-                        </div>
-                        <div class="pricing-brief-feature">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>API Erişimi</span>
-                        </div>
-                    </div>
-                    <div class="pricing-brief-footer">
-                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary">Ücretsiz Başla</a>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">14 gün ücretsiz deneme</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="text-center mt-4">
-            <a href="{% url 'pricing' %}" class="pricing-brief-link">
-                Tüm Paketleri ve Özellikleri Görüntüle <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- İstatistikler Bölümü -->
-<section class="container my-5 py-5">
-    <div class="row">
-        <div class="col-lg-5 fade-in">
-            <div class="position-relative mb-4">
-                <span class="badge text-bg-primary rounded-pill position-relative px-4 py-2 mb-3">Verilerle FinAsis</span>
-            </div>
-            <h2 class="display-5 fw-bold mb-4">İşinizi Büyütürken Yanınızdayız</h2>
-            <p class="lead text-secondary mb-4">FinAsis ile binlerce işletme finansal süreçlerini kolaylaştırarak zaman ve maliyet tasarrufu sağlıyor.</p>
-            <p class="text-secondary mb-4">Akıllı otomasyon araçlarımız ve kullanıcı dostu arayüzümüz ile karmaşık finansal süreçlerinizi basitleştirin.</p>
-            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Hemen Başlayın</a>
-        </div>
-        <div class="col-lg-7">
-            <div class="row g-4 mt-4 mt-lg-0">
-                <div class="col-6 fade-in-delay-1">
-                    <div class="p-4 text-center rounded bg-white shadow-sm h-100">
-                        <div class="stat-icon mb-3 text-primary">
-                            <i class="bi bi-people-fill fs-1"></i>
-                        </div>
-                        <h3 class="display-5 fw-bold text-primary">5000+</h3>
-                        <p class="mb-0 text-secondary">Aktif Kullanıcı</p>
-                    </div>
-                </div>
-                <div class="col-6 fade-in-delay-1">
-                    <div class="p-4 text-center rounded bg-white shadow-sm h-100">
-                        <div class="stat-icon mb-3 text-primary">
-                            <i class="bi bi-activity fs-1"></i>
-                        </div>
-                        <h3 class="display-5 fw-bold text-primary">2M+</h3>
-                        <p class="mb-0 text-secondary">Aylık İşlem</p>
-                    </div>
-                </div>
-                <div class="col-6 fade-in-delay-2">
-                    <div class="p-4 text-center rounded bg-white shadow-sm h-100">
-                        <div class="stat-icon mb-3 text-primary">
-                            <i class="bi bi-emoji-smile-fill fs-1"></i>
-                        </div>
-                        <h3 class="display-5 fw-bold text-primary">98%</h3>
-                        <p class="mb-0 text-secondary">Müşteri Memnuniyeti</p>
-                    </div>
-                </div>
-                <div class="col-6 fade-in-delay-2">
-                    <div class="p-4 text-center rounded bg-white shadow-sm h-100">
-                        <div class="stat-icon mb-3 text-primary">
-                            <i class="bi bi-building fs-1"></i>
-                        </div>
-                        <h3 class="display-5 fw-bold text-primary">40+</h3>
-                        <p class="mb-0 text-secondary">Sektörde Hizmet</p>
-                    </div>
+            <div class="col-md-6">
+                <div class="legal-card">
+                    <h3>SPK Uyumluluğu</h3>
+                    <p>Platformumuz Sermaye Piyasası Kurulu düzenlemelerine uygun olarak faaliyet göstermektedir.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Müşteri Yorumları Bölümü -->
-<section class="container my-5 py-5">
-    <div class="text-center mb-5 fade-in">
-        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Müşteri Deneyimleri</span>
-        <h2 class="display-5 fw-bold mb-3">Kullanıcılarımız Ne Diyor?</h2>
-        <p class="lead text-secondary col-lg-8 mx-auto">Başarı hikayelerini dinleyin</p>
-    </div>
-    
-    <div class="row g-4">
-        <div class="col-lg-4 col-md-6 mb-4 fade-in">
-            <div class="card testimonial-card h-100 border-0 shadow-sm p-4">
-                <div class="testimonial-rating text-warning mb-3">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <p class="card-text mb-4">"FinAsis ile finansal süreçlerimizi yönetmek çok daha kolay hale geldi. Şirketimizin muhasebe işlemlerini daha verimli bir şekilde takip edebiliyoruz."</p>
-                <div class="d-flex align-items-center mt-auto">
-                    <img src="{% static 'img/testimonial-1.jpg' %}" alt="Ahmet Yılmaz" class="rounded-circle me-3" width="50" height="50">
-                    <div>
-                        <h5 class="mb-0 fw-semibold">Ahmet Yılmaz</h5>
-                        <p class="text-secondary small mb-0">XYZ Şirketi, Genel Müdür</p>
-                    </div>
-                </div>
+<!-- Modal -->
+<div class="modal fade" id="signupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">FinAsis'e Hoş Geldiniz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-        </div>
-        
-        <div class="col-lg-4 col-md-6 mb-4 fade-in-delay-1">
-            <div class="card testimonial-card h-100 border-0 shadow-sm p-4">
-                <div class="testimonial-rating text-warning mb-3">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <p class="card-text mb-4">"E-Fatura entegrasyonu ve stok yönetimi özellikleri ile işlerimizi çok daha hızlı halledebiliyoruz. Raporlama modülü ise karar alma süreçlerimizi geliştirdi."</p>
-                <div class="d-flex align-items-center mt-auto">
-                    <img src="{% static 'img/testimonial-2.jpg' %}" alt="Ayşe Demir" class="rounded-circle me-3" width="50" height="50">
-                    <div>
-                        <h5 class="mb-0 fw-semibold">Ayşe Demir</h5>
-                        <p class="text-secondary small mb-0">ABC Ltd., Finans Direktörü</p>
+            <div class="modal-body">
+                <form id="signupForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-posta Adresi</label>
+                        <input type="email" class="form-control" id="email" required>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4 col-md-6 mb-4 fade-in-delay-2">
-            <div class="card testimonial-card h-100 border-0 shadow-sm p-4">
-                <div class="testimonial-rating text-warning mb-3">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                </div>
-                <p class="card-text mb-4">"Müşteri desteği harika ve sürekli güncellenen özellikleriyle FinAsis, şirketimizin büyümesinde önemli bir rol oynuyor. Kesinlikle tavsiye ederim."</p>
-                <div class="d-flex align-items-center mt-auto">
-                    <img src="{% static 'img/testimonial-3.jpg' %}" alt="Mehmet Kaya" class="rounded-circle me-3" width="50" height="50">
-                    <div>
-                        <h5 class="mb-0 fw-semibold">Mehmet Kaya</h5>
-                        <p class="text-secondary small mb-0">DEF A.Ş., Muhasebe Müdürü</p>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Şifre</label>
+                        <input type="password" class="form-control" id="password" required>
                     </div>
-                </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            <a href="{% url 'terms' %}">Kullanım Koşulları</a>'nı ve <a href="{% url 'privacy_policy' %}">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
+                </form>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- CTA Bölümü -->
-<section class="container my-5">
-    <div class="cta-section text-center">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 fade-in">
-                <span class="badge bg-white text-primary px-3 py-2 rounded-pill mb-3">Finansal Yönetimde Devrim</span>
-                <h2 class="display-5 fw-bold mb-4">İşletmenizi Geleceğe Hazırlayın</h2>
-                <p class="lead mb-5">FinAsis'e katılın ve işletmenizin finansal süreçlerini dijitalleştirin. Üstelik 14 gün ücretsiz deneme imkanıyla!</p>
-                
-                <div class="cta-buttons d-flex flex-wrap gap-4 justify-content-center">
-                    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3 fw-bold">
-                        <i class="bi bi-rocket-takeoff me-2"></i> Ücretsiz Başla
-                    </a>
-                    <a href="{% url 'pricing' %}" class="btn btn-outline-light btn-lg px-5 py-3">
-                        <i class="bi bi-tags me-2"></i> Paketleri İncele
-                    </a>
-                </div>
-                
-                <div class="mt-4 text-white">
-                    <i class="bi bi-shield-check me-2"></i> Kredi kartı gerektirmez. İstediğiniz zaman iptal edebilirsiniz.
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Footer -->
 {% endblock %}
 
 {% block footer %}
@@ -1172,188 +741,9 @@
 
 {% block extra_js %}
 <script>
-// Animasyonlar için Intersection Observer
-document.addEventListener('DOMContentLoaded', function() {
-    const animatedElements = document.querySelectorAll('.fade-in, .fade-in-delay-1, .fade-in-delay-2');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Sınıfı değiştirmeden sadece görünür olduğunda animasyonu tetikle
-                entry.target.style.visibility = 'visible';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        root: null,
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    animatedElements.forEach(el => {
-        el.style.visibility = 'hidden';
-        observer.observe(el);
-    });
-
-    // Hava Durumu Güncelleme
-    async function updateWeather() {
-        try {
-            // Gerçek API kullanımına hazır olunduğunda bu kısmı aktif edin
-            /*
-            const response = await fetch('/api/weather/');
-            const data = await response.json();
-            
-            document.getElementById('city').textContent = data.city;
-            document.getElementById('temp').textContent = data.temperature;
-            document.getElementById('condition').textContent = data.condition;
-            */
-            
-            // Demo amaçlı statik veri
-            setTimeout(() => {
-                document.getElementById('city').textContent = 'İstanbul';
-                document.getElementById('temp').textContent = '21';
-                document.getElementById('condition').textContent = 'Parçalı Bulutlu';
-            }, 500);
-            
-        } catch (error) {
-            console.error('Hava durumu güncellenirken hata:', error);
-        }
-    }
-
-    // Finans Bilgilerini Güncelleme
-    async function updateFinance() {
-        try {
-            // Gerçek API kullanımına hazır olunduğunda bu kısmı aktif edin
-            /*
-            const response = await fetch('/api/finance/');
-            const data = await response.json();
-            
-            document.getElementById('bist100').textContent = data.bist100;
-            document.getElementById('usd').textContent = data.usd;
-            document.getElementById('eur').textContent = data.eur;
-            document.getElementById('gold').textContent = data.gold;
-            */
-            
-            // Demo amaçlı statik veri
-            setTimeout(() => {
-                document.getElementById('bist100').textContent = '7,238.56';
-                document.getElementById('usd').textContent = '32.75';
-                document.getElementById('eur').textContent = '35.46';
-                document.getElementById('gold').textContent = '2,532.15';
-            }, 500);
-            
-        } catch (error) {
-            console.error('Finans bilgileri güncellenirken hata:', error);
-        }
-    }
-
-    // Widget'ları güncelle
-    updateWeather();
-    updateFinance();
-    
-    // Refresh butonları için event listener'lar
-    document.querySelectorAll('.refresh-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.classList.add('rotating');
-            setTimeout(() => {
-                this.classList.remove('rotating');
-            }, 1000);
-            
-            if (this.closest('.weather-widget')) {
-                updateWeather();
-            } else if (this.closest('.finance-widget')) {
-                updateFinance();
-            }
-        });
-    });
-    
-    // 15 dakikada bir otomatik güncelleme
-    setInterval(updateWeather, 15 * 60 * 1000);
-    setInterval(updateFinance, 15 * 60 * 1000);
-    
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // Style adjustments for mobile
-    function handleResponsive() {
-        if (window.innerWidth < 768) {
-            document.querySelectorAll('.feature-card').forEach(card => {
-                card.classList.add('mb-4');
-            });
-        } else {
-            document.querySelectorAll('.feature-card').forEach(card => {
-                card.classList.remove('mb-4');
-            });
-        }
-    }
-    
-    // Call on load and resize
-    handleResponsive();
-    window.addEventListener('resize', handleResponsive);
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Form gönderme işlemleri
 });
-
-// Footer bağlantıları için fonksiyonlar
-function showFooterLinkMessage(pageName) {
-    alert(`${pageName} sayfası şu anda yapım aşamasındadır. Bu sayfalar yakında kullanıma açılacaktır.`);
-}
-
-function showSocialMessage(platform) {
-    alert(`${platform} sosyal medya hesabımız yakında aktif olacaktır.`);
-}
-
-// Bilgi mesajları için fonksiyonlar
-function showDemoMessage(event) {
-    event.preventDefault();
-    alert('Demo videosu yakında eklenecektir. Şu anda bu özellik geliştirme aşamasındadır.');
-}
-
-function showSimulationMessage(event) {
-    event.preventDefault();
-    alert('Finansal simülasyon modülü yakında kullanıma açılacaktır. Şu anda bu özellik geliştirme aşamasındadır.');
-}
-
-function showInfoMessage(event) {
-    event.preventDefault();
-    alert('Finansal eğitim merkezi, işletme finansmanı, muhasebe ve yatırım konularında pratik bilgiler sunan bir eğitim platformudur. Yakında kullanıma açılacaktır.');
-}
-
-function showFeatureMessage(event, feature) {
-    event.preventDefault();
-    alert(`${feature} modülü hakkında detaylı bilgiler yakında eklenecektir. Şu anda bu sayfa geliştirme aşamasındadır.`);
-}
-
-function showDemoRequestMessage(event) {
-    event.preventDefault();
-    alert('Demo talebi formu yakında aktif olacaktır. Talebinizi iletmek için lütfen info@finasis.com.tr adresine e-posta gönderin.');
-}
-
-// CSS Sınıfı oluşturma
-(function() {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes rotating {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .rotating {
-            animation: rotating 1s linear infinite;
-        }
-    `;
-    document.head.appendChild(style);
-})();
 </script>
 {% endblock %} 

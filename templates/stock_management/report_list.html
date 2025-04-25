@@ -1,0 +1,307 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Raporlar" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Stok Durumu" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Toplam Ürün" %}</span>
+                    <span class="badge bg-primary">{{ total_products }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Toplam Kategori" %}</span>
+                    <span class="badge bg-primary">{{ total_categories }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Toplam Depo" %}</span>
+                    <span class="badge bg-primary">{{ total_warehouses }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{% trans "Toplam Tedarikçi" %}</span>
+                    <span class="badge bg-primary">{{ total_suppliers }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İşlem Özeti" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Günlük İşlem" %}</span>
+                    <span class="badge bg-success">{{ daily_transactions }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Haftalık İşlem" %}</span>
+                    <span class="badge bg-success">{{ weekly_transactions }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Aylık İşlem" %}</span>
+                    <span class="badge bg-success">{{ monthly_transactions }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{% trans "Yıllık İşlem" %}</span>
+                    <span class="badge bg-success">{{ yearly_transactions }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Finansal Özet" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Günlük Gelir" %}</span>
+                    <span class="badge bg-info">{{ daily_income }} {{ currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Haftalık Gelir" %}</span>
+                    <span class="badge bg-info">{{ weekly_income }} {{ currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>{% trans "Aylık Gelir" %}</span>
+                    <span class="badge bg-info">{{ monthly_income }} {{ currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{% trans "Yıllık Gelir" %}</span>
+                    <span class="badge bg-info">{{ yearly_income }} {{ currency }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "En Çok İşlem Yapılan Ürünler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Ürün" %}</th>
+                                <th>{% trans "İşlem Sayısı" %}</th>
+                                <th>{% trans "Toplam Miktar" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in top_products %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'stock_management:product_detail' product.id %}">
+                                        {{ product.name }}
+                                    </a>
+                                </td>
+                                <td>{{ product.transaction_count }}</td>
+                                <td>{{ product.total_quantity }} {{ product.unit }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "En Çok İşlem Yapılan Depolar" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Depo" %}</th>
+                                <th>{% trans "İşlem Sayısı" %}</th>
+                                <th>{% trans "Doluluk Oranı" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for warehouse in top_warehouses %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'stock_management:warehouse_detail' warehouse.id %}">
+                                        {{ warehouse.name }}
+                                    </a>
+                                </td>
+                                <td>{{ warehouse.transaction_count }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar {% if warehouse.occupancy_rate < 50 %}bg-success{% elif warehouse.occupancy_rate < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" style="width: {{ warehouse.occupancy_rate }}%">
+                                            {{ warehouse.occupancy_rate }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "En Çok İşlem Yapılan Tedarikçiler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Tedarikçi" %}</th>
+                                <th>{% trans "İşlem Sayısı" %}</th>
+                                <th>{% trans "Toplam Tutar" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in top_suppliers %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'stock_management:supplier_detail' supplier.id %}">
+                                        {{ supplier.name }}
+                                    </a>
+                                </td>
+                                <td>{{ supplier.transaction_count }}</td>
+                                <td>{{ supplier.total_amount }} {{ currency }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "En Çok İşlem Yapılan Kategoriler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Kategori" %}</th>
+                                <th>{% trans "İşlem Sayısı" %}</th>
+                                <th>{% trans "Ürün Sayısı" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in top_categories %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'stock_management:category_detail' category.id %}">
+                                        {{ category.name }}
+                                    </a>
+                                </td>
+                                <td>{{ category.transaction_count }}</td>
+                                <td>{{ category.product_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Rapor Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="date_range" class="form-label">{% trans "Tarih Aralığı" %}</label>
+                        <select class="form-select" id="date_range" name="date_range">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>{% trans "Bugün" %}</option>
+                            <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>{% trans "Bu Hafta" %}</option>
+                            <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>{% trans "Bu Ay" %}</option>
+                            <option value="year" {% if request.GET.date_range == 'year' %}selected{% endif %}>{% trans "Bu Yıl" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="warehouse" class="form-label">{% trans "Depo" %}</label>
+                        <select class="form-select" id="warehouse" name="warehouse">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}" {% if request.GET.warehouse == warehouse.id|stringformat:"i" %}selected{% endif %}>
+                                {{ warehouse.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">{% trans "Kategori" %}</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="supplier" class="form-label">{% trans "Tedarikçi" %}</label>
+                        <select class="form-select" id="supplier" name="supplier">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}" {% if request.GET.supplier == supplier.id|stringformat:"i" %}selected{% endif %}>
+                                {{ supplier.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

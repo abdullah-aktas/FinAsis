@@ -3,7 +3,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from .models import (
     EDocument, EDocumentLog, EDocumentItem,
-    EDespatchAdvice, EDespatchAdviceLog, EDespatchAdviceItem
+    EDespatchAdvice, EDespatchAdviceLog, EDespatchAdviceItem,
+    Document, DocumentLog, DocumentVersion
 )
 
 @receiver(pre_save, sender=EDocument)
@@ -104,4 +105,33 @@ def despatch_item_pre_save(sender, instance, **kwargs):
     if not instance.pk:  # Yeni kayıt
         # Sıra numarası ata
         last_item = EDespatchAdviceItem.objects.filter(despatch=instance.despatch).order_by('-line_number').first()
-        instance.line_number = (last_item.line_number + 1) if last_item else 1 
+        instance.line_number = (last_item.line_number + 1) if last_item else 1
+
+@receiver(post_save, sender=Document)
+def create_document_log(sender, instance, created, **kwargs):
+    """Doküman oluşturulduğunda veya güncellendiğinde log kaydı oluştur"""
+    action = 'created' if created else 'updated'
+    DocumentLog.objects.create(
+        document=instance,
+        action=action,
+        user=instance.user,
+        details=f'Document {action}'
+    )
+
+@receiver(pre_save, sender=Document)
+def update_document_version(sender, instance, **kwargs):
+    """Doküman güncellendiğinde versiyon numarasını artır"""
+    if instance.pk:  # Yeni oluşturulmuyorsa
+        try:
+            old_instance = Document.objects.get(pk=instance.pk)
+            if old_instance.file != instance.file:
+                # Dosya değiştiyse yeni versiyon oluştur
+                from .models import DocumentVersion
+                DocumentVersion.objects.create(
+                    document=instance,
+                    file=instance.file,
+                    version_number=old_instance.versions.count() + 1,
+                    created_by=instance.user
+                )
+        except Document.DoesNotExist:
+            pass 

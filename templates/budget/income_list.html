@@ -1,0 +1,50 @@
+{% extends "budget/base.html" %}
+{% load i18n %}
+
+{% block budget_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{% trans "Gelirler" %}</h5>
+        <a href="{% url 'budget:income_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {% trans "Yeni Gelir" %}
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tarih" %}</th>
+                        <th>{% trans "Kategori" %}</th>
+                        <th>{% trans "Tutar" %}</th>
+                        <th>{% trans "Açıklama" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for income in incomes %}
+                    <tr>
+                        <td>{{ income.date|date:"d.m.Y" }}</td>
+                        <td>{{ income.category.name }}</td>
+                        <td>{{ income.amount|floatformat:2 }} ₺</td>
+                        <td>{{ income.description|truncatechars:50 }}</td>
+                        <td>
+                            <a href="{% url 'budget:income_edit' income.pk %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'budget:income_delete' income.pk %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">{% trans "Henüz gelir kaydı oluşturulmamış." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

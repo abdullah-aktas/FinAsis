@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "İnsan Kaynakları" %}</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'hr:dashboard' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt me-2"></i> {% trans "Dashboard" %}
+        </a>
+        <a href="{% url 'hr:employee_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">
+            <i class="fas fa-users me-2"></i> {% trans "Çalışanlar" %}
+        </a>
+        <a href="{% url 'hr:department_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'department_list' %}active{% endif %}">
+            <i class="fas fa-building me-2"></i> {% trans "Departmanlar" %}
+        </a>
+        <a href="{% url 'hr:position_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'position_list' %}active{% endif %}">
+            <i class="fas fa-briefcase me-2"></i> {% trans "Pozisyonlar" %}
+        </a>
+        <a href="{% url 'hr:leave_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'leave_list' %}active{% endif %}">
+            <i class="fas fa-calendar-alt me-2"></i> {% trans "İzinler" %}
+        </a>
+        <a href="{% url 'hr:attendance_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}">
+            <i class="fas fa-clock me-2"></i> {% trans "Devam Takibi" %}
+        </a>
+        <a href="{% url 'hr:payroll_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'payroll_list' %}active{% endif %}">
+            <i class="fas fa-money-bill-wave me-2"></i> {% trans "Bordrolar" %}
+        </a>
+        <a href="{% url 'hr:recruitment_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'recruitment_list' %}active{% endif %}">
+            <i class="fas fa-user-plus me-2"></i> {% trans "İşe Alım" %}
+        </a>
+        <a href="{% url 'hr:training_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'training_list' %}active{% endif %}">
+            <i class="fas fa-graduation-cap me-2"></i> {% trans "Eğitimler" %}
+        </a>
+        <a href="{% url 'hr:performance_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}">
+            <i class="fas fa-chart-line me-2"></i> {% trans "Performans" %}
+        </a>
+        <a href="{% url 'hr:settings' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog me-2"></i> {% trans "Ayarlar" %}
+        </a>
+    </div>
+</div> 

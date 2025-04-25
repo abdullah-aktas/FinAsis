@@ -1,0 +1,228 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Platform detay sayfası" %}{% endblock %}
+
+{% block meta_keywords %}platform detayı, oyun platformları, oyun yönetimi{% endblock %}
+
+{% block page_title %}{{ platform.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'games:platform_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Platform listesine dön' %}">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'games:platform_update' platform.id %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Platformu düzenle' %}">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="{% trans 'Platformu sil' %}">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <!-- Sol Bölüm -->
+    <div class="col-md-8">
+        <!-- Platform Bilgileri -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    {% if platform.icon %}
+                    <img src="{{ platform.icon.url }}" alt="{{ platform.name }}" class="rounded me-4" style="width: 120px; height: 120px; object-fit: contain;">
+                    {% endif %}
+                    <div>
+                        <h2 class="card-title mb-1">{{ platform.name }}</h2>
+                        <p class="text-muted mb-2">{{ platform.description|default:'' }}</p>
+                        <div class="d-flex align-items-center">
+                            <span class="badge {% if platform.status == 'active' %}bg-success{% else %}bg-danger{% endif %} me-2">
+                                {% if platform.status == 'active' %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                            </span>
+                            {% if platform.manufacturer %}
+                            <span class="text-muted">
+                                <i class="fas fa-industry me-1"></i> {{ platform.manufacturer }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">{% trans "Çıkış Tarihi" %}</h6>
+                                <p class="card-text">{{ platform.release_date|date:"d.m.Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">{% trans "Oluşturulma Tarihi" %}</h6>
+                                <p class="card-text">{{ platform.created_at|date:"d.m.Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Platform Oyunları -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Platform Oyunları" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if platform.games.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">{% trans "Oyun" %}</th>
+                                <th scope="col">{% trans "Geliştirici" %}</th>
+                                <th scope="col">{% trans "Yayıncı" %}</th>
+                                <th scope="col">{% trans "Çıkış Tarihi" %}</th>
+                                <th scope="col">{% trans "Puan" %}</th>
+                                <th scope="col">{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for game in platform.games.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if game.cover_image %}
+                                        <img src="{{ game.cover_image.url }}" alt="{{ game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ game.title }}</div>
+                                            <small class="text-muted">{{ game.subtitle|default:'' }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ game.developer.name }}</td>
+                                <td>{{ game.publisher.name }}</td>
+                                <td>{{ game.release_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if game.rating >= 8 %}bg-success{% elif game.rating >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ game.rating|multiply:10 }}%" 
+                                             aria-valuenow="{{ game.rating }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="10">
+                                            {{ game.rating }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'games:game_detail' game.id %}" class="btn btn-outline-primary" aria-label="{% trans 'Oyun detaylarını görüntüle' %}">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'games:game_update' game.id %}" class="btn btn-outline-secondary" aria-label="{% trans 'Oyunu düzenle' %}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-gamepad fa-3x mb-3"></i>
+                        <p class="mb-0">{% trans "Bu platforma ait henüz hiç oyun eklenmemiş." %}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Bölüm -->
+    <div class="col-md-4">
+        <!-- İstatistikler -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "İstatistikler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "Toplam Oyun" %}</h6>
+                    <h3 class="mb-0">{{ platform.games.count }}</h3>
+                </div>
+                
+                {% if platform.games.count > 0 %}
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "Ortalama Puan" %}</h6>
+                    <h3 class="mb-0">{{ platform.average_rating|floatformat:1 }}</h3>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "En Yüksek Puanlı Oyun" %}</h6>
+                    <div class="d-flex align-items-center">
+                        {% if platform.highest_rated_game.cover_image %}
+                        <img src="{{ platform.highest_rated_game.cover_image.url }}" alt="{{ platform.highest_rated_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ platform.highest_rated_game.title }}</div>
+                            <small class="text-muted">{{ platform.highest_rated_game.rating }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-2">{% trans "En Son Eklenen Oyun" %}</h6>
+                    <div class="d-flex align-items-center">
+                        {% if platform.latest_game.cover_image %}
+                        <img src="{{ platform.latest_game.cover_image.url }}" alt="{{ platform.latest_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ platform.latest_game.title }}</div>
+                            <small class="text-muted">{{ platform.latest_game.created_at|date:"d.m.Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{% trans "Platformu Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu platformu silmek istediğinizden emin misiniz?" %}</p>
+                <div class="alert alert-warning">
+                    <strong>{% trans "Platform:" %}</strong> {{ platform.name }}<br>
+                    <strong>{% trans "Oyun Sayısı:" %}</strong> {{ platform.games.count }}
+                </div>
+                {% if platform.games.count > 0 %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Bu platforma ait oyunlar da silinecektir." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form action="{% url 'games:platform_delete' platform.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

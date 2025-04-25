@@ -1,0 +1,224 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Kategori detay sayfası" %}{% endblock %}
+
+{% block meta_keywords %}kategori detayı, oyun kategorisi, oyun yönetimi{% endblock %}
+
+{% block page_title %}{% trans "Kategori Detayı" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'games:category_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Kategori listesine dön' %}">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'games:category_update' category.id %}" class="btn btn-sm btn-outline-primary" aria-label="{% trans 'Kategoriyi düzenle' %}">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="{% trans 'Kategoriyi sil' %}">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Kategori Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            {% if category.icon %}
+                            <i class="{{ category.icon }} fa-4x mb-3"></i>
+                            {% else %}
+                            <i class="fas fa-tags fa-4x mb-3 text-muted"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <h4 class="mb-2">{{ category.name }}</h4>
+                        <p class="text-muted mb-0">{{ category.description|default:'' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Durum" %}</label>
+                            <div>
+                                <span class="badge {% if category.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if category.status == 'active' %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Oyun Sayısı" %}</label>
+                            <div>{{ category.games.count }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Oluşturulma Tarihi" %}</label>
+                            <div>{{ category.created_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Son Güncelleme" %}</label>
+                            <div>{{ category.updated_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Bu Kategorideki Oyunlar" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if category.games.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">{% trans "Oyun" %}</th>
+                                <th scope="col">{% trans "Geliştirici" %}</th>
+                                <th scope="col">{% trans "Çıkış Tarihi" %}</th>
+                                <th scope="col">{% trans "Puan" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for game in category.games.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if game.cover_image %}
+                                        <img src="{{ game.cover_image.url }}" alt="{{ game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ game.title }}</div>
+                                            <small class="text-muted">{{ game.subtitle|default:'' }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ game.developer.name }}</td>
+                                <td>{{ game.release_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ game.rating }}%;" aria-valuenow="{{ game.rating }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ game.rating }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-gamepad fa-3x mb-3"></i>
+                        <p class="mb-0">{% trans "Bu kategoride henüz oyun bulunmuyor." %}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "İstatistikler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Ortalama Puan" %}</h6>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ category.average_rating }}%;" aria-valuenow="{{ category.average_rating }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ category.average_rating }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "En Yüksek Puanlı Oyun" %}</h6>
+                    {% if category.highest_rated_game %}
+                    <div class="d-flex align-items-center">
+                        {% if category.highest_rated_game.cover_image %}
+                        <img src="{{ category.highest_rated_game.cover_image.url }}" alt="{{ category.highest_rated_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ category.highest_rated_game.title }}</div>
+                            <small class="text-muted">{{ category.highest_rated_game.rating }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "Henüz oyun eklenmemiş." %}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "En Yeni Oyun" %}</h6>
+                    {% if category.latest_game %}
+                    <div class="d-flex align-items-center">
+                        {% if category.latest_game.cover_image %}
+                        <img src="{{ category.latest_game.cover_image.url }}" alt="{{ category.latest_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ category.latest_game.title }}</div>
+                            <small class="text-muted">{{ category.latest_game.release_date|date:"d.m.Y" }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "Henüz oyun eklenmemiş." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{% trans "Kategoriyi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu kategoriyi silmek istediğinizden emin misiniz?" %}</p>
+                <div class="alert alert-warning">
+                    <strong>{% trans "Kategori:" %}</strong> {{ category.name }}<br>
+                    <strong>{% trans "Oyun Sayısı:" %}</strong> {{ category.games.count }}
+                </div>
+                {% if category.games.count > 0 %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Bu kategoriye ait oyunlar da silinecektir." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form action="{% url 'games:category_delete' category.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

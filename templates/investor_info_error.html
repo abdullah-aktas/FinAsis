@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Başvuru Hatası - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis yatırımcı bilgilendirme formu gönderiminde hata oluştu. Hata detayları ve çözüm önerileri.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="error-icon mb-4">
+                <i class="fas fa-exclamation-circle text-danger" style="font-size: 5rem;"></i>
+            </div>
+            
+            <h1 class="display-4 mb-4">Başvurunuz Alınamadı</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="lead mb-4">Üzgünüz, başvurunuz gönderilirken bir hata oluştu.</p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Hata Kodu:</strong> {{ error_code }}<br>
+                        <strong>Hata Mesajı:</strong> {{ error_message }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Olası Nedenler ve Çözümler</h2>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Eksik Bilgi</h5>
+                            </div>
+                            <p class="mb-1">Formdaki tüm alanların doldurulduğundan emin olun.</p>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Geçersiz Format</h5>
+                            </div>
+                            <p class="mb-1">E-posta adresi ve telefon numarası gibi alanların doğru formatta olduğunu kontrol edin.</p>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Teknik Sorun</h5>
+                            </div>
+                            <p class="mb-1">İnternet bağlantınızı kontrol edin ve sayfayı yenileyin.</p>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Sistem Hatası</h5>
+                            </div>
+                            <p class="mb-1">Lütfen daha sonra tekrar deneyin veya müşteri hizmetlerimizle iletişime geçin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Yardım ve Destek</h2>
+                </div>
+                <div class="card-body">
+                    <p>Başvurunuzla ilgili sorun yaşıyorsanız, aşağıdaki yöntemlerden biriyle bizimle iletişime geçebilirsiniz:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-envelope me-2"></i>
+                            <a href="mailto:support@finasis.com.tr">support@finasis.com.tr</a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone me-2"></i>
+                            +90 212 123 45 67
+                        </li>
+                        <li>
+                            <i class="fas fa-clock me-2"></i>
+                            Çalışma Saatleri: Hafta içi 09:00 - 18:00
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{% url 'investor_info_form' %}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="fas fa-redo me-2"></i>Formu Tekrar Doldur
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,173 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if category %}{% trans "Kategori Düzenle" %}{% else %}{% trans "Yeni Kategori" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:category_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    {% if category %}
+                    {% trans "Kategori Düzenle" %}
+                    {% else %}
+                    {% trans "Yeni Kategori" %}
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">{% trans "Kod" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.code.errors %}is-invalid{% endif %}" 
+                                       id="code" name="code" value="{{ form.code.value|default:'' }}" required>
+                                {% if form.code.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.code.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                       id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="parent" class="form-label">{% trans "Üst Kategori" %}</label>
+                                <select class="form-select {% if form.parent.errors %}is-invalid{% endif %}" 
+                                        id="parent" name="parent">
+                                    <option value="">{% trans "Seçiniz" %}</option>
+                                    {% for parent in parent_categories %}
+                                    <option value="{{ parent.id }}" 
+                                            {% if form.parent.value == parent.id %}selected{% endif %}>
+                                        {{ parent.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.parent.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.parent.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="icon" class="form-label">{% trans "İkon" %}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i id="iconPreview" class="fas fa-box"></i></span>
+                                    <input type="text" class="form-control {% if form.icon.errors %}is-invalid{% endif %}" 
+                                           id="icon" name="icon" value="{{ form.icon.value|default:'' }}"
+                                           placeholder="fas fa-box">
+                                </div>
+                                <small class="text-muted">
+                                    {% trans "Font Awesome ikon sınıfını giriniz" %}
+                                </small>
+                                {% if form.icon.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.icon.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="is_active" class="form-label">{% trans "Durum" %}</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
+                                           {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        {% trans "Aktif" %}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">{% trans "Kod" %}</h6>
+                    <p class="mb-0">
+                        {% trans "Kategori kodları benzersiz olmalıdır. Örnek: CAT001" %}
+                    </p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">{% trans "İkon" %}</h6>
+                    <p class="mb-0">
+                        {% trans "Font Awesome ikon sınıflarını kullanabilirsiniz. Örnek: fas fa-box" %}
+                    </p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">{% trans "Üst Kategori" %}</h6>
+                    <p class="mb-0">
+                        {% trans "Bir kategoriyi üst kategori olarak seçtiğinizde, bu kategori alt kategori olarak işaretlenecektir." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const iconInput = document.getElementById('icon');
+    const iconPreview = document.getElementById('iconPreview');
+    
+    iconInput.addEventListener('input', function() {
+        iconPreview.className = this.value || 'fas fa-box';
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

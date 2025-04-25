@@ -1,673 +1,147 @@
-version: '3.9'
+version: '3.8'
 
 services:
-  db:
-    image: postgres:14-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgres/backup:/backup
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: finasis:latest
     restart: always
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--data-checksums"
+    env_file: .env
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - postgres
+      - redis
     networks:
       - finasis_net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env
+    networks:
+      - finasis_net
 
   redis:
     image: redis:7-alpine
-    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru --protected-mode yes --requirepass ${REDIS_PASSWORD}
+    restart: always
     volumes:
       - redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - finasis_net
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - BUILD_ENV=production
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout 120 --access-logfile - --error-logfile - --log-level info
-    volumes:
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - /var/log/finasis:/var/log/finasis
-    env_file:
-      - .env.prod
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - finasis_net
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.finasis.rule=Host(`${DOMAIN:-finasis.com.tr}`)"
-      - "traefik.http.routers.finasis.entrypoints=websecure"
-      - "traefik.http.routers.finasis.tls=true"
-      - "traefik.http.routers.finasis.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.finasis.tls.options=secure@file"
-      - "traefik.http.middlewares.finasis-compress.compress=true"
-      - "traefik.http.middlewares.finasis-ratelimit.ratelimit.average=100"
-      - "traefik.http.middlewares.finasis-ratelimit.ratelimit.burst=50"
-      - "traefik.http.middlewares.finasis-ratelimit.ratelimit.period=1m"
-      - "traefik.http.middlewares.finasis-headers.headers.frameDeny=true"
-      - "traefik.http.middlewares.finasis-headers.headers.browserXssFilter=true"
-      - "traefik.http.middlewares.finasis-headers.headers.contentTypeNosniff=true"
-      - "traefik.http.middlewares.finasis-headers.headers.stsSeconds=31536000"
-      - "traefik.http.middlewares.finasis-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.finasis-headers.headers.stsPreload=true"
-      - "traefik.http.middlewares.finasis-headers.headers.contentSecurityPolicy=default-src 'self'"
-      - "traefik.http.middlewares.finasis-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
-      - "traefik.http.routers.finasis.middlewares=finasis-compress,finasis-ratelimit,finasis-headers"
-      - "traefik.http.services.finasis.loadbalancer.server.port=8000"
-      - "traefik.http.services.finasis.loadbalancer.healthcheck.path=/health/"
-      - "traefik.http.services.finasis.loadbalancer.healthcheck.interval=10s"
-      - "traefik.http.services.finasis.loadbalancer.healthcheck.timeout=5s"
-      - "traefik.http.services.finasis.loadbalancer.sticky.cookie=true"
-      - "traefik.http.services.finasis.loadbalancer.sticky.cookie.name=finasis_session"
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8000/health/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
-        failure_action: rollback
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-        window: 120s
-      placement:
-        constraints:
-          - node.role == worker
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-
-  celery:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - BUILD_ENV=production
-    command: celery -A config worker -l INFO --concurrency=4 --max-tasks-per-child=10 --max-memory-per-child=512000 --events --pool=prefork
-    volumes:
-      - .:/app
-      - /var/log/finasis:/var/log/finasis
-    env_file:
-      - .env.prod
-    depends_on:
-      - web
-      - redis
-    networks:
-      - finasis_net
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-      replicas: 2
-      update_config:
-        order: start-first
-        failure_action: rollback
-      placement:
-        constraints:
-          - node.role == worker
-    healthcheck:
-      test: ["CMD", "celery", "-A", "config", "inspect", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-
-  celery-beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - BUILD_ENV=production
-    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    volumes:
-      - .:/app
-      - /var/log/finasis:/var/log/finasis
-    env_file:
-      - .env.prod
-    depends_on:
-      - web
-      - redis
-    networks:
-      - finasis_net
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-        reservations:
-          cpus: '0.2'
-          memory: 512M
-      update_config:
-        order: start-first
-        failure_action: rollback
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
 
   nginx:
     image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
+    restart: always
     volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - static_volume:/app/static
       - media_volume:/app/media
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/ssl:/etc/nginx/ssl
-      - /var/log/nginx:/var/log/nginx
-    depends_on:
-      - web
-    networks:
-      - finasis_net
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nginx.rule=Host(`finasis.com.tr`)"
-      - "traefik.http.routers.nginx.entrypoints=websecure"
-      - "traefik.http.routers.nginx.tls=true"
-      - "traefik.http.routers.nginx.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.nginx.tls.options=secure@file"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-
-  traefik:
-    image: traefik:v2.10
-    command:
-      - "--log.level=INFO"
-      - "--accesslog=true"
-      - "--api.dashboard=true"
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-info@finasis.com.tr}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json"
-      - "--metrics.prometheus=true"
-      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik_data:/etc/traefik
-      - /var/log/traefik:/var/log/traefik
-      - ./traefik/dynamic:/etc/traefik/dynamic
+    depends_on:
+      - django
     networks:
       - finasis_net
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  prometheus:
+    image: prom/prometheus:latest
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-finasis.com.tr}`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.traefik.tls.options=secure@file"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH:-admin:$$apr1$$9IDGUl8A$$HJ/GzVGTOkZYjVNxh7VM01}"
-      - "traefik.http.middlewares.traefik-headers.headers.frameDeny=true"
-      - "traefik.http.middlewares.traefik-headers.headers.browserXssFilter=true"
-      - "traefik.http.middlewares.traefik-headers.headers.contentTypeNosniff=true"
-      - "traefik.http.middlewares.traefik-headers.headers.stsSeconds=31536000"
-      - "traefik.http.middlewares.traefik-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.traefik-headers.headers.stsPreload=true"
-      - "traefik.http.routers.traefik.middlewares=traefik-headers"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - finasis_net
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - finasis_net
 
   node-exporter:
     image: prom/node-exporter:latest
+    restart: always
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
       - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--collector.textfile.directory=/etc/node-exporter'
-    ports:
-      - "9100:9100"
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - finasis_net
-    restart: always
-    labels:
-      - "traefik.enable=false"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-      update_config:
-        order: start-first
-        failure_action: rollback
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    ports:
-      - "8080:8080"
-    networks:
-      - finasis_net
-    privileged: true
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter:latest
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${DOMAIN:-finasis.com.tr}`)"
-      - "traefik.http.routers.cadvisor.entrypoints=websecure"
-      - "traefik.http.routers.cadvisor.tls=true"
-      - "traefik.http.routers.cadvisor.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.cadvisor.tls.options=secure@file"
-      - "traefik.http.routers.cadvisor.middlewares=cadvisor-auth"
-      - "traefik.http.middlewares.cadvisor-auth.basicauth.users=${CADVISOR_AUTH:-admin:$$apr1$$9IDGUl8A$$HJ/GzVGTOkZYjVNxh7VM01}"
-      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-        reservations:
-          cpus: '0.1'
-          memory: 256M
-      update_config:
-        order: start-first
-        failure_action: rollback
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-      - ./prometheus/rules:/etc/prometheus/rules
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.external-url=https://metrics.${DOMAIN:-finasis.com.tr}'
-      - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
-    networks:
-      - finasis_net
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`metrics.${DOMAIN:-finasis.com.tr}`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
-      - "traefik.http.routers.prometheus.tls=true"
-      - "traefik.http.routers.prometheus.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.prometheus.tls.options=secure@file"
-      - "traefik.http.routers.prometheus.service=prometheus"
-      - "traefik.http.routers.prometheus.middlewares=prometheus-auth"
-      - "traefik.http.middlewares.prometheus-auth.basicauth.users=${PROMETHEUS_AUTH:-admin:$$apr1$$9IDGUl8A$$HJ/GzVGTOkZYjVNxh7VM01}"
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=https://grafana.${DOMAIN:-finasis.com.tr}
-      - GF_SMTP_ENABLED=${GRAFANA_SMTP_ENABLED:-false}
-      - GF_SMTP_HOST=${SMTP_HOST:-smtp.example.com}
-      - GF_SMTP_USER=${SMTP_USER:-user}
-      - GF_SMTP_PASSWORD=${SMTP_PASSWORD:-password}
-      - GF_SMTP_FROM_ADDRESS=${SMTP_FROM:-grafana@finasis.com.tr}
-      - GF_SECURITY_DISABLE_GRAVATAR=true
-      - GF_SECURITY_COOKIE_SECURE=true
-      - GF_SECURITY_COOKIE_SAMESITE=strict
-      - GF_SECURITY_ALLOW_EMBEDDING=false
-      - GF_SECURITY_STRICT_TRANSPORT_SECURITY=true
-      - GF_SECURITY_STRICT_TRANSPORT_SECURITY_MAX_AGE_SECONDS=31536000
-      - GF_SECURITY_STRICT_TRANSPORT_SECURITY_PRELOAD=true
-      - GF_SECURITY_STRICT_TRANSPORT_SECURITY_SUBDOMAINS=true
+      - DATA_SOURCE_NAME=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable
+    depends_on:
+      - postgres
     networks:
       - finasis_net
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN:-finasis.com.tr}`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls=true"
-      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.grafana.tls.options=secure@file"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
 
-  loki:
-    image: grafana/loki:latest
-    volumes:
-      - loki_data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    restart: always
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      - redis
     networks:
       - finasis_net
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-      update_config:
-        order: start-first
-        failure_action: rollback
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
 
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - /var/log:/var/log
-      - ./promtail:/etc/promtail
-    command: -config.file=/etc/promtail/config.yml
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    restart: always
+    command:
+      - '-nginx.scrape-uri=http://nginx:8080/stub_status'
+    depends_on:
+      - nginx
     networks:
       - finasis_net
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-        reservations:
-          cpus: '0.2'
-          memory: 512M
-      update_config:
-        order: start-first
-        failure_action: rollback
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
 
 volumes:
   postgres_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_postgres_data
-      o: bind
   redis_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_redis_data
-      o: bind
   static_volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_static_volume
-      o: bind
   media_volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_media_volume
-      o: bind
-  traefik_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_traefik_data
-      o: bind
   prometheus_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_prometheus_data
-      o: bind
   grafana_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_grafana_data
-      o: bind
-  loki_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /var/lib/docker/volumes/finasis_loki_data
-      o: bind
 
 networks:
   finasis_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: finasis_net
-      com.docker.network.bridge.enable_icc: "true"
-      com.docker.network.bridge.enable_ip_masquerade: "true" 
+    driver: bridge 

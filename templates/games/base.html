@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block meta %}
+<meta name="description" content="{% block meta_description %}{% trans 'Oyun Yönetim Sistemi' %}{% endblock %}">
+<meta name="keywords" content="{% block meta_keywords %}oyun, games, yönetim, kategori, geliştirici, yayıncı, platform, değerlendirme{% endblock %}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:title" content="{% block og_title %}{% block page_title %}{% endblock %} - {% trans 'Oyun Yönetimi' %}{% endblock %}">
+<meta property="og:description" content="{% block og_description %}{% block meta_description %}{% endblock %}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ STATIC_URL }}img/logo.png{% endblock %}">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+<meta property="twitter:title" content="{% block twitter_title %}{% block og_title %}{% endblock %}{% endblock %}">
+<meta property="twitter:description" content="{% block twitter_description %}{% block og_description %}{% endblock %}{% endblock %}">
+<meta property="twitter:image" content="{% block twitter_image %}{% block og_image %}{% endblock %}{% endblock %}">
+{% endblock %}
+
+{% block page_title %}{% trans "Oyun Yönetimi" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'games:dashboard' %}" aria-current="{% if request.resolver_match.url_name == 'dashboard' %}page{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> {% trans "Dashboard" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'game_list' %}active{% endif %}" href="{% url 'games:game_list' %}" aria-current="{% if request.resolver_match.url_name == 'game_list' %}page{% endif %}">
+                            <i class="fas fa-gamepad"></i> {% trans "Oyunlar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" href="{% url 'games:category_list' %}" aria-current="{% if request.resolver_match.url_name == 'category_list' %}page{% endif %}">
+                            <i class="fas fa-tags"></i> {% trans "Kategoriler" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'developer_list' %}active{% endif %}" href="{% url 'games:developer_list' %}" aria-current="{% if request.resolver_match.url_name == 'developer_list' %}page{% endif %}">
+                            <i class="fas fa-code"></i> {% trans "Geliştiriciler" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'publisher_list' %}active{% endif %}" href="{% url 'games:publisher_list' %}" aria-current="{% if request.resolver_match.url_name == 'publisher_list' %}page{% endif %}">
+                            <i class="fas fa-building"></i> {% trans "Yayıncılar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'platform_list' %}active{% endif %}" href="{% url 'games:platform_list' %}" aria-current="{% if request.resolver_match.url_name == 'platform_list' %}page{% endif %}">
+                            <i class="fas fa-desktop"></i> {% trans "Platformlar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'review_list' %}active{% endif %}" href="{% url 'games:review_list' %}" aria-current="{% if request.resolver_match.url_name == 'review_list' %}page{% endif %}">
+                            <i class="fas fa-star"></i> {% trans "Değerlendirmeler" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2" role="heading" aria-level="1">{% block page_title %}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {% block games_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/games.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/games.js' %}"></script>
+{% endblock %} 

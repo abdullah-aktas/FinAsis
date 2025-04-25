@@ -19,7 +19,8 @@ from api.views import (
     FinanceViewSet,
     CRMViewSet,
     AccountingViewSet,
-    AnalyticsViewSet
+    AnalyticsViewSet,
+    ScanView
 )
 
 # API Schema için
@@ -84,4 +85,7 @@ urlpatterns = [
     # Raporlar
     path('v1/reports/monthly-transactions/', finance_views.monthly_transactions_report, name='api_monthly_transactions'),
     path('v1/reports/financial-summary/', finance_views.financial_summary_report, name='api_financial_summary'),
+    
+    # Scan işlemi
+    path('scan/', ScanView.as_view(), name='scan'),
 ] 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Avg, Max, Min, Count, Q
 from django.utils import timezone
 from .models import Bank, Check, PromissoryNote, CheckTransaction, PromissoryNoteTransaction, CheckCategory, CheckType, CheckRule, CheckResult, CheckSchedule
 from .forms import BankForm, CheckForm, PromissoryNoteForm, CheckTransactionForm, PromissoryNoteTransactionForm
@@ -18,6 +18,7 @@ from .serializers import (
 from .permissions import IsAdminOrReadOnly
 from .tasks import run_check
 import logging
+from django.core.paginator import Paginator
 
 logger = logging.getLogger(__name__)
 
@@ -43,33 +44,62 @@ def bank_create(request):
 
 @login_required
 def check_list(request):
-    checks = Check.objects.all()
+    """Çek listesi görünümü"""
+    checks = Check.objects.filter(user=request.user)
+    
+    # Arama filtresi
+    search_query = request.GET.get('search', '')
+    if search_query:
+        checks = checks.filter(
+            Q(check_number__icontains=search_query) |
+            Q(bank_name__icontains=search_query) |
+            Q(drawer_name__icontains=search_query)
+        )
+    
+    # Durum filtresi
+    status = request.GET.get('status')
+    if status:
+        checks = checks.filter(status=status)
+    
+    # Sayfalama
+    paginator = Paginator(checks, 10)
+    page = request.GET.get('page')
+    checks = paginator.get_page(page)
+    
     context = {
         'checks': checks,
     }
-    return render(request, 'check_management/check_list.html', context)
+    return render(request, 'checks/list.html', context)
 
 @login_required
 def check_detail(request, pk):
-    check = get_object_or_404(Check, pk=pk)
+    """Çek detay görünümü"""
+    check = get_object_or_404(Check, pk=pk, user=request.user)
     transactions = CheckTransaction.objects.filter(check=check)
     context = {
         'check': check,
         'transactions': transactions,
     }
-    return render(request, 'check_management/check_detail.html', context)
+    return render(request, 'checks/detail.html', context)
 
 @login_required
 def check_create(request):
+    """Yeni çek oluşturma görünümü"""
     if request.method == 'POST':
         form = CheckForm(request.POST)
         if form.is_valid():
-            check = form.save()
+            check = form.save(commit=False)
+            check.user = request.user
+            check.save()
             messages.success(request, 'Çek başarıyla oluşturuldu.')
-            return redirect('check_detail', pk=check.pk)
+            return redirect('checks:detail', pk=check.pk)
     else:
         form = CheckForm()
-    return render(request, 'check_management/check_form.html', {'form': form})
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'checks/form.html', context)
 
 @login_required
 def check_update(request, pk):
@@ -179,23 +209,60 @@ def promissory_note_transaction_create(request, note_pk):
 
 @login_required
 def dashboard(request):
-    total_checks = Check.objects.count()
-    total_notes = PromissoryNote.objects.count()
-    total_check_amount = Check.objects.aggregate(total=Sum('amount'))['total'] or 0
-    total_note_amount = PromissoryNote.objects.aggregate(total=Sum('amount'))['total'] or 0
-    pending_checks = Check.objects.filter(status='PENDING').count()
-    pending_notes = PromissoryNote.objects.filter(status='PENDING').count()
-    recent_transactions = CheckTransaction.objects.order_by('-transaction_date')[:5]
+    """Çek yönetimi dashboard görünümü"""
+    active_checks = Check.objects.filter(user=request.user, status='active').count()
+    pending_checks = Check.objects.filter(user=request.user, status='pending').count()
+    expired_checks = Check.objects.filter(user=request.user, status='expired').count()
+    
     context = {
-        'total_checks': total_checks,
-        'total_notes': total_notes,
-        'total_check_amount': total_check_amount,
-        'total_note_amount': total_note_amount,
+        'active_checks': active_checks,
         'pending_checks': pending_checks,
-        'pending_notes': pending_notes,
-        'recent_transactions': recent_transactions,
+        'expired_checks': expired_checks,
     }
-    return render(request, 'check_management/dashboard.html', context)
+    return render(request, 'checks/dashboard.html', context)
+
+@login_required
+def portfolio(request):
+    """Çek portföyü görünümü"""
+    checks = Check.objects.filter(user=request.user)
+    
+    # Portföy istatistikleri
+    total_amount = sum(check.amount for check in checks)
+    active_amount = sum(check.amount for check in checks.filter(status='active'))
+    pending_amount = sum(check.amount for check in checks.filter(status='pending'))
+    
+    context = {
+        'checks': checks,
+        'total_amount': total_amount,
+        'active_amount': active_amount,
+        'pending_amount': pending_amount,
+    }
+    return render(request, 'checks/portfolio.html', context)
+
+@login_required
+def reports(request):
+    """Çek raporları görünümü"""
+    checks = Check.objects.filter(user=request.user)
+    
+    # Rapor verileri
+    status_counts = checks.values('status').annotate(count=models.Count('id'))
+    bank_counts = checks.values('bank_name').annotate(count=models.Count('id'))
+    
+    context = {
+        'status_counts': status_counts,
+        'bank_counts': bank_counts,
+    }
+    return render(request, 'checks/reports.html', context)
+
+@login_required
+def settings(request):
+    """Ayarlar görünümü"""
+    if request.method == 'POST':
+        # Ayarları kaydet
+        messages.success(request, 'Ayarlar başarıyla güncellendi.')
+        return redirect('checks:settings')
+    
+    return render(request, 'checks/settings.html')
 
 class CheckCategoryViewSet(viewsets.ModelViewSet):
     queryset = CheckCategory.objects.all()

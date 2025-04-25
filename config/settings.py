@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 import os
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +24,15 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_yasg',
+    'rest_framework_simplejwt',
+    'django_celery_beat',
     
     # Local apps
     'checks',
     'permissions.apps.PermissionsConfig',
+    'users',
+    'core',
+    'seo',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +110,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -137,6 +144,18 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Celery Beat Schedule
+CELERY_BEAT_SCHEDULE = {
+    'update-user-activity': {
+        'task': 'users.tasks.update_user_activity',
+        'schedule': timedelta(minutes=30),
+    },
+    'cleanup-old-sessions': {
+        'task': 'users.tasks.cleanup_old_sessions',
+        'schedule': timedelta(days=1),
+    },
+}
 
 # Logging settings
 LOGGING = {
@@ -183,4 +202,20 @@ ALPHA_VANTAGE_API_KEY = env('ALPHA_VANTAGE_API_KEY', default='')
 
 # Cache timeouts
 WEATHER_CACHE_TIMEOUT = 30 * 60  # 30 minutes
-FINANCE_CACHE_TIMEOUT = 15 * 60  # 15 minutes 
+FINANCE_CACHE_TIMEOUT = 15 * 60  # 15 minutes
+
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+# Custom user model
+AUTH_USER_MODEL = 'users.User'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
+
+# Frontend URL
+FRONTEND_URL = 'http://localhost:3000' 

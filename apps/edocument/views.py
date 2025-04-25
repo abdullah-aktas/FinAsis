@@ -23,6 +23,12 @@ from .permissions import (
     CanCreateDocument, CanUpdateDocument, CanDeleteDocument,
     CanViewDocument, CanSendDocument, CanCancelDocument
 )
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.paginator import Paginator
+from .models import Document, Category
+from .forms import DocumentForm, CategoryForm
 
 class EDespatchAdviceLogListView(ListView):
     model = EDespatchAdviceLog
@@ -363,4 +369,114 @@ class EDocumentBaseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user) 
+        return self.queryset.filter(user=self.request.user)
+
+@login_required
+def dashboard(request):
+    """E-Doküman dashboard görünümü"""
+    recent_docs = Document.objects.filter(user=request.user).order_by('-created_at')[:5]
+    shared_docs = Document.objects.filter(shared_with=request.user).order_by('-created_at')[:5]
+    
+    context = {
+        'recent_docs': recent_docs,
+        'shared_docs': shared_docs,
+    }
+    return render(request, 'edocument/dashboard.html', context)
+
+@login_required
+def documents(request):
+    """Doküman listesi görünümü"""
+    documents = Document.objects.filter(user=request.user)
+    
+    # Arama filtresi
+    search_query = request.GET.get('search', '')
+    if search_query:
+        documents = documents.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Kategori filtresi
+    category_id = request.GET.get('category')
+    if category_id:
+        documents = documents.filter(category_id=category_id)
+    
+    # Sayfalama
+    paginator = Paginator(documents, 10)
+    page = request.GET.get('page')
+    documents = paginator.get_page(page)
+    
+    context = {
+        'documents': documents,
+        'categories': Category.objects.all(),
+    }
+    return render(request, 'edocument/documents.html', context)
+
+@login_required
+def document_detail(request, pk):
+    """Doküman detay görünümü"""
+    document = get_object_or_404(Document, pk=pk)
+    if not document.can_view(request.user):
+        messages.error(request, 'Bu dokümana erişim izniniz yok.')
+        return redirect('edocument:documents')
+    
+    context = {
+        'document': document,
+    }
+    return render(request, 'edocument/document_detail.html', context)
+
+@login_required
+def document_create(request):
+    """Yeni doküman oluşturma görünümü"""
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.user = request.user
+            document.save()
+            messages.success(request, 'Doküman başarıyla oluşturuldu.')
+            return redirect('edocument:document_detail', pk=document.pk)
+    else:
+        form = DocumentForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'edocument/document_form.html', context)
+
+@login_required
+def categories(request):
+    """Kategori listesi görünümü"""
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'edocument/categories.html', context)
+
+@login_required
+def shared_documents(request):
+    """Paylaşılan dokümanlar görünümü"""
+    documents = Document.objects.filter(shared_with=request.user)
+    context = {
+        'documents': documents,
+    }
+    return render(request, 'edocument/shared.html', context)
+
+@login_required
+def archive(request):
+    """Arşiv görünümü"""
+    documents = Document.objects.filter(user=request.user, is_archived=True)
+    context = {
+        'documents': documents,
+    }
+    return render(request, 'edocument/archive.html', context)
+
+@login_required
+def settings(request):
+    """Ayarlar görünümü"""
+    if request.method == 'POST':
+        # Ayarları kaydet
+        messages.success(request, 'Ayarlar başarıyla güncellendi.')
+        return redirect('edocument:settings')
+    
+    return render(request, 'edocument/settings.html') 

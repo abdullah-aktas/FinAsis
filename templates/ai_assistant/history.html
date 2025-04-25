@@ -1,0 +1,400 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{% trans "AI Asistan Geçmişi" %}</h5>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+                <i class="fas fa-trash"></i> {% trans "Geçmişi Temizle" %}
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="timeline">
+            {% for interaction in interactions %}
+            <div class="timeline-item">
+                <div class="timeline-marker {% if interaction.type == 'chat' %}bg-primary{% elif interaction.type == 'analysis' %}bg-success{% elif interaction.type == 'recommendation' %}bg-warning{% else %}bg-info{% endif %}"></div>
+                <div class="timeline-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    {% if interaction.type == 'chat' %}
+                                    <i class="fas fa-comments me-2"></i> {% trans "Sohbet" %}
+                                    {% elif interaction.type == 'analysis' %}
+                                    <i class="fas fa-chart-line me-2"></i> {% trans "Analiz" %}
+                                    {% elif interaction.type == 'recommendation' %}
+                                    <i class="fas fa-lightbulb me-2"></i> {% trans "Öneri" %}
+                                    {% else %}
+                                    <i class="fas fa-info-circle me-2"></i> {% trans "Bilgi" %}
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">{{ interaction.timestamp|date:"d.m.Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if interaction.type == 'chat' %}
+                            <div class="chat-history">
+                                {% for message in interaction.messages %}
+                                <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %} mb-3">
+                                    <div class="message-content p-2 rounded">
+                                        {% if message.is_user %}
+                                        <div class="d-flex justify-content-end">
+                                            <div class="message-text bg-primary text-white p-2 rounded">
+                                                {{ message.content }}
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="d-flex">
+                                            <div class="message-text bg-light p-2 rounded">
+                                                {{ message.content }}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% elif interaction.type == 'analysis' %}
+                            <div class="analysis-summary">
+                                <h6>{% trans "Analiz Sonuçları" %}</h6>
+                                <ul class="list-group list-group-flush">
+                                    {% for result in interaction.results %}
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>{{ result.title }}</span>
+                                            <span class="badge {% if result.value > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ result.value|floatformat:2 }}%
+                                            </span>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% elif interaction.type == 'recommendation' %}
+                            <div class="recommendation-details">
+                                <h6>{{ interaction.title }}</h6>
+                                <p>{{ interaction.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">{{ interaction.get_category_display }}</span>
+                                    <span class="badge {% if interaction.status == 'implemented' %}bg-success{% elif interaction.status == 'rejected' %}bg-danger{% elif interaction.status == 'in_progress' %}bg-warning{% else %}bg-info{% endif %}">
+                                        {{ interaction.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#interactionDetailModal{{ interaction.id }}">
+                                    <i class="fas fa-eye"></i> {% trans "Detaylar" %}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteInteractionModal{{ interaction.id }}">
+                                    <i class="fas fa-trash"></i> {% trans "Sil" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Etkileşim Detay Modal -->
+            <div class="modal fade" id="interactionDetailModal{{ interaction.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                {% if interaction.type == 'chat' %}
+                                {% trans "Sohbet Detayları" %}
+                                {% elif interaction.type == 'analysis' %}
+                                {% trans "Analiz Detayları" %}
+                                {% elif interaction.type == 'recommendation' %}
+                                {% trans "Öneri Detayları" %}
+                                {% endif %}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">{% trans "Tarih" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.timestamp|date:"d.m.Y H:i" }}</dd>
+                                        
+                                        <dt class="col-sm-4">{% trans "Tip" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.get_type_display }}</dd>
+                                        
+                                        <dt class="col-sm-4">{% trans "Süre" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.duration }} {% trans "saniye" %}</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">{% trans "Kullanıcı" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.user.get_full_name|default:interaction.user.username }}</dd>
+                                        
+                                        <dt class="col-sm-4">{% trans "IP Adresi" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.ip_address }}</dd>
+                                        
+                                        <dt class="col-sm-4">{% trans "Tarayıcı" %}</dt>
+                                        <dd class="col-sm-8">{{ interaction.user_agent }}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                {% if interaction.type == 'chat' %}
+                                <h6>{% trans "Sohbet Geçmişi" %}</h6>
+                                <div class="chat-history">
+                                    {% for message in interaction.messages %}
+                                    <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %} mb-3">
+                                        <div class="message-content p-2 rounded">
+                                            {% if message.is_user %}
+                                            <div class="d-flex justify-content-end">
+                                                <div class="message-text bg-primary text-white p-2 rounded">
+                                                    {{ message.content }}
+                                                </div>
+                                            </div>
+                                            {% else %}
+                                            <div class="d-flex">
+                                                <div class="message-text bg-light p-2 rounded">
+                                                    {{ message.content }}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <small class="text-muted mt-1 d-block">
+                                                {{ message.timestamp|date:"d.m.Y H:i" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% elif interaction.type == 'analysis' %}
+                                <h6>{% trans "Analiz Sonuçları" %}</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans "Metrik" %}</th>
+                                                <th>{% trans "Değer" %}</th>
+                                                <th>{% trans "Önceki Değer" %}</th>
+                                                <th>{% trans "Değişim" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for result in interaction.results %}
+                                            <tr>
+                                                <td>{{ result.title }}</td>
+                                                <td>{{ result.value|floatformat:2 }}%</td>
+                                                <td>{{ result.previous_value|floatformat:2 }}%</td>
+                                                <td>
+                                                    <span class="badge {% if result.change > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                                        {{ result.change|floatformat:2 }}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% elif interaction.type == 'recommendation' %}
+                                <h6>{% trans "Öneri Detayları" %}</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ interaction.title }}</h5>
+                                        <p class="card-text">{{ interaction.description }}</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <dl class="row mb-0">
+                                                    <dt class="col-sm-4">{% trans "Kategori" %}</dt>
+                                                    <dd class="col-sm-8">{{ interaction.get_category_display }}</dd>
+                                                    
+                                                    <dt class="col-sm-4">{% trans "Öncelik" %}</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge {% if interaction.priority == 'high' %}bg-danger{% elif interaction.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                                            {{ interaction.get_priority_display }}
+                                                        </span>
+                                                    </dd>
+                                                </dl>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <dl class="row mb-0">
+                                                    <dt class="col-sm-4">{% trans "Durum" %}</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge {% if interaction.status == 'implemented' %}bg-success{% elif interaction.status == 'rejected' %}bg-danger{% elif interaction.status == 'in_progress' %}bg-warning{% else %}bg-info{% endif %}">
+                                                            {{ interaction.get_status_display }}
+                                                        </span>
+                                                    </dd>
+                                                    
+                                                    <dt class="col-sm-4">{% trans "Güven Oranı" %}</dt>
+                                                    <dd class="col-sm-8">{{ interaction.confidence }}%</dd>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Etkileşim Silme Modal -->
+            <div class="modal fade" id="deleteInteractionModal{{ interaction.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{% trans "Etkileşimi Sil" %}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>{% trans "Bu etkileşimi silmek istediğinizden emin misiniz?" %}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                            <form method="post" action="{% url 'ai_assistant:delete_interaction' interaction.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                {% trans "Henüz etkileşim kaydı bulunmuyor." %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Filtrele" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="type" class="form-label">{% trans "Tip" %}</label>
+                        <select name="type" id="type" class="form-select">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="chat" {% if request.GET.type == 'chat' %}selected{% endif %}>{% trans "Sohbet" %}</option>
+                            <option value="analysis" {% if request.GET.type == 'analysis' %}selected{% endif %}>{% trans "Analiz" %}</option>
+                            <option value="recommendation" {% if request.GET.type == 'recommendation' %}selected{% endif %}>{% trans "Öneri" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_range" class="form-label">{% trans "Tarih Aralığı" %}</label>
+                        <select name="date_range" id="date_range" class="form-select">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>{% trans "Bugün" %}</option>
+                            <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>{% trans "Bu Hafta" %}</option>
+                            <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>{% trans "Bu Ay" %}</option>
+                            <option value="year" {% if request.GET.date_range == 'year' %}selected{% endif %}>{% trans "Bu Yıl" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Uygula" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Geçmişi Temizle Modal -->
+<div class="modal fade" id="clearHistoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Geçmişi Temizle" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Tüm etkileşim geçmişini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz." %}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'ai_assistant:clear_history' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Temizle" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.timeline-content {
+    position: relative;
+}
+
+.chat-history {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 1rem;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.ai-message {
+    text-align: left;
+}
+
+.message-content {
+    max-width: 80%;
+    display: inline-block;
+}
+
+.message-text {
+    word-wrap: break-word;
+}
+ 

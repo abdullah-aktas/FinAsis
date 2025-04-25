@@ -30,16 +30,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.humanize',
     
     # Third party apps
     'rest_framework',
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'corsheaders',
-    'debug_toolbar',
+    'django_filters',
     
     # Local apps
-    'accounts.apps.AccountsConfig',
-    'virtual_company.apps.VirtualCompanyConfig',
+    'core.apps.CoreConfig',
+    'users.apps.UsersConfig',
+    'permissions.apps.PermissionsConfig',
 ]
 
 MIDDLEWARE = [
@@ -109,7 +112,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'users.User'
 
 # Rest framework settings
 REST_FRAMEWORK = {

@@ -1,0 +1,230 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Performans Değerlendirmesi Detayı" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'hr:performance_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'hr:performance_edit' performance.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Performans Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">{% trans "Değerlendirilen Çalışan" %}</h6>
+                        <div class="d-flex align-items-center mb-3">
+                            {% if performance.employee.photo %}
+                            <img src="{{ performance.employee.photo.url }}" alt="{{ performance.employee.full_name }}" class="rounded-circle me-3" width="64" height="64">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-1">
+                                    <a href="{% url 'hr:employee_detail' performance.employee.id %}">
+                                        {{ performance.employee.full_name }}
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-0">{{ performance.employee.position.name }}</p>
+                                <p class="text-muted mb-0">{{ performance.employee.department.name }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">{% trans "Değerlendiren" %}</h6>
+                        <div class="d-flex align-items-center mb-3">
+                            {% if performance.evaluator.photo %}
+                            <img src="{{ performance.evaluator.photo.url }}" alt="{{ performance.evaluator.full_name }}" class="rounded-circle me-3" width="64" height="64">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-1">
+                                    <a href="{% url 'hr:employee_detail' performance.evaluator.id %}">
+                                        {{ performance.evaluator.full_name }}
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-0">{{ performance.evaluator.position.name }}</p>
+                                <p class="text-muted mb-0">{{ performance.evaluator.department.name }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Dönem" %}</label>
+                            <p class="mb-0">{{ performance.period }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Puan" %}</label>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if performance.score >= 80 %}bg-success{% elif performance.score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ performance.score }}%;" 
+                                     aria-valuenow="{{ performance.score }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ performance.score }}%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Durum" %}</label>
+                            <p class="mb-0">
+                                <span class="badge {% if performance.status == 'completed' %}bg-success{% elif performance.status == 'in_progress' %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ performance.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Oluşturulma Tarihi" %}</label>
+                            <p class="mb-0">{{ performance.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Güncellenme Tarihi" %}</label>
+                            <p class="mb-0">{{ performance.updated_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">{% trans "Değerlendirme Tarihi" %}</label>
+                            <p class="mb-0">{{ performance.evaluation_date|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if performance.notes %}
+                <div class="mt-4">
+                    <label class="form-label text-muted">{% trans "Notlar" %}</label>
+                    <p class="mb-0">{{ performance.notes|linebreaks }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Değerlendirme Kriterleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Kriter" %}</th>
+                                <th>{% trans "Puan" %}</th>
+                                <th>{% trans "Açıklama" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for criterion in performance.criteria.all %}
+                            <tr>
+                                <td>{{ criterion.name }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if criterion.score >= 80 %}bg-success{% elif criterion.score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ criterion.score }}%;" 
+                                             aria-valuenow="{{ criterion.score }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ criterion.score }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ criterion.description }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4">
+                                    <p class="text-muted mb-0">{% trans "Henüz değerlendirme kriteri bulunmamaktadır." %}</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Değerlendirme Geçmişi" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for history in performance.history.all %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h6 class="mb-1">{{ history.get_status_display }}</h6>
+                            <p class="text-muted small mb-0">{{ history.created_at|date:"d.m.Y H:i" }}</p>
+                            {% if history.notes %}
+                            <p class="small mt-1 mb-0">{{ history.notes }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mb-0">{% trans "Değerlendirme geçmişi bulunmamaktadır." %}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Performans Değerlendirmesi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu performans değerlendirmesini silmek istediğinizden emin misiniz?" %}</p>
+                <p class="mb-0"><strong>{% trans "Çalışan:" %}</strong> {{ performance.employee.full_name }}</p>
+                <p class="mb-0"><strong>{% trans "Değerlendiren:" %}</strong> {{ performance.evaluator.full_name }}</p>
+                <p class="mb-0"><strong>{% trans "Dönem:" %}</strong> {{ performance.period }}</p>
+                <p class="mb-0"><strong>{% trans "Puan:" %}</strong> {{ performance.score }}%</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'hr:performance_delete' performance.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

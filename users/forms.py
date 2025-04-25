@@ -1,6 +1,15 @@
+"""
+Users Modülü - Form Sınıfları
+--------------------------
+Bu dosya, Users modülünün form sınıflarını içerir.
+"""
+
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
+from django.contrib.auth.forms import (
+    UserCreationForm, UserChangeForm, PasswordChangeForm as AuthPasswordChangeForm,
+    PasswordResetForm as AuthPasswordResetForm, SetPasswordForm
+)
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from .models import UserProfile, UserPreferences, TwoFactorAuth, User, UserSettings
@@ -57,34 +66,18 @@ class UserProfileForm(forms.ModelForm):
         }
 
 class UserPreferencesForm(forms.ModelForm):
-    """Kullanıcı tercihleri formu"""
+    """Kullanıcı tercih formu"""
     class Meta:
         model = UserPreferences
-        fields = ('language', 'timezone', 'theme', 'email_notifications', 
-                 'push_notifications', 'sms_notifications')
-        widgets = {
-            'language': forms.Select(attrs={'class': 'form-control'}),
-            'timezone': forms.Select(attrs={'class': 'form-control'}),
-            'theme': forms.Select(attrs={'class': 'form-control'}),
-            'email_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'push_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'sms_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
+        fields = ('language', 'timezone', 'notification_preferences')
 
 class UserSettingsForm(forms.ModelForm):
-    """Kullanıcı ayarları formu."""
-    
+    """Kullanıcı ayarları formu"""
     class Meta:
         model = UserSettings
-        fields = ('email_notifications', 'push_notifications', 'dark_mode', 'newsletter_subscription')
-        widgets = {
-            'email_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'push_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'dark_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'newsletter_subscription': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
+        fields = ('theme', 'email_notifications', 'sms_notifications', 'privacy_settings')
 
-class CustomPasswordChangeForm(PasswordChangeForm):
+class CustomPasswordChangeForm(AuthPasswordChangeForm):
     """Özelleştirilmiş şifre değiştirme formu."""
     
     def __init__(self, *args, **kwargs):
@@ -93,44 +86,34 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         self.fields['new_password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['new_password2'].widget.attrs.update({'class': 'form-control'})
 
-class TwoFactorSetupForm(forms.Form):
-    """İki faktörlü doğrulama kurulum formu."""
-    
-    verification_code = forms.CharField(
-        label=_('Doğrulama Kodu'),
-        max_length=6,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    
-    def clean_verification_code(self):
-        code = self.cleaned_data.get('verification_code')
-        if not code.isdigit() or len(code) != 6:
-            raise forms.ValidationError(_('Geçerli bir doğrulama kodu giriniz.'))
-        return code
+class TwoFactorSetupForm(forms.ModelForm):
+    """İki faktörlü doğrulama kurulum formu"""
+    class Meta:
+        model = TwoFactorAuth
+        fields = ('phone_number',)
 
 class TwoFactorVerifyForm(forms.Form):
-    """İki faktörlü kimlik doğrulama doğrulama formu"""
-    code = forms.CharField(
-        label=_('Doğrulama Kodu'),
-        max_length=6,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
+    """İki faktörlü doğrulama kodu formu"""
+    code = forms.CharField(max_length=6, min_length=6)
 
 class EmailVerificationForm(forms.Form):
     """E-posta doğrulama formu"""
-    email = forms.EmailField(
-        label=_('E-posta'),
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
+    email = forms.EmailField()
 
-class PasswordResetForm(forms.Form):
+class UserSearchForm(forms.Form):
+    """Kullanıcı arama formu"""
+    query = forms.CharField(required=False, label=_("Arama"))
+    is_active = forms.BooleanField(required=False, label=_("Aktif Kullanıcılar"))
+
+class PasswordChangeForm(AuthPasswordChangeForm):
+    """Şifre değiştirme formu"""
+    pass
+
+class PasswordResetForm(AuthPasswordResetForm):
     """Şifre sıfırlama formu"""
-    email = forms.EmailField(
-        label=_('E-posta'),
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
+    pass
 
-class PasswordResetConfirmForm(forms.Form):
+class PasswordResetConfirmForm(SetPasswordForm):
     """Şifre sıfırlama onay formu"""
     new_password1 = forms.CharField(
         label=_('Yeni Şifre'),
@@ -139,23 +122,4 @@ class PasswordResetConfirmForm(forms.Form):
     new_password2 = forms.CharField(
         label=_('Yeni Şifre (Tekrar)'),
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
-
-class UserSearchForm(forms.Form):
-    """Kullanıcı arama formu"""
-    query = forms.CharField(
-        label=_('Arama'),
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Kullanıcı adı veya e-posta')})
-    )
-    role = forms.ChoiceField(
-        label=_('Rol'),
-        required=False,
-        choices=[('', _('Tümü'))] + User.ROLE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    is_active = forms.BooleanField(
-        label=_('Aktif Kullanıcılar'),
-        required=False,
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     ) 

@@ -10,6 +10,8 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, Scoped
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.core.files.storage import default_storage
+from core.scanner import Scanner
 
 from permissions.permissions import (
     IsAdmin, IsFinanceManager, IsStockOperator, 
@@ -238,4 +240,86 @@ class CustomTokenRefreshView(TokenRefreshView):
     Bu view, rate limiting uygular ve eski token'ları blacklist'e ekler.
     """
     serializer_class = CustomTokenRefreshSerializer
-    throttle_classes = [TokenRefreshThrottle] 
+    throttle_classes = [TokenRefreshThrottle]
+
+
+class ScanView(APIView):
+    permission_classes = [ModulePermission]
+    module_name = 'scan'
+
+    def post(self, request):
+        if 'image' not in request.FILES:
+            return Response(
+                {'error': 'Görüntü dosyası gerekli'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        image = request.FILES['image']
+        scanner = Scanner()
+        results = scanner.process_image(image)
+
+        response_data = {
+            'success': False,
+            'message': '',
+            'data': results
+        }
+
+        try:
+            # Barkod varsa stok işlemleri
+            if results['barcode']:
+                from stock_management.models import Product
+                try:
+                    product = Product.objects.get(barcode=results['barcode'])
+                    # Stok giriş işlemi
+                    from stock_management.models import StockTransaction
+                    StockTransaction.objects.create(
+                        product=product,
+                        quantity=1,  # Varsayılan miktar
+                        transaction_type='in',
+                        created_by=request.user
+                    )
+                    response_data['success'] = True
+                    response_data['message'] = f'Ürün stoka eklendi: {product.name}'
+                except Product.DoesNotExist:
+                    response_data['message'] = 'Barkod ile eşleşen ürün bulunamadı'
+
+            # Metin varsa belge işlemleri
+            if results['text']:
+                # Fatura/irsaliye kontrolü
+                if any(keyword in results['text'].lower() for keyword in ['fatura', 'irsaliye', 'invoice']):
+                    from accounting.models import Document
+                    # Belge oluştur
+                    document = Document.objects.create(
+                        content=results['text'],
+                        document_type='invoice',
+                        created_by=request.user
+                    )
+                    response_data['success'] = True
+                    response_data['message'] = 'Fatura/irsaliye kaydedildi'
+                    response_data['document_id'] = document.id
+
+                # Muhasebe fişi kontrolü
+                elif any(keyword in results['text'].lower() for keyword in ['fiş', 'voucher', 'receipt']):
+                    from accounting.models import Voucher
+                    voucher = Voucher.objects.create(
+                        content=results['text'],
+                        created_by=request.user
+                    )
+                    response_data['success'] = True
+                    response_data['message'] = 'Muhasebe fişi kaydedildi'
+                    response_data['voucher_id'] = voucher.id
+
+            if not response_data['success'] and not response_data['message']:
+                response_data['message'] = 'Belge türü tanımlanamadı'
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {
+                    'success': False,
+                    'message': f'İşlem sırasında hata oluştu: {str(e)}',
+                    'data': results
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            ) 

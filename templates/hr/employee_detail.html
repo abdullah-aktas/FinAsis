@@ -1,0 +1,221 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ employee.full_name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'hr:employee_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'hr:employee_edit' employee.id %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if employee.photo %}
+                <img src="{{ employee.photo.url }}" alt="{{ employee.full_name }}" class="rounded-circle mb-3" width="150" height="150">
+                {% else %}
+                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                    <i class="fas fa-user fa-4x"></i>
+                </div>
+                {% endif %}
+                
+                <h4 class="mb-1">{{ employee.full_name }}</h4>
+                <p class="text-muted mb-2">{{ employee.position }}</p>
+                <span class="badge {% if employee.status == 'active' %}bg-success{% elif employee.status == 'on_leave' %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ employee.get_status_display }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İletişim Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2"></i>
+                        <a href="tel:{{ employee.phone }}">{{ employee.phone }}</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        {{ employee.address }}
+                    </li>
+                    {% if employee.emergency_contact %}
+                    <li>
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>{% trans "Acil Durum:" %}</strong> {{ employee.emergency_contact }}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Kişisel Bilgiler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>{% trans "TC Kimlik No:" %}</strong> {{ employee.tc_no }}</p>
+                        <p><strong>{% trans "Doğum Tarihi:" %}</strong> {{ employee.birth_date|date:"d.m.Y" }}</p>
+                        <p><strong>{% trans "Cinsiyet:" %}</strong> {{ employee.get_gender_display }}</p>
+                        <p><strong>{% trans "Medeni Durum:" %}</strong> {{ employee.get_marital_status_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>{% trans "Departman:" %}</strong> {{ employee.department }}</p>
+                        <p><strong>{% trans "İşe Başlama:" %}</strong> {{ employee.hire_date|date:"d.m.Y" }}</p>
+                        <p><strong>{% trans "Maaş:" %}</strong> {{ employee.salary }} {{ currency }}</p>
+                        <p><strong>{% trans "Kullanılabilir İzin:" %}</strong> {{ employee.available_leave_days }} {% trans "gün" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Eğitim Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if employee.educations.all %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Okul" %}</th>
+                                <th>{% trans "Bölüm" %}</th>
+                                <th>{% trans "Başlangıç" %}</th>
+                                <th>{% trans "Bitiş" %}</th>
+                                <th>{% trans "Not Ortalaması" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for education in employee.educations.all %}
+                            <tr>
+                                <td>{{ education.school }}</td>
+                                <td>{{ education.department }}</td>
+                                <td>{{ education.start_date|date:"d.m.Y" }}</td>
+                                <td>{{ education.end_date|date:"d.m.Y" }}</td>
+                                <td>{{ education.gpa }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">{% trans "Eğitim bilgisi bulunmamaktadır." %}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İş Deneyimi" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if employee.experiences.all %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Şirket" %}</th>
+                                <th>{% trans "Pozisyon" %}</th>
+                                <th>{% trans "Başlangıç" %}</th>
+                                <th>{% trans "Bitiş" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for experience in employee.experiences.all %}
+                            <tr>
+                                <td>{{ experience.company }}</td>
+                                <td>{{ experience.position }}</td>
+                                <td>{{ experience.start_date|date:"d.m.Y" }}</td>
+                                <td>{{ experience.end_date|date:"d.m.Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">{% trans "İş deneyimi bulunmamaktadır." %}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Sertifikalar" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if employee.certificates.all %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Sertifika" %}</th>
+                                <th>{% trans "Kurum" %}</th>
+                                <th>{% trans "Tarih" %}</th>
+                                <th>{% trans "Geçerlilik" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for certificate in employee.certificates.all %}
+                            <tr>
+                                <td>{{ certificate.name }}</td>
+                                <td>{{ certificate.issuer }}</td>
+                                <td>{{ certificate.issue_date|date:"d.m.Y" }}</td>
+                                <td>{{ certificate.expiry_date|date:"d.m.Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">{% trans "Sertifika bulunmamaktadır." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Çalışan Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu çalışanı silmek istediğinizden emin misiniz?" %}</p>
+                <p class="mb-0"><strong>{% trans "Çalışan:" %}</strong> {{ employee.full_name }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'hr:employee_delete' employee.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,139 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if position %}{% trans "Pozisyon Düzenle" %}{% else %}{% trans "Yeni Pozisyon" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'hr:position_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Pozisyon Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="code" class="form-label">{% trans "Kod" %} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.code.errors %}is-invalid{% endif %}" id="code" name="code" value="{{ form.code.value|default:'' }}" required>
+                            {% if form.code.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.code.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Pozisyon kodunu giriniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.name.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Pozisyon adını giriniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">{% trans "Departman" %}</label>
+                            <select class="form-select {% if form.department.errors %}is-invalid{% endif %}" id="department" name="department">
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for department in departments %}
+                                <option value="{{ department.id }}" {% if form.department.value|stringformat:"i" == department.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ department.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.department.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.department.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Pozisyonun bağlı olduğu departmanı seçiniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="is_active" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.is_active.errors %}is-invalid{% endif %}" id="is_active" name="is_active" required>
+                                <option value="1" {% if form.is_active.value %}selected{% endif %}>{% trans "Aktif" %}</option>
+                                <option value="0" {% if not form.is_active.value %}selected{% endif %}>{% trans "Pasif" %}</option>
+                            </select>
+                            {% if form.is_active.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.is_active.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Pozisyonun durumunu seçiniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="responsibilities" class="form-label">{% trans "Görev ve Sorumluluklar" %}</label>
+                        <textarea class="form-control {% if form.responsibilities.errors %}is-invalid{% endif %}" id="responsibilities" name="responsibilities" rows="4">{{ form.responsibilities.value|default:'' }}</textarea>
+                        {% if form.responsibilities.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.responsibilities.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Pozisyonun görev ve sorumluluklarını giriniz." %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" id="description" name="description" rows="4">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Pozisyon hakkında açıklama giriniz." %}</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            {% if position %}{% trans "Güncelle" %}{% else %}{% trans "Oluştur" %}{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">{% trans "Pozisyon Kodu" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Pozisyon kodları benzersiz olmalıdır ve genellikle kısaltmalar kullanılır. Örneğin: MGR, DEV, HRM gibi." %}</p>
+                
+                <h6 class="mb-3">{% trans "Departman Seçimi" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Pozisyonun bağlı olduğu departmanı seçebilirsiniz. Departman seçimi zorunlu değildir." %}</p>
+                
+                <h6 class="mb-3">{% trans "Durum" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Aktif pozisyonlar kullanılabilir durumdadır. Pasif pozisyonlar kullanılamaz ve yeni çalışan atanamaz." %}</p>
+                
+                <h6 class="mb-3">{% trans "Görev ve Sorumluluklar" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Pozisyonun görev ve sorumluluklarını detaylı bir şekilde açıklayabilirsiniz. Bu bilgi pozisyon detay sayfasında görüntülenir." %}</p>
+                
+                <h6 class="mb-3">{% trans "Açıklama" %}</h6>
+                <p class="text-muted small mb-0">{% trans "Pozisyon hakkında ek bilgiler verebilirsiniz. Bu bilgi pozisyon detay sayfasında görüntülenir." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

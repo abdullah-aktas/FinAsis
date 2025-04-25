@@ -33,4 +33,12 @@ urlpatterns = [
     path('despatch-logs/create/', views.EDespatchAdviceLogCreateView.as_view(), name='edespatchadvicelog_create'),
     path('despatch-logs/<int:pk>/update/', views.EDespatchAdviceLogUpdateView.as_view(), name='edespatchadvicelog_update'),
     path('despatch-logs/<int:pk>/delete/', views.EDespatchAdviceLogDeleteView.as_view(), name='edespatchadvicelog_delete'),
+    path('', views.dashboard, name='dashboard'),
+    path('documents/', views.documents, name='documents'),
+    path('documents/<int:pk>/', views.document_detail, name='document_detail'),
+    path('documents/create/', views.document_create, name='document_create'),
+    path('categories/', views.categories, name='categories'),
+    path('shared/', views.shared_documents, name='shared'),
+    path('archive/', views.archive, name='archive'),
+    path('settings/', views.settings, name='settings'),
 ] 

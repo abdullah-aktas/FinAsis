@@ -1,0 +1,42 @@
+{% load i18n %}
+
+<div class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'asset_list' %}active{% endif %}" 
+               href="{% url 'assets:asset_list' %}">
+                {% trans "Varlıklar" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" 
+               href="{% url 'assets:category_list' %}">
+                {% trans "Kategoriler" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'depreciation_list' %}active{% endif %}" 
+               href="{% url 'assets:depreciation_list' %}">
+                {% trans "Amortisman" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'maintenance_list' %}active{% endif %}" 
+               href="{% url 'assets:maintenance_list' %}">
+                {% trans "Bakım" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'transfer_list' %}active{% endif %}" 
+               href="{% url 'assets:transfer_list' %}">
+                {% trans "Transfer" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'disposal_list' %}active{% endif %}" 
+               href="{% url 'assets:disposal_list' %}">
+                {% trans "Elden Çıkarma" %}
+            </a>
+        </li>
+    </ul>
+</div> 

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Finans Yönetimi{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            {% include "finance/includes/sidebar.html" %}
+        </div>
+        <div class="col-md-9">
+            {% block finance_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

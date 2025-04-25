@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import BlockchainTransaction, BlockchainLog, BaseModel
+from .models import BlockchainTransaction, BlockchainLog, BaseModel, TokenContract, TokenBalance, TokenTransaction
 from virtual_company.models import VirtualCompany
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -23,10 +23,12 @@ from .serializers import (
     TokenSerializer,
 )
 from .permissions import IsWalletOwner, IsContractOwner
-from .tasks import sync_transaction_status, sync_wallet_balance
+from .tasks import sync_transaction_status, sync_wallet_balance, create_token_contract, mint_tokens, transfer_tokens
 import logging
 from web3 import Web3
 from decimal import Decimal
+from django.views.decorators.http import require_POST
+from django.core.exceptions import PermissionDenied
 
 logger = logging.getLogger(__name__)
 
@@ -308,3 +310,135 @@ class TokenViewSet(viewsets.ModelViewSet):
 
         # Transfer logic here
         return Response({'status': 'transfer initiated'})
+
+@login_required
+def create_contract(request):
+    """
+    Yeni token sözleşmesi oluştur
+    """
+    if request.method == 'POST':
+        token_name = request.POST.get('token_name')
+        token_symbol = request.POST.get('token_symbol')
+        total_supply = Decimal(request.POST.get('total_supply', '1000000'))
+        
+        # Sözleşme oluşturma işlemini başlat
+        task = create_token_contract.delay(
+            user_id=request.user.id,
+            token_name=token_name,
+            token_symbol=token_symbol,
+            total_supply=total_supply
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'task_id': task.id,
+            'message': 'Token sözleşmesi oluşturuluyor...'
+        })
+    
+    return render(request, 'blockchain/create_contract.html')
+
+@login_required
+def mint_tokens_view(request, contract_id):
+    """
+    Token oluştur
+    """
+    contract = get_object_or_404(TokenContract, id=contract_id)
+    
+    if contract.user != request.user:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        amount = Decimal(request.POST.get('amount'))
+        
+        # Token oluşturma işlemini başlat
+        task = mint_tokens.delay(
+            contract_id=contract.id,
+            amount=amount
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'task_id': task.id,
+            'message': 'Tokenlar oluşturuluyor...'
+        })
+    
+    return render(request, 'blockchain/mint_tokens.html', {
+        'contract': contract
+    })
+
+@login_required
+def transfer_tokens_view(request, contract_id):
+    """
+    Token transferi
+    """
+    contract = get_object_or_404(TokenContract, id=contract_id)
+    
+    if request.method == 'POST':
+        to_user_id = request.POST.get('to_user_id')
+        amount = Decimal(request.POST.get('amount'))
+        
+        # Token transferi işlemini başlat
+        task = transfer_tokens.delay(
+            contract_id=contract.id,
+            from_user_id=request.user.id,
+            to_user_id=to_user_id,
+            amount=amount
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'task_id': task.id,
+            'message': 'Token transferi yapılıyor...'
+        })
+    
+    return render(request, 'blockchain/transfer_tokens.html', {
+        'contract': contract
+    })
+
+@login_required
+def get_balance(request, contract_id):
+    """
+    Token bakiyesini getir
+    """
+    contract = get_object_or_404(TokenContract, id=contract_id)
+    balance = TokenBalance.objects.filter(
+        contract=contract,
+        user=request.user
+    ).first()
+    
+    if not balance:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Bakiye bulunamadı'
+        })
+    
+    return JsonResponse({
+        'status': 'success',
+        'balance': str(balance.balance),
+        'locked_balance': str(balance.locked_balance)
+    })
+
+@login_required
+def get_transactions(request, contract_id):
+    """
+    Token işlemlerini getir
+    """
+    contract = get_object_or_404(TokenContract, id=contract_id)
+    transactions = TokenTransaction.objects.filter(
+        contract=contract
+    ).order_by('-created_at')[:50]
+    
+    return JsonResponse({
+        'status': 'success',
+        'transactions': [
+            {
+                'type': t.get_transaction_type_display(),
+                'from': t.from_user.username,
+                'to': t.to_user.username,
+                'amount': str(t.amount),
+                'hash': t.transaction_hash,
+                'created_at': t.created_at.isoformat()
+            }
+            for t in transactions
+        ]
+    })

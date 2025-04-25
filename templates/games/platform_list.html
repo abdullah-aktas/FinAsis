@@ -1,0 +1,199 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Oyun platformları listesi" %}{% endblock %}
+
+{% block meta_keywords %}oyun platformları, oyun konsolları, oyun yönetimi{% endblock %}
+
+{% block page_title %}{% trans "Platformlar" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'games:platform_create' %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-plus"></i> {% trans "Yeni Platform" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block games_content %}
+<!-- Platform Tablosu -->
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">{% trans "Platform" %}</th>
+                <th scope="col">{% trans "Üretici" %}</th>
+                <th scope="col">{% trans "Çıkış Tarihi" %}</th>
+                <th scope="col">{% trans "Oyun Sayısı" %}</th>
+                <th scope="col">{% trans "Durum" %}</th>
+                <th scope="col">{% trans "İşlemler" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for platform in platforms %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        {% if platform.icon %}
+                        <img src="{{ platform.icon.url }}" alt="{{ platform.name }}" class="rounded me-2" style="width: 32px; height: 32px; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ platform.name }}</div>
+                            <small class="text-muted">{{ platform.description|default:''|truncatechars:50 }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ platform.manufacturer }}</td>
+                <td>{{ platform.release_date|date:"d.m.Y" }}</td>
+                <td>{{ platform.games.count }}</td>
+                <td>
+                    <span class="badge {% if platform.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                        {% if platform.status == 'active' %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'games:platform_detail' platform.id %}" class="btn btn-outline-primary" aria-label="{% trans 'Platform detaylarını görüntüle' %}">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'games:platform_update' platform.id %}" class="btn btn-outline-secondary" aria-label="{% trans 'Platformu düzenle' %}">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ platform.id }}" aria-label="{% trans 'Platformu sil' %}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            
+            <!-- Silme Onay Modalı -->
+            <div class="modal fade" id="deleteModal{{ platform.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ platform.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ platform.id }}">{% trans "Platformu Sil" %}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>{% trans "Bu platformu silmek istediğinizden emin misiniz?" %}</p>
+                            <div class="alert alert-warning">
+                                <strong>{% trans "Platform:" %}</strong> {{ platform.name }}<br>
+                                <strong>{% trans "Oyun Sayısı:" %}</strong> {{ platform.games.count }}
+                            </div>
+                            {% if platform.games.count > 0 %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% trans "Bu platforma ait oyunlar da silinecektir." %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                            <form action="{% url 'games:platform_delete' platform.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-gamepad fa-3x mb-3"></i>
+                        <p class="mb-0">{% trans "Henüz hiç platform eklenmemiş." %}</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Filtre Modalı -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">{% trans "Platformları Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="manufacturer" class="form-label">{% trans "Üretici" %}</label>
+                        <input type="text" class="form-control" id="manufacturer" name="manufacturer" value="{{ request.GET.manufacturer|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="game_status" class="form-label">{% trans "Oyun Durumu" %}</label>
+                        <select class="form-select" id="game_status" name="game_status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="with_games" {% if request.GET.game_status == 'with_games' %}selected{% endif %}>{% trans "Oyunu Olanlar" %}</option>
+                            <option value="without_games" {% if request.GET.game_status == 'without_games' %}selected{% endif %}>{% trans "Oyunu Olmayanlar" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Sayfalama -->
+{% if is_paginated %}
+<nav aria-label="{% trans 'Platform sayfaları' %}" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" aria-label="{% trans 'İlk sayfa' %}">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="{% trans 'Önceki sayfa' %}">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="{% trans 'Sonraki sayfa' %}">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="{% trans 'Son sayfa' %}">
+                <span aria-hidden="true">&raquo;&raquo;</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %} 

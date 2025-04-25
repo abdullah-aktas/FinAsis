@@ -4,8 +4,9 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .models import UserNotification
+from .models import UserNotification, UserActivity, UserSession
 from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -179,4 +180,23 @@ def send_scheduled_notifications():
                 recipient_list=[notification.user.email],
                 html_message=message,
                 fail_silently=False,
-            ) 
+            )
+
+@shared_task
+def update_user_activity():
+    """Kullanıcı aktivitelerini günceller"""
+    # Son 30 dakika içinde aktif olan kullanıcıları işaretle
+    threshold = timezone.now() - timedelta(minutes=30)
+    UserActivity.objects.filter(
+        last_activity__lt=threshold,
+        is_active=True
+    ).update(is_active=False)
+
+@shared_task
+def cleanup_old_sessions():
+    """Eski oturumları temizler"""
+    # 30 günden eski oturumları sil
+    threshold = timezone.now() - timedelta(days=30)
+    UserSession.objects.filter(
+        last_activity__lt=threshold
+    ).delete() 

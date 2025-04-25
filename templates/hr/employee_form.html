@@ -1,0 +1,281 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+    {% if employee %}
+        {% trans "Çalışan Düzenle" %}
+    {% else %}
+        {% trans "Yeni Çalışan" %}
+    {% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'hr:employee_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="photo" class="form-label">{% trans "Fotoğraf" %}</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            {% if form.photo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.photo.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="tc_no" class="form-label">{% trans "TC Kimlik No" %}</label>
+                            <input type="text" class="form-control" id="tc_no" name="tc_no" value="{{ form.tc_no.value|default:'' }}" required>
+                            {% if form.tc_no.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tc_no.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">{% trans "Ad" %}</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+                            {% if form.first_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.first_name.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">{% trans "Soyad" %}</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.last_name.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">{% trans "E-posta" %}</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">{% trans "Telefon" %}</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ form.phone.value|default:'' }}" required>
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.phone.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="birth_date" class="form-label">{% trans "Doğum Tarihi" %}</label>
+                            <input type="date" class="form-control" id="birth_date" name="birth_date" value="{{ form.birth_date.value|date:'Y-m-d'|default:'' }}" required>
+                            {% if form.birth_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.birth_date.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="gender" class="form-label">{% trans "Cinsiyet" %}</label>
+                            <select class="form-select" id="gender" name="gender" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>{% trans "Erkek" %}</option>
+                                <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>{% trans "Kadın" %}</option>
+                                <option value="other" {% if form.gender.value == 'other' %}selected{% endif %}>{% trans "Diğer" %}</option>
+                            </select>
+                            {% if form.gender.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.gender.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="marital_status" class="form-label">{% trans "Medeni Durum" %}</label>
+                            <select class="form-select" id="marital_status" name="marital_status" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                <option value="single" {% if form.marital_status.value == 'single' %}selected{% endif %}>{% trans "Bekar" %}</option>
+                                <option value="married" {% if form.marital_status.value == 'married' %}selected{% endif %}>{% trans "Evli" %}</option>
+                                <option value="divorced" {% if form.marital_status.value == 'divorced' %}selected{% endif %}>{% trans "Boşanmış" %}</option>
+                                <option value="widowed" {% if form.marital_status.value == 'widowed' %}selected{% endif %}>{% trans "Dul" %}</option>
+                            </select>
+                            {% if form.marital_status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.marital_status.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hire_date" class="form-label">{% trans "İşe Başlama Tarihi" %}</label>
+                            <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ form.hire_date.value|date:'Y-m-d'|default:'' }}" required>
+                            {% if form.hire_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.hire_date.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">{% trans "Departman" %}</label>
+                            <select class="form-select" id="department" name="department" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for department in departments %}
+                                <option value="{{ department.id }}" {% if form.department.value == department.id %}selected{% endif %}>
+                                    {{ department.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.department.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.department.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="position" class="form-label">{% trans "Pozisyon" %}</label>
+                            <select class="form-select" id="position" name="position" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for position in positions %}
+                                <option value="{{ position.id }}" {% if form.position.value == position.id %}selected{% endif %}>
+                                    {{ position.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.position.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.position.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="salary" class="form-label">{% trans "Maaş" %}</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="salary" name="salary" value="{{ form.salary.value|default:'' }}" required>
+                                <span class="input-group-text">{{ currency }}</span>
+                            </div>
+                            {% if form.salary.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.salary.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">{% trans "Durum" %}</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                                <option value="on_leave" {% if form.status.value == 'on_leave' %}selected{% endif %}>{% trans "İzinde" %}</option>
+                                <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                            </select>
+                            {% if form.status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.status.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">{% trans "Adres" %}</label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ form.address.value|default:'' }}</textarea>
+                        {% if form.address.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.address.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="emergency_contact" class="form-label">{% trans "Acil Durum Kişisi" %}</label>
+                        <input type="text" class="form-control" id="emergency_contact" name="emergency_contact" value="{{ form.emergency_contact.value|default:'' }}">
+                        {% if form.emergency_contact.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.emergency_contact.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.description.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            {% if employee %}
+                                {% trans "Güncelle" %}
+                            {% else %}
+                                {% trans "Kaydet" %}
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>{% trans "Fotoğraf" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Çalışan fotoğrafı için maksimum 2MB boyutunda ve JPG/PNG formatında bir dosya yükleyin." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "TC Kimlik No" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "11 haneli TC kimlik numarasını girin." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "Maaş" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Brüt maaş tutarını girin." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "Durum" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Aktif: Çalışmaya devam ediyor, İzinde: İzin kullanıyor, Pasif: İşten ayrıldı." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

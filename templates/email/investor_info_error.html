@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAsis - Yatırımcı Bilgilendirme Formu Hatası</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .error-box {
+            background-color: #fff3f3;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffcdd2;
+            margin: 15px 0;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://finasis.com.tr/static/images/logo.png" alt="FinAsis Logo" class="logo">
+    </div>
+    
+    <div class="content">
+        <h2>Sayın {{ first_name }} {{ last_name }},</h2>
+        
+        <p>FinAsis yatırımcı bilgilendirme formunuz gönderilirken bir hata oluştu. Üzgünüz.</p>
+        
+        <div class="error-box">
+            <h3>Hata Detayları</h3>
+            <p><strong>Hata Kodu:</strong> {{ error_code }}</p>
+            <p><strong>Hata Mesajı:</strong> {{ error_message }}</p>
+            <p><strong>Hata Zamanı:</strong> {{ error_time }}</p>
+        </div>
+        
+        <h3>Olası Nedenler</h3>
+        <ul>
+            <li>Form alanlarında eksik veya hatalı bilgi</li>
+            <li>Teknik bir sorun</li>
+            <li>Sistem bakımı veya güncellemesi</li>
+        </ul>
+        
+        <p>Lütfen formu tekrar doldurmak için aşağıdaki butona tıklayın:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ form_link }}" class="button">Formu Tekrar Doldur</a>
+        </div>
+        
+        <div class="info-box">
+            <h3>Yardım ve Destek</h3>
+            <p>Eğer sorun devam ederse, aşağıdaki yöntemlerden biriyle bizimle iletişime geçebilirsiniz:</p>
+            <ul>
+                <li><strong>E-posta:</strong> support@finasis.com.tr</li>
+                <li><strong>Telefon:</strong> +90 212 123 45 67</li>
+                <li><strong>Çalışma Saatleri:</strong> Hafta içi 09:00 - 18:00</li>
+            </ul>
+        </div>
+        
+        <p>Saygılarımızla,<br>FinAsis Ekibi</p>
+    </div>
+    
+    <div class="footer">
+        <p>Bu e-posta FinAsis tarafından otomatik olarak gönderilmiştir.</p>
+        <p>Eğer bu başvuruyu siz yapmadıysanız, lütfen bu e-postayı dikkate almayın.</p>
+        <p>© 2024 FinAsis. Tüm hakları saklıdır.</p>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "Muhasebe" %}</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'accounting:dashboard' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt me-2"></i> {% trans "Dashboard" %}
+        </a>
+        <a href="{% url 'accounting:transaction_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'transaction_list' %}active{% endif %}">
+            <i class="fas fa-exchange-alt me-2"></i> {% trans "İşlemler" %}
+        </a>
+        <a href="{% url 'accounting:invoice_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'invoice_list' %}active{% endif %}">
+            <i class="fas fa-file-invoice me-2"></i> {% trans "Faturalar" %}
+        </a>
+        <a href="{% url 'accounting:report_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'report_list' %}active{% endif %}">
+            <i class="fas fa-chart-bar me-2"></i> {% trans "Raporlar" %}
+        </a>
+        <a href="{% url 'accounting:settings' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+            <i class="fas fa-cog me-2"></i> {% trans "Ayarlar" %}
+        </a>
+    </div>
+</div> 

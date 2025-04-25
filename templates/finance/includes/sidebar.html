@@ -1,0 +1,34 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Finans Menüsü</h5>
+    </div>
+    <div class="card-body">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'finance:dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'finance:transactions' %}">
+                    <i class="fas fa-exchange-alt"></i> İşlemler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'finance:reports' %}">
+                    <i class="fas fa-chart-bar"></i> Raporlar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'finance:budget' %}">
+                    <i class="fas fa-wallet"></i> Bütçe
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'finance:settings' %}">
+                    <i class="fas fa-cog"></i> Ayarlar
+                </a>
+            </li>
+        </ul>
+    </div>
+</div> 

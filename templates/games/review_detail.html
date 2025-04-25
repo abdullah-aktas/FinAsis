@@ -1,0 +1,189 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Oyun değerlendirmesi detay sayfası" %}{% endblock %}
+
+{% block meta_keywords %}oyun değerlendirmesi, oyun yorumu, oyun yönetimi{% endblock %}
+
+{% block page_title %}{% trans "Değerlendirme Detayı" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'games:review_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Değerlendirme listesine dön' %}">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'games:review_update' review.id %}" class="btn btn-sm btn-outline-primary" aria-label="{% trans 'Değerlendirmeyi düzenle' %}">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="{% trans 'Değerlendirmeyi sil' %}">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <!-- Sol Bölüm -->
+    <div class="col-md-8">
+        <!-- Değerlendirme Bilgileri -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    {% if review.game.cover_image %}
+                    <img src="{{ review.game.cover_image.url }}" alt="{{ review.game.title }}" class="rounded me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h5 class="card-title mb-1">{{ review.game.title }}</h5>
+                        <p class="text-muted mb-0">{{ review.game.subtitle|default:'' }}</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-4">
+                    {% if review.user.avatar %}
+                    <img src="{{ review.user.avatar.url }}" alt="{{ review.user.username }}" class="rounded-circle me-3" style="width: 64px; height: 64px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h6 class="mb-1">{{ review.user.username }}</h6>
+                        <p class="text-muted mb-0">{{ review.user.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-2">{% trans "Puan" %}</h6>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar {% if review.rating >= 8 %}bg-success{% elif review.rating >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ review.rating|multiply:10 }}%" 
+                             aria-valuenow="{{ review.rating }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="10">
+                            {{ review.rating }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-2">{% trans "Yorum" %}</h6>
+                    <p class="card-text">{{ review.comment|linebreaks }}</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">{% trans "Oluşturulma Tarihi" %}</h6>
+                            <p class="mb-0">{{ review.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">{% trans "Son Güncelleme" %}</h6>
+                            <p class="mb-0">{{ review.updated_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-1">{% trans "Durum" %}</h6>
+                    <span class="badge {% if review.status == 'published' %}bg-success{% elif review.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                        {% if review.status == 'published' %}{% trans "Yayında" %}{% elif review.status == 'pending' %}{% trans "Beklemede" %}{% else %}{% trans "Reddedildi" %}{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Bölüm -->
+    <div class="col-md-4">
+        <!-- Oyun İstatistikleri -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Oyun İstatistikleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">{% trans "Toplam Değerlendirme" %}</h6>
+                    <p class="mb-0">{{ review.game.review_count }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">{% trans "Ortalama Puan" %}</h6>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar {% if review.game.average_rating >= 8 %}bg-success{% elif review.game.average_rating >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ review.game.average_rating|multiply:10 }}%" 
+                             aria-valuenow="{{ review.game.average_rating }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="10">
+                            {{ review.game.average_rating|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-1">{% trans "En Yüksek Puan" %}</h6>
+                    <p class="mb-0">{{ review.game.highest_rating }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kullanıcı İstatistikleri -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Kullanıcı İstatistikleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">{% trans "Toplam Değerlendirme" %}</h6>
+                    <p class="mb-0">{{ review.user.review_count }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-1">{% trans "Ortalama Puan" %}</h6>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar {% if review.user.average_rating >= 8 %}bg-success{% elif review.user.average_rating >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ review.user.average_rating|multiply:10 }}%" 
+                             aria-valuenow="{{ review.user.average_rating }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="10">
+                            {{ review.user.average_rating|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-1">{% trans "Son Değerlendirme" %}</h6>
+                    <p class="mb-0">{{ review.user.last_review_date|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{% trans "Değerlendirmeyi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu değerlendirmeyi silmek istediğinizden emin misiniz?" %}</p>
+                <div class="alert alert-warning">
+                    <strong>{% trans "Oyun:" %}</strong> {{ review.game.title }}<br>
+                    <strong>{% trans "Kullanıcı:" %}</strong> {{ review.user.username }}<br>
+                    <strong>{% trans "Puan:" %}</strong> {{ review.rating }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form action="{% url 'games:review_delete' review.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

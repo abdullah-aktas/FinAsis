@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAsis - Yatırımcı Bilgilendirme Formu Onayı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://finasis.com.tr/static/images/logo.png" alt="FinAsis Logo" class="logo">
+    </div>
+    
+    <div class="content">
+        <h2>Sayın {{ first_name }} {{ last_name }},</h2>
+        
+        <p>FinAsis yatırımcı bilgilendirme formunuz başarıyla alınmıştır. Başvurunuz için teşekkür ederiz.</p>
+        
+        <div class="info-box">
+            <h3>Başvuru Detayları</h3>
+            <p><strong>Başvuru Tarihi:</strong> {{ submission_date }}</p>
+            <p><strong>Başvuru Numarası:</strong> {{ application_number }}</p>
+        </div>
+        
+        <h3>Sonraki Adımlar</h3>
+        <ol>
+            <li>Başvurunuz SPK düzenlemeleri kapsamında değerlendirilecektir.</li>
+            <li>Değerlendirme sonucu size e-posta yoluyla bildirilecektir.</li>
+            <li>Onay sonrası kimlik doğrulama sürecini tamamlamanız gerekecektir.</li>
+        </ol>
+        
+        <p>Hesabınızı aktifleştirmek için aşağıdaki butona tıklayabilirsiniz:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ activation_link }}" class="button">Hesabımı Aktifleştir</a>
+        </div>
+        
+        <div class="info-box">
+            <h3>Önemli Bilgiler</h3>
+            <ul>
+                <li>Başvuru süreciniz tamamlanana kadar platform üzerinden işlem yapamayacaksınız.</li>
+                <li>Kimlik doğrulama sürecinde gerekli belgeleri hazır bulundurun.</li>
+                <li>Herhangi bir sorunuz olursa müşteri hizmetlerimizle iletişime geçebilirsiniz.</li>
+            </ul>
+        </div>
+        
+        <p>Saygılarımızla,<br>FinAsis Ekibi</p>
+    </div>
+    
+    <div class="footer">
+        <p>Bu e-posta FinAsis tarafından otomatik olarak gönderilmiştir.</p>
+        <p>Eğer bu başvuruyu siz yapmadıysanız, lütfen bu e-postayı dikkate almayın.</p>
+        <p>© 2024 FinAsis. Tüm hakları saklıdır.</p>
+    </div>
+</body>
+</html> 

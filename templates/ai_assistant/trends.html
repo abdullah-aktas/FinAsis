@@ -1,0 +1,118 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Trend Analizi" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm mr-2">
+                    <select name="metric" class="form-control">
+                        <option value="">{% trans "Metrik Seçin" %}</option>
+                        {% for metric in available_metrics %}
+                        <option value="{{ metric.id }}" {% if request.GET.metric == metric.id %}selected{% endif %}>
+                            {{ metric.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group input-group-sm mr-2">
+                    <select name="period" class="form-control">
+                        <option value="daily" {% if request.GET.period == 'daily' %}selected{% endif %}>
+                            {% trans "Günlük" %}
+                        </option>
+                        <option value="weekly" {% if request.GET.period == 'weekly' %}selected{% endif %}>
+                            {% trans "Haftalık" %}
+                        </option>
+                        <option value="monthly" {% if request.GET.period == 'monthly' %}selected{% endif %}>
+                            {% trans "Aylık" %}
+                        </option>
+                        <option value="yearly" {% if request.GET.period == 'yearly' %}selected{% endif %}>
+                            {% trans "Yıllık" %}
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> {% trans "Analiz Et" %}
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if trends %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Dönem" %}</th>
+                        <th>{% trans "Değer" %}</th>
+                        <th>{% trans "Değişim" %}</th>
+                        <th>{% trans "Trend Yönü" %}</th>
+                        <th>{% trans "Güven Oranı" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trend in trends %}
+                    <tr>
+                        <td>{{ trend.period }}</td>
+                        <td class="text-right">{{ trend.value|floatformat:2 }}</td>
+                        <td class="text-right">
+                            <span class="badge badge-{{ trend.get_change_color }}">
+                                {{ trend.change_percentage|floatformat:2 }}%
+                            </span>
+                        </td>
+                        <td>
+                            <i class="fas fa-{{ trend.get_direction_icon }} text-{{ trend.get_direction_color }}"></i>
+                            {{ trend.get_direction_display }}
+                        </td>
+                        <td class="text-right">{{ trend.confidence_score|floatformat:2 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            {% trans "Lütfen analiz için metrik ve dönem seçin." %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if trends %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('trendChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: '{{ selected_metric.name }}',
+                data: {{ chart_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %} 

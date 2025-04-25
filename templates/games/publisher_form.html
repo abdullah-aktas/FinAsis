@@ -1,0 +1,153 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Yayıncı form sayfası" %}{% endblock %}
+
+{% block meta_keywords %}yayıncı formu, oyun yayıncıları, oyun yönetimi{% endblock %}
+
+{% block page_title %}
+{% if publisher %}
+{% trans "Yayıncı Düzenle" %}
+{% else %}
+{% trans "Yeni Yayıncı" %}
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'games:publisher_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Yayıncı listesine dön' %}">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <!-- Sol Bölüm -->
+    <div class="col-md-8">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <!-- Yayıncı Adı -->
+            <div class="mb-3">
+                <label for="name" class="form-label">{% trans "Yayıncı Adı" %} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                       id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                {% if form.name.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Açıklama -->
+            <div class="mb-3">
+                <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                          id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Ülke -->
+            <div class="mb-3">
+                <label for="country" class="form-label">{% trans "Ülke" %}</label>
+                <input type="text" class="form-control {% if form.country.errors %}is-invalid{% endif %}" 
+                       id="country" name="country" value="{{ form.country.value|default:'' }}">
+                {% if form.country.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.country.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Logo -->
+            <div class="mb-3">
+                <label for="logo" class="form-label">{% trans "Logo" %}</label>
+                <input type="file" class="form-control {% if form.logo.errors %}is-invalid{% endif %}" 
+                       id="logo" name="logo" accept="image/*">
+                {% if form.logo.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.logo.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if publisher.logo %}
+                <div class="mt-2">
+                    <img src="{{ publisher.logo.url }}" alt="{{ publisher.name }}" class="img-thumbnail" style="max-width: 200px;">
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Durum -->
+            <div class="mb-3">
+                <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" 
+                        id="status" name="status" required>
+                    <option value="">{% trans "Seçiniz" %}</option>
+                    <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                    <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                </select>
+                {% if form.status.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.status.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                {% if publisher %}
+                {% trans "Güncelle" %}
+                {% else %}
+                {% trans "Oluştur" %}
+                {% endif %}
+            </button>
+        </form>
+    </div>
+    
+    <!-- Sağ Bölüm -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Yayıncı Adı" %}</h6>
+                    <p class="mb-0">{% trans "Yayıncının tam adını giriniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Açıklama" %}</h6>
+                    <p class="mb-0">{% trans "Yayıncı hakkında kısa bir açıklama giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Ülke" %}</h6>
+                    <p class="mb-0">{% trans "Yayıncının merkez ofisinin bulunduğu ülkeyi giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Logo" %}</h6>
+                    <p class="mb-0">{% trans "Yayıncının logosunu yükleyiniz. Önerilen boyut: 200x200 piksel. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-2">{% trans "Durum" %}</h6>
+                    <p class="mb-0">{% trans "Yayıncının durumunu seçiniz. Aktif yayıncılar oyun ekleyebilir. Bu alan zorunludur." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

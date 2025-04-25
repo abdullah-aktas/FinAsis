@@ -1,14 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import CreateView, UpdateView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView, DetailView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, get_user_model
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.models import User
 
-from .models import User, UserProfile
-from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm, UserUpdateForm
+from ..models import UserProfile
+from ..forms import UserRegistrationForm, UserLoginForm, UserProfileForm, UserUpdateForm
+
+User = get_user_model()
 
 class UserRegistrationView(CreateView):
     """Kullanıcı kayıt görünümü"""
@@ -67,22 +71,45 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, _('Profiliniz başarıyla güncellendi!'))
         return response
 
-class UserUpdateView(LoginRequiredMixin, UpdateView):
+class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """Kullanıcı bilgileri güncelleme görünümü"""
     model = User
     form_class = UserUpdateForm
-    template_name = 'users/user_edit.html'
-    success_url = reverse_lazy('profile')
+    template_name = 'users/user_form.html'
+    success_url = reverse_lazy('users:list')
+    success_message = 'Kullanıcı başarıyla güncellendi.'
     
     def get_object(self):
         return self.request.user
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, _('Kullanıcı bilgileriniz başarıyla güncellendi!'))
         return response
 
 @login_required
 def dashboard_view(request):
     """Kullanıcı kontrol paneli görünümü"""
-    return render(request, 'users/dashboard.html') 
+    return render(request, 'users/dashboard.html')
+
+class UserListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'users/user_list.html'
+    context_object_name = 'users'
+    paginate_by = 10
+
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'users/user_detail.html'
+    context_object_name = 'user'
+
+class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = User
+    template_name = 'users/user_form.html'
+    success_url = reverse_lazy('users:list')
+    success_message = 'Kullanıcı başarıyla oluşturuldu.'
+
+class UserDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = User
+    template_name = 'users/user_confirm_delete.html'
+    success_url = reverse_lazy('users:list')
+    success_message = 'Kullanıcı başarıyla silindi.' 

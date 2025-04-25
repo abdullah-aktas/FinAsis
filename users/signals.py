@@ -1,19 +1,26 @@
+"""
+Users Modülü - Signals
+---------------------
+Bu dosya, Users modülünün signal fonksiyonlarını içerir.
+"""
+
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
-from .models import UserProfile, UserPreferences, UserActivity, UserNotification, UserSession
+from .models import UserProfile, UserPreferences, UserActivity, UserNotification, UserSession, UserSettings
 from .tasks import send_welcome_email, send_profile_update_notification
 
 User = get_user_model()
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    """Yeni kullanıcı oluşturulduğunda profil ve tercihleri oluştur"""
+    """Yeni kullanıcı oluşturulduğunda profil, tercih ve ayarlarını oluştur"""
     if created:
         UserProfile.objects.create(user=instance)
         UserPreferences.objects.create(user=instance)
+        UserSettings.objects.create(user=instance)
         # Hoş geldin e-postası gönder
         send_welcome_email.delay(instance.id)
         # Aktivite kaydı oluştur
@@ -99,5 +106,22 @@ def clear_user_cache(sender, instance, **kwargs):
     # İlişkili önbellekleri de temizle
     cache.delete(f'profile_{instance.id}')
     cache.delete(f'preferences_{instance.id}')
+    cache.delete(f'notifications_{instance.id}')
+    cache.delete(f'sessions_{instance.id}')
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    """Kullanıcı güncellendiğinde profil, tercih ve ayarlarını güncelle"""
+    instance.profile.save()
+    instance.preferences.save()
+    instance.settings.save()
+
+@receiver(post_delete, sender=User)
+def delete_user_cache(sender, instance, **kwargs):
+    """Kullanıcı silindiğinde cache'i temizle"""
+    cache.delete(f'profile_{instance.id}')
+    cache.delete(f'preferences_{instance.id}')
+    cache.delete(f'settings_{instance.id}')
+    cache.delete(f'activities_{instance.id}')
     cache.delete(f'notifications_{instance.id}')
     cache.delete(f'sessions_{instance.id}') 

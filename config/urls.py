@@ -1,3 +1,20 @@
+"""
+FinAsis - URL Yapılandırması
+----------------------------
+Bu dosya, FinAsis uygulamasının ana URL yapılandırmasını içerir.
+
+API Versiyonlama Stratejisi:
+- v1: Mevcut stabil API
+- v2: Geliştirme aşamasındaki yeni özellikler
+- v3: Gelecek planlanan özellikler
+
+URL Yapılandırma Kuralları:
+1. Tüm API endpoint'leri /api/v{version}/ altında olmalı
+2. Her modül kendi namespace'ine sahip olmalı
+3. URL pattern'leri açıklayıcı isimlendirilmeli
+4. CRUD işlemleri için standart URL yapısı kullanılmalı
+"""
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -31,26 +48,80 @@ from permissions.views import (
     RevokePermissionView,
 )
 
+# API Dokümantasyonu için Swagger yapılandırması
+schema_view = get_schema_view(
+    openapi.Info(
+        title="FinAsis API",
+        default_version='v1',
+        description="FinAsis API Dokümantasyonu",
+        terms_of_service="https://www.finasis.com/terms/",
+        contact=openapi.Contact(email="api@finasis.com"),
+        license=openapi.License(name="Proprietary License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
 # Language-independent URLs
 urlpatterns = [
-    path('i18n/', include('django.conf.urls.i18n')),  # Dil değiştirme için
-    path('health/', views.health_check, name='health_check'),  # Sağlık kontrolü endpoint
-    path('api/', include('api.urls')),  # API endpoints
+    # API Dokümantasyonu
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='api-docs'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='api-redoc'),
+    
+    # Dil ve Sağlık Kontrolü
+    path('i18n/', include('django.conf.urls.i18n'), name='language-switch'),
+    path('health/', TemplateView.as_view(template_name='health.html'), name='health-check'),
+    
+    # Ana Sayfalar
+    path('', TemplateView.as_view(template_name='core/home.html'), name='home'),
+    path('pricing/', TemplateView.as_view(template_name='core/pricing.html'), name='pricing'),
+]
+
+# Admin URLs
+urlpatterns += [
+    path('admin/', admin.site.urls, name='admin-panel'),
+]
+
+# API Versiyon 1 URLs
+api_v1_patterns = [
+    # Kimlik Doğrulama
+    path('auth/token/', TokenObtainPairView.as_view(), name='token-obtain'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('auth/token/verify/', TokenVerifyView.as_view(), name='token-verify'),
+    
+    # Kullanıcı Yönetimi
+    path('users/', include('users.urls', namespace='users')),
+    
+    # Finans Modülleri
+    path('finance/', include('finance.urls', namespace='finance')),
+    path('accounting/', include('accounting.urls', namespace='accounting')),
+    path('banking/', include('banking.urls', namespace='banking')),
+    
+    # İş Yönetimi
+    path('crm/', include('crm.urls', namespace='crm')),
+    path('hr/', include('hr_management.urls', namespace='hr')),
+    
+    # Analiz ve Raporlama
+    path('analytics/', include('analytics.urls', namespace='analytics')),
+]
+
+# API Versiyon 2 URLs (Geliştirme Aşamasında)
+api_v2_patterns = [
+    path('ai-assistant/', include('ai_assistant.urls', namespace='ai-assistant')),
+    path('blockchain/', include('blockchain.urls', namespace='blockchain')),
+]
+
+# API URL'lerini ana URL yapılandırmasına ekle
+urlpatterns += [
+    path('api/v1/', include(api_v1_patterns)),
+    path('api/v2/', include(api_v2_patterns)),
 ]
 
 # Language-dependent URLs
 urlpatterns += i18n_patterns(
     # Ana sayfalar
-    path('', views.home, name='home'),
-    path('admin/', admin.site.urls),
-    path('pricing/', views.pricing, name='pricing'),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
-    path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker.js'),
-    
-    # Kullanıcı ve kimlik doğrulama
-    path('users/', include('users.urls')),
-    path('accounts/', include('accounts.urls')),
-    path('permissions/', include('permissions.urls')),
+    path('service-worker.js', TemplateView.as_view(template_name='service-worker.js', content_type='application/javascript'), name='service-worker'),
     
     # Finans modülleri
     path('finance/', include('finance.urls')),
@@ -83,8 +154,17 @@ urlpatterns += i18n_patterns(
     # Oyunlar ve eğitimler
     path('games/', include('games.urls')),
     
-    prefix_default_language=True  # Varsayılan dil için de prefix ekle
+    prefix_default_language=True
 )
+
+# Debug modunda statik ve medya dosyaları
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Remove old URLs
+# path('accounts/', include('accounts.urls')),
+# path('permissions/', include('permissions.urls')),
 
 # API Router
 router = DefaultRouter()
@@ -99,11 +179,6 @@ router.register(r'ip-whitelist', IPWhitelistViewSet, basename='ip-whitelist')
 urlpatterns += [
     path('api/', include(router.urls)),
     
-    # JWT Token URL'leri
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    
     # İki faktörlü kimlik doğrulama URL'leri
     path('api/2fa/setup/', TwoFactorSetupView.as_view(), name='2fa_setup'),
     path('api/2fa/verify/', TwoFactorVerifyView.as_view(), name='2fa_verify'),
@@ -115,36 +190,12 @@ urlpatterns += [
     path('api/delegate-permission/', DelegatePermissionView.as_view(), name='delegate_permission'),
     path('api/revoke-permission/', RevokePermissionView.as_view(), name='revoke_permission'),
     
-    # Kullanıcı yönetimi URL'leri
-    path('api/users/', include('users.urls')),
-    
     # Django REST Framework auth URL'leri
     path('api-auth/', include('rest_framework.urls')),
     
     # Django Allauth URL'leri
     path('accounts/', include('allauth.urls')),
 ]
-
-# Debug araçları
-if settings.DEBUG:
-    urlpatterns += [
-        path('__debug__/', include('debug_toolbar.urls')),
-    ]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="FinAsis API",
-        default_version='v1',
-        description="FinAsis Kontrol ve Analiz Sistemi API Dokümantasyonu",
-        terms_of_service="https://www.finasis.com/terms/",
-        contact=openapi.Contact(email="info@finasis.com"),
-        license=openapi.License(name="MIT License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
 
 urlpatterns += [
     # API Dokümantasyonu

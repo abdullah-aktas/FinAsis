@@ -1,0 +1,194 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Kategoriler" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:category_create' %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-plus"></i> {% trans "Yeni Kategori" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "Kategoriler" %}</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Kod" %}</th>
+                        <th>{% trans "Ad" %}</th>
+                        <th>{% trans "Üst Kategori" %}</th>
+                        <th>{% trans "Ürün Sayısı" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>{{ category.code }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if category.icon %}
+                                <i class="{{ category.icon }} me-2"></i>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ category.name }}</div>
+                                    <small class="text-muted">{{ category.description|truncatechars:50 }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ category.parent.name|default:"-" }}</td>
+                        <td>{{ category.product_count }}</td>
+                        <td>
+                            <span class="badge {% if category.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if category.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'stock_management:category_detail' category.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'stock_management:category_edit' category.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal{{ category.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Modal -->
+                            <div class="modal fade" id="deleteCategoryModal{{ category.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "Kategoriyi Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu kategoriyi silmek istediğinizden emin misiniz?" %}</p>
+                                            {% if category.product_count > 0 %}
+                                            <div class="alert alert-warning">
+                                                {% trans "Bu kategoriye ait" %} {{ category.product_count }} {% trans "ürün bulunmaktadır. Kategori silindiğinde bu ürünler kategorisiz olarak işaretlenecektir." %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'stock_management:category_delete' category.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <div class="alert alert-info">
+                                {% trans "Henüz kategori kaydı bulunmuyor." %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Sayfalama" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="İlk sayfa">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Önceki sayfa">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Sonraki sayfa">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Son sayfa">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Filtrele" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="parent" class="form-label">{% trans "Üst Kategori" %}</label>
+                        <select name="parent" id="parent" class="form-select">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for category in parent_categories %}
+                            <option value="{{ category.id }}" {% if request.GET.parent == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Uygula" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

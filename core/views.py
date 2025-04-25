@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +15,12 @@ from django.utils import timezone
 import logging
 import psutil
 import os
+from .models import HealthCheck, Dashboard, Error
+from .serializers import (
+    HealthCheckSerializer,
+    DashboardSerializer,
+    ErrorSerializer
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +87,21 @@ def get_finance_data(request):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+
+class HealthCheckViewSet(viewsets.ModelViewSet):
+    """Sistem Sağlık Kontrolü ViewSet"""
+    queryset = HealthCheck.objects.all()
+    serializer_class = HealthCheckSerializer
+
+class DashboardView(generics.RetrieveAPIView):
+    """Kontrol Paneli View"""
+    queryset = Dashboard.objects.all()
+    serializer_class = DashboardSerializer
+
+class ErrorView(generics.RetrieveAPIView):
+    """Hata Sayfası View"""
+    queryset = Error.objects.all()
+    serializer_class = ErrorSerializer
 
 class HealthCheckViewSet(viewsets.ViewSet):
     """
@@ -228,4 +249,22 @@ class ErrorView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['error_code'] = self.kwargs.get('code', 500)
         context['error_message'] = self.kwargs.get('message', 'Bir hata oluştu')
-        return context 
+        return context
+
+def health_check(request):
+    """
+    Sağlık kontrolü endpoint'i.
+    """
+    return JsonResponse({'status': 'ok'})
+
+def home(request):
+    """
+    Ana sayfa görünümü.
+    """
+    return render(request, 'core/home.html')
+
+def pricing(request):
+    """
+    Fiyatlandırma sayfası görünümü.
+    """
+    return render(request, 'core/pricing.html') 

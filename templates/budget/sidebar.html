@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<div class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'budget_list' %}active{% endif %}" 
+               href="{% url 'budget:budget_list' %}">
+                {% trans "Bütçeler" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" 
+               href="{% url 'budget:category_list' %}">
+                {% trans "Kategoriler" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'expense_list' %}active{% endif %}" 
+               href="{% url 'budget:expense_list' %}">
+                {% trans "Giderler" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'income_list' %}active{% endif %}" 
+               href="{% url 'budget:income_list' %}">
+                {% trans "Gelirler" %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'report_list' %}active{% endif %}" 
+               href="{% url 'budget:report_list' %}">
+                {% trans "Raporlar" %}
+            </a>
+        </li>
+    </ul>
+</div> 

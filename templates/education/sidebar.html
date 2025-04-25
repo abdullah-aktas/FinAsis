@@ -1,0 +1,28 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "Eğitim" %}</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'education:dashboard' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-tachometer-alt me-2"></i> {% trans "Gösterge Paneli" %}
+        </a>
+        <a href="{% url 'education:courses' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-graduation-cap me-2"></i> {% trans "Kurslar" %}
+        </a>
+        <a href="{% url 'education:lessons' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-book me-2"></i> {% trans "Dersler" %}
+        </a>
+        <a href="{% url 'education:quizzes' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-question-circle me-2"></i> {% trans "Sınavlar" %}
+        </a>
+        <a href="{% url 'education:progress' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-chart-line me-2"></i> {% trans "İlerleme" %}
+        </a>
+        <a href="{% url 'education:certificates' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-certificate me-2"></i> {% trans "Sertifikalar" %}
+        </a>
+        <a href="{% url 'education:settings' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-cog me-2"></i> {% trans "Ayarlar" %}
+        </a>
+    </div>
+</div> 

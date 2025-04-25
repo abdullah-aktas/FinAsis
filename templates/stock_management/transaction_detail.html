@@ -1,0 +1,250 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ transaction.code }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:transaction_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'stock_management:transaction_edit' transaction.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İşlem Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "İşlem No" %}</dt>
+                            <dd class="col-sm-8">{{ transaction.code }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Tarih" %}</dt>
+                            <dd class="col-sm-8">{{ transaction.date|date:"d.m.Y H:i" }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "İşlem Tipi" %}</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge {% if transaction.type == 'in' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if transaction.type == 'in' %}{% trans "Giriş" %}{% else %}{% trans "Çıkış" %}{% endif %}
+                                </span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">{% trans "Durum" %}</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge {% if transaction.status == 'completed' %}bg-success{% elif transaction.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {% if transaction.status == 'completed' %}{% trans "Tamamlandı" %}{% elif transaction.status == 'pending' %}{% trans "Beklemede" %}{% else %}{% trans "İptal" %}{% endif %}
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "Ürün" %}</dt>
+                            <dd class="col-sm-8">
+                                <a href="{% url 'stock_management:product_detail' transaction.product.id %}">
+                                    {{ transaction.product.name }}
+                                </a>
+                            </dd>
+                            
+                            <dt class="col-sm-4">{% trans "Depo" %}</dt>
+                            <dd class="col-sm-8">
+                                <a href="{% url 'stock_management:warehouse_detail' transaction.warehouse.id %}">
+                                    {{ transaction.warehouse.name }}
+                                </a>
+                            </dd>
+                            
+                            <dt class="col-sm-4">{% trans "Miktar" %}</dt>
+                            <dd class="col-sm-8">{{ transaction.quantity }} {{ transaction.product.unit }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Birim Fiyat" %}</dt>
+                            <dd class="col-sm-8">{{ transaction.unit_price }} {{ transaction.currency }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>{% trans "Açıklama" %}</h6>
+                    <p>{{ transaction.description|linebreaks }}</p>
+                </div>
+                
+                {% if transaction.notes %}
+                <div class="mt-4">
+                    <h6>{% trans "Notlar" %}</h6>
+                    <p>{{ transaction.notes|linebreaks }}</p>
+                </div>
+                {% endif %}
+                
+                {% if transaction.attachments.all %}
+                <div class="mt-4">
+                    <h6>{% trans "Ekler" %}</h6>
+                    <div class="list-group">
+                        {% for attachment in transaction.attachments.all %}
+                        <a href="{{ attachment.file.url }}" class="list-group-item list-group-item-action" target="_blank">
+                            <i class="fas fa-paperclip"></i> {{ attachment.filename }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İşlem Geçmişi" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for history in transaction.history.all %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker {% if history.status == 'completed' %}bg-success{% elif history.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-date">{{ history.created_at|date:"d.m.Y H:i" }}</span>
+                                <span class="timeline-status badge {% if history.status == 'completed' %}bg-success{% elif history.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {% if history.status == 'completed' %}{% trans "Tamamlandı" %}{% elif history.status == 'pending' %}{% trans "Beklemede" %}{% else %}{% trans "İptal" %}{% endif %}
+                                </span>
+                            </div>
+                            <div class="timeline-body">
+                                <p>{{ history.description }}</p>
+                                {% if history.user %}
+                                <small class="text-muted">
+                                    {% trans "İşlemi yapan" %}: {{ history.user.get_full_name }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İşlem Özeti" %}</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">{% trans "Toplam Tutar" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.total_amount }} {{ transaction.currency }}</dd>
+                    
+                    <dt class="col-sm-6">{% trans "KDV Oranı" %}</dt>
+                    <dd class="col-sm-6">%{{ transaction.tax_rate }}</dd>
+                    
+                    <dt class="col-sm-6">{% trans "KDV Tutarı" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.tax_amount }} {{ transaction.currency }}</dd>
+                    
+                    <dt class="col-sm-6">{% trans "Net Tutar" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.net_amount }} {{ transaction.currency }}</dd>
+                </dl>
+                
+                <hr>
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">{% trans "Oluşturulma" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.created_at|date:"d.m.Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-6">{% trans "Güncellenme" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.updated_at|date:"d.m.Y H:i" }}</dd>
+                    
+                    {% if transaction.created_by %}
+                    <dt class="col-sm-6">{% trans "Oluşturan" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.created_by.get_full_name }}</dd>
+                    {% endif %}
+                    
+                    {% if transaction.updated_by %}
+                    <dt class="col-sm-6">{% trans "Güncelleyen" %}</dt>
+                    <dd class="col-sm-6">{{ transaction.updated_by.get_full_name }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "İşlemi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu işlemi silmek istediğinizden emin misiniz?" %}</p>
+                {% if transaction.status == 'completed' %}
+                <div class="alert alert-warning">
+                    {% trans "Bu işlem tamamlanmış durumda. Silme işlemi stok miktarını etkileyecektir." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'stock_management:transaction_delete' transaction.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #6c757d;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.timeline-date {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.timeline-body {
+    color: #212529;
+}
+</style>
+{% endblock %} 

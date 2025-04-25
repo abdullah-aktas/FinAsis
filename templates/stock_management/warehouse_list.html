@@ -1,0 +1,197 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Depolar" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'stock_management:warehouse_create' %}" class="btn btn-sm btn-outline-success">
+        <i class="fas fa-plus"></i> {% trans "Yeni Depo" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="card">
+    <div class="card-body">
+        {% if warehouses %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Kod" %}</th>
+                        <th>{% trans "Ad" %}</th>
+                        <th>{% trans "Adres" %}</th>
+                        <th>{% trans "Kapasite" %}</th>
+                        <th>{% trans "Doluluk" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for warehouse in warehouses %}
+                    <tr>
+                        <td>{{ warehouse.code }}</td>
+                        <td>
+                            <a href="{% url 'stock_management:warehouse_detail' warehouse.id %}">
+                                {{ warehouse.name }}
+                            </a>
+                        </td>
+                        <td>{{ warehouse.address|truncatechars:50 }}</td>
+                        <td>{{ warehouse.capacity }}</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if warehouse.occupancy_rate > 90 %}bg-danger{% elif warehouse.occupancy_rate > 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" style="width: {{ warehouse.occupancy_rate }}%">
+                                    {{ warehouse.occupancy_rate }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {% if warehouse.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if warehouse.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'stock_management:warehouse_detail' warehouse.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'stock_management:warehouse_edit' warehouse.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#deleteWarehouseModal{{ warehouse.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Modal -->
+                            <div class="modal fade" id="deleteWarehouseModal{{ warehouse.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "Depoyu Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu depoyu silmek istediğinizden emin misiniz?" %}</p>
+                                            {% if warehouse.product_count > 0 %}
+                                            <div class="alert alert-warning">
+                                                {% trans "Bu depoda" %} {{ warehouse.product_count }} {% trans "ürün bulunmaktadır. Depo silindiğinde bu ürünler başka bir depoya taşınmalıdır." %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'stock_management:warehouse_delete' warehouse.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            {% trans "Henüz depo kaydı bulunmuyor." %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Depo Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">{% trans "Kod" %}</label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ request.GET.code|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{% trans "Ad" %}</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ request.GET.name|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="occupancy" class="form-label">{% trans "Doluluk Oranı" %}</label>
+                        <select class="form-select" id="occupancy" name="occupancy">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="low" {% if request.GET.occupancy == 'low' %}selected{% endif %}>{% trans "Düşük (< 50%)" %}</option>
+                            <option value="medium" {% if request.GET.occupancy == 'medium' %}selected{% endif %}>{% trans "Orta (50-90%)" %}</option>
+                            <option value="high" {% if request.GET.occupancy == 'high' %}selected{% endif %}>{% trans "Yüksek (> 90%)" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

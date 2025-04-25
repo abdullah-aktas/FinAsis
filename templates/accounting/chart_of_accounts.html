@@ -1,0 +1,50 @@
+{% extends "accounting/base.html" %}
+{% load i18n %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Hesap Planı" %}</h3>
+        <div class="card-tools">
+            <a href="{% url 'accounting:chart_of_accounts_add' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans "Yeni Hesap" %}
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{% trans "Hesap Kodu" %}</th>
+                    <th>{% trans "Hesap Adı" %}</th>
+                    <th>{% trans "Hesap Tipi" %}</th>
+                    <th>{% trans "Borç" %}</th>
+                    <th>{% trans "Alacak" %}</th>
+                    <th>{% trans "Bakiye" %}</th>
+                    <th>{% trans "İşlemler" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.code }}</td>
+                    <td>{{ account.name }}</td>
+                    <td>{{ account.get_type_display }}</td>
+                    <td class="text-right">{{ account.debit|floatformat:2 }}</td>
+                    <td class="text-right">{{ account.credit|floatformat:2 }}</td>
+                    <td class="text-right">{{ account.balance|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'accounting:chart_of_accounts_edit' account.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'accounting:chart_of_accounts_delete' account.id %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

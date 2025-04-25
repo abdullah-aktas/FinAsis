@@ -1,15 +1,25 @@
+"""
+Celery Yapılandırması
+---------------------
+Bu dosya, Celery yapılandırmasını içerir.
+"""
+
 import os
 from celery import Celery
 from django.conf import settings
 from celery.schedules import crontab
 
+# Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('finasis')
+# Celery uygulamasını oluştur
+app = Celery('config')
 
+# Celery ayarlarını Django ayarlarından al
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-app.autodiscover_tasks()
+# Görevleri otomatik olarak yükle
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # Zamanlanmış görevler
 app.conf.beat_schedule = {
@@ -32,6 +42,6 @@ app.conf.beat_schedule = {
     },
 }
 
-@app.task(bind=True, ignore_result=True)
+@app.task(bind=True)
 def debug_task(self):
     print(f'Request: {self.request!r}') 

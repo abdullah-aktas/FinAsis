@@ -1,0 +1,242 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+    {% if transaction %}
+        {% trans "İşlem Düzenle" %}
+    {% else %}
+        {% trans "Yeni İşlem" %}
+    {% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:transaction_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="date" class="form-label">{% trans "Tarih" %} <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control {% if form.date.errors %}is-invalid{% endif %}" 
+                                   id="date" name="date" value="{{ form.date.value|date:'Y-m-d\TH:i' }}" required>
+                            {% if form.date.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.date.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="product" class="form-label">{% trans "Ürün" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.product.errors %}is-invalid{% endif %}" 
+                                    id="product" name="product" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}" {% if form.product.value == product.id %}selected{% endif %}>
+                                    {{ product.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.product.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.product.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="warehouse" class="form-label">{% trans "Depo" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.warehouse.errors %}is-invalid{% endif %}" 
+                                    id="warehouse" name="warehouse" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for warehouse in warehouses %}
+                                <option value="{{ warehouse.id }}" {% if form.warehouse.value == warehouse.id %}selected{% endif %}>
+                                    {{ warehouse.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.warehouse.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.warehouse.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="type" class="form-label">{% trans "İşlem Tipi" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.type.errors %}is-invalid{% endif %}" 
+                                    id="type" name="type" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                <option value="in" {% if form.type.value == 'in' %}selected{% endif %}>{% trans "Giriş" %}</option>
+                                <option value="out" {% if form.type.value == 'out' %}selected{% endif %}>{% trans "Çıkış" %}</option>
+                            </select>
+                            {% if form.type.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.type.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">{% trans "Miktar" %} <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control {% if form.quantity.errors %}is-invalid{% endif %}" 
+                                   id="quantity" name="quantity" value="{{ form.quantity.value|default:'' }}" min="0.01" step="0.01" required>
+                            {% if form.quantity.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.quantity.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="unit_price" class="form-label">{% trans "Birim Fiyat" %} <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control {% if form.unit_price.errors %}is-invalid{% endif %}" 
+                                       id="unit_price" name="unit_price" value="{{ form.unit_price.value|default:'' }}" min="0" step="0.01" required>
+                                <select class="form-select {% if form.currency.errors %}is-invalid{% endif %}" 
+                                        id="currency" name="currency" style="max-width: 100px;">
+                                    <option value="TRY" {% if form.currency.value == 'TRY' %}selected{% endif %}>TRY</option>
+                                    <option value="USD" {% if form.currency.value == 'USD' %}selected{% endif %}>USD</option>
+                                    <option value="EUR" {% if form.currency.value == 'EUR' %}selected{% endif %}>EUR</option>
+                                </select>
+                            </div>
+                            {% if form.unit_price.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.unit_price.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" 
+                                    id="status" name="status" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>{% trans "Tamamlandı" %}</option>
+                                <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>{% trans "Beklemede" %}</option>
+                                <option value="cancelled" {% if form.status.value == 'cancelled' %}selected{% endif %}>{% trans "İptal" %}</option>
+                            </select>
+                            {% if form.status.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.status.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="tax_rate" class="form-label">{% trans "KDV Oranı" %} <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control {% if form.tax_rate.errors %}is-invalid{% endif %}" 
+                                       id="tax_rate" name="tax_rate" value="{{ form.tax_rate.value|default:'18' }}" min="0" max="100" step="0.01" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            {% if form.tax_rate.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.tax_rate.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{% trans "Notlar" %}</label>
+                        <textarea class="form-control {% if form.notes.errors %}is-invalid{% endif %}" 
+                                  id="notes" name="notes" rows="3">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.notes.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="attachments" class="form-label">{% trans "Ekler" %}</label>
+                        <input type="file" class="form-control {% if form.attachments.errors %}is-invalid{% endif %}" 
+                               id="attachments" name="attachments" multiple>
+                        {% if form.attachments.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.attachments.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Birden fazla dosya seçebilirsiniz." %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>{% trans "İşlem Tipi" %}</h6>
+                    <p class="mb-0">
+                        {% trans "Giriş: Ürünün depoya girişini belirtir." %}<br>
+                        {% trans "Çıkış: Ürünün depodan çıkışını belirtir." %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "Durum" %}</h6>
+                    <p class="mb-0">
+                        {% trans "Tamamlandı: İşlem başarıyla tamamlandı." %}<br>
+                        {% trans "Beklemede: İşlem henüz tamamlanmadı." %}<br>
+                        {% trans "İptal: İşlem iptal edildi." %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "KDV" %}</h6>
+                    <p class="mb-0">
+                        {% trans "KDV oranı yüzde olarak belirtilir. Varsayılan değer %18'dir." %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>{% trans "Ekler" %}</h6>
+                    <p class="mb-0">
+                        {% trans "İşlem ile ilgili belgeleri ekleyebilirsiniz. Desteklenen formatlar: PDF, JPG, PNG." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

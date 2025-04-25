@@ -1,0 +1,187 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Pozisyonlar" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'hr:position_create' %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-plus"></i> {% trans "Yeni Pozisyon" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Kod" %}</th>
+                        <th>{% trans "Ad" %}</th>
+                        <th>{% trans "Departman" %}</th>
+                        <th>{% trans "Çalışan Sayısı" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for position in positions %}
+                    <tr>
+                        <td>{{ position.code }}</td>
+                        <td>
+                            <a href="{% url 'hr:position_detail' position.id %}">
+                                {{ position.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if position.department %}
+                            <a href="{% url 'hr:department_detail' position.department.id %}">
+                                {{ position.department.name }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">{% trans "Atanmadı" %}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ position.employee_count }}</td>
+                        <td>
+                            <span class="badge {% if position.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if position.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'hr:position_detail' position.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'hr:position_edit' position.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ position.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Onay Modal -->
+                            <div class="modal fade" id="deleteModal{{ position.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "Pozisyon Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu pozisyonu silmek istediğinizden emin misiniz?" %}</p>
+                                            {% if position.employee_count > 0 %}
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                {% trans "Bu pozisyonda" %} {{ position.employee_count }} {% trans "çalışan bulunmaktadır. Pozisyonu silmek, bu çalışanların pozisyon bilgilerini silecektir." %}
+                                            </div>
+                                            {% endif %}
+                                            <p class="mb-0"><strong>{% trans "Pozisyon:" %}</strong> {{ position.name }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'hr:position_delete' position.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">{% trans "Kayıtlı pozisyon bulunamadı." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Pozisyon Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">{% trans "Kod" %}</label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ request.GET.code }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{% trans "Ad" %}</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ request.GET.name }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="department" class="form-label">{% trans "Departman" %}</label>
+                        <select class="form-select" id="department" name="department">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for department in departments %}
+                            <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"i" %}selected{% endif %}>
+                                {{ department.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="is_active" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="is_active" name="is_active">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="1" {% if request.GET.is_active == '1' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="0" {% if request.GET.is_active == '0' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

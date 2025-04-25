@@ -1,0 +1,206 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "İzinler" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'hr:leave_create' %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-plus"></i> {% trans "Yeni İzin" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Çalışan" %}</th>
+                        <th>{% trans "İzin Türü" %}</th>
+                        <th>{% trans "Başlangıç" %}</th>
+                        <th>{% trans "Bitiş" %}</th>
+                        <th>{% trans "Süre" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>
+                            {% if leave.employee.photo %}
+                            <img src="{{ leave.employee.photo.url }}" alt="{{ leave.employee.full_name }}" class="rounded-circle me-2" width="32" height="32">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'hr:employee_detail' leave.employee.id %}">
+                                {{ leave.employee.full_name }}
+                            </a>
+                        </td>
+                        <td>{{ leave.get_leave_type_display }}</td>
+                        <td>{{ leave.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ leave.end_date|date:"d.m.Y" }}</td>
+                        <td>{{ leave.duration }} {% trans "gün" %}</td>
+                        <td>
+                            <span class="badge {% if leave.status == 'pending' %}bg-warning{% elif leave.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ leave.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'hr:leave_detail' leave.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'hr:leave_edit' leave.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ leave.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Onay Modal -->
+                            <div class="modal fade" id="deleteModal{{ leave.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "İzin Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu izni silmek istediğinizden emin misiniz?" %}</p>
+                                            <p class="mb-0"><strong>{% trans "Çalışan:" %}</strong> {{ leave.employee.full_name }}</p>
+                                            <p class="mb-0"><strong>{% trans "İzin Türü:" %}</strong> {{ leave.get_leave_type_display }}</p>
+                                            <p class="mb-0"><strong>{% trans "Tarih:" %}</strong> {{ leave.start_date|date:"d.m.Y" }} - {{ leave.end_date|date:"d.m.Y" }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'hr:leave_delete' leave.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <p class="text-muted mb-0">{% trans "Henüz izin kaydı bulunmamaktadır." %}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if leaves.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if leaves.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ leaves.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in leaves.paginator.page_range %}
+                <li class="page-item {% if leaves.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if leaves.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ leaves.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "İzinleri Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="employee" class="form-label">{% trans "Çalışan" %}</label>
+                        <select class="form-select" id="employee" name="employee">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}" {% if request.GET.employee == employee.id|stringformat:"i" %}selected{% endif %}>
+                                {{ employee.full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="leave_type" class="form-label">{% trans "İzin Türü" %}</label>
+                        <select class="form-select" id="leave_type" name="leave_type">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for value, label in leave_types %}
+                            <option value="{{ value }}" {% if request.GET.leave_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">{% trans "Başlangıç Tarihi" %}</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">{% trans "Bitiş Tarihi" %}</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

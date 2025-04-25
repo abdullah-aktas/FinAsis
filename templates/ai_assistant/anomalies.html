@@ -1,0 +1,80 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Anomali Tespiti" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm mr-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{% trans "Başlangıç" %}</span>
+                    </div>
+                    <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{% trans "Bitiş" %}</span>
+                    </div>
+                    <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> {% trans "Filtrele" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tespit Tarihi" %}</th>
+                        <th>{% trans "Veri Kaynağı" %}</th>
+                        <th>{% trans "Anomali Tipi" %}</th>
+                        <th>{% trans "Sapma Oranı" %}</th>
+                        <th>{% trans "Risk Seviyesi" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for anomaly in anomalies %}
+                    <tr>
+                        <td>{{ anomaly.detected_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ anomaly.data_source }}</td>
+                        <td>{{ anomaly.get_type_display }}</td>
+                        <td class="text-right">{{ anomaly.deviation_percentage|floatformat:2 }}%</td>
+                        <td>
+                            <span class="badge badge-{{ anomaly.get_risk_level_color }}">
+                                {{ anomaly.get_risk_level_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ anomaly.get_status_color }}">
+                                {{ anomaly.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'ai_assistant:anomaly_detail' anomaly.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:anomaly_update' anomaly.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">{% trans "Tespit edilen anomali bulunmuyor." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

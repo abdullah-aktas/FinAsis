@@ -3,9 +3,9 @@ from django.apps import AppConfig
 
 class EdocumentConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "edocument"
-    verbose_name = "E-Doküman Yönetimi"
+    name = "apps.edocument"
+    verbose_name = "E-Document"
 
     def ready(self):
         """Uygulama hazır olduğunda sinyalleri yükle"""
-        import edocument.signals
+        import apps.edocument.signals

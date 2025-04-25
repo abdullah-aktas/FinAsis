@@ -1,0 +1,223 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Dashboard" %}{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">{% trans "Toplam Çalışan" %}</h6>
+                        <h3 class="mb-0">{{ total_employees }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-users text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">{% trans "Aktif İzinler" %}</h6>
+                        <h3 class="mb-0">{{ active_leaves }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-calendar-alt text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">{% trans "Açık Pozisyonlar" %}</h6>
+                        <h3 class="mb-0">{{ open_positions }}</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-briefcase text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">{% trans "Yaklaşan Eğitimler" %}</h6>
+                        <h3 class="mb-0">{{ upcoming_trainings }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-graduation-cap text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Departman Dağılımı" %}</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="departmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "İzin Durumu" %}</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="leaveChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Son İzinler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Çalışan" %}</th>
+                                <th>{% trans "İzin Türü" %}</th>
+                                <th>{% trans "Başlangıç" %}</th>
+                                <th>{% trans "Bitiş" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in recent_leaves %}
+                            <tr>
+                                <td>{{ leave.employee }}</td>
+                                <td>{{ leave.leave_type }}</td>
+                                <td>{{ leave.start_date|date:"d.m.Y" }}</td>
+                                <td>{{ leave.end_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="badge {% if leave.status == 'approved' %}bg-success{% elif leave.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ leave.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yaklaşan Doğum Günleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Çalışan" %}</th>
+                                <th>{% trans "Departman" %}</th>
+                                <th>{% trans "Doğum Günü" %}</th>
+                                <th>{% trans "Kalan Gün" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in upcoming_birthdays %}
+                            <tr>
+                                <td>{{ employee.full_name }}</td>
+                                <td>{{ employee.department }}</td>
+                                <td>{{ employee.birth_date|date:"d.m.Y" }}</td>
+                                <td>{{ employee.days_until_birthday }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Departman Dağılımı Grafiği
+    const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+    new Chart(departmentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ department_labels|safe }},
+            datasets: [{
+                data: {{ department_data|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // İzin Durumu Grafiği
+    const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+    new Chart(leaveCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ leave_labels|safe }},
+            datasets: [{
+                label: '{% trans "İzin Sayısı" %}',
+                data: {{ leave_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.8)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

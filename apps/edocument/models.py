@@ -4,6 +4,9 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 import uuid
+from django.contrib.auth.models import User
+from django.utils import timezone
+from decimal import Decimal
 
 class EDocumentBase(models.Model):
     """E-dokümanlar için temel model"""
@@ -230,3 +233,91 @@ class EDespatchAdviceLog(models.Model):
             models.Index(fields=['level']),
             models.Index(fields=['created_at']),
         ]
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, verbose_name='Kategori Adı')
+    description = models.TextField(blank=True, verbose_name='Açıklama')
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='Üst Kategori')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Kategori'
+        verbose_name_plural = 'Kategoriler'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+class Document(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Taslak'),
+        ('active', 'Aktif'),
+        ('archived', 'Arşivlenmiş'),
+    )
+
+    title = models.CharField(max_length=200, verbose_name='Başlık')
+    description = models.TextField(blank=True, verbose_name='Açıklama')
+    file = models.FileField(upload_to='documents/%Y/%m/%d/', verbose_name='Dosya')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, verbose_name='Kategori')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', verbose_name='Durum')
+    is_archived = models.BooleanField(default=False, verbose_name='Arşivlendi mi?')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Kullanıcı')
+    shared_with = models.ManyToManyField(User, related_name='shared_documents', blank=True, verbose_name='Paylaşılan Kullanıcılar')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    current_version = models.PositiveIntegerField(default=1)
+    versions = models.ManyToManyField('DocumentVersion', related_name='document_versions')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_tax = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_discount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
+    class Meta:
+        verbose_name = 'Doküman'
+        verbose_name_plural = 'Dokümanlar'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def can_view(self, user):
+        return self.user == user or user in self.shared_with.all()
+
+class DocumentVersion(models.Model):
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='versions')
+    file = models.FileField(upload_to='document_versions/%Y/%m/%d/')
+    version_number = models.PositiveIntegerField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = 'Doküman Versiyonu'
+        verbose_name_plural = 'Doküman Versiyonları'
+        ordering = ['-version_number']
+
+    def __str__(self):
+        return f"{self.document.title} - Versiyon {self.version_number}"
+
+class DocumentLog(models.Model):
+    ACTION_CHOICES = (
+        ('create', 'Oluşturuldu'),
+        ('update', 'Güncellendi'),
+        ('delete', 'Silindi'),
+        ('share', 'Paylaşıldı'),
+        ('archive', 'Arşivlendi'),
+    )
+
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = 'Doküman Logu'
+        verbose_name_plural = 'Doküman Logları'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.document.title} - {self.get_action_display()}"

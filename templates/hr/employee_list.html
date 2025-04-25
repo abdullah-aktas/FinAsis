@@ -1,0 +1,191 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Çalışanlar" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'hr:employee_create' %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-plus"></i> {% trans "Yeni Çalışan" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Fotoğraf" %}</th>
+                        <th>{% trans "Ad Soyad" %}</th>
+                        <th>{% trans "Departman" %}</th>
+                        <th>{% trans "Pozisyon" %}</th>
+                        <th>{% trans "İşe Başlama" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>
+                            {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="{{ employee.full_name }}" class="rounded-circle" width="40" height="40">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'hr:employee_detail' employee.id %}">
+                                {{ employee.full_name }}
+                            </a>
+                        </td>
+                        <td>{{ employee.department }}</td>
+                        <td>{{ employee.position }}</td>
+                        <td>{{ employee.hire_date|date:"d.m.Y" }}</td>
+                        <td>
+                            <span class="badge {% if employee.status == 'active' %}bg-success{% elif employee.status == 'on_leave' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ employee.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'hr:employee_detail' employee.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'hr:employee_edit' employee.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Onay Modal -->
+                            <div class="modal fade" id="deleteModal{{ employee.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "Çalışan Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu çalışanı silmek istediğinizden emin misiniz?" %}</p>
+                                            <p class="mb-0"><strong>{% trans "Çalışan:" %}</strong> {{ employee.full_name }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'hr:employee_delete' employee.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">{% trans "Kayıtlı çalışan bulunamadı." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Çalışan Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="department" class="form-label">{% trans "Departman" %}</label>
+                        <select class="form-select" id="department" name="department">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for department in departments %}
+                            <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"i" %}selected{% endif %}>
+                                {{ department.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="position" class="form-label">{% trans "Pozisyon" %}</label>
+                        <select class="form-select" id="position" name="position">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for position in positions %}
+                            <option value="{{ position.id }}" {% if request.GET.position == position.id|stringformat:"i" %}selected{% endif %}>
+                                {{ position.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="on_leave" {% if request.GET.status == 'on_leave' %}selected{% endif %}>{% trans "İzinde" %}</option>
+                            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="search" class="form-label">{% trans "Arama" %}</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

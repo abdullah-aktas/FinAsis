@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">CRM Menüsü</h5>
+    </div>
+    <div class="card-body">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:customers' %}">
+                    <i class="fas fa-users"></i> Müşteriler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:leads' %}">
+                    <i class="fas fa-user-plus"></i> Potansiyel Müşteriler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:opportunities' %}">
+                    <i class="fas fa-briefcase"></i> Fırsatlar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:activities' %}">
+                    <i class="fas fa-calendar-alt"></i> Aktiviteler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'crm:reports' %}">
+                    <i class="fas fa-chart-bar"></i> Raporlar
+                </a>
+            </li>
+        </ul>
+    </div>
+</div> 

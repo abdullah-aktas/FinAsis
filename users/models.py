@@ -5,6 +5,7 @@ from django.core.validators import RegexValidator
 from django.core.cache import cache
 from django.utils import timezone
 from django.conf import settings
+from django.urls import reverse
 
 class User(AbstractUser):
     """Özelleştirilmiş kullanıcı modeli."""
@@ -16,6 +17,10 @@ class User(AbstractUser):
         message=_('Telefon numarası geçerli bir formatta olmalıdır.')
     )
     phone = models.CharField(_('Telefon'), validators=[phone_regex], max_length=17, blank=True)
+    phone_number = models.CharField(_('Telefon Numarası'), max_length=20, blank=True)
+    is_verified = models.BooleanField(_('E-posta Doğrulandı'), default=False)
+    verification_token = models.CharField(_('Doğrulama Tokenı'), max_length=100, blank=True)
+    reset_token = models.CharField(_('Şifre Sıfırlama Tokenı'), max_length=100, blank=True)
     
     # Profil ilişkisi
     profile = models.OneToOneField('UserProfile', on_delete=models.CASCADE, related_name='user_profile', null=True, blank=True)
@@ -58,36 +63,56 @@ class User(AbstractUser):
         return reverse('users:profile', kwargs={'username': self.username})
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    phone = models.CharField(_('telefon numarası'), max_length=20, blank=True)
-    address = models.TextField(_('adres'), blank=True)
-    city = models.CharField(_('şehir'), max_length=100, blank=True)
-    country = models.CharField(_('ülke'), max_length=100, blank=True)
-    postal_code = models.CharField(_('posta kodu'), max_length=20, blank=True)
-    birth_date = models.DateField(_('doğum tarihi'), null=True, blank=True)
-    GENDER_CHOICES = [
-        ('M', _('Erkek')),
-        ('F', _('Kadın')),
-        ('O', _('Diğer')),
-    ]
-    gender = models.CharField(_('cinsiyet'), max_length=1, choices=GENDER_CHOICES, blank=True)
-    avatar = models.ImageField(_('profil resmi'), upload_to='avatars/', null=True, blank=True)
-    bio = models.TextField(_('biyografi'), blank=True)
-    website = models.URLField(_('web sitesi'), blank=True)
-    created_at = models.DateTimeField(_('oluşturulma tarihi'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('güncellenme tarihi'), auto_now=True)
-    two_factor_enabled = models.BooleanField(default=False)
-    two_factor_secret = models.CharField(max_length=100, blank=True)
-    last_device_id = models.CharField(max_length=100, blank=True)
-    last_login = models.DateTimeField(null=True, blank=True)
-    fcm_token = models.CharField(max_length=200, blank=True)
+    """
+    Kullanıcı profil modeli.
+    """
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name=_('Kullanıcı')
+    )
+    avatar = models.ImageField(
+        _('Profil Fotoğrafı'),
+        upload_to='avatars/',
+        blank=True,
+        null=True
+    )
+    bio = models.TextField(
+        _('Hakkında'),
+        max_length=500,
+        blank=True
+    )
+    birth_date = models.DateField(
+        _('Doğum Tarihi'),
+        blank=True,
+        null=True
+    )
+    phone_number = models.CharField(
+        _('Telefon Numarası'),
+        max_length=20,
+        blank=True
+    )
+    address = models.TextField(
+        _('Adres'),
+        max_length=500,
+        blank=True
+    )
+    created_at = models.DateTimeField(
+        _('Oluşturulma Tarihi'),
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        _('Güncellenme Tarihi'),
+        auto_now=True
+    )
 
     class Meta:
-        verbose_name = _('kullanıcı profili')
-        verbose_name_plural = _('kullanıcı profilleri')
+        verbose_name = _('Kullanıcı Profili')
+        verbose_name_plural = _('Kullanıcı Profilleri')
 
     def __str__(self):
-        return f"{self.user.get_full_name()}'s Profile"
+        return f"{self.user.get_full_name() or self.user.username} Profili"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -205,4 +230,42 @@ class UserSettings(models.Model):
         verbose_name_plural = _('Kullanıcı Ayarları')
     
     def __str__(self):
-        return f"{self.user.username} Ayarları" 
+        return f"{self.user.username} Ayarları"
+
+class TwoFactorAuth(models.Model):
+    """İki Faktörlü Doğrulama"""
+    METHOD_CHOICES = [
+        ('sms', _('SMS')),
+        ('email', _('E-posta')),
+        ('authenticator', _('Doğrulayıcı Uygulama'))
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='two_factor')
+    method = models.CharField(_('Yöntem'), max_length=20, choices=METHOD_CHOICES)
+    phone_number = models.CharField(_('Telefon Numarası'), max_length=15, blank=True)
+    email = models.EmailField(_('E-posta'), blank=True)
+    is_enabled = models.BooleanField(_('Aktif'), default=False)
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('İki Faktörlü Doğrulama')
+        verbose_name_plural = _('İki Faktörlü Doğrulamalar')
+
+class UserPermission(models.Model):
+    """Kullanıcı izinleri modeli."""
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='permissions')
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+    granted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='granted_permissions')
+    granted_at = models.DateTimeField(_('Verilme Tarihi'), auto_now_add=True)
+    expires_at = models.DateTimeField(_('Bitiş Tarihi'), null=True, blank=True)
+    is_active = models.BooleanField(_('Aktif'), default=True)
+    
+    class Meta:
+        verbose_name = _('Kullanıcı İzni')
+        verbose_name_plural = _('Kullanıcı İzinleri')
+        unique_together = ('user', 'permission')
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.permission.name}" 

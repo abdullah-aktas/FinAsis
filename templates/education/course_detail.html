@@ -1,0 +1,124 @@
+{% extends "education/base.html" %}
+{% load i18n %}
+
+{% block education_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{% trans "Kurs Detayı" %}</h5>
+        <div>
+            <a href="{% url 'education:course_edit' course.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+            </a>
+            <a href="{% url 'education:course_delete' course.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {% trans "Sil" %}
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                {% if course.image %}
+                <img src="{{ course.image.url }}" class="img-fluid rounded mb-3" alt="{{ course.title }}">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">{% trans "Başlık" %}</dt>
+                    <dd class="col-sm-9">{{ course.title }}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Kategori" %}</dt>
+                    <dd class="col-sm-9">{{ course.category.name }}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Süre" %}</dt>
+                    <dd class="col-sm-9">{{ course.duration }} {% trans "Saat" %}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Seviye" %}</dt>
+                    <dd class="col-sm-9">{{ course.get_level_display }}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Durum" %}</dt>
+                    <dd class="col-sm-9">
+                        {% if course.is_active %}
+                        <span class="badge bg-success">{% trans "Aktif" %}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-3">{% trans "Ders Sayısı" %}</dt>
+                    <dd class="col-sm-9">{{ course.lessons.count }}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Oluşturulma" %}</dt>
+                    <dd class="col-sm-9">{{ course.created_at|date:"d.m.Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-3">{% trans "Güncellenme" %}</dt>
+                    <dd class="col-sm-9">{{ course.updated_at|date:"d.m.Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+        
+        {% if course.description %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <h6>{% trans "Açıklama" %}</h6>
+                <p>{{ course.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <h6>{% trans "Dersler" %}</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Sıra" %}</th>
+                                <th>{% trans "Başlık" %}</th>
+                                <th>{% trans "Süre" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                                <th>{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in course.lessons.all %}
+                            <tr>
+                                <td>{{ lesson.order }}</td>
+                                <td>{{ lesson.title }}</td>
+                                <td>{{ lesson.duration }} {% trans "Dakika" %}</td>
+                                <td>
+                                    {% if lesson.is_active %}
+                                    <span class="badge bg-success">{% trans "Aktif" %}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'education:lesson_detail' lesson.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'education:lesson_edit' lesson.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'education:lesson_delete' lesson.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">{% trans "Henüz ders eklenmemiş." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'education:courses' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+        </a>
+    </div>
+</div>
+{% endblock %} 
