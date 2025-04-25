@@ -10,7 +10,8 @@ from .models import (
 from .serializers import (
     RoleSerializer, ResourceSerializer, PermissionSerializer,
     PermissionDelegationSerializer, AuditLogSerializer,
-    TwoFactorAuthSerializer, IPWhitelistSerializer
+    TwoFactorAuthSerializer, IPWhitelistSerializer, UserRoleSerializer,
+    ResourcePermissionSerializer
 )
 from .permissions import IsAdminOrHasPermission
 import pyotp
@@ -21,7 +22,7 @@ from django.conf import settings
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    permission_classes = [IsAdminOrHasPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -37,38 +38,51 @@ class RoleViewSet(viewsets.ModelViewSet):
 class ResourceViewSet(viewsets.ModelViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
-    permission_classes = [IsAdminOrHasPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = [IsAdminOrHasPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
-class PermissionDelegationViewSet(viewsets.ModelViewSet):
-    queryset = PermissionDelegation.objects.all()
-    serializer_class = PermissionDelegationSerializer
-    permission_classes = [IsAdminOrHasPermission]
+class UserRoleViewSet(viewsets.ModelViewSet):
+    queryset = UserRole.objects.all()
+    serializer_class = UserRoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        cache.delete_pattern('delegation:*')
-        AuditLog.objects.create(
-            user=self.request.user,
-            action='CREATE',
-            model='PermissionDelegation',
-            object_id=instance.id,
-            details=f'Delegated permission from {instance.delegator} to {instance.delegatee}'
-        )
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AuditLog.objects.all()
     serializer_class = AuditLogSerializer
-    permission_classes = [IsAdminOrHasPermission]
+    permission_classes = [permissions.IsAuthenticated]
+
+class ResourcePermissionViewSet(viewsets.ModelViewSet):
+    queryset = ResourcePermission.objects.all()
+    serializer_class = ResourcePermissionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class PermissionDelegationViewSet(viewsets.ModelViewSet):
+    queryset = PermissionDelegation.objects.all()
+    serializer_class = PermissionDelegationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(delegator=self.request.user)
+
+class TwoFactorAuthViewSet(viewsets.ModelViewSet):
+    queryset = TwoFactorAuth.objects.all()
+    serializer_class = TwoFactorAuthSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class IPWhitelistViewSet(viewsets.ModelViewSet):
     queryset = IPWhitelist.objects.all()
     serializer_class = IPWhitelistSerializer
-    permission_classes = [IsAdminOrHasPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         instance = serializer.save()

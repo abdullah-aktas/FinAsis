@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eğitim Raporu{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sol Menü -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h5 class="mb-3">Rapor Seçenekleri</h5>
+                
+                <!-- Rapor Türü -->
+                <div class="mb-4">
+                    <h6>Rapor Türü</h6>
+                    <div class="list-group">
+                        <a href="?report=summary" 
+                           class="list-group-item list-group-item-action {% if selected_report == 'summary' %}active{% endif %}">
+                            <i class="fas fa-chart-pie me-2"></i> Özet Rapor
+                        </a>
+                        <a href="?report=detailed" 
+                           class="list-group-item list-group-item-action {% if selected_report == 'detailed' %}active{% endif %}">
+                            <i class="fas fa-list-alt me-2"></i> Detaylı Rapor
+                        </a>
+                        <a href="?report=comparison" 
+                           class="list-group-item list-group-item-action {% if selected_report == 'comparison' %}active{% endif %}">
+                            <i class="fas fa-balance-scale me-2"></i> Karşılaştırma
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Zaman Aralığı -->
+                <div class="mb-4">
+                    <h6>Zaman Aralığı</h6>
+                    <div class="list-group">
+                        <a href="?period=custom" 
+                           class="list-group-item list-group-item-action {% if selected_period == 'custom' %}active{% endif %}">
+                            <i class="fas fa-calendar me-2"></i> Özel Aralık
+                        </a>
+                        <a href="?period=quarter" 
+                           class="list-group-item list-group-item-action {% if selected_period == 'quarter' %}active{% endif %}">
+                            <i class="fas fa-calendar-alt me-2"></i> Bu Çeyrek
+                        </a>
+                        <a href="?period=year" 
+                           class="list-group-item list-group-item-action {% if selected_period == 'year' %}active{% endif %}">
+                            <i class="fas fa-calendar-year me-2"></i> Bu Yıl
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Eğitim Kategorisi -->
+                <div class="mb-4">
+                    <h6>Kategoriler</h6>
+                    <div class="list-group">
+                        {% for category in categories %}
+                        <a href="?category={{ category.id }}" 
+                           class="list-group-item list-group-item-action {% if selected_category == category.id %}active{% endif %}">
+                            <i class="fas fa-{{ category.icon }} me-2"></i>
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Rapor İşlemleri -->
+                <div class="mb-4">
+                    <h6>İşlemler</h6>
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action" onclick="exportReport('pdf')">
+                            <i class="fas fa-file-pdf me-2"></i> PDF Olarak İndir
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="exportReport('excel')">
+                            <i class="fas fa-file-excel me-2"></i> Excel Olarak İndir
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="printReport()">
+                            <i class="fas fa-print me-2"></i> Yazdır
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Rapor Başlığı -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="card-title mb-0">Eğitim Raporu</h2>
+                                    <p class="text-muted mb-0">{{ report_period }}</p>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-primary" onclick="refreshReport()">
+                                        <i class="fas fa-sync-alt me-2"></i> Yenile
+                                    </button>
+                                    <button class="btn btn-primary" onclick="shareReport()">
+                                        <i class="fas fa-share-alt me-2"></i> Paylaş
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Özet Kartları -->
+            <div class="row mt-4">
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Toplam Katılımcı</h6>
+                                    <h2 class="mt-2 mb-0">{{ total_participants }}</h2>
+                                </div>
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Başarı Oranı</h6>
+                                    <h2 class="mt-2 mb-0">{{ success_rate }}%</h2>
+                                </div>
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Ortalama Süre</h6>
+                                    <h2 class="mt-2 mb-0">{{ average_duration }}</h2>
+                                </div>
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Memnuniyet</h6>
+                                    <h2 class="mt-2 mb-0">{{ satisfaction_rate }}%</h2>
+                                </div>
+                                <i class="fas fa-smile fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafikler -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Katılım Trendi</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="participationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Başarı Dağılımı</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="successChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detaylı Rapor -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Eğitim Detayları</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Eğitim</th>
+                                            <th>Katılımcı</th>
+                                            <th>Başlangıç</th>
+                                            <th>Tamamlanma</th>
+                                            <th>Puan</th>
+                                            <th>Süre</th>
+                                            <th>Memnuniyet</th>
+                                            <th>Durum</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for training in training_details %}
+                                        <tr>
+                                            <td>{{ training.title }}</td>
+                                            <td>{{ training.participant }}</td>
+                                            <td>{{ training.start_date|date:"d.m.Y" }}</td>
+                                            <td>{{ training.completion_date|date:"d.m.Y" }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         role="progressbar" 
+                                                         style="width: {{ training.score }}%">
+                                                        {{ training.score }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ training.duration }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-info" 
+                                                         role="progressbar" 
+                                                         style="width: {{ training.satisfaction }}%">
+                                                        {{ training.satisfaction }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if training.status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                                    {{ training.status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yorumlar ve Öneriler -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Katılımcı Geri Bildirimleri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for feedback in feedbacks %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="flex-shrink-0">
+                                                    <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0">{{ feedback.participant }}</h6>
+                                                    <small class="text-muted">{{ feedback.date|date:"d.m.Y" }}</small>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <div class="rating">
+                                                        {% for i in "12345"|make_list %}
+                                                        <i class="fas fa-star {% if forloop.counter <= feedback.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="card-text">{{ feedback.comment }}</p>
+                                            {% if feedback.suggestion %}
+                                            <div class="mt-2">
+                                                <small class="text-muted">Öneri:</small>
+                                                <p class="mb-0">{{ feedback.suggestion }}</p>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .list-group-item {
+    border: none;
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .list-group-item.active {
+    background-color: rgba(36, 112, 220, 0.1);
+    color: #2470dc;
+    border-left: 4px solid #2470dc;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.table th {
+    border-top: none;
+    color: #6c757d;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: normal;
+}
+
+.rating {
+    color: #ffc107;
+}
+
+.rating .text-muted {
+    color: #e9ecef !important;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Katılım Trendi Grafiği
+const participationCtx = document.getElementById('participationChart').getContext('2d');
+new Chart(participationCtx, {
+    type: 'line',
+    data: {
+        labels: {{ participation_labels|safe }},
+        datasets: [{
+            label: 'Katılımcı Sayısı',
+            data: {{ participation_data|safe }},
+            borderColor: '#2470dc',
+            backgroundColor: 'rgba(36, 112, 220, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Başarı Dağılımı Grafiği
+const successCtx = document.getElementById('successChart').getContext('2d');
+new Chart(successCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ success_labels|safe }},
+        datasets: [{
+            label: 'Başarı Oranı',
+            data: {{ success_data|safe }},
+            backgroundColor: '#28a745'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+function exportReport(format) {
+    // Raporu dışa aktarma işlemi
+    alert(`${format.toUpperCase()} formatında rapor indiriliyor...`);
+}
+
+function printReport() {
+    window.print();
+}
+
+function refreshReport() {
+    location.reload();
+}
+
+function shareReport() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Eğitim Raporu',
+            text: 'Eğitim raporunu paylaşıyorum',
+            url: window.location.href
+        })
+        .catch(error => console.log('Paylaşım hatası:', error));
+    } else {
+        alert('Tarayıcınız paylaşım özelliğini desteklemiyor.');
+    }
+}
+</script>
+{% endblock %} 

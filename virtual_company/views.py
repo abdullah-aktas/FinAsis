@@ -5,9 +5,11 @@ from .models import (
     Company, Employee, Project, Budget, Report,
     Product, StockMovement, ProductionOrder, BillOfMaterials,
     QualityControl, ModuleSetting, UserDailyTask,
-    KnowledgeBaseRelatedItem
+    KnowledgeBaseRelatedItem, PerformanceReview
 )
 from .forms import CompanyForm, EmployeeForm, ProjectForm
+from rest_framework import viewsets, permissions
+from .serializers import PerformanceReviewSerializer
 
 # Company Views
 class CompanyListView(LoginRequiredMixin, ListView):
@@ -358,4 +360,12 @@ class KnowledgeBaseRelatedItemUpdateView(LoginRequiredMixin, UpdateView):
 class KnowledgeBaseRelatedItemDeleteView(LoginRequiredMixin, DeleteView):
     model = KnowledgeBaseRelatedItem
     template_name = 'virtual_company/knowledgebaserelateditem_confirm_delete.html'
-    success_url = reverse_lazy('virtual_company:knowledgebaserelateditem_list') 
+    success_url = reverse_lazy('virtual_company:knowledgebaserelateditem_list')
+
+class PerformanceReviewViewSet(viewsets.ModelViewSet):
+    queryset = PerformanceReview.objects.all()
+    serializer_class = PerformanceReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user) 

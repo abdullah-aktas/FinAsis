@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import EDespatchAdviceLog
-from rest_framework import viewsets, status, filters
+from .models import EDespatchAdviceLog, EDocumentBase
+from rest_framework import viewsets, status, filters, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +15,8 @@ from .models import (
 )
 from .serializers import (
     EDocumentSerializer, EDocumentLogSerializer, EDocumentItemSerializer,
-    EDespatchAdviceSerializer, EDespatchAdviceLogSerializer, EDespatchAdviceItemSerializer
+    EDespatchAdviceSerializer, EDespatchAdviceLogSerializer, EDespatchAdviceItemSerializer,
+    EDocumentBaseSerializer
 )
 from .services import GIBInvoiceService, GIBDespatchService
 from .permissions import (
@@ -354,4 +355,12 @@ class EDespatchAdviceLogViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(
                 despatch__sender=self.request.user
             )
-        return queryset 
+        return queryset
+
+class EDocumentBaseViewSet(viewsets.ModelViewSet):
+    queryset = EDocumentBase.objects.all()
+    serializer_class = EDocumentBaseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user) 

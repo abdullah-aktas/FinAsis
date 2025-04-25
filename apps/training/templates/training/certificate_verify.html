@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sertifika Doğrulama{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Doğrulama Formu -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title mb-0">Sertifika Doğrulama</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="verifyForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label">Sertifika Numarası</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="certificate_number" 
+                                       placeholder="Sertifika numarasını girin" required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search me-2"></i> Doğrula
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Doğrulama Sonucu -->
+            {% if certificate %}
+            <div class="card {% if certificate.is_valid %}border-success{% else %}border-danger{% endif %}">
+                <div class="card-header {% if certificate.is_valid %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                    <h3 class="card-title mb-0">
+                        {% if certificate.is_valid %}
+                        <i class="fas fa-check-circle me-2"></i> Sertifika Geçerli
+                        {% else %}
+                        <i class="fas fa-times-circle me-2"></i> Sertifika Geçersiz
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Sertifika Bilgileri</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-certificate me-2"></i>
+                                    <strong>Sertifika No:</strong> {{ certificate.certificate_number }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-user me-2"></i>
+                                    <strong>Ad Soyad:</strong> {{ certificate.user.get_full_name }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-graduation-cap me-2"></i>
+                                    <strong>Eğitim:</strong> {{ certificate.module.title }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    <strong>Veriliş Tarihi:</strong> {{ certificate.issue_date|date:"d.m.Y" }}
+                                </li>
+                                {% if certificate.expiry_date %}
+                                <li class="mb-2">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Geçerlilik:</strong> {{ certificate.expiry_date|date:"d.m.Y" }}
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Doğrulama Detayları</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle me-2 text-success"></i>
+                                    <strong>Durum:</strong> 
+                                    {% if certificate.is_valid %}
+                                    Geçerli
+                                    {% else %}
+                                    Geçersiz
+                                    {% endif %}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    <strong>Doğrulama Tarihi:</strong> {{ verification_date|date:"d.m.Y H:i" }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-fingerprint me-2"></i>
+                                    <strong>Doğrulama Kodu:</strong> 
+                                    <span class="text-muted">{{ verification_code }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'training:certificate_download' certificate.id %}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i> Sertifikayı İndir
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="shareVerification()">
+                                <i class="fas fa-share-alt me-2"></i> Doğrulama Sonucunu Paylaş
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Bilgi Kartı -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Doğrulama Hakkında</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle me-2"></i> Nasıl Doğrulanır?</h6>
+                            <ol class="ps-3">
+                                <li>Sertifika numarasını girin</li>
+                                <li>"Doğrula" butonuna tıklayın</li>
+                                <li>Sonucu görüntüleyin</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-question-circle me-2"></i> Sık Sorulan Sorular</h6>
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#faq1">
+                                            Sertifika numaramı nereden bulabilirim?
+                                        </button>
+                                    </h2>
+                                    <div id="faq1" class="accordion-collapse collapse" 
+                                         data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Sertifika numaranızı sertifikanızın sağ alt köşesinde bulabilirsiniz.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#faq2">
+                                            Sertifika neden geçersiz görünüyor?
+                                        </button>
+                                    </h2>
+                                    <div id="faq2" class="accordion-collapse collapse" 
+                                         data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Sertifikanızın geçersiz görünmesinin birkaç nedeni olabilir:
+                                            <ul>
+                                                <li>Süresi dolmuş olabilir</li>
+                                                <li>Numara yanlış girilmiş olabilir</li>
+                                                <li>Sistemde kaydı bulunamıyor olabilir</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.input-group .btn {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.list-unstyled li {
+    padding: 0.5rem 0;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: #2470dc;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+    background-color: #2470dc;
+    border-color: #2470dc;
+}
+
+.btn-primary:hover {
+    background-color: #1d5bb0;
+    border-color: #1d5bb0;
+}
+</style>
+
+<script>
+function shareVerification() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Sertifika Doğrulama Sonucu',
+            text: '{{ certificate.user.get_full_name }} adlı kullanıcının sertifikası {% if certificate.is_valid %}geçerli{% else %}geçersiz{% endif %}.',
+            url: window.location.href
+        })
+        .catch(error => console.log('Paylaşım hatası:', error));
+    } else {
+        alert('Tarayıcınız paylaşım özelliğini desteklemiyor.');
+    }
+}
+</script>
+{% endblock %} 

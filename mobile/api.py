@@ -16,8 +16,32 @@ from django.core.exceptions import ValidationError
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.decorators import permission_classes, throttle_classes
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
+
+class User(AbstractUser):
+    """Özelleştirilmiş kullanıcı modeli"""
+    pass
+
+class UserProfile(models.Model):
+    """Kullanıcı profili modeli"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    two_factor_enabled = models.BooleanField(default=False)
+    last_device_id = models.CharField(max_length=255, null=True, blank=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    device_info = models.JSONField(default=dict)
+
+class Notification(models.Model):
+    """Bildirim modeli"""
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50)
+    data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
 
 class MobileAPIThrottle(UserRateThrottle):
     """Mobil API için hız sınırlayıcı"""

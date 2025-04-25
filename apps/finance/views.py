@@ -1,10 +1,10 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import CashFlow, IncomeStatement, Account, Transaction, Budget, FinancialReport, Tax
+from .models import CashFlow, IncomeStatement, Account, Transaction, Budget, FinancialReport, Tax, BaseModel
 from .serializers import (
     AccountSerializer, TransactionSerializer,
     BudgetSerializer, FinancialReportSerializer,
-    TaxSerializer
+    TaxSerializer, BaseModelSerializer
 )
 from .permissions import (
     CanManageAccounts, CanManageTransactions,
@@ -16,7 +16,7 @@ from .filters import (
     BudgetFilter, FinancialReportFilter,
     TaxFilter
 )
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils.translation import gettext_lazy as _
@@ -313,4 +313,12 @@ class TaxViewSet(viewsets.ModelViewSet):
             'tax_rate': tax.rate,
             'tax_amount': tax_amount,
             'total': total
-        }) 
+        })
+
+class BaseModelViewSet(viewsets.ModelViewSet):
+    queryset = BaseModel.objects.all()
+    serializer_class = BaseModelSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user) 

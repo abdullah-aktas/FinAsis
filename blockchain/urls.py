@@ -2,6 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
+app_name = 'blockchain'
+
 router = DefaultRouter()
 router.register(r'networks', views.BlockchainNetworkViewSet, basename='network')
 router.register(r'contracts', views.SmartContractViewSet, basename='contract')

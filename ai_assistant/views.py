@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, permissions
 import json
 import logging
 from django.core.files.storage import default_storage
@@ -21,9 +21,11 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import (
     UserInteraction, FinancialPrediction, FinancialReport,
-    AnomalyDetection, TrendAnalysis, Recommendation, Notification
+    AnomalyDetection, TrendAnalysis, Recommendation, Notification,
+    UserPreference, AIInsight
 )
 from .services import get_market_analysis
+from .serializers import UserPreferenceSerializer, AIInsightSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -444,3 +446,19 @@ class TrendAnalysisDeleteView(LoginRequiredMixin, DeleteView):
     model = TrendAnalysis
     template_name = 'ai_assistant/trendanalysis_confirm_delete.html'
     success_url = reverse_lazy('ai_assistant:trendanalysis_list')
+
+class UserPreferenceViewSet(viewsets.ModelViewSet):
+    queryset = UserPreference.objects.all()
+    serializer_class = UserPreferenceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class AIInsightViewSet(viewsets.ModelViewSet):
+    queryset = AIInsight.objects.all()
+    serializer_class = AIInsightSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)

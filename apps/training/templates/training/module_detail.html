@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ module.title }} - Eğitim Detayı{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sol Menü -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <div class="module-info mb-4">
+                    <h5 class="text-center">{{ module.title }}</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%">
+                            {{ progress }}%
+                        </div>
+                    </div>
+                    <p class="text-center small">İlerleme Durumu</p>
+                </div>
+                
+                <ul class="nav flex-column">
+                    {% for section in module.sections.all %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if section.id == current_section.id %}active{% endif %}" 
+                           href="{% url 'training:section_detail' module.id section.id %}">
+                            <i class="fas fa-{{ section.icon }}"></i> {{ section.title }}
+                            {% if section.is_completed %}
+                            <i class="fas fa-check-circle text-success float-end"></i>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Üst Bilgi -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ current_section.title }}</h2>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary">{{ module.difficulty_level }}</span>
+                                    <span class="badge bg-secondary ms-2">{{ current_section.duration }} dk</span>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline-primary me-2">
+                                        <i class="fas fa-bookmark"></i> Favorilere Ekle
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-share-alt"></i> Paylaş
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eğitim İçeriği -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if current_section.video_url %}
+                            <div class="ratio ratio-16x9 mb-4">
+                                <iframe src="{{ current_section.video_url }}" 
+                                        allowfullscreen></iframe>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="content">
+                                {{ current_section.content|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notlar ve Kaynaklar -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Notlarım</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea class="form-control" name="notes" rows="3">{{ notes }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Kaydet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Ek Kaynaklar</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                {% for resource in current_section.resources.all %}
+                                <li class="list-group-item">
+                                    <a href="{{ resource.url }}" target="_blank">
+                                        <i class="fas fa-{{ resource.icon }}"></i> {{ resource.title }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigasyon -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between">
+                        {% if previous_section %}
+                        <a href="{% url 'training:section_detail' module.id previous_section.id %}" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> Önceki Bölüm
+                        </a>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+
+                        {% if next_section %}
+                        <a href="{% url 'training:section_detail' module.id next_section.id %}" 
+                           class="btn btn-primary">
+                            Sonraki Bölüm <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'training:module_complete' module.id %}" 
+                           class="btn btn-success">
+                            Eğitimi Tamamla <i class="fas fa-check"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .nav-link.active {
+    color: #2470dc;
+    background-color: rgba(36, 112, 220, 0.1);
+}
+
+.sidebar .nav-link:hover {
+    color: #2470dc;
+}
+
+.content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+}
+
+.list-group-item a {
+    color: #333;
+    text-decoration: none;
+}
+
+.list-group-item a:hover {
+    color: #2470dc;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+    background-color: #2470dc;
+    border-color: #2470dc;
+}
+
+.btn-primary:hover {
+    background-color: #1d5bb0;
+    border-color: #1d5bb0;
+}
+
+.progress {
+    height: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.progress-bar {
+    background-color: #2470dc;
+}
+</style>
+{% endblock %} 

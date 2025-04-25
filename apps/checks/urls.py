@@ -5,6 +5,8 @@ from .views import (
     CheckResultViewSet, CheckScheduleViewSet
 )
 
+app_name = 'checks'
+
 router = DefaultRouter()
 router.register(r'categories', CheckCategoryViewSet, basename='check-category')
 router.register(r'types', CheckTypeViewSet, basename='check-type')
@@ -13,5 +15,5 @@ router.register(r'results', CheckResultViewSet, basename='check-result')
 router.register(r'schedules', CheckScheduleViewSet, basename='check-schedule')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ] 

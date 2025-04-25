@@ -4,10 +4,25 @@ Rol ve izin kontrol sistemi için veritabanı modelleri.
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission as DjangoPermission
 from django.core.cache import cache
+from django.contrib.auth import get_user_model
+from typing import Type
 import uuid
 from datetime import datetime, timedelta
+import re
+
+# User modeli için type alias
+# type: ignore
+UserModel = get_user_model()
+
+class CacheHelper:
+    @staticmethod
+    def delete_pattern(pattern):
+        """Delete cache keys matching the given pattern."""
+        # Django cache backend'i doğrudan pattern silmeyi desteklemediği için
+        # tüm cache'i temizliyoruz
+        cache.clear()
 
 class Permission(models.Model):
     """
@@ -39,11 +54,12 @@ class Permission(models.Model):
         ('virtual_company', _('Sanal Şirket')),
     ]
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_('İzin Adı'), max_length=100, unique=True)
     codename = models.CharField(_('Kod Adı'), max_length=100, unique=True)
-    module = models.CharField(_('Modül'), max_length=50, choices=MODULE_CHOICES)
-    permission_type = models.CharField(_('İzin Türü'), max_length=20, choices=PERMISSION_TYPES)
-    description = models.TextField(_('Açıklama'), blank=True)
+    module = models.CharField(_('Modül'), max_length=100)
+    permission_type = models.CharField(_('İzin Tipi'), max_length=100)
+    description = models.TextField(_('Açıklama'), blank=True, null=True)
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
@@ -56,6 +72,14 @@ class Permission(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.module}.{self.permission_type})"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        CacheHelper.delete_pattern('permissions:*')
+
+    def delete(self, *args, **kwargs):
+        CacheHelper.delete_pattern('permissions:*')
+        super().delete(*args, **kwargs)
 
 
 class Role(models.Model):
@@ -98,16 +122,17 @@ class Role(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Rol cache'ini temizle
-        cache.delete_pattern('role:*')
-        cache.delete_pattern('user_roles:*')
+        CacheHelper.delete_pattern('role:*')
+        CacheHelper.delete_pattern('user_roles:*')
 
 
 class UserRole(models.Model):
     """
     Kullanıcı ve rol ilişkisi için model.
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         verbose_name=_('Kullanıcı'),
         related_name='user_roles'
@@ -125,7 +150,7 @@ class UserRole(models.Model):
     )
     assigned_at = models.DateTimeField(_('Atanma Tarihi'), auto_now_add=True)
     assigned_by = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.SET_NULL,
         verbose_name=_('Atayan'),
         related_name='assigned_roles',
@@ -138,8 +163,11 @@ class UserRole(models.Model):
         blank=True,
         help_text=_('Rol geçerliliği bitiş tarihi (boş ise süresiz)')
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('Kullanıcı Rolü')
         verbose_name_plural = _('Kullanıcı Rolleri')
         unique_together = ('user', 'role')
@@ -154,7 +182,11 @@ class UserRole(models.Model):
             UserRole.objects.filter(user=self.user, is_primary=True).exclude(id=self.id).update(is_primary=False)
         super().save(*args, **kwargs)
         # Kullanıcı rol cache'ini temizle
-        cache.delete_pattern(f'user_roles:{self.user.id}:*')
+        CacheHelper.delete_pattern(f'user_roles:{self.user.id}:*')
+
+    def delete(self, *args, **kwargs):
+        CacheHelper.delete_pattern(f'user_roles:{self.user.id}:*')
+        super().delete(*args, **kwargs)
 
 
 class AuditLog(models.Model):
@@ -174,7 +206,7 @@ class AuditLog(models.Model):
     )
 
     user = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.SET_NULL,
         verbose_name=_('Kullanıcı'),
         null=True,
@@ -197,6 +229,7 @@ class AuditLog(models.Model):
     created_at = models.DateTimeField(_('Tarih'), auto_now_add=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('Denetim Kaydı')
         verbose_name_plural = _('Denetim Kayıtları')
         ordering = ['-created_at']
@@ -215,6 +248,7 @@ class Resource(models.Model):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('Kaynak')
         verbose_name_plural = _('Kaynaklar')
         ordering = ['name']
@@ -227,6 +261,11 @@ class ResourcePermission(models.Model):
     """
     Kaynak ve izin ilişkisi için model.
     """
+    class Meta:
+        app_label = 'permissions'
+        verbose_name = 'Kaynak İzni'
+        verbose_name_plural = 'Kaynak İzinleri'
+
     resource = models.ForeignKey(
         Resource,
         on_delete=models.CASCADE,
@@ -241,12 +280,6 @@ class ResourcePermission(models.Model):
     )
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
 
-    class Meta:
-        verbose_name = _('Kaynak İzni')
-        verbose_name_plural = _('Kaynak İzinleri')
-        unique_together = ('resource', 'permission')
-        ordering = ['resource', 'permission']
-
     def __str__(self):
         return f"{self.resource.name} - {self.permission.name}"
 
@@ -257,13 +290,13 @@ class PermissionDelegation(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     delegator = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         verbose_name=_('Devreden'),
         related_name='delegated_permissions'
     )
     delegatee = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         verbose_name=_('Devralan'),
         related_name='received_permissions'
@@ -282,6 +315,7 @@ class PermissionDelegation(models.Model):
     is_active = models.BooleanField(_('Aktif'), default=True)
 
     class Meta:
+        app_label = 'permissions'
         verbose_name = _('İzin Devri')
         verbose_name_plural = _('İzin Devirleri')
         ordering = ['-created_at']
@@ -292,20 +326,26 @@ class PermissionDelegation(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # İzin devir cache'ini temizle
-        cache.delete_pattern(f'delegation:{self.delegatee.id}:*')
+        CacheHelper.delete_pattern(f'delegation:{self.delegatee.id}:*')
 
 
 class TwoFactorAuth(models.Model):
     """
     İki faktörlü kimlik doğrulama için model.
     """
+    class Meta:
+        app_label = 'permissions'
+        verbose_name = 'İki Faktörlü Doğrulama'
+        verbose_name_plural = 'İki Faktörlü Doğrulamalar'
+
     user = models.OneToOneField(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         verbose_name=_('Kullanıcı'),
         related_name='two_factor_auth'
     )
-    secret = models.CharField(_('Gizli Anahtar'), max_length=32)
+    secret_key = models.CharField(_('Gizli Anahtar'), max_length=32)
+    backup_codes = models.JSONField(default=list)
     is_enabled = models.BooleanField(_('Aktif'), default=False)
     last_used = models.DateTimeField(
         _('Son Kullanım'),
@@ -315,49 +355,64 @@ class TwoFactorAuth(models.Model):
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
-    class Meta:
-        verbose_name = _('İki Faktörlü Kimlik Doğrulama')
-        verbose_name_plural = _('İki Faktörlü Kimlik Doğrulamalar')
-
     def __str__(self):
         return f"{self.user.username} - 2FA {'Aktif' if self.is_enabled else 'Pasif'}"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # 2FA cache'ini temizle
-        cache.delete_pattern(f'2fa_status:{self.user.id}:*')
+        CacheHelper.delete_pattern(f'2fa_status:{self.user.id}:*')
 
 
 class IPWhitelist(models.Model):
     """
     IP beyaz listesi için model.
     """
-    ip_address = models.GenericIPAddressField(
-        _('IP Adresi'),
-        unique=True
-    )
-    description = models.CharField(
-        _('Açıklama'),
-        max_length=255,
-        blank=True
-    )
-    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        verbose_name=_('Oluşturan'),
-        null=True
-    )
-
     class Meta:
-        verbose_name = _('IP Beyaz Listesi')
-        verbose_name_plural = _('IP Beyaz Listeleri')
-        ordering = ['-created_at']
+        app_label = 'permissions'
+        verbose_name = 'IP Beyaz Listesi'
+        verbose_name_plural = 'IP Beyaz Listeleri'
+
+    ip_address = models.GenericIPAddressField()
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.ip_address} - {self.description}"
+        return f"{self.ip_address} - {'Aktif' if self.is_active else 'Pasif'}"
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # IP beyaz liste cache'ini temizle
-        cache.delete_pattern('ip_whitelist:*') 
+
+class KobiUserRole(models.Model):
+    """KOBİ kullanıcıları için özel rol modeli"""
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    permissions = models.ManyToManyField(Permission)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'KOBİ Kullanıcı Rolü'
+        verbose_name_plural = 'KOBİ Kullanıcı Rolleri'
+
+    def __str__(self):
+        return self.name
+
+
+class KobiUserProfile(models.Model):
+    """KOBİ kullanıcıları için özel profil modeli"""
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name='kobi_profile')
+    company = models.ForeignKey('company.Company', on_delete=models.CASCADE)
+    role = models.ForeignKey(KobiUserRole, on_delete=models.SET_NULL, null=True)
+    is_primary_contact = models.BooleanField(default=False)
+    phone = models.CharField(max_length=20)
+    department = models.CharField(max_length=100)
+    last_training_date = models.DateTimeField(null=True, blank=True)
+    preferences = models.JSONField(default=dict)
+    
+    class Meta:
+        verbose_name = 'KOBİ Kullanıcı Profili'
+        verbose_name_plural = 'KOBİ Kullanıcı Profilleri'
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.company.name}" 

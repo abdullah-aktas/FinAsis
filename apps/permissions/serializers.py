@@ -8,8 +8,7 @@ from .models import (
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
-        fields = ['id', 'name', 'codename', 'content_type']
-        read_only_fields = ['id']
+        fields = '__all__'
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,74 +18,37 @@ class RoleSerializer(serializers.ModelSerializer):
 class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resource
-        fields = ['id', 'name', 'description', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = '__all__'
 
 class ResourcePermissionSerializer(serializers.ModelSerializer):
-    resource = ResourceSerializer(read_only=True)
-    permission = PermissionSerializer(read_only=True)
-    
     class Meta:
         model = ResourcePermission
-        fields = ['id', 'resource', 'permission', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = '__all__'
 
 class UserRoleSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
-    
     class Meta:
         model = UserRole
-        fields = ['id', 'user', 'role', 'is_primary', 'assigned_at', 'assigned_by', 'expires_at']
-        read_only_fields = ['id', 'assigned_at']
+        fields = '__all__'
 
 class PermissionDelegationSerializer(serializers.ModelSerializer):
-    delegator = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    delegatee = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    permission = PermissionSerializer(read_only=True)
-    
     class Meta:
         model = PermissionDelegation
-        fields = ['id', 'delegator', 'delegatee', 'permission', 'created_at', 'expires_at', 'is_active']
-        read_only_fields = ['id', 'created_at']
+        fields = '__all__'
 
 class AuditLogSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    
     class Meta:
         model = AuditLog
-        fields = ['id', 'user', 'action', 'model', 'object_id', 'details', 'ip_address', 'user_agent', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = '__all__'
 
 class TwoFactorAuthSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    
     class Meta:
         model = TwoFactorAuth
-        fields = ['id', 'user', 'is_enabled', 'last_used', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = '__all__'
 
 class IPWhitelistSerializer(serializers.ModelSerializer):
-    created_by = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    
     class Meta:
         model = IPWhitelist
-        fields = ['id', 'ip_address', 'description', 'created_at', 'created_by']
-        read_only_fields = ['id', 'created_at']
+        fields = '__all__'
 
 class TwoFactorSetupSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, required=True)

@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FinAsis Toplantı{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sol Menü -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h5 class="mb-3">Toplantı Kontrolleri</h5>
+                
+                <!-- Kontrol Menüsü -->
+                <div class="list-group">
+                    <button class="list-group-item list-group-item-action" onclick="toggleVideo()">
+                        <i class="fas fa-video me-2"></i> Kamera
+                    </button>
+                    <button class="list-group-item list-group-item-action" onclick="toggleAudio()">
+                        <i class="fas fa-microphone me-2"></i> Mikrofon
+                    </button>
+                    <button class="list-group-item list-group-item-action" onclick="toggleScreen()">
+                        <i class="fas fa-desktop me-2"></i> Ekran Paylaş
+                    </button>
+                    <button class="list-group-item list-group-item-action" onclick="toggleChat()">
+                        <i class="fas fa-comments me-2"></i> Sohbet
+                    </button>
+                    <button class="list-group-item list-group-item-action" onclick="toggleParticipants()">
+                        <i class="fas fa-users me-2"></i> Katılımcılar
+                    </button>
+                    <button class="list-group-item list-group-item-action" onclick="toggleWhiteboard()">
+                        <i class="fas fa-chalkboard me-2"></i> Beyaz Tahta
+                    </button>
+                </div>
+
+                <!-- Toplantı Bilgileri -->
+                <div class="mt-4">
+                    <h6>Toplantı Bilgileri</h6>
+                    <p class="small text-muted mb-1">
+                        <i class="fas fa-clock me-2"></i>
+                        Süre: <span id="meetingDuration">00:00:00</span>
+                    </p>
+                    <p class="small text-muted mb-1">
+                        <i class="fas fa-users me-2"></i>
+                        Katılımcı: <span id="participantCount">1</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="row">
+                <!-- Video Alanı -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div id="videoContainer" class="video-grid">
+                                <!-- Video akışları buraya eklenecek -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sohbet Paneli -->
+                <div class="col-md-4 mb-4" id="chatPanel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Sohbet</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="chatMessages" class="chat-messages">
+                                <!-- Sohbet mesajları buraya eklenecek -->
+                            </div>
+                            <div class="chat-input mt-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="messageInput" 
+                                           placeholder="Mesajınızı yazın...">
+                                    <button class="btn btn-primary" onclick="sendMessage()">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Katılımcılar Paneli -->
+                <div class="col-md-4 mb-4" id="participantsPanel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Katılımcılar</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="participantsList" class="participants-list">
+                                <!-- Katılımcı listesi buraya eklenecek -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beyaz Tahta -->
+                <div class="col-md-8 mb-4" id="whiteboardPanel" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Beyaz Tahta</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="whiteboard" class="whiteboard-canvas"></canvas>
+                            <div class="whiteboard-tools mt-3">
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="selectTool('pen')">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="selectTool('eraser')">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="selectTool('text')">
+                                    <i class="fas fa-font"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="selectTool('shape')">
+                                    <i class="fas fa-shapes"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .list-group-item {
+    border: none;
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .list-group-item.active {
+    background-color: rgba(36, 112, 220, 0.1);
+    color: #2470dc;
+    border-left: 4px solid #2470dc;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    min-height: 400px;
+}
+
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.participants-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.whiteboard-canvas {
+    width: 100%;
+    height: 400px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+}
+</style>
+
+<script>
+// WebRTC bağlantı yönetimi
+let peerConnections = {};
+let localStream;
+let meetingDuration = 0;
+let durationInterval;
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Yerel medya akışını al
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
+        
+        // Yerel video akışını göster
+        addVideoStream('local', localStream);
+        
+        // Signal sunucusuna bağlan
+        connectToSignalServer();
+        
+        // Süre sayacını başlat
+        startDurationTimer();
+    } catch (error) {
+        console.error('Medya cihazlarına erişilemedi:', error);
+    }
+});
+
+// Signal sunucusuna bağlan
+function connectToSignalServer() {
+    // Signal sunucusu bağlantısı
+    // WebSocket veya Socket.IO kullanılabilir
+}
+
+// Video akışı ekle
+function addVideoStream(id, stream) {
+    const videoContainer = document.getElementById('videoContainer');
+    const videoElement = document.createElement('video');
+    videoElement.id = id;
+    videoElement.srcObject = stream;
+    videoElement.autoplay = true;
+    videoElement.playsInline = true;
+    
+    const container = document.createElement('div');
+    container.className = 'video-container';
+    container.appendChild(videoElement);
+    
+    const controls = document.createElement('div');
+    controls.className = 'video-controls';
+    controls.innerHTML = `
+        <button class="btn btn-sm btn-light" onclick="toggleVideo()">
+            <i class="fas fa-video"></i>
+        </button>
+        <button class="btn btn-sm btn-light" onclick="toggleAudio()">
+            <i class="fas fa-microphone"></i>
+        </button>
+    `;
+    container.appendChild(controls);
+    
+    videoContainer.appendChild(container);
+}
+
+// Kamera kontrolü
+function toggleVideo() {
+    const videoTrack = localStream.getVideoTracks()[0];
+    videoTrack.enabled = !videoTrack.enabled;
+}
+
+// Mikrofon kontrolü
+function toggleAudio() {
+    const audioTrack = localStream.getAudioTracks()[0];
+    audioTrack.enabled = !audioTrack.enabled;
+}
+
+// Ekran paylaşımı
+async function toggleScreen() {
+    try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true
+        });
+        addVideoStream('screen', screenStream);
+    } catch (error) {
+        console.error('Ekran paylaşımı başarısız:', error);
+    }
+}
+
+// Sohbet panelini göster/gizle
+function toggleChat() {
+    const chatPanel = document.getElementById('chatPanel');
+    chatPanel.style.display = chatPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Katılımcılar panelini göster/gizle
+function toggleParticipants() {
+    const participantsPanel = document.getElementById('participantsPanel');
+    participantsPanel.style.display = participantsPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Beyaz tahta panelini göster/gizle
+function toggleWhiteboard() {
+    const whiteboardPanel = document.getElementById('whiteboardPanel');
+    whiteboardPanel.style.display = whiteboardPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Mesaj gönder
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value.trim();
+    if (message) {
+        // Mesajı gönder ve sohbet alanına ekle
+        messageInput.value = '';
+    }
+}
+
+// Süre sayacını başlat
+function startDurationTimer() {
+    durationInterval = setInterval(() => {
+        meetingDuration++;
+        const hours = Math.floor(meetingDuration / 3600);
+        const minutes = Math.floor((meetingDuration % 3600) / 60);
+        const seconds = meetingDuration % 60;
+        document.getElementById('meetingDuration').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+// Beyaz tahta aracı seç
+function selectTool(tool) {
+    // Seçilen aracı uygula
+}
+</script>
+{% endblock %} 
