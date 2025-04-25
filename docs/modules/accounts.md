@@ -22,6 +22,12 @@ Accounts modülü, kullanıcı yönetimi, kimlik doğrulama ve yetkilendirme iş
 - İzin yönetimi
 - Grup yönetimi
 
+### 4. Güvenlik
+- İki faktörlü doğrulama (2FA)
+- Oturum güvenliği
+- Şifre politikaları
+- Güvenlik günlükleri
+
 ## Modeller
 
 ### User
@@ -34,6 +40,8 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True)
     last_password_change = models.DateTimeField(null=True)
+    two_factor_enabled = models.BooleanField(default=False)
+    two_factor_secret = models.CharField(max_length=100, blank=True)
 ```
 
 ### Profile
@@ -44,6 +52,18 @@ class Profile(models.Model):
     location = models.CharField(max_length=100, blank=True)
     birth_date = models.DateField(null=True)
     website = models.URLField(blank=True)
+    timezone = models.CharField(max_length=50, default='UTC')
+    language = models.CharField(max_length=10, default='tr')
+```
+
+### UserPreferences
+```python
+class UserPreferences(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    theme = models.CharField(max_length=20, default='light')
+    notifications_enabled = models.BooleanField(default=True)
+    email_notifications = models.BooleanField(default=True)
+    push_notifications = models.BooleanField(default=True)
 ```
 
 ## View'lar
@@ -54,6 +74,8 @@ class Profile(models.Model):
 - `PasswordResetView`: Şifre sıfırlama
 - `PasswordResetConfirmView`: Şifre sıfırlama onayı
 - `PasswordChangeView`: Şifre değiştirme
+- `TwoFactorSetupView`: İki faktörlü doğrulama kurulumu
+- `TwoFactorVerifyView`: İki faktörlü doğrulama onayı
 
 ### User Views
 - `UserCreateView`: Kullanıcı oluşturma
@@ -61,6 +83,8 @@ class Profile(models.Model):
 - `UserDeleteView`: Kullanıcı silme
 - `ProfileView`: Profil görüntüleme
 - `ProfileUpdateView`: Profil güncelleme
+- `UserPreferencesView`: Kullanıcı tercihleri
+- `UserSessionView`: Oturum yönetimi
 
 ## Formlar
 
@@ -88,7 +112,14 @@ class UserChangeForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['bio', 'location', 'birth_date', 'website']
+        fields = ['bio', 'location', 'birth_date', 'website', 'timezone', 'language']
+```
+
+### TwoFactorSetupForm
+```python
+class TwoFactorSetupForm(forms.Form):
+    enable_2fa = forms.BooleanField(required=False)
+    verification_code = forms.CharField(max_length=6, required=False)
 ```
 
 ## Kullanım Örnekleri
@@ -99,6 +130,7 @@ form = UserCreationForm(request.POST)
 if form.is_valid():
     user = form.save()
     Profile.objects.create(user=user)
+    UserPreferences.objects.create(user=user)
     messages.success(request, _('Kullanıcı başarıyla oluşturuldu.'))
 ```
 
@@ -110,13 +142,16 @@ if form.is_valid():
     messages.success(request, _('Profil başarıyla güncellendi.'))
 ```
 
-### Şifre Değiştirme
+### İki Faktörlü Doğrulama
 ```python
-form = PasswordChangeForm(request.user, request.POST)
+form = TwoFactorSetupForm(request.POST)
 if form.is_valid():
-    user = form.save()
-    update_session_auth_hash(request, user)
-    messages.success(request, _('Şifreniz başarıyla değiştirildi.'))
+    if form.cleaned_data['enable_2fa']:
+        # 2FA kurulumu
+        user.two_factor_enabled = True
+        user.two_factor_secret = generate_secret()
+        user.save()
+        messages.success(request, _('İki faktörlü doğrulama etkinleştirildi.'))
 ```
 
 ## İzinler ve Güvenlik
@@ -125,6 +160,9 @@ if form.is_valid():
 - Yöneticiler tüm kullanıcıları yönetebilir
 - Şifreler güvenli bir şekilde hashlenir
 - Oturumlar güvenli bir şekilde yönetilir
+- İki faktörlü doğrulama zorunlu olabilir
+- Şifre politikaları uygulanır
+- Güvenlik günlükleri tutulur
 
 ## AJAX Desteği
 
@@ -145,21 +183,30 @@ Tüm view'lar hata durumlarını uygun şekilde yönetir:
 try:
     # İşlem
 except Exception as e:
-    messages.error(request, str(e))
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=400)
+    return JsonResponse({
+        'success': False,
+        'message': str(e),
+        'error_code': 'ERROR_CODE'
+    })
 ```
 
-## Önbellekleme
+## API Endpoints
 
-Performans için önemli veriler önbelleğe alınır:
-```python
-cache_key = f'user_profile_{user.id}'
-profile = cache.get(cache_key)
-if not profile:
-    profile = Profile.objects.get(user=user)
-    cache.set(cache_key, profile, 3600)  # 1 saat
-``` 
+### Kullanıcı İşlemleri
+- `POST /api/users/`: Yeni kullanıcı oluştur
+- `GET /api/users/me/`: Mevcut kullanıcı bilgilerini getir
+- `PUT /api/users/me/`: Kullanıcı bilgilerini güncelle
+- `POST /api/users/password-reset/`: Şifre sıfırlama isteği
+- `POST /api/users/password-reset-confirm/`: Şifre sıfırlama onayı
+
+### Profil İşlemleri
+- `GET /api/profiles/me/`: Profil bilgilerini getir
+- `PUT /api/profiles/me/`: Profil bilgilerini güncelle
+- `GET /api/profiles/preferences/`: Kullanıcı tercihlerini getir
+- `PUT /api/profiles/preferences/`: Kullanıcı tercihlerini güncelle
+
+### Güvenlik İşlemleri
+- `POST /api/security/2fa/setup/`: İki faktörlü doğrulama kurulumu
+- `POST /api/security/2fa/verify/`: İki faktörlü doğrulama onayı
+- `GET /api/security/sessions/`: Aktif oturumları listele
+- `DELETE /api/security/sessions/{id}/`: Oturumu sonlandır 

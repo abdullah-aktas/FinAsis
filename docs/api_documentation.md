@@ -1,530 +1,195 @@
 # FinAsis API Dokümantasyonu
 
-Bu belge, FinAsis API'sinin kullanımı hakkında detaylı bilgiler içerir.
-
 ## İçindekiler
 
 1. [Giriş](#giriş)
 2. [Kimlik Doğrulama](#kimlik-doğrulama)
-3. [Kullanıcı API](#kullanıcı-api)
-4. [Finans API](#finans-api)
-5. [Muhasebe API](#muhasebe-api)
-6. [CRM API](#crm-api)
-7. [Hata Kodları](#hata-kodları)
-8. [Sınırlama Politikası](#sınırlama-politikası)
-9. [SSS](#sss)
+3. [API Endpoint'leri](#api-endpointleri)
+4. [Hata Kodları](#hata-kodları)
+5. [Örnek Kullanımlar](#örnek-kullanımlar)
+6. [Rate Limiting](#rate-limiting)
+7. [Güvenlik](#güvenlik)
 
 ## Giriş
 
-FinAsis API, RESTful mimarisi üzerine kurulmuştur ve JSON formatında veri alışverişi yapar. API, FinAsis sistemindeki verilere programatik erişim sağlar.
+FinAsis API'si, sistemin işlevselliğine programatik olarak erişim sağlar. RESTful mimarisi kullanılarak geliştirilmiştir ve JSON formatında veri alışverişi yapar.
 
-### Temel URL
+### Temel Bilgiler
 
-```
-https://api.finasis.com.tr/v1/
-```
-
-### İstek Formatı
-
-Tüm API istekleri HTTPS protokolü üzerinden yapılmalıdır. GET istekleri URL parametrelerini kullanır, POST, PUT ve DELETE istekleri JSON formatında gövde içerir.
-
-### Yanıt Formatı
-
-Tüm API yanıtları JSON formatındadır.
-
-```json
-{
-  "status": "success",
-  "data": { ... },
-  "message": "İşlem başarılı"
-}
-```
-
-```json
-{
-  "status": "error",
-  "error": {
-    "code": "invalid_input",
-    "message": "Geçersiz giriş değerleri"
-  }
-}
-```
+- **Base URL**: `https://api.finasis.com/v1`
+- **Format**: JSON
+- **Karakter Seti**: UTF-8
+- **SSL**: Tüm istekler HTTPS üzerinden yapılmalıdır
 
 ## Kimlik Doğrulama
 
-FinAsis API, JWT (JSON Web Token) tabanlı kimlik doğrulama kullanır.
+### API Anahtarı
 
-### Token Alma
+API'ye erişim için bir API anahtarı gereklidir. Anahtar, yönetim panelinden oluşturulabilir.
 
+```http
+Authorization: Bearer {api_key}
 ```
-POST /auth/token/
+
+### JWT Token
+
+Bazı endpoint'ler için JWT token kullanılır:
+
+```http
+Authorization: Bearer {jwt_token}
 ```
 
-#### İstek Gövdesi
+## API Endpoint'leri
 
+### Kullanıcı İşlemleri
+
+#### Kullanıcı Girişi
+
+```http
+POST /auth/login
+```
+
+**Request Body:**
 ```json
 {
-  "email": "kullanici@ornek.com",
-  "password": "sifre123"
+    "email": "kullanici@example.com",
+    "password": "sifre123"
 }
 ```
 
-#### Yanıt
-
+**Response:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  }
-}
-```
-
-### Token Yenileme
-
-```
-POST /auth/token/refresh/
-```
-
-#### İstek Gövdesi
-
-```json
-{
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "Bearer",
-    "expires_in": 3600
-  }
-}
-```
-
-### API İsteklerinde Kimlik Doğrulama
-
-Tüm API istekleri için Authorization başlığında token belirtilmelidir:
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-## Kullanıcı API
-
-### Kullanıcı Profili Alma
-
-```
-GET /users/profile/
-```
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 1,
-    "email": "kullanici@ornek.com",
-    "first_name": "Ad",
-    "last_name": "Soyad",
-    "phone_number": "+905551234567",
-    "profile": {
-      "bio": "Hakkımda bilgisi",
-      "birth_date": "1990-01-01",
-      "company_name": "Örnek Şirket",
-      "job_title": "Yazılım Geliştirici"
-    }
-  }
-}
-```
-
-### Kullanıcı Profili Güncelleme
-
-```
-PUT /users/profile/
-```
-
-#### İstek Gövdesi
-
-```json
-{
-  "first_name": "Yeni Ad",
-  "last_name": "Yeni Soyad",
-  "phone_number": "+905559876543",
-  "profile": {
-    "bio": "Güncellenmiş hakkımda bilgisi",
-    "company_name": "Yeni Şirket",
-    "job_title": "Kıdemli Yazılım Geliştirici"
-  }
-}
-```
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 1,
-    "email": "kullanici@ornek.com",
-    "first_name": "Yeni Ad",
-    "last_name": "Yeni Soyad",
-    "phone_number": "+905559876543",
-    "profile": {
-      "bio": "Güncellenmiş hakkımda bilgisi",
-      "birth_date": "1990-01-01",
-      "company_name": "Yeni Şirket",
-      "job_title": "Kıdemli Yazılım Geliştirici"
-    }
-  },
-  "message": "Profil başarıyla güncellendi"
-}
-```
-
-## Finans API
-
-### Fatura Listesi
-
-```
-GET /finance/invoices/
-```
-
-#### Sorgu Parametreleri
-
-| Parametre | Açıklama | Örnek |
-|-----------|----------|-------|
-| page | Sayfa numarası | 1 |
-| page_size | Sayfa başına sonuç sayısı | 10 |
-| type | Fatura türü (sale/purchase) | sale |
-| status | Fatura durumu (draft/issued/paid/cancelled) | paid |
-| start_date | Başlangıç tarihi | 2023-01-01 |
-| end_date | Bitiş tarihi | 2023-12-31 |
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "count": 25,
-    "next": "https://api.finasis.com.tr/v1/finance/invoices/?page=2",
-    "previous": null,
-    "results": [
-      {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": {
         "id": 1,
-        "number": "INV-2023-001",
-        "type": "sale",
-        "customer": {
-          "id": 5,
-          "name": "Örnek Müşteri Ltd. Şti."
-        },
-        "issue_date": "2023-03-15",
-        "due_date": "2023-04-15",
-        "total_amount": 1250.00,
-        "paid_amount": 1250.00,
-        "status": "paid",
-        "currency": "TRY"
-      },
-      // ... diğer faturalar
-    ]
-  }
+        "email": "kullanici@example.com",
+        "name": "Kullanıcı Adı"
+    }
 }
 ```
 
-### Fatura Detayı
+#### Kullanıcı Bilgileri
 
+```http
+GET /users/{user_id}
 ```
-GET /finance/invoices/{id}/
-```
 
-#### Yanıt
-
+**Response:**
 ```json
 {
-  "status": "success",
-  "data": {
     "id": 1,
-    "number": "INV-2023-001",
-    "type": "sale",
-    "customer": {
-      "id": 5,
-      "name": "Örnek Müşteri Ltd. Şti.",
-      "tax_number": "1234567890",
-      "address": "Örnek Mah. Test Cad. No:123 Kadıköy/İstanbul"
-    },
-    "issue_date": "2023-03-15",
-    "due_date": "2023-04-15",
+    "email": "kullanici@example.com",
+    "name": "Kullanıcı Adı",
+    "company": "Şirket Adı",
+    "role": "admin"
+}
+```
+
+### Finansal İşlemler
+
+#### Fatura Oluşturma
+
+```http
+POST /invoices
+```
+
+**Request Body:**
+```json
+{
+    "customer_id": 123,
     "items": [
-      {
-        "id": 1,
-        "description": "Web Tasarım Hizmeti",
-        "quantity": 1,
-        "unit_price": 1000.00,
-        "tax_rate": 18,
-        "tax_amount": 180.00,
-        "total": 1180.00
-      },
-      {
-        "id": 2,
-        "description": "Domain Kayıt",
-        "quantity": 1,
-        "unit_price": 70.00,
-        "tax_rate": 0,
-        "tax_amount": 0.00,
-        "total": 70.00
-      }
-    ],
-    "subtotal": 1070.00,
-    "tax_total": 180.00,
-    "total_amount": 1250.00,
-    "paid_amount": 1250.00,
-    "remaining_amount": 0.00,
-    "status": "paid",
-    "currency": "TRY",
-    "notes": "30 gün içinde ödeme yapılmalıdır.",
-    "payments": [
-      {
-        "id": 1,
-        "date": "2023-04-10",
-        "amount": 1250.00,
-        "method": "bank_transfer",
-        "reference": "TRF123456"
-      }
-    ]
-  }
-}
-```
-
-### Yeni Fatura Oluşturma
-
-```
-POST /finance/invoices/
-```
-
-#### İstek Gövdesi
-
-```json
-{
-  "type": "sale",
-  "customer_id": 5,
-  "issue_date": "2023-05-20",
-  "due_date": "2023-06-20",
-  "items": [
-    {
-      "description": "SEO Hizmeti",
-      "quantity": 1,
-      "unit_price": 500.00,
-      "tax_rate": 18
-    },
-    {
-      "description": "İçerik Yazımı",
-      "quantity": 10,
-      "unit_price": 50.00,
-      "tax_rate": 18
-    }
-  ],
-  "currency": "TRY",
-  "notes": "30 gün içinde ödeme yapılmalıdır."
-}
-```
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 2,
-    "number": "INV-2023-002",
-    // ... fatura detayları
-  },
-  "message": "Fatura başarıyla oluşturuldu"
-}
-```
-
-## Muhasebe API
-
-### Hesap Planı Listeleme
-
-```
-GET /accounting/accounts/
-```
-
-#### Sorgu Parametreleri
-
-| Parametre | Açıklama | Örnek |
-|-----------|----------|-------|
-| type | Hesap tipi (asset/liability/equity/income/expense) | income |
-| parent_id | Üst hesap ID'si | 3 |
-| search | Arama kelimesi | banka |
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "code": "100",
-      "name": "Kasa",
-      "type": "asset",
-      "balance": 5000.00,
-      "is_bank_account": false,
-      "parent": null,
-      "children": [
         {
-          "id": 2,
-          "code": "100.01",
-          "name": "TL Kasa",
-          "type": "asset",
-          "balance": 3000.00,
-          "is_bank_account": false,
-          "parent": 1,
-          "children": []
-        },
-        {
-          "id": 3,
-          "code": "100.02",
-          "name": "USD Kasa",
-          "type": "asset",
-          "balance": 2000.00,
-          "is_bank_account": false,
-          "parent": 1,
-          "children": []
+            "description": "Ürün Açıklaması",
+            "quantity": 2,
+            "unit_price": 100.00,
+            "tax_rate": 18
         }
-      ]
-    }
-    // ... diğer hesaplar
-  ]
-}
-```
-
-### Muhasebe Fişi Oluşturma
-
-```
-POST /accounting/entries/
-```
-
-#### İstek Gövdesi
-
-```json
-{
-  "date": "2023-05-25",
-  "type": "journal",
-  "description": "Kira ödemesi",
-  "reference": "ÖRN-123",
-  "items": [
-    {
-      "account_id": 15,
-      "description": "Mayıs ayı kira ödemesi",
-      "debit": 1500.00,
-      "credit": 0.00
-    },
-    {
-      "account_id": 5,
-      "description": "Mayıs ayı kira ödemesi",
-      "debit": 0.00,
-      "credit": 1500.00
-    }
-  ]
-}
-```
-
-#### Yanıt
-
-```json
-{
-  "status": "success",
-  "data": {
-    "id": 5,
-    "number": "MUH-2023-005",
-    "date": "2023-05-25",
-    "type": "journal",
-    "description": "Kira ödemesi",
-    "reference": "ÖRN-123",
-    "items": [
-      {
-        "id": 9,
-        "account": {
-          "id": 15,
-          "code": "770",
-          "name": "Genel Yönetim Giderleri"
-        },
-        "description": "Mayıs ayı kira ödemesi",
-        "debit": 1500.00,
-        "credit": 0.00
-      },
-      {
-        "id": 10,
-        "account": {
-          "id": 5,
-          "code": "102",
-          "name": "Bankalar"
-        },
-        "description": "Mayıs ayı kira ödemesi",
-        "debit": 0.00,
-        "credit": 1500.00
-      }
     ],
-    "total_debit": 1500.00,
-    "total_credit": 1500.00,
-    "status": "posted"
-  },
-  "message": "Muhasebe fişi başarıyla oluşturuldu"
+    "due_date": "2024-12-31"
 }
 ```
 
-## CRM API
-
-### Müşteri Listesi
-
-```
-GET /crm/customers/
-```
-
-#### Sorgu Parametreleri
-
-| Parametre | Açıklama | Örnek |
-|-----------|----------|-------|
-| page | Sayfa numarası | 1 |
-| page_size | Sayfa başına sonuç sayısı | 10 |
-| search | Arama kelimesi | örnek |
-| type | Müşteri tipi (individual/corporate) | corporate |
-
-#### Yanıt
-
+**Response:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "count": 15,
-    "next": "https://api.finasis.com.tr/v1/crm/customers/?page=2",
-    "previous": null,
-    "results": [
-      {
-        "id": 1,
-        "name": "Örnek Müşteri Ltd. Şti.",
-        "type": "corporate",
-        "tax_number": "1234567890",
-        "contact_person": "Ahmet Örnek",
-        "email": "ahmet@ornek.com",
-        "phone": "+905551234567",
-        "address": "Örnek Mah. Test Cad. No:123 Kadıköy/İstanbul",
-        "created_at": "2023-01-15T10:30:45Z"
-      },
-      // ... diğer müşteriler
-    ]
-  }
+    "id": 456,
+    "invoice_number": "INV-2024-001",
+    "total_amount": 236.00,
+    "status": "pending"
+}
+```
+
+#### Ödeme İşlemi
+
+```http
+POST /payments
+```
+
+**Request Body:**
+```json
+{
+    "invoice_id": 456,
+    "amount": 236.00,
+    "payment_method": "credit_card",
+    "payment_date": "2024-01-15"
+}
+```
+
+**Response:**
+```json
+{
+    "id": 789,
+    "status": "completed",
+    "transaction_id": "TRX-2024-001"
+}
+```
+
+### Müşteri İşlemleri
+
+#### Müşteri Listesi
+
+```http
+GET /customers
+```
+
+**Query Parameters:**
+- `page`: Sayfa numarası
+- `limit`: Sayfa başına kayıt sayısı
+- `search`: Arama terimi
+
+**Response:**
+```json
+{
+    "data": [
+        {
+            "id": 123,
+            "name": "Müşteri Adı",
+            "email": "musteri@example.com",
+            "phone": "5551234567"
+        }
+    ],
+    "total": 100,
+    "page": 1,
+    "limit": 10
+}
+```
+
+#### Müşteri Detayları
+
+```http
+GET /customers/{customer_id}
+```
+
+**Response:**
+```json
+{
+    "id": 123,
+    "name": "Müşteri Adı",
+    "email": "musteri@example.com",
+    "phone": "5551234567",
+    "address": "Adres Bilgisi",
+    "tax_number": "1234567890"
 }
 ```
 
@@ -532,54 +197,129 @@ GET /crm/customers/
 
 | Kod | Açıklama |
 |-----|----------|
-| invalid_credentials | Geçersiz kimlik bilgileri |
-| token_expired | Token süresi doldu |
-| invalid_token | Geçersiz token |
-| permission_denied | Yetki reddedildi |
-| not_found | Kaynak bulunamadı |
-| invalid_input | Geçersiz giriş değerleri |
-| validation_error | Doğrulama hatası |
-| server_error | Sunucu hatası |
+| 400 | Geçersiz istek |
+| 401 | Yetkisiz erişim |
+| 403 | Erişim engellendi |
+| 404 | Kaynak bulunamadı |
+| 429 | Çok fazla istek |
+| 500 | Sunucu hatası |
 
-## Sınırlama Politikası
-
-API istekleri aşağıdaki şekilde sınırlandırılmıştır:
-
-- Anonim kullanıcılar: Saatte 20 istek
-- Kimliği doğrulanmış kullanıcılar: Günde 1000 istek
-- Token alımı: Dakikada 5 istek
-- Token yenileme: Saatte 20 istek
-
-Sınırlamaya ulaşıldığında, API şu yanıtı döndürür:
+### Hata Örneği
 
 ```json
 {
-  "status": "error",
-  "error": {
-    "code": "rate_limit_exceeded",
-    "message": "Çok fazla istek yapıldı, lütfen daha sonra tekrar deneyin"
-  }
+    "error": {
+        "code": 400,
+        "message": "Geçersiz istek parametreleri",
+        "details": {
+            "field": "email",
+            "message": "Geçerli bir e-posta adresi giriniz"
+        }
+    }
 }
 ```
 
-## SSS
+## Örnek Kullanımlar
 
-### API erişim anahtarını nasıl alabilirim?
+### Python Örneği
 
-FinAsis hesabınızda oturum açtıktan sonra, Ayarlar > API Erişimi bölümünden API anahtarınızı oluşturabilirsiniz.
+```python
+import requests
 
-### API'den dönen timestamp formatı nedir?
+API_KEY = "your_api_key"
+BASE_URL = "https://api.finasis.com/v1"
 
-Tüm tarih ve zaman değerleri ISO 8601 formatında döner: `YYYY-MM-DDTHH:MM:SSZ`
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
 
-### API hata kodunu nasıl yorumlamalıyım?
+# Fatura oluşturma
+def create_invoice(customer_id, items):
+    url = f"{BASE_URL}/invoices"
+    data = {
+        "customer_id": customer_id,
+        "items": items
+    }
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
 
-Hata kodları, sorunun kaynağını belirlemenize yardımcı olur. Örneğin, "invalid_input" hatası, gönderdiğiniz verilerin geçersiz olduğunu gösterir.
+# Müşteri listesi
+def get_customers(page=1, limit=10):
+    url = f"{BASE_URL}/customers"
+    params = {
+        "page": page,
+        "limit": limit
+    }
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+```
 
----
+### JavaScript Örneği
 
-## Destek
+```javascript
+const API_KEY = 'your_api_key';
+const BASE_URL = 'https://api.finasis.com/v1';
 
-API kullanımı hakkında sorularınız için lütfen api-support@finasis.com.tr adresine e-posta gönderin.
+const headers = {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+};
 
-© 2023 FinAsis Yazılım A.Ş. Tüm hakları saklıdır. 
+// Fatura oluşturma
+async function createInvoice(customerId, items) {
+    const response = await fetch(`${BASE_URL}/invoices`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+            customer_id: customerId,
+            items
+        })
+    });
+    return await response.json();
+}
+
+// Müşteri listesi
+async function getCustomers(page = 1, limit = 10) {
+    const response = await fetch(`${BASE_URL}/customers?page=${page}&limit=${limit}`, {
+        headers
+    });
+    return await response.json();
+}
+```
+
+## Rate Limiting
+
+API kullanımı için rate limiting uygulanmaktadır:
+
+- Standart plan: 100 istek/dakika
+- Pro plan: 1000 istek/dakika
+- Enterprise plan: 10000 istek/dakika
+
+Rate limit aşıldığında 429 hata kodu döner.
+
+## Güvenlik
+
+### Önerilen Güvenlik Önlemleri
+
+1. API anahtarını güvenli bir şekilde saklayın
+2. HTTPS kullanın
+3. İstekleri imzalayın
+4. Rate limiting uygulayın
+5. Hata mesajlarını loglayın
+
+### Güvenlik Başlıkları
+
+```http
+X-API-Key: {api_key}
+X-Request-ID: {unique_id}
+X-Timestamp: {timestamp}
+X-Signature: {signature}
+```
+
+### İstek İmzalama
+
+1. İstek parametrelerini sıralayın
+2. Parametreleri birleştirin
+3. API anahtarı ile HMAC-SHA256 imzalayın
+4. İmzayı X-Signature başlığına ekleyin 

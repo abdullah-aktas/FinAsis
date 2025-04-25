@@ -1,164 +1,193 @@
 # FinAsis Kullanıcı Kılavuzu
 
-*Son Güncelleme: 22.04.2025*
+## İçindekiler
 
-## 📋 Genel Bakış
+1. [Giriş](#giriş)
+2. [Hesap Oluşturma ve Giriş](#hesap-oluşturma-ve-giriş)
+3. [Ana Sayfa ve Navigasyon](#ana-sayfa-ve-navigasyon)
+4. [Finansal İşlemler](#finansal-işlemler)
+5. [Müşteri Yönetimi](#müşteri-yönetimi)
+6. [Raporlar ve Analizler](#raporlar-ve-analizler)
+7. [Ayarlar ve Tercihler](#ayarlar-ve-tercihler)
+8. [Mobil Uygulama](#mobil-uygulama)
+9. [Sık Sorulan Sorular](#sık-sorulan-sorular)
 
-Bu kılavuz, FinAsis uygulamasının temel özelliklerini ve kullanımını açıklamaktadır.
+## Giriş
 
-## 🔑 Giriş
+FinAsis, finansal yönetim ihtiyaçlarınızı karşılamak üzere tasarlanmış kapsamlı bir yazılım çözümüdür. Bu kılavuz, sistemin temel özelliklerini ve nasıl kullanılacağını adım adım açıklamaktadır.
+
+## Hesap Oluşturma ve Giriş
 
 ### Hesap Oluşturma
-1. https://app.finasis.com adresine gidin
+
+1. [https://finasis.com](https://finasis.com) adresine gidin
 2. "Kayıt Ol" butonuna tıklayın
 3. Gerekli bilgileri doldurun:
    - E-posta adresi
-   - Şifre
-   - Şirket adı
-   - Telefon numarası
-4. E-posta onayı için gelen bağlantıya tıklayın
+   - Şifre (en az 8 karakter, büyük/küçük harf ve rakam içermeli)
+   - Şirket bilgileri
+4. E-posta doğrulama bağlantısına tıklayın
+5. İki faktörlü kimlik doğrulamayı etkinleştirin (önerilir)
 
 ### Giriş Yapma
-1. https://app.finasis.com adresine gidin
+
+1. [https://finasis.com](https://finasis.com) adresine gidin
 2. E-posta ve şifrenizi girin
-3. "Giriş Yap" butonuna tıklayın
+3. İki faktörlü kimlik doğrulama kodunu girin (etkinleştirildiyse)
+4. "Giriş Yap" butonuna tıklayın
 
-## 📊 Modüller
+## Ana Sayfa ve Navigasyon
 
-### Fatura Yönetimi
-1. Fatura Oluşturma
-   - "Yeni Fatura" butonuna tıklayın
-   - Müşteri bilgilerini girin
-   - Ürün/hizmet detaylarını ekleyin
-   - Vergi ve indirimleri ayarlayın
-   - "Kaydet" butonuna tıklayın
+### Ana Sayfa
 
-2. Fatura Listeleme
-   - "Faturalar" menüsüne tıklayın
-   - Filtreleri kullanarak arama yapın
-   - Faturaları düzenleyin veya silin
+Ana sayfada şunları bulabilirsiniz:
+- Özet finansal durum
+- Son işlemler
+- Bekleyen görevler
+- Önemli bildirimler
+- Hızlı erişim menüsü
 
-### CRM
-1. Müşteri Ekleme
-   - "Müşteriler" menüsüne tıklayın
-   - "Yeni Müşteri" butonuna tıklayın
-   - Müşteri bilgilerini girin
-   - "Kaydet" butonuna tıklayın
+### Navigasyon Menüsü
 
-2. Müşteri Takibi
-   - Müşteri detay sayfasına gidin
-   - Etkileşimleri görüntüleyin
-   - Notlar ekleyin
-   - Görevler oluşturun
+Sol taraftaki menüden şu bölümlere erişebilirsiniz:
+- Finansal İşlemler
+- Müşteri Yönetimi
+- Raporlar
+- Ayarlar
+- Yardım
 
-### Muhasebe
-1. Hesap Planı
-   - "Hesap Planı" menüsüne tıklayın
-   - Hesapları görüntüleyin ve düzenleyin
-   - Yeni hesap ekleyin
+## Finansal İşlemler
 
-2. İşlem Kaydı
-   - "İşlemler" menüsüne tıklayın
-   - "Yeni İşlem" butonuna tıklayın
-   - İşlem detaylarını girin
-   - "Kaydet" butonuna tıklayın
+### Fatura İşlemleri
 
-### Stok Yönetimi
-1. Ürün Ekleme
-   - "Ürünler" menüsüne tıklayın
-   - "Yeni Ürün" butonuna tıklayın
-   - Ürün bilgilerini girin
-   - "Kaydet" butonuna tıklayın
+1. "Finansal İşlemler" > "Faturalar" menüsüne gidin
+2. Yeni fatura oluşturmak için "Yeni Fatura" butonuna tıklayın
+3. Fatura bilgilerini girin:
+   - Müşteri bilgileri
+   - Ürün/hizmet detayları
+   - KDV ve diğer vergiler
+   - Ödeme koşulları
+4. Faturayı kaydedin ve gönderin
 
-2. Stok Hareketi
-   - "Stok Hareketleri" menüsüne tıklayın
-   - "Yeni Hareket" butonuna tıklayın
-   - Hareket detaylarını girin
-   - "Kaydet" butonuna tıklayın
+### Ödeme İşlemleri
 
-### E-Belge Sistemi
-1. E-Fatura Gönderme
-   - "E-Faturalar" menüsüne tıklayın
-   - "Yeni E-Fatura" butonuna tıklayın
-   - Fatura bilgilerini girin
-   - "Gönder" butonuna tıklayın
+1. "Finansal İşlemler" > "Ödemeler" menüsüne gidin
+2. Yeni ödeme oluşturmak için "Yeni Ödeme" butonuna tıklayın
+3. Ödeme bilgilerini girin:
+   - Alıcı bilgileri
+   - Ödeme tutarı
+   - Ödeme yöntemi
+   - Açıklama
+4. Ödemeyi onaylayın
 
-2. E-Arşiv
-   - "E-Arşiv" menüsüne tıklayın
-   - Belgeleri görüntüleyin
-   - Arşivleme işlemlerini yapın
+## Müşteri Yönetimi
 
-### Analitik
-1. Dashboard Oluşturma
-   - "Dashboard" menüsüne tıklayın
-   - "Yeni Dashboard" butonuna tıklayın
-   - Widget'ları ekleyin ve düzenleyin
-   - "Kaydet" butonuna tıklayın
+### Müşteri Ekleme
 
-2. Rapor Oluşturma
-   - "Raporlar" menüsüne tıklayın
-   - "Yeni Rapor" butonuna tıklayın
-   - Rapor parametrelerini ayarlayın
-   - "Oluştur" butonuna tıklayın
+1. "Müşteri Yönetimi" > "Müşteriler" menüsüne gidin
+2. "Yeni Müşteri" butonuna tıklayın
+3. Müşteri bilgilerini girin:
+   - Temel bilgiler (ad, soyad, şirket)
+   - İletişim bilgileri
+   - Vergi bilgileri
+   - Özel notlar
+4. Müşteriyi kaydedin
 
-## 🔧 Ayarlar
+### Müşteri İletişimi
 
-### Profil Ayarları
-1. "Profil" menüsüne tıklayın
-2. Kişisel bilgilerinizi güncelleyin
-3. Şifrenizi değiştirin
-4. Bildirim tercihlerinizi ayarlayın
+1. Müşteri listesinden ilgili müşteriyi seçin
+2. "İletişim" sekmesine gidin
+3. Yeni iletişim kaydı oluşturun:
+   - İletişim türü (e-posta, telefon, toplantı)
+   - Tarih ve saat
+   - Konu
+   - Notlar
+4. Kaydı tamamlayın
+
+## Raporlar ve Analizler
+
+### Finansal Raporlar
+
+1. "Raporlar" > "Finansal Raporlar" menüsüne gidin
+2. Rapor türünü seçin:
+   - Gelir/Gider raporu
+   - Nakit akışı
+   - Bilanço
+   - Kâr/Zarar
+3. Tarih aralığını belirleyin
+4. Raporu görüntüleyin veya dışa aktarın
+
+### Analiz Araçları
+
+1. "Raporlar" > "Analizler" menüsüne gidin
+2. Analiz türünü seçin:
+   - Trend analizi
+   - Karşılaştırmalı analiz
+   - Tahminleme
+3. Parametreleri ayarlayın
+4. Sonuçları inceleyin
+
+## Ayarlar ve Tercihler
+
+### Kullanıcı Ayarları
+
+1. Sağ üst köşedeki profil simgesine tıklayın
+2. "Ayarlar" seçeneğini seçin
+3. Ayarları düzenleyin:
+   - Profil bilgileri
+   - Bildirim tercihleri
+   - Güvenlik ayarları
+   - Dil ve bölge ayarları
+4. Değişiklikleri kaydedin
 
 ### Şirket Ayarları
-1. "Şirket Ayarları" menüsüne tıklayın
-2. Şirket bilgilerini güncelleyin
-3. Vergi bilgilerini ayarlayın
-4. Entegrasyonları yapılandırın
 
-## 📱 Mobil Uygulama
+1. "Ayarlar" > "Şirket Ayarları" menüsüne gidin
+2. Şirket bilgilerini düzenleyin:
+   - Temel bilgiler
+   - Vergi bilgileri
+   - Banka hesapları
+   - Fatura şablonları
+3. Değişiklikleri kaydedin
+
+## Mobil Uygulama
 
 ### Kurulum
-1. App Store veya Google Play'den uygulamayı indirin
-2. Hesabınızla giriş yapın
-3. Gerekli izinleri verin
 
-### Kullanım
-1. Ana menüden modüllere erişin
-2. Çevrimdışı modda çalışın
-3. Push bildirimlerini yönetin
+1. App Store veya Google Play'den FinAsis uygulamasını indirin
+2. Uygulamayı açın ve hesap bilgilerinizle giriş yapın
+3. İki faktörlü kimlik doğrulamayı etkinleştirin
 
-## 🔒 Güvenlik
+### Özellikler
 
-### İki Faktörlü Doğrulama
-1. "Güvenlik" menüsüne gidin
-2. "İki Faktörlü Doğrulama"yı etkinleştirin
-3. Telefon numaranızı doğrulayın
+- Fatura oluşturma ve görüntüleme
+- Ödeme işlemleri
+- Müşteri yönetimi
+- Bildirimler
+- Çevrimdışı çalışma
 
-### Oturum Yönetimi
-1. Aktif oturumları görüntüleyin
-2. Şüpheli oturumları sonlandırın
-3. Oturum geçmişini kontrol edin
+## Sık Sorulan Sorular
 
-## 📞 Destek
+### Genel Sorular
 
-### Yardım Merkezi
-1. "Yardım" menüsüne tıklayın
-2. SSS bölümünü inceleyin
-3. Video eğitimlerini izleyin
+**S: FinAsis'i kimler kullanabilir?**
+C: FinAsis, küçük, orta ve büyük ölçekli işletmeler için tasarlanmıştır.
 
-### İletişim
-- E-posta: support@finasis.com
-- Telefon: +90 850 123 45 67
-- Canlı Destek: Saat 09:00 - 18:00 arası
+**S: Verilerim güvende mi?**
+C: Evet, tüm veriler şifrelenerek saklanır ve düzenli olarak yedeklenir.
 
-## 🔄 Güncellemeler
+### Teknik Sorular
 
-### Otomatik Güncellemeler
-1. Uygulama otomatik olarak güncellenir
-2. Güncelleme notlarını kontrol edin
-3. Yeni özellikleri keşfedin
+**S: İnternet bağlantısı olmadan çalışabilir miyim?**
+C: Evet, mobil uygulama çevrimdışı modda çalışabilir.
 
-### Manuel Güncelleme
-1. "Ayarlar" menüsüne gidin
-2. "Güncellemeler" bölümünü kontrol edin
-3. Güncellemeleri manuel olarak başlatın 
+**S: Verilerimi nasıl yedekleyebilirim?**
+C: Sistem otomatik olarak yedekleme yapar, ayrıca manuel yedekleme de yapabilirsiniz.
+
+### Fatura ve Ödeme Soruları
+
+**S: E-fatura gönderebilir miyim?**
+C: Evet, sistem e-fatura gönderimi için GİB entegrasyonuna sahiptir.
+
+**S: Farklı para birimlerinde işlem yapabilir miyim?**
+C: Evet, sistem çoklu para birimi desteğine sahiptir. 

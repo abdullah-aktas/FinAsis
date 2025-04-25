@@ -28,15 +28,22 @@ Dieses Handbuch erklärt ausführlich die Verwendung der FinAsis-Plattform.
 4. Schließen Sie die E-Mail-Verifizierung ab
 5. Melden Sie sich an
 
-### Ersteinrichtung
+### Sicherheitsfunktionen
 
-1. Geben Sie Ihre Unternehmensinformationen ein
-2. Wählen Sie Ihren Kontenplan
-3. Konfigurieren Sie die Grundeinstellungen:
-   - Währung
-   - Steuersätze
-   - Rechnungsserien
-4. Definieren Sie Benutzerrollen
+1. Zwei-Faktor-Authentifizierung (2FA)
+   - Aktivieren Sie 2FA in den Profileinstellungen
+   - Verwenden Sie Google Authenticator oder eine ähnliche App
+   - Geben Sie den 6-stelligen Code bei der Anmeldung ein
+
+2. Passwortverwaltung
+   - Verwenden Sie starke Passwörter (mindestens 12 Zeichen)
+   - Ändern Sie Ihr Passwort regelmäßig
+   - E-Mail-Verifizierung für Passwort-Reset erforderlich
+
+3. Sitzungsverwaltung
+   - Aktive Sitzungen anzeigen
+   - Verdächtige Sitzungen beenden
+   - Automatische Abmeldezeit konfigurieren
 
 ## Hauptfunktionen
 
@@ -171,26 +178,65 @@ Auf dem Dashboard können Sie Folgendes sehen:
 3. Verwalten Sie Integrationen
 4. Nehmen Sie Backup-Einstellungen vor
 
-## Häufig gestellte Fragen
+## Benutzerverwaltung
 
-### Allgemeine Fragen
+### Profilverwaltung
+1. Profilinformationen
+   - Persönliche Informationen aktualisieren
+   - Kontaktdetails bearbeiten
+   - Profilbild ändern
 
-**F: Kann ich FinAsis auf mobilen Geräten verwenden?**
-A: Ja, FinAsis funktioniert als Progressive Web App (PWA) und kann auf allen mobilen Geräten verwendet werden.
+2. Präferenzen
+   - Sprache und Zeitzone einstellen
+   - Benachrichtigungseinstellungen
+   - Theme-Auswahl
 
-**F: Sind meine Daten sicher?**
-A: Alle Daten werden verschlüsselt und regelmäßig gesichert. Sichere Kommunikation wird mit SSL/TLS bereitgestellt.
+### Berechtigungsverwaltung
+1. Rollen und Berechtigungen
+   - Benutzerrollen anzeigen
+   - Berechtigungen verwalten
+   - Zugriffsbeschränkungen festlegen
 
-**F: Wie funktioniert die E-Rechnungsintegration?**
-A: Es besteht eine vollständige Integration mit der GIB (Steuerverwaltung). E-Rechnungen werden automatisch gesendet und empfangen.
+2. Gruppenverwaltung
+   - Benutzergruppen erstellen
+   - Gruppenmitgliedschaften verwalten
+   - Gruppenberechtigungen konfigurieren
 
-### Technische Fragen
+## Mobile Anwendung
 
-**F: Kann ich offline arbeiten?**
-A: Ja, dank PWA können Sie grundlegende Operationen ohne Internetverbindung durchführen.
+### Funktionen
+- Zugriff auf alle Desktop-Funktionen
+- Push-Benachrichtigungen
+- Offline-Modus
+- Biometrische Authentifizierung
 
-**F: Kann ich meine Daten exportieren?**
-A: Ja, Sie können alle Daten im Excel-, PDF- oder XML-Format exportieren.
+### Installation
+1. Laden Sie die App aus dem App Store oder Google Play herunter
+2. Melden Sie sich mit Ihrem Konto an
+3. Konfigurieren Sie die Sicherheitseinstellungen
 
-**F: Ist eine API-Integration möglich?**
-A: Ja, Sie können mit anderen Systemen über die REST-API integrieren. 
+## Hilfe und Support
+
+### Support-Kanäle
+- Online-Hilfezentrum
+- E-Mail-Support: support@finasis.com
+- Telefon-Support: +90 850 123 4567
+
+### Häufig gestellte Fragen
+- Was soll ich tun, wenn ich mein Passwort vergessen habe?
+- Wie aktiviere ich die Zwei-Faktor-Authentifizierung?
+- Wie lösche ich mein Konto?
+
+## Systemanforderungen
+
+### Browser-Unterstützung
+- Google Chrome (neueste Version)
+- Mozilla Firefox (neueste Version)
+- Microsoft Edge (neueste Version)
+- Safari (neueste Version)
+
+### Mindestanforderungen
+- Prozessor: 2 GHz oder schneller
+- RAM: 4 GB oder mehr
+- Internetverbindung: 5 Mbps oder schneller
+- Bildschirmauflösung: 1280x720 oder höher 

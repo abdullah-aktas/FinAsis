@@ -28,15 +28,22 @@ This guide explains in detail how to use the FinAsis platform.
 4. Complete email verification
 5. Log in
 
-### Initial Setup
+### Security Features
 
-1. Enter your company information
-2. Choose your chart of accounts
-3. Configure basic settings:
-   - Currency
-   - Tax rates
-   - Invoice series
-4. Define user roles
+1. Two-Factor Authentication (2FA)
+   - Enable 2FA from profile settings
+   - Use Google Authenticator or similar app
+   - Enter 6-digit code during login
+
+2. Password Management
+   - Use strong passwords (minimum 12 characters)
+   - Change password regularly
+   - Email verification required for password reset
+
+3. Session Management
+   - View active sessions
+   - Terminate suspicious sessions
+   - Configure auto-logout duration
 
 ## Main Features
 
@@ -91,6 +98,69 @@ On the Dashboard, you can see:
    - Create payment plan
 3. View/edit invoices
 4. Get invoice reports
+
+## User Management
+
+### Profile Management
+1. Profile Information
+   - Update personal information
+   - Edit contact details
+   - Change profile picture
+
+2. Preferences
+   - Language and timezone settings
+   - Notification preferences
+   - Theme selection
+
+### Permission Management
+1. Roles and Permissions
+   - View user roles
+   - Manage permissions
+   - Set access restrictions
+
+2. Group Management
+   - Create user groups
+   - Manage group memberships
+   - Configure group permissions
+
+## Mobile Application
+
+### Features
+- Access to all desktop features
+- Push notifications
+- Offline mode
+- Biometric authentication
+
+### Installation
+1. Download from App Store or Google Play
+2. Log in with your account
+3. Configure security settings
+
+## Help and Support
+
+### Support Channels
+- Online help center
+- Email support: support@finasis.com
+- Phone support: +90 850 123 4567
+
+### Frequently Asked Questions
+- What should I do if I forgot my password?
+- How do I enable two-factor authentication?
+- How do I delete my account?
+
+## System Requirements
+
+### Browser Support
+- Google Chrome (latest version)
+- Mozilla Firefox (latest version)
+- Microsoft Edge (latest version)
+- Safari (latest version)
+
+### Minimum Requirements
+- Processor: 2 GHz or faster
+- RAM: 4 GB or more
+- Internet connection: 5 Mbps or faster
+- Screen resolution: 1280x720 or higher
 
 ## E-Document System
 
