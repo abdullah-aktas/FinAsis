@@ -44,6 +44,13 @@ urlpatterns = [
     
     # Ana sayfa
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
+
+    path('', include('apps.home.urls')),
+    path('accounts/', include('apps.accounts.urls')),
+    path('accounting/', include('apps.accounting.urls')),
+    path('stock/', include('apps.stock_management.urls')),
+    path('banking/', include('apps.banking.urls')),
+    path('reports/', include('apps.reports.urls')),
 ]
 
 # Hata sayfaları

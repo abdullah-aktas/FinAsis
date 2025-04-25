@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Öğrenci Paneli{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profil Bilgileri -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Profil Bilgileri</h5>
+                    <p class="card-text">
+                        <strong>Ad Soyad:</strong> {{ student_profile.user.get_full_name }}<br>
+                        <strong>Öğrenci No:</strong> {{ student_profile.student_number }}<br>
+                        <strong>Bölüm:</strong> {{ student_profile.department }}<br>
+                        <strong>Sınıf:</strong> {{ student_profile.grade }}
+                    </p>
+                    <a href="{% url 'student:profile_update' %}" class="btn btn-primary">Profili Güncelle</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktif Ödevler -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Aktif Ödevler</h5>
+                    {% if active_assignments %}
+                        <div class="list-group">
+                            {% for assignment in active_assignments %}
+                                <a href="{% url 'student:assignment_detail' assignment.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ assignment.assignment.title }}</h6>
+                                        <small>Son Teslim: {{ assignment.assignment.due_date|date:"d.m.Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ assignment.assignment.description|truncatewords:20 }}</p>
+                                    <small>Durum: {{ assignment.get_status_display }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aktif ödev bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Son Notlar -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Son Notlar</h5>
+                    {% if recent_grades %}
+                        <div class="list-group">
+                            {% for grade in recent_grades %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ grade.assignment.assignment.title }}</h6>
+                                        <span class="badge bg-{{ grade.grade|grade_color }}">{{ grade.grade }}</span>
+                                    </div>
+                                    <small>{{ grade.assignment.assignment.course.title }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Henüz not bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ders İlerlemesi -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Ders İlerlemesi</h5>
+                    {% if course_progress %}
+                        <div class="list-group">
+                            {% for progress in course_progress %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ progress.course.title }}</h6>
+                                        <span class="badge bg-primary">{{ progress.progress }}%</span>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ progress.progress }}%"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Henüz ders kaydı bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -4,25 +4,156 @@
             "name": "FinansOgretici",
             "main_file": "apps/games/ursina_game/finans_ogretici.py",
             "icon": "build/assets/icon.ico",
-            "hidden_imports": ["ursina", "pygame"]
+            "hidden_imports": ["ursina", "pygame"],
+            "features": {
+                "multiplayer": true,
+                "battle_royale": true,
+                "seasons": true,
+                "achievements": true,
+                "leaderboards": true,
+                "daily_quests": true,
+                "inventory": true,
+                "cosmetics": true,
+                "cloud_save": true,
+                "cross_platform": true,
+                "tournaments": true,
+                "training_modules": true,
+                "community_content": true
+            },
+            "subscription_tiers": {
+                "free": {
+                    "features": ["basic_gameplay", "daily_quests", "basic_leaderboard", "basic_training"]
+                },
+                "premium": {
+                    "price": 9.99,
+                    "features": ["all_gameplay", "premium_quests", "advanced_leaderboard", "cosmetics", "advanced_training", "tournament_access"]
+                },
+                "pro": {
+                    "price": 19.99,
+                    "features": ["all_gameplay", "exclusive_quests", "priority_matchmaking", "all_cosmetics", "early_access", "expert_training", "tournament_priority", "content_creation_tools"]
+                }
+            },
+            "performance_settings": {
+                "target_fps": 60,
+                "memory_limit": "2GB",
+                "optimization_level": "high",
+                "cross_platform_support": true
+            },
+            "content_settings": {
+                "scenarios": ["beginner", "intermediate", "advanced", "expert"],
+                "training_modules": ["basic", "advanced", "expert"],
+                "community_tools": ["scenario_editor", "asset_creator", "challenge_maker"]
+            }
         },
         {
             "name": "TicaretinIzinde",
             "main_file": "apps/games/game_app/game.py",
             "icon": "build/assets/icon.ico",
-            "hidden_imports": ["pygame", "PyQt6"]
+            "hidden_imports": ["pygame", "PyQt6"],
+            "features": {
+                "multiplayer": true,
+                "battle_royale": true,
+                "seasons": true,
+                "achievements": true,
+                "leaderboards": true,
+                "daily_quests": true,
+                "inventory": true,
+                "cosmetics": true
+            },
+            "subscription_tiers": {
+                "free": {
+                    "features": ["basic_gameplay", "daily_quests", "basic_leaderboard"]
+                },
+                "premium": {
+                    "price": 9.99,
+                    "features": ["all_gameplay", "premium_quests", "advanced_leaderboard", "cosmetics"]
+                },
+                "pro": {
+                    "price": 19.99,
+                    "features": ["all_gameplay", "exclusive_quests", "priority_matchmaking", "all_cosmetics", "early_access"]
+                }
+            }
         },
         {
             "name": "TicaretinIzindeAR",
             "main_file": "apps/games/game_app/ar_trade_trail.py",
             "icon": "build/assets/icon.ico",
-            "hidden_imports": ["opencv-python", "numpy"]
+            "hidden_imports": ["opencv-python", "numpy"],
+            "features": {
+                "multiplayer": true,
+                "battle_royale": true,
+                "seasons": true,
+                "achievements": true,
+                "leaderboards": true,
+                "daily_quests": true,
+                "inventory": true,
+                "cosmetics": true
+            },
+            "subscription_tiers": {
+                "free": {
+                    "features": ["basic_gameplay", "daily_quests", "basic_leaderboard"]
+                },
+                "premium": {
+                    "price": 9.99,
+                    "features": ["all_gameplay", "premium_quests", "advanced_leaderboard", "cosmetics"]
+                },
+                "pro": {
+                    "price": 19.99,
+                    "features": ["all_gameplay", "exclusive_quests", "priority_matchmaking", "all_cosmetics", "early_access"]
+                }
+            }
         },
         {
             "name": "PiyasaSimulasyonu",
             "main_file": "apps/games/ursina_game/game.py",
             "icon": "build/assets/icon.ico",
-            "hidden_imports": ["ursina", "numpy"]
+            "hidden_imports": ["ursina", "numpy"],
+            "features": {
+                "multiplayer": true,
+                "battle_royale": true,
+                "seasons": true,
+                "achievements": true,
+                "leaderboards": true,
+                "daily_quests": true,
+                "inventory": true,
+                "cosmetics": true
+            },
+            "subscription_tiers": {
+                "free": {
+                    "features": ["basic_gameplay", "daily_quests", "basic_leaderboard"]
+                },
+                "premium": {
+                    "price": 9.99,
+                    "features": ["all_gameplay", "premium_quests", "advanced_leaderboard", "cosmetics"]
+                },
+                "pro": {
+                    "price": 19.99,
+                    "features": ["all_gameplay", "exclusive_quests", "priority_matchmaking", "all_cosmetics", "early_access"]
+                }
+            }
         }
-    ]
+    ],
+    "global_features": {
+        "cross_platform": true,
+        "cloud_save": true,
+        "social_features": true,
+        "anti_cheat": true,
+        "analytics": true,
+        "support": true,
+        "performance_monitoring": true,
+        "content_management": true,
+        "community_tools": true
+    },
+    "performance_optimization": {
+        "memory_management": "efficient",
+        "graphics_optimization": "adaptive",
+        "network_optimization": "high",
+        "cross_platform_optimization": true
+    },
+    "content_development": {
+        "scenario_editor": true,
+        "training_module_editor": true,
+        "community_content_approval": true,
+        "content_rating_system": true
+    }
 } 

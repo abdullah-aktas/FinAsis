@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}KOBİ Raporlama Panosu{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">KOBİ Raporlama Panosu</h1>
+            <p class="text-muted">İşletmenizin finansal durumunu ve performansını takip edin.</p>
+        </div>
+    </div>
+
+    <!-- Hızlı Bakış Kartları -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Günlük Satış</h5>
+                    <h2 class="mb-0">{{ daily_sales|default:"0" }} ₺</h2>
+                    <small class="text-muted">Bugün</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Aylık Gelir</h5>
+                    <h2 class="mb-0">{{ monthly_revenue|default:"0" }} ₺</h2>
+                    <small class="text-muted">Bu Ay</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Bekleyen Faturalar</h5>
+                    <h2 class="mb-0">{{ pending_invoices|default:"0" }}</h2>
+                    <small class="text-muted">Toplam</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Stok Uyarıları</h5>
+                    <h2 class="mb-0">{{ stock_alerts|default:"0" }}</h2>
+                    <small class="text-muted">Düşük Stok</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafikler -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Aylık Satış Trendi</h5>
+                    <canvas id="salesChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Ürün Kategorileri</h5>
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Önemli Hatırlatmalar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Önemli Hatırlatmalar</h5>
+                    <div class="list-group">
+                        {% for reminder in important_reminders %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ reminder.title }}</h6>
+                                <small class="text-muted">{{ reminder.due_date|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ reminder.description }}</p>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted mb-0">Önemli hatırlatma bulunmuyor.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hızlı İşlemler -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Hızlı İşlemler</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'accounting:create_invoice' %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="bi bi-file-earmark-text me-2"></i>Fatura Oluştur
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'stock_management:add_product' %}" class="btn btn-outline-success w-100 mb-2">
+                                <i class="bi bi-box-seam me-2"></i>Ürün Ekle
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'banking:create_payment' %}" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="bi bi-bank me-2"></i>Ödeme Yap
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'reports:export' %}" class="btn btn-outline-info w-100 mb-2">
+                                <i class="bi bi-download me-2"></i>Rapor İndir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Satış Grafiği
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_labels|safe }},
+            datasets: [{
+                label: 'Satışlar',
+                data: {{ sales_data|safe }},
+                borderColor: '#0d6efd',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Kategori Grafiği
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                data: {{ category_data|safe }},
+                backgroundColor: [
+                    '#0d6efd',
+                    '#198754',
+                    '#ffc107',
+                    '#dc3545',
+                    '#0dcaf0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %} 

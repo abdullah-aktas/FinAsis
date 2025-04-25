@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ödevlerim{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Ödevlerim</h1>
+            
+            <!-- Filtreleme Seçenekleri -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Durum</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Tümü</option>
+                                <option value="not_started" {% if request.GET.status == 'not_started' %}selected{% endif %}>Başlanmadı</option>
+                                <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Devam Ediyor</option>
+                                <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Tamamlandı</option>
+                                <option value="submitted" {% if request.GET.status == 'submitted' %}selected{% endif %}>Teslim Edildi</option>
+                                <option value="graded" {% if request.GET.status == 'graded' %}selected{% endif %}>Notlandırıldı</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="course" class="form-label">Ders</label>
+                            <select class="form-select" id="course" name="course">
+                                <option value="">Tümü</option>
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ course.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="sort" class="form-label">Sırala</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="due_date" {% if request.GET.sort == 'due_date' %}selected{% endif %}>Teslim Tarihi</option>
+                                <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Başlık</option>
+                                <option value="status" {% if request.GET.sort == 'status' %}selected{% endif %}>Durum</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Ödev Listesi -->
+            <div class="card">
+                <div class="card-body">
+                    {% if assignments %}
+                        <div class="list-group">
+                            {% for assignment in assignments %}
+                                <a href="{% url 'student:assignment_detail' assignment.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ assignment.assignment.title }}</h5>
+                                        <small class="text-{{ assignment.status|status_color }}">
+                                            {{ assignment.get_status_display }}
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">
+                                        <strong>Ders:</strong> {{ assignment.assignment.course.title }}<br>
+                                        <strong>Son Teslim:</strong> {{ assignment.assignment.due_date|date:"d.m.Y" }}
+                                    </p>
+                                    <div class="progress mt-2" style="height: 5px;">
+                                        <div class="progress-bar bg-{{ assignment.status|status_color }}" 
+                                             role="progressbar" 
+                                             style="width: {{ assignment.completion_percentage }}%"
+                                             aria-valuenow="{{ assignment.completion_percentage }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    {% if assignment.grade %}
+                                        <small class="text-muted mt-2">
+                                            Not: {{ assignment.grade }} - 
+                                            {% if assignment.feedback %}
+                                                Geri Bildirim: {{ assignment.feedback|truncatechars:50 }}
+                                            {% endif %}
+                                        </small>
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Henüz ödev bulunmamaktadır.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
