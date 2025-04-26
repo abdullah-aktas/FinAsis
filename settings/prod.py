@@ -1,4 +1,4 @@
-from pathlib import Path
+import pathlib
 from datetime import timedelta
 from .base import *
 from decouple import config, Csv
@@ -6,10 +6,10 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Base directory
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 # Güvenlik Ayarları
-DEBUG = False
+DEBUG = True
 SECRET_KEY = config('SECRET_KEY')
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 

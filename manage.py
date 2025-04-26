@@ -5,11 +5,11 @@ Django yönetim komutları için komut satırı aracı.
 Bu dosya, Django projesinin yönetim komutlarını çalıştırmak için kullanılır.
 """
 
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 # Loglama yapılandırması
 logging.basicConfig(
@@ -46,7 +46,7 @@ def check_dependencies() -> None:
     try:
         import django
         logger.info(f"Django sürümü: {django.get_version()}")
-    except ImportError as e:
+    except ImportError:
         logger.error(
             "Django bulunamadı. Lütfen şunları kontrol edin:\n"
             "1. Django yüklü mü?\n"
