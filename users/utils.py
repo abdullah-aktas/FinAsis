@@ -6,21 +6,31 @@ Bu dosya, Users modülünün yardımcı fonksiyonlarını içerir.
 
 from django.utils import timezone
 from django.core.cache import cache
-from .models import UserActivity
+from .models import (
+    UserActivity, UserNotification, UserSession,
+    UserPreferences, UserSettings
+)
 
-def log_user_activity(user, action, request=None):
-    """Kullanıcı aktivitesini kaydeder"""
-    activity = UserActivity.objects.create(
+def log_user_activity(user, action, details=None):
+    """
+    Kullanıcı aktivitelerini loglar.
+    
+    Args:
+        user: Kullanıcı objesi
+        action: Yapılan işlem (string)
+        details: İşlem detayları (dict, optional)
+    """
+    UserActivity.objects.create(
         user=user,
         action=action,
-        ip_address=get_client_ip(request) if request else None,
-        user_agent=request.META.get('HTTP_USER_AGENT', '') if request else ''
+        details=details or {},
+        timestamp=timezone.now()
     )
     
     # Cache'i temizle
     cache.delete(f'user_activities_{user.id}')
     
-    return activity
+    return True
 
 def get_client_ip(request):
     """İstemci IP adresini döndürür"""
@@ -46,8 +56,6 @@ def get_user_activities(user, limit=10):
 
 def get_user_notifications(user, limit=10):
     """Kullanıcının son bildirimlerini döndürür"""
-    from .models import UserNotification
-    
     cache_key = f'user_notifications_{user.id}'
     notifications = cache.get(cache_key)
     
@@ -62,8 +70,6 @@ def get_user_notifications(user, limit=10):
 
 def get_user_sessions(user):
     """Kullanıcının aktif oturumlarını döndürür"""
-    from .models import UserSession
-    
     cache_key = f'user_sessions_{user.id}'
     sessions = cache.get(cache_key)
     
@@ -78,8 +84,6 @@ def get_user_sessions(user):
 
 def get_user_preferences(user):
     """Kullanıcının tercihlerini döndürür"""
-    from .models import UserPreferences
-    
     cache_key = f'user_preferences_{user.id}'
     preferences = cache.get(cache_key)
     
@@ -91,8 +95,6 @@ def get_user_preferences(user):
 
 def get_user_settings(user):
     """Kullanıcının ayarlarını döndürür"""
-    from .models import UserSettings
-    
     cache_key = f'user_settings_{user.id}'
     settings = cache.get(cache_key)
     

@@ -7,9 +7,13 @@ from .models import Warehouse, Product, Stock, StockMovement, StockCount, StockC
 class WarehouseForm(forms.ModelForm):
     class Meta:
         model = Warehouse
-        fields = ['name', 'location', 'description', 'manager', 'status', 'capacity']
+        fields = ['name', 'code', 'address', 'manager', 'is_active']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'code': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'manager': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class CategoryForm(forms.ModelForm):
@@ -139,5 +143,52 @@ class StockReportFilterForm(forms.Form):
                 )
 
         return cleaned_data
+
+class StockForm(forms.ModelForm):
+    class Meta:
+        model = Stock
+        fields = ['product', 'warehouse', 'quantity']
+        widgets = {
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'warehouse': forms.Select(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity < 0:
+            raise forms.ValidationError(_('Stok miktarı negatif olamaz.'))
+        return quantity
+
+class StockCountForm(forms.ModelForm):
+    class Meta:
+        model = StockCount
+        fields = ['warehouse', 'count_date', 'notes']
+        widgets = {
+            'warehouse': forms.Select(attrs={'class': 'form-control'}),
+            'count_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+class StockCountItemForm(forms.ModelForm):
+    class Meta:
+        model = StockCountItem
+        fields = ['product', 'counted_quantity', 'notes']
+        widgets = {
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'counted_quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['product'].disabled = True
+
+    def clean_counted_quantity(self):
+        quantity = self.cleaned_data.get('counted_quantity')
+        if quantity < 0:
+            raise forms.ValidationError(_('Sayılan miktar negatif olamaz.'))
+        return quantity
 
 # Diğer formlar buraya eklenecek... 

@@ -38,22 +38,28 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     
     # Local apps
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
     'permissions.apps.PermissionsConfig',
+    'stock_management.apps.StockManagementConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -112,6 +118,8 @@ LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
 
+LANGUAGE_COOKIE_NAME = 'django_language'
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -150,21 +158,8 @@ CORS_ALLOWED_ORIGINS = [
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'finasis'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'CONN_MAX_AGE': 600,  # Bağlantı havuzu süresi (saniye)
-        'OPTIONS': {
-            'connect_timeout': 10,
-            'client_encoding': 'UTF8',
-            'timezone': 'UTC',
-            'sslmode': 'prefer',
-        },
-        'ATOMIC_REQUESTS': True,  # Her istek için otomatik transaction
-        'CONN_HEALTH_CHECKS': True,  # Bağlantı sağlık kontrolleri
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

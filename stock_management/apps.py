@@ -13,3 +13,12 @@ class InventoryConfig(AppConfig):
             import stock_management.signals
         except ImportError:
             pass
+
+
+class StockManagementConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'stock_management'
+    verbose_name = 'Stok Yönetimi'
+
+    def ready(self):
+        import stock_management.signals

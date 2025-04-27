@@ -14,6 +14,9 @@ from django.core.exceptions import PermissionDenied
 from .models import Category, StockAlert
 from .forms import CategoryForm
 from .utils import check_stock_alerts
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 
 # Create your views here.
 
@@ -173,6 +176,16 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         messages.success(self.request, 'Ürün başarıyla güncellendi.')
         return response
 
+class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Product
+    template_name = 'stock_management/product_confirm_delete.html'
+    permission_required = 'stock_management.delete_product'
+    success_url = reverse_lazy('stock_management:product_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Ürün başarıyla silindi.')
+        return super().delete(request, *args, **kwargs)
+
 class StockMovementCreateView(LoginRequiredMixin, CreateView):
     model = StockMovement
     form_class = StockMovementForm
@@ -244,3 +257,204 @@ def stock_report(request):
     }
     
     return render(request, 'stock_management/stock_report.html', context)
+
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = Category
+    template_name = 'stock_management/category_list.html'
+    context_object_name = 'categories'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Category.objects.all()
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)
+        return queryset
+
+class CategoryDetailView(LoginRequiredMixin, DetailView):
+    model = Category
+    template_name = 'stock_management/category_detail.html'
+    context_object_name = 'category'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['products'] = self.object.products.all()
+        return context
+
+class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'stock_management/category_form.html'
+    permission_required = 'stock_management.add_category'
+    success_url = reverse_lazy('stock_management:category_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Kategori başarıyla oluşturuldu.')
+        return response
+
+class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'stock_management/category_form.html'
+    permission_required = 'stock_management.change_category'
+    success_url = reverse_lazy('stock_management:category_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Kategori başarıyla güncellendi.')
+        return response
+
+class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Category
+    template_name = 'stock_management/category_confirm_delete.html'
+    permission_required = 'stock_management.delete_category'
+    success_url = reverse_lazy('stock_management:category_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Kategori başarıyla silindi.')
+        return super().delete(request, *args, **kwargs)
+
+class StockMovementListView(LoginRequiredMixin, ListView):
+    model = StockMovement
+    template_name = 'stock_management/stock_movement_list.html'
+    context_object_name = 'movements'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = StockMovement.objects.select_related('product', 'created_by').all()
+        
+        # Ürün filtresi
+        product_id = self.request.GET.get('product')
+        if product_id:
+            queryset = queryset.filter(product_id=product_id)
+        
+        # Hareket tipi filtresi
+        movement_type = self.request.GET.get('type')
+        if movement_type:
+            queryset = queryset.filter(movement_type=movement_type)
+        
+        # Tarih aralığı filtresi
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        if start_date and end_date:
+            queryset = queryset.filter(created_at__range=[start_date, end_date])
+        
+        return queryset.order_by('-created_at')
+
+class StockMovementDetailView(LoginRequiredMixin, DetailView):
+    model = StockMovement
+    template_name = 'stock_management/stock_movement_detail.html'
+    context_object_name = 'movement'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        movement = self.get_object()
+        context['product'] = movement.product
+        context['created_by'] = movement.created_by
+        return context
+
+class ProductAPIView(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.query_params.get('search', '')
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(sku__icontains=search) |
+                Q(barcode__icontains=search)
+            )
+        return queryset
+
+class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+class StockMovementAPIView(generics.ListCreateAPIView):
+    queryset = StockMovement.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        product_id = self.request.query_params.get('product', '')
+        if product_id:
+            queryset = queryset.filter(product_id=product_id)
+        return queryset
+
+class StockAlertAPIView(generics.ListAPIView):
+    queryset = StockAlert.objects.filter(is_read=False)
+    permission_classes = [permissions.IsAuthenticated]
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def check_stock_ajax(request):
+    product_id = request.data.get('product_id')
+    quantity = request.data.get('quantity', 0)
+    
+    try:
+        product = Product.objects.get(id=product_id)
+        current_stock = product.current_stock
+        is_available = current_stock >= quantity
+        
+        return JsonResponse({
+            'success': True,
+            'current_stock': current_stock,
+            'is_available': is_available
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Ürün bulunamadı'
+        })
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def product_autocomplete(request):
+    query = request.GET.get('q', '')
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    products = Product.objects.filter(
+        Q(name__icontains=query) |
+        Q(sku__icontains=query) |
+        Q(barcode__icontains=query)
+    )[:10]
+    
+    results = [{
+        'id': product.id,
+        'text': f"{product.name} ({product.sku})",
+        'stock': product.current_stock
+    } for product in products]
+    
+    return JsonResponse({'results': results})
+
+def movement_report(request):
+    if not request.user.has_perm('stock_management.view_stockmovement'):
+        raise PermissionDenied
+    
+    movements = StockMovement.objects.select_related('product', 'created_by')
+    
+    # Filtreler
+    product_id = request.GET.get('product')
+    if product_id:
+        movements = movements.filter(product_id=product_id)
+    
+    movement_type = request.GET.get('type')
+    if movement_type:
+        movements = movements.filter(movement_type=movement_type)
+    
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        movements = movements.filter(created_at__range=[start_date, end_date])
+    
+    context = {
+        'movements': movements,
+        'products': Product.objects.all(),
+        'movement_types': StockMovement.MOVEMENT_TYPES,
+    }
+    
+    return render(request, 'stock_management/movement_report.html', context)

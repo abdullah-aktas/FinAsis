@@ -15,6 +15,7 @@ class Permission(models.Model):
         ContentType,
         models.CASCADE,
         verbose_name=_('İçerik tipi'),
+        related_name='custom_permissions'
     )
     description = models.TextField(_('Açıklama'), blank=True)
     created_at = models.DateTimeField(_('Oluşturulma tarihi'), auto_now_add=True)

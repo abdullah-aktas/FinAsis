@@ -15,6 +15,9 @@ def update_file_imports(file_path, old_prefix, new_prefix):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
+            if content is None or len(content) < 2:
+                print(f"❗ {file_path} dosyası boş veya çok kısa!")
+                # Gerekirse otomatik düzeltme eklenebilir
         
         # Import ifadelerini güncelle
         pattern = fr'(from|import)\s+{old_prefix}\.([^\s\.]+)'

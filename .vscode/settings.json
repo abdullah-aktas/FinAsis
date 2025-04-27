@@ -1,0 +1,44 @@
+{
+  "privacy.mode": "enabled",
+  "chat.defaultMode": "agent",
+  "chat.autoRefreshChats": true,
+  "chat.autoScrollToBottom": true,
+  "chat.autoApplyFilesOutsideContext": true,
+  "chat.includeProjectStructure": true,
+  "chat.enableAutoRunMode": true,
+  "chat.deleteFileProtection": true,
+  "chat.mcpToolsProtection": false,
+  "chat.dotFilesProtection": true,
+  "chat.outsideWorkspaceProtection": true,
+  
+  "cursorTab.partialAccepts": false,
+  "cursorTab.suggestionsInComments": true,
+  "cursorTab.showWhitespaceOnlyChanges": true,
+  "cursorTab.autoImport": true,
+  "cursorTab.autoImportPython": true,
+  
+  "diffs.iterateOnLints": true,
+  "diffs.autoAcceptDiffs": false,
+  "diffs.largeContext": true,
+  "diffs.characterLevelDiffs": true,
+  "diffs.themedDiffBackgrounds": true,
+  
+  "terminal.terminalHint": true,
+  "terminal.terminalHoverHint": true,
+  "terminal.previewBoxForTerminal": true,
+  
+  "editor.showChatEditTooltip": true,
+  "editor.autoParseInlineEditLinks": false,
+  "editor.autoSelectCtrlK": true,
+  
+  "cursor.models": [
+    "gpt-4o",
+    "gpt-4.1",
+    "claude-3.7-sonnet-max",
+    "claude-3.7-sonnet",
+    "claude-3.5-sonnet",
+    "gemini-2.5-pro-max",
+    "gemini-2.5-pro-exp-03-25",
+    "o4-mini"
+  ]
+} 

@@ -9,6 +9,9 @@ import os
 from typing import Dict, Optional
 from google.cloud import vision
 from google.cloud.vision_v1 import types
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OCRService:
     def __init__(self, use_google_vision: bool = False):
@@ -36,19 +39,24 @@ class OCRService:
         Returns:
             numpy.ndarray: İşlenmiş görüntü
         """
-        # Gri tonlamaya çevir
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        
-        # Gürültü azaltma
-        denoised = cv2.fastNlMeansDenoising(gray)
-        
-        # Adaptif eşikleme
-        binary = cv2.adaptiveThreshold(
-            denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY, 11, 2
-        )
-        
-        return binary
+        try:
+            # Gri tonlamaya çevir
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
+            # Gürültü azaltma
+            denoised = cv2.fastNlMeansDenoising(gray)
+            
+            # Adaptif eşikleme
+            binary = cv2.adaptiveThreshold(
+                denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                cv2.THRESH_BINARY, 11, 2
+            )
+            
+            return binary
+            
+        except Exception as e:
+            logger.error(f"Görüntü işleme hatası: {str(e)}")
+            raise
         
     def extract_invoice_data(self, image_path: str) -> Dict[str, str]:
         """
@@ -69,19 +77,24 @@ class OCRService:
         """
         Tesseract OCR ile fatura verilerini çıkarır
         """
-        # Görüntüyü oku
-        image = cv2.imread(image_path)
-        if image is None:
-            raise ValueError("Görüntü okunamadı")
+        try:
+            # Görüntüyü oku
+            image = cv2.imread(image_path)
+            if image is None:
+                raise ValueError("Görüntü okunamadı")
             
-        # Görüntüyü işle
-        processed_image = self.preprocess_image(image)
-        
-        # OCR işlemi
-        text = pytesseract.image_to_string(processed_image, lang=self.language)
-        
-        # Veri çıkarma
-        return self._parse_invoice_text(text)
+            # Görüntüyü işle
+            processed_image = self.preprocess_image(image)
+            
+            # OCR işlemi
+            text = pytesseract.image_to_string(processed_image, lang=self.language)
+            
+            # Veri çıkarma
+            return self._parse_invoice_text(text)
+            
+        except Exception as e:
+            logger.error(f"Metin çıkarma hatası: {str(e)}")
+            raise
         
     def _extract_with_google_vision(self, image_path: str) -> Dict[str, str]:
         """
@@ -115,6 +128,7 @@ class OCRService:
             return self._parse_invoice_text(text)
             
         except Exception as e:
+            logger.error(f"Google Vision hatası: {str(e)}")
             return {
                 'error': f'Google Vision hatası: {str(e)}',
                 'invoice_number': '',
@@ -216,9 +230,9 @@ class OCRService:
                 
         return result
         
-    def process_image(self, image_path: str) -> Dict[str, str]:
+    def process_invoice(self, image_path: str) -> Dict[str, str]:
         """
-        Görüntüyü işler ve sonuçları döndürür
+        Fatura görüntüsünü işler ve sonuçları döndürür
         
         Args:
             image_path (str): Fatura görüntüsü dosya yolu
@@ -229,6 +243,7 @@ class OCRService:
         try:
             return self.extract_invoice_data(image_path)
         except Exception as e:
+            logger.error(f"Fatura işleme hatası: {str(e)}")
             return {
                 'error': str(e),
                 'invoice_number': '',

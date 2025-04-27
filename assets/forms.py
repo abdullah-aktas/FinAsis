@@ -1,5 +1,5 @@
 from django import forms
-from .models import AssetCategory, Asset, Depreciation, Maintenance, AssetTransfer, AssetDisposal
+from .models import AssetCategory, Asset, Depreciation, Maintenance, AssetTransfer, AssetDisposal, AssetRental
 
 class AssetCategoryForm(forms.ModelForm):
     class Meta:
@@ -24,10 +24,10 @@ class AssetForm(forms.ModelForm):
 class DepreciationForm(forms.ModelForm):
     class Meta:
         model = Depreciation
-        fields = ['depreciation_date', 'amount', 'remaining_value', 'notes']
+        fields = ['period_start', 'period_end', 'depreciation_amount', 'accumulated_depreciation']
         widgets = {
-            'depreciation_date': forms.DateInput(attrs={'type': 'date'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
+            'period_start': forms.DateInput(attrs={'type': 'date'}),
+            'period_end': forms.DateInput(attrs={'type': 'date'}),
         }
 
 class MaintenanceForm(forms.ModelForm):
@@ -48,12 +48,11 @@ class AssetTransferForm(forms.ModelForm):
         model = AssetTransfer
         fields = [
             'from_location', 'to_location', 'transfer_date',
-            'reason', 'status', 'notes'
+            'reason'
         ]
         widgets = {
             'transfer_date': forms.DateInput(attrs={'type': 'date'}),
             'reason': forms.Textarea(attrs={'rows': 3}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
 class AssetDisposalForm(forms.ModelForm):
@@ -61,10 +60,22 @@ class AssetDisposalForm(forms.ModelForm):
         model = AssetDisposal
         fields = [
             'disposal_date', 'disposal_type', 'disposal_value',
-            'reason', 'status', 'notes'
+            'reason'
         ]
         widgets = {
             'disposal_date': forms.DateInput(attrs={'type': 'date'}),
             'reason': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class AssetRentalForm(forms.ModelForm):
+    class Meta:
+        model = AssetRental
+        fields = [
+            'renter', 'start_date', 'end_date', 'rental_fee',
+            'status', 'notes'
+        ]
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
             'notes': forms.Textarea(attrs={'rows': 3}),
         } 

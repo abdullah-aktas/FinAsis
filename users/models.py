@@ -23,7 +23,7 @@ class User(AbstractUser):
     reset_token = models.CharField(_('Şifre Sıfırlama Tokenı'), max_length=100, blank=True)
     
     # Profil ilişkisi
-    profile = models.OneToOneField('UserProfile', on_delete=models.CASCADE, related_name='user_profile', null=True, blank=True)
+    profile = models.OneToOneField('UserProfile', on_delete=models.CASCADE, related_name='user_account', null=True, blank=True)
     
     # Profil bilgileri
     profile_picture = models.ImageField(_('Profil Resmi'), upload_to='profile_pictures/', blank=True)
@@ -69,7 +69,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='profile',
+        related_name='user_profile',
         verbose_name=_('Kullanıcı')
     )
     avatar = models.ImageField(

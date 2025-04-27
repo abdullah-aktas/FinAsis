@@ -16,14 +16,15 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'False')
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
-INSTALLED_APPS = [
+INSTALLED_APPS = {
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'virtual_company'
+
     # Third party apps
     'rest_framework',
     'rest_framework_simplejwt',
@@ -37,7 +38,7 @@ INSTALLED_APPS = [
     'health_check.cache',
     'health_check.storage',
     'health_check.contrib.migrations',
-    
+
     # Local apps
     'finance',
     'crm',
@@ -45,7 +46,11 @@ INSTALLED_APPS = [
     'accounting',
     'banking',
     'checks',
-]
+    'ai_assistant',  # AI Assistant uygulaması
+    'users',  # Users uygulaması
+    'virtual_company',  # Virtual Company uygulaması
+    'blockchain',  # Blockchain uygulaması
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,15 +87,8 @@ WSGI_APPLICATION = 'FinAsis.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'finasis'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -232,6 +230,30 @@ CELERY_BEAT_SCHEDULE = {
     'send-opportunity-reminders': {
         'task': 'crm.tasks.send_opportunity_reminders',
         'schedule': crontab(hour='*/1'),
+    },
+    'check-expired-documents': {
+        'task': 'edocument.tasks.check_expired_documents',
+        'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı çalışır
+    },
+    'check-upcoming-payments': {
+        'task': 'finance.tasks.check_upcoming_payments',
+        'schedule': crontab(hour=9, minute=0),  # Her gün sabah 9'da çalışır
+    },
+    'cleanup-inactive-sessions': {
+        'task': 'users.tasks.cleanup_inactive_sessions',
+        'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı
+    },
+    'cleanup-old-notifications': {
+        'task': 'users.tasks.cleanup_old_notifications',
+        'schedule': crontab(hour=0, minute=0, day_of_week='monday'),  # Her Pazartesi
+    },
+    'cleanup-old-activities': {
+        'task': 'users.tasks.cleanup_old_activities',
+        'schedule': crontab(hour=0, minute=0, day_of_month='1'),  # Her ayın 1'i
+    },
+    'send-scheduled-notifications': {
+        'task': 'users.tasks.send_scheduled_notifications',
+        'schedule': crontab(minute='*/15'),  # Her 15 dakikada bir
     },
 }
 

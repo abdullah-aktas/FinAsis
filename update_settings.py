@@ -100,7 +100,11 @@ class SettingsManager:
         """Ayarlar dosyasını okur."""
         try:
             with open(self.settings_path, 'r', encoding='utf-8') as file:
-                return file.read()
+                content = file.read()
+                if content is None or len(content) < 2:
+                    print(f"❗ {self.settings_path} dosyası boş veya çok kısa!")
+                    # Gerekirse otomatik düzeltme eklenebilir
+                return content
         except Exception as e:
             logger.error(f"Ayarlar dosyası okuma hatası: {e}")
             return None

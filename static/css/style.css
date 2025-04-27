@@ -1,12 +1,33 @@
-/* Genel Stiller */
+/* Ana Stiller */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --text-color: #2c3e50;
+    --light-gray: #f8f9fa;
+}
+
+/* Genel */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
-    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Navbar Stilleri */
+main {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* Navbar */
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -14,26 +35,29 @@ body {
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color: var(--primary-color);
 }
 
-/* Kart Stilleri */
+/* Kartlar */
 .card {
     border: none;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
 }
 
 .card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .card-title {
     color: #2c3e50;
-    font-weight: bold;
+    font-weight: 600;
 }
 
-/* Buton Stilleri */
+/* Butonlar */
 .btn {
     border-radius: 5px;
     padding: 8px 20px;
@@ -51,16 +75,76 @@ body {
     border-color: #2980b9;
 }
 
-/* Form Stilleri */
+.btn-success {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+.btn-success:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Form Elemanları */
 .form-control {
     border-radius: 5px;
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 10px 15px;
 }
 
 .form-control:focus {
     border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Uyarılar */
+.alert {
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
 }
 
 /* Oyun Konteyneri */
@@ -70,18 +154,39 @@ body {
     margin: 20px 0;
 }
 
-/* Footer Stilleri */
-footer {
-    margin-top: auto;
+/* Dashboard Kartları */
+.dashboard-card {
+    height: 100%;
+    border-radius: 1rem;
+    overflow: hidden;
 }
 
-/* Responsive Düzenlemeler */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 15px;
-    }
-    
-    .card {
-        margin-bottom: 20px;
-    }
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+.dashboard-stats {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* İkon Stilleri */
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #3498db;
+}
+
+/* Yardımcı Sınıflar */
+.text-primary-custom {
+    color: var(--primary-color);
+}
+
+.bg-light-custom {
+    background-color: var(--light-gray);
+}
+
+.rounded-custom {
+    border-radius: 1rem;
 } 

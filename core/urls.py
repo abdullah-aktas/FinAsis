@@ -4,15 +4,24 @@ Core Modülü - URL Yapılandırması
 Bu dosya, FinAsis uygulamasının temel URL yapılandırmasını içerir.
 
 URL Yapısı:
+- / - Ana sayfa
+- /dashboard/ - Ana kontrol paneli
 - /api/v1/core/ - Ana core API endpoint'i
 - /api/v1/core/health/ - Sistem sağlık kontrolü
-- /api/v1/core/dashboard/ - Ana kontrol paneli
-- /api/v1/core/error/ - Hata sayfaları
 """
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import HealthCheckViewSet, DashboardView, ErrorView
+from .views import (
+    HealthCheckViewSet, 
+    DashboardView, 
+    ErrorView,
+    home,
+    pricing,
+    get_weather_data,
+    get_finance_data,
+    set_language,
+)
 
 app_name = 'core'
 
@@ -21,12 +30,18 @@ router = DefaultRouter()
 router.register(r'health', HealthCheckViewSet, basename='health')
 
 urlpatterns = [
-    # API Endpoint'leri
-    path('', include(router.urls)),
+    # Ana Sayfalar
+    path('', home, name='home'),
+    path('pricing/', pricing, name='pricing'),
     
     # Dashboard ve Kontrol Paneli
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('dashboard/<str:section>/', DashboardView.as_view(), name='dashboard-section'),
+    
+    # API Endpoint'leri
+    path('api/', include(router.urls)),
+    path('api/weather/', get_weather_data, name='weather-data'),
+    path('api/finance/', get_finance_data, name='finance-data'),
     
     # Hata Sayfaları
     path('error/<int:code>/', ErrorView.as_view(), name='error'),
@@ -35,4 +50,7 @@ urlpatterns = [
     # Sistem Durumu
     path('status/', HealthCheckViewSet.as_view({'get': 'list'}), name='system-status'),
     path('status/<str:component>/', HealthCheckViewSet.as_view({'get': 'retrieve'}), name='component-status'),
+    
+    # Dil seçici
+    path('set-language/', set_language, name='set_language'),
 ] 

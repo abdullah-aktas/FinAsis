@@ -18,6 +18,7 @@ class AssetCategory(models.Model):
         verbose_name = _('Varlık Kategorisi')
         verbose_name_plural = _('Varlık Kategorileri')
         ordering = ['name']
+        app_label = 'assets'
 
     def __str__(self):
         return self.name
@@ -49,6 +50,7 @@ class Asset(models.Model):
                             validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])])
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
                                   null=True, blank=True, verbose_name=_('Atanan Kişi'))
+    notes = models.TextField(_('Notlar'), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -56,6 +58,7 @@ class Asset(models.Model):
         verbose_name = _('Varlık')
         verbose_name_plural = _('Varlıklar')
         ordering = ['-created_at']
+        app_label = 'assets'
         indexes = [
             models.Index(fields=['status']),
             models.Index(fields=['category']),
@@ -78,6 +81,7 @@ class Depreciation(models.Model):
         verbose_name = _('Amortisman')
         verbose_name_plural = _('Amortismanlar')
         ordering = ['-period_start']
+        app_label = 'assets'
 
     def __str__(self):
         return f"{self.asset.name} - {self.period_start} to {self.period_end}"
@@ -112,6 +116,7 @@ class Maintenance(models.Model):
         verbose_name = _('Bakım')
         verbose_name_plural = _('Bakımlar')
         ordering = ['-maintenance_date']
+        app_label = 'assets'
         indexes = [
             models.Index(fields=['status']),
             models.Index(fields=['maintenance_type']),
@@ -135,6 +140,7 @@ class AssetTransfer(models.Model):
         verbose_name = _('Varlık Transferi')
         verbose_name_plural = _('Varlık Transferleri')
         ordering = ['-transfer_date']
+        app_label = 'assets'
 
     def __str__(self):
         return f"{self.asset.name} - {self.from_location} -> {self.to_location}"
@@ -161,6 +167,7 @@ class AssetDisposal(models.Model):
         verbose_name = _('Varlık İmhası')
         verbose_name_plural = _('Varlık İmhaları')
         ordering = ['-disposal_date']
+        app_label = 'assets'
 
     def __str__(self):
         return f"{self.asset.name} - {self.disposal_type} ({self.disposal_date})"
@@ -187,6 +194,7 @@ class AssetRental(models.Model):
         verbose_name = _('Varlık Kiralama')
         verbose_name_plural = _('Varlık Kiralamaları')
         ordering = ['-start_date']
+        app_label = 'assets'
         indexes = [
             models.Index(fields=['status']),
             models.Index(fields=['renter']),

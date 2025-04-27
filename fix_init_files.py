@@ -31,6 +31,14 @@ def fix_init_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
+        # Dosya içeriği kontrolü
+        if content is None or len(content) < 2:
+            print(f"❗ {file_path} dosyası boş veya çok kısa, yenileniyor...")
+            module_name = os.path.basename(os.path.dirname(file_path))
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(f'# -*- coding: utf-8 -*-\n"""\n{module_name} modülü\n"""\n')
+            print(f"✅ {file_path} dosyası yenilendi.")
+            return True
         print(f"📋 {file_path} dosyası düzgün okunamadı, yenileniyor...")
         return False
     except UnicodeDecodeError:

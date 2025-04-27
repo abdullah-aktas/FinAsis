@@ -29,6 +29,11 @@ from web3 import Web3
 from decimal import Decimal
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import (
+    Transaction, Wallet, SmartContract, TokenContract,
+    TokenTransaction, BlockchainTransaction
+)
 
 logger = logging.getLogger(__name__)
 
@@ -442,3 +447,159 @@ def get_transactions(request, contract_id):
             for t in transactions
         ]
     })
+
+class TransactionListView(LoginRequiredMixin, ListView):
+    model = Transaction
+    template_name = 'blockchain/transaction_list.html'
+    context_object_name = 'transactions'
+    
+    def get_queryset(self):
+        return Transaction.objects.filter(wallet__in=self.request.user.wallets.all())
+
+class TransactionDetailView(LoginRequiredMixin, DetailView):
+    model = Transaction
+    template_name = 'blockchain/transaction_detail.html'
+    context_object_name = 'transaction'
+
+    def get_queryset(self):
+        return Transaction.objects.filter(wallet__in=self.request.user.wallets.all())
+
+class TransactionCreateView(LoginRequiredMixin, CreateView):
+    model = Transaction
+    template_name = 'blockchain/transaction_form.html'
+    fields = ['wallet', 'to_address', 'amount', 'gas_price', 'gas_limit', 'data']
+    success_url = reverse_lazy('blockchain:transaction-list')
+    
+    def form_valid(self, form):
+        user_wallet = get_object_or_404(Wallet, user=self.request.user)
+        form.instance.from_address = user_wallet.address
+        return super().form_valid(form)
+
+class TransactionUpdateView(LoginRequiredMixin, UpdateView):
+    model = Transaction
+    template_name = 'blockchain/transaction_form.html'
+    fields = ['gas_price', 'gas_limit', 'data']
+    success_url = reverse_lazy('blockchain:transaction-list')
+
+class TransactionDeleteView(LoginRequiredMixin, DeleteView):
+    model = Transaction
+    template_name = 'blockchain/transaction_confirm_delete.html'
+    success_url = reverse_lazy('blockchain:transaction-list')
+
+class WalletListView(LoginRequiredMixin, ListView):
+    model = Wallet
+    template_name = 'blockchain/wallet_list.html'
+    context_object_name = 'wallets'
+    
+    def get_queryset(self):
+        return Wallet.objects.filter(user=self.request.user)
+
+class WalletDetailView(LoginRequiredMixin, DetailView):
+    model = Wallet
+    template_name = 'blockchain/wallet_detail.html'
+    context_object_name = 'wallet'
+
+class WalletCreateView(LoginRequiredMixin, CreateView):
+    model = Wallet
+    template_name = 'blockchain/wallet_form.html'
+    fields = ['name', 'network']
+    success_url = reverse_lazy('blockchain:wallet-list')
+    
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class WalletUpdateView(LoginRequiredMixin, UpdateView):
+    model = Wallet
+    template_name = 'blockchain/wallet_form.html'
+    fields = ['name']
+    success_url = reverse_lazy('blockchain:wallet-list')
+
+class WalletDeleteView(LoginRequiredMixin, DeleteView):
+    model = Wallet
+    template_name = 'blockchain/wallet_confirm_delete.html'
+    success_url = reverse_lazy('blockchain:wallet-list')
+
+class SmartContractListView(LoginRequiredMixin, ListView):
+    model = SmartContract
+    template_name = 'blockchain/smart_contract_list.html'
+    context_object_name = 'smart_contracts'
+    
+    def get_queryset(self):
+        return SmartContract.objects.filter(owner=self.request.user)
+
+class SmartContractDetailView(LoginRequiredMixin, DetailView):
+    model = SmartContract
+    template_name = 'blockchain/smart_contract_detail.html'
+    context_object_name = 'smart_contract'
+
+class SmartContractCreateView(LoginRequiredMixin, CreateView):
+    model = SmartContract
+    template_name = 'blockchain/smart_contract_form.html'
+    fields = ['name', 'network', 'abi', 'bytecode']
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+    
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+class SmartContractUpdateView(LoginRequiredMixin, UpdateView):
+    model = SmartContract
+    template_name = 'blockchain/smart_contract_form.html'
+    fields = ['name', 'abi']
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+
+class SmartContractDeleteView(LoginRequiredMixin, DeleteView):
+    model = SmartContract
+    template_name = 'blockchain/smart_contract_confirm_delete.html'
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+
+class VerifyView(LoginRequiredMixin, CreateView):
+    model = SmartContract
+    template_name = 'blockchain/verify.html'
+    fields = ['address', 'network']
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+
+class DeployView(LoginRequiredMixin, CreateView):
+    model = SmartContract
+    template_name = 'blockchain/deploy.html'
+    fields = ['name', 'network', 'abi', 'bytecode']
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+
+class InteractView(LoginRequiredMixin, UpdateView):
+    model = SmartContract
+    template_name = 'blockchain/interact.html'
+    fields = ['function_name', 'parameters']
+    success_url = reverse_lazy('blockchain:smart-contract-list')
+
+class TokenContractListView(LoginRequiredMixin, ListView):
+    model = TokenContract
+    template_name = 'blockchain/token_contract_list.html'
+    context_object_name = 'token_contracts'
+
+    def get_queryset(self):
+        return TokenContract.objects.filter(user=self.request.user)
+
+class TokenContractDetailView(LoginRequiredMixin, DetailView):
+    model = TokenContract
+    template_name = 'blockchain/token_contract_detail.html'
+    context_object_name = 'token_contract'
+
+    def get_queryset(self):
+        return TokenContract.objects.filter(user=self.request.user)
+
+class BlockchainTransactionListView(LoginRequiredMixin, ListView):
+    model = BlockchainTransaction
+    template_name = 'blockchain/blockchain_transaction_list.html'
+    context_object_name = 'blockchain_transactions'
+
+    def get_queryset(self):
+        return BlockchainTransaction.objects.filter(virtual_company__user=self.request.user)
+
+class BlockchainTransactionDetailView(LoginRequiredMixin, DetailView):
+    model = BlockchainTransaction
+    template_name = 'blockchain/blockchain_transaction_detail.html'
+    context_object_name = 'blockchain_transaction'
+
+    def get_queryset(self):
+        return BlockchainTransaction.objects.filter(virtual_company__user=self.request.user)

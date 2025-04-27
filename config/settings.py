@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework_simplejwt',
     'django_celery_beat',
+    'django_tables2',
     
     # Local apps
     'checks',
@@ -33,6 +34,11 @@ INSTALLED_APPS = [
     'users',
     'core',
     'seo',
+    'finance.apps.FinanceConfig',
+    'ai_assistant.apps.AIAssistantConfig',
+    'virtual_company.apps.VirtualCompanyConfig',
+    'assets',
+    'stock_management',
 ]
 
 MIDDLEWARE = [
@@ -197,8 +203,7 @@ LOGGING = {
 }
 
 # API Keys
-OPENWEATHER_API_KEY = env('OPENWEATHER_API_KEY', default='')
-ALPHA_VANTAGE_API_KEY = env('ALPHA_VANTAGE_API_KEY', default='')
+ALPHA_VANTAGE_API_KEY = config('ALPHA_VANTAGE_API_KEY', default='')
 
 # Cache timeouts
 WEATHER_CACHE_TIMEOUT = 30 * 60  # 30 minutes

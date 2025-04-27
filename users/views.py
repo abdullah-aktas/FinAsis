@@ -57,9 +57,9 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
     def get_permissions(self):
-        if self.action in ['create', 'retrieve', 'update', 'partial_update']:
-            return [permissions.IsAuthenticated()]
-        return super().get_permissions()
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
     @action(detail=False, methods=['get'])
     def me(self, request):

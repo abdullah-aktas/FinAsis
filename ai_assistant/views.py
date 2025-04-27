@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
@@ -13,19 +13,19 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import os
 from .services import FinancialAIService, ChatAIService
-from .models.cashflow_forecaster import CashFlowForecaster
-from .models.risk_scorer import CustomerRiskScorer
+from .models import CashFlowForecaster, CustomerRiskScorer, AIModel, UserInteraction, FinancialPrediction, AIFeedback, FinancialReport, AnomalyDetection, TrendAnalysis, UserPreference, AIInsight, Recommendation, Notification, MarketAnalysis
 from .services.ocr_service import OCRService
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import (
-    UserInteraction, FinancialPrediction, FinancialReport,
-    AnomalyDetection, TrendAnalysis, Recommendation, Notification,
-    UserPreference, AIInsight
-)
 from .services import get_market_analysis
-from .serializers import UserPreferenceSerializer, AIInsightSerializer
+from .serializers import (
+    AIModelSerializer, UserInteractionSerializer, FinancialPredictionSerializer,
+    AIFeedbackSerializer, FinancialReportSerializer, AnomalyDetectionSerializer,
+    TrendAnalysisSerializer, UserPreferenceSerializer, AIInsightSerializer,
+    RecommendationSerializer, NotificationSerializer, MarketAnalysisSerializer
+)
+from django.utils.translation import gettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
@@ -74,17 +74,16 @@ def recommendations_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def analyze_financial_data(request):
-    """Finansal veri analizi API endpoint'i"""
     try:
-        service = FinancialAIService()
-        results = service.analyze_financial_data(request.user, request.data)
-        return Response(results)
+        data = json.loads(request.body)
+        financial_service = FinancialAIService()
+        result = financial_service.analyze_financial_data(request.user, data)
+        
+        return Response(result, status=status.HTTP_200_OK)
+        
     except Exception as e:
-        logger.error(f"Finansal analiz hatası: {str(e)}")
-        return Response(
-            {"error": "Analiz sırasında bir hata oluştu."},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        logger.error(f"Finansal veri analizi hatası: {str(e)}")
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -118,18 +117,22 @@ def predict_market_trends(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-async def chat_with_ai(request):
-    """AI sohbet API endpoint'i"""
+def chat_with_ai(request):
     try:
-        service = ChatAIService()
-        response = await service.get_response(request.user, request.data.get('query', ''))
-        return Response({"response": response})
+        data = json.loads(request.body)
+        query = data.get('query')
+        
+        if not query:
+            return Response({'error': 'Sorgu boş olamaz'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        chat_service = ChatAIService()
+        response = chat_service.get_response(request.user, query)
+        
+        return Response({'response': response}, status=status.HTTP_200_OK)
+        
     except Exception as e:
-        logger.error(f"Sohbet yanıtı oluşturma hatası: {str(e)}")
-        return Response(
-            {"error": "Yanıt oluşturulurken bir hata oluştu."},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        logger.error(f"AI sohbet hatası: {str(e)}")
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -447,10 +450,54 @@ class TrendAnalysisDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'ai_assistant/trendanalysis_confirm_delete.html'
     success_url = reverse_lazy('ai_assistant:trendanalysis_list')
 
+class AIModelViewSet(viewsets.ModelViewSet):
+    queryset = AIModel.objects.all()
+    serializer_class = AIModelSerializer
+    permission_classes = [IsAuthenticated]
+
+class UserInteractionViewSet(viewsets.ModelViewSet):
+    queryset = UserInteraction.objects.all()
+    serializer_class = UserInteractionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class FinancialPredictionViewSet(viewsets.ModelViewSet):
+    queryset = FinancialPrediction.objects.all()
+    serializer_class = FinancialPredictionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class AIFeedbackViewSet(viewsets.ModelViewSet):
+    queryset = AIFeedback.objects.all()
+    serializer_class = AIFeedbackSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class FinancialReportViewSet(viewsets.ModelViewSet):
+    queryset = FinancialReport.objects.all()
+    serializer_class = FinancialReportSerializer
+    permission_classes = [IsAuthenticated]
+
+class AnomalyDetectionViewSet(viewsets.ModelViewSet):
+    queryset = AnomalyDetection.objects.all()
+    serializer_class = AnomalyDetectionSerializer
+    permission_classes = [IsAuthenticated]
+
+class TrendAnalysisViewSet(viewsets.ModelViewSet):
+    queryset = TrendAnalysis.objects.all()
+    serializer_class = TrendAnalysisSerializer
+    permission_classes = [IsAuthenticated]
+
 class UserPreferenceViewSet(viewsets.ModelViewSet):
     queryset = UserPreference.objects.all()
     serializer_class = UserPreferenceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -458,7 +505,79 @@ class UserPreferenceViewSet(viewsets.ModelViewSet):
 class AIInsightViewSet(viewsets.ModelViewSet):
     queryset = AIInsight.objects.all()
     serializer_class = AIInsightSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+class RecommendationViewSet(viewsets.ModelViewSet):
+    queryset = Recommendation.objects.all()
+    serializer_class = RecommendationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+class MarketAnalysisViewSet(viewsets.ModelViewSet):
+    queryset = MarketAnalysis.objects.all()
+    serializer_class = MarketAnalysisSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def latest(self):
+        latest_analysis = self.get_queryset().order_by('-timestamp').first()
+        serializer = self.get_serializer(latest_analysis)
+        return Response(serializer.data)
+
+class ChatViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        try:
+            chat_service = ChatAIService()
+            response = chat_service.get_response(request.user, request.data.get('query'))
+            return Response({'response': response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Chat error: {str(e)}")
+            return Response(
+                {'error': _('Sohbet işlemi sırasında bir hata oluştu.')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class FinancialAnalysisViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        try:
+            financial_service = FinancialAIService()
+            analysis = financial_service.analyze_financial_data(request.user, request.data)
+            return Response(analysis, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Financial analysis error: {str(e)}")
+            return Response(
+                {'error': _('Finansal analiz sırasında bir hata oluştu.')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class OCRViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        try:
+            ocr_service = OCRService()
+            result = ocr_service.process_invoice(request.FILES.get('image'))
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"OCR error: {str(e)}")
+            return Response(
+                {'error': _('OCR işlemi sırasında bir hata oluştu.')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

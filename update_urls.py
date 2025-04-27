@@ -118,7 +118,11 @@ class URLManager:
         """Dosyayı okur."""
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
-                return file.read()
+                content = file.read()
+                if content is None or len(content) < 2:
+                    print(f"❗ {file_path} dosyası boş veya çok kısa!")
+                    # Gerekirse otomatik düzeltme eklenebilir
+                return content
         except Exception as e:
             logger.error(f"Dosya okuma hatası: {e}")
             return None

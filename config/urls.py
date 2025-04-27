@@ -73,8 +73,8 @@ urlpatterns = [
     path('health/', TemplateView.as_view(template_name='health.html'), name='health-check'),
     
     # Ana Sayfalar
-    path('', TemplateView.as_view(template_name='core/home.html'), name='home'),
-    path('pricing/', TemplateView.as_view(template_name='core/pricing.html'), name='pricing'),
+    path('', views.home, name='home'),
+    path('pricing/', views.pricing, name='pricing'),
 ]
 
 # Admin URLs
@@ -94,15 +94,6 @@ api_v1_patterns = [
     
     # Finans Modülleri
     path('finance/', include('finance.urls', namespace='finance')),
-    path('accounting/', include('accounting.urls', namespace='accounting')),
-    path('banking/', include('banking.urls', namespace='banking')),
-    
-    # İş Yönetimi
-    path('crm/', include('crm.urls', namespace='crm')),
-    path('hr/', include('hr_management.urls', namespace='hr')),
-    
-    # Analiz ve Raporlama
-    path('analytics/', include('analytics.urls', namespace='analytics')),
 ]
 
 # API Versiyon 2 URLs (Geliştirme Aşamasında)
@@ -125,34 +116,31 @@ urlpatterns += i18n_patterns(
     
     # Finans modülleri
     path('finance/', include('finance.urls')),
-    path('accounting/', include('accounting.urls')),
     path('checks/', include('checks.urls')),
     
     # İş yönetimi
-    path('crm/', include('crm.urls')),
     path('virtual-company/', include('virtual_company.urls')),
-    path('hr/', include('hr_management.urls')),
     path('assets/', include('assets.urls')),
     path('stock/', include('stock_management.urls')),
     
     # Belgeler ve entegrasyonlar
-    path('edocument/', include('edocument.urls')),
-    path('integrations/', include('integrations.urls')),
-    path('blockchain/', include('blockchain.urls')),
+    # path('edocument/', include('edocument.urls')),  # Geçici olarak devre dışı bırakıldı
+    # path('integrations/', include('integrations.urls')),  # Geçici olarak devre dışı bırakıldı
+    # path('blockchain/', include('blockchain.urls')),  # Geçici olarak devre dışı bırakıldı
     
     # Analizler ve raporlama
-    path('analytics/', include('analytics.urls')),
+    # path('analytics/', include('analytics.urls')),  # Geçici olarak devre dışı bırakıldı
     
     # Yardımcı sistemler
-    path('assistant/', include('assistant.urls')),
-    path('ai-assistant/', include('ai_assistant.urls')),
+    # path('assistant/', include('assistant.urls')),  # Geçici olarak devre dışı bırakıldı
+    # path('ai-assistant/', include('ai_assistant.urls')),  # Geçici olarak devre dışı bırakıldı
     
     # Pazarlama ve sosyal medya
-    path('seo/', include('seo.urls')),
-    path('social/', include('social.urls')),
+    # path('seo/', include('seo.urls')),  # Geçici olarak devre dışı bırakıldı
+    # path('social/', include('social.urls')),  # Geçici olarak devre dışı bırakıldı
     
     # Oyunlar ve eğitimler
-    path('games/', include('games.urls')),
+    # path('games/', include('games.urls')),  # Geçici olarak devre dışı bırakıldı
     
     prefix_default_language=True
 )

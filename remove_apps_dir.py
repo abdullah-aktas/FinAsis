@@ -80,15 +80,16 @@ def move_remaining_modules(backup_path):
                 try:
                     with open(apps_py_path, 'r', encoding='utf-8') as f:
                         content = f.read()
-                    
-                    # name değerini güncelle
-                    updated_content = content.replace(f"name = 'apps.{module}'", f"name = '{module}'")
-                    updated_content = updated_content.replace(f"import apps.{module}", f"import {module}")
-                    
-                    with open(apps_py_path, 'w', encoding='utf-8') as f:
-                        f.write(updated_content)
+                        if content is None or len(content) < 2:
+                            print(f"❗ {apps_py_path} dosyası boş veya çok kısa!")
+                            # Gerekirse otomatik düzeltme eklenebilir
+                        updated_content = content.replace(f"name = 'apps.{module}'", f"name = '{module}'")
+                        updated_content = updated_content.replace(f"import apps.{module}", f"import {module}")
                         
-                    print(f"✅ {module}/apps.py dosyası güncellendi.")
+                        with open(apps_py_path, 'w', encoding='utf-8') as f:
+                            f.write(updated_content)
+                            
+                        print(f"✅ {module}/apps.py dosyası güncellendi.")
                 except Exception as e:
                     print(f"❌ {module}/apps.py güncellenirken hata: {e}")
             

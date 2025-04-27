@@ -58,25 +58,27 @@ def collect_models(module_name):
     try:
         with open(models_path, 'r', encoding='utf-8') as f:
             content = f.read()
+            if content is None or len(content) < 2:
+                print(f"❗ {models_path} dosyası boş veya çok kısa!")
+                # Gerekirse otomatik düzeltme eklenebilir
+            # Model sınıflarını bul
+            model_pattern = r'class\s+(\w+)\((?:models\.Model|.*Model.*)\)'
+            found_models = re.findall(model_pattern, content)
             
-        # Model sınıflarını bul
-        model_pattern = r'class\s+(\w+)\((?:models\.Model|.*Model.*)\)'
-        found_models = re.findall(model_pattern, content)
-        
-        if found_models:
-            models.extend(found_models)
+            if found_models:
+                models.extend(found_models)
             
-        # models/ dizinini kontrol et
-        models_dir = os.path.join(BASE_DIR, module_name, 'models')
-        if os.path.exists(models_dir) and os.path.isdir(models_dir):
-            for model_file in os.listdir(models_dir):
-                if model_file.endswith('.py') and model_file != '__init__.py':
-                    model_file_path = os.path.join(models_dir, model_file)
-                    with open(model_file_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                    found_models = re.findall(model_pattern, content)
-                    if found_models:
-                        models.extend(found_models)
+            # models/ dizinini kontrol et
+            models_dir = os.path.join(BASE_DIR, module_name, 'models')
+            if os.path.exists(models_dir) and os.path.isdir(models_dir):
+                for model_file in os.listdir(models_dir):
+                    if model_file.endswith('.py') and model_file != '__init__.py':
+                        model_file_path = os.path.join(models_dir, model_file)
+                        with open(model_file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        found_models = re.findall(model_pattern, content)
+                        if found_models:
+                            models.extend(found_models)
                         
     except Exception as e:
         print(f"[HATA] {module_name} modellerini analiz ederken hata: {e}")

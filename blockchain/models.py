@@ -36,6 +36,7 @@ class BlockchainNetwork(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     class Meta:
+        app_label = 'blockchain'
         verbose_name = _('Blockchain Network')
         verbose_name_plural = _('Blockchain Networks')
         indexes = [
@@ -65,6 +66,7 @@ class SmartContract(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     class Meta:
+        app_label = 'blockchain'
         verbose_name = _('Smart Contract')
         verbose_name_plural = _('Smart Contracts')
         indexes = [
@@ -99,6 +101,7 @@ class Transaction(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     class Meta:
+        app_label = 'blockchain'
         verbose_name = _('Transaction')
         verbose_name_plural = _('Transactions')
         indexes = [
@@ -123,6 +126,7 @@ class Wallet(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     class Meta:
+        app_label = 'blockchain'
         verbose_name = _('Wallet')
         verbose_name_plural = _('Wallets')
         indexes = [
@@ -147,6 +151,7 @@ class Token(models.Model):
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
 
     class Meta:
+        app_label = 'blockchain'
         verbose_name = _('Token')
         verbose_name_plural = _('Tokens')
         indexes = [
@@ -190,6 +195,7 @@ class BlockchainTransaction(BaseModel):
         return f"{self.title} - {self.get_transaction_type_display()}"
     
     class Meta:
+        app_label = 'blockchain'
         verbose_name = 'Blockchain İşlemi'
         verbose_name_plural = 'Blockchain İşlemleri'
         ordering = ['-created_at']
@@ -207,6 +213,7 @@ class BlockchainLog(BaseModel):
         return f"{self.transaction.title} - {self.status} - {self.created_at}"
     
     class Meta:
+        app_label = 'blockchain'
         verbose_name = 'Blockchain Log'
         verbose_name_plural = 'Blockchain Logları'
         ordering = ['-created_at']
@@ -233,6 +240,7 @@ class TokenContract(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        app_label = 'blockchain'
         verbose_name = 'Token Sözleşmesi'
         verbose_name_plural = 'Token Sözleşmeleri'
         ordering = ['-created_at']
@@ -252,6 +260,7 @@ class TokenBalance(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        app_label = 'blockchain'
         verbose_name = 'Token Bakiyesi'
         verbose_name_plural = 'Token Bakiyeleri'
         unique_together = ['contract', 'user']
@@ -281,9 +290,10 @@ class TokenTransaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
+        app_label = 'blockchain'
         verbose_name = 'Token İşlemi'
         verbose_name_plural = 'Token İşlemleri'
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.get_transaction_type_display()} - {self.amount} {self.contract.token_symbol}"
+        return f"{self.transaction_type} - {self.amount} {self.contract.token_symbol}"
