@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Kritik finansal işlemler için performans testleri.
 """

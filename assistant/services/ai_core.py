@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import openai
 from django.conf import settings
 from ..models import PagePrompt, ChatSession, ChatMessage

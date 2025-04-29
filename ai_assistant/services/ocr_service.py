@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytesseract
 from PIL import Image
 import cv2

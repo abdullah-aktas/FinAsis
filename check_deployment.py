@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Bu script projenin canlı ortama geçiş için gerekli kontrolleri yapar.

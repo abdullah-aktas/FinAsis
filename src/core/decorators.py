@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Özel dekoratörler.
 Bu modül, proje genelinde kullanılacak özel dekoratörleri içerir.

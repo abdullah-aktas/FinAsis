@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import openai
 from langchain import LLMChain, PromptTemplate
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingRegressor

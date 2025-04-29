@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Finance uygulaması URL yapılandırmaları
 """

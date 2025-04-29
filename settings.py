@@ -6,11 +6,17 @@ FinAsis Analitik Modülü Ayarları
 Bu modül, FinAsis analitik sisteminin temel yapılandırma ayarlarını içerir.
 """
 
+import environ
 from datetime import timedelta
 import os
 from typing import Dict, List, Any
 from decouple import config, Csv
 from pathlib import Path
+import sys
+
+# environ ayarları
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,17 +90,17 @@ CACHES = {
 
 # Email ayarları
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='ornekmail@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='ornek_sifre')
 
 # AWS S3 ayarları
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='ornek_aws_access_key')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='ornek_aws_secret_key')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='ornek_bucket_adi')
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-central-1')
 AWS_DEFAULT_ACL = None
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
@@ -127,15 +133,18 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 # Sentry ayarları
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+SENTRY_DSN = config('SENTRY_DSN', default='')
 
-sentry_sdk.init(
-    dsn=config('SENTRY_DSN'),
-    integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
-    send_default_pii=True
-)
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True
+    )
 
 # Genel Analitik Ayarları
 ANALYTICS_SETTINGS = {
@@ -383,4 +392,5 @@ if ANALYTICS_SETTINGS['DEBUG']:
     MIDDLEWARE.extend([
         'debug_toolbar.middleware.DebugToolbarMiddleware',
         'analytics.middleware.QueryDebugMiddleware',
-    ]) 
+    ])
+

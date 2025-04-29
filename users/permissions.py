@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Users Modülü - İzin Sınıfları
 ---------------------

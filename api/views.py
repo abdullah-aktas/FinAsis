@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol tabanlı yetkilendirme örneği olacak API görünümleri.
 """

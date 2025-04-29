@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 E-fatura entegrasyonları için test dosyası.
 """

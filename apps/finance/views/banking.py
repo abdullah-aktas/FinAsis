@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Banka işlemleri ile ilgili görünümler
 """

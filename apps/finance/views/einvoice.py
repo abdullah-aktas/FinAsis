@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 E-Fatura/E-Arşiv Fatura işlemleri ile ilgili görünümler
 """

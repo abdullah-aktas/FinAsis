@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol ve izin kontrol sistemi için veritabanı modelleri.
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from typing import Dict, Any
 from django.contrib.auth.models import User

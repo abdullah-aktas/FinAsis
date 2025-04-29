@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Bu script, Django projesindeki tüm model-view-template ilişkilerini kontrol eder

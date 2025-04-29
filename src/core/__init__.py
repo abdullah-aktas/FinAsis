@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Core modülü, projenin temel bileşenlerini içerir.
 Bu modül, diğer tüm modüllerin temelini oluşturur ve

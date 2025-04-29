@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ursina import color
 
 # Eksik renkleri tanımla

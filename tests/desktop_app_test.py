@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import tkinter as tk
 from unittest.mock import patch, MagicMock

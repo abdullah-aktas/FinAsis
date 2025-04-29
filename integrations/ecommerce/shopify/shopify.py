@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Any, Dict
 import shopify
 from datetime import datetime, timedelta

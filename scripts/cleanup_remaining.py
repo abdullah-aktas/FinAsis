@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Ana dizinde kalan gereksiz klasör ve dosyaları temizleyen betik

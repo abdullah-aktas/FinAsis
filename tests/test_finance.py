@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Finans modülü için test dosyası.
 """

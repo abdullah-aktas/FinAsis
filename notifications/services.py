@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import firebase_admin
 from firebase_admin import messaging, credentials
 from django.conf import settings

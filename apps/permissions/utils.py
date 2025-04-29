@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol tabanlı izin kontrolü için yardımcı fonksiyonlar.
 """

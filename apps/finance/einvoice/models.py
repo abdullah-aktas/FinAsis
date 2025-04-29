@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 E-Fatura modülü için veritabanı modelleri.
 

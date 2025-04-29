@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django temel ayarları
 """
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'permissions.apps.PermissionsConfig',
     'stock_management.apps.StockManagementConfig',
+    'ai_assistant.apps.AIAssistantConfig',
 ]
 
 MIDDLEWARE = [

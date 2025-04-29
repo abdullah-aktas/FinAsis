@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from drf_yasg import openapi
 
 test_response_schema = openapi.Schema(

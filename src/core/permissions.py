@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Özel izin sınıfları.
 Bu modül, proje genelinde kullanılacak özel izin sınıflarını içerir.

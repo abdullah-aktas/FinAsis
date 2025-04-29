@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Bu script, MVT (Model-View-Template) yapısındaki eksik template'leri oluşturur.

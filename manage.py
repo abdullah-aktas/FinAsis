@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
 """
 Django yönetim komutları için komut satırı aracı.
 Bu dosya, Django projesinin yönetim komutlarını çalıştırmak için kullanılır.

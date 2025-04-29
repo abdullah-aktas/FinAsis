@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.core.cache import cache
 from django.utils import timezone
 from .models import ChatSession, ChatMessage, AssistantPerformance

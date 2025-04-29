@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Bu script FinAsis projesindeki MVT (Model-View-Template) yapısını kontrol eder,

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from functools import wraps
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Banka entegrasyonları için test dosyası.
 """

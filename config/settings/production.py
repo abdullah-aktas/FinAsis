@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Canlı ortam için Django ayarları
 Bu dosya, canlı ortamda (production) kullanılacak özel ayarları içerir.

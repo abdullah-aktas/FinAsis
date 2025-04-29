@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 FinAsis 3D Ticaret Simülasyonu
 

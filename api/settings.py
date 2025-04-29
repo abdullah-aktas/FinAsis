@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # API Ayarları
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

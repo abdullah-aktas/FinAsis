@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # FinAsis Settings Paketi
 """
 Bu paket Django ayar dosyalarını içerir:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Özel doğrulayıcılar.
 Bu modül, proje genelinde kullanılacak özel doğrulayıcıları içerir.

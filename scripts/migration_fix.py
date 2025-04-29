@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 MVT dönüşümünde modül birleştirmeleri sonrası migrasyon sorunlarını düzeltme betiği

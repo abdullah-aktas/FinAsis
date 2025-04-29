@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # E-posta Ayarları
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP sunucusu

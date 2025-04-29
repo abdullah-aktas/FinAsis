@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from rest_framework import serializers
 from finance.models import Transaction, CashFlow, IncomeStatement
 

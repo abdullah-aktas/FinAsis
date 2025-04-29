@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Analytics Modülü - URL Yapılandırması
 -----------------------------------

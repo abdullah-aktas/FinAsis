@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol tabanlı izin sistemi ve güvenlik iyileştirmeleri için modül.
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -84,7 +85,7 @@ class FinancialPrediction(models.Model):
     input_data = models.JSONField(verbose_name=_('Girdi Verileri'))
     prediction_result = models.TextField(verbose_name=_('Tahmin Sonucu'))  # AI'ın ürettiği tahmin sonucu
     confidence = models.FloatField(_('Güven Oranı'))
-    model = models.ForeignKey(AIModel, on_delete=models.CASCADE, verbose_name=_('Kullanılan Model'))
+    model = models.ForeignKey(AIModel, on_delete=models.CASCADE, verbose_name=_('Kullanılan Model'), null=True, blank=True)
     is_validated = models.BooleanField(_('Doğrulandı'), default=False)
     validation_notes = models.TextField(_('Doğrulama Notları'), blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Oluşturulma Tarihi'))
@@ -269,7 +270,7 @@ class Recommendation(models.Model):
         ('high', 'Yüksek')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     recommendations = models.JSONField()
     category = models.CharField(max_length=100)
@@ -286,7 +287,7 @@ class Recommendation(models.Model):
         return f"{self.title} - {self.user.username}"
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     message = models.TextField()
     is_read = models.BooleanField(default=False)

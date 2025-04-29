@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Django MVT (Model-View-Template) yapısını tüm uygulamalara uygulamak için otomasyon betiği.

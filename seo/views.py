@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 SEO Modülü - View'lar
 ---------------------

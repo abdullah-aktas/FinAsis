@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from celery import shared_task
 from django.core.cache import cache
 from .models import Game, Player, Transaction

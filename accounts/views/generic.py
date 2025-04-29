@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -20,7 +21,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework_simplejwt.tokens import RefreshToken
 from ..forms import UserRegistrationForm, UserUpdateForm, TwoFactorForm
 from ..models import User
-from ..tkinter_settings import open_settings_window
+# from ..tkinter_settings import open_settings_window
 import threading
 import json
 import pyotp

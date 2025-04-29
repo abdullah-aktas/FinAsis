@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Düzenli çalışan finansal görevler için test dosyası.
 """

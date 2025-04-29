@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol tabanlı erişim kontrolü için Django view mixinleri.
 """

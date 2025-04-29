@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db.models import Sum, Count, Avg, Q
 from django.utils import timezone
 from decimal import Decimal

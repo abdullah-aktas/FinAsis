@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytest
 from django.test import Client
 from django.urls import reverse

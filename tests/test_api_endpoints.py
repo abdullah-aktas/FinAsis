@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Finans modülü ve entegrasyonlar için API Endpoint testleri.
 """

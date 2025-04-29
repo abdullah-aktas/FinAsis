@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 from django.db.models import Sum, Count, F, ExpressionWrapper, FloatField
 from django.utils import timezone

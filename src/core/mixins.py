@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Özel mixin sınıfları.
 Bu modül, proje genelinde kullanılacak özel mixin sınıflarını içerir.

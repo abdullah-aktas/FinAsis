@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from decouple import config

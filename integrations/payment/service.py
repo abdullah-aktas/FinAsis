@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from django.conf import settings

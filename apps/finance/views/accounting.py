@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Muhasebe işlemleri ile ilgili görünümler
 """

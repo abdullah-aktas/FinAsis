@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from celery.schedules import crontab
 from celery import Celery
 from django.conf import settings

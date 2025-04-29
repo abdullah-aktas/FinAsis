@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ursina import Ursina, Entity, Text, Button, window, camera, color, mouse, Vec3, Func, destroy, application, Sky, Tooltip
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random

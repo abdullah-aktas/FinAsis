@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 Bu script, apps/ dizinindeki kalan modülleri ana dizine taşıdıktan sonra

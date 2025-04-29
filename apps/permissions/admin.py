@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Admin panel registrations for permissions app
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Services paketi için boş __init__.py dosyası 
 from .financial_service import FinancialAIService
 from .chat_service import ChatAIService

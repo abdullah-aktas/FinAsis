@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django import forms
 from .models import AssetCategory, Asset, Depreciation, Maintenance, AssetTransfer, AssetDisposal
 

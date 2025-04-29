@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 apps.py dosyalarındaki name özelliğini yeni MVT yapısına uygun olarak düzenleyen betik

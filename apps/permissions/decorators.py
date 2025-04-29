@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Rol ve izin kontrolleri için kullanılabilecek decorator fonksiyonları.
 """

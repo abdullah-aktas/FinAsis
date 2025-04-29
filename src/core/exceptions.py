@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Özel istisna sınıfları.
 Bu modül, proje genelinde kullanılacak özel istisna sınıflarını içerir.

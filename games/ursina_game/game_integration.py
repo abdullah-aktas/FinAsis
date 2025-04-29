@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ursina import *
 from game_manager import GameManager
 

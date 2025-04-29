@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.urls import path
 from .views.generic import (
     LoginView, TwoFactorView, register_view, logout_view,

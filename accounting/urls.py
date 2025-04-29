@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Accounting Modülü - URL Yapılandırması
 -------------------------------------

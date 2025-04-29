@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygame
 import cv2
 import numpy as np

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action

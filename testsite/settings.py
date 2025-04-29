@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
