@@ -87,4 +87,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 ## İletişim
 
 - Proje Yöneticisi: [Abdullah Aktaş](mailto:abdullah.aktas@example.com)
-- Web Sitesi: [https://finasis.com](https://finasis.com)
+- Web Sitesi: [https://finasis.com.tr](https://finasis.com.tr)
