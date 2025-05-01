@@ -10,15 +10,15 @@ class FinAsisAssistant {
     }
 
     init() {
-        // Ana container oluştur
+        // Ana container oluÅŸtur
         this.container = document.createElement('div');
         this.container.className = 'finasis-assistant-container';
         document.body.appendChild(this.container);
 
-        // Yardım butonu
+        // YardÄ±m butonu
         const helpButton = document.createElement('button');
         helpButton.className = 'finasis-assistant-button';
-        helpButton.innerHTML = '🧠 Yardım mı lazım?';
+        helpButton.innerHTML = 'ðŸ§  YardÄ±m mÄ± lazÄ±m?';
         helpButton.onclick = () => this.toggleChat();
         this.container.appendChild(helpButton);
 
@@ -31,24 +31,24 @@ class FinAsisAssistant {
         this.chatWindow.className = 'finasis-assistant-chat';
         this.chatWindow.style.display = 'none';
 
-        // Mesaj alanı
+        // Mesaj alanÄ±
         this.messageContainer = document.createElement('div');
         this.messageContainer.className = 'finasis-assistant-messages';
         this.chatWindow.appendChild(this.messageContainer);
 
-        // Input alanı
+        // Input alanÄ±
         const inputContainer = document.createElement('div');
         inputContainer.className = 'finasis-assistant-input-container';
 
         this.inputField = document.createElement('input');
         this.inputField.type = 'text';
-        this.inputField.placeholder = 'Mesajınızı yazın...';
+        this.inputField.placeholder = 'MesajÄ±nÄ±zÄ± yazÄ±n...';
         this.inputField.onkeypress = (e) => {
             if (e.key === 'Enter') this.sendMessage();
         };
 
         const sendButton = document.createElement('button');
-        sendButton.innerHTML = '📤';
+        sendButton.innerHTML = 'ðŸ“¤';
         sendButton.onclick = () => this.sendMessage();
 
         inputContainer.appendChild(this.inputField);
@@ -72,7 +72,7 @@ class FinAsisAssistant {
         const message = this.inputField.value.trim();
         if (!message) return;
 
-        // Kullanıcı mesajını göster
+        // KullanÄ±cÄ± mesajÄ±nÄ± gÃ¶ster
         this.addMessage(message, true);
         this.inputField.value = '';
 
@@ -95,13 +95,13 @@ class FinAsisAssistant {
             const data = await response.json();
             
             if (data.error) {
-                this.addMessage('Üzgünüm, bir hata oluştu: ' + data.error, false);
+                this.addMessage('ÃœzgÃ¼nÃ¼m, bir hata oluÅŸtu: ' + data.error, false);
             } else {
                 this.sessionId = data.session_id;
                 this.addMessage(data.reply, false);
             }
         } catch (error) {
-            this.addMessage('Bağlantı hatası oluştu. Lütfen tekrar deneyin.', false);
+            this.addMessage('BaÄŸlantÄ± hatasÄ± oluÅŸtu. LÃ¼tfen tekrar deneyin.', false);
         }
     }
 
@@ -119,7 +119,7 @@ class FinAsisAssistant {
                 });
             }
         } catch (error) {
-            console.error('Chat geçmişi yüklenemedi:', error);
+            console.error('Chat geÃ§miÅŸi yÃ¼klenemedi:', error);
         }
     }
 
@@ -136,7 +136,7 @@ class FinAsisAssistant {
     }
 }
 
-// Sayfa yüklendiğinde asistanı başlat
+// Sayfa yÃ¼klendiÄŸinde asistanÄ± baÅŸlat
 document.addEventListener('DOMContentLoaded', () => {
     window.finasisAssistant = new FinAsisAssistant();
 }); 

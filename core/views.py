@@ -17,6 +17,7 @@ import psutil
 import os
 from django.utils import translation
 from django.http import HttpResponseRedirect
+from django.db import connection
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,6 @@ class HealthCheckViewSet(viewsets.ViewSet):
             disk_percent = disk.percent
             
             # Veritabanı bağlantısı
-            from django.db import connection
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
                 db_status = True
@@ -126,7 +126,6 @@ class HealthCheckViewSet(viewsets.ViewSet):
         """
         try:
             # Veritabanı sorgu sayısı
-            from django.db import connection
             query_count = len(connection.queries)
             
             # İşlem süresi
@@ -173,9 +172,30 @@ class ErrorView(TemplateView):
 
 def health_check(request):
     """
-    Sağlık kontrolü endpoint'i.
+    Sistem sağlık kontrolü
     """
-    return JsonResponse({'status': 'ok'})
+    # Veritabanı durumu
+    db_status = True
+    try:
+        connection.ensure_connection()
+    except Exception:
+        db_status = False
+
+    # Cache durumu
+    cache_status = True
+    try:
+        cache.get('health_check')
+    except Exception:
+        cache_status = False
+
+    # Sistem durumu
+    status = {
+        'database': db_status,
+        'cache': cache_status,
+        'status': 'healthy' if all([db_status, cache_status]) else 'unhealthy'
+    }
+
+    return JsonResponse(status)
 
 def home(request):
     """

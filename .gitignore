@@ -243,3 +243,14 @@ env/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+/node_modules
+/.env
+/.env.*
+/dist
+/build
+/logs
+*.log
+.DS_Store
+.idea/
+.vscode/

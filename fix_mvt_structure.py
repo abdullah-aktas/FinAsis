@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
-Bu script FinAsis projesindeki MVT (Model-View-Template) yapısını kontrol eder,
-eksik dosyaları oluşturur ve canlıya alma öncesi hazırlık yapar.
+Bu script FinAsis projesindeki MVT (Model-View-Template) yapƒ±sƒ±nƒ± kontrol eder,
+eksik dosyalarƒ± olu≈üturur ve canlƒ±ya alma √∂ncesi hazƒ±rlƒ±k yapar.
 """
 import os
 import re
@@ -13,7 +13,7 @@ import datetime
 import importlib
 import logging
 
-# Logging ayarı
+# Logging ayarƒ±
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -24,16 +24,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Django ayarlarını yükle
+# Django ayarlarƒ±nƒ± y√ºkle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 BASE_DIR = Path(__file__).resolve().parent
 
-# İzlenmemesi gereken dizinler
+# ƒ∞zlenmemesi gereken dizinler
 EXCLUDE_DIRS = ['.git', 'venv', '.venv', '__pycache__', 'node_modules', 'staticfiles',
                 'static', 'media', 'dist', 'backups', 'all_backups', 'build',
                 'logs', '.idea', '.vscode', 'TestProje', 'testapp', 'testsite']
 
-# Şablonlar
+# ≈ûablonlar
 URL_TEMPLATE = """from django.urls import path
 from . import views
 
@@ -55,7 +55,7 @@ from .models import *
 @login_required
 def index(request):
     \"\"\"
-    Modül ana sayfası
+    Mod√ºl ana sayfasƒ±
     \"\"\"
     return render(request, '{app_name}/index.html', context={{'title': '{app_title}'}})
 """
@@ -70,18 +70,18 @@ INDEX_TEMPLATE = """{% extends "base.html" %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="mb-4">{% trans 'Hoş Geldiniz' %}</h1>
-            <p class="lead">{% trans 'Bu {app_title} modülünün ana sayfasıdır.' %}</p>
+            <h1 class="mb-4">{% trans 'Ho≈ü Geldiniz' %}</h1>
+            <p class="lead">{% trans 'Bu {app_title} mod√ºl√ºn√ºn ana sayfasƒ±dƒ±r.' %}</p>
             
             <div class="card mt-4">
                 <div class="card-header">
-                    <h5>{% trans 'Modül Özellikleri' %}</h5>
+                    <h5>{% trans 'Mod√ºl √ñzellikleri' %}</h5>
                 </div>
                 <div class="card-body">
                     <ul>
-                        <li>{% trans 'Özellik 1' %}</li>
-                        <li>{% trans 'Özellik 2' %}</li>
-                        <li>{% trans 'Özellik 3' %}</li>
+                        <li>{% trans '√ñzellik 1' %}</li>
+                        <li>{% trans '√ñzellik 2' %}</li>
+                        <li>{% trans '√ñzellik 3' %}</li>
                     </ul>
                 </div>
             </div>
@@ -117,8 +117,8 @@ MODEL_LIST_TEMPLATE = """{% extends "base.html" %}
                                 <tr>
                                     <th>ID</th>
                                     <th>{% trans 'Ad' %}</th>
-                                    <th>{% trans 'Oluşturulma Tarihi' %}</th>
-                                    <th>{% trans 'İşlemler' %}</th>
+                                    <th>{% trans 'Olu≈üturulma Tarihi' %}</th>
+                                    <th>{% trans 'ƒ∞≈ülemler' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,7 +141,7 @@ MODEL_LIST_TEMPLATE = """{% extends "base.html" %}
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center">{% trans 'Kayıt bulunamadı' %}</td>
+                                    <td colspan="4" class="text-center">{% trans 'Kayƒ±t bulunamadƒ±' %}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -157,7 +157,7 @@ MODEL_LIST_TEMPLATE = """{% extends "base.html" %}
 
 def is_excluded_dir(path):
     """
-    Dizinin dışlanması gereken bir dizin olup olmadığını kontrol eder
+    Dizinin dƒ±≈ülanmasƒ± gereken bir dizin olup olmadƒ±ƒüƒ±nƒ± kontrol eder
     """
     for exclude in EXCLUDE_DIRS:
         if exclude in str(path):
@@ -166,7 +166,7 @@ def is_excluded_dir(path):
 
 def find_django_modules():
     """
-    Projede tanımlı Django modüllerini bulur
+    Projede tanƒ±mlƒ± Django mod√ºllerini bulur
     """
     modules = []
     for item in os.listdir(BASE_DIR):
@@ -183,7 +183,7 @@ def find_django_modules():
 
 def collect_models(module_name):
     """
-    Modül içindeki tüm model sınıflarını toplar
+    Mod√ºl i√ßindeki t√ºm model sƒ±nƒ±flarƒ±nƒ± toplar
     """
     models = []
     models_path = os.path.join(BASE_DIR, module_name, 'models.py')
@@ -195,7 +195,7 @@ def collect_models(module_name):
         with open(models_path, 'r', encoding='utf-8') as f:
             content = f.read()
             
-        # Model sınıflarını bul
+        # Model sƒ±nƒ±flarƒ±nƒ± bul
         model_pattern = r'class\s+(\w+)\((?:models\.Model|.*Model.*)\)'
         found_models = re.findall(model_pattern, content)
         
@@ -215,18 +215,18 @@ def collect_models(module_name):
                         models.extend(found_models)
                         
     except Exception as e:
-        logger.error(f"❌ {module_name} modellerini analiz ederken hata: {e}")
+        logger.error(f"‚ùå {module_name} modellerini analiz ederken hata: {e}")
     
     return models
 
 def create_missing_urls_file(module_name):
     """
-    Eksik urls.py dosyasını oluşturur
+    Eksik urls.py dosyasƒ±nƒ± olu≈üturur
     """
     urls_path = os.path.join(BASE_DIR, module_name, 'urls.py')
     
     if os.path.exists(urls_path):
-        logger.info(f"✓ {module_name}/urls.py zaten mevcut.")
+        logger.info(f"‚úì {module_name}/urls.py zaten mevcut.")
         return
     
     content = URL_TEMPLATE.format(app_name=module_name)
@@ -234,16 +234,16 @@ def create_missing_urls_file(module_name):
     with open(urls_path, 'w', encoding='utf-8') as f:
         f.write(content)
     
-    logger.info(f"✅ {module_name}/urls.py dosyası oluşturuldu.")
+    logger.info(f"‚úÖ {module_name}/urls.py dosyasƒ± olu≈üturuldu.")
 
 def create_missing_views_file(module_name):
     """
-    Eksik views.py dosyasını oluşturur
+    Eksik views.py dosyasƒ±nƒ± olu≈üturur
     """
     views_path = os.path.join(BASE_DIR, module_name, 'views.py')
     
     if os.path.exists(views_path):
-        logger.info(f"✓ {module_name}/views.py zaten mevcut.")
+        logger.info(f"‚úì {module_name}/views.py zaten mevcut.")
         return
     
     app_title = module_name.replace('_', ' ').title()
@@ -252,24 +252,24 @@ def create_missing_views_file(module_name):
     with open(views_path, 'w', encoding='utf-8') as f:
         f.write(content)
     
-    logger.info(f"✅ {module_name}/views.py dosyası oluşturuldu.")
+    logger.info(f"‚úÖ {module_name}/views.py dosyasƒ± olu≈üturuldu.")
 
 def create_missing_template_dir(module_name):
     """
-    Eksik template dizinini oluşturur
+    Eksik template dizinini olu≈üturur
     """
     templates_dir = os.path.join(BASE_DIR, module_name, 'templates')
     module_templates_dir = os.path.join(templates_dir, module_name)
     
     if not os.path.exists(templates_dir):
         os.makedirs(templates_dir)
-        logger.info(f"✅ {module_name}/templates/ dizini oluşturuldu.")
+        logger.info(f"‚úÖ {module_name}/templates/ dizini olu≈üturuldu.")
     
     if not os.path.exists(module_templates_dir):
         os.makedirs(module_templates_dir)
-        logger.info(f"✅ {module_name}/templates/{module_name}/ dizini oluşturuldu.")
+        logger.info(f"‚úÖ {module_name}/templates/{module_name}/ dizini olu≈üturuldu.")
     
-    # Index şablonunu oluştur
+    # Index ≈üablonunu olu≈ütur
     index_path = os.path.join(module_templates_dir, 'index.html')
     if not os.path.exists(index_path):
         app_title = module_name.replace('_', ' ').title()
@@ -278,11 +278,11 @@ def create_missing_template_dir(module_name):
         with open(index_path, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        logger.info(f"✅ {module_name}/templates/{module_name}/index.html dosyası oluşturuldu.")
+        logger.info(f"‚úÖ {module_name}/templates/{module_name}/index.html dosyasƒ± olu≈üturuldu.")
 
 def create_missing_model_templates(module_name, model_names):
     """
-    Eksik model şablonlarını oluşturur
+    Eksik model ≈üablonlarƒ±nƒ± olu≈üturur
     """
     templates_dir = os.path.join(BASE_DIR, module_name, 'templates', module_name)
     
@@ -290,11 +290,11 @@ def create_missing_model_templates(module_name, model_names):
         os.makedirs(templates_dir)
     
     for model_name in model_names:
-        # Model adını snake_case'e çevir
+        # Model adƒ±nƒ± snake_case'e √ßevir
         model_snake = ''.join(['_'+c.lower() if c.isupper() else c.lower() for c in model_name]).lstrip('_')
         model_title = model_name.replace('_', ' ')
         
-        # Liste şablonu
+        # Liste ≈üablonu
         list_path = os.path.join(templates_dir, f"{model_snake}_list.html")
         if not os.path.exists(list_path):
             content = MODEL_LIST_TEMPLATE.format(
@@ -306,37 +306,37 @@ def create_missing_model_templates(module_name, model_names):
             with open(list_path, 'w', encoding='utf-8') as f:
                 f.write(content)
             
-            logger.info(f"✅ {model_snake}_list.html şablonu oluşturuldu.")
+            logger.info(f"‚úÖ {model_snake}_list.html ≈üablonu olu≈üturuldu.")
 
 def update_views_for_models(module_name, model_names):
     """
-    View dosyasını güncelleyerek modeller için view'ler ekler
+    View dosyasƒ±nƒ± g√ºncelleyerek modeller i√ßin view'ler ekler
     """
     views_path = os.path.join(BASE_DIR, module_name, 'views.py')
     views_dir = os.path.join(BASE_DIR, module_name, 'views')
     
     if os.path.exists(views_dir) and os.path.isdir(views_dir):
-        # views/ dizini zaten var, muhtemelen düzgün yapılandırılmış
-        logger.info(f"✓ {module_name}/views/ dizini zaten mevcut, güncelleme yapılmadı.")
+        # views/ dizini zaten var, muhtemelen d√ºzg√ºn yapƒ±landƒ±rƒ±lmƒ±≈ü
+        logger.info(f"‚úì {module_name}/views/ dizini zaten mevcut, g√ºncelleme yapƒ±lmadƒ±.")
         return
     
-    # views.py dosyasını oku
+    # views.py dosyasƒ±nƒ± oku
     if not os.path.exists(views_path):
         create_missing_views_file(module_name)
     
     with open(views_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Her model için eklenecek içerik
+    # Her model i√ßin eklenecek i√ßerik
     new_content = content
     for model_name in model_names:
         model_snake = ''.join(['_'+c.lower() if c.isupper() else c.lower() for c in model_name]).lstrip('_')
         
-        # Eğer model view'leri zaten tanımlanmışsa ekleme yapma
+        # Eƒüer model view'leri zaten tanƒ±mlanmƒ±≈üsa ekleme yapma
         if f"class {model_name}ListView" in content:
             continue
         
-        # Model için view sınıflarını ekle
+        # Model i√ßin view sƒ±nƒ±flarƒ±nƒ± ekle
         view_classes = f"""
 
 class {model_name}ListView(LoginRequiredMixin, ListView):
@@ -356,7 +356,7 @@ class {model_name}DetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = '{model_name} Detayı'
+        context['title'] = '{model_name} Detayƒ±'
         return context
 
 class {model_name}CreateView(LoginRequiredMixin, CreateView):
@@ -378,7 +378,7 @@ class {model_name}UpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = '{model_name} Düzenle'
+        context['title'] = '{model_name} D√ºzenle'
         return context
 
 class {model_name}DeleteView(LoginRequiredMixin, DeleteView):
@@ -388,16 +388,16 @@ class {model_name}DeleteView(LoginRequiredMixin, DeleteView):
 """
         new_content += view_classes
     
-    # İçerik değiştiyse dosyayı güncelle
+    # ƒ∞√ßerik deƒüi≈ütiyse dosyayƒ± g√ºncelle
     if new_content != content:
         with open(views_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
-        logger.info(f"✅ {module_name}/views.py dosyası modeller için güncellendi.")
+        logger.info(f"‚úÖ {module_name}/views.py dosyasƒ± modeller i√ßin g√ºncellendi.")
 
 def update_urls_for_models(module_name, model_names):
     """
-    urls.py dosyasını modeller için güncelleyelim
+    urls.py dosyasƒ±nƒ± modeller i√ßin g√ºncelleyelim
     """
     urls_path = os.path.join(BASE_DIR, module_name, 'urls.py')
     
@@ -407,10 +407,10 @@ def update_urls_for_models(module_name, model_names):
     with open(urls_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # urlpatterns'ı bul
+    # urlpatterns'ƒ± bul
     patterns_match = re.search(r'urlpatterns\s*=\s*\[(.*?)\]', content, re.DOTALL)
     if not patterns_match:
-        logger.error(f"❌ {module_name}/urls.py dosyasında urlpatterns bulunamadı.")
+        logger.error(f"‚ùå {module_name}/urls.py dosyasƒ±nda urlpatterns bulunamadƒ±.")
         return
     
     patterns_content = patterns_match.group(1)
@@ -420,7 +420,7 @@ def update_urls_for_models(module_name, model_names):
     for model_name in model_names:
         model_snake = ''.join(['_'+c.lower() if c.isupper() else c.lower() for c in model_name]).lstrip('_')
         
-        # Model için URL desenleri
+        # Model i√ßin URL desenleri
         model_urls = f"""
     path('{model_snake}/', views.{model_name}ListView.as_view(), name='{model_snake}_list'),
     path('{model_snake}/<int:pk>/', views.{model_name}DetailView.as_view(), name='{model_snake}_detail'),
@@ -428,118 +428,118 @@ def update_urls_for_models(module_name, model_names):
     path('{model_snake}/<int:pk>/update/', views.{model_name}UpdateView.as_view(), name='{model_snake}_update'),
     path('{model_snake}/<int:pk>/delete/', views.{model_name}DeleteView.as_view(), name='{model_snake}_delete'),"""
         
-        # URL deseni zaten eklenmiş mi kontrol et
+        # URL deseni zaten eklenmi≈ü mi kontrol et
         if f"path('{model_snake}/'," not in content:
             new_patterns += model_urls
     
-    # İçerik değiştiyse dosyayı güncelle
+    # ƒ∞√ßerik deƒüi≈ütiyse dosyayƒ± g√ºncelle
     new_content = content.replace(patterns_match.group(1), new_patterns)
     if new_content != content:
         with open(urls_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
-        logger.info(f"✅ {module_name}/urls.py dosyası modeller için güncellendi.")
+        logger.info(f"‚úÖ {module_name}/urls.py dosyasƒ± modeller i√ßin g√ºncellendi.")
 
 def check_apps_config(module_name):
     """
-    apps.py dosyasını kontrol eder ve gerekirse düzeltir
+    apps.py dosyasƒ±nƒ± kontrol eder ve gerekirse d√ºzeltir
     """
     apps_path = os.path.join(BASE_DIR, module_name, 'apps.py')
     
     if not os.path.exists(apps_path):
-        logger.error(f"❌ {module_name}/apps.py dosyası bulunamadı.")
+        logger.error(f"‚ùå {module_name}/apps.py dosyasƒ± bulunamadƒ±.")
         return
     
     with open(apps_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # name değeri doğru mu kontrol et
+    # name deƒüeri doƒüru mu kontrol et
     name_match = re.search(r'name\s*=\s*[\'"]([^\'"]*)[\'"]', content)
     if not name_match:
-        logger.error(f"❌ {module_name}/apps.py dosyasında name değeri bulunamadı.")
+        logger.error(f"‚ùå {module_name}/apps.py dosyasƒ±nda name deƒüeri bulunamadƒ±.")
         return
     
     current_name = name_match.group(1)
     
-    # name değeri düzeltilmeli mi?
+    # name deƒüeri d√ºzeltilmeli mi?
     if current_name != module_name and f'apps.{module_name}' in current_name:
         new_content = content.replace(f"name = '{current_name}'", f"name = '{module_name}'")
         
         with open(apps_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
-        logger.info(f"✅ {module_name}/apps.py dosyasındaki name değeri '{module_name}' olarak güncellendi.")
+        logger.info(f"‚úÖ {module_name}/apps.py dosyasƒ±ndaki name deƒüeri '{module_name}' olarak g√ºncellendi.")
     elif current_name != module_name:
-        logger.warning(f"⚠️ {module_name}/apps.py dosyasındaki name değeri '{current_name}' olarak tanımlanmış, doğruluğunu kontrol edin.")
+        logger.warning(f"‚ö†Ô∏è {module_name}/apps.py dosyasƒ±ndaki name deƒüeri '{current_name}' olarak tanƒ±mlanmƒ±≈ü, doƒüruluƒüunu kontrol edin.")
 
 def fix_templates_dir(module_name):
     """
-    Template dizinini oluşturur veya düzeltir
+    Template dizinini olu≈üturur veya d√ºzeltir
     """
     templates_dir = os.path.join(BASE_DIR, module_name, 'templates')
     module_templates_dir = os.path.join(templates_dir, module_name)
     
-    # Templates dizini var mı?
+    # Templates dizini var mƒ±?
     if not os.path.exists(templates_dir):
         os.makedirs(templates_dir)
-        logger.info(f"✅ {module_name}/templates/ dizini oluşturuldu.")
+        logger.info(f"‚úÖ {module_name}/templates/ dizini olu≈üturuldu.")
     
-    # Module templates dizini var mı?
+    # Module templates dizini var mƒ±?
     if not os.path.exists(module_templates_dir):
         os.makedirs(module_templates_dir)
-        logger.info(f"✅ {module_name}/templates/{module_name}/ dizini oluşturuldu.")
+        logger.info(f"‚úÖ {module_name}/templates/{module_name}/ dizini olu≈üturuldu.")
 
 def fix_mvt_structure():
     """
-    Tüm MVT yapısını kontrol edip düzeltir
+    T√ºm MVT yapƒ±sƒ±nƒ± kontrol edip d√ºzeltir
     """
-    logger.info("\n🔧 FinAsis MVT Yapı Düzeltme Aracı")
+    logger.info("\nüîß FinAsis MVT Yapƒ± D√ºzeltme Aracƒ±")
     logger.info("===================================\n")
     
-    # Django modüllerini bul
+    # Django mod√ºllerini bul
     modules = find_django_modules()
-    logger.info(f"Bulunan Django modülleri: {len(modules)}")
+    logger.info(f"Bulunan Django mod√ºlleri: {len(modules)}")
     
-    # Her modül için kontrol ve düzeltme işlemleri
+    # Her mod√ºl i√ßin kontrol ve d√ºzeltme i≈ülemleri
     for module_name in modules:
-        logger.info(f"\n[{module_name}] modülü kontrol ediliyor...")
+        logger.info(f"\n[{module_name}] mod√ºl√º kontrol ediliyor...")
         
-        # apps.py kontrolü
+        # apps.py kontrol√º
         check_apps_config(module_name)
         
-        # urls.py kontrolü
+        # urls.py kontrol√º
         urls_path = os.path.join(BASE_DIR, module_name, 'urls.py')
         if not os.path.exists(urls_path):
             create_missing_urls_file(module_name)
         
-        # views.py kontrolü
+        # views.py kontrol√º
         views_path = os.path.join(BASE_DIR, module_name, 'views.py')
         views_dir = os.path.join(BASE_DIR, module_name, 'views')
         if not os.path.exists(views_path) and not os.path.exists(views_dir):
             create_missing_views_file(module_name)
         
-        # templates dizini kontrolü
+        # templates dizini kontrol√º
         fix_templates_dir(module_name)
         
         # Modelleri topla
         models = collect_models(module_name)
         if models:
-            logger.info(f"{module_name} modülünde {len(models)} model bulundu: {', '.join(models)}")
+            logger.info(f"{module_name} mod√ºl√ºnde {len(models)} model bulundu: {', '.join(models)}")
             
-            # Model şablonları kontrolü
+            # Model ≈üablonlarƒ± kontrol√º
             create_missing_model_templates(module_name, models)
             
-            # View'leri güncelle
+            # View'leri g√ºncelle
             update_views_for_models(module_name, models)
             
-            # URL'leri güncelle
+            # URL'leri g√ºncelle
             update_urls_for_models(module_name, models)
         else:
-            logger.info(f"{module_name} modülünde model bulunamadı.")
+            logger.info(f"{module_name} mod√ºl√ºnde model bulunamadƒ±.")
     
-    logger.info("\n✅ MVT yapısı düzeltme işlemi tamamlandı!")
-    logger.info("Lütfen yapılan değişiklikleri kontrol edin ve gerekirse düzenlemeler yapın.")
-    logger.info("Detaylı log için mvt_fix.log dosyasını inceleyebilirsiniz.\n")
+    logger.info("\n‚úÖ MVT yapƒ±sƒ± d√ºzeltme i≈ülemi tamamlandƒ±!")
+    logger.info("L√ºtfen yapƒ±lan deƒüi≈üiklikleri kontrol edin ve gerekirse d√ºzenlemeler yapƒ±n.")
+    logger.info("Detaylƒ± log i√ßin mvt_fix.log dosyasƒ±nƒ± inceleyebilirsiniz.\n")
 
 if __name__ == "__main__":
     fix_mvt_structure() 

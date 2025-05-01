@@ -1,6 +1,6 @@
-# FinAsis Monitoring & Alerting Kılavuzu
+# FinAsis Monitoring & Alerting KÄ±lavuzu
 
-## 📊 Monitoring Sistemi
+## ðŸ“Š Monitoring Sistemi
 
 ### 1. Prometheus Kurulumu
 ```bash
@@ -13,21 +13,21 @@ curl -f http://localhost:9090/api/v1/targets
 
 #### 1.1 Metrikler
 - **Sistem Metrikleri**
-  - CPU kullanımı
-  - Memory kullanımı
+  - CPU kullanÄ±mÄ±
+  - Memory kullanÄ±mÄ±
   - Disk I/O
   - Network I/O
 
 - **Uygulama Metrikleri**
-  - Request sayısı
+  - Request sayÄ±sÄ±
   - Response time
   - Error rate
   - Active users
 
-- **Veritabanı Metrikleri**
-  - Bağlantı sayısı
-  - Query performansı
-  - Transaction sayısı
+- **VeritabanÄ± Metrikleri**
+  - BaÄŸlantÄ± sayÄ±sÄ±
+  - Query performansÄ±
+  - Transaction sayÄ±sÄ±
   - Lock durumu
 
 ### 2. Grafana Kurulumu
@@ -35,29 +35,29 @@ curl -f http://localhost:9090/api/v1/targets
 # Docker Compose ile kurulum
 docker-compose -f docker-compose.prod.yml up -d grafana
 
-# Tarayıcıdan erişim
+# TarayÄ±cÄ±dan eriÅŸim
 # http://grafana.finasis.com.tr
 ```
 
 #### 2.1 Dashboardlar
 - **Sistem Dashboard**
   - Sunucu durumu
-  - Resource kullanımı
-  - Network trafiği
+  - Resource kullanÄ±mÄ±
+  - Network trafiÄŸi
 
 - **Uygulama Dashboard**
-  - API performansı
-  - Error oranları
+  - API performansÄ±
+  - Error oranlarÄ±
   - User sessions
   - Business metrics
 
-- **Veritabanı Dashboard**
-  - Query performansı
+- **VeritabanÄ± Dashboard**
+  - Query performansÄ±
   - Connection pool
   - Cache hit ratio
   - Slow queries
 
-### 3. Alerting Kuralları
+### 3. Alerting KurallarÄ±
 
 #### 3.1 Sistem Alertleri
 ```yaml
@@ -110,7 +110,7 @@ docker-compose -f docker-compose.prod.yml up -d grafana
     description: "95th percentile response time is above 2s"
 ```
 
-#### 3.3 Veritabanı Alertleri
+#### 3.3 VeritabanÄ± Alertleri
 ```yaml
 # Connection Pool
 - alert: HighDBConnections
@@ -131,7 +131,7 @@ docker-compose -f docker-compose.prod.yml up -d grafana
     description: "Queries taking longer than 30 seconds"
 ```
 
-### 4. Bildirim Kanalları
+### 4. Bildirim KanallarÄ±
 
 #### 4.1 Slack Entegrasyonu
 ```yaml
@@ -157,13 +157,13 @@ receivers:
     auth_password: '{{ .EmailPassword }}'
 ```
 
-### 5. Escalation Politikası
+### 5. Escalation PolitikasÄ±
 
 #### 5.1 Severity Seviyeleri
-- **INFO:** Bilgilendirme amaçlı, acil aksiyon gerektirmez
-- **WARNING:** 4 saat içinde incelenmeli
-- **CRITICAL:** 30 dakika içinde müdahale edilmeli
-- **EMERGENCY:** Anında müdahale gerektirir
+- **INFO:** Bilgilendirme amaÃ§lÄ±, acil aksiyon gerektirmez
+- **WARNING:** 4 saat iÃ§inde incelenmeli
+- **CRITICAL:** 30 dakika iÃ§inde mÃ¼dahale edilmeli
+- **EMERGENCY:** AnÄ±nda mÃ¼dahale gerektirir
 
 #### 5.2 On-Call Rotasyonu
 ```yaml
@@ -220,7 +220,7 @@ curl -X POST http://localhost:9093/api/v1/silences \
   -d '{"matchers":[{"name":"alertname","value":"HighCPUUsage"}],"startsAt":"2023-01-01T00:00:00Z","endsAt":"2023-01-02T00:00:00Z","createdBy":"admin","comment":"Maintenance"}'
 ```
 
-## 📱 Mobile App Monitoring
+## ðŸ“± Mobile App Monitoring
 
 ### 1. Crash Reporting
 - Firebase Crashlytics entegrasyonu
@@ -238,7 +238,7 @@ curl -X POST http://localhost:9093/api/v1/silences \
 - Feature usage
 - Conversion rates
 
-## 🎮 Game Module Monitoring
+## ðŸŽ® Game Module Monitoring
 
 ### 1. Performance Metrics
 - FPS (Frames Per Second)
@@ -252,7 +252,7 @@ curl -X POST http://localhost:9093/api/v1/silences \
 - Completion rates
 - Score distribution
 
-## 📈 Business Metrics
+## ðŸ“ˆ Business Metrics
 
 ### 1. KPI Dashboard
 - Daily active users
@@ -262,7 +262,7 @@ curl -X POST http://localhost:9093/api/v1/silences \
 - Churn rate
 
 ### 2. E-Fatura Metrics
-- Başarılı fatura sayısı
-- Hata oranı
-- İşlem süresi
+- BaÅŸarÄ±lÄ± fatura sayÄ±sÄ±
+- Hata oranÄ±
+- Ä°ÅŸlem sÃ¼resi
 - Entegrasyon durumu 

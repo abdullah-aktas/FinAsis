@@ -95,7 +95,7 @@ const NotificationsScreen = () => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Henüz bildirim bulunmuyor</Text>
+            <Text style={styles.emptyText}>Hen√ºz bildirim bulunmuyor</Text>
           </View>
         }
       />

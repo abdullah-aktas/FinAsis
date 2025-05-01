@@ -14,3 +14,5 @@ Django Projesi - Başlangıç Dosyası
 ---------------------
 Bu dosya, Django projesinin başlangıç dosyasıdır.
 """ 
+
+default_app_config = 'config.apps.ConfigConfig' 

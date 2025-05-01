@@ -1,27 +1,40 @@
 # -*- coding: utf-8 -*-
 """
-Finance Modülü - URL Yapılandırması
----------------------
-Bu dosya, Finance modülünün URL yapılandırmasını içerir.
-
-URL Yapısı:
-- /api/v1/finance/ - Ana finans API endpoint'i
-- /api/v1/finance/transactions/ - İşlem yönetimi
-- /api/v1/finance/budgets/ - Bütçe yönetimi
+Finance uygulaması URL yapılandırmaları
 """
 
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import TransactionViewSet, BudgetViewSet
+from django.urls import path
+from finance.views import banking, einvoice, accounting, checks
 
 app_name = 'finance'
 
-# API Router tanımlaması
-router = DefaultRouter()
-router.register(r'transactions', TransactionViewSet, basename='transaction')
-router.register(r'budgets', BudgetViewSet, basename='budget')
-
 urlpatterns = [
-    # API Endpoint'leri
-    path('', include(router.urls)),
+    # Banka hesapları ve işlemler
+    path('bank-accounts/', banking.BankAccountListView.as_view(), name='bank_accounts'),
+    path('bank-accounts/<int:pk>/', banking.BankAccountDetailView.as_view(), name='bank_account_detail'),
+    path('bank-accounts/create/', banking.BankAccountCreateView.as_view(), name='bank_account_create'),
+    path('bank-accounts/<int:pk>/edit/', banking.BankAccountUpdateView.as_view(), name='bank_account_edit'),
+    path('bank-accounts/<int:pk>/delete/', banking.BankAccountDeleteView.as_view(), name='bank_account_delete'),
+    
+    path('transactions/', banking.TransactionListView.as_view(), name='transactions'),
+    path('transactions/<int:pk>/', banking.TransactionDetailView.as_view(), name='transaction_detail'),
+    path('transactions/create/', banking.TransactionCreateView.as_view(), name='transaction_create'),
+    path('transactions/<int:pk>/edit/', banking.TransactionUpdateView.as_view(), name='transaction_edit'),
+    path('transactions/<int:pk>/delete/', banking.TransactionDeleteView.as_view(), name='transaction_delete'),
+    
+    path('bank-summary/', banking.bank_summary, name='bank_summary'),
+    
+    # E-Fatura ve E-Arşiv işlemleri
+    path('einvoices/', einvoice.EInvoiceListView.as_view(), name='einvoice_list'),
+    path('einvoices/<int:pk>/', einvoice.EInvoiceDetailView.as_view(), name='einvoice_detail'),
+    path('einvoices/create/', einvoice.EInvoiceCreateView.as_view(), name='einvoice_create'),
+    path('einvoices/<int:pk>/edit/', einvoice.EInvoiceUpdateView.as_view(), name='einvoice_edit'),
+    path('einvoices/<int:pk>/delete/', einvoice.EInvoiceDeleteView.as_view(), name='einvoice_delete'),
+    
+    path('einvoices/<int:pk>/send/', einvoice.send_einvoice, name='einvoice_send'),
+    path('einvoices/<int:pk>/download/', einvoice.download_einvoice, name='einvoice_download'),
+    path('einvoices/<int:invoice_id>/items/add/', einvoice.add_invoice_item, name='einvoice_add_item'),
+    path('einvoices/<int:invoice_id>/status/update/', einvoice.update_invoice_status, name='einvoice_update_status'),
+    
+    # Diğer finans işlemleri (örneğin muhasebe, çek/senet) urlpattern'leri buraya eklenecek
 ] 

@@ -52,7 +52,7 @@ class FinancialPredictionAdmin(admin.ModelAdmin):
         (_('Veri'), {
             'fields': ('input_data', 'output_data', 'confidence')
         }),
-        (_('Doğrulama'), {
+        (_('DoÄŸrulama'), {
             'fields': ('is_validated', 'validation_notes')
         }),
         (_('Zaman Bilgisi'), {

@@ -131,7 +131,7 @@
     //
     //     A String property name P is an array index if and only if
     //     ToString(ToUint32(P)) is equal to P and ToUint32(P) is not equal
-    //     to 2^32−1.
+    //     to 2^32âˆ’1.
     //
     // http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects
     if (typeof index !== 'number') {

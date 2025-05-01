@@ -24,7 +24,7 @@ INSTALLED_APPS = {
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'virtual_company'
+    'virtual_company',
 
     # Third party apps
     'rest_framework',
@@ -32,8 +32,6 @@ INSTALLED_APPS = {
     'django_filters',
     'corsheaders',
     'drf_yasg',
-    'django_celery_beat',
-    'django_celery_results',
     'health_check',
     'health_check.db',
     'health_check.cache',
@@ -47,7 +45,6 @@ INSTALLED_APPS = {
     'accounting',
     'banking',
     'checks',
-    'ai_assistant',  # AI Assistant uygulaması
     'users',  # Users uygulaması
     'virtual_company',  # Virtual Company uygulaması
     'blockchain',  # Blockchain uygulaması
@@ -96,11 +93,7 @@ DATABASES = {
 # Cache
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
 

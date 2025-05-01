@@ -258,7 +258,7 @@
 }
 
 #djDebug #djDebugToolbar li.djdt-active:before {
-    content: "▶";
+    content: "â–¶";
     font-family: var(--djdt-font-family-primary);
     position: absolute;
     left: 0;

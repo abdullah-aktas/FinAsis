@@ -31,10 +31,6 @@ INTERNAL_IPS = ['127.0.0.1']
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 
-# Celery settings
-CELERY_TASK_ALWAYS_EAGER = True  # Celery'yi senkron modda çalıştır
-CELERY_TASK_EAGER_PROPAGATES = True
-
 # E-Belge Dosya Ayarları
 EDOCUMENT_STORAGE_PATH = os.path.join(BASE_DIR, 'media', 'edocuments')
 EDOCUMENT_PDF_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'pdf')

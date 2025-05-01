@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Müşteri Risk Skoru{% endblock %}
+{% block title %}MÃ¼ÅŸteri Risk Skoru{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -67,8 +67,8 @@
     <div class="row">
         <div class="col-12">
             <div class="risk-card">
-                <h2>Müşteri Risk Skoru</h2>
-                <h4>Müşteri ID: {{ customer_id }}</h4>
+                <h2>MÃ¼ÅŸteri Risk Skoru</h2>
+                <h4>MÃ¼ÅŸteri ID: {{ customer_id }}</h4>
                 
                 <div class="risk-score {{ risk_score.color }}-risk">
                     {{ risk_score.risk_score }}
@@ -79,40 +79,40 @@
                 </div>
                 
                 <div class="risk-explanation">
-                    <h5>Risk Açıklaması</h5>
+                    <h5>Risk AÃ§Ä±klamasÄ±</h5>
                     <p>{{ risk_score.explanation }}</p>
                 </div>
                 
                 <div class="risk-factors">
-                    <h5>Risk Faktörleri</h5>
+                    <h5>Risk FaktÃ¶rleri</h5>
                     <div class="risk-factor-item">
-                        <span class="risk-factor-icon">📊</span>
-                        <span>Ödeme Gecikmesi: {{ risk_score.payment_delay_avg }} gün</span>
+                        <span class="risk-factor-icon">ðŸ“Š</span>
+                        <span>Ã–deme Gecikmesi: {{ risk_score.payment_delay_avg }} gÃ¼n</span>
                     </div>
                     <div class="risk-factor-item">
-                        <span class="risk-factor-icon">💰</span>
-                        <span>Ortalama İşlem Tutarı: {{ risk_score.transaction_amount_avg }} TL</span>
+                        <span class="risk-factor-icon">ðŸ’°</span>
+                        <span>Ortalama Ä°ÅŸlem TutarÄ±: {{ risk_score.transaction_amount_avg }} TL</span>
                     </div>
                     <div class="risk-factor-item">
-                        <span class="risk-factor-icon">📅</span>
-                        <span>Son Ödemeden Bu Yana: {{ risk_score.days_since_last_payment }} gün</span>
+                        <span class="risk-factor-icon">ðŸ“…</span>
+                        <span>Son Ã–demeden Bu Yana: {{ risk_score.days_since_last_payment }} gÃ¼n</span>
                     </div>
                 </div>
                 
                 <div class="mt-4">
-                    <h5>Öneriler</h5>
+                    <h5>Ã–neriler</h5>
                     <ul>
                         {% if risk_score.risk_score >= 80 %}
-                            <li>Müşteri ile acil görüşme talep edin</li>
-                            <li>Ödeme planı oluşturun</li>
-                            <li>Kredi limitini gözden geçirin</li>
+                            <li>MÃ¼ÅŸteri ile acil gÃ¶rÃ¼ÅŸme talep edin</li>
+                            <li>Ã–deme planÄ± oluÅŸturun</li>
+                            <li>Kredi limitini gÃ¶zden geÃ§irin</li>
                         {% elif risk_score.risk_score >= 60 %}
-                            <li>Düzenli takip yapın</li>
-                            <li>Ödeme hatırlatmaları gönderin</li>
-                            <li>Risk skorunu aylık kontrol edin</li>
+                            <li>DÃ¼zenli takip yapÄ±n</li>
+                            <li>Ã–deme hatÄ±rlatmalarÄ± gÃ¶nderin</li>
+                            <li>Risk skorunu aylÄ±k kontrol edin</li>
                         {% else %}
-                            <li>Normal işlem sürecine devam edin</li>
-                            <li>Müşteri ilişkilerini güçlendirin</li>
+                            <li>Normal iÅŸlem sÃ¼recine devam edin</li>
+                            <li>MÃ¼ÅŸteri iliÅŸkilerini gÃ¼Ã§lendirin</li>
                         {% endif %}
                     </ul>
                 </div>
@@ -124,7 +124,7 @@
 
 {% block extra_js %}
 <script>
-    // Risk skorunu periyodik olarak güncelle
+    // Risk skorunu periyodik olarak gÃ¼ncelle
     function updateRiskScore() {
         fetch(`/api/ai/risk-score/{{ customer_id }}/`)
             .then(response => response.json())
@@ -136,7 +136,7 @@
             .catch(error => console.error('Error:', error));
     }
     
-    // Her 5 dakikada bir güncelle
+    // Her 5 dakikada bir gÃ¼ncelle
     setInterval(updateRiskScore, 300000);
 </script>
 {% endblock %} 

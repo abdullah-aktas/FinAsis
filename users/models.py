@@ -53,6 +53,7 @@ class User(AbstractUser):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
     
     class Meta:
+        app_label = 'users'
         verbose_name = _('Kullanıcı')
         verbose_name_plural = _('Kullanıcılar')
         ordering = ['-date_joined']
@@ -109,15 +110,12 @@ class UserProfile(models.Model):
     )
 
     class Meta:
+        app_label = 'users'
         verbose_name = _('Kullanıcı Profili')
         verbose_name_plural = _('Kullanıcı Profilleri')
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} Profili"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        cache.delete(f'profile_{self.user.id}')
 
 class UserPreferences(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preferences')
@@ -144,15 +142,12 @@ class UserPreferences(models.Model):
     updated_at = models.DateTimeField(_('güncellenme tarihi'), auto_now=True)
 
     class Meta:
+        app_label = 'users'
         verbose_name = _('kullanıcı tercihi')
         verbose_name_plural = _('kullanıcı tercihleri')
 
     def __str__(self):
         return f"{self.user.get_full_name()}'s Preferences"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        cache.delete(f'preferences_{self.user.id}')
 
 class UserActivity(models.Model):
     """Kullanıcı aktivite modeli."""
@@ -164,6 +159,7 @@ class UserActivity(models.Model):
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     
     class Meta:
+        app_label = 'users'
         verbose_name = _('Kullanıcı Aktivitesi')
         verbose_name_plural = _('Kullanıcı Aktiviteleri')
         ordering = ['-created_at']
@@ -186,16 +182,13 @@ class UserNotification(models.Model):
     created_at = models.DateTimeField(_('oluşturulma tarihi'), auto_now_add=True)
 
     class Meta:
+        app_label = 'users'
         verbose_name = _('kullanıcı bildirimi')
         verbose_name_plural = _('kullanıcı bildirimleri')
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        cache.delete(f'notifications_{self.user.id}')
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
@@ -206,16 +199,13 @@ class UserSession(models.Model):
     created_at = models.DateTimeField(_('oluşturulma tarihi'), auto_now_add=True)
 
     class Meta:
+        app_label = 'users'
         verbose_name = _('kullanıcı oturumu')
         verbose_name_plural = _('kullanıcı oturumları')
         ordering = ['-last_activity']
 
     def __str__(self):
         return f"{self.user.username} - {self.session_key}"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        cache.delete(f'sessions_{self.user.id}')
 
 class UserSettings(models.Model):
     """Kullanıcı ayarları modeli."""
@@ -227,6 +217,7 @@ class UserSettings(models.Model):
     newsletter_subscription = models.BooleanField(_('Bülten Aboneliği'), default=False)
     
     class Meta:
+        app_label = 'users'
         verbose_name = _('Kullanıcı Ayarı')
         verbose_name_plural = _('Kullanıcı Ayarları')
     
@@ -250,8 +241,12 @@ class TwoFactorAuth(models.Model):
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
     class Meta:
+        app_label = 'users'
         verbose_name = _('İki Faktörlü Doğrulama')
         verbose_name_plural = _('İki Faktörlü Doğrulamalar')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.method}"
 
 class UserPermission(models.Model):
     """Kullanıcı izinleri modeli."""
@@ -264,6 +259,7 @@ class UserPermission(models.Model):
     is_active = models.BooleanField(_('Aktif'), default=True)
     
     class Meta:
+        app_label = 'users'
         verbose_name = _('Kullanıcı İzni')
         verbose_name_plural = _('Kullanıcı İzinleri')
         unique_together = ('user', 'permission')

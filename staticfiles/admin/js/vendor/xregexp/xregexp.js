@@ -4637,7 +4637,7 @@ var store = require('../internals/shared-store');
 })('versions', []).push({
   version: '3.20.0',
   mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
+  copyright: 'Â© 2021 Denis Pushkarev (zloirock.ru)'
 });
 
 },{"../internals/is-pure":118,"../internals/shared-store":149}],151:[function(require,module,exports){

@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # Log dosyası
 LOG_FILE="deploy_$(date +%Y%m%d_%H%M%S).log"
-TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S"
 
 # Log fonksiyonu
 log() {
@@ -175,6 +175,16 @@ perform_health_check() {
     log "INFO" "${GREEN}✓ Sağlık kontrolü başarılı.${NC}"
 }
 
+# Git başlatma ve yapılandırma
+git init
+git add .
+git commit -m "Initial commit"
+
+# Remote repo ekleme
+git remote add origin https://github.com/abdullah-aktas/FinAsis.git
+git branch -M main
+git push -u origin main
+
 # Ana fonksiyon
 main() {
     print_header
@@ -199,4 +209,4 @@ main() {
 }
 
 # Betiği çalıştır
-main "$@" 
+main "$@"

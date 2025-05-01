@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-permissions uygulaması URL yapılandırmaları
+permissions uygulamas覺 URL yap覺land覺rmalar覺
 """
 
 from django.urls import path, include

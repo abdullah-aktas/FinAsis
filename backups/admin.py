@@ -34,7 +34,7 @@ class BackupStorageAdmin(admin.ModelAdmin):
         ('Temel Bilgiler', {
             'fields': ('config', 'storage_path')
         }),
-        ('Güvenlik', {
+        ('GÃ¼venlik', {
             'fields': ('is_encrypted', 'credentials')
         }),
         ('Zaman Bilgileri', {

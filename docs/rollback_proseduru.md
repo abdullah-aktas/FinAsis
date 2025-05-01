@@ -1,20 +1,20 @@
-# FinAsis Rollback Prosedürü
+# FinAsis Rollback ProsedÃ¼rÃ¼
 
-## 🔄 Hızlı Geri Dönüş Adımları
+## ğŸ”„ HÄ±zlÄ± Geri DÃ¶nÃ¼ÅŸ AdÄ±mlarÄ±
 
-### 1. Rollback Kararı
-Aşağıdaki durumlardan herhangi biri gerçekleştiğinde rollback yapılmalıdır:
+### 1. Rollback KararÄ±
+AÅŸaÄŸÄ±daki durumlardan herhangi biri gerÃ§ekleÅŸtiÄŸinde rollback yapÄ±lmalÄ±dÄ±r:
 
-- [ ] Kritik bir güvenlik açığı tespit edildiğinde
-- [ ] Sistem performansı kabul edilemez seviyeye düştüğünde (response time > 2s)
-- [ ] Kullanıcı girişleri çalışmadığında
-- [ ] E-Fatura entegrasyonu hata verdiğinde
-- [ ] Veritabanı bağlantısı kesildiğinde
-- [ ] SSL sertifikası sorunları oluştuğunda
+- [ ] Kritik bir gÃ¼venlik aÃ§Ä±ÄŸÄ± tespit edildiÄŸinde
+- [ ] Sistem performansÄ± kabul edilemez seviyeye dÃ¼ÅŸtÃ¼ÄŸÃ¼nde (response time > 2s)
+- [ ] KullanÄ±cÄ± giriÅŸleri Ã§alÄ±ÅŸmadÄ±ÄŸÄ±nda
+- [ ] E-Fatura entegrasyonu hata verdiÄŸinde
+- [ ] VeritabanÄ± baÄŸlantÄ±sÄ± kesildiÄŸinde
+- [ ] SSL sertifikasÄ± sorunlarÄ± oluÅŸtuÄŸunda
 
-### 2. Rollback Öncesi Hazırlık
+### 2. Rollback Ã–ncesi HazÄ±rlÄ±k
 ```bash
-# Mevcut durumun yedeğini al
+# Mevcut durumun yedeÄŸini al
 ./scripts/backup.sh
 
 # Sistemin durumunu kontrol et
@@ -22,34 +22,34 @@ docker-compose -f docker-compose.prod.yml ps
 docker-compose -f docker-compose.prod.yml logs --tail=100
 ```
 
-### 3. Rollback İşlemi
+### 3. Rollback Ä°ÅŸlemi
 ```bash
-# Rollback script'ini çalıştır
+# Rollback script'ini Ã§alÄ±ÅŸtÄ±r
 ./scripts/rollback.sh YYYYMMDD_HHMMSS $SLACK_WEBHOOK_URL
 
 # Servislerin durumunu kontrol et
 docker-compose -f docker-compose.prod.yml ps
 ```
 
-### 4. Rollback Sonrası Kontroller
+### 4. Rollback SonrasÄ± Kontroller
 
 #### 4.1 Sistem Kontrolleri
-- [ ] Tüm servisler çalışıyor mu?
-- [ ] Veritabanı bağlantısı sağlıklı mı?
-- [ ] Redis bağlantısı aktif mi?
-- [ ] Celery worker'lar çalışıyor mu?
+- [ ] TÃ¼m servisler Ã§alÄ±ÅŸÄ±yor mu?
+- [ ] VeritabanÄ± baÄŸlantÄ±sÄ± saÄŸlÄ±klÄ± mÄ±?
+- [ ] Redis baÄŸlantÄ±sÄ± aktif mi?
+- [ ] Celery worker'lar Ã§alÄ±ÅŸÄ±yor mu?
 
 #### 4.2 Uygulama Kontrolleri
-- [ ] API endpoint'leri çalışıyor mu?
-- [ ] Kullanıcı girişi yapılabiliyor mu?
-- [ ] E-Fatura oluşturulabiliyor mu?
-- [ ] PDF oluşturma çalışıyor mu?
-- [ ] Email gönderimi aktif mi?
+- [ ] API endpoint'leri Ã§alÄ±ÅŸÄ±yor mu?
+- [ ] KullanÄ±cÄ± giriÅŸi yapÄ±labiliyor mu?
+- [ ] E-Fatura oluÅŸturulabiliyor mu?
+- [ ] PDF oluÅŸturma Ã§alÄ±ÅŸÄ±yor mu?
+- [ ] Email gÃ¶nderimi aktif mi?
 
 #### 4.3 Veri Kontrolleri
-- [ ] Veritabanı tutarlı mı?
-- [ ] Kullanıcı verileri korunmuş mu?
-- [ ] Dosya yüklemeleri erişilebilir mi?
+- [ ] VeritabanÄ± tutarlÄ± mÄ±?
+- [ ] KullanÄ±cÄ± verileri korunmuÅŸ mu?
+- [ ] Dosya yÃ¼klemeleri eriÅŸilebilir mi?
 - [ ] Cache temizlendi mi?
 
 ### 5. Monitoring & Logging
@@ -57,52 +57,52 @@ docker-compose -f docker-compose.prod.yml ps
 # Prometheus metriklerini kontrol et
 curl -f http://localhost:9090/api/v1/query?query=up
 
-# Grafana dashboardlarını kontrol et
+# Grafana dashboardlarÄ±nÄ± kontrol et
 # http://grafana.finasis.com.tr
 
-# Log dosyalarını incele
+# Log dosyalarÄ±nÄ± incele
 tail -f /var/log/finasis/django.log
 tail -f /var/log/nginx/error.log
 ```
 
-### 6. İletişim & Raporlama
+### 6. Ä°letiÅŸim & Raporlama
 
-#### 6.1 İç İletişim
+#### 6.1 Ä°Ã§ Ä°letiÅŸim
 - [ ] DevOps ekibini bilgilendir
-- [ ] Yönetimi bilgilendir
-- [ ] Geliştirme ekibini bilgilendir
+- [ ] YÃ¶netimi bilgilendir
+- [ ] GeliÅŸtirme ekibini bilgilendir
 
-#### 6.2 Dış İletişim
-- [ ] Kullanıcılara bilgilendirme emaili gönder
-- [ ] Status page'i güncelle
-- [ ] Müşteri hizmetlerini bilgilendir
+#### 6.2 DÄ±ÅŸ Ä°letiÅŸim
+- [ ] KullanÄ±cÄ±lara bilgilendirme emaili gÃ¶nder
+- [ ] Status page'i gÃ¼ncelle
+- [ ] MÃ¼ÅŸteri hizmetlerini bilgilendir
 
-#### 6.3 Dokümantasyon
+#### 6.3 DokÃ¼mantasyon
 - [ ] Rollback nedenini kaydet
-- [ ] Yapılan işlemleri dokümante et
-- [ ] Öğrenilen dersleri kaydet
-- [ ] İyileştirme önerilerini listele
+- [ ] YapÄ±lan iÅŸlemleri dokÃ¼mante et
+- [ ] Ã–ÄŸrenilen dersleri kaydet
+- [ ] Ä°yileÅŸtirme Ã¶nerilerini listele
 
-### 7. Sonraki Adımlar
+### 7. Sonraki AdÄ±mlar
 1. Root cause analysis yap
-2. Benzer sorunları önlemek için önlemler al
-3. Monitoring sistemini güçlendir
-4. Test coverage'ı artır
-5. Deployment sürecini gözden geçir
+2. Benzer sorunlarÄ± Ã¶nlemek iÃ§in Ã¶nlemler al
+3. Monitoring sistemini gÃ¼Ã§lendir
+4. Test coverage'Ä± artÄ±r
+5. Deployment sÃ¼recini gÃ¶zden geÃ§ir
 
-## 🚨 Acil Durum İletişim Bilgileri
+## ğŸš¨ Acil Durum Ä°letiÅŸim Bilgileri
 
 ### DevOps Ekibi
-- **Nöbetçi DevOps:** +90 xxx xxx xx xx
+- **NÃ¶betÃ§i DevOps:** +90 xxx xxx xx xx
 - **DevOps Lead:** +90 xxx xxx xx xx
 - **Slack:** #finasis-ops-911
 
-### Sistem Yöneticileri
-- **Sistem Yöneticisi:** +90 xxx xxx xx xx
-- **Yedek Sistem Yöneticisi:** +90 xxx xxx xx xx
+### Sistem YÃ¶neticileri
+- **Sistem YÃ¶neticisi:** +90 xxx xxx xx xx
+- **Yedek Sistem YÃ¶neticisi:** +90 xxx xxx xx xx
 - **Email:** sysadmin@finasis.com.tr
 
-### Üst Yönetim
+### Ãœst YÃ¶netim
 - **CTO:** +90 xxx xxx xx xx
 - **CEO:** +90 xxx xxx xx xx
 - **Email:** management@finasis.com.tr 

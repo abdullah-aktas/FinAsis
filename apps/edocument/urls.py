@@ -16,7 +16,7 @@ document_router = routers.NestedDefaultRouter(router, r'documents', lookup='docu
 document_router.register(r'items', views.EDocumentItemViewSet, basename='document-item')
 document_router.register(r'logs', views.EDocumentLogViewSet, basename='document-log')
 
-# E-İrsaliye nested router
+# E-Ä°rsaliye nested router
 despatch_router = routers.NestedDefaultRouter(router, r'despatches', lookup='despatch')
 despatch_router.register(r'items', views.EDespatchAdviceItemViewSet, basename='despatch-item')
 despatch_router.register(r'logs', views.EDespatchAdviceLogViewSet, basename='despatch-log')

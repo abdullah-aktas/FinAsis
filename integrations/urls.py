@@ -8,7 +8,7 @@ urlpatterns = [
     # Dashboard
     path('', views.dashboard, name='dashboard'),
     
-    # Konfigürasyon
+    # Konfig√ºrasyon
     path('config/<str:integration_type>/', views.save_config, name='save_config'),
     
     # Senkronizasyon

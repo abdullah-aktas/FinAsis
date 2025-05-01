@@ -10,9 +10,14 @@ from sentry_sdk.integrations.django import DjangoIntegration
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 
 # Güvenlik Ayarları
-DEBUG = True
+DEBUG = False
 SECRET_KEY = config('SECRET_KEY')
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+
+# Güvenlik için ek ayarlar
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default='https://*.finasis.com.tr')
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv(), default='https://*.finasis.com.tr')
+CORS_ALLOW_CREDENTIALS = True
 
 # Veritabanı Ayarları
 DATABASES = {
@@ -75,10 +80,16 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # Sentry Hata İzleme
 sentry_sdk.init(
-    dsn=config('SENTRY_DSN'),
+    dsn=str(config('SENTRY_DSN', default=None)),
     integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
-    send_default_pii=True
+    environment=str(config('ENVIRONMENT', default='production')),
+    max_breadcrumbs=50,
+    attach_stacktrace=True,
+    send_default_pii=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=0.1,
 )
 
 # API Rate Limiting

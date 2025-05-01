@@ -40,5 +40,14 @@
     "gemini-2.5-pro-max",
     "gemini-2.5-pro-exp-03-25",
     "o4-mini"
-  ]
+  ],
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    ".",
+    "-p",
+    "*test.py"
+  ],
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true
 } 

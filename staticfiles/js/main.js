@@ -1,13 +1,122 @@
-// Sayfa yüklendiğinde çalışacak fonksiyonlar
+/*
+ * Ana JavaScript dosyası
+ * Modern ve modüler yapıda JavaScript kodu
+ */
+
+// ES6+ modül sistemi
+import { initNotifications } from './modules/notifications.js';
+import { initForms } from './modules/forms.js';
+import { initUI } from './modules/ui.js';
+import { initAPI } from './modules/api.js';
+
+// Ana uygulama sınıfı
+class FinAsisApp {
+    constructor() {
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Modülleri başlat
+            await this.initializeModules();
+            
+            // PWA desteği
+            if ('serviceWorker' in navigator) {
+                this.registerServiceWorker();
+            }
+            
+            // Çevrimdışı desteği
+            this.setupOfflineSupport();
+            
+            // Performans izleme
+            this.setupPerformanceMonitoring();
+        } catch (error) {
+            console.error('Uygulama başlatma hatası:', error);
+        }
+    }
+
+    async initializeModules() {
+        // Modülleri paralel olarak başlat
+        await Promise.all([
+            initNotifications(),
+            initForms(),
+            initUI(),
+            initAPI()
+        ]);
+    }
+
+    registerServiceWorker() {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker başarıyla kaydedildi:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('ServiceWorker kaydı başarısız:', error);
+                });
+        });
+    }
+
+    setupOfflineSupport() {
+        window.addEventListener('online', () => {
+            this.showNotification('Bağlantı yeniden sağlandı', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            this.showNotification('Çevrimdışı moda geçildi', 'warning');
+        });
+    }
+
+    setupPerformanceMonitoring() {
+        // Performans ölçümleri
+        if ('performance' in window) {
+            const timing = performance.timing;
+            const loadTime = timing.loadEventEnd - timing.navigationStart;
+            console.log(`Sayfa yüklenme süresi: ${loadTime}ms`);
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Bildirim göster
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+}
+
+// Uygulamayı başlat
+document.addEventListener('DOMContentLoaded', () => {
+    new FinAsisApp();
+});
+
+// DOM yüklendiğinde çalışacak fonksiyonlar
 document.addEventListener('DOMContentLoaded', function() {
+    // Bootstrap tooltips'i aktifleştir
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Bootstrap popovers'ı aktifleştir
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+    });
+
+    // Alert mesajlarını otomatik kapat
+    setupAlertDismissal();
+
+    // Form doğrulama
+    setupFormValidation();
+
     // Aktif menü öğesini işaretle
     highlightActiveMenuItem();
-    
-    // Form validasyonlarını etkinleştir
-    enableFormValidations();
-    
-    // Tooltip ve Popover'ları etkinleştir
-    enableTooltipsAndPopovers();
     
     // Klavye navigasyonunu etkinleştir
     enableKeyboardNavigation();
@@ -21,9 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navbar.classList.remove('navbar-scrolled');
         }
     });
-
-    // Alert mesajlarını otomatik kapat
-    initializeAlerts();
 
     // Oyun kontrolleri
     const gameContainer = document.getElementById('game-container');
@@ -75,36 +181,6 @@ function highlightActiveMenuItem() {
     });
 }
 
-// Form validasyonlarını etkinleştirme
-function enableFormValidations() {
-    const forms = document.querySelectorAll('.needs-validation');
-    
-    forms.forEach(form => {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        });
-    });
-}
-
-// Tooltip ve Popover'ları etkinleştirme
-function enableTooltipsAndPopovers() {
-    // Bootstrap 5 tooltip'lerini etkinleştir
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    
-    // Bootstrap 5 popover'larını etkinleştir
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
-    });
-}
-
 // Klavye navigasyonunu etkinleştirme
 function enableKeyboardNavigation() {
     // Tab ile gezinme için tüm etkileşimli öğelere tabindex ekle
@@ -127,44 +203,50 @@ function enableKeyboardNavigation() {
 }
 
 // Alert mesajlarını otomatik kapatma
-function initializeAlerts() {
-    const alerts = document.querySelectorAll('.alert');
+function setupAlertDismissal() {
+    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
     alerts.forEach(alert => {
-        if (!alert.classList.contains('alert-permanent')) {
-            setTimeout(() => {
-                alert.classList.add('fade-out');
-                setTimeout(() => {
-                    alert.remove();
-                }, 300);
-            }, 5000);
-        }
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
     });
 }
 
-// Form gönderimlerini yönetme
-function handleFormSubmit(formElement, successCallback, errorCallback) {
-    formElement.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        
-        try {
-            const formData = new FormData(formElement);
-            const response = await fetch(formElement.action, {
-                method: formElement.method,
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (successCallback) successCallback(data);
-            } else {
-                throw new Error('Form submission failed');
+// Form doğrulama
+function setupFormValidation() {
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
             }
-        } catch (error) {
-            if (errorCallback) errorCallback(error);
+            form.classList.add('was-validated');
+        });
+    });
+}
+
+// AJAX form gönderimi
+function submitFormAjax(formElement, successCallback, errorCallback) {
+    const formData = new FormData(formElement);
+    const url = formElement.getAttribute('action');
+    const method = formElement.getAttribute('method') || 'POST';
+
+    fetch(url, {
+        method: method,
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (successCallback) successCallback(data);
+    })
+    .catch(error => {
+        if (errorCallback) errorCallback(error);
+        console.error('Form gönderimi hatası:', error);
     });
 }
 
@@ -183,6 +265,75 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// Dinamik içerik yükleme
+function loadContent(url, targetElement) {
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            targetElement.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('İçerik yükleme hatası:', error);
+            targetElement.innerHTML = '<div class="alert alert-danger">İçerik yüklenirken bir hata oluştu.</div>';
+        });
+}
+
+// Sayfa yönlendirme
+function redirectTo(url, delay = 0) {
+    setTimeout(() => {
+        window.location.href = url;
+    }, delay);
+}
+
+// Mobil menü kontrolü
+function toggleMobileMenu() {
+    const navbar = document.querySelector('.navbar-collapse');
+    if (navbar.classList.contains('show')) {
+        navbar.classList.remove('show');
+    } else {
+        navbar.classList.add('show');
+    }
+}
+
+// Sayfa yukarı çık butonu
+window.onscroll = function() {
+    const scrollButton = document.getElementById('scrollTopBtn');
+    if (scrollButton) {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            scrollButton.style.display = 'block';
+        } else {
+            scrollButton.style.display = 'none';
+        }
+    }
+};
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Tema değiştirme
+function toggleTheme() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Tema değişikliği olayını tetikle
+    const event = new CustomEvent('themeChanged', { detail: { theme: newTheme } });
+    document.dispatchEvent(event);
+}
+
+// Sayfa yüklendiğinde tema kontrolü
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+});
 
 // Dinamik form alanları ekleme/çıkarma
 function initializeDynamicFormFields() {

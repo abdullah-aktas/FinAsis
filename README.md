@@ -1,90 +1,62 @@
-# FinAsis - Finansal Yönetim Sistemi
+# FinAsis - Finansal Yönetim ve Eğitim Platformu
 
-FinAsis, modern ve kapsamlı bir finansal yönetim sistemidir. Kurumsal finans yönetimi, muhasebe, CRM ve blockchain entegrasyonu gibi özellikleri içeren kapsamlı bir çözüm sunar.
+<p align="center">
+  <img src="docs/assets/logo.png" alt="FinAsis Logo" width="200"/>
+</p>
 
-## Özellikler
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/username/finasis)
 
-- Kullanıcı Yönetimi ve Güvenlik
-  - Çoklu dil desteği (Türkçe, İngilizce, Almanca, Arapça, Kürtçe)
-  - İki faktörlü kimlik doğrulama
-  - Rol tabanlı yetkilendirme
-  - Oturum yönetimi
+## 📖 Dokümantasyon
 
-- Finansal Yönetim
-  - Muhasebe modülü
-  - Bütçe planlama ve takip
-  - Finansal raporlama
-  - Blockchain entegrasyonu
+- [Türkçe](docs/tr/README.md)
+- [English](docs/en/README.md)
+- [Deutsch](docs/de/README.md)
+- [Kurdî](docs/ku/README.md)
 
-- CRM ve Müşteri Yönetimi
-  - Müşteri portföyü yönetimi
-  - İletişim takibi
-  - Görev ve hatırlatıcılar
+## 🚀 Özellikler
 
-- Mobil Uygulama
-  - iOS ve Android desteği
-  - Anlık bildirimler
-  - Offline çalışma modu
+- 💰 Finansal Eğitim Platformu
+- 🎮 TradeSim - Çok Oyunculu 3D Ticaret Simülasyonu
+- 🛠️ FinAsis Editor - Özel Öğrenme Deneyimleri Oluşturma Aracı
+- 🏪 Marketplace - Eğitim İçeriği Paylaşım Platformu
+- 👥 Çok Oyunculu Sınıf Deneyimi
+- 🤖 AI Destekli Finansal Asistan
+- 📱 Çoklu Platform Desteği (Web, Mobil, Masaüstü)
+- 🔗 Blockchain Entegrasyonu
+- 📊 Gelişmiş Analitik Araçları
 
-## Kurulum
+## 💻 Teknoloji Yığını
 
-### Gereksinimler
+- **Backend:** Django 5.0.2, DRF 3.14.0
+- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5
+- **Game Engine:** Ursina Engine 6.1.2
+- **Editor:** PyQt6, Ursina Editor Framework
+- **Mobil:** React Native
+- **Masaüstü:** Electron
+- **Veritabanı:** PostgreSQL
+- **AI:** OpenAI GPT
+- **Cache:** Redis
+- **Multiplayer:** Photon Network
 
-- Python 3.8 veya üzeri
-- PostgreSQL 12 veya üzeri
-- Redis (önbellek ve mesaj kuyruğu için)
-- Node.js (frontend geliştirme için)
+## 🛠️ Kurulum
 
-### Kurulum Adımları
+Detaylı kurulum talimatları için [kurulum kılavuzunu](docs/tr/KURULUM.md) inceleyebilirsiniz.
 
-1. Projeyi klonlayın:
-```bash
-git clone https://github.com/abdullah-aktas/FinAsis.git
-cd FinAsis
-```
-
-2. Sanal ortam oluşturun ve aktifleştirin:
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-```
-
-3. Bağımlılıkları yükleyin:
-```bash
-pip install -r requirements.txt
-```
-
-4. Veritabanını oluşturun:
-```bash
-python manage.py migrate
-```
-
-5. Geliştirme sunucusunu başlatın:
-```bash
-python manage.py runserver
-```
-
-## Kullanım Kılavuzu
-
-Detaylı kullanım kılavuzu için [docs](docs/) klasörüne bakın:
-- [Kullanıcı Kılavuzu](docs/user_guide.md)
-- [Yönetici Kılavuzu](docs/admin_guide.md)
-- [API Dokümantasyonu](docs/api_documentation.md)
-
-## Katkıda Bulunma
+## 👥 Katkıda Bulunma
 
 1. Bu depoyu fork edin
-2. Yeni bir branch oluşturun (`git checkout -b feature/yeni-ozellik`)
-3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik eklendi'`)
-4. Branch'inizi push edin (`git push origin feature/yeni-ozellik`)
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
 
-## Lisans
+## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
 
-## İletişim
+## 🤝 İletişim
 
-- Proje Yöneticisi: [Abdullah Aktaş](mailto:abdullah.aktas@example.com)
-- Web Sitesi: [https://finasis.com](https://finasis.com)
+- Proje Yöneticisi: [İsim Soyisim](mailto:email@example.com)
+- Website: [finasis.com](https://finasis.com)
+- LinkedIn: [FinAsis](https://linkedin.com/company/finasis)

@@ -1,34 +1,33 @@
-# FinAsis Finansal Eğitim Oyunları
-
-Bu belge, FinAsis projesi içindeki finansal eğitim ve muhasebe öğretici oyunlarının tanıtımını, kurulumunu ve nasıl kullanılacağını açıklar.
+# FinAsis Eğitim Platformu Oyunları
 
 ## Oyun Modülleri
 
-Projede yer alan oyun modülleri:
+1. **TradeSim** (Çok Oyunculu 3D Ticaret Simülasyonu)
+   - Gerçek zamanlı çok oyunculu ticaret deneyimi
+   - Sınıf modu ve serbest oyun modu
+   - Öğretmen kontrol paneli
+   - Dosya: `games/trade_sim/game.py`
 
-1. **Finans Öğretici** (3D Eğitim Dünyası)
-   - Yaş gruplarına göre uyarlanmış finansal öğretici oyun
-   - 3D ortamda interaktif finansal eğitim
-   - Karakter seçimi ve görev sistemi
-   - Dosya: `apps/games/ursina_game/finans_ogretici.py`
+2. **FinAsis Editor** (Eğitim İçeriği Oluşturma Aracı)
+   - Sürükle-bırak arayüzü
+   - Hazır şablonlar ve bileşenler
+   - Özel görev ve senaryo oluşturma
+   - Dosya: `editor/main.py`
 
-2. **Ticaretin İzinde** (2D Ticaret Simülasyonu)
-   - Basit 2D ticaret ve işletme simülasyonu
-   - Alım-satım, stok yönetimi ve kâr/zarar hesaplama
-   - Muhasebe ve finans prensiplerini pratik yapma
-   - Dosya: `apps/games/game_app/game.py`
+3. **Marketplace** (İçerik Paylaşım Platformu)
+   - Oyun/görev paylaşımı ve indirme
+   - Puanlama ve yorum sistemi
+   - İçerik moderasyonu
+   - Sanal para birimi "FinCoin" ile alışveriş
+   - İçerik oluşturuculara gelir modeli
+   - Dosya: `marketplace/app.py`
 
-3. **Ticaretin İzinde AR** (Artırılmış Gerçeklik Versiyonu)
-   - Artırılmış gerçeklik ile finansal eğitim
-   - Kamera üzerinden işaretçi tanıma sistemi
-   - Gerçek dünya ile entegre finansal simülasyon
-   - Dosya: `apps/games/game_app/ar_trade_trail.py`
-
-4. **Piyasa Simülasyonu** (Menkul Kıymet Ticaret Simülasyonu)
-   - Borsada hisse senedi alım-satım simülasyonu
-   - Portföy yönetimi ve çeşitlendirme
-   - Risk/getiri konseptlerini öğrenme
-   - Dosya: `apps/games/ursina_game/game.py`
+4. **Öğretmen Kontrol Paneli**
+   - Canlı sınıf yönetimi
+   - Öğrenci ilerleme takibi
+   - Anlık görev atamaları
+   - Başarı rozetleri dağıtma
+   - Dosya: `teacher/dashboard.py`
 
 ## Kurulum ve Çalıştırma
 
@@ -42,34 +41,25 @@ pip install -r requirements_for_games.txt
 
 ### Oyunları Çalıştırma
 
-#### Finans Öğretici (3D)
+#### TradeSim (Çok Oyunculu 3D)
 
 ```bash
-cd apps/games/ursina_game
-python finans_ogretici.py
-```
-
-#### Ticaretin İzinde (2D)
-
-```bash
-cd apps/games/game_app
+cd games/trade_sim
 python game.py
 ```
 
-#### Ticaretin İzinde AR 
-
-*Not: Bu oyun için bilgisayarınızda çalışan bir kamera gereklidir.*
+#### FinAsis Editor
 
 ```bash
-cd apps/games/game_app
-python ar_trade_trail.py
+cd editor
+python main.py
 ```
 
-#### Piyasa Simülasyonu
+#### Marketplace
 
 ```bash
-cd apps/games/ursina_game
-python game.py
+cd marketplace
+python app.py
 ```
 
 ## Yaş Grubu Filtreleme
@@ -128,4 +118,17 @@ Oyunlara katkıda bulunmak için:
 
 ## Lisans
 
-Bu oyunlar MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın. 
+Bu oyunlar MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## Özellikler
+
+### FinCoin Ekonomisi
+- İçerik oluşturarak FinCoin kazanma
+- Marketplace'de alışveriş
+- Başarı rozetleri ile bonus kazanma
+
+### Multiplayer Özellikleri
+- 32 kişiye kadar eş zamanlı oyun
+- Sesli sohbet desteği
+- Ekip oluşturma sistemi
+- Canlı ticaret görünümü

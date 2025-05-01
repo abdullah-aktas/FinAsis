@@ -1,23 +1,23 @@
-# 2. Veritabanı ve Altyapı
+# 2. Veritabanƒ± ve Altyapƒ±
 
-## 📌 Amaç
-Bu dokümantasyon, FinAsis projesinin veritabanı yapısı, SQLite'dan PostgreSQL'e geçiş süreci ve veritabanı yönetimi konularını detaylandırmaktadır.
+## üìå Ama√ß
+Bu dok√ºmantasyon, FinAsis projesinin veritabanƒ± yapƒ±sƒ±, SQLite'dan PostgreSQL'e ge√ßi≈ü s√ºreci ve veritabanƒ± y√∂netimi konularƒ±nƒ± detaylandƒ±rmaktadƒ±r.
 
-## ⚙️ Veritabanı Mimarisi
+## ‚öôÔ∏è Veritabanƒ± Mimarisi
 
-### 1. PostgreSQL Yapılandırması
+### 1. PostgreSQL Yapƒ±landƒ±rmasƒ±
 
 #### 1.1. Temel Ayarlar
 ```sql
--- Veritabanı oluşturma
+-- Veritabanƒ± olu≈üturma
 CREATE DATABASE finasis WITH ENCODING 'UTF8' LC_COLLATE='tr_TR.UTF-8' LC_CTYPE='tr_TR.UTF-8';
 
--- Kullanıcı oluşturma ve yetkilendirme
+-- Kullanƒ±cƒ± olu≈üturma ve yetkilendirme
 CREATE USER finasis_user WITH PASSWORD 'your_secure_password';
 GRANT ALL PRIVILEGES ON DATABASE finasis TO finasis_user;
 ```
 
-#### 1.2. Performans Ayarları
+#### 1.2. Performans Ayarlarƒ±
 ```ini
 # postgresql.conf
 max_connections = 100
@@ -38,127 +38,127 @@ max_parallel_workers = 4
 max_parallel_maintenance_workers = 2
 ```
 
-### 2. İndeks Yapıları
+### 2. ƒ∞ndeks Yapƒ±larƒ±
 
-#### 2.1. Önerilen İndeksler
+#### 2.1. √ñnerilen ƒ∞ndeksler
 ```sql
--- Müşteri tablosu için indeksler
+-- M√º≈üteri tablosu i√ßin indeksler
 CREATE INDEX idx_customers_tax_number ON customers(tax_number);
 CREATE INDEX idx_customers_email ON customers(email);
 CREATE INDEX idx_customers_created_at ON customers(created_at);
 
--- Fatura tablosu için indeksler
+-- Fatura tablosu i√ßin indeksler
 CREATE INDEX idx_invoices_customer_id ON invoices(customer_id);
 CREATE INDEX idx_invoices_date ON invoices(date);
 CREATE INDEX idx_invoices_status ON invoices(status);
 
--- Ödeme tablosu için indeksler
+-- √ñdeme tablosu i√ßin indeksler
 CREATE INDEX idx_payments_invoice_id ON payments(invoice_id);
 CREATE INDEX idx_payments_date ON payments(date);
 CREATE INDEX idx_payments_type ON payments(payment_type);
 ```
 
-## 🔧 Veritabanı Yönetimi
+## üîß Veritabanƒ± Y√∂netimi
 
-### 1. SQLite'dan PostgreSQL'e Geçiş
+### 1. SQLite'dan PostgreSQL'e Ge√ßi≈ü
 
-#### 1.1. Veri Aktarımı
+#### 1.1. Veri Aktarƒ±mƒ±
 ```bash
-# SQLite dump oluşturma
+# SQLite dump olu≈üturma
 python manage.py dumpdata --exclude auth.permission --exclude contenttypes > db_backup.json
 
 # PostgreSQL'e aktarma
 python manage.py loaddata db_backup.json
 ```
 
-#### 1.2. Şema Dönüşümü
+#### 1.2. ≈ûema D√∂n√º≈ü√ºm√º
 ```bash
-# Migrasyon dosyalarını oluşturma
+# Migrasyon dosyalarƒ±nƒ± olu≈üturma
 python manage.py makemigrations
 
-# Migrasyonları uygulama
+# Migrasyonlarƒ± uygulama
 python manage.py migrate
 ```
 
-### 2. Yedekleme ve Geri Yükleme
+### 2. Yedekleme ve Geri Y√ºkleme
 
 #### 2.1. Otomatik Yedekleme
 ```bash
-# Günlük yedekleme scripti
+# G√ºnl√ºk yedekleme scripti
 #!/bin/bash
 BACKUP_DIR="/path/to/backups"
 DATE=$(date +%Y%m%d)
 pg_dump -U finasis_user finasis > $BACKUP_DIR/finasis_$DATE.sql
 ```
 
-#### 2.2. Yedekten Geri Yükleme
+#### 2.2. Yedekten Geri Y√ºkleme
 ```bash
-# Yedekten geri yükleme
+# Yedekten geri y√ºkleme
 psql -U finasis_user finasis < backup_file.sql
 ```
 
-## 🧪 Veritabanı Bakımı
+## üß™ Veritabanƒ± Bakƒ±mƒ±
 
-### 1. Düzenli Bakım İşlemleri
+### 1. D√ºzenli Bakƒ±m ƒ∞≈ülemleri
 ```sql
--- Tablo istatistiklerini güncelleme
+-- Tablo istatistiklerini g√ºncelleme
 ANALYZE VERBOSE;
 
--- Kullanılmayan indeksleri temizleme
+-- Kullanƒ±lmayan indeksleri temizleme
 VACUUM ANALYZE;
 
--- Tablo boyutlarını kontrol etme
+-- Tablo boyutlarƒ±nƒ± kontrol etme
 SELECT pg_size_pretty(pg_total_relation_size('table_name'));
 ```
 
-### 2. Performans İzleme
+### 2. Performans ƒ∞zleme
 ```sql
--- Yavaş çalışan sorguları bulma
+-- Yava≈ü √ßalƒ±≈üan sorgularƒ± bulma
 SELECT query, calls, total_time, mean_time
 FROM pg_stat_statements
 ORDER BY mean_time DESC
 LIMIT 10;
 ```
 
-## 📝 Sık Karşılaşılan Sorunlar ve Çözümleri
+## üìù Sƒ±k Kar≈üƒ±la≈üƒ±lan Sorunlar ve √á√∂z√ºmleri
 
-### 1. Bağlantı Havuzu Tükenmesi
-**Sorun**: Veritabanı bağlantıları tükeniyor
-**Çözüm**:
-- `max_connections` değerini artırın
-- Bağlantı havuzu yapılandırmasını optimize edin
-- Kullanılmayan bağlantıları kapatın
+### 1. Baƒülantƒ± Havuzu T√ºkenmesi
+**Sorun**: Veritabanƒ± baƒülantƒ±larƒ± t√ºkeniyor
+**√á√∂z√ºm**:
+- `max_connections` deƒüerini artƒ±rƒ±n
+- Baƒülantƒ± havuzu yapƒ±landƒ±rmasƒ±nƒ± optimize edin
+- Kullanƒ±lmayan baƒülantƒ±larƒ± kapatƒ±n
 
-### 2. Yavaş Sorgu Performansı
-**Sorun**: Bazı sorgular çok yavaş çalışıyor
-**Çözüm**:
-- İndeksleri kontrol edin ve gerekirse yeni indeksler ekleyin
-- Sorgu planlarını analiz edin
-- Tablo istatistiklerini güncelleyin
+### 2. Yava≈ü Sorgu Performansƒ±
+**Sorun**: Bazƒ± sorgular √ßok yava≈ü √ßalƒ±≈üƒ±yor
+**√á√∂z√ºm**:
+- ƒ∞ndeksleri kontrol edin ve gerekirse yeni indeksler ekleyin
+- Sorgu planlarƒ±nƒ± analiz edin
+- Tablo istatistiklerini g√ºncelleyin
 
-### 3. Disk Alanı Tükenmesi
-**Sorun**: Veritabanı dosyaları çok fazla yer kaplıyor
-**Çözüm**:
-- Eski WAL dosyalarını temizleyin
-- Kullanılmayan tabloları ve indeksleri kaldırın
-- VACUUM FULL işlemi yapın
+### 3. Disk Alanƒ± T√ºkenmesi
+**Sorun**: Veritabanƒ± dosyalarƒ± √ßok fazla yer kaplƒ±yor
+**√á√∂z√ºm**:
+- Eski WAL dosyalarƒ±nƒ± temizleyin
+- Kullanƒ±lmayan tablolarƒ± ve indeksleri kaldƒ±rƒ±n
+- VACUUM FULL i≈ülemi yapƒ±n
 
-## 📂 Dosya Yapısı ve Referanslar
+## üìÇ Dosya Yapƒ±sƒ± ve Referanslar
 
 ```
 finasis/
-├── postgres/
-│   ├── init/              # Veritabanı başlangıç scriptleri
-│   ├── backup/            # Yedekleme dizini
-│   └── conf/              # PostgreSQL yapılandırma dosyaları
-├── scripts/
-│   ├── backup.sh          # Yedekleme scripti
-│   └── maintenance.sh     # Bakım scripti
-└── migrations/            # Django migrasyon dosyaları
+‚îú‚îÄ‚îÄ postgres/
+‚îÇ   ‚îú‚îÄ‚îÄ init/              # Veritabanƒ± ba≈ülangƒ±√ß scriptleri
+‚îÇ   ‚îú‚îÄ‚îÄ backup/            # Yedekleme dizini
+‚îÇ   ‚îî‚îÄ‚îÄ conf/              # PostgreSQL yapƒ±landƒ±rma dosyalarƒ±
+‚îú‚îÄ‚îÄ scripts/
+‚îÇ   ‚îú‚îÄ‚îÄ backup.sh          # Yedekleme scripti
+‚îÇ   ‚îî‚îÄ‚îÄ maintenance.sh     # Bakƒ±m scripti
+‚îî‚îÄ‚îÄ migrations/            # Django migrasyon dosyalarƒ±
 ```
 
-## 🔍 Ek Kaynaklar
+## üîç Ek Kaynaklar
 
-- [PostgreSQL Performans İpuçları](https://www.postgresql.org/docs/current/performance-tips.html)
-- [Django Veritabanı Optimizasyonu](https://docs.djangoproject.com/en/stable/topics/db/optimization/)
+- [PostgreSQL Performans ƒ∞pu√ßlarƒ±](https://www.postgresql.org/docs/current/performance-tips.html)
+- [Django Veritabanƒ± Optimizasyonu](https://docs.djangoproject.com/en/stable/topics/db/optimization/)
 - [PostgreSQL Yedekleme ve Kurtarma](https://www.postgresql.org/docs/current/backup.html) 

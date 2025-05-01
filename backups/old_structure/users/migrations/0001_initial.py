@@ -114,8 +114,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Kullanıcı",
-                "verbose_name_plural": "Kullanıcılar",
+                "verbose_name": "Kullan覺c覺",
+                "verbose_name_plural": "Kullan覺c覺lar",
             },
             managers=[
                 ("objects", django.contrib.auth.models.UserManager()),

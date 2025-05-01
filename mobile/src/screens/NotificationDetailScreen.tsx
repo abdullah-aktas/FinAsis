@@ -69,7 +69,7 @@ const NotificationDetailScreen = () => {
         onPress={() => navigation.goBack()}
       >
         <Icon name="arrow-back" size={24} color="#fff" />
-        <Text style={styles.backButtonText}>Geri Dön</Text>
+        <Text style={styles.backButtonText}>Geri DÃ¶n</Text>
       </TouchableOpacity>
     </ScrollView>
   );

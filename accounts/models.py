@@ -1,86 +1,117 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
-from django.core.validators import MinLengthValidator, RegexValidator
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-import pyotp
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
-class User(AbstractUser):
-    """Özel kullanıcı modeli"""
-    
-    ROLE_CHOICES = [
-        ('admin', 'Yönetici'),
-        ('user', 'Kullanıcı'),
-        ('manager', 'Yönetici'),
-        ('analyst', 'Analist'),
-    ]
-    
-    role = models.CharField(
-        _('Rol'),
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default='user'
-    )
-    
+class Company(models.Model):
+    name = models.CharField(max_length=100)
+    tax_number = models.CharField(max_length=20)
+    address = models.TextField()
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    user_limit = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(100)])
     created_at = models.DateTimeField(auto_now_add=True)
-    two_factor_secret = models.CharField(max_length=32, blank=True, null=True)
-    two_factor_enabled = models.BooleanField(default=False)
-    password_expiry_date = models.DateTimeField(null=True, blank=True)
-    last_password_change = models.DateTimeField(auto_now=True)
-    is_staff = models.BooleanField(
-        _('staff status'),
-        default=False,
-        help_text=_('Designates whether the user can log into this admin site.'),
-    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.username
+        return self.name
 
-    class Meta:
-        verbose_name = 'Kullanıcı'
-        verbose_name_plural = 'Kullanıcılar'
-        indexes = [
-            models.Index(fields=['email']),
-            models.Index(fields=['role']),
-            models.Index(fields=['created_at']),
+    def get_active_user_count(self):
+        return self.user_set.filter(is_active=True).count()
+
+    def can_add_user(self):
+        return self.get_active_user_count() < self.user_limit
+
+    def create_default_roles(self):
+        default_roles = [
+            {
+                'name': 'İnsan Kaynakları Yöneticisi',
+                'permissions': {
+                    'can_manage_employees': True,
+                    'can_view_employee_data': True,
+                    'can_manage_leave_requests': True,
+                    'can_manage_recruitment': True,
+                    'can_view_hr_reports': True
+                }
+            },
+            {
+                'name': 'Müşteri İlişkileri Sorumlusu',
+                'permissions': {
+                    'can_manage_customers': True,
+                    'can_view_customer_data': True,
+                    'can_manage_support_tickets': True,
+                    'can_send_customer_communications': True,
+                    'can_view_customer_reports': True
+                }
+            },
+            {
+                'name': 'Lojistik Sorumlusu',
+                'permissions': {
+                    'can_manage_inventory': True,
+                    'can_manage_shipments': True,
+                    'can_view_supply_chain': True,
+                    'can_manage_warehouse': True,
+                    'can_view_logistics_reports': True
+                }
+            }
         ]
         
-    def has_role(self, role):
-        """Kullanıcının belirli bir role sahip olup olmadığını kontrol eder."""
-        return self.role == role
-    
-    def has_perm_role(self, perm_roles):
-        """Kullanıcının izin verilen rollerden birine sahip olup olmadığını kontrol eder."""
+        for role_data in default_roles:
+            Role.objects.create(
+                name=role_data['name'],
+                description=f"{role_data['name']} için varsayılan rol",
+                permissions=role_data['permissions'],
+                company=self
+            )
+
+class Role(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    permissions = models.JSONField(default=dict)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.company.name}"
+
+    class Meta:
+        unique_together = ('name', 'company')
+
+class User(AbstractUser):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    department = models.CharField(max_length=50, blank=True)
+    position = models.CharField(max_length=50, blank=True)
+    last_login_ip = models.GenericIPAddressField(null=True, blank=True)
+    is_company_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def get_initials(self):
+        if self.first_name and self.last_name:
+            return f"{self.first_name[0]}{self.last_name[0]}"
+        return self.username[0:2].upper()
+
+    def has_permission(self, permission):
         if self.is_superuser:
             return True
-        if isinstance(perm_roles, str):
-            return self.role == perm_roles
-        return self.role in perm_roles
-
-    def generate_two_factor_secret(self):
-        """İki faktörlü kimlik doğrulama için yeni bir secret oluşturur."""
-        self.two_factor_secret = pyotp.random_base32()
-        self.save()
-        return self.two_factor_secret
-
-    def verify_two_factor_code(self, code):
-        """İki faktörlü kimlik doğrulama kodunu doğrular."""
-        if not self.two_factor_enabled or not self.two_factor_secret:
+        if not self.role:
             return False
-        totp = pyotp.TOTP(self.two_factor_secret)
-        return totp.verify(code)
+        return permission in self.role.permissions
 
-    def is_password_expired(self):
-        """Şifrenin süresi dolmuş mu kontrol eder."""
-        if not self.password_expiry_date:
-            return False
-        return timezone.now() > self.password_expiry_date
+    def save(self, *args, **kwargs):
+        if self.company and not self.company.can_add_user():
+            raise ValueError("Kullanıcı limiti aşıldı")
+        super().save(*args, **kwargs)
 
-    def set_password(self, raw_password):
-        """Şifre değiştirildiğinde son değişiklik tarihini günceller."""
-        super().set_password(raw_password)
-        self.last_password_change = timezone.now()
-        # Şifre süresini 90 gün olarak ayarla
-        self.password_expiry_date = timezone.now() + timezone.timedelta(days=90) 
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=100)
+    details = models.JSONField(default=dict)
+    ip_address = models.GenericIPAddressField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action} - {self.created_at}" 

@@ -39,16 +39,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     
     # Local apps
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
     'permissions.apps.PermissionsConfig',
     'stock_management.apps.StockManagementConfig',
-    'ai_assistant.apps.AIAssistantConfig',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

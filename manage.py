@@ -30,7 +30,7 @@ def setup_environment() -> None:
         logger.info(f"Proje dizini: {project_root}")
 
         # Django ayarlarını yapılandır
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
         
         # Python yolunu ayarla
         if str(project_root) not in sys.path:

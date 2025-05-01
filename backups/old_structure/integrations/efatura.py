@@ -11,7 +11,7 @@ class EFaturaIntegration:
         
     def create_invoice(self, data):
         """
-        E-Fatura oluşturma
+        E-Fatura olu≈üturma
         """
         try:
             response = requests.post(

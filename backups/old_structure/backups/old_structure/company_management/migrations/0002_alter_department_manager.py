@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="company_managed_departments",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name="Yönetici",
+                verbose_name="YÃ¶netici",
             ),
         ),
     ]

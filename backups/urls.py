@@ -18,7 +18,7 @@ urlpatterns = [
     # Ana API endpoint'leri
     path('', include(router.urls)),
     
-    # Özel endpoint'ler
+    # Ã–zel endpoint'ler
     path('configs/<int:pk>/run/', BackupConfigViewSet.as_view({'post': 'run_backup'}), name='run-backup'),
     path('storages/<int:pk>/test/', BackupStorageViewSet.as_view({'post': 'test_connection'}), name='test-storage'),
     path('records/<int:pk>/restore/', BackupRecordViewSet.as_view({'post': 'restore'}), name='restore-backup'),

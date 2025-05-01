@@ -16,13 +16,13 @@ URL Yapılandırma Kuralları:
 4. CRUD işlemleri için standart URL yapısı kullanılmalı
 """
 
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from django.contrib import admin # type: ignore
+from django.urls import path, include # type: ignore
+from django.conf import settings # type: ignore
+from django.conf.urls.static import static # type: ignore
+from django.views.generic import TemplateView # type: ignore
 from core import views
-from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.i18n import i18n_patterns # type: ignore
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -99,7 +99,7 @@ api_v1_patterns = [
 
 # API Versiyon 2 URLs (Geliştirme Aşamasında)
 api_v2_patterns = [
-    path('ai-assistant/', include('ai_assistant.urls', namespace='ai-assistant')),
+    # path('ai-assistant/', include('ai_assistant.urls', namespace='ai-assistant')),
     path('blockchain/', include('blockchain.urls', namespace='blockchain')),
 ]
 
@@ -181,9 +181,6 @@ urlpatterns += [
     
     # Django REST Framework auth URL'leri
     path('api-auth/', include('rest_framework.urls')),
-    
-    # Django Allauth URL'leri
-    path('accounts/', include('allauth.urls')),
 ]
 
 urlpatterns += [

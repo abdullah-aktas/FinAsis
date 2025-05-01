@@ -11,7 +11,7 @@ urlpatterns = [
     path('banks/', views.bank_list, name='bank_list'),
     path('banks/create/', views.bank_create, name='bank_create'),
     
-    # Çek URL'leri
+    # Ã‡ek URL'leri
     path('checks/', views.check_list, name='check_list'),
     path('checks/create/', views.check_create, name='check_create'),
     path('checks/<int:pk>/', views.check_detail, name='check_detail'),

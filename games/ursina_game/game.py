@@ -15,11 +15,11 @@ from typing import Dict, List, Optional
 import threading
 from game_integration import GameIntegration
 
-# Django ayarlarını yükle
+# Django ayarlarÄ±nÄ± yÃ¼kle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
-# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
 
-# Oyun içindeki şirket modelleri yerine sınıflar kullan
+# Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
 class GameCompany:
     def __init__(self, name, sector):
         self.name = name
@@ -35,11 +35,11 @@ class GameEmployee:
         self.name = name
         self.department = department
 
-# Oyun ayarları
+# Oyun ayarlarÄ±
 game_settings = {
     'difficulty': 'normal',  # easy, normal, hard
     'market_update_interval': 5,  # saniye
-    'event_chance': 0.2,  # 0-1 arası
+    'event_chance': 0.2,  # 0-1 arasÄ±
     'starting_money': 100000,
     'tutorial_enabled': True,
     'sound_enabled': True,
@@ -53,12 +53,12 @@ game_settings = {
 # Piyasa durumu
 market_state = {
     'trend': 'stable',  # bull, stable, bear
-    'volatility': 0.5,  # 0-1 arası
+    'volatility': 0.5,  # 0-1 arasÄ±
     'last_update': datetime.now(),
     'market_events': []
 }
 
-# UI bileşenleri
+# UI bileÅŸenleri
 ui = {
     'main_panel': None,
     'portfolio_panel': None,
@@ -105,15 +105,15 @@ player = {
         'shortest_holding': 0,
         'risk_tolerance': 0.7,
         'trading_style': 'balanced',  # aggressive, balanced, conservative
-        'debt_to_income': 0.0,  # Borç/gelir oranı
-        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
-        'total_debt': 0,  # Toplam borç
+        'debt_to_income': 0.0,  # BorÃ§/gelir oranÄ±
+        'portfolio_diversity': 0.0,  # PortfÃ¶y Ã§eÅŸitliliÄŸi
+        'total_debt': 0,  # Toplam borÃ§
         'total_income': 0,  # Toplam gelir
-        'monthly_income': 0,  # Aylık gelir
-        'monthly_expenses': 0  # Aylık giderler
+        'monthly_income': 0,  # AylÄ±k gelir
+        'monthly_expenses': 0  # AylÄ±k giderler
     },
     'skills': {
-        'analysis': 1,  # 1-10 arası
+        'analysis': 1,  # 1-10 arasÄ±
         'risk_management': 1,
         'market_knowledge': 1,
         'technical_analysis': 1,
@@ -146,7 +146,7 @@ player = {
     'trading_history': []
 }
 
-# Görev sistemi
+# GÃ¶rev sistemi
 quest_system = {
     'daily_quests': [],
     'weekly_quests': [],
@@ -154,39 +154,39 @@ quest_system = {
     'tutorial_quests': []
 }
 
-# Görev tanımlamaları
+# GÃ¶rev tanÄ±mlamalarÄ±
 quest_definitions = {
-    # Günlük görevler
+    # GÃ¼nlÃ¼k gÃ¶revler
     'daily_trade': {
         'id': 'daily_trade',
-        'title': 'Günlük İşlem',
-        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'title': 'GÃ¼nlÃ¼k Ä°ÅŸlem',
+        'description': 'BugÃ¼n en az 1 hisse senedi alÄ±m veya satÄ±m iÅŸlemi yapÄ±n.',
         'reward': {'money': 500, 'experience': 100},
         'type': 'daily',
         'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
     },
     'daily_profit': {
         'id': 'daily_profit',
-        'title': 'Günlük Kâr',
-        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'title': 'GÃ¼nlÃ¼k KÃ¢r',
+        'description': 'BugÃ¼n portfÃ¶yÃ¼nÃ¼zden 1000$ kÃ¢r elde edin.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'daily',
         'check_completion': lambda: calculate_daily_profit() >= 1000
     },
     'daily_diversity': {
         'id': 'daily_diversity',
-        'title': 'Çeşitlilik Ustası',
-        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'title': 'Ã‡eÅŸitlilik UstasÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.7\'nin Ã¼zerine Ã§Ä±karÄ±n.',
         'reward': {'money': 800, 'experience': 150},
         'type': 'daily',
         'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
     },
     
-    # Haftalık görevler
+    # HaftalÄ±k gÃ¶revler
     'weekly_growth': {
         'id': 'weekly_growth',
-        'title': 'Haftalık Büyüme',
-        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'title': 'HaftalÄ±k BÃ¼yÃ¼me',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ bu hafta %10 bÃ¼yÃ¼tÃ¼n.',
         'reward': {'money': 5000, 'experience': 500},
         'type': 'weekly',
         'check_completion': lambda: calculate_weekly_growth() >= 0.1
@@ -194,74 +194,74 @@ quest_definitions = {
     'weekly_trades': {
         'id': 'weekly_trades',
         'title': 'Aktif Trader',
-        'description': 'Bu hafta en az 10 işlem yapın.',
+        'description': 'Bu hafta en az 10 iÅŸlem yapÄ±n.',
         'reward': {'money': 3000, 'experience': 400},
         'type': 'weekly',
         'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
     },
     'weekly_risk': {
         'id': 'weekly_risk',
-        'title': 'Risk Yöneticisi',
-        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'title': 'Risk YÃ¶neticisi',
+        'description': 'Risk skorunuzu 0.5\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
         'reward': {'money': 4000, 'experience': 450},
         'type': 'weekly',
         'check_completion': lambda: calculate_risk_score() < 0.5
     },
     
-    # Başarı görevleri
+    # BaÅŸarÄ± gÃ¶revleri
     'achievement_portfolio': {
         'id': 'achievement_portfolio',
-        'title': 'Portföy Ustası',
-        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'title': 'PortfÃ¶y UstasÄ±',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ 200.000$ deÄŸerine ulaÅŸtÄ±rÄ±n.',
         'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
         'type': 'achievement',
         'check_completion': lambda: calculate_portfolio_value() >= 200000
     },
     'achievement_diversity': {
         'id': 'achievement_diversity',
-        'title': 'Çeşitlilik Kralı',
-        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'title': 'Ã‡eÅŸitlilik KralÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.9\'un Ã¼zerine Ã§Ä±karÄ±n.',
         'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
         'type': 'achievement',
         'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
     },
     'achievement_debt': {
         'id': 'achievement_debt',
-        'title': 'Borçsuz Yaşam',
-        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'title': 'BorÃ§suz YaÅŸam',
+        'description': 'BorÃ§/gelir oranÄ±nÄ±zÄ± 0.1\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
         'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
         'type': 'achievement',
         'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
     },
     
-    # Eğitim görevleri
+    # EÄŸitim gÃ¶revleri
     'tutorial_buy': {
         'id': 'tutorial_buy',
-        'title': 'İlk Alım',
-        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'title': 'Ä°lk AlÄ±m',
+        'description': 'Ä°lk hisse senedi alÄ±m iÅŸleminizi yapÄ±n.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'tutorial',
         'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
     },
     'tutorial_sell': {
         'id': 'tutorial_sell',
-        'title': 'İlk Satım',
-        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'title': 'Ä°lk SatÄ±m',
+        'description': 'Ä°lk hisse senedi satÄ±m iÅŸleminizi yapÄ±n.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'tutorial',
         'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
     },
     'tutorial_diversity': {
         'id': 'tutorial_diversity',
-        'title': 'Çeşitlendirme',
-        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'title': 'Ã‡eÅŸitlendirme',
+        'description': 'En az 3 farklÄ± hisse senedine yatÄ±rÄ±m yapÄ±n.',
         'reward': {'money': 2000, 'experience': 300},
         'type': 'tutorial',
         'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
     }
 }
 
-# Görev UI elementleri
+# GÃ¶rev UI elementleri
 quest_ui = {
     'panel': None,
     'quest_items': [],
@@ -276,19 +276,19 @@ class FinansalDunya(Entity):
         self.oyuncu = FirstPersonController()
         self.oyuncu.position = (0, 2, 0)
         
-        # Dil yöneticisi
+        # Dil yÃ¶neticisi
         self.locale_manager = LocaleManager()
         
-        # Platform kontrolü
+        # Platform kontrolÃ¼
         self.platform = self.oyun.platform
         self.is_mobile = self.platform in ['android', 'ios']
         
-        # AR yöneticisini başlat (mobil platformlarda)
+        # AR yÃ¶neticisini baÅŸlat (mobil platformlarda)
         if self.is_mobile:
             self.ar_manager = ARManager(use_aruco=True, show_camera=True)
             self.ar_manager.start()
             
-        # Dünya oluşturma
+        # DÃ¼nya oluÅŸturma
         self.dunya = Entity(
             model='plane',
             texture='white_cube',
@@ -296,7 +296,7 @@ class FinansalDunya(Entity):
             color=color.gray
         )
         
-        # Binalar ve iş yerleri
+        # Binalar ve iÅŸ yerleri
         self.binalar = []
         self.is_yerleri = []
         self.olaylar = []
@@ -312,16 +312,16 @@ class FinansalDunya(Entity):
         self.is_paused = False
         self.is_saving = False
         
-        # Tuş durumları
+        # TuÅŸ durumlarÄ±
         self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
         
-        # İnitialize
+        # Ä°nitialize
         self.bina_olustur()
         self.is_yeri_olustur()
         self.olay_olustur()
         self.ui_olustur()
         
-        # Otomatik kayıt
+        # Otomatik kayÄ±t
         self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
@@ -336,7 +336,7 @@ class FinansalDunya(Entity):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Bakiye göstergesi
+        # Bakiye gÃ¶stergesi
         self.ui_elements['bakiye'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
@@ -345,7 +345,7 @@ class FinansalDunya(Entity):
             color=color.green
         )
         
-        # Puan göstergesi
+        # Puan gÃ¶stergesi
         self.ui_elements['puan'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
@@ -354,7 +354,7 @@ class FinansalDunya(Entity):
             color=color.yellow
         )
         
-        # Seviye göstergesi
+        # Seviye gÃ¶stergesi
         self.ui_elements['seviye'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
@@ -363,7 +363,7 @@ class FinansalDunya(Entity):
             color=color.azure
         )
         
-        # İşlem butonları
+        # Ä°ÅŸlem butonlarÄ±
         self.ui_elements['alis_buton'] = Button(
             parent=self.ui_elements['ana_panel'],
             text=self.locale_manager.get_text('game.transactions.buy'),
@@ -391,7 +391,7 @@ class FinansalDunya(Entity):
             color=color.white
         )
         
-        # Menü butonu
+        # MenÃ¼ butonu
         self.ui_elements['menu_buton'] = Button(
             parent=camera.ui,
             text=self.locale_manager.get_text('game.menu.settings'),
@@ -401,7 +401,7 @@ class FinansalDunya(Entity):
             on_click=self.toggle_menu
         )
         
-        # Dil seçimi butonu
+        # Dil seÃ§imi butonu
         self.ui_elements['dil_buton'] = Button(
             parent=camera.ui,
             text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
@@ -416,13 +416,13 @@ class FinansalDunya(Entity):
             self._create_mobile_controls()
             
     def toggle_language(self):
-        """Dil seçimini değiştir"""
+        """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
         next_index = (current_index + 1) % len(available_locales)
         self.locale_manager.set_locale(available_locales[next_index])
         
-        # UI'ı güncelle
+        # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
     def alis_yap(self):
@@ -461,11 +461,11 @@ class FinansalDunya(Entity):
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
     def toggle_menu(self):
-        """Menüyü aç/kapat"""
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
         if self.is_paused:
-            # Menü panelini göster
+            # MenÃ¼ panelini gÃ¶ster
             self.ui_elements['menu_panel'] = Entity(
                 parent=camera.ui,
                 model='quad',
@@ -474,7 +474,7 @@ class FinansalDunya(Entity):
                 color=color.rgba(0, 0, 0, 0.9)
             )
             
-            # Menü butonları
+            # MenÃ¼ butonlarÄ±
             Button(
                 parent=self.ui_elements['menu_panel'],
                 text=self.locale_manager.get_text('game.menu.continue'),
@@ -495,7 +495,7 @@ class FinansalDunya(Entity):
             
             Button(
                 parent=self.ui_elements['menu_panel'],
-                text='Yükle',
+                text='YÃ¼kle',
                 color=color.azure,
                 position=(0, 0),
                 scale=(0.3, 0.05),
@@ -504,20 +504,20 @@ class FinansalDunya(Entity):
             
             Button(
                 parent=self.ui_elements['menu_panel'],
-                text='Çıkış',
+                text='Ã‡Ä±kÄ±ÅŸ',
                 color=color.red,
                 position=(0, -0.2),
                 scale=(0.3, 0.05),
                 on_click=application.quit
             )
         else:
-            # Menü panelini kaldır
+            # MenÃ¼ panelini kaldÄ±r
             if 'menu_panel' in self.ui_elements:
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
     def update(self):
-        # Performans kontrolü
+        # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
             return
@@ -526,30 +526,30 @@ class FinansalDunya(Entity):
         if self.is_paused:
             return
             
-        # Oyun güncellemeleri
+        # Oyun gÃ¼ncellemeleri
         if self.held_keys['left mouse']:
             self.alis_yap()
             
         if self.held_keys['right mouse']:
             self.satis_yap()
             
-        # AR güncellemeleri
+        # AR gÃ¼ncellemeleri
         if self.is_mobile:
             self.ar_manager.ar_nesne_guncelle()
             
-        # Olay güncellemeleri
+        # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
     def olay_guncelle(self):
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
-                # Olay süresi doldu, yeni olay oluştur
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
                 olay['tip'] = random.choice([
-                    'Borsa Yükselişi', 'Borsa Düşüşü',
-                    'Enflasyon Artışı', 'Enflasyon Düşüşü',
-                    'Faiz Artışı', 'Faiz Düşüşü',
-                    'Döviz Dalgalanması', 'Altın Fiyatı Değişimi'
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
                 ])
                 olay['etki'] = random.uniform(-0.2, 0.2)
                 olay['baslangic'] = simdiki_zaman
@@ -559,13 +559,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].color = color.yellow
 
 def run_game(online_mode: bool = False):
-    """Oyunu başlat"""
+    """Oyunu baÅŸlat"""
     app = Ursina()
     dunya = FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
-    """Ana UI'ı oluştur"""
+    """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
         parent=camera.ui,
@@ -575,22 +575,22 @@ def create_ui():
         color=color.rgba(0, 0, 0, 0.8)
     )
     
-    # Üst bilgi paneli
+    # Ãœst bilgi paneli
     create_top_info_panel()
     
-    # Portföy paneli
+    # PortfÃ¶y paneli
     create_portfolio_panel()
     
     # Market paneli
     create_market_panel()
     
-    # İstatistik paneli
+    # Ä°statistik paneli
     create_stats_panel()
     
-    # Menü butonu
+    # MenÃ¼ butonu
     Button(
         parent=camera.ui,
-        text='Menü',
+        text='MenÃ¼',
         color=color.azure,
         position=(0.8, 0.45),
         scale=(0.2, 0.05),
@@ -598,7 +598,7 @@ def create_ui():
     )
 
 def create_top_info_panel():
-    """Üst bilgi panelini oluştur"""
+    """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
         parent=camera.ui,
@@ -608,10 +608,10 @@ def create_top_info_panel():
         color=color.green
     )
     
-    # Portföy değeri
+    # PortfÃ¶y deÄŸeri
     ui['text_elements']['portfolio_value'] = Text(
         parent=camera.ui,
-        text=f"Portföy: ${calculate_portfolio_value():,.2f}",
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
         position=(-0.4, 0.45),
         scale=2,
         color=color.white
@@ -627,7 +627,7 @@ def create_top_info_panel():
     )
 
 def create_portfolio_panel():
-    """Portföy panelini oluştur"""
+    """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -636,10 +636,10 @@ def create_portfolio_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['portfolio_panel'],
-        text='Portföy',
+        text='PortfÃ¶y',
         position=(0, 0.35),
         scale=2,
         color=color.white
@@ -649,7 +649,7 @@ def create_portfolio_panel():
     y_pos = 0.25
     for symbol, data in player['portfolio'].items():
         if data['shares'] > 0:
-            # Hisse adı ve miktar
+            # Hisse adÄ± ve miktar
             Text(
                 parent=ui['portfolio_panel'],
                 text=f"{symbol}: {data['shares']} adet",
@@ -670,7 +670,7 @@ def create_portfolio_panel():
             y_pos -= 0.08
 
 def create_market_panel():
-    """Market panelini oluştur"""
+    """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -679,7 +679,7 @@ def create_market_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['market_panel'],
         text='Market',
@@ -709,7 +709,7 @@ def create_market_panel():
     # Hisse senetleri listesi
     y_pos = 0.1
     for symbol, data in player['portfolio'].items():
-        # Hisse adı ve fiyat
+        # Hisse adÄ± ve fiyat
         Text(
             parent=ui['market_panel'],
             text=f"{symbol}: ${data['price']:,.2f}",
@@ -718,7 +718,7 @@ def create_market_panel():
             color=color.white
         )
         
-        # Alım butonu
+        # AlÄ±m butonu
         Button(
             parent=ui['market_panel'],
             text='Al',
@@ -728,7 +728,7 @@ def create_market_panel():
             on_click=Func(lambda s=symbol: buy_stock(s))
         )
         
-        # Satım butonu
+        # SatÄ±m butonu
         Button(
             parent=ui['market_panel'],
             text='Sat',
@@ -741,7 +741,7 @@ def create_market_panel():
         y_pos -= 0.08
 
 def create_stats_panel():
-    """İstatistik panelini oluştur"""
+    """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -750,53 +750,53 @@ def create_stats_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['stats_panel'],
-        text='İstatistikler',
+        text='Ä°statistikler',
         position=(0, 0.35),
         scale=2,
         color=color.white
     )
     
-    # İstatistikler
+    # Ä°statistikler
     stats = player['stats']
     y_pos = 0.25
     
-    # Toplam işlem
+    # Toplam iÅŸlem
     Text(
         parent=ui['stats_panel'],
-        text=f"Toplam İşlem: {stats['total_trades']}",
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.white
     )
     y_pos -= 0.08
     
-    # Başarılı işlemler
+    # BaÅŸarÄ±lÄ± iÅŸlemler
     Text(
         parent=ui['stats_panel'],
-        text=f"Başarılı: {stats['successful_trades']}",
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.green
     )
     y_pos -= 0.08
     
-    # Başarısız işlemler
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
     Text(
         parent=ui['stats_panel'],
-        text=f"Başarısız: {stats['failed_trades']}",
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.red
     )
     y_pos -= 0.08
     
-    # Toplam kâr
+    # Toplam kÃ¢r
     Text(
         parent=ui['stats_panel'],
-        text=f"Toplam Kâr: ${stats['total_profit']:,.2f}",
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
         position=(0, y_pos),
         scale=1.2,
         color=color.green
@@ -813,7 +813,7 @@ def create_stats_panel():
     )
 
 def toggle_menu():
-    """Menüyü aç/kapat"""
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
     else:
@@ -821,7 +821,7 @@ def toggle_menu():
         ui['menu_panel'] = None
 
 def create_menu():
-    """Menü panelini oluştur"""
+    """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
         model='quad',
@@ -830,10 +830,10 @@ def create_menu():
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['menu_panel'],
-        text='Menü',
+        text='MenÃ¼',
         position=(0, 0.25),
         scale=2,
         color=color.white
@@ -849,10 +849,10 @@ def create_menu():
         on_click=Func(save_game)
     )
     
-    # Yükle butonu
+    # YÃ¼kle butonu
     Button(
         parent=ui['menu_panel'],
-        text='Yükle',
+        text='YÃ¼kle',
         color=color.azure,
         position=(0, 0),
         scale=(0.3, 0.05),
@@ -869,10 +869,10 @@ def create_menu():
         on_click=Func(show_settings)
     )
     
-    # Çıkış butonu
+    # Ã‡Ä±kÄ±ÅŸ butonu
     Button(
         parent=ui['menu_panel'],
-        text='Çıkış',
+        text='Ã‡Ä±kÄ±ÅŸ',
         color=color.red,
         position=(0, -0.2),
         scale=(0.3, 0.05),
@@ -880,8 +880,8 @@ def create_menu():
     )
 
 def show_settings():
-    """Ayarlar menüsünü göster"""
-    # Mevcut menüyü kapat
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
     ui['menu_panel'] = None
     
@@ -894,7 +894,7 @@ def show_settings():
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['settings_panel'],
         text='Ayarlar',
@@ -903,30 +903,30 @@ def show_settings():
         color=color.white
     )
     
-    # Ses ayarı
+    # Ses ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Ses: {'Açık' if game_settings['sound_enabled'] else 'Kapalı'}",
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, 0.1),
         scale=(0.3, 0.05),
         on_click=Func(toggle_sound)
     )
     
-    # Müzik ayarı
+    # MÃ¼zik ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Müzik: {'Açık' if game_settings['music_enabled'] else 'Kapalı'}",
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, 0),
         scale=(0.3, 0.05),
         on_click=Func(toggle_music)
     )
     
-    # Tam ekran ayarı
+    # Tam ekran ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Tam Ekran: {'Açık' if game_settings['fullscreen'] else 'Kapalı'}",
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, -0.1),
         scale=(0.3, 0.05),
@@ -944,42 +944,42 @@ def show_settings():
     )
 
 def toggle_sound():
-    """Ses ayarını değiştir"""
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def toggle_music():
-    """Müzik ayarını değiştir"""
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def toggle_fullscreen():
-    """Tam ekran ayarını değiştir"""
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def start_tutorial():
-    """Eğitim modunu başlat"""
+    """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
-            'title': 'Hoş Geldiniz!',
-            'description': 'FinAsis finansal eğitim simülasyonuna hoş geldiniz. Size temel özellikleri tanıtacağım.',
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
             'position': (0, 0)
         },
         {
-            'title': 'Portföy Paneli',
-            'description': 'Bu panel sahip olduğunuz hisse senetlerini gösterir.',
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
             'position': (-0.65, 0)
         },
         {
             'title': 'Market Paneli',
-            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarını gösterir.',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
             'position': (0, 0)
         },
         {
-            'title': 'İstatistik Paneli',
-            'description': 'Bu panel trading performansınızı gösterir.',
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
             'position': (0.65, 0)
         }
     ]
@@ -1001,7 +1001,7 @@ def start_tutorial():
         # Panel pozisyonu
         tutorial_panel.position = step['position']
         
-        # Başlık
+        # BaÅŸlÄ±k
         if hasattr(tutorial_panel, 'title'):
             destroy(tutorial_panel.title)
         tutorial_panel.title = Text(
@@ -1012,7 +1012,7 @@ def start_tutorial():
             color=color.yellow
         )
         
-        # Açıklama
+        # AÃ§Ä±klama
         if hasattr(tutorial_panel, 'description'):
             destroy(tutorial_panel.description)
         tutorial_panel.description = Text(
@@ -1023,12 +1023,12 @@ def start_tutorial():
             color=color.white
         )
         
-        # İleri butonu
+        # Ä°leri butonu
         if hasattr(tutorial_panel, 'next_button'):
             destroy(tutorial_panel.next_button)
         tutorial_panel.next_button = Button(
             parent=tutorial_panel,
-            text='İleri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
             position=(0.1, -0.07),
             scale=(0.2, 0.05),
             color=color.azure,
@@ -1041,18 +1041,18 @@ def start_tutorial():
         if current_step < len(tutorial_steps):
             show_step()
         else:
-            # Tutorial'ı bitir
+            # Tutorial'Ä± bitir
             destroy(tutorial_panel)
             player['tutorial_progress']['basic_trading'] = True
             save_game()
     
-    # İlk adımı göster
+    # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
 def save_game():
     """Oyun durumunu kaydet"""
     try:
-        # Kaydedilecek verileri hazırla
+        # Kaydedilecek verileri hazÄ±rla
         save_data = {
             'player': player,
             'market_state': market_state,
@@ -1061,28 +1061,28 @@ def save_game():
             'save_time': datetime.now().isoformat()
         }
         
-        # datetime nesnelerini ISO formatına dönüştür
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
         def convert_datetime(obj):
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
         
-        # Verileri JSON formatında kaydet
+        # Verileri JSON formatÄ±nda kaydet
         with open('save_game.json', 'w', encoding='utf-8') as f:
             json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
             
         show_notification('Oyun kaydedildi!', color.green)
     except Exception as e:
-        show_notification(f'Kayıt hatası: {str(e)}', color.red)
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
 def load_game():
-    """Kaydedilmiş oyun durumunu yükle"""
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
-        # JSON dosyasını oku
+        # JSON dosyasÄ±nÄ± oku
         with open('save_game.json', 'r', encoding='utf-8') as f:
             save_data = json.load(f)
         
-        # datetime string'lerini datetime nesnelerine dönüştür
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
         def parse_datetime(obj):
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
@@ -1098,21 +1098,21 @@ def load_game():
                             parse_datetime(item)
             return obj
         
-        # Verileri yükle
+        # Verileri yÃ¼kle
         global player, market_state, quest_system, game_settings
         player = parse_datetime(save_data['player'])
         market_state = parse_datetime(save_data['market_state'])
         quest_system = parse_datetime(save_data['quest_system'])
         game_settings = save_data['game_settings']
         
-        show_notification('Oyun yüklendi!', color.green)
+        show_notification('Oyun yÃ¼klendi!', color.green)
     except FileNotFoundError:
-        show_notification('Kayıtlı oyun bulunamadı.', color.yellow)
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
     except Exception as e:
-        show_notification(f'Yükleme hatası: {str(e)}', color.red)
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
 def show_notification(message, color=color.white):
-    """Bildirim göster"""
+    """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
         position=(0, 0.4),
@@ -1122,7 +1122,7 @@ def show_notification(message, color=color.white):
     destroy(notification, delay=3)
 
 def auto_save():
-    """Otomatik kayıt"""
+    """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
         auto_save.last_save = current_time
@@ -1132,7 +1132,7 @@ def auto_save():
         auto_save.last_save = current_time
 
 def quit_game():
-    """Oyundan çık"""
+    """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
     
@@ -1140,157 +1140,157 @@ def quit_game():
     application.quit()
 
 def initialize_quest_system():
-    """Görev sistemini başlat"""
-    # Günlük görevleri yükle
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
     for quest_id in daily_quests:
         if quest_id in quest_definitions:
             quest_system['daily_quests'].append(quest_definitions[quest_id])
     
-    # Haftalık görevleri yükle
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
     weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
     for quest_id in weekly_quests:
         if quest_id in quest_definitions:
             quest_system['weekly_quests'].append(quest_definitions[quest_id])
     
-    # Başarı görevlerini yükle
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
     achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
     for quest_id in achievement_quests:
         if quest_id in quest_definitions:
             quest_system['achievement_quests'].append(quest_definitions[quest_id])
     
-    # Eğitim görevlerini yükle
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
     tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
     for quest_id in tutorial_quests:
         if quest_id in quest_definitions:
             quest_system['tutorial_quests'].append(quest_definitions[quest_id])
     
-    # Aktif görevleri belirle
+    # Aktif gÃ¶revleri belirle
     assign_daily_quests()
     assign_weekly_quests()
     
-    # Eğitim görevlerini aktif görevlere ekle
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
     for quest in quest_system['tutorial_quests']:
         if quest['id'] not in player['completed_quests']:
             player['active_quests'].append(quest['id'])
             player['quest_progress'][quest['id']] = 0
     
-    # Başarı görevlerini aktif görevlere ekle
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
     for quest in quest_system['achievement_quests']:
         if quest['id'] not in player['completed_quests']:
             player['active_quests'].append(quest['id'])
             player['quest_progress'][quest['id']] = 0
     
-    # Görev UI'ını oluştur
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
 def assign_daily_quests():
-    """Günlük görevleri ata"""
-    # Günlük görevleri sıfırla
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
     
-    # Rastgele 2 günlük görev seç
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
     selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
     
-    # Seçilen görevleri aktif görevlere ekle
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
     for quest in selected_quests:
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
 def assign_weekly_quests():
-    """Haftalık görevleri ata"""
-    # Haftalık görevleri sıfırla
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
     
-    # Rastgele 2 haftalık görev seç
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
     selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
     
-    # Seçilen görevleri aktif görevlere ekle
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
     for quest in selected_quests:
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
 def check_quest_completion():
-    """Görev tamamlanma durumunu kontrol et"""
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
     for quest_id in player['active_quests']:
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev tamamlandı mı kontrol et
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
             if quest['check_completion']():
-                # Görevi tamamlandı olarak işaretle
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
                 completed_quests.append(quest_id)
                 
-                # Ödülleri ver
+                # Ã–dÃ¼lleri ver
                 give_quest_rewards(quest)
                 
-                # Tamamlanan görevi göster
+                # Tamamlanan gÃ¶revi gÃ¶ster
                 show_quest_completion(quest)
     
-    # Tamamlanan görevleri aktif görevlerden çıkar
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
     for quest_id in completed_quests:
         player['active_quests'].remove(quest_id)
         player['completed_quests'].append(quest_id)
     
-    # Görev UI'ını güncelle
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
 def give_quest_rewards(quest):
-    """Görev ödüllerini ver"""
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
-    # Para ödülü
+    # Para Ã¶dÃ¼lÃ¼
     if 'money' in reward:
         player['money'] += reward['money']
     
-    # Deneyim ödülü
+    # Deneyim Ã¶dÃ¼lÃ¼
     if 'experience' in reward:
         player['experience']['current_xp'] += reward['experience']
         player['experience']['total_xp'] += reward['experience']
         
-        # Seviye atlama kontrolü
+        # Seviye atlama kontrolÃ¼
         while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
             player['experience']['current_xp'] -= player['experience']['next_level_xp']
             player['experience']['level'] += 1
             player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
             show_level_up()
     
-    # Başarı ödülü
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
     if 'achievement' in reward:
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
 def show_quest_completion(quest):
-    """Görev tamamlanma bildirimini göster"""
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
-        text=f"Görev Tamamlandı: {quest['title']}",
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
         position=(0, 0.6),
         scale=2,
         color=color.gold
     )
     
-    # Ödül detayları
+    # Ã–dÃ¼l detaylarÄ±
     reward_text = None
     if 'money' in quest['reward']:
         reward_text = Text(
-            text=f"Ödül: +${quest['reward']['money']:,.2f}",
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
             position=(0, 0.5),
             scale=1.5,
             color=color.green
         )
     
-    # Metinleri belirli süre sonra kaldır
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
     destroy(completion_text, delay=4)
     if reward_text:
         destroy(reward_text, delay=4)
 
 def show_level_up():
-    """Seviye atlama bildirimini göster"""
+    """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
-        text=f"Seviye Atladınız! Yeni Seviye: {player['experience']['level']}",
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
         position=(0, 0.4),
         scale=2,
         color=color.yellow
@@ -1298,12 +1298,12 @@ def show_level_up():
     destroy(level_text, delay=4)
 
 def calculate_next_level_xp(current_level):
-    """Sonraki seviye için gereken XP'yi hesapla"""
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
 def create_quest_ui():
-    """Görev UI'ını oluştur"""
-    # Görev paneli
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
         parent=camera.ui,
         model='quad',
@@ -1313,34 +1313,34 @@ def create_quest_ui():
         visible=False
     )
     
-    # Görev başlığı
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
     Text(
         parent=quest_ui['panel'],
-        text='Görevler',
+        text='GÃ¶revler',
         position=(0, 0.25),
         scale=2,
         color=color.white
     )
     
-    # Aktif görevler başlığı
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
     quest_ui['active_quests_text'] = Text(
         parent=quest_ui['panel'],
-        text='Aktif Görevler:',
+        text='Aktif GÃ¶revler:',
         position=(-0.35, 0.15),
         scale=1.5,
         color=color.white
     )
     
-    # Tamamlanan görevler başlığı
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
     quest_ui['completed_quests_text'] = Text(
         parent=quest_ui['panel'],
-        text='Tamamlanan Görevler:',
+        text='Tamamlanan GÃ¶revler:',
         position=(-0.35, -0.15),
         scale=1.5,
         color=color.white
     )
     
-    # Görev kapatma butonu
+    # GÃ¶rev kapatma butonu
     Button(
         parent=quest_ui['panel'],
         text='Kapat',
@@ -1350,33 +1350,33 @@ def create_quest_ui():
         on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
     )
     
-    # Görev butonu
+    # GÃ¶rev butonu
     Button(
         parent=camera.ui,
-        text='Görevler',
+        text='GÃ¶revler',
         color=color.azure,
         position=(0.7, 0.4),
         scale=(0.2, 0.05),
         on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
     )
     
-    # Görev UI'ını güncelle
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
 def update_quest_ui():
-    """Görev UI'ını güncelle"""
-    # Mevcut görev öğelerini temizle
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
         destroy(item)
     quest_ui['quest_items'] = []
     
-    # Aktif görevleri göster
+    # Aktif gÃ¶revleri gÃ¶ster
     y_position = 0.1
     for quest_id in player['active_quests']:
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev başlığı
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -1387,7 +1387,7 @@ def update_quest_ui():
                 )
             )
             
-            # Görev açıklaması
+            # GÃ¶rev aÃ§Ä±klamasÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -1398,8 +1398,8 @@ def update_quest_ui():
                 )
             )
             
-            # Görev ödülü
-            reward_text = f"Ödül: ${quest['reward']['money']:,.2f}"
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -1412,13 +1412,13 @@ def update_quest_ui():
             
             y_position -= 0.15
     
-    # Tamamlanan görevleri göster
+    # Tamamlanan gÃ¶revleri gÃ¶ster
     y_position = -0.2
-    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan görevi göster
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev başlığı
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -1429,11 +1429,11 @@ def update_quest_ui():
                 )
             )
             
-            # Tamamlandı işareti
+            # TamamlandÄ± iÅŸareti
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
-                    text="✓ Tamamlandı",
+                    text="âœ“ TamamlandÄ±",
                     position=(0.2, y_position),
                     scale=0.8,
                     color=color.green
@@ -1443,17 +1443,17 @@ def update_quest_ui():
             y_position -= 0.1
 
 def calculate_daily_profit():
-    """Günlük kârı hesapla"""
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
     
     profit = 0
     for trade in today_trades:
         if trade['type'] == 'sell':
-            # Satış işleminden kâr hesapla
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
             buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
             if buy_trades:
-                # En eski alım fiyatını bul
+                # En eski alÄ±m fiyatÄ±nÄ± bul
                 oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
                 buy_price = oldest_buy['price']
                 sell_price = trade['price']
@@ -1462,24 +1462,24 @@ def calculate_daily_profit():
     return profit
 
 def calculate_weekly_growth():
-    """Haftalık büyümeyi hesapla"""
-    # Başlangıç portföy değeri (1 hafta önce)
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
     week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
-    # Şu anki portföy değeri
+    # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
     
-    # Haftalık büyüme oranı
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
     if current_value > 0:
-        return (current_value / 100000) - 1  # Başlangıç değerine göre büyüme
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
 def update_market_state():
-    """Piyasa durumunu güncelle"""
+    """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
-    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir güncelle
-        # Piyasa trendini güncelle
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
         trend_chance = random.random()
         if trend_chance < 0.4:
             market_state['trend'] = 'stable'
@@ -1488,95 +1488,95 @@ def update_market_state():
         else:
             market_state['trend'] = 'bear'
         
-        # Volatiliteyi güncelle
+        # Volatiliteyi gÃ¼ncelle
         market_state['volatility'] = random.uniform(0.3, 0.8)
         
-        # Piyasa olayları oluştur
-        if random.random() < 0.2:  # %20 şans
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
             event = generate_market_event()
             market_state['market_events'].append(event)
             show_market_event(event)
             apply_market_event(event)
         
-        # Oyuncuya özel olaylar oluştur
-        if random.random() < 0.15:  # %15 şans
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
             player_event = generate_player_event()
             if player_event:
                 show_player_event(player_event)
                 apply_player_event(player_event)
         
-        # Görev tamamlanma durumunu kontrol et
+        # GÃ¶rev tamamlanma durumunu kontrol et
         check_quest_completion()
         
         market_state['last_update'] = current_time
 
 def update():
-    """Ana oyun döngüsü"""
-    # Piyasa güncellemesi
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
     update_market()
     
-    # UI güncellemesi
+    # UI gÃ¼ncellemesi
     update_ui()
     
-    # Görev kontrolü
+    # GÃ¶rev kontrolÃ¼
     check_quests()
     
-    # Otomatik kayıt
+    # Otomatik kayÄ±t
     if game_settings['auto_save']:
         auto_save()
 
 def update_market():
-    """Piyasa durumunu güncelle"""
+    """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
-    # Piyasa güncellemesi
+    # Piyasa gÃ¼ncellemesi
     if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
-        # Trend güncelleme
+        # Trend gÃ¼ncelleme
         update_market_trend()
         
-        # Fiyat güncelleme
+        # Fiyat gÃ¼ncelleme
         update_stock_prices()
         
-        # Olay kontrolü
+        # Olay kontrolÃ¼
         check_market_events()
         
         market_state['last_update'] = current_time
 
 def update_market_trend():
-    """Piyasa trendini güncelle"""
+    """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
-    # Zorluk seviyesine göre trend olasılıkları
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
     if game_settings['difficulty'] == 'easy':
-        if trend_chance < 0.5:  # %50 şans
+        if trend_chance < 0.5:  # %50 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.8:  # %30 şans
+        elif trend_chance < 0.8:  # %30 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %20 şans
+        else:  # %20 ÅŸans
             market_state['trend'] = 'bear'
     elif game_settings['difficulty'] == 'normal':
-        if trend_chance < 0.4:  # %40 şans
+        if trend_chance < 0.4:  # %40 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.7:  # %30 şans
+        elif trend_chance < 0.7:  # %30 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %30 şans
+        else:  # %30 ÅŸans
             market_state['trend'] = 'bear'
     else:  # hard
-        if trend_chance < 0.3:  # %30 şans
+        if trend_chance < 0.3:  # %30 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.5:  # %20 şans
+        elif trend_chance < 0.5:  # %20 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %50 şans
+        else:  # %50 ÅŸans
             market_state['trend'] = 'bear'
     
-    # Volatilite güncelleme
+    # Volatilite gÃ¼ncelleme
     market_state['volatility'] = random.uniform(
         0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
 def update_stock_prices():
-    """Hisse senedi fiyatlarını güncelle"""
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
         
@@ -1587,16 +1587,16 @@ def update_stock_prices():
             'bear': random.uniform(-0.01, -0.001)
         }[market_state['trend']]
         
-        # Sektör etkisi
+        # SektÃ¶r etkisi
         sector_effect = calculate_sector_effect(data['sector'])
         
         # Volatilite etkisi
         volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
         
-        # Toplam değişim
+        # Toplam deÄŸiÅŸim
         total_change = trend_effect + sector_effect + volatility_effect
         
-        # Zorluk seviyesine göre değişim sınırlaması
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
         if game_settings['difficulty'] == 'easy':
             total_change = max(-0.05, min(0.05, total_change))
         elif game_settings['difficulty'] == 'normal':
@@ -1609,7 +1609,7 @@ def update_stock_prices():
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
 def calculate_sector_effect(sector):
-    """Sektör bazlı fiyat etkisini hesapla"""
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
         'auto': random.uniform(-0.004, 0.006),
@@ -1620,7 +1620,7 @@ def calculate_sector_effect(sector):
     return sector_trends.get(sector, 0)
 
 def check_market_events():
-    """Piyasa olaylarını kontrol et"""
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
         if event:
@@ -1629,19 +1629,19 @@ def check_market_events():
             show_market_event(event)
 
 def generate_market_event():
-    """Piyasa olayı oluştur"""
+    """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
             {
-                'title': 'Küresel Ekonomik Büyüme',
-                'description': 'Küresel ekonomik büyüme beklentileri yükseldi!',
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
                 'effect': {'market_trend': 'bull', 'volatility': -0.1},
                 'duration': 300,
                 'probability': 0.2
             },
             {
                 'title': 'Ekonomik Kriz',
-                'description': 'Küresel ekonomik kriz endişeleri artıyor!',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
                 'effect': {'market_trend': 'bear', 'volatility': 0.2},
                 'duration': 300,
                 'probability': 0.1
@@ -1649,15 +1649,15 @@ def generate_market_event():
         ],
         'sector': [
             {
-                'title': 'Teknoloji Atılımı',
-                'description': 'Yeni teknolojik gelişmeler sektörü hareketlendirdi!',
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
                 'effect': {'sector': 'tech', 'change': 0.05},
                 'duration': 180,
                 'probability': 0.15
             },
             {
                 'title': 'Otomotiv Krizi',
-                'description': 'Tedarik zinciri sorunları otomotiv sektörünü vuruyor!',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
                 'effect': {'sector': 'auto', 'change': -0.05},
                 'duration': 180,
                 'probability': 0.15
@@ -1665,14 +1665,14 @@ def generate_market_event():
         ],
         'company': [
             {
-                'title': 'Ürün Lansmanı',
-                'description': 'AAPL yeni ürünlerini tanıttı!',
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
                 'effect': {'symbol': 'AAPL', 'change': 0.08},
                 'duration': 120,
                 'probability': 0.2
             },
             {
-                'title': 'CEO İstifası',
+                'title': 'CEO Ä°stifasÄ±',
                 'description': 'TSLA CEO\'su istifa etti!',
                 'effect': {'symbol': 'TSLA', 'change': -0.08},
                 'duration': 120,
@@ -1681,11 +1681,11 @@ def generate_market_event():
         ]
     }
     
-    # Olay türü seç
+    # Olay tÃ¼rÃ¼ seÃ§
     event_type = random.choice(list(event_types.keys()))
     events = event_types[event_type]
     
-    # Olasılık kontrolü
+    # OlasÄ±lÄ±k kontrolÃ¼
     for event in events:
         if random.random() < event['probability']:
             return event
@@ -1693,7 +1693,7 @@ def generate_market_event():
     return None
 
 def apply_market_event(event):
-    """Piyasa olayını uygula"""
+    """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
     # Piyasa trendi etkisi
@@ -1704,19 +1704,19 @@ def apply_market_event(event):
     if 'volatility' in effect:
         market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
     
-    # Sektör etkisi
+    # SektÃ¶r etkisi
     if 'sector' in effect:
         for symbol, data in player['portfolio'].items():
             if data['sector'] == effect['sector']:
                 data['price'] *= (1 + effect['change'])
     
-    # Şirket etkisi
+    # Åžirket etkisi
     if 'symbol' in effect:
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
 def show_market_event(event):
-    """Piyasa olayını göster"""
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
         parent=camera.ui,
@@ -1726,7 +1726,7 @@ def show_market_event(event):
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     title_text = Text(
         parent=notification,
         text=event['title'],
@@ -1735,7 +1735,7 @@ def show_market_event(event):
         color=color.yellow
     )
     
-    # Açıklama
+    # AÃ§Ä±klama
     desc_text = Text(
         parent=notification,
         text=event['description'],
@@ -1744,14 +1744,14 @@ def show_market_event(event):
         color=color.white
     )
     
-    # Efekt açıklaması
+    # Efekt aÃ§Ä±klamasÄ±
     effect = event['effect']
     effect_text = ""
     
     if 'market_trend' in effect:
-        effect_text = "Piyasa trendi değişti!"
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
     elif 'sector' in effect:
-        effect_text = f"{effect['sector'].upper()} sektörü etkilendi!"
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
     elif 'symbol' in effect:
         effect_text = f"{effect['symbol']} hissesi etkilendi!"
     
@@ -1771,7 +1771,7 @@ def show_market_event(event):
     })
 
 def calculate_portfolio_value():
-    """Portföy değerini hesapla"""
+    """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
@@ -1779,36 +1779,36 @@ def calculate_portfolio_value():
 
 def calculate_risk_score():
     """Risk skorunu hesapla"""
-    # Portföy çeşitliliği (0-1 arası)
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
     
-    # Borç/gelir oranı (0-1 arası)
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
     debt_to_income = calculate_debt_to_income_ratio()
     
-    # Toplam risk skoru (0-1 arası)
+    # Toplam risk skoru (0-1 arasÄ±)
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
 def calculate_portfolio_diversity():
-    """Portföy çeşitliliğini hesapla"""
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
         return 0
     
-    # Her sektördeki yatırım oranını hesapla
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
     sector_weights = {}
     for symbol, data in player['portfolio'].items():
         sector = data['sector']
         value = data['shares'] * data['price']
         sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
     
-    # Herfindahl-Hirschman Index'ini hesapla (ters çevrilmiş)
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
     hhi = sum(weight * weight for weight in sector_weights.values())
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
 def calculate_debt_to_income_ratio():
-    """Borç/gelir oranını hesapla"""
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
     total_debt = sum(t['amount'] for t in player.get('trading_history', [])
@@ -1821,65 +1821,65 @@ def calculate_debt_to_income_ratio():
     return min(max(ratio, 0), 1)
 
 def update_ui():
-    """UI'ı güncelle"""
-    # Para ve portföy değerini güncelle
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
-    ui['text_elements']['portfolio_value'].text = f"Portföy: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
     ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
     
-    # Hisse senedi fiyatlarını güncelle
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
     for symbol, data in player['portfolio'].items():
         if symbol in ui['text_elements']:
             ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
     
-    # Hisse senedi butonlarını güncelle
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
     update_stock_buttons()
     
-    # Görevleri güncelle
+    # GÃ¶revleri gÃ¼ncelle
     update_quest_ui()
     
-    # Bildirimleri güncelle
+    # Bildirimleri gÃ¼ncelle
     update_notifications()
 
 def update_stock_buttons():
-    """Hisse senedi butonlarını güncelle"""
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
-        # Alım butonu
+        # AlÄ±m butonu
         if symbol + '_buy' in ui['buttons']:
             ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
         
-        # Satım butonu
+        # SatÄ±m butonu
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
 def update_notifications():
-    """Bildirimleri güncelle"""
+    """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
-    # Süresi dolmuş bildirimleri kaldır
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
     ui['notifications'] = [n for n in ui['notifications'] 
                          if (current_time - n['timestamp']).seconds < 5]
     
-    # Bildirimleri göster
+    # Bildirimleri gÃ¶ster
     for i, notification in enumerate(ui['notifications']):
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
 def buy_stock(symbol):
-    """Hisse senedi satın al"""
+    """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
     
-    # Yeterli para var mı kontrol et
+    # Yeterli para var mÄ± kontrol et
     if player['money'] < price:
-        show_notification('Yeterli paranız yok!', color.red)
+        show_notification('Yeterli paranÄ±z yok!', color.red)
         return
     
-    # İşlemi gerçekleştir
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
     player['money'] -= price
     stock['shares'] += 1
     
-    # İşlem kaydını tut
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
     trade = {
         'type': 'buy',
         'symbol': symbol,
@@ -1900,11 +1900,11 @@ from typing import Dict, List, Optional
 import threading
 from game_integration import GameIntegration
 
-# Django ayarlarını yükle
+# Django ayarlarÄ±nÄ± yÃ¼kle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
-# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
 
-# Oyun içindeki şirket modelleri yerine sınıflar kullan
+# Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
 class GameCompany:
     def __init__(self, name, sector):
         self.name = name
@@ -1920,11 +1920,11 @@ class GameEmployee:
         self.name = name
         self.department = department
 
-# Oyun ayarları
+# Oyun ayarlarÄ±
 game_settings = {
     'difficulty': 'normal',  # easy, normal, hard
     'market_update_interval': 5,  # saniye
-    'event_chance': 0.2,  # 0-1 arası
+    'event_chance': 0.2,  # 0-1 arasÄ±
     'starting_money': 100000,
     'tutorial_enabled': True,
     'sound_enabled': True,
@@ -1938,12 +1938,12 @@ game_settings = {
 # Piyasa durumu
 market_state = {
     'trend': 'stable',  # bull, stable, bear
-    'volatility': 0.5,  # 0-1 arası
+    'volatility': 0.5,  # 0-1 arasÄ±
     'last_update': datetime.now(),
     'market_events': []
 }
 
-# UI bileşenleri
+# UI bileÅŸenleri
 ui = {
     'main_panel': None,
     'portfolio_panel': None,
@@ -1990,15 +1990,15 @@ player = {
         'shortest_holding': 0,
         'risk_tolerance': 0.7,
         'trading_style': 'balanced',  # aggressive, balanced, conservative
-        'debt_to_income': 0.0,  # Borç/gelir oranı
-        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
-        'total_debt': 0,  # Toplam borç
+        'debt_to_income': 0.0,  # BorÃ§/gelir oranÄ±
+        'portfolio_diversity': 0.0,  # PortfÃ¶y Ã§eÅŸitliliÄŸi
+        'total_debt': 0,  # Toplam borÃ§
         'total_income': 0,  # Toplam gelir
-        'monthly_income': 0,  # Aylık gelir
-        'monthly_expenses': 0  # Aylık giderler
+        'monthly_income': 0,  # AylÄ±k gelir
+        'monthly_expenses': 0  # AylÄ±k giderler
     },
     'skills': {
-        'analysis': 1,  # 1-10 arası
+        'analysis': 1,  # 1-10 arasÄ±
         'risk_management': 1,
         'market_knowledge': 1,
         'technical_analysis': 1,
@@ -2031,7 +2031,7 @@ player = {
     'trading_history': []
 }
 
-# Görev sistemi
+# GÃ¶rev sistemi
 quest_system = {
     'daily_quests': [],
     'weekly_quests': [],
@@ -2039,39 +2039,39 @@ quest_system = {
     'tutorial_quests': []
 }
 
-# Görev tanımlamaları
+# GÃ¶rev tanÄ±mlamalarÄ±
 quest_definitions = {
-    # Günlük görevler
+    # GÃ¼nlÃ¼k gÃ¶revler
     'daily_trade': {
         'id': 'daily_trade',
-        'title': 'Günlük İşlem',
-        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'title': 'GÃ¼nlÃ¼k Ä°ÅŸlem',
+        'description': 'BugÃ¼n en az 1 hisse senedi alÄ±m veya satÄ±m iÅŸlemi yapÄ±n.',
         'reward': {'money': 500, 'experience': 100},
         'type': 'daily',
         'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
     },
     'daily_profit': {
         'id': 'daily_profit',
-        'title': 'Günlük Kâr',
-        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'title': 'GÃ¼nlÃ¼k KÃ¢r',
+        'description': 'BugÃ¼n portfÃ¶yÃ¼nÃ¼zden 1000$ kÃ¢r elde edin.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'daily',
         'check_completion': lambda: calculate_daily_profit() >= 1000
     },
     'daily_diversity': {
         'id': 'daily_diversity',
-        'title': 'Çeşitlilik Ustası',
-        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'title': 'Ã‡eÅŸitlilik UstasÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.7\'nin Ã¼zerine Ã§Ä±karÄ±n.',
         'reward': {'money': 800, 'experience': 150},
         'type': 'daily',
         'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
     },
     
-    # Haftalık görevler
+    # HaftalÄ±k gÃ¶revler
     'weekly_growth': {
         'id': 'weekly_growth',
-        'title': 'Haftalık Büyüme',
-        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'title': 'HaftalÄ±k BÃ¼yÃ¼me',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ bu hafta %10 bÃ¼yÃ¼tÃ¼n.',
         'reward': {'money': 5000, 'experience': 500},
         'type': 'weekly',
         'check_completion': lambda: calculate_weekly_growth() >= 0.1
@@ -2079,74 +2079,74 @@ quest_definitions = {
     'weekly_trades': {
         'id': 'weekly_trades',
         'title': 'Aktif Trader',
-        'description': 'Bu hafta en az 10 işlem yapın.',
+        'description': 'Bu hafta en az 10 iÅŸlem yapÄ±n.',
         'reward': {'money': 3000, 'experience': 400},
         'type': 'weekly',
         'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
     },
     'weekly_risk': {
         'id': 'weekly_risk',
-        'title': 'Risk Yöneticisi',
-        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'title': 'Risk YÃ¶neticisi',
+        'description': 'Risk skorunuzu 0.5\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
         'reward': {'money': 4000, 'experience': 450},
         'type': 'weekly',
         'check_completion': lambda: calculate_risk_score() < 0.5
     },
     
-    # Başarı görevleri
+    # BaÅŸarÄ± gÃ¶revleri
     'achievement_portfolio': {
         'id': 'achievement_portfolio',
-        'title': 'Portföy Ustası',
-        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'title': 'PortfÃ¶y UstasÄ±',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ 200.000$ deÄŸerine ulaÅŸtÄ±rÄ±n.',
         'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
         'type': 'achievement',
         'check_completion': lambda: calculate_portfolio_value() >= 200000
     },
     'achievement_diversity': {
         'id': 'achievement_diversity',
-        'title': 'Çeşitlilik Kralı',
-        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'title': 'Ã‡eÅŸitlilik KralÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.9\'un Ã¼zerine Ã§Ä±karÄ±n.',
         'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
         'type': 'achievement',
         'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
     },
     'achievement_debt': {
         'id': 'achievement_debt',
-        'title': 'Borçsuz Yaşam',
-        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'title': 'BorÃ§suz YaÅŸam',
+        'description': 'BorÃ§/gelir oranÄ±nÄ±zÄ± 0.1\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
         'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
         'type': 'achievement',
         'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
     },
     
-    # Eğitim görevleri
+    # EÄŸitim gÃ¶revleri
     'tutorial_buy': {
         'id': 'tutorial_buy',
-        'title': 'İlk Alım',
-        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'title': 'Ä°lk AlÄ±m',
+        'description': 'Ä°lk hisse senedi alÄ±m iÅŸleminizi yapÄ±n.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'tutorial',
         'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
     },
     'tutorial_sell': {
         'id': 'tutorial_sell',
-        'title': 'İlk Satım',
-        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'title': 'Ä°lk SatÄ±m',
+        'description': 'Ä°lk hisse senedi satÄ±m iÅŸleminizi yapÄ±n.',
         'reward': {'money': 1000, 'experience': 200},
         'type': 'tutorial',
         'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
     },
     'tutorial_diversity': {
         'id': 'tutorial_diversity',
-        'title': 'Çeşitlendirme',
-        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'title': 'Ã‡eÅŸitlendirme',
+        'description': 'En az 3 farklÄ± hisse senedine yatÄ±rÄ±m yapÄ±n.',
         'reward': {'money': 2000, 'experience': 300},
         'type': 'tutorial',
         'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
     }
 }
 
-# Görev UI elementleri
+# GÃ¶rev UI elementleri
 quest_ui = {
     'panel': None,
     'quest_items': [],
@@ -2161,19 +2161,19 @@ class FinansalDunya(Entity):
         self.oyuncu = FirstPersonController()
         self.oyuncu.position = (0, 2, 0)
         
-        # Dil yöneticisi
+        # Dil yÃ¶neticisi
         self.locale_manager = LocaleManager()
         
-        # Platform kontrolü
+        # Platform kontrolÃ¼
         self.platform = self.oyun.platform
         self.is_mobile = self.platform in ['android', 'ios']
         
-        # AR yöneticisini başlat (mobil platformlarda)
+        # AR yÃ¶neticisini baÅŸlat (mobil platformlarda)
         if self.is_mobile:
             self.ar_manager = ARManager(use_aruco=True, show_camera=True)
             self.ar_manager.start()
             
-        # Dünya oluşturma
+        # DÃ¼nya oluÅŸturma
         self.dunya = Entity(
             model='plane',
             texture='white_cube',
@@ -2181,7 +2181,7 @@ class FinansalDunya(Entity):
             color=color.gray
         )
         
-        # Binalar ve iş yerleri
+        # Binalar ve iÅŸ yerleri
         self.binalar = []
         self.is_yerleri = []
         self.olaylar = []
@@ -2197,16 +2197,16 @@ class FinansalDunya(Entity):
         self.is_paused = False
         self.is_saving = False
         
-        # Tuş durumları
+        # TuÅŸ durumlarÄ±
         self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
         
-        # İnitialize
+        # Ä°nitialize
         self.bina_olustur()
         self.is_yeri_olustur()
         self.olay_olustur()
         self.ui_olustur()
         
-        # Otomatik kayıt
+        # Otomatik kayÄ±t
         self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
@@ -2221,7 +2221,7 @@ class FinansalDunya(Entity):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Bakiye göstergesi
+        # Bakiye gÃ¶stergesi
         self.ui_elements['bakiye'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
@@ -2230,7 +2230,7 @@ class FinansalDunya(Entity):
             color=color.green
         )
         
-        # Puan göstergesi
+        # Puan gÃ¶stergesi
         self.ui_elements['puan'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
@@ -2239,7 +2239,7 @@ class FinansalDunya(Entity):
             color=color.yellow
         )
         
-        # Seviye göstergesi
+        # Seviye gÃ¶stergesi
         self.ui_elements['seviye'] = Text(
             parent=self.ui_elements['ana_panel'],
             text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
@@ -2248,7 +2248,7 @@ class FinansalDunya(Entity):
             color=color.azure
         )
         
-        # İşlem butonları
+        # Ä°ÅŸlem butonlarÄ±
         self.ui_elements['alis_buton'] = Button(
             parent=self.ui_elements['ana_panel'],
             text=self.locale_manager.get_text('game.transactions.buy'),
@@ -2276,7 +2276,7 @@ class FinansalDunya(Entity):
             color=color.white
         )
         
-        # Menü butonu
+        # MenÃ¼ butonu
         self.ui_elements['menu_buton'] = Button(
             parent=camera.ui,
             text=self.locale_manager.get_text('game.menu.settings'),
@@ -2286,7 +2286,7 @@ class FinansalDunya(Entity):
             on_click=self.toggle_menu
         )
         
-        # Dil seçimi butonu
+        # Dil seÃ§imi butonu
         self.ui_elements['dil_buton'] = Button(
             parent=camera.ui,
             text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
@@ -2301,13 +2301,13 @@ class FinansalDunya(Entity):
             self._create_mobile_controls()
             
     def toggle_language(self):
-        """Dil seçimini değiştir"""
+        """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
         next_index = (current_index + 1) % len(available_locales)
         self.locale_manager.set_locale(available_locales[next_index])
         
-        # UI'ı güncelle
+        # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
     def alis_yap(self):
@@ -2346,11 +2346,11 @@ class FinansalDunya(Entity):
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
     def toggle_menu(self):
-        """Menüyü aç/kapat"""
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
         if self.is_paused:
-            # Menü panelini göster
+            # MenÃ¼ panelini gÃ¶ster
             self.ui_elements['menu_panel'] = Entity(
                 parent=camera.ui,
                 model='quad',
@@ -2359,7 +2359,7 @@ class FinansalDunya(Entity):
                 color=color.rgba(0, 0, 0, 0.9)
             )
             
-            # Menü butonları
+            # MenÃ¼ butonlarÄ±
             Button(
                 parent=self.ui_elements['menu_panel'],
                 text=self.locale_manager.get_text('game.menu.continue'),
@@ -2380,7 +2380,7 @@ class FinansalDunya(Entity):
             
             Button(
                 parent=self.ui_elements['menu_panel'],
-                text='Yükle',
+                text='YÃ¼kle',
                 color=color.azure,
                 position=(0, 0),
                 scale=(0.3, 0.05),
@@ -2389,20 +2389,20 @@ class FinansalDunya(Entity):
             
             Button(
                 parent=self.ui_elements['menu_panel'],
-                text='Çıkış',
+                text='Ã‡Ä±kÄ±ÅŸ',
                 color=color.red,
                 position=(0, -0.2),
                 scale=(0.3, 0.05),
                 on_click=application.quit
             )
         else:
-            # Menü panelini kaldır
+            # MenÃ¼ panelini kaldÄ±r
             if 'menu_panel' in self.ui_elements:
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
     def update(self):
-        # Performans kontrolü
+        # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
             return
@@ -2411,30 +2411,30 @@ class FinansalDunya(Entity):
         if self.is_paused:
             return
             
-        # Oyun güncellemeleri
+        # Oyun gÃ¼ncellemeleri
         if self.held_keys['left mouse']:
             self.alis_yap()
             
         if self.held_keys['right mouse']:
             self.satis_yap()
             
-        # AR güncellemeleri
+        # AR gÃ¼ncellemeleri
         if self.is_mobile:
             self.ar_manager.ar_nesne_guncelle()
             
-        # Olay güncellemeleri
+        # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
     def olay_guncelle(self):
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
-                # Olay süresi doldu, yeni olay oluştur
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
                 olay['tip'] = random.choice([
-                    'Borsa Yükselişi', 'Borsa Düşüşü',
-                    'Enflasyon Artışı', 'Enflasyon Düşüşü',
-                    'Faiz Artışı', 'Faiz Düşüşü',
-                    'Döviz Dalgalanması', 'Altın Fiyatı Değişimi'
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
                 ])
                 olay['etki'] = random.uniform(-0.2, 0.2)
                 olay['baslangic'] = simdiki_zaman
@@ -2444,13 +2444,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].color = color.yellow
 
 def run_game(online_mode: bool = False):
-    """Oyunu başlat"""
+    """Oyunu baÅŸlat"""
     app = Ursina()
     dunya = FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
-    """Ana UI'ı oluştur"""
+    """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
         parent=camera.ui,
@@ -2460,22 +2460,22 @@ def create_ui():
         color=color.rgba(0, 0, 0, 0.8)
     )
     
-    # Üst bilgi paneli
+    # Ãœst bilgi paneli
     create_top_info_panel()
     
-    # Portföy paneli
+    # PortfÃ¶y paneli
     create_portfolio_panel()
     
     # Market paneli
     create_market_panel()
     
-    # İstatistik paneli
+    # Ä°statistik paneli
     create_stats_panel()
     
-    # Menü butonu
+    # MenÃ¼ butonu
     Button(
         parent=camera.ui,
-        text='Menü',
+        text='MenÃ¼',
         color=color.azure,
         position=(0.8, 0.45),
         scale=(0.2, 0.05),
@@ -2483,7 +2483,7 @@ def create_ui():
     )
 
 def create_top_info_panel():
-    """Üst bilgi panelini oluştur"""
+    """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
         parent=camera.ui,
@@ -2493,10 +2493,10 @@ def create_top_info_panel():
         color=color.green
     )
     
-    # Portföy değeri
+    # PortfÃ¶y deÄŸeri
     ui['text_elements']['portfolio_value'] = Text(
         parent=camera.ui,
-        text=f"Portföy: ${calculate_portfolio_value():,.2f}",
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
         position=(-0.4, 0.45),
         scale=2,
         color=color.white
@@ -2512,7 +2512,7 @@ def create_top_info_panel():
     )
 
 def create_portfolio_panel():
-    """Portföy panelini oluştur"""
+    """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -2521,10 +2521,10 @@ def create_portfolio_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['portfolio_panel'],
-        text='Portföy',
+        text='PortfÃ¶y',
         position=(0, 0.35),
         scale=2,
         color=color.white
@@ -2534,7 +2534,7 @@ def create_portfolio_panel():
     y_pos = 0.25
     for symbol, data in player['portfolio'].items():
         if data['shares'] > 0:
-            # Hisse adı ve miktar
+            # Hisse adÄ± ve miktar
             Text(
                 parent=ui['portfolio_panel'],
                 text=f"{symbol}: {data['shares']} adet",
@@ -2555,7 +2555,7 @@ def create_portfolio_panel():
             y_pos -= 0.08
 
 def create_market_panel():
-    """Market panelini oluştur"""
+    """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -2564,7 +2564,7 @@ def create_market_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['market_panel'],
         text='Market',
@@ -2594,7 +2594,7 @@ def create_market_panel():
     # Hisse senetleri listesi
     y_pos = 0.1
     for symbol, data in player['portfolio'].items():
-        # Hisse adı ve fiyat
+        # Hisse adÄ± ve fiyat
         Text(
             parent=ui['market_panel'],
             text=f"{symbol}: ${data['price']:,.2f}",
@@ -2603,7 +2603,7 @@ def create_market_panel():
             color=color.white
         )
         
-        # Alım butonu
+        # AlÄ±m butonu
         Button(
             parent=ui['market_panel'],
             text='Al',
@@ -2613,7 +2613,7 @@ def create_market_panel():
             on_click=Func(lambda s=symbol: buy_stock(s))
         )
         
-        # Satım butonu
+        # SatÄ±m butonu
         Button(
             parent=ui['market_panel'],
             text='Sat',
@@ -2626,7 +2626,7 @@ def create_market_panel():
         y_pos -= 0.08
 
 def create_stats_panel():
-    """İstatistik panelini oluştur"""
+    """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
         model='quad',
@@ -2635,53 +2635,53 @@ def create_stats_panel():
         color=color.rgba(0, 0, 0, 0.5)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['stats_panel'],
-        text='İstatistikler',
+        text='Ä°statistikler',
         position=(0, 0.35),
         scale=2,
         color=color.white
     )
     
-    # İstatistikler
+    # Ä°statistikler
     stats = player['stats']
     y_pos = 0.25
     
-    # Toplam işlem
+    # Toplam iÅŸlem
     Text(
         parent=ui['stats_panel'],
-        text=f"Toplam İşlem: {stats['total_trades']}",
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.white
     )
     y_pos -= 0.08
     
-    # Başarılı işlemler
+    # BaÅŸarÄ±lÄ± iÅŸlemler
     Text(
         parent=ui['stats_panel'],
-        text=f"Başarılı: {stats['successful_trades']}",
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.green
     )
     y_pos -= 0.08
     
-    # Başarısız işlemler
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
     Text(
         parent=ui['stats_panel'],
-        text=f"Başarısız: {stats['failed_trades']}",
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
         position=(0, y_pos),
         scale=1.2,
         color=color.red
     )
     y_pos -= 0.08
     
-    # Toplam kâr
+    # Toplam kÃ¢r
     Text(
         parent=ui['stats_panel'],
-        text=f"Toplam Kâr: ${stats['total_profit']:,.2f}",
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
         position=(0, y_pos),
         scale=1.2,
         color=color.green
@@ -2698,7 +2698,7 @@ def create_stats_panel():
     )
 
 def toggle_menu():
-    """Menüyü aç/kapat"""
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
     else:
@@ -2706,7 +2706,7 @@ def toggle_menu():
         ui['menu_panel'] = None
 
 def create_menu():
-    """Menü panelini oluştur"""
+    """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
         model='quad',
@@ -2715,10 +2715,10 @@ def create_menu():
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['menu_panel'],
-        text='Menü',
+        text='MenÃ¼',
         position=(0, 0.25),
         scale=2,
         color=color.white
@@ -2734,10 +2734,10 @@ def create_menu():
         on_click=Func(save_game)
     )
     
-    # Yükle butonu
+    # YÃ¼kle butonu
     Button(
         parent=ui['menu_panel'],
-        text='Yükle',
+        text='YÃ¼kle',
         color=color.azure,
         position=(0, 0),
         scale=(0.3, 0.05),
@@ -2754,10 +2754,10 @@ def create_menu():
         on_click=Func(show_settings)
     )
     
-    # Çıkış butonu
+    # Ã‡Ä±kÄ±ÅŸ butonu
     Button(
         parent=ui['menu_panel'],
-        text='Çıkış',
+        text='Ã‡Ä±kÄ±ÅŸ',
         color=color.red,
         position=(0, -0.2),
         scale=(0.3, 0.05),
@@ -2765,8 +2765,8 @@ def create_menu():
     )
 
 def show_settings():
-    """Ayarlar menüsünü göster"""
-    # Mevcut menüyü kapat
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
     ui['menu_panel'] = None
     
@@ -2779,7 +2779,7 @@ def show_settings():
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     Text(
         parent=ui['settings_panel'],
         text='Ayarlar',
@@ -2788,30 +2788,30 @@ def show_settings():
         color=color.white
     )
     
-    # Ses ayarı
+    # Ses ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Ses: {'Açık' if game_settings['sound_enabled'] else 'Kapalı'}",
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, 0.1),
         scale=(0.3, 0.05),
         on_click=Func(toggle_sound)
     )
     
-    # Müzik ayarı
+    # MÃ¼zik ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Müzik: {'Açık' if game_settings['music_enabled'] else 'Kapalı'}",
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, 0),
         scale=(0.3, 0.05),
         on_click=Func(toggle_music)
     )
     
-    # Tam ekran ayarı
+    # Tam ekran ayarÄ±
     Button(
         parent=ui['settings_panel'],
-        text=f"Tam Ekran: {'Açık' if game_settings['fullscreen'] else 'Kapalı'}",
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
         color=color.azure,
         position=(0, -0.1),
         scale=(0.3, 0.05),
@@ -2829,42 +2829,42 @@ def show_settings():
     )
 
 def toggle_sound():
-    """Ses ayarını değiştir"""
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def toggle_music():
-    """Müzik ayarını değiştir"""
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def toggle_fullscreen():
-    """Tam ekran ayarını değiştir"""
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
-    show_settings()  # Ayarlar menüsünü yenile
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
 def start_tutorial():
-    """Eğitim modunu başlat"""
+    """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
-            'title': 'Hoş Geldiniz!',
-            'description': 'FinAsis finansal eğitim simülasyonuna hoş geldiniz. Size temel özellikleri tanıtacağım.',
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
             'position': (0, 0)
         },
         {
-            'title': 'Portföy Paneli',
-            'description': 'Bu panel sahip olduğunuz hisse senetlerini gösterir.',
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
             'position': (-0.65, 0)
         },
         {
             'title': 'Market Paneli',
-            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarını gösterir.',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
             'position': (0, 0)
         },
         {
-            'title': 'İstatistik Paneli',
-            'description': 'Bu panel trading performansınızı gösterir.',
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
             'position': (0.65, 0)
         }
     ]
@@ -2886,7 +2886,7 @@ def start_tutorial():
         # Panel pozisyonu
         tutorial_panel.position = step['position']
         
-        # Başlık
+        # BaÅŸlÄ±k
         if hasattr(tutorial_panel, 'title'):
             destroy(tutorial_panel.title)
         tutorial_panel.title = Text(
@@ -2897,7 +2897,7 @@ def start_tutorial():
             color=color.yellow
         )
         
-        # Açıklama
+        # AÃ§Ä±klama
         if hasattr(tutorial_panel, 'description'):
             destroy(tutorial_panel.description)
         tutorial_panel.description = Text(
@@ -2908,12 +2908,12 @@ def start_tutorial():
             color=color.white
         )
         
-        # İleri butonu
+        # Ä°leri butonu
         if hasattr(tutorial_panel, 'next_button'):
             destroy(tutorial_panel.next_button)
         tutorial_panel.next_button = Button(
             parent=tutorial_panel,
-            text='İleri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
             position=(0.1, -0.07),
             scale=(0.2, 0.05),
             color=color.azure,
@@ -2926,18 +2926,18 @@ def start_tutorial():
         if current_step < len(tutorial_steps):
             show_step()
         else:
-            # Tutorial'ı bitir
+            # Tutorial'Ä± bitir
             destroy(tutorial_panel)
             player['tutorial_progress']['basic_trading'] = True
             save_game()
     
-    # İlk adımı göster
+    # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
 def save_game():
     """Oyun durumunu kaydet"""
     try:
-        # Kaydedilecek verileri hazırla
+        # Kaydedilecek verileri hazÄ±rla
         save_data = {
             'player': player,
             'market_state': market_state,
@@ -2946,28 +2946,28 @@ def save_game():
             'save_time': datetime.now().isoformat()
         }
         
-        # datetime nesnelerini ISO formatına dönüştür
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
         def convert_datetime(obj):
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
         
-        # Verileri JSON formatında kaydet
+        # Verileri JSON formatÄ±nda kaydet
         with open('save_game.json', 'w', encoding='utf-8') as f:
             json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
             
         show_notification('Oyun kaydedildi!', color.green)
     except Exception as e:
-        show_notification(f'Kayıt hatası: {str(e)}', color.red)
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
 def load_game():
-    """Kaydedilmiş oyun durumunu yükle"""
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
-        # JSON dosyasını oku
+        # JSON dosyasÄ±nÄ± oku
         with open('save_game.json', 'r', encoding='utf-8') as f:
             save_data = json.load(f)
         
-        # datetime string'lerini datetime nesnelerine dönüştür
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
         def parse_datetime(obj):
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
@@ -2983,21 +2983,21 @@ def load_game():
                             parse_datetime(item)
             return obj
         
-        # Verileri yükle
+        # Verileri yÃ¼kle
         global player, market_state, quest_system, game_settings
         player = parse_datetime(save_data['player'])
         market_state = parse_datetime(save_data['market_state'])
         quest_system = parse_datetime(save_data['quest_system'])
         game_settings = save_data['game_settings']
         
-        show_notification('Oyun yüklendi!', color.green)
+        show_notification('Oyun yÃ¼klendi!', color.green)
     except FileNotFoundError:
-        show_notification('Kayıtlı oyun bulunamadı.', color.yellow)
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
     except Exception as e:
-        show_notification(f'Yükleme hatası: {str(e)}', color.red)
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
 def show_notification(message, color=color.white):
-    """Bildirim göster"""
+    """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
         position=(0, 0.4),
@@ -3007,7 +3007,7 @@ def show_notification(message, color=color.white):
     destroy(notification, delay=3)
 
 def auto_save():
-    """Otomatik kayıt"""
+    """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
         auto_save.last_save = current_time
@@ -3017,7 +3017,7 @@ def auto_save():
         auto_save.last_save = current_time
 
 def quit_game():
-    """Oyundan çık"""
+    """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
     
@@ -3025,157 +3025,157 @@ def quit_game():
     application.quit()
 
 def initialize_quest_system():
-    """Görev sistemini başlat"""
-    # Günlük görevleri yükle
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
     for quest_id in daily_quests:
         if quest_id in quest_definitions:
             quest_system['daily_quests'].append(quest_definitions[quest_id])
     
-    # Haftalık görevleri yükle
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
     weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
     for quest_id in weekly_quests:
         if quest_id in quest_definitions:
             quest_system['weekly_quests'].append(quest_definitions[quest_id])
     
-    # Başarı görevlerini yükle
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
     achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
     for quest_id in achievement_quests:
         if quest_id in quest_definitions:
             quest_system['achievement_quests'].append(quest_definitions[quest_id])
     
-    # Eğitim görevlerini yükle
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
     tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
     for quest_id in tutorial_quests:
         if quest_id in quest_definitions:
             quest_system['tutorial_quests'].append(quest_definitions[quest_id])
     
-    # Aktif görevleri belirle
+    # Aktif gÃ¶revleri belirle
     assign_daily_quests()
     assign_weekly_quests()
     
-    # Eğitim görevlerini aktif görevlere ekle
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
     for quest in quest_system['tutorial_quests']:
         if quest['id'] not in player['completed_quests']:
             player['active_quests'].append(quest['id'])
             player['quest_progress'][quest['id']] = 0
     
-    # Başarı görevlerini aktif görevlere ekle
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
     for quest in quest_system['achievement_quests']:
         if quest['id'] not in player['completed_quests']:
             player['active_quests'].append(quest['id'])
             player['quest_progress'][quest['id']] = 0
     
-    # Görev UI'ını oluştur
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
 def assign_daily_quests():
-    """Günlük görevleri ata"""
-    # Günlük görevleri sıfırla
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
     
-    # Rastgele 2 günlük görev seç
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
     selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
     
-    # Seçilen görevleri aktif görevlere ekle
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
     for quest in selected_quests:
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
 def assign_weekly_quests():
-    """Haftalık görevleri ata"""
-    # Haftalık görevleri sıfırla
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
     
-    # Rastgele 2 haftalık görev seç
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
     selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
     
-    # Seçilen görevleri aktif görevlere ekle
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
     for quest in selected_quests:
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
 def check_quest_completion():
-    """Görev tamamlanma durumunu kontrol et"""
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
     for quest_id in player['active_quests']:
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev tamamlandı mı kontrol et
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
             if quest['check_completion']():
-                # Görevi tamamlandı olarak işaretle
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
                 completed_quests.append(quest_id)
                 
-                # Ödülleri ver
+                # Ã–dÃ¼lleri ver
                 give_quest_rewards(quest)
                 
-                # Tamamlanan görevi göster
+                # Tamamlanan gÃ¶revi gÃ¶ster
                 show_quest_completion(quest)
     
-    # Tamamlanan görevleri aktif görevlerden çıkar
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
     for quest_id in completed_quests:
         player['active_quests'].remove(quest_id)
         player['completed_quests'].append(quest_id)
     
-    # Görev UI'ını güncelle
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
 def give_quest_rewards(quest):
-    """Görev ödüllerini ver"""
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
-    # Para ödülü
+    # Para Ã¶dÃ¼lÃ¼
     if 'money' in reward:
         player['money'] += reward['money']
     
-    # Deneyim ödülü
+    # Deneyim Ã¶dÃ¼lÃ¼
     if 'experience' in reward:
         player['experience']['current_xp'] += reward['experience']
         player['experience']['total_xp'] += reward['experience']
         
-        # Seviye atlama kontrolü
+        # Seviye atlama kontrolÃ¼
         while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
             player['experience']['current_xp'] -= player['experience']['next_level_xp']
             player['experience']['level'] += 1
             player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
             show_level_up()
     
-    # Başarı ödülü
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
     if 'achievement' in reward:
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
 def show_quest_completion(quest):
-    """Görev tamamlanma bildirimini göster"""
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
-        text=f"Görev Tamamlandı: {quest['title']}",
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
         position=(0, 0.6),
         scale=2,
         color=color.gold
     )
     
-    # Ödül detayları
+    # Ã–dÃ¼l detaylarÄ±
     reward_text = None
     if 'money' in quest['reward']:
         reward_text = Text(
-            text=f"Ödül: +${quest['reward']['money']:,.2f}",
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
             position=(0, 0.5),
             scale=1.5,
             color=color.green
         )
     
-    # Metinleri belirli süre sonra kaldır
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
     destroy(completion_text, delay=4)
     if reward_text:
         destroy(reward_text, delay=4)
 
 def show_level_up():
-    """Seviye atlama bildirimini göster"""
+    """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
-        text=f"Seviye Atladınız! Yeni Seviye: {player['experience']['level']}",
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
         position=(0, 0.4),
         scale=2,
         color=color.yellow
@@ -3183,12 +3183,12 @@ def show_level_up():
     destroy(level_text, delay=4)
 
 def calculate_next_level_xp(current_level):
-    """Sonraki seviye için gereken XP'yi hesapla"""
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
 def create_quest_ui():
-    """Görev UI'ını oluştur"""
-    # Görev paneli
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
         parent=camera.ui,
         model='quad',
@@ -3198,34 +3198,34 @@ def create_quest_ui():
         visible=False
     )
     
-    # Görev başlığı
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
     Text(
         parent=quest_ui['panel'],
-        text='Görevler',
+        text='GÃ¶revler',
         position=(0, 0.25),
         scale=2,
         color=color.white
     )
     
-    # Aktif görevler başlığı
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
     quest_ui['active_quests_text'] = Text(
         parent=quest_ui['panel'],
-        text='Aktif Görevler:',
+        text='Aktif GÃ¶revler:',
         position=(-0.35, 0.15),
         scale=1.5,
         color=color.white
     )
     
-    # Tamamlanan görevler başlığı
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
     quest_ui['completed_quests_text'] = Text(
         parent=quest_ui['panel'],
-        text='Tamamlanan Görevler:',
+        text='Tamamlanan GÃ¶revler:',
         position=(-0.35, -0.15),
         scale=1.5,
         color=color.white
     )
     
-    # Görev kapatma butonu
+    # GÃ¶rev kapatma butonu
     Button(
         parent=quest_ui['panel'],
         text='Kapat',
@@ -3235,33 +3235,33 @@ def create_quest_ui():
         on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
     )
     
-    # Görev butonu
+    # GÃ¶rev butonu
     Button(
         parent=camera.ui,
-        text='Görevler',
+        text='GÃ¶revler',
         color=color.azure,
         position=(0.7, 0.4),
         scale=(0.2, 0.05),
         on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
     )
     
-    # Görev UI'ını güncelle
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
 def update_quest_ui():
-    """Görev UI'ını güncelle"""
-    # Mevcut görev öğelerini temizle
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
         destroy(item)
     quest_ui['quest_items'] = []
     
-    # Aktif görevleri göster
+    # Aktif gÃ¶revleri gÃ¶ster
     y_position = 0.1
     for quest_id in player['active_quests']:
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev başlığı
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -3272,7 +3272,7 @@ def update_quest_ui():
                 )
             )
             
-            # Görev açıklaması
+            # GÃ¶rev aÃ§Ä±klamasÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -3283,8 +3283,8 @@ def update_quest_ui():
                 )
             )
             
-            # Görev ödülü
-            reward_text = f"Ödül: ${quest['reward']['money']:,.2f}"
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -3297,13 +3297,13 @@ def update_quest_ui():
             
             y_position -= 0.15
     
-    # Tamamlanan görevleri göster
+    # Tamamlanan gÃ¶revleri gÃ¶ster
     y_position = -0.2
-    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan görevi göster
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
         if quest_id in quest_definitions:
             quest = quest_definitions[quest_id]
             
-            # Görev başlığı
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
@@ -3314,11 +3314,11 @@ def update_quest_ui():
                 )
             )
             
-            # Tamamlandı işareti
+            # TamamlandÄ± iÅŸareti
             quest_ui['quest_items'].append(
                 Text(
                     parent=quest_ui['panel'],
-                    text="✓ Tamamlandı",
+                    text="âœ“ TamamlandÄ±",
                     position=(0.2, y_position),
                     scale=0.8,
                     color=color.green
@@ -3328,17 +3328,17 @@ def update_quest_ui():
             y_position -= 0.1
 
 def calculate_daily_profit():
-    """Günlük kârı hesapla"""
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
     
     profit = 0
     for trade in today_trades:
         if trade['type'] == 'sell':
-            # Satış işleminden kâr hesapla
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
             buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
             if buy_trades:
-                # En eski alım fiyatını bul
+                # En eski alÄ±m fiyatÄ±nÄ± bul
                 oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
                 buy_price = oldest_buy['price']
                 sell_price = trade['price']
@@ -3347,24 +3347,24 @@ def calculate_daily_profit():
     return profit
 
 def calculate_weekly_growth():
-    """Haftalık büyümeyi hesapla"""
-    # Başlangıç portföy değeri (1 hafta önce)
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
     week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
-    # Şu anki portföy değeri
+    # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
     
-    # Haftalık büyüme oranı
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
     if current_value > 0:
-        return (current_value / 100000) - 1  # Başlangıç değerine göre büyüme
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
 def update_market_state():
-    """Piyasa durumunu güncelle"""
+    """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
-    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir güncelle
-        # Piyasa trendini güncelle
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
         trend_chance = random.random()
         if trend_chance < 0.4:
             market_state['trend'] = 'stable'
@@ -3373,95 +3373,95 @@ def update_market_state():
         else:
             market_state['trend'] = 'bear'
         
-        # Volatiliteyi güncelle
+        # Volatiliteyi gÃ¼ncelle
         market_state['volatility'] = random.uniform(0.3, 0.8)
         
-        # Piyasa olayları oluştur
-        if random.random() < 0.2:  # %20 şans
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
             event = generate_market_event()
             market_state['market_events'].append(event)
             show_market_event(event)
             apply_market_event(event)
         
-        # Oyuncuya özel olaylar oluştur
-        if random.random() < 0.15:  # %15 şans
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
             player_event = generate_player_event()
             if player_event:
                 show_player_event(player_event)
                 apply_player_event(player_event)
         
-        # Görev tamamlanma durumunu kontrol et
+        # GÃ¶rev tamamlanma durumunu kontrol et
         check_quest_completion()
         
         market_state['last_update'] = current_time
 
 def update():
-    """Ana oyun döngüsü"""
-    # Piyasa güncellemesi
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
     update_market()
     
-    # UI güncellemesi
+    # UI gÃ¼ncellemesi
     update_ui()
     
-    # Görev kontrolü
+    # GÃ¶rev kontrolÃ¼
     check_quests()
     
-    # Otomatik kayıt
+    # Otomatik kayÄ±t
     if game_settings['auto_save']:
         auto_save()
 
 def update_market():
-    """Piyasa durumunu güncelle"""
+    """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
-    # Piyasa güncellemesi
+    # Piyasa gÃ¼ncellemesi
     if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
-        # Trend güncelleme
+        # Trend gÃ¼ncelleme
         update_market_trend()
         
-        # Fiyat güncelleme
+        # Fiyat gÃ¼ncelleme
         update_stock_prices()
         
-        # Olay kontrolü
+        # Olay kontrolÃ¼
         check_market_events()
         
         market_state['last_update'] = current_time
 
 def update_market_trend():
-    """Piyasa trendini güncelle"""
+    """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
-    # Zorluk seviyesine göre trend olasılıkları
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
     if game_settings['difficulty'] == 'easy':
-        if trend_chance < 0.5:  # %50 şans
+        if trend_chance < 0.5:  # %50 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.8:  # %30 şans
+        elif trend_chance < 0.8:  # %30 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %20 şans
+        else:  # %20 ÅŸans
             market_state['trend'] = 'bear'
     elif game_settings['difficulty'] == 'normal':
-        if trend_chance < 0.4:  # %40 şans
+        if trend_chance < 0.4:  # %40 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.7:  # %30 şans
+        elif trend_chance < 0.7:  # %30 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %30 şans
+        else:  # %30 ÅŸans
             market_state['trend'] = 'bear'
     else:  # hard
-        if trend_chance < 0.3:  # %30 şans
+        if trend_chance < 0.3:  # %30 ÅŸans
             market_state['trend'] = 'bull'
-        elif trend_chance < 0.5:  # %20 şans
+        elif trend_chance < 0.5:  # %20 ÅŸans
             market_state['trend'] = 'stable'
-        else:  # %50 şans
+        else:  # %50 ÅŸans
             market_state['trend'] = 'bear'
     
-    # Volatilite güncelleme
+    # Volatilite gÃ¼ncelleme
     market_state['volatility'] = random.uniform(
         0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
 def update_stock_prices():
-    """Hisse senedi fiyatlarını güncelle"""
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
         
@@ -3472,16 +3472,16 @@ def update_stock_prices():
             'bear': random.uniform(-0.01, -0.001)
         }[market_state['trend']]
         
-        # Sektör etkisi
+        # SektÃ¶r etkisi
         sector_effect = calculate_sector_effect(data['sector'])
         
         # Volatilite etkisi
         volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
         
-        # Toplam değişim
+        # Toplam deÄŸiÅŸim
         total_change = trend_effect + sector_effect + volatility_effect
         
-        # Zorluk seviyesine göre değişim sınırlaması
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
         if game_settings['difficulty'] == 'easy':
             total_change = max(-0.05, min(0.05, total_change))
         elif game_settings['difficulty'] == 'normal':
@@ -3494,7 +3494,7 @@ def update_stock_prices():
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
 def calculate_sector_effect(sector):
-    """Sektör bazlı fiyat etkisini hesapla"""
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
         'auto': random.uniform(-0.004, 0.006),
@@ -3505,7 +3505,7 @@ def calculate_sector_effect(sector):
     return sector_trends.get(sector, 0)
 
 def check_market_events():
-    """Piyasa olaylarını kontrol et"""
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
         if event:
@@ -3514,19 +3514,19 @@ def check_market_events():
             show_market_event(event)
 
 def generate_market_event():
-    """Piyasa olayı oluştur"""
+    """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
             {
-                'title': 'Küresel Ekonomik Büyüme',
-                'description': 'Küresel ekonomik büyüme beklentileri yükseldi!',
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
                 'effect': {'market_trend': 'bull', 'volatility': -0.1},
                 'duration': 300,
                 'probability': 0.2
             },
             {
                 'title': 'Ekonomik Kriz',
-                'description': 'Küresel ekonomik kriz endişeleri artıyor!',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
                 'effect': {'market_trend': 'bear', 'volatility': 0.2},
                 'duration': 300,
                 'probability': 0.1
@@ -3534,15 +3534,15 @@ def generate_market_event():
         ],
         'sector': [
             {
-                'title': 'Teknoloji Atılımı',
-                'description': 'Yeni teknolojik gelişmeler sektörü hareketlendirdi!',
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
                 'effect': {'sector': 'tech', 'change': 0.05},
                 'duration': 180,
                 'probability': 0.15
             },
             {
                 'title': 'Otomotiv Krizi',
-                'description': 'Tedarik zinciri sorunları otomotiv sektörünü vuruyor!',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
                 'effect': {'sector': 'auto', 'change': -0.05},
                 'duration': 180,
                 'probability': 0.15
@@ -3550,14 +3550,14 @@ def generate_market_event():
         ],
         'company': [
             {
-                'title': 'Ürün Lansmanı',
-                'description': 'AAPL yeni ürünlerini tanıttı!',
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
                 'effect': {'symbol': 'AAPL', 'change': 0.08},
                 'duration': 120,
                 'probability': 0.2
             },
             {
-                'title': 'CEO İstifası',
+                'title': 'CEO Ä°stifasÄ±',
                 'description': 'TSLA CEO\'su istifa etti!',
                 'effect': {'symbol': 'TSLA', 'change': -0.08},
                 'duration': 120,
@@ -3566,11 +3566,11 @@ def generate_market_event():
         ]
     }
     
-    # Olay türü seç
+    # Olay tÃ¼rÃ¼ seÃ§
     event_type = random.choice(list(event_types.keys()))
     events = event_types[event_type]
     
-    # Olasılık kontrolü
+    # OlasÄ±lÄ±k kontrolÃ¼
     for event in events:
         if random.random() < event['probability']:
             return event
@@ -3578,7 +3578,7 @@ def generate_market_event():
     return None
 
 def apply_market_event(event):
-    """Piyasa olayını uygula"""
+    """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
     # Piyasa trendi etkisi
@@ -3589,19 +3589,19 @@ def apply_market_event(event):
     if 'volatility' in effect:
         market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
     
-    # Sektör etkisi
+    # SektÃ¶r etkisi
     if 'sector' in effect:
         for symbol, data in player['portfolio'].items():
             if data['sector'] == effect['sector']:
                 data['price'] *= (1 + effect['change'])
     
-    # Şirket etkisi
+    # Åžirket etkisi
     if 'symbol' in effect:
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
 def show_market_event(event):
-    """Piyasa olayını göster"""
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
         parent=camera.ui,
@@ -3611,7 +3611,7 @@ def show_market_event(event):
         color=color.rgba(0, 0, 0, 0.9)
     )
     
-    # Başlık
+    # BaÅŸlÄ±k
     title_text = Text(
         parent=notification,
         text=event['title'],
@@ -3620,7 +3620,7 @@ def show_market_event(event):
         color=color.yellow
     )
     
-    # Açıklama
+    # AÃ§Ä±klama
     desc_text = Text(
         parent=notification,
         text=event['description'],
@@ -3629,14 +3629,14 @@ def show_market_event(event):
         color=color.white
     )
     
-    # Efekt açıklaması
+    # Efekt aÃ§Ä±klamasÄ±
     effect = event['effect']
     effect_text = ""
     
     if 'market_trend' in effect:
-        effect_text = "Piyasa trendi değişti!"
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
     elif 'sector' in effect:
-        effect_text = f"{effect['sector'].upper()} sektörü etkilendi!"
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
     elif 'symbol' in effect:
         effect_text = f"{effect['symbol']} hissesi etkilendi!"
     
@@ -3656,7 +3656,7 @@ def show_market_event(event):
     })
 
 def calculate_portfolio_value():
-    """Portföy değerini hesapla"""
+    """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
@@ -3664,36 +3664,36 @@ def calculate_portfolio_value():
 
 def calculate_risk_score():
     """Risk skorunu hesapla"""
-    # Portföy çeşitliliği (0-1 arası)
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
     
-    # Borç/gelir oranı (0-1 arası)
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
     debt_to_income = calculate_debt_to_income_ratio()
     
-    # Toplam risk skoru (0-1 arası)
+    # Toplam risk skoru (0-1 arasÄ±)
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
 def calculate_portfolio_diversity():
-    """Portföy çeşitliliğini hesapla"""
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
         return 0
     
-    # Her sektördeki yatırım oranını hesapla
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
     sector_weights = {}
     for symbol, data in player['portfolio'].items():
         sector = data['sector']
         value = data['shares'] * data['price']
         sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
     
-    # Herfindahl-Hirschman Index'ini hesapla (ters çevrilmiş)
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
     hhi = sum(weight * weight for weight in sector_weights.values())
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
 def calculate_debt_to_income_ratio():
-    """Borç/gelir oranını hesapla"""
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
     total_debt = sum(t['amount'] for t in player.get('trading_history', [])
@@ -3706,65 +3706,65 @@ def calculate_debt_to_income_ratio():
     return min(max(ratio, 0), 1)
 
 def update_ui():
-    """UI'ı güncelle"""
-    # Para ve portföy değerini güncelle
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
-    ui['text_elements']['portfolio_value'].text = f"Portföy: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
     ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
     
-    # Hisse senedi fiyatlarını güncelle
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
     for symbol, data in player['portfolio'].items():
         if symbol in ui['text_elements']:
             ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
     
-    # Hisse senedi butonlarını güncelle
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
     update_stock_buttons()
     
-    # Görevleri güncelle
+    # GÃ¶revleri gÃ¼ncelle
     update_quest_ui()
     
-    # Bildirimleri güncelle
+    # Bildirimleri gÃ¼ncelle
     update_notifications()
 
 def update_stock_buttons():
-    """Hisse senedi butonlarını güncelle"""
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
-        # Alım butonu
+        # AlÄ±m butonu
         if symbol + '_buy' in ui['buttons']:
             ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
         
-        # Satım butonu
+        # SatÄ±m butonu
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
 def update_notifications():
-    """Bildirimleri güncelle"""
+    """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
-    # Süresi dolmuş bildirimleri kaldır
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
     ui['notifications'] = [n for n in ui['notifications'] 
                          if (current_time - n['timestamp']).seconds < 5]
     
-    # Bildirimleri göster
+    # Bildirimleri gÃ¶ster
     for i, notification in enumerate(ui['notifications']):
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
 def buy_stock(symbol):
-    """Hisse senedi satın al"""
+    """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
     
-    # Yeterli para var mı kontrol et
+    # Yeterli para var mÄ± kontrol et
     if player['money'] < price:
-        show_notification('Yeterli paranız yok!', color.red)
+        show_notification('Yeterli paranÄ±z yok!', color.red)
         return
     
-    # İşlemi gerçekleştir
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
     player['money'] -= price
     stock['shares'] += 1
     
-    # İşlem kaydını tut
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
     trade = {
         'type': 'buy',
         'symbol': symbol,
@@ -3775,13 +3775,13 @@ def buy_stock(symbol):
     }
     player['trading_history'].append(trade)
     
-    # İstatistikleri güncelle
+    # Ä°statistikleri gÃ¼ncelle
     player['stats']['total_trades'] += 1
     
-    # Bildirimi göster
-    show_notification(f'{symbol} hissesinden 1 adet satın alındı.', color.green)
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±n alÄ±ndÄ±.', color.green)
     
-    # UI'ı güncelle
+    # UI'Ä± gÃ¼ncelle
     update_ui()
 
 def sell_stock(symbol):
@@ -3789,16 +3789,16 @@ def sell_stock(symbol):
     stock = player['portfolio'][symbol]
     price = stock['price']
     
-    # Yeterli hisse var mı kontrol et
+    # Yeterli hisse var mÄ± kontrol et
     if stock['shares'] <= 0:
         show_notification('Yeterli hisseniz yok!', color.red)
         return
     
-    # İşlemi gerçekleştir
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
     player['money'] += price
     stock['shares'] -= 1
     
-    # İşlem kaydını tut
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
     trade = {
         'type': 'sell',
         'symbol': symbol,
@@ -3809,64 +3809,64 @@ def sell_stock(symbol):
     }
     player['trading_history'].append(trade)
     
-    # İstatistikleri güncelle
+    # Ä°statistikleri gÃ¼ncelle
     player['stats']['total_trades'] += 1
     
-    # Bildirimi göster
-    show_notification(f'{symbol} hissesinden 1 adet satıldı.', color.green)
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±ldÄ±.', color.green)
     
-    # UI'ı güncelle
+    # UI'Ä± gÃ¼ncelle
     update_ui()
 
 def check_quests():
-    """Görevleri kontrol et"""
-    # Günlük görevleri kontrol et
+    """GÃ¶revleri kontrol et"""
+    # GÃ¼nlÃ¼k gÃ¶revleri kontrol et
     for quest in quest_system['daily_quests']:
         if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
             quest['completed'] = True
             give_quest_rewards(quest)
             show_quest_completion(quest)
     
-    # Haftalık görevleri kontrol et
+    # HaftalÄ±k gÃ¶revleri kontrol et
     for quest in quest_system['weekly_quests']:
         if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
             quest['completed'] = True
             give_quest_rewards(quest)
             show_quest_completion(quest)
     
-    # Başarı görevlerini kontrol et
+    # BaÅŸarÄ± gÃ¶revlerini kontrol et
     for quest in quest_system['achievement_quests']:
         if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
             quest['completed'] = True
             give_quest_rewards(quest)
             show_quest_completion(quest)
             
-    # Öğretici görevleri kontrol et
+    # Ã–ÄŸretici gÃ¶revleri kontrol et
     for quest in quest_system['tutorial_quests']:
         if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
             quest['completed'] = True
             give_quest_rewards(quest)
             show_quest_completion(quest)
             
-    # Seviye atlamayı kontrol et
+    # Seviye atlamayÄ± kontrol et
     check_level_up()
 
 def check_level_up():
-    """Seviye atlamayı kontrol et"""
+    """Seviye atlamayÄ± kontrol et"""
     while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
         # Seviye atla
         player['experience']['level'] += 1
         player['experience']['current_xp'] -= player['experience']['next_level_xp']
         player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
         
-        # Seviye atlama ödüllerini ver
+        # Seviye atlama Ã¶dÃ¼llerini ver
         rewards = {
             'money': 1000 * player['experience']['level'],
             'experience': 0
         }
         give_quest_rewards({'reward': rewards})
         
-        # Seviye atlama bildirimini göster
+        # Seviye atlama bildirimini gÃ¶ster
         show_level_up()
 
 class CharacterSelection:
@@ -3880,7 +3880,7 @@ class CharacterSelection:
             return json.load(f)['characters']
             
     def create_ui(self):
-        # Karakter seçim paneli
+        # Karakter seÃ§im paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
             scale=(1, 1),
@@ -3888,7 +3888,7 @@ class CharacterSelection:
             position=(0, 0, -1)
         )
         
-        # Karakter kartları
+        # Karakter kartlarÄ±
         for i, char in enumerate(self.characters):
             card = Entity(
                 model='quad',
@@ -3913,9 +3913,9 @@ class CharacterSelection:
                 parent=self.ui_elements['panel']
             )
             
-            # Seçim butonu
+            # SeÃ§im butonu
             Button(
-                text='Seç',
+                text='SeÃ§',
                 position=(-0.5 + i * 0.3, -0.1, -0.8),
                 scale=(0.1, 0.05),
                 on_click=Func(self.select_character, char),
@@ -3924,12 +3924,12 @@ class CharacterSelection:
             
     def select_character(self, character):
         self.selected_character = character
-        # Oyuncu verilerini güncelle
+        # Oyuncu verilerini gÃ¼ncelle
         player['money'] = character['starting_money']
         player['stats']['risk_tolerance'] = character['advantages']['risk_tolerance']
-        # Karakter seçim ekranını kapat
+        # Karakter seÃ§im ekranÄ±nÄ± kapat
         destroy(self.ui_elements['panel'])
-        # Oyunu başlat
+        # Oyunu baÅŸlat
         start_game()
 
 class MissionSystem:
@@ -3944,7 +3944,7 @@ class MissionSystem:
             return json.load(f)['levels']
             
     def create_mission_ui(self):
-        # Görev paneli
+        # GÃ¶rev paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
             scale=(0.4, 0.3),
@@ -3952,15 +3952,15 @@ class MissionSystem:
             position=(0.7, 0.6, -1)
         )
         
-        # Görev başlığı
+        # GÃ¶rev baÅŸlÄ±ÄŸÄ±
         self.ui_elements['title'] = Text(
-            text='Görevler',
+            text='GÃ¶revler',
             position=(0.7, 0.7, -0.9),
             scale=2,
             parent=self.ui_elements['panel']
         )
         
-        # Görev listesi
+        # GÃ¶rev listesi
         self.ui_elements['list'] = Entity(
             model='quad',
             scale=(0.35, 0.2),
@@ -3972,9 +3972,9 @@ class MissionSystem:
     def update_mission_ui(self):
         if self.current_mission:
             level = self.levels[self.current_level - 1]
-            mission = level['missions'][0]  # İlk görevi göster
+            mission = level['missions'][0]  # Ä°lk gÃ¶revi gÃ¶ster
             
-            # Görev bilgilerini güncelle
+            # GÃ¶rev bilgilerini gÃ¼ncelle
             Text(
                 text=f"Seviye: {level['name']}",
                 position=(0.7, 0.6, -0.8),
@@ -3983,7 +3983,7 @@ class MissionSystem:
             )
             
             Text(
-                text=f"Görev: {mission['title']}",
+                text=f"GÃ¶rev: {mission['title']}",
                 position=(0.7, 0.5, -0.8),
                 scale=1.2,
                 parent=self.ui_elements['panel']
@@ -4006,7 +4006,7 @@ class MissionSystem:
                     completed &= player['company'] is not None
                 elif req == 'initial_capital':
                     completed &= player['money'] >= value
-                # Diğer gereksinimler için kontroller...
+                # DiÄŸer gereksinimler iÃ§in kontroller...
                 
             if completed:
                 self.complete_mission()
@@ -4020,10 +4020,10 @@ class MissionSystem:
             player['money'] += rewards.get('money', 0)
             player['experience']['current_xp'] += rewards.get('experience', 0)
         
-        # Görev tamamlandı bildirimi
-        show_notification('📈 Görev Başarıyla Tamamlandı!', color.green)
+        # GÃ¶rev tamamlandÄ± bildirimi
+        show_notification('ðŸ“ˆ GÃ¶rev BaÅŸarÄ±yla TamamlandÄ±!', color.green)
         
-        # Yeni görev atama
+        # Yeni gÃ¶rev atama
         self.assign_next_mission()
         
     def assign_next_mission(self):
@@ -4031,22 +4031,22 @@ class MissionSystem:
         if len(level['missions']) > 1:
             self.current_mission = level['missions'][1]
         else:
-            # Seviye tamamlandı
+            # Seviye tamamlandÄ±
             self.level_up()
             
     def level_up(self):
         self.current_level += 1
         if self.current_level <= len(self.levels):
-            # Yeni seviye arka planını yükle
+            # Yeni seviye arka planÄ±nÄ± yÃ¼kle
             self.load_level_background()
-            # İlk görevi ata
+            # Ä°lk gÃ¶revi ata
             self.current_mission = self.levels[self.current_level - 1]['missions'][0]
-            show_notification(f'🎉 Seviye {self.current_level} Açıldı!', color.yellow)
+            show_notification(f'ðŸŽ‰ Seviye {self.current_level} AÃ§Ä±ldÄ±!', color.yellow)
             
     def load_level_background(self):
         level = self.levels[self.current_level - 1]
         background = level['background']
-        # Arka plan değiştirme işlemi
+        # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
 class BattleRoyaleMode:
@@ -4064,23 +4064,23 @@ class BattleRoyaleMode:
         self.invoke = application.base.sequence
         self.player = None
         
-        # Yeni öznitelikler
+        # Yeni Ã¶znitelikler
         self.last_update = time.time()
         self.update_interval = 0.016  # ~60 FPS
         self.is_paused = False
         self.is_mobile = platform.system().lower() in ['android', 'ios']
-        self.ar_manager = None  # AR yöneticisi mobil platformlarda başlatılacak
+        self.ar_manager = None  # AR yÃ¶neticisi mobil platformlarda baÅŸlatÄ±lacak
         
-        # Olayları ve kartları yükle
+        # OlaylarÄ± ve kartlarÄ± yÃ¼kle
         self.load_game_data()
 
     def load_game_data(self):
-        """Oyun verilerini yükle"""
+        """Oyun verilerini yÃ¼kle"""
         self.events = self.load_events()
         self.loot_cards = self.load_loot_cards()
 
     def load_events(self):
-        """Olay verilerini yükle"""
+        """Olay verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/arena_events.json', 'r', encoding='utf-8') as f:
                 return json.load(f)['events']
@@ -4088,7 +4088,7 @@ class BattleRoyaleMode:
             return []
 
     def load_loot_cards(self):
-        """Kart verilerini yükle"""
+        """Kart verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/loot_cards.json', 'r', encoding='utf-8') as f:
                 return json.load(f)['cards']
@@ -4096,14 +4096,14 @@ class BattleRoyaleMode:
             return []
 
     def alis_yap(self):
-        """Alış işlemi yap"""
+        """AlÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
             self.player.money -= 1000
             return True
         return False
 
     def satis_yap(self):
-        """Satış işlemi yap"""
+        """SatÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
             self.player.money += 1000
             self.player.shares -= 1
@@ -4111,14 +4111,14 @@ class BattleRoyaleMode:
         return False
 
     def olay_guncelle(self):
-        """Olayları güncelle"""
+        """OlaylarÄ± gÃ¼ncelle"""
         current_time = time.time()
         for event in self.events:
             if 'start_time' in event and current_time - event['start_time'] > event.get('duration', 0):
                 self.generate_new_event()
 
     def generate_new_event(self):
-        """Yeni olay oluştur"""
+        """Yeni olay oluÅŸtur"""
         event_types = ['market_change', 'resource_discovery', 'crisis']
         new_event = {
             'type': random.choice(event_types),
@@ -4128,7 +4128,7 @@ class BattleRoyaleMode:
         self.events.append(new_event)
 
     def update(self):
-        """Oyun durumunu güncelle"""
+        """Oyun durumunu gÃ¼ncelle"""
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
             return
@@ -4137,18 +4137,18 @@ class BattleRoyaleMode:
         if self.is_paused:
             return
             
-        # Oyun güncellemeleri
+        # Oyun gÃ¼ncellemeleri
         if self.held_keys['left mouse']:
             self.alis_yap()
             
         if self.held_keys['right mouse']:
             self.satis_yap()
             
-        # AR güncellemeleri
+        # AR gÃ¼ncellemeleri
         if self.is_mobile and self.ar_manager:
             self.ar_manager.ar_nesne_guncelle()
             
-        # Olay güncellemeleri
+        # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
 
 class FastFinanceTournament:
@@ -4184,14 +4184,14 @@ class FastFinanceTournament:
 def start_game():
     app = Ursina()
     
-    # Oyun modları
+    # Oyun modlarÄ±
     battle_royale = BattleRoyaleMode()
     tournament = FastFinanceTournament()
     
-    # Ana menü
+    # Ana menÃ¼
     menu = Entity(parent=camera.ui)
     Button(text='Battle Royale Modu', scale=(0.3, 0.1), position=(0, 0.2), parent=menu)
-    Button(text='Hızlı Finans Turnuvası', scale=(0.3, 0.1), position=(0, -0.2), parent=menu)
+    Button(text='HÄ±zlÄ± Finans TurnuvasÄ±', scale=(0.3, 0.1), position=(0, -0.2), parent=menu)
     
     app.run()
 
@@ -4202,12 +4202,12 @@ def generate_player_event(player=None):
     events = [
         {
             'type': 'market_opportunity',
-            'description': 'Yeni bir yatırım fırsatı!',
+            'description': 'Yeni bir yatÄ±rÄ±m fÄ±rsatÄ±!',
             'effect': lambda p: setattr(p, 'market_multiplier', p.market_multiplier * 1.2)
         },
         {
             'type': 'resource_discovery',
-            'description': 'Yeni kaynaklar keşfedildi!',
+            'description': 'Yeni kaynaklar keÅŸfedildi!',
             'effect': lambda p: setattr(p, 'resource_efficiency', p.resource_efficiency * 1.15)
         }
     ]
@@ -4239,8 +4239,8 @@ class FinAsisGame(Ursina):
         self.player_id = player_id
         self.game_integration = GameIntegration(player_id)
         
-        # Oyun ayarları
-        window.title = "FinAsis - Ticaretin İzinde"
+        # Oyun ayarlarÄ±
+        window.title = "FinAsis - Ticaretin Ä°zinde"
         window.borderless = False
         window.fullscreen = False
         window.exit_button.visible = False
@@ -4249,9 +4249,9 @@ class FinAsisGame(Ursina):
         self.game_state = {
             'is_paused': False,
             'current_time': time.time(),
-            'game_speed': 1.0,  # Oyun hızı çarpanı
+            'game_speed': 1.0,  # Oyun hÄ±zÄ± Ã§arpanÄ±
             'difficulty': 'normal',  # easy, normal, hard
-            'save_interval': 60,  # Otomatik kayıt aralığı
+            'save_interval': 60,  # Otomatik kayÄ±t aralÄ±ÄŸÄ±
             'last_save_time': time.time()
         }
         
@@ -4284,7 +4284,7 @@ class FinAsisGame(Ursina):
             'last_update': time.time()
         }
         
-        # Görev sistemi
+        # GÃ¶rev sistemi
         self.quest_system = {
             'active_quests': [],
             'completed_quests': [],
@@ -4293,7 +4293,7 @@ class FinAsisGame(Ursina):
             'rewards': {}
         }
         
-        # Pazar araştırması
+        # Pazar araÅŸtÄ±rmasÄ±
         self.market_research = {
             'last_research_time': time.time(),
             'research_interval': 300,  # 5 dakika
@@ -4343,7 +4343,7 @@ class FinAsisGame(Ursina):
             'swot_analysis': {}
         }
         
-        # Üretim sistemi
+        # Ãœretim sistemi
         self.production_system = {
             'factories': [],
             'production_lines': [],
@@ -4353,7 +4353,7 @@ class FinAsisGame(Ursina):
             'efficiency': 1.0
         }
         
-        # İnsan kaynakları
+        # Ä°nsan kaynaklarÄ±
         self.hr_system = {
             'personnel': {
                 'employees': [],
@@ -4412,7 +4412,7 @@ class FinAsisGame(Ursina):
             'playlist': []
         }
         
-        # Grafik ayarları
+        # Grafik ayarlarÄ±
         self.graphics_settings = {
             'quality': 'high',
             'shadows': True,
@@ -4420,7 +4420,7 @@ class FinAsisGame(Ursina):
             'effects': True
         }
         
-        # Çoklu oyuncu desteği
+        # Ã‡oklu oyuncu desteÄŸi
         self.multiplayer = {
             'is_online': False,
             'players': [],
@@ -4429,10 +4429,10 @@ class FinAsisGame(Ursina):
             'competitions': []
         }
         
-        # Başlangıç durumu
+        # BaÅŸlangÄ±Ã§ durumu
         self.initialize_game()
         
-        # Eğitim sistemi
+        # EÄŸitim sistemi
         self.training_system = {
             'employee_trainings': [],
             'management_programs': [],
@@ -4446,22 +4446,22 @@ class FinAsisGame(Ursina):
                 'basic': [
                     {'name': 'Temel Finans', 'duration': 2, 'cost': 1000, 'skill': 'finance'},
                     {'name': 'Temel Pazarlama', 'duration': 2, 'cost': 1000, 'skill': 'marketing'},
-                    {'name': 'Temel Üretim', 'duration': 2, 'cost': 1000, 'skill': 'production'}
+                    {'name': 'Temel Ãœretim', 'duration': 2, 'cost': 1000, 'skill': 'production'}
                 ],
                 'advanced': [
-                    {'name': 'İleri Finans', 'duration': 4, 'cost': 2000, 'skill': 'finance'},
-                    {'name': 'İleri Pazarlama', 'duration': 4, 'cost': 2000, 'skill': 'marketing'},
-                    {'name': 'İleri Üretim', 'duration': 4, 'cost': 2000, 'skill': 'production'}
+                    {'name': 'Ä°leri Finans', 'duration': 4, 'cost': 2000, 'skill': 'finance'},
+                    {'name': 'Ä°leri Pazarlama', 'duration': 4, 'cost': 2000, 'skill': 'marketing'},
+                    {'name': 'Ä°leri Ãœretim', 'duration': 4, 'cost': 2000, 'skill': 'production'}
                 ],
                 'management': [
-                    {'name': 'Liderlik Eğitimi', 'duration': 6, 'cost': 3000, 'skill': 'management'},
-                    {'name': 'Stratejik Yönetim', 'duration': 6, 'cost': 3000, 'skill': 'management'},
-                    {'name': 'Proje Yönetimi', 'duration': 6, 'cost': 3000, 'skill': 'management'}
+                    {'name': 'Liderlik EÄŸitimi', 'duration': 6, 'cost': 3000, 'skill': 'management'},
+                    {'name': 'Stratejik YÃ¶netim', 'duration': 6, 'cost': 3000, 'skill': 'management'},
+                    {'name': 'Proje YÃ¶netimi', 'duration': 6, 'cost': 3000, 'skill': 'management'}
                 ]
             }
         }
         
-        # Eğitim paneli
+        # EÄŸitim paneli
         self.training_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4470,7 +4470,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Kalite yönetim sistemi
+        # Kalite yÃ¶netim sistemi
         self.quality_system = {
             'iso_standards': {
                 'iso9001': False,
@@ -4507,7 +4507,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Sürdürülebilirlik sistemi
+        # SÃ¼rdÃ¼rÃ¼lebilirlik sistemi
         self.sustainability_system = {
             'environmental_impact': {
                 'carbon_footprint': 1000,  # kg CO2
@@ -4540,7 +4540,7 @@ class FinAsisGame(Ursina):
             }
         }
         
-        # Sürdürülebilirlik paneli
+        # SÃ¼rdÃ¼rÃ¼lebilirlik paneli
         self.sustainability_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4549,7 +4549,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Kriz yönetim sistemi
+        # Kriz yÃ¶netim sistemi
         self.crisis_system = {
             'risk_assessment': {
                 'financial_risks': [],
@@ -4589,7 +4589,7 @@ class FinAsisGame(Ursina):
             }
         }
         
-        # Kriz yönetim paneli
+        # Kriz yÃ¶netim paneli
         self.crisis_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4598,7 +4598,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Uluslararası ticaret sistemi
+        # UluslararasÄ± ticaret sistemi
         self.international_trade = {
             'exchange_rates': {
                 'USD': 1.0,
@@ -4629,7 +4629,7 @@ class FinAsisGame(Ursina):
             }
         }
         
-        # Uluslararası ticaret paneli
+        # UluslararasÄ± ticaret paneli
         self.international_trade_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4638,7 +4638,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Dijital dönüşüm sistemi
+        # Dijital dÃ¶nÃ¼ÅŸÃ¼m sistemi
         self.digital_transformation = {
             'artificial_intelligence': {
                 'models': [],
@@ -4666,7 +4666,7 @@ class FinAsisGame(Ursina):
             }
         }
         
-        # Dijital dönüşüm paneli
+        # Dijital dÃ¶nÃ¼ÅŸÃ¼m paneli
         self.digital_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4675,7 +4675,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # İnovasyon yönetim sistemi
+        # Ä°novasyon yÃ¶netim sistemi
         self.innovation_system = {
             'idea_management': {
                 'ideas': [],
@@ -4703,7 +4703,7 @@ class FinAsisGame(Ursina):
             }
         }
         
-        # İnovasyon yönetim paneli
+        # Ä°novasyon yÃ¶netim paneli
         self.innovation_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4749,7 +4749,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Tedarik zinciri yönetim sistemi
+        # Tedarik zinciri yÃ¶netim sistemi
         self.scm_system = {
             'suppliers': {
                 'active_suppliers': [],
@@ -4786,7 +4786,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Proje yönetim sistemi
+        # Proje yÃ¶netim sistemi
         self.pm_system = {
             'projects': {
                 'active_projects': [],
@@ -4873,11 +4873,11 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Sağlık yönetim sistemi
+        # SaÄŸlÄ±k yÃ¶netim sistemi
         self.health_system = {
-            'player_age': 18,  # Varsayılan yaş
-            'play_time': 0,    # Toplam oyun süresi (saniye)
-            'break_time': 0,   # Toplam mola süresi (saniye)
+            'player_age': 18,  # VarsayÄ±lan yaÅŸ
+            'play_time': 0,    # Toplam oyun sÃ¼resi (saniye)
+            'break_time': 0,   # Toplam mola sÃ¼resi (saniye)
             'last_break': time.time(),
             'health_tips': [],
             'recommended_play_time': 7200,  # 2 saat
@@ -4885,7 +4885,7 @@ class FinAsisGame(Ursina):
             'break_duration': 300  # 5 dakika
         }
         
-        # Sağlık paneli
+        # SaÄŸlÄ±k paneli
         self.health_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -4904,24 +4904,24 @@ class FinAsisGame(Ursina):
             'exercise_types': {
                 'stretching': [
                     "Boyun esnetme",
-                    "Omuz çevirme",
+                    "Omuz Ã§evirme",
                     "Kol esnetme",
-                    "Bel döndürme",
+                    "Bel dÃ¶ndÃ¼rme",
                     "Bacak esnetme"
                 ],
                 'strength': [
-                    "Şınav",
+                    "ÅžÄ±nav",
                     "Mekik",
                     "Squat",
                     "Plank",
                     "Lunge"
                 ],
                 'cardio': [
-                    "Yerinde koşu",
-                    "Zıplama",
-                    "Merdiven çıkma",
+                    "Yerinde koÅŸu",
+                    "ZÄ±plama",
+                    "Merdiven Ã§Ä±kma",
                     "Dans etme",
-                    "İp atlama"
+                    "Ä°p atlama"
                 ]
             }
         }
@@ -4936,28 +4936,28 @@ class FinAsisGame(Ursina):
         )
         
     def initialize_game(self):
-        """Oyunu başlatır ve başlangıç durumunu ayarlar"""
-        # Başlangıç görevlerini yükle
+        """Oyunu baÅŸlatÄ±r ve baÅŸlangÄ±Ã§ durumunu ayarlar"""
+        # BaÅŸlangÄ±Ã§ gÃ¶revlerini yÃ¼kle
         self.load_initial_quests()
         
-        # Başlangıç binalarını oluştur
+        # BaÅŸlangÄ±Ã§ binalarÄ±nÄ± oluÅŸtur
         self.create_initial_buildings()
         
-        # Başlangıç çalışanlarını işe al
+        # BaÅŸlangÄ±Ã§ Ã§alÄ±ÅŸanlarÄ±nÄ± iÅŸe al
         self.hire_initial_employees()
         
-        # Pazar verilerini başlat
+        # Pazar verilerini baÅŸlat
         self.initialize_market_data()
         
-        # Finansal durumu başlat
+        # Finansal durumu baÅŸlat
         self.initialize_financial_state()
         
-        # Stratejik planı oluştur
+        # Stratejik planÄ± oluÅŸtur
         self.create_initial_strategic_plan()
         
     def create_ui(self):
-        """UI elementlerini oluşturur"""
-        # Ana menü
+        """UI elementlerini oluÅŸturur"""
+        # Ana menÃ¼
         self.main_menu = Entity(
             model='quad',
             texture='white_cube',
@@ -4966,7 +4966,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.8)
         )
         
-        # Pazar araştırması paneli
+        # Pazar araÅŸtÄ±rmasÄ± paneli
         self.market_research_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -5002,7 +5002,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # Üretim paneli
+        # Ãœretim paneli
         self.production_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -5011,7 +5011,7 @@ class FinAsisGame(Ursina):
             color=color.rgba(0, 0, 0, 0.7)
         )
         
-        # İK paneli
+        # Ä°K paneli
         self.hr_panel = Entity(
             model='quad',
             texture='white_cube',
@@ -5070,15 +5070,15 @@ class FinAsisGame(Ursina):
         )
         
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         current_time = time.time()
         
-        # Oyun hızı kontrolü
+        # Oyun hÄ±zÄ± kontrolÃ¼
         if not self.game_state['is_paused']:
             time_delta = (current_time - self.game_state['current_time']) * self.game_state['game_speed']
             self.game_state['current_time'] = current_time
             
-            # Sistem güncellemeleri
+            # Sistem gÃ¼ncellemeleri
             self.update_market_research()
             self.update_competition_analysis()
             self.update_financial_reports()
@@ -5090,62 +5090,62 @@ class FinAsisGame(Ursina):
             self.update_economy()
             self.update_quest_system()
             
-            # Otomatik kayıt
+            # Otomatik kayÄ±t
             if current_time - self.game_state['last_save_time'] >= self.game_state['save_interval']:
                 self.save_game()
                 self.game_state['last_save_time'] = current_time
             
-            # UI güncelleme
+            # UI gÃ¼ncelleme
             self.update_ui()
             
-            # Bildirim kontrolü
+            # Bildirim kontrolÃ¼
             self.check_notifications()
             
-            # Çoklu oyuncu güncelleme
+            # Ã‡oklu oyuncu gÃ¼ncelleme
             if self.multiplayer['is_online']:
                 self.update_multiplayer()
                 
-            # Eğitim sistemi güncellemesi
+            # EÄŸitim sistemi gÃ¼ncellemesi
             self.update_training_system()
             
-            # Kalite sistemi güncellemesi
+            # Kalite sistemi gÃ¼ncellemesi
             self.update_quality_system()
             
-            # Sürdürülebilirlik sistemi güncellemesi
+            # SÃ¼rdÃ¼rÃ¼lebilirlik sistemi gÃ¼ncellemesi
             self.update_sustainability_system()
             
-            # Kriz yönetim sistemi güncellemesi
+            # Kriz yÃ¶netim sistemi gÃ¼ncellemesi
             self.update_crisis_system()
             
-            # Uluslararası ticaret sistemi güncellemesi
+            # UluslararasÄ± ticaret sistemi gÃ¼ncellemesi
             self.update_international_trade()
             
-            # Dijital dönüşüm sistemi güncellemesi
+            # Dijital dÃ¶nÃ¼ÅŸÃ¼m sistemi gÃ¼ncellemesi
             self.update_digital_transformation()
             
-            # İnovasyon yönetim sistemi güncellemesi
+            # Ä°novasyon yÃ¶netim sistemi gÃ¼ncellemesi
             self.update_innovation_system()
             
-            # CRM sistemi güncellemesi
+            # CRM sistemi gÃ¼ncellemesi
             self.update_crm_system()
             
-            # Tedarik zinciri yönetim sistemi güncellemesi
+            # Tedarik zinciri yÃ¶netim sistemi gÃ¼ncellemesi
             self.update_scm_system()
             
-            # PM sistemi güncellemesi
+            # PM sistemi gÃ¼ncellemesi
             self.update_pm_system()
             
-            # FR sistemi güncellemesi
+            # FR sistemi gÃ¼ncellemesi
             self.update_fr_system()
             
-            # Sağlık sistemi güncellemesi
+            # SaÄŸlÄ±k sistemi gÃ¼ncellemesi
             self.update_health_system()
             
-            # Egzersiz sistemi güncellemesi
+            # Egzersiz sistemi gÃ¼ncellemesi
             self.update_exercise_system()
             
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # Oyun kontrolleri
         if key == 'escape':
             self.toggle_pause()
@@ -5170,37 +5170,37 @@ class FinAsisGame(Ursina):
         elif key == 'd':
             self.show_rnd_panel()
             
-        # Çoklu oyuncu kontrolleri
+        # Ã‡oklu oyuncu kontrolleri
         if key == 't':
             self.initiate_trade()
         elif key == 'a':
             self.propose_alliance()
             
-        # Eğitim sistemi kontrolleri
+        # EÄŸitim sistemi kontrolleri
         if key == 'e':
             self.show_training_panel()
             
-        # Kalite yönetimi kontrolleri
+        # Kalite yÃ¶netimi kontrolleri
         if key == 'q':
             self.show_quality_panel()
             
-        # Sürdürülebilirlik kontrolleri
+        # SÃ¼rdÃ¼rÃ¼lebilirlik kontrolleri
         if key == 's':
             self.show_sustainability_panel()
             
-        # Kriz yönetimi kontrolleri
+        # Kriz yÃ¶netimi kontrolleri
         if key == 'k':
             self.show_crisis_panel()
             
-        # Uluslararası ticaret kontrolleri
+        # UluslararasÄ± ticaret kontrolleri
         if key == 'u':
             self.show_international_trade_panel()
             
-        # Dijital dönüşüm kontrolleri
+        # Dijital dÃ¶nÃ¼ÅŸÃ¼m kontrolleri
         if key == 'd':
             self.show_digital_panel()
             
-        # İnovasyon yönetimi kontrolleri
+        # Ä°novasyon yÃ¶netimi kontrolleri
         if key == 'i':
             self.show_innovation_panel()
             
@@ -5220,7 +5220,7 @@ class FinAsisGame(Ursina):
         if key == 'f':
             self.show_fr_panel()
             
-        # Sağlık kontrolleri
+        # SaÄŸlÄ±k kontrolleri
         if key == 'h':
             self.show_health_panel()
             
@@ -5229,20 +5229,20 @@ class FinAsisGame(Ursina):
             self.show_exercise_panel()
             
     def toggle_pause(self):
-        """Oyunu duraklatır/devam ettirir"""
+        """Oyunu duraklatÄ±r/devam ettirir"""
         self.game_state['is_paused'] = not self.game_state['is_paused']
-        self.show_notification("Oyun " + ("duraklatıldı" if self.game_state['is_paused'] else "devam ediyor"))
+        self.show_notification("Oyun " + ("duraklatÄ±ldÄ±" if self.game_state['is_paused'] else "devam ediyor"))
         
     def toggle_game_speed(self):
-        """Oyun hızını değiştirir"""
+        """Oyun hÄ±zÄ±nÄ± deÄŸiÅŸtirir"""
         speeds = [0.5, 1.0, 2.0, 4.0]
         current_index = speeds.index(self.game_state['game_speed'])
         next_index = (current_index + 1) % len(speeds)
         self.game_state['game_speed'] = speeds[next_index]
-        self.show_notification(f"Oyun hızı: {self.game_state['game_speed']}x")
+        self.show_notification(f"Oyun hÄ±zÄ±: {self.game_state['game_speed']}x")
         
     def show_notification(self, message, duration=3):
-        """Bildirim gösterir"""
+        """Bildirim gÃ¶sterir"""
         self.notification_system['messages'].append({
             'text': message,
             'time': time.time(),
@@ -5279,15 +5279,15 @@ class FinAsisGame(Ursina):
                 json.dump(save_data, f)
             self.show_notification("Oyun kaydedildi")
         except Exception as e:
-            self.show_notification(f"Kayıt hatası: {str(e)}", color.red)
+            self.show_notification(f"KayÄ±t hatasÄ±: {str(e)}", color.red)
             
     def load_game(self):
-        """Kaydedilmiş oyunu yükler"""
+        """KaydedilmiÅŸ oyunu yÃ¼kler"""
         try:
             with open(f'save_{self.player_id}.json', 'r') as f:
                 save_data = json.load(f)
                 
-            # Verileri yükle
+            # Verileri yÃ¼kle
             self.player_data = save_data['player_data']
             self.game_state = save_data['game_state']
             self.economy = save_data['economy']
@@ -5301,43 +5301,43 @@ class FinAsisGame(Ursina):
             self.marketing_system = save_data['marketing_system']
             self.rnd_system = save_data['rnd_system']
             
-            self.show_notification("Oyun yüklendi")
+            self.show_notification("Oyun yÃ¼klendi")
         except Exception as e:
-            self.show_notification(f"Yükleme hatası: {str(e)}", color.red)
+            self.show_notification(f"YÃ¼kleme hatasÄ±: {str(e)}", color.red)
             
     def update_training_system(self):
-        """Eğitim sistemini günceller"""
+        """EÄŸitim sistemini gÃ¼nceller"""
         current_time = time.time()
         if current_time - self.training_system['last_training_update'] >= self.training_system['training_interval']:
-            # Eğitimleri kontrol et
+            # EÄŸitimleri kontrol et
             self.check_training_completion()
             
-            # Yeni eğitim fırsatları oluştur
+            # Yeni eÄŸitim fÄ±rsatlarÄ± oluÅŸtur
             self.generate_training_opportunities()
             
-            # Eğitim bütçesini güncelle
+            # EÄŸitim bÃ¼tÃ§esini gÃ¼ncelle
             self.update_training_budget()
             
             self.training_system['last_training_update'] = current_time
             
     def check_training_completion(self):
-        """Tamamlanan eğitimleri kontrol eder"""
+        """Tamamlanan eÄŸitimleri kontrol eder"""
         for training in self.training_system['employee_trainings'][:]:
             if current_time - training['start_time'] >= training['duration'] * 3600:
-                # Eğitimi tamamla
+                # EÄŸitimi tamamla
                 self.complete_training(training)
                 self.training_system['employee_trainings'].remove(training)
                 
     def complete_training(self, training):
-        """Eğitimi tamamlar ve ödülleri verir"""
+        """EÄŸitimi tamamlar ve Ã¶dÃ¼lleri verir"""
         employee = training['employee']
         course = training['course']
         
-        # Beceri artışı
+        # Beceri artÄ±ÅŸÄ±
         skill_increase = random.uniform(0.1, 0.3)
         employee['skills'][course['skill']] = min(10, employee['skills'][course['skill']] + skill_increase)
         
-        # Sertifika kontrolü
+        # Sertifika kontrolÃ¼
         if course['level'] == 'advanced' and random.random() < 0.7:
             self.training_system['certifications'].append({
                 'employee': employee['id'],
@@ -5345,14 +5345,14 @@ class FinAsisGame(Ursina):
                 'date': time.time()
             })
             
-        # Bildirim göster
-        self.show_notification(f"{employee['name']} {course['name']} eğitimini tamamladı!")
+        # Bildirim gÃ¶ster
+        self.show_notification(f"{employee['name']} {course['name']} eÄŸitimini tamamladÄ±!")
         
     def generate_training_opportunities(self):
-        """Yeni eğitim fırsatları oluşturur"""
-        # Çalışanlar için eğitim fırsatları
+        """Yeni eÄŸitim fÄ±rsatlarÄ± oluÅŸturur"""
+        # Ã‡alÄ±ÅŸanlar iÃ§in eÄŸitim fÄ±rsatlarÄ±
         for employee in self.hr_system['personnel']['employees']:
-            if random.random() < 0.3:  # %30 şans
+            if random.random() < 0.3:  # %30 ÅŸans
                 available_courses = self.get_available_courses(employee)
                 if available_courses:
                     course = random.choice(available_courses)
@@ -5364,42 +5364,42 @@ class FinAsisGame(Ursina):
                     })
                     
     def get_available_courses(self, employee):
-        """Çalışan için uygun kursları döndürür"""
+        """Ã‡alÄ±ÅŸan iÃ§in uygun kurslarÄ± dÃ¶ndÃ¼rÃ¼r"""
         available = []
         for level, courses in self.training_system['available_courses'].items():
             for course in courses:
-                if employee['skills'][course['skill']] < 8:  # Beceri 8'den düşükse
+                if employee['skills'][course['skill']] < 8:  # Beceri 8'den dÃ¼ÅŸÃ¼kse
                     available.append(course)
         return available
         
     def update_training_budget(self):
-        """Eğitim bütçesini günceller"""
-        # Bütçenin %5'i eğitim için ayrılır
+        """EÄŸitim bÃ¼tÃ§esini gÃ¼nceller"""
+        # BÃ¼tÃ§enin %5'i eÄŸitim iÃ§in ayrÄ±lÄ±r
         self.training_system['training_budget'] = self.player_data['balance'] * 0.05
         
     def show_training_panel(self):
-        """Eğitim panelini gösterir"""
+        """EÄŸitim panelini gÃ¶sterir"""
         self.training_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.training_panel,
-            text='Eğitim Sistemi',
+            text='EÄŸitim Sistemi',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Eğitim bütçesi
+        # EÄŸitim bÃ¼tÃ§esi
         Text(
             parent=self.training_panel,
-            text=f"Eğitim Bütçesi: ${self.training_system['training_budget']:,.2f}",
+            text=f"EÄŸitim BÃ¼tÃ§esi: ${self.training_system['training_budget']:,.2f}",
             position=(0, 0.05),
             scale=1.2,
             color=color.green
         )
         
-        # Devam eden eğitimler
+        # Devam eden eÄŸitimler
         y_pos = -0.05
         for training in self.training_system['employee_trainings']:
             progress = (time.time() - training['start_time']) / (training['duration'] * 3600)
@@ -5413,41 +5413,41 @@ class FinAsisGame(Ursina):
             y_pos -= 0.05
 
     def update_quality_system(self):
-        """Kalite sistemini günceller"""
+        """Kalite sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Denetim kontrolü
+        # Denetim kontrolÃ¼
         if current_time - self.quality_system['quality_control']['last_audit'] >= self.quality_system['quality_control']['audit_interval']:
             self.perform_quality_audit()
             self.quality_system['quality_control']['last_audit'] = current_time
             
-        # Müşteri memnuniyeti anketi
+        # MÃ¼ÅŸteri memnuniyeti anketi
         if current_time - self.quality_system['customer_satisfaction']['last_survey'] >= self.quality_system['customer_satisfaction']['survey_interval']:
             self.perform_customer_survey()
             self.quality_system['customer_satisfaction']['last_survey'] = current_time
             
-        # Sürekli iyileştirme gözden geçirmesi
+        # SÃ¼rekli iyileÅŸtirme gÃ¶zden geÃ§irmesi
         if current_time - self.quality_system['continuous_improvement']['last_review'] >= self.quality_system['continuous_improvement']['review_interval']:
             self.review_improvement_projects()
             self.quality_system['continuous_improvement']['last_review'] = current_time
             
     def perform_quality_audit(self):
         """Kalite denetimi yapar"""
-        # Hata oranını kontrol et
+        # Hata oranÄ±nÄ± kontrol et
         defect_rate = self.quality_system['quality_control']['defect_rate']
         
-        # ISO standartlarına uygunluk kontrolü
+        # ISO standartlarÄ±na uygunluk kontrolÃ¼
         for standard in self.quality_system['iso_standards']:
             if not self.quality_system['iso_standards'][standard]:
-                if random.random() < 0.3:  # %30 şans
+                if random.random() < 0.3:  # %30 ÅŸans
                     self.quality_system['iso_standards'][standard] = True
-                    self.show_notification(f"{standard} sertifikası alındı!")
+                    self.show_notification(f"{standard} sertifikasÄ± alÄ±ndÄ±!")
                     
-        # Kalite metriklerini güncelle
+        # Kalite metriklerini gÃ¼ncelle
         self.update_quality_metrics()
         
     def perform_customer_survey(self):
-        """Müşteri memnuniyeti anketi yapar"""
+        """MÃ¼ÅŸteri memnuniyeti anketi yapar"""
         # Yeni geri bildirimler topla
         new_feedback = {
             'product_quality': random.uniform(0.7, 1.0),
@@ -5458,46 +5458,46 @@ class FinAsisGame(Ursina):
         
         self.quality_system['customer_satisfaction']['feedback'].append(new_feedback)
         
-        # Memnuniyet skorunu güncelle
+        # Memnuniyet skorunu gÃ¼ncelle
         total_score = sum(f['product_quality'] + f['service_quality'] + f['delivery_time'] + f['price_value'] 
                          for f in self.quality_system['customer_satisfaction']['feedback'])
         feedback_count = len(self.quality_system['customer_satisfaction']['feedback'])
         self.quality_system['customer_satisfaction']['score'] = total_score / (feedback_count * 4)
         
     def review_improvement_projects(self):
-        """İyileştirme projelerini gözden geçirir"""
+        """Ä°yileÅŸtirme projelerini gÃ¶zden geÃ§irir"""
         # Tamamlanan projeleri kontrol et
         for project in self.quality_system['continuous_improvement']['projects'][:]:
-            if project['status'] == 'in_progress' and random.random() < 0.2:  # %20 şans
+            if project['status'] == 'in_progress' and random.random() < 0.2:  # %20 ÅŸans
                 project['status'] = 'completed'
                 self.apply_improvement_results(project)
                 
-        # Yeni projeler oluştur
-        if random.random() < 0.3:  # %30 şans
+        # Yeni projeler oluÅŸtur
+        if random.random() < 0.3:  # %30 ÅŸans
             self.create_new_improvement_project()
             
     def apply_improvement_results(self, project):
-        """İyileştirme sonuçlarını uygular"""
+        """Ä°yileÅŸtirme sonuÃ§larÄ±nÄ± uygular"""
         if project['type'] == 'process':
-            # Süreç verimliliğini artır
+            # SÃ¼reÃ§ verimliliÄŸini artÄ±r
             self.production_system['efficiency'] *= 1.1
         elif project['type'] == 'quality':
-            # Hata oranını düşür
+            # Hata oranÄ±nÄ± dÃ¼ÅŸÃ¼r
             self.quality_system['quality_control']['defect_rate'] *= 0.9
         elif project['type'] == 'customer':
-            # Müşteri memnuniyetini artır
+            # MÃ¼ÅŸteri memnuniyetini artÄ±r
             self.quality_system['customer_satisfaction']['score'] = min(1.0, 
                 self.quality_system['customer_satisfaction']['score'] * 1.05)
                 
-        self.show_notification(f"{project['name']} iyileştirme projesi tamamlandı!")
+        self.show_notification(f"{project['name']} iyileÅŸtirme projesi tamamlandÄ±!")
         
     def create_new_improvement_project(self):
-        """Yeni iyileştirme projesi oluşturur"""
+        """Yeni iyileÅŸtirme projesi oluÅŸturur"""
         project_types = ['process', 'quality', 'customer']
         project_type = random.choice(project_types)
         
         new_project = {
-            'name': f"{project_type.capitalize()} İyileştirme Projesi",
+            'name': f"{project_type.capitalize()} Ä°yileÅŸtirme Projesi",
             'type': project_type,
             'status': 'in_progress',
             'start_time': time.time(),
@@ -5507,91 +5507,91 @@ class FinAsisGame(Ursina):
         self.quality_system['continuous_improvement']['projects'].append(new_project)
         
     def show_quality_panel(self):
-        """Kalite panelini gösterir"""
+        """Kalite panelini gÃ¶sterir"""
         self.quality_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.quality_panel,
-            text='Kalite Yönetimi',
+            text='Kalite YÃ¶netimi',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # ISO standartları
+        # ISO standartlarÄ±
         y_pos = 0.05
         for standard, certified in self.quality_system['iso_standards'].items():
             Text(
                 parent=self.quality_panel,
-                text=f"{standard}: {'✓' if certified else '✗'}",
+                text=f"{standard}: {'âœ“' if certified else 'âœ—'}",
                 position=(0, y_pos),
                 scale=1.2,
                 color=color.green if certified else color.red
             )
             y_pos -= 0.05
             
-        # Müşteri memnuniyeti
+        # MÃ¼ÅŸteri memnuniyeti
         Text(
             parent=self.quality_panel,
-            text=f"Müşteri Memnuniyeti: %{self.quality_system['customer_satisfaction']['score']*100:.0f}",
+            text=f"MÃ¼ÅŸteri Memnuniyeti: %{self.quality_system['customer_satisfaction']['score']*100:.0f}",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
         )
         y_pos -= 0.05
         
-        # Hata oranı
+        # Hata oranÄ±
         Text(
             parent=self.quality_panel,
-            text=f"Hata Oranı: %{self.quality_system['quality_control']['defect_rate']*100:.1f}",
+            text=f"Hata OranÄ±: %{self.quality_system['quality_control']['defect_rate']*100:.1f}",
             position=(0, y_pos),
             scale=1.2,
             color=color.red
         )
         
     def update_sustainability_system(self):
-        """Sürdürülebilirlik sistemini günceller"""
+        """SÃ¼rdÃ¼rÃ¼lebilirlik sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Çevresel etki ölçümü
+        # Ã‡evresel etki Ã¶lÃ§Ã¼mÃ¼
         if current_time - self.sustainability_system['environmental_impact']['last_measurement'] >= self.sustainability_system['environmental_impact']['measurement_interval']:
             self.measure_environmental_impact()
             self.sustainability_system['environmental_impact']['last_measurement'] = current_time
             
-        # Sosyal sorumluluk değerlendirmesi
+        # Sosyal sorumluluk deÄŸerlendirmesi
         if current_time - self.sustainability_system['social_responsibility']['last_assessment'] >= self.sustainability_system['social_responsibility']['assessment_interval']:
             self.assess_social_responsibility()
             self.sustainability_system['social_responsibility']['last_assessment'] = current_time
             
-        # Enerji verimliliği denetimi
+        # Enerji verimliliÄŸi denetimi
         if current_time - self.sustainability_system['energy_efficiency']['last_audit'] >= self.sustainability_system['energy_efficiency']['audit_interval']:
             self.audit_energy_efficiency()
             self.sustainability_system['energy_efficiency']['last_audit'] = current_time
             
-        # Atık yönetimi gözden geçirmesi
+        # AtÄ±k yÃ¶netimi gÃ¶zden geÃ§irmesi
         if current_time - self.sustainability_system['waste_management']['last_review'] >= self.sustainability_system['waste_management']['review_interval']:
             self.review_waste_management()
             self.sustainability_system['waste_management']['last_review'] = current_time
             
     def measure_environmental_impact(self):
-        """Çevresel etkiyi ölçer"""
+        """Ã‡evresel etkiyi Ã¶lÃ§er"""
         # Karbon ayak izi
         self.sustainability_system['environmental_impact']['carbon_footprint'] *= random.uniform(0.95, 1.05)
         
-        # Enerji tüketimi
+        # Enerji tÃ¼ketimi
         self.sustainability_system['environmental_impact']['energy_consumption'] *= random.uniform(0.95, 1.05)
         
-        # Su kullanımı
+        # Su kullanÄ±mÄ±
         self.sustainability_system['environmental_impact']['water_usage'] *= random.uniform(0.95, 1.05)
         
-        # Atık üretimi
+        # AtÄ±k Ã¼retimi
         self.sustainability_system['environmental_impact']['waste_generated'] *= random.uniform(0.95, 1.05)
         
     def assess_social_responsibility(self):
-        """Sosyal sorumluluğu değerlendirir"""
+        """Sosyal sorumluluÄŸu deÄŸerlendirir"""
         # Topluluk projeleri
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_project = {
                 'name': f"Topluluk Projesi {len(self.sustainability_system['social_responsibility']['community_projects']) + 1}",
                 'impact': random.uniform(0.1, 0.3),
@@ -5599,18 +5599,18 @@ class FinAsisGame(Ursina):
             }
             self.sustainability_system['social_responsibility']['community_projects'].append(new_project)
             
-        # Çalışan refahı
+        # Ã‡alÄ±ÅŸan refahÄ±
         self.sustainability_system['social_responsibility']['employee_wellbeing'] = min(1.0,
             self.sustainability_system['social_responsibility']['employee_wellbeing'] * random.uniform(1.0, 1.05))
             
-        # Çeşitlilik skoru
+        # Ã‡eÅŸitlilik skoru
         self.sustainability_system['social_responsibility']['diversity_score'] = min(1.0,
             self.sustainability_system['social_responsibility']['diversity_score'] * random.uniform(1.0, 1.05))
             
     def audit_energy_efficiency(self):
-        """Enerji verimliliğini denetler"""
-        # Yenilenebilir enerji oranı
-        if random.random() < 0.3:  # %30 şans
+        """Enerji verimliliÄŸini denetler"""
+        # Yenilenebilir enerji oranÄ±
+        if random.random() < 0.3:  # %30 ÅŸans
             self.sustainability_system['energy_efficiency']['renewable_energy_ratio'] = min(1.0,
                 self.sustainability_system['energy_efficiency']['renewable_energy_ratio'] * 1.1)
                 
@@ -5618,51 +5618,51 @@ class FinAsisGame(Ursina):
         self.sustainability_system['energy_efficiency']['energy_savings'] += random.uniform(0.1, 0.5)
         
         # Verimlilik projeleri
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_project = {
-                'name': f"Enerji Verimliliği Projesi {len(self.sustainability_system['energy_efficiency']['efficiency_projects']) + 1}",
+                'name': f"Enerji VerimliliÄŸi Projesi {len(self.sustainability_system['energy_efficiency']['efficiency_projects']) + 1}",
                 'savings': random.uniform(0.1, 0.3),
                 'completion_time': random.randint(3600, 7200)  # 1-2 saat
             }
             self.sustainability_system['energy_efficiency']['efficiency_projects'].append(new_project)
             
     def review_waste_management(self):
-        """Atık yönetimini gözden geçirir"""
-        # Geri dönüşüm oranı
-        if random.random() < 0.3:  # %30 şans
+        """AtÄ±k yÃ¶netimini gÃ¶zden geÃ§irir"""
+        # Geri dÃ¶nÃ¼ÅŸÃ¼m oranÄ±
+        if random.random() < 0.3:  # %30 ÅŸans
             self.sustainability_system['waste_management']['recycling_rate'] = min(1.0,
                 self.sustainability_system['waste_management']['recycling_rate'] * 1.1)
                 
-        # Atık azaltma
+        # AtÄ±k azaltma
         self.sustainability_system['waste_management']['waste_reduction'] += random.uniform(0.1, 0.5)
         
-        # Atık projeleri
-        if random.random() < 0.2:  # %20 şans
+        # AtÄ±k projeleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_project = {
-                'name': f"Atık Yönetimi Projesi {len(self.sustainability_system['waste_management']['waste_projects']) + 1}",
+                'name': f"AtÄ±k YÃ¶netimi Projesi {len(self.sustainability_system['waste_management']['waste_projects']) + 1}",
                 'reduction': random.uniform(0.1, 0.3),
                 'completion_time': random.randint(3600, 7200)  # 1-2 saat
             }
             self.sustainability_system['waste_management']['waste_projects'].append(new_project)
             
     def show_sustainability_panel(self):
-        """Sürdürülebilirlik panelini gösterir"""
+        """SÃ¼rdÃ¼rÃ¼lebilirlik panelini gÃ¶sterir"""
         self.sustainability_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.sustainability_panel,
-            text='Sürdürülebilirlik',
+            text='SÃ¼rdÃ¼rÃ¼lebilirlik',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Çevresel etki
+        # Ã‡evresel etki
         y_pos = 0.05
         Text(
             parent=self.sustainability_panel,
-            text=f"Karbon Ayak İzi: {self.sustainability_system['environmental_impact']['carbon_footprint']:.0f} kg CO2",
+            text=f"Karbon Ayak Ä°zi: {self.sustainability_system['environmental_impact']['carbon_footprint']:.0f} kg CO2",
             position=(0, y_pos),
             scale=1.2,
             color=color.red
@@ -5671,7 +5671,7 @@ class FinAsisGame(Ursina):
         
         Text(
             parent=self.sustainability_panel,
-            text=f"Enerji Tüketimi: {self.sustainability_system['environmental_impact']['energy_consumption']:.0f} kWh",
+            text=f"Enerji TÃ¼ketimi: {self.sustainability_system['environmental_impact']['energy_consumption']:.0f} kWh",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
@@ -5681,14 +5681,14 @@ class FinAsisGame(Ursina):
         # Sosyal sorumluluk
         Text(
             parent=self.sustainability_panel,
-            text=f"Çalışan Refahı: %{self.sustainability_system['social_responsibility']['employee_wellbeing']*100:.0f}",
+            text=f"Ã‡alÄ±ÅŸan RefahÄ±: %{self.sustainability_system['social_responsibility']['employee_wellbeing']*100:.0f}",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
         )
         y_pos -= 0.05
         
-        # Enerji verimliliği
+        # Enerji verimliliÄŸi
         Text(
             parent=self.sustainability_panel,
             text=f"Yenilenebilir Enerji: %{self.sustainability_system['energy_efficiency']['renewable_energy_ratio']*100:.0f}",
@@ -5698,44 +5698,44 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Atık yönetimi
+        # AtÄ±k yÃ¶netimi
         Text(
             parent=self.sustainability_panel,
-            text=f"Geri Dönüşüm Oranı: %{self.sustainability_system['waste_management']['recycling_rate']*100:.0f}",
+            text=f"Geri DÃ¶nÃ¼ÅŸÃ¼m OranÄ±: %{self.sustainability_system['waste_management']['recycling_rate']*100:.0f}",
             position=(0, y_pos),
             scale=1.2,
             color=color.orange
         )
         
     def update_crisis_system(self):
-        """Kriz yönetim sistemini günceller"""
+        """Kriz yÃ¶netim sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Risk değerlendirmesi
+        # Risk deÄŸerlendirmesi
         if current_time - self.crisis_system['risk_assessment']['last_assessment'] >= self.crisis_system['risk_assessment']['assessment_interval']:
             self.assess_risks()
             self.crisis_system['risk_assessment']['last_assessment'] = current_time
             
-        # Acil durum planları güncellemesi
+        # Acil durum planlarÄ± gÃ¼ncellemesi
         for plan_type in self.crisis_system['emergency_plans']:
             if current_time - self.crisis_system['emergency_plans'][plan_type]['last_update'] >= self.crisis_system['emergency_plans'][plan_type]['update_interval']:
                 self.update_emergency_plan(plan_type)
                 self.crisis_system['emergency_plans'][plan_type]['last_update'] = current_time
                 
-        # İş sürekliliği testi
+        # Ä°ÅŸ sÃ¼rekliliÄŸi testi
         if current_time - self.crisis_system['business_continuity']['last_test'] >= self.crisis_system['business_continuity']['test_interval']:
             self.test_business_continuity()
             self.crisis_system['business_continuity']['last_test'] = current_time
             
-        # Kriz iletişimi gözden geçirmesi
+        # Kriz iletiÅŸimi gÃ¶zden geÃ§irmesi
         if current_time - self.crisis_system['crisis_communication']['last_review'] >= self.crisis_system['crisis_communication']['review_interval']:
             self.review_crisis_communication()
             self.crisis_system['crisis_communication']['last_review'] = current_time
             
     def assess_risks(self):
-        """Riskleri değerlendirir"""
+        """Riskleri deÄŸerlendirir"""
         # Finansal riskler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_risk = {
                 'type': 'financial',
                 'severity': random.uniform(0.1, 0.5),
@@ -5745,7 +5745,7 @@ class FinAsisGame(Ursina):
             self.crisis_system['risk_assessment']['financial_risks'].append(new_risk)
             
         # Operasyonel riskler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_risk = {
                 'type': 'operational',
                 'severity': random.uniform(0.1, 0.5),
@@ -5755,7 +5755,7 @@ class FinAsisGame(Ursina):
             self.crisis_system['risk_assessment']['operational_risks'].append(new_risk)
             
         # Pazar riskleri
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_risk = {
                 'type': 'market',
                 'severity': random.uniform(0.1, 0.5),
@@ -5765,15 +5765,15 @@ class FinAsisGame(Ursina):
             self.crisis_system['risk_assessment']['market_risks'].append(new_risk)
             
     def update_emergency_plan(self, plan_type):
-        """Acil durum planını günceller"""
-        if random.random() < 0.3:  # %30 şans
+        """Acil durum planÄ±nÄ± gÃ¼nceller"""
+        if random.random() < 0.3:  # %30 ÅŸans
             self.crisis_system['emergency_plans'][plan_type]['status'] = 'updated'
-            self.show_notification(f"{plan_type.replace('_', ' ').title()} acil durum planı güncellendi!")
+            self.show_notification(f"{plan_type.replace('_', ' ').title()} acil durum planÄ± gÃ¼ncellendi!")
             
     def test_business_continuity(self):
-        """İş sürekliliğini test eder"""
+        """Ä°ÅŸ sÃ¼rekliliÄŸini test eder"""
         # Yedek sistemler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_system = {
                 'name': f"Yedek Sistem {len(self.crisis_system['business_continuity']['backup_systems']) + 1}",
                 'type': random.choice(['financial', 'operational', 'technical']),
@@ -5781,49 +5781,49 @@ class FinAsisGame(Ursina):
             }
             self.crisis_system['business_continuity']['backup_systems'].append(new_system)
             
-        # Kurtarma planları
-        if random.random() < 0.2:  # %20 şans
+        # Kurtarma planlarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_plan = {
-                'name': f"Kurtarma Planı {len(self.crisis_system['business_continuity']['recovery_plans']) + 1}",
+                'name': f"Kurtarma PlanÄ± {len(self.crisis_system['business_continuity']['recovery_plans']) + 1}",
                 'scenario': random.choice(['financial_crisis', 'market_crisis', 'operational_crisis']),
                 'recovery_steps': random.randint(3, 7)
             }
             self.crisis_system['business_continuity']['recovery_plans'].append(new_plan)
             
     def review_crisis_communication(self):
-        """Kriz iletişimini gözden geçirir"""
-        # Paydaşlar
-        if random.random() < 0.2:  # %20 şans
+        """Kriz iletiÅŸimini gÃ¶zden geÃ§irir"""
+        # PaydaÅŸlar
+        if random.random() < 0.2:  # %20 ÅŸans
             new_stakeholder = {
-                'name': f"Paydaş {len(self.crisis_system['crisis_communication']['stakeholders']) + 1}",
+                'name': f"PaydaÅŸ {len(self.crisis_system['crisis_communication']['stakeholders']) + 1}",
                 'type': random.choice(['investor', 'customer', 'supplier', 'employee']),
                 'communication_channel': random.choice(['email', 'phone', 'meeting'])
             }
             self.crisis_system['crisis_communication']['stakeholders'].append(new_stakeholder)
             
-        # İletişim planları
-        if random.random() < 0.2:  # %20 şans
+        # Ä°letiÅŸim planlarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_plan = {
-                'name': f"İletişim Planı {len(self.crisis_system['crisis_communication']['communication_plans']) + 1}",
+                'name': f"Ä°letiÅŸim PlanÄ± {len(self.crisis_system['crisis_communication']['communication_plans']) + 1}",
                 'crisis_type': random.choice(['financial', 'market', 'operational']),
                 'channels': random.randint(2, 4)
             }
             self.crisis_system['crisis_communication']['communication_plans'].append(new_plan)
             
     def show_crisis_panel(self):
-        """Kriz yönetim panelini gösterir"""
+        """Kriz yÃ¶netim panelini gÃ¶sterir"""
         self.crisis_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.crisis_panel,
-            text='Kriz Yönetimi',
+            text='Kriz YÃ¶netimi',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Risk değerlendirmesi
+        # Risk deÄŸerlendirmesi
         y_pos = 0.05
         Text(
             parent=self.crisis_panel,
@@ -5843,17 +5843,17 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Acil durum planları
+        # Acil durum planlarÄ±
         Text(
             parent=self.crisis_panel,
-            text=f"Finansal Kriz Planı: {self.crisis_system['emergency_plans']['financial_crisis']['status']}",
+            text=f"Finansal Kriz PlanÄ±: {self.crisis_system['emergency_plans']['financial_crisis']['status']}",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
         )
         y_pos -= 0.05
         
-        # İş sürekliliği
+        # Ä°ÅŸ sÃ¼rekliliÄŸi
         Text(
             parent=self.crisis_panel,
             text=f"Yedek Sistemler: {len(self.crisis_system['business_continuity']['backup_systems'])}",
@@ -5863,30 +5863,30 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Kriz iletişimi
+        # Kriz iletiÅŸimi
         Text(
             parent=self.crisis_panel,
-            text=f"İletişim Planları: {len(self.crisis_system['crisis_communication']['communication_plans'])}",
+            text=f"Ä°letiÅŸim PlanlarÄ±: {len(self.crisis_system['crisis_communication']['communication_plans'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.orange
         )
         
     def update_international_trade(self):
-        """Uluslararası ticaret sistemini günceller"""
+        """UluslararasÄ± ticaret sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Döviz kurları güncellemesi
+        # DÃ¶viz kurlarÄ± gÃ¼ncellemesi
         if current_time - self.international_trade['exchange_rates']['last_update'] >= self.international_trade['exchange_rates']['update_interval']:
             self.update_exchange_rates()
             self.international_trade['exchange_rates']['last_update'] = current_time
             
-        # Gümrük süreçleri kontrolü
+        # GÃ¼mrÃ¼k sÃ¼reÃ§leri kontrolÃ¼
         if current_time - self.international_trade['customs_processes']['last_check'] >= self.international_trade['customs_processes']['check_interval']:
             self.check_customs_processes()
             self.international_trade['customs_processes']['last_check'] = current_time
             
-        # Kültürel uyum gözden geçirmesi
+        # KÃ¼ltÃ¼rel uyum gÃ¶zden geÃ§irmesi
         if current_time - self.international_trade['cultural_adaptation']['last_review'] >= self.international_trade['cultural_adaptation']['review_interval']:
             self.review_cultural_adaptation()
             self.international_trade['cultural_adaptation']['last_review'] = current_time
@@ -5897,7 +5897,7 @@ class FinAsisGame(Ursina):
             self.international_trade['supply_chain']['last_audit'] = current_time
             
     def update_exchange_rates(self):
-        """Döviz kurlarını günceller"""
+        """DÃ¶viz kurlarÄ±nÄ± gÃ¼nceller"""
         for currency in self.international_trade['exchange_rates']:
             if currency != 'last_update' and currency != 'update_interval':
                 # Kurlarda %1'e kadar dalgalanma
@@ -5905,40 +5905,40 @@ class FinAsisGame(Ursina):
                 self.international_trade['exchange_rates'][currency] *= (1 + change)
                 
     def check_customs_processes(self):
-        """Gümrük süreçlerini kontrol eder"""
-        # Gümrük belgeleri
-        if random.random() < 0.2:  # %20 şans
+        """GÃ¼mrÃ¼k sÃ¼reÃ§lerini kontrol eder"""
+        # GÃ¼mrÃ¼k belgeleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_document = {
-                'name': f"Gümrük Belgesi {len(self.international_trade['customs_processes']['documents']) + 1}",
+                'name': f"GÃ¼mrÃ¼k Belgesi {len(self.international_trade['customs_processes']['documents']) + 1}",
                 'type': random.choice(['import', 'export']),
-                'validity': random.randint(30, 90)  # 30-90 gün
+                'validity': random.randint(30, 90)  # 30-90 gÃ¼n
             }
             self.international_trade['customs_processes']['documents'].append(new_document)
             
-        # Düzenlemeler
-        if random.random() < 0.2:  # %20 şans
+        # DÃ¼zenlemeler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_regulation = {
-                'name': f"Gümrük Düzenlemesi {len(self.international_trade['customs_processes']['regulations']) + 1}",
-                'country': random.choice(['ABD', 'AB', 'Çin', 'Japonya', 'İngiltere']),
+                'name': f"GÃ¼mrÃ¼k DÃ¼zenlemesi {len(self.international_trade['customs_processes']['regulations']) + 1}",
+                'country': random.choice(['ABD', 'AB', 'Ã‡in', 'Japonya', 'Ä°ngiltere']),
                 'impact': random.uniform(0.1, 0.3)
             }
             self.international_trade['customs_processes']['regulations'].append(new_regulation)
             
     def review_cultural_adaptation(self):
-        """Kültürel uyumu gözden geçirir"""
-        # Pazar araştırması
-        if random.random() < 0.2:  # %20 şans
+        """KÃ¼ltÃ¼rel uyumu gÃ¶zden geÃ§irir"""
+        # Pazar araÅŸtÄ±rmasÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_market = {
                 'name': f"Pazar {len(self.international_trade['cultural_adaptation']['markets']) + 1}",
-                'country': random.choice(['ABD', 'AB', 'Çin', 'Japonya', 'İngiltere']),
+                'country': random.choice(['ABD', 'AB', 'Ã‡in', 'Japonya', 'Ä°ngiltere']),
                 'potential': random.uniform(0.5, 1.0)
             }
             self.international_trade['cultural_adaptation']['markets'].append(new_market)
             
-        # Yerelleştirme
-        if random.random() < 0.2:  # %20 şans
+        # YerelleÅŸtirme
+        if random.random() < 0.2:  # %20 ÅŸans
             new_localization = {
-                'name': f"Yerelleştirme {len(self.international_trade['cultural_adaptation']['localization']) + 1}",
+                'name': f"YerelleÅŸtirme {len(self.international_trade['cultural_adaptation']['localization']) + 1}",
                 'type': random.choice(['language', 'design', 'marketing']),
                 'progress': random.uniform(0.1, 0.5)
             }
@@ -5946,17 +5946,17 @@ class FinAsisGame(Ursina):
             
     def audit_supply_chain(self):
         """Tedarik zincirini denetler"""
-        # Tedarikçiler
-        if random.random() < 0.2:  # %20 şans
+        # TedarikÃ§iler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_supplier = {
-                'name': f"Tedarikçi {len(self.international_trade['supply_chain']['suppliers']) + 1}",
-                'country': random.choice(['ABD', 'AB', 'Çin', 'Japonya', 'İngiltere']),
+                'name': f"TedarikÃ§i {len(self.international_trade['supply_chain']['suppliers']) + 1}",
+                'country': random.choice(['ABD', 'AB', 'Ã‡in', 'Japonya', 'Ä°ngiltere']),
                 'reliability': random.uniform(0.7, 1.0)
             }
             self.international_trade['supply_chain']['suppliers'].append(new_supplier)
             
         # Lojistik
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_logistics = {
                 'name': f"Lojistik {len(self.international_trade['supply_chain']['logistics']) + 1}",
                 'type': random.choice(['air', 'sea', 'land']),
@@ -5965,19 +5965,19 @@ class FinAsisGame(Ursina):
             self.international_trade['supply_chain']['logistics'].append(new_logistics)
             
     def show_international_trade_panel(self):
-        """Uluslararası ticaret panelini gösterir"""
+        """UluslararasÄ± ticaret panelini gÃ¶sterir"""
         self.international_trade_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.international_trade_panel,
-            text='Uluslararası Ticaret',
+            text='UluslararasÄ± Ticaret',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Döviz kurları
+        # DÃ¶viz kurlarÄ±
         y_pos = 0.05
         Text(
             parent=self.international_trade_panel,
@@ -5997,17 +5997,17 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Gümrük süreçleri
+        # GÃ¼mrÃ¼k sÃ¼reÃ§leri
         Text(
             parent=self.international_trade_panel,
-            text=f"Gümrük Belgeleri: {len(self.international_trade['customs_processes']['documents'])}",
+            text=f"GÃ¼mrÃ¼k Belgeleri: {len(self.international_trade['customs_processes']['documents'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
         )
         y_pos -= 0.05
         
-        # Kültürel uyum
+        # KÃ¼ltÃ¼rel uyum
         Text(
             parent=self.international_trade_panel,
             text=f"Aktif Pazarlar: {len(self.international_trade['cultural_adaptation']['markets'])}",
@@ -6020,17 +6020,17 @@ class FinAsisGame(Ursina):
         # Tedarik zinciri
         Text(
             parent=self.international_trade_panel,
-            text=f"Tedarikçiler: {len(self.international_trade['supply_chain']['suppliers'])}",
+            text=f"TedarikÃ§iler: {len(self.international_trade['supply_chain']['suppliers'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.red
         )
         
     def update_digital_transformation(self):
-        """Dijital dönüşüm sistemini günceller"""
+        """Dijital dÃ¶nÃ¼ÅŸÃ¼m sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Yapay zeka güncellemesi
+        # Yapay zeka gÃ¼ncellemesi
         if current_time - self.digital_transformation['artificial_intelligence']['last_update'] >= self.digital_transformation['artificial_intelligence']['update_interval']:
             self.update_ai_systems()
             self.digital_transformation['artificial_intelligence']['last_update'] = current_time
@@ -6045,15 +6045,15 @@ class FinAsisGame(Ursina):
             self.analyze_data()
             self.digital_transformation['data_analytics']['last_analysis'] = current_time
             
-        # Siber güvenlik kontrolü
+        # Siber gÃ¼venlik kontrolÃ¼
         if current_time - self.digital_transformation['cyber_security']['last_check'] >= self.digital_transformation['cyber_security']['check_interval']:
             self.check_security()
             self.digital_transformation['cyber_security']['last_check'] = current_time
             
     def update_ai_systems(self):
-        """Yapay zeka sistemlerini günceller"""
+        """Yapay zeka sistemlerini gÃ¼nceller"""
         # AI modelleri
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_model = {
                 'name': f"AI Modeli {len(self.digital_transformation['artificial_intelligence']['models']) + 1}",
                 'type': random.choice(['classification', 'regression', 'clustering']),
@@ -6061,48 +6061,48 @@ class FinAsisGame(Ursina):
             }
             self.digital_transformation['artificial_intelligence']['models'].append(new_model)
             
-        # AI uygulamaları
-        if random.random() < 0.2:  # %20 şans
+        # AI uygulamalarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_application = {
-                'name': f"AI Uygulaması {len(self.digital_transformation['artificial_intelligence']['applications']) + 1}",
-                'department': random.choice(['finans', 'pazarlama', 'üretim', 'insan_kaynaklari']),
+                'name': f"AI UygulamasÄ± {len(self.digital_transformation['artificial_intelligence']['applications']) + 1}",
+                'department': random.choice(['finans', 'pazarlama', 'Ã¼retim', 'insan_kaynaklari']),
                 'efficiency': random.uniform(0.1, 0.3)
             }
             self.digital_transformation['artificial_intelligence']['applications'].append(new_application)
             
     def audit_automation(self):
         """Otomasyon sistemlerini denetler"""
-        # Otomatik süreçler
-        if random.random() < 0.2:  # %20 şans
+        # Otomatik sÃ¼reÃ§ler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_process = {
-                'name': f"Otomatik Süreç {len(self.digital_transformation['automation']['processes']) + 1}",
-                'type': random.choice(['iş akışı', 'raporlama', 'kontrol']),
+                'name': f"Otomatik SÃ¼reÃ§ {len(self.digital_transformation['automation']['processes']) + 1}",
+                'type': random.choice(['iÅŸ akÄ±ÅŸÄ±', 'raporlama', 'kontrol']),
                 'savings': random.uniform(0.1, 0.5)
             }
             self.digital_transformation['automation']['processes'].append(new_process)
             
         # Robotlar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_robot = {
                 'name': f"Robot {len(self.digital_transformation['automation']['robots']) + 1}",
-                'task': random.choice(['veri girişi', 'kontrol', 'analiz']),
+                'task': random.choice(['veri giriÅŸi', 'kontrol', 'analiz']),
                 'reliability': random.uniform(0.9, 1.0)
             }
             self.digital_transformation['automation']['robots'].append(new_robot)
             
     def analyze_data(self):
         """Veri analizi yapar"""
-        # Gösterge panelleri
-        if random.random() < 0.2:  # %20 şans
+        # GÃ¶sterge panelleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_dashboard = {
-                'name': f"Gösterge Paneli {len(self.digital_transformation['data_analytics']['dashboards']) + 1}",
+                'name': f"GÃ¶sterge Paneli {len(self.digital_transformation['data_analytics']['dashboards']) + 1}",
                 'metrics': random.randint(5, 15),
-                'update_frequency': random.choice(['gerçek zamanlı', 'saatlik', 'günlük'])
+                'update_frequency': random.choice(['gerÃ§ek zamanlÄ±', 'saatlik', 'gÃ¼nlÃ¼k'])
             }
             self.digital_transformation['data_analytics']['dashboards'].append(new_dashboard)
             
         # Raporlar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_report = {
                 'name': f"Rapor {len(self.digital_transformation['data_analytics']['reports']) + 1}",
                 'type': random.choice(['performans', 'trend', 'tahmin']),
@@ -6111,9 +6111,9 @@ class FinAsisGame(Ursina):
             self.digital_transformation['data_analytics']['reports'].append(new_report)
             
     def check_security(self):
-        """Siber güvenliği kontrol eder"""
+        """Siber gÃ¼venliÄŸi kontrol eder"""
         # Tehditler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_threat = {
                 'name': f"Tehdit {len(self.digital_transformation['cyber_security']['threats']) + 1}",
                 'type': random.choice(['phishing', 'malware', 'ddos']),
@@ -6122,7 +6122,7 @@ class FinAsisGame(Ursina):
             self.digital_transformation['cyber_security']['threats'].append(new_threat)
             
         # Savunmalar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_defense = {
                 'name': f"Savunma {len(self.digital_transformation['cyber_security']['defenses']) + 1}",
                 'type': random.choice(['firewall', 'antivirus', 'encryption']),
@@ -6131,13 +6131,13 @@ class FinAsisGame(Ursina):
             self.digital_transformation['cyber_security']['defenses'].append(new_defense)
             
     def show_digital_panel(self):
-        """Dijital dönüşüm panelini gösterir"""
+        """Dijital dÃ¶nÃ¼ÅŸÃ¼m panelini gÃ¶sterir"""
         self.digital_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.digital_panel,
-            text='Dijital Dönüşüm',
+            text='Dijital DÃ¶nÃ¼ÅŸÃ¼m',
             position=(0, 0.15),
             scale=2,
             color=color.white
@@ -6157,7 +6157,7 @@ class FinAsisGame(Ursina):
         # Otomasyon
         Text(
             parent=self.digital_panel,
-            text=f"Otomatik Süreçler: {len(self.digital_transformation['automation']['processes'])}",
+            text=f"Otomatik SÃ¼reÃ§ler: {len(self.digital_transformation['automation']['processes'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
@@ -6167,14 +6167,14 @@ class FinAsisGame(Ursina):
         # Veri analizi
         Text(
             parent=self.digital_panel,
-            text=f"Gösterge Panelleri: {len(self.digital_transformation['data_analytics']['dashboards'])}",
+            text=f"GÃ¶sterge Panelleri: {len(self.digital_transformation['data_analytics']['dashboards'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
         )
         y_pos -= 0.05
         
-        # Siber güvenlik
+        # Siber gÃ¼venlik
         Text(
             parent=self.digital_panel,
             text=f"Aktif Savunmalar: {len(self.digital_transformation['cyber_security']['defenses'])}",
@@ -6195,20 +6195,20 @@ class FinAsisGame(Ursina):
         )
         
     def update_innovation_system(self):
-        """İnovasyon yönetim sistemini günceller"""
+        """Ä°novasyon yÃ¶netim sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Fikir yönetimi gözden geçirmesi
+        # Fikir yÃ¶netimi gÃ¶zden geÃ§irmesi
         if current_time - self.innovation_system['idea_management']['last_review'] >= self.innovation_system['idea_management']['review_interval']:
             self.review_ideas()
             self.innovation_system['idea_management']['last_review'] = current_time
             
-        # Patent yönetimi kontrolü
+        # Patent yÃ¶netimi kontrolÃ¼
         if current_time - self.innovation_system['patent_management']['last_check'] >= self.innovation_system['patent_management']['check_interval']:
             self.check_patents()
             self.innovation_system['patent_management']['last_check'] = current_time
             
-        # Ar-Ge projeleri güncellemesi
+        # Ar-Ge projeleri gÃ¼ncellemesi
         if current_time - self.innovation_system['rnd_projects']['last_update'] >= self.innovation_system['rnd_projects']['update_interval']:
             self.update_rnd_projects()
             self.innovation_system['rnd_projects']['last_update'] = current_time
@@ -6219,49 +6219,49 @@ class FinAsisGame(Ursina):
             self.innovation_system['technology_transfer']['last_audit'] = current_time
             
     def review_ideas(self):
-        """Fikirleri gözden geçirir"""
+        """Fikirleri gÃ¶zden geÃ§irir"""
         # Yeni fikirler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_idea = {
                 'name': f"Fikir {len(self.innovation_system['idea_management']['ideas']) + 1}",
-                'category': random.choice(['ürün', 'süreç', 'hizmet', 'iş modeli']),
+                'category': random.choice(['Ã¼rÃ¼n', 'sÃ¼reÃ§', 'hizmet', 'iÅŸ modeli']),
                 'potential': random.uniform(0.1, 0.5)
             }
             self.innovation_system['idea_management']['ideas'].append(new_idea)
             
-        # Fikir değerlendirmeleri
-        if random.random() < 0.2:  # %20 şans
+        # Fikir deÄŸerlendirmeleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_evaluation = {
                 'idea_id': random.randint(0, len(self.innovation_system['idea_management']['ideas'])),
                 'score': random.uniform(0.1, 1.0),
-                'feedback': random.choice(['geliştir', 'reddet', 'beklet'])
+                'feedback': random.choice(['geliÅŸtir', 'reddet', 'beklet'])
             }
             self.innovation_system['idea_management']['evaluations'].append(new_evaluation)
             
     def check_patents(self):
         """Patentleri kontrol eder"""
         # Yeni patentler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_patent = {
                 'name': f"Patent {len(self.innovation_system['patent_management']['patents']) + 1}",
-                'type': random.choice(['icat', 'tasarım', 'faydalı model']),
+                'type': random.choice(['icat', 'tasarÄ±m', 'faydalÄ± model']),
                 'value': random.uniform(0.1, 0.5)
             }
             self.innovation_system['patent_management']['patents'].append(new_patent)
             
-        # Patent başvuruları
-        if random.random() < 0.2:  # %20 şans
+        # Patent baÅŸvurularÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_application = {
-                'name': f"Başvuru {len(self.innovation_system['patent_management']['applications']) + 1}",
-                'status': random.choice(['beklemede', 'değerlendirmede', 'onaylandı']),
+                'name': f"BaÅŸvuru {len(self.innovation_system['patent_management']['applications']) + 1}",
+                'status': random.choice(['beklemede', 'deÄŸerlendirmede', 'onaylandÄ±']),
                 'priority': random.uniform(0.1, 1.0)
             }
             self.innovation_system['patent_management']['applications'].append(new_application)
             
     def update_rnd_projects(self):
-        """Ar-Ge projelerini günceller"""
+        """Ar-Ge projelerini gÃ¼nceller"""
         # Aktif projeler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_project = {
                 'name': f"Ar-Ge Projesi {len(self.innovation_system['rnd_projects']['active_projects']) + 1}",
                 'budget': random.uniform(10000, 100000),
@@ -6277,17 +6277,17 @@ class FinAsisGame(Ursina):
                 
     def audit_technology_transfer(self):
         """Teknoloji transferini denetler"""
-        # Ortaklıklar
-        if random.random() < 0.2:  # %20 şans
+        # OrtaklÄ±klar
+        if random.random() < 0.2:  # %20 ÅŸans
             new_partnership = {
-                'name': f"Ortaklık {len(self.innovation_system['technology_transfer']['partnerships']) + 1}",
-                'type': random.choice(['üniversite', 'araştırma merkezi', 'şirket']),
+                'name': f"OrtaklÄ±k {len(self.innovation_system['technology_transfer']['partnerships']) + 1}",
+                'type': random.choice(['Ã¼niversite', 'araÅŸtÄ±rma merkezi', 'ÅŸirket']),
                 'value': random.uniform(0.1, 0.5)
             }
             self.innovation_system['technology_transfer']['partnerships'].append(new_partnership)
             
         # Lisanslar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_license = {
                 'name': f"Lisans {len(self.innovation_system['technology_transfer']['licenses']) + 1}",
                 'type': random.choice(['in', 'out']),
@@ -6296,19 +6296,19 @@ class FinAsisGame(Ursina):
             self.innovation_system['technology_transfer']['licenses'].append(new_license)
             
     def show_innovation_panel(self):
-        """İnovasyon yönetim panelini gösterir"""
+        """Ä°novasyon yÃ¶netim panelini gÃ¶sterir"""
         self.innovation_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.innovation_panel,
-            text='İnovasyon Yönetimi',
+            text='Ä°novasyon YÃ¶netimi',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Fikir yönetimi
+        # Fikir yÃ¶netimi
         y_pos = 0.05
         Text(
             parent=self.innovation_panel,
@@ -6319,7 +6319,7 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Patent yönetimi
+        # Patent yÃ¶netimi
         Text(
             parent=self.innovation_panel,
             text=f"Patentler: {len(self.innovation_system['patent_management']['patents'])}",
@@ -6342,14 +6342,14 @@ class FinAsisGame(Ursina):
         # Teknoloji transferi
         Text(
             parent=self.innovation_panel,
-            text=f"Ortaklıklar: {len(self.innovation_system['technology_transfer']['partnerships'])}",
+            text=f"OrtaklÄ±klar: {len(self.innovation_system['technology_transfer']['partnerships'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.orange
         )
         y_pos -= 0.05
         
-        # İnovasyon skoru
+        # Ä°novasyon skoru
         innovation_score = (
             len(self.innovation_system['idea_management']['ideas']) * 0.2 +
             len(self.innovation_system['patent_management']['patents']) * 0.3 +
@@ -6358,50 +6358,50 @@ class FinAsisGame(Ursina):
         )
         Text(
             parent=self.innovation_panel,
-            text=f"İnovasyon Skoru: {innovation_score:.1f}",
+            text=f"Ä°novasyon Skoru: {innovation_score:.1f}",
             position=(0, y_pos),
             scale=1.2,
             color=color.red
         )
         
     def update_crm_system(self):
-        """CRM sistemini günceller"""
+        """CRM sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Müşteri verileri güncellemesi
+        # MÃ¼ÅŸteri verileri gÃ¼ncellemesi
         if current_time - self.crm_system['customer_data']['last_update'] >= self.crm_system['customer_data']['update_interval']:
             self.update_customer_data()
             self.crm_system['customer_data']['last_update'] = current_time
             
-        # Satış geçmişi kontrolü
+        # SatÄ±ÅŸ geÃ§miÅŸi kontrolÃ¼
         if current_time - self.crm_system['sales_history']['last_check'] >= self.crm_system['sales_history']['check_interval']:
             self.check_sales_history()
             self.crm_system['sales_history']['last_check'] = current_time
             
-        # Müşteri memnuniyeti anketi
+        # MÃ¼ÅŸteri memnuniyeti anketi
         if current_time - self.crm_system['customer_satisfaction']['last_survey'] >= self.crm_system['customer_satisfaction']['survey_interval']:
             self.conduct_customer_survey()
             self.crm_system['customer_satisfaction']['last_survey'] = current_time
             
-        # Pazarlama kampanyaları gözden geçirmesi
+        # Pazarlama kampanyalarÄ± gÃ¶zden geÃ§irmesi
         if current_time - self.crm_system['marketing_campaigns']['last_review'] >= self.crm_system['marketing_campaigns']['review_interval']:
             self.review_marketing_campaigns()
             self.crm_system['marketing_campaigns']['last_review'] = current_time
             
     def update_customer_data(self):
-        """Müşteri verilerini günceller"""
-        # Yeni müşteriler
-        if random.random() < 0.2:  # %20 şans
+        """MÃ¼ÅŸteri verilerini gÃ¼nceller"""
+        # Yeni mÃ¼ÅŸteriler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_customer = {
                 'id': len(self.crm_system['customer_data']['customers']) + 1,
-                'name': f"Müşteri {len(self.crm_system['customer_data']['customers']) + 1}",
+                'name': f"MÃ¼ÅŸteri {len(self.crm_system['customer_data']['customers']) + 1}",
                 'segment': random.choice(['kurumsal', 'bireysel', 'VIP']),
                 'value': random.uniform(1000, 10000)
             }
             self.crm_system['customer_data']['customers'].append(new_customer)
             
-        # Müşteri segmentleri
-        if random.random() < 0.2:  # %20 şans
+        # MÃ¼ÅŸteri segmentleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_segment = {
                 'name': f"Segment {len(self.crm_system['customer_data']['segments']) + 1}",
                 'size': random.randint(10, 100),
@@ -6410,21 +6410,21 @@ class FinAsisGame(Ursina):
             self.crm_system['customer_data']['segments'].append(new_segment)
             
     def check_sales_history(self):
-        """Satış geçmişini kontrol eder"""
-        # Yeni işlemler
-        if random.random() < 0.2:  # %20 şans
+        """SatÄ±ÅŸ geÃ§miÅŸini kontrol eder"""
+        # Yeni iÅŸlemler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_transaction = {
                 'customer_id': random.randint(1, len(self.crm_system['customer_data']['customers'])),
                 'amount': random.uniform(100, 1000),
-                'product': random.choice(['ürün', 'hizmet', 'abonelik']),
+                'product': random.choice(['Ã¼rÃ¼n', 'hizmet', 'abonelik']),
                 'date': time.time()
             }
         
     def update_scm_system(self):
-        """Tedarik zinciri yönetim sistemini günceller"""
+        """Tedarik zinciri yÃ¶netim sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Tedarikçi kontrolü
+        # TedarikÃ§i kontrolÃ¼
         if current_time - self.scm_system['suppliers']['last_check'] >= self.scm_system['suppliers']['check_interval']:
             self.check_suppliers()
             self.scm_system['suppliers']['last_check'] = current_time
@@ -6434,30 +6434,30 @@ class FinAsisGame(Ursina):
             self.audit_inventory()
             self.scm_system['inventory']['last_audit'] = current_time
             
-        # Lojistik güncellemesi
+        # Lojistik gÃ¼ncellemesi
         if current_time - self.scm_system['logistics']['last_update'] >= self.scm_system['logistics']['update_interval']:
             self.update_logistics()
             self.scm_system['logistics']['last_update'] = current_time
             
-        # Risk değerlendirmesi
+        # Risk deÄŸerlendirmesi
         if current_time - self.scm_system['risk_management']['last_assessment'] >= self.scm_system['risk_management']['assessment_interval']:
             self.assess_risks()
             self.scm_system['risk_management']['last_assessment'] = current_time
             
     def check_suppliers(self):
-        """Tedarikçileri kontrol eder"""
-        # Yeni tedarikçiler
-        if random.random() < 0.2:  # %20 şans
+        """TedarikÃ§ileri kontrol eder"""
+        # Yeni tedarikÃ§iler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_supplier = {
                 'id': len(self.scm_system['suppliers']['active_suppliers']) + 1,
-                'name': f"Tedarikçi {len(self.scm_system['suppliers']['active_suppliers']) + 1}",
-                'category': random.choice(['hammadde', 'yarı mamul', 'tam mamul']),
+                'name': f"TedarikÃ§i {len(self.scm_system['suppliers']['active_suppliers']) + 1}",
+                'category': random.choice(['hammadde', 'yarÄ± mamul', 'tam mamul']),
                 'reliability': random.uniform(0.1, 1.0)
             }
             self.scm_system['suppliers']['active_suppliers'].append(new_supplier)
             
-        # Tedarikçi değerlendirmeleri
-        if random.random() < 0.2:  # %20 şans
+        # TedarikÃ§i deÄŸerlendirmeleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_evaluation = {
                 'supplier_id': random.randint(1, len(self.scm_system['suppliers']['active_suppliers'])),
                 'score': random.uniform(0.1, 1.0),
@@ -6468,7 +6468,7 @@ class FinAsisGame(Ursina):
     def audit_inventory(self):
         """Envanteri denetler"""
         # Stok seviyeleri
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_stock = {
                 'product_id': len(self.scm_system['inventory']['stock_levels']) + 1,
                 'quantity': random.randint(100, 1000),
@@ -6477,8 +6477,8 @@ class FinAsisGame(Ursina):
             }
             self.scm_system['inventory']['stock_levels'].append(new_stock)
             
-        # Siparişler
-        if random.random() < 0.2:  # %20 şans
+        # SipariÅŸler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_order = {
                 'order_id': len(self.scm_system['inventory']['orders']) + 1,
                 'supplier_id': random.randint(1, len(self.scm_system['suppliers']['active_suppliers'])),
@@ -6488,19 +6488,19 @@ class FinAsisGame(Ursina):
             self.scm_system['inventory']['orders'].append(new_order)
             
     def update_logistics(self):
-        """Lojistik durumunu günceller"""
+        """Lojistik durumunu gÃ¼nceller"""
         # Sevkiyatlar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_shipment = {
                 'shipment_id': len(self.scm_system['logistics']['shipments']) + 1,
                 'from_location': random.choice(['depo1', 'depo2', 'depo3']),
-                'to_location': random.choice(['müşteri1', 'müşteri2', 'müşteri3']),
-                'status': random.choice(['yüklendi', 'yolda', 'teslim edildi'])
+                'to_location': random.choice(['mÃ¼ÅŸteri1', 'mÃ¼ÅŸteri2', 'mÃ¼ÅŸteri3']),
+                'status': random.choice(['yÃ¼klendi', 'yolda', 'teslim edildi'])
             }
             self.scm_system['logistics']['shipments'].append(new_shipment)
             
         # Rotalar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_route = {
                 'route_id': len(self.scm_system['logistics']['routes']) + 1,
                 'distance': random.uniform(10, 100),
@@ -6510,9 +6510,9 @@ class FinAsisGame(Ursina):
             self.scm_system['logistics']['routes'].append(new_route)
             
     def assess_risks(self):
-        """Riskleri değerlendirir"""
+        """Riskleri deÄŸerlendirir"""
         # Riskler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_risk = {
                 'risk_id': len(self.scm_system['risk_management']['risks']) + 1,
                 'type': random.choice(['tedarik', 'lojistik', 'envanter', 'maliyet']),
@@ -6521,20 +6521,20 @@ class FinAsisGame(Ursina):
             }
             self.scm_system['risk_management']['risks'].append(new_risk)
             
-        # Risk azaltma önlemleri
-        if random.random() < 0.2:  # %20 şans
+        # Risk azaltma Ã¶nlemleri
+        if random.random() < 0.2:  # %20 ÅŸans
             new_mitigation = {
                 'risk_id': random.randint(1, len(self.scm_system['risk_management']['risks'])),
-                'action': random.choice(['yedek tedarikçi', 'stok artırımı', 'alternatif rota']),
+                'action': random.choice(['yedek tedarikÃ§i', 'stok artÄ±rÄ±mÄ±', 'alternatif rota']),
                 'effectiveness': random.uniform(0.1, 1.0)
             }
             self.scm_system['risk_management']['mitigations'].append(new_mitigation)
             
     def show_scm_panel(self):
-        """SCM panelini gösterir"""
+        """SCM panelini gÃ¶sterir"""
         self.scm_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.scm_panel,
             text='Tedarik Zinciri',
@@ -6543,11 +6543,11 @@ class FinAsisGame(Ursina):
             color=color.white
         )
         
-        # Tedarikçiler
+        # TedarikÃ§iler
         y_pos = 0.05
         Text(
             parent=self.scm_panel,
-            text=f"Aktif Tedarikçiler: {len(self.scm_system['suppliers']['active_suppliers'])}",
+            text=f"Aktif TedarikÃ§iler: {len(self.scm_system['suppliers']['active_suppliers'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.blue
@@ -6574,7 +6574,7 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # Risk yönetimi
+        # Risk yÃ¶netimi
         Text(
             parent=self.scm_panel,
             text=f"Aktif Riskler: {len(self.scm_system['risk_management']['risks'])}",
@@ -6600,7 +6600,7 @@ class FinAsisGame(Ursina):
         )
         
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
         # SCM kontrolleri
@@ -6608,47 +6608,47 @@ class FinAsisGame(Ursina):
             self.show_scm_panel()
             
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
-        # SCM sistemi güncellemesi
+        # SCM sistemi gÃ¼ncellemesi
         self.update_scm_system()
         
-        # PM sistemi güncellemesi
+        # PM sistemi gÃ¼ncellemesi
         self.update_pm_system()
 
     def update_pm_system(self):
-        """Proje yönetim sistemini günceller"""
+        """Proje yÃ¶netim sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Proje gözden geçirmesi
+        # Proje gÃ¶zden geÃ§irmesi
         if current_time - self.pm_system['projects']['last_review'] >= self.pm_system['projects']['review_interval']:
             self.review_projects()
             self.pm_system['projects']['last_review'] = current_time
             
-        # Kaynak kontrolü
+        # Kaynak kontrolÃ¼
         if current_time - self.pm_system['resources']['last_check'] >= self.pm_system['resources']['check_interval']:
             self.check_resources()
             self.pm_system['resources']['last_check'] = current_time
             
-        # Zamanlama güncellemesi
+        # Zamanlama gÃ¼ncellemesi
         if current_time - self.pm_system['scheduling']['last_update'] >= self.pm_system['scheduling']['update_interval']:
             self.update_schedule()
             self.pm_system['scheduling']['last_update'] = current_time
             
-        # Performans değerlendirmesi
+        # Performans deÄŸerlendirmesi
         if current_time - self.pm_system['performance']['last_assessment'] >= self.pm_system['performance']['assessment_interval']:
             self.assess_performance()
             self.pm_system['performance']['last_assessment'] = current_time
             
     def review_projects(self):
-        """Projeleri gözden geçirir"""
+        """Projeleri gÃ¶zden geÃ§irir"""
         # Yeni projeler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_project = {
                 'id': len(self.pm_system['projects']['active_projects']) + 1,
                 'name': f"Proje {len(self.pm_system['projects']['active_projects']) + 1}",
-                'type': random.choice(['ürün', 'hizmet', 'altyapı', 'araştırma']),
+                'type': random.choice(['Ã¼rÃ¼n', 'hizmet', 'altyapÄ±', 'araÅŸtÄ±rma']),
                 'budget': random.uniform(10000, 100000),
                 'progress': random.uniform(0.1, 0.5)
             }
@@ -6661,55 +6661,55 @@ class FinAsisGame(Ursina):
                 self.pm_system['projects']['active_projects'].remove(project)
                 
     def check_resources(self):
-        """Kaynakları kontrol eder"""
+        """KaynaklarÄ± kontrol eder"""
         # Ekipler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_team = {
                 'id': len(self.pm_system['resources']['teams']) + 1,
                 'name': f"Ekip {len(self.pm_system['resources']['teams']) + 1}",
                 'size': random.randint(3, 10),
-                'skills': random.sample(['planlama', 'geliştirme', 'test', 'dokümantasyon'], 2)
+                'skills': random.sample(['planlama', 'geliÅŸtirme', 'test', 'dokÃ¼mantasyon'], 2)
             }
             self.pm_system['resources']['teams'].append(new_team)
             
         # Ekipman
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_equipment = {
                 'id': len(self.pm_system['resources']['equipment']) + 1,
                 'name': f"Ekipman {len(self.pm_system['resources']['equipment']) + 1}",
-                'type': random.choice(['yazılım', 'donanım', 'laboratuvar', 'ofis']),
-                'status': random.choice(['kullanımda', 'bakımda', 'yedek'])
+                'type': random.choice(['yazÄ±lÄ±m', 'donanÄ±m', 'laboratuvar', 'ofis']),
+                'status': random.choice(['kullanÄ±mda', 'bakÄ±mda', 'yedek'])
             }
             self.pm_system['resources']['equipment'].append(new_equipment)
             
     def update_schedule(self):
-        """Zamanlamayı günceller"""
-        # Görevler
-        if random.random() < 0.2:  # %20 şans
+        """ZamanlamayÄ± gÃ¼nceller"""
+        # GÃ¶revler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_task = {
                 'id': len(self.pm_system['scheduling']['tasks']) + 1,
                 'project_id': random.randint(1, len(self.pm_system['projects']['active_projects'])),
-                'name': f"Görev {len(self.pm_system['scheduling']['tasks']) + 1}",
+                'name': f"GÃ¶rev {len(self.pm_system['scheduling']['tasks']) + 1}",
                 'duration': random.uniform(1, 5),
-                'status': random.choice(['beklemede', 'devam ediyor', 'tamamlandı'])
+                'status': random.choice(['beklemede', 'devam ediyor', 'tamamlandÄ±'])
             }
             self.pm_system['scheduling']['tasks'].append(new_task)
             
-        # Kilometre taşları
-        if random.random() < 0.2:  # %20 şans
+        # Kilometre taÅŸlarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_milestone = {
                 'id': len(self.pm_system['scheduling']['milestones']) + 1,
                 'project_id': random.randint(1, len(self.pm_system['projects']['active_projects'])),
-                'name': f"Kilometre Taşı {len(self.pm_system['scheduling']['milestones']) + 1}",
-                'date': time.time() + random.uniform(86400, 604800),  # 1-7 gün
-                'status': random.choice(['gelecek', 'yaklaşıyor', 'tamamlandı'])
+                'name': f"Kilometre TaÅŸÄ± {len(self.pm_system['scheduling']['milestones']) + 1}",
+                'date': time.time() + random.uniform(86400, 604800),  # 1-7 gÃ¼n
+                'status': random.choice(['gelecek', 'yaklaÅŸÄ±yor', 'tamamlandÄ±'])
             }
             self.pm_system['scheduling']['milestones'].append(new_milestone)
             
     def assess_performance(self):
-        """Performansı değerlendirir"""
+        """PerformansÄ± deÄŸerlendirir"""
         # Metrikler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_metric = {
                 'id': len(self.pm_system['performance']['metrics']) + 1,
                 'project_id': random.randint(1, len(self.pm_system['projects']['active_projects'])),
@@ -6719,23 +6719,23 @@ class FinAsisGame(Ursina):
             self.pm_system['performance']['metrics'].append(new_metric)
             
         # Raporlar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_report = {
                 'id': len(self.pm_system['performance']['reports']) + 1,
                 'project_id': random.randint(1, len(self.pm_system['projects']['active_projects'])),
-                'period': random.choice(['günlük', 'haftalık', 'aylık']),
-                'status': random.choice(['iyi', 'orta', 'kötü'])
+                'period': random.choice(['gÃ¼nlÃ¼k', 'haftalÄ±k', 'aylÄ±k']),
+                'status': random.choice(['iyi', 'orta', 'kÃ¶tÃ¼'])
             }
             self.pm_system['performance']['reports'].append(new_report)
             
     def show_pm_panel(self):
-        """PM panelini gösterir"""
+        """PM panelini gÃ¶sterir"""
         self.pm_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.pm_panel,
-            text='Proje Yönetimi',
+            text='Proje YÃ¶netimi',
             position=(0, 0.15),
             scale=2,
             color=color.white
@@ -6765,7 +6765,7 @@ class FinAsisGame(Ursina):
         # Zamanlama
         Text(
             parent=self.pm_panel,
-            text=f"Aktif Görevler: {len(self.pm_system['scheduling']['tasks'])}",
+            text=f"Aktif GÃ¶revler: {len(self.pm_system['scheduling']['tasks'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
@@ -6786,7 +6786,7 @@ class FinAsisGame(Ursina):
         performance_score = (
             sum(p['progress'] for p in self.pm_system['projects']['active_projects']) / max(1, len(self.pm_system['projects']['active_projects'])) * 0.4 +
             len(self.pm_system['resources']['teams']) / 10 * 0.2 +
-            sum(1 for t in self.pm_system['scheduling']['tasks'] if t['status'] == 'tamamlandı') / max(1, len(self.pm_system['scheduling']['tasks'])) * 0.2 +
+            sum(1 for t in self.pm_system['scheduling']['tasks'] if t['status'] == 'tamamlandÄ±') / max(1, len(self.pm_system['scheduling']['tasks'])) * 0.2 +
             sum(m['value'] for m in self.pm_system['performance']['metrics']) / max(1, len(self.pm_system['performance']['metrics'])) * 0.2
         ) * 10
         Text(
@@ -6798,7 +6798,7 @@ class FinAsisGame(Ursina):
         )
         
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
         # PM kontrolleri
@@ -6806,51 +6806,51 @@ class FinAsisGame(Ursina):
             self.show_pm_panel()
             
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
-        # PM sistemi güncellemesi
+        # PM sistemi gÃ¼ncellemesi
         self.update_pm_system()
 
     def update_hr_system(self):
-        """İnsan kaynakları sistemini günceller"""
+        """Ä°nsan kaynaklarÄ± sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Personel güncellemesi
+        # Personel gÃ¼ncellemesi
         if current_time - self.hr_system['personnel']['last_update'] >= self.hr_system['personnel']['update_interval']:
             self.update_personnel()
             self.hr_system['personnel']['last_update'] = current_time
             
-        # Eğitim gözden geçirmesi
+        # EÄŸitim gÃ¶zden geÃ§irmesi
         if current_time - self.hr_system['training']['last_review'] >= self.hr_system['training']['review_interval']:
             self.review_training()
             self.hr_system['training']['last_review'] = current_time
             
-        # Performans değerlendirmesi
+        # Performans deÄŸerlendirmesi
         if current_time - self.hr_system['performance']['last_assessment'] >= self.hr_system['performance']['assessment_interval']:
             self.assess_performance()
             self.hr_system['performance']['last_assessment'] = current_time
             
-        # Kariyer kontrolü
+        # Kariyer kontrolÃ¼
         if current_time - self.hr_system['career']['last_check'] >= self.hr_system['career']['check_interval']:
             self.check_career()
             self.hr_system['career']['last_check'] = current_time
             
     def update_personnel(self):
-        """Personel verilerini günceller"""
-        # Yeni çalışanlar
-        if random.random() < 0.2:  # %20 şans
+        """Personel verilerini gÃ¼nceller"""
+        # Yeni Ã§alÄ±ÅŸanlar
+        if random.random() < 0.2:  # %20 ÅŸans
             new_employee = {
                 'id': len(self.hr_system['personnel']['employees']) + 1,
-                'name': f"Çalışan {len(self.hr_system['personnel']['employees']) + 1}",
-                'department': random.choice(['üretim', 'pazarlama', 'satış', 'ar-ge']),
-                'position': random.choice(['uzman', 'yönetici', 'müdür', 'direktör']),
+                'name': f"Ã‡alÄ±ÅŸan {len(self.hr_system['personnel']['employees']) + 1}",
+                'department': random.choice(['Ã¼retim', 'pazarlama', 'satÄ±ÅŸ', 'ar-ge']),
+                'position': random.choice(['uzman', 'yÃ¶netici', 'mÃ¼dÃ¼r', 'direktÃ¶r']),
                 'salary': random.uniform(5000, 20000)
             }
             self.hr_system['personnel']['employees'].append(new_employee)
             
         # Departmanlar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_department = {
                 'id': len(self.hr_system['personnel']['departments']) + 1,
                 'name': f"Departman {len(self.hr_system['personnel']['departments']) + 1}",
@@ -6860,20 +6860,20 @@ class FinAsisGame(Ursina):
             self.hr_system['personnel']['departments'].append(new_department)
             
     def review_training(self):
-        """Eğitim programlarını gözden geçirir"""
-        # Eğitim programları
-        if random.random() < 0.2:  # %20 şans
+        """EÄŸitim programlarÄ±nÄ± gÃ¶zden geÃ§irir"""
+        # EÄŸitim programlarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_program = {
                 'id': len(self.hr_system['training']['programs']) + 1,
-                'name': f"Eğitim {len(self.hr_system['training']['programs']) + 1}",
-                'type': random.choice(['teknik', 'yönetim', 'kişisel gelişim']),
+                'name': f"EÄŸitim {len(self.hr_system['training']['programs']) + 1}",
+                'type': random.choice(['teknik', 'yÃ¶netim', 'kiÅŸisel geliÅŸim']),
                 'duration': random.uniform(1, 5),
                 'cost': random.uniform(1000, 5000)
             }
             self.hr_system['training']['programs'].append(new_program)
             
         # Sertifikalar
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_certification = {
                 'id': len(self.hr_system['training']['certifications']) + 1,
                 'employee_id': random.randint(1, len(self.hr_system['personnel']['employees'])),
@@ -6883,19 +6883,19 @@ class FinAsisGame(Ursina):
             self.hr_system['training']['certifications'].append(new_certification)
             
     def assess_performance(self):
-        """Performans değerlendirmesi yapar"""
-        # Değerlendirmeler
-        if random.random() < 0.2:  # %20 şans
+        """Performans deÄŸerlendirmesi yapar"""
+        # DeÄŸerlendirmeler
+        if random.random() < 0.2:  # %20 ÅŸans
             new_evaluation = {
                 'id': len(self.hr_system['performance']['evaluations']) + 1,
                 'employee_id': random.randint(1, len(self.hr_system['personnel']['employees'])),
                 'score': random.uniform(1, 5),
-                'criteria': random.choice(['iş kalitesi', 'verimlilik', 'takım çalışması', 'liderlik'])
+                'criteria': random.choice(['iÅŸ kalitesi', 'verimlilik', 'takÄ±m Ã§alÄ±ÅŸmasÄ±', 'liderlik'])
             }
             self.hr_system['performance']['evaluations'].append(new_evaluation)
             
-        # Ödüller
-        if random.random() < 0.2:  # %20 şans
+        # Ã–dÃ¼ller
+        if random.random() < 0.2:  # %20 ÅŸans
             new_reward = {
                 'id': len(self.hr_system['performance']['rewards']) + 1,
                 'employee_id': random.randint(1, len(self.hr_system['personnel']['employees'])),
@@ -6905,9 +6905,9 @@ class FinAsisGame(Ursina):
             self.hr_system['performance']['rewards'].append(new_reward)
             
     def check_career(self):
-        """Kariyer gelişimini kontrol eder"""
-        # Kariyer yolları
-        if random.random() < 0.2:  # %20 şans
+        """Kariyer geliÅŸimini kontrol eder"""
+        # Kariyer yollarÄ±
+        if random.random() < 0.2:  # %20 ÅŸans
             new_path = {
                 'id': len(self.hr_system['career']['paths']) + 1,
                 'employee_id': random.randint(1, len(self.hr_system['personnel']['employees'])),
@@ -6918,24 +6918,24 @@ class FinAsisGame(Ursina):
             self.hr_system['career']['paths'].append(new_path)
             
         # Terfiler
-        if random.random() < 0.2:  # %20 şans
+        if random.random() < 0.2:  # %20 ÅŸans
             new_promotion = {
                 'id': len(self.hr_system['career']['promotions']) + 1,
                 'employee_id': random.randint(1, len(self.hr_system['personnel']['employees'])),
-                'from_position': random.choice(['uzman', 'yönetici', 'müdür']),
-                'to_position': random.choice(['yönetici', 'müdür', 'direktör']),
+                'from_position': random.choice(['uzman', 'yÃ¶netici', 'mÃ¼dÃ¼r']),
+                'to_position': random.choice(['yÃ¶netici', 'mÃ¼dÃ¼r', 'direktÃ¶r']),
                 'date': time.time()
             }
             self.hr_system['career']['promotions'].append(new_promotion)
             
     def show_hr_panel(self):
-        """HR panelini gösterir"""
+        """HR panelini gÃ¶sterir"""
         self.hr_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.hr_panel,
-            text='İnsan Kaynakları',
+            text='Ä°nsan KaynaklarÄ±',
             position=(0, 0.15),
             scale=2,
             color=color.white
@@ -6945,17 +6945,17 @@ class FinAsisGame(Ursina):
         y_pos = 0.05
         Text(
             parent=self.hr_panel,
-            text=f"Toplam Çalışan: {len(self.hr_system['personnel']['employees'])}",
+            text=f"Toplam Ã‡alÄ±ÅŸan: {len(self.hr_system['personnel']['employees'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.blue
         )
         y_pos -= 0.05
         
-        # Eğitim
+        # EÄŸitim
         Text(
             parent=self.hr_panel,
-            text=f"Aktif Eğitimler: {len(self.hr_system['training']['programs'])}",
+            text=f"Aktif EÄŸitimler: {len(self.hr_system['training']['programs'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
@@ -6965,7 +6965,7 @@ class FinAsisGame(Ursina):
         # Performans
         Text(
             parent=self.hr_panel,
-            text=f"Değerlendirmeler: {len(self.hr_system['performance']['evaluations'])}",
+            text=f"DeÄŸerlendirmeler: {len(self.hr_system['performance']['evaluations'])}",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
@@ -6982,7 +6982,7 @@ class FinAsisGame(Ursina):
         )
         y_pos -= 0.05
         
-        # İK performans skoru
+        # Ä°K performans skoru
         hr_score = (
             len(self.hr_system['personnel']['employees']) / 100 * 0.3 +
             sum(p['score'] for p in self.hr_system['performance']['evaluations']) / max(1, len(self.hr_system['performance']['evaluations'])) * 0.3 +
@@ -6991,14 +6991,14 @@ class FinAsisGame(Ursina):
         ) * 10
         Text(
             parent=self.hr_panel,
-            text=f"İK Skoru: {hr_score:.1f}/10",
+            text=f"Ä°K Skoru: {hr_score:.1f}/10",
             position=(0, y_pos),
             scale=1.2,
             color=color.red
         )
         
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
         # HR kontrolleri
@@ -7006,17 +7006,17 @@ class FinAsisGame(Ursina):
             self.show_hr_panel()
             
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
-        # HR sistemi güncellemesi
+        # HR sistemi gÃ¼ncellemesi
         self.update_hr_system()
 
     def set_player_age(self, age):
-        """Oyuncunun yaşını ayarlar ve önerilen süreleri günceller"""
+        """Oyuncunun yaÅŸÄ±nÄ± ayarlar ve Ã¶nerilen sÃ¼releri gÃ¼nceller"""
         self.health_system['player_age'] = age
         
-        # Yaşa göre önerilen süreleri ayarla
+        # YaÅŸa gÃ¶re Ã¶nerilen sÃ¼releri ayarla
         if age < 12:
             self.health_system['recommended_play_time'] = 3600  # 1 saat
             self.health_system['recommended_break_interval'] = 900  # 15 dakika
@@ -7031,102 +7031,102 @@ class FinAsisGame(Ursina):
             self.health_system['break_duration'] = 300  # 5 dakika
             
     def update_health_system(self):
-        """Sağlık sistemini günceller"""
+        """SaÄŸlÄ±k sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Oyun süresini güncelle
+        # Oyun sÃ¼resini gÃ¼ncelle
         self.health_system['play_time'] = current_time - self.start_time
         
-        # Mola kontrolü
+        # Mola kontrolÃ¼
         if current_time - self.health_system['last_break'] >= self.health_system['recommended_break_interval']:
             self.show_break_notification()
             self.health_system['last_break'] = current_time
             self.health_system['break_time'] += self.health_system['break_duration']
             
-        # Sağlık tavsiyeleri güncelle
+        # SaÄŸlÄ±k tavsiyeleri gÃ¼ncelle
         if len(self.health_system['health_tips']) < 5:
             self.generate_health_tips()
             
     def show_break_notification(self):
-        """Mola bildirimi gösterir"""
+        """Mola bildirimi gÃ¶sterir"""
         self.show_notification(
-            "Mola zamanı! Lütfen 5 dakika ara verin ve şunları yapın:\n"
-            "1. Gözlerinizi dinlendirin\n"
-            "2. Esneme hareketleri yapın\n"
-            "3. Su için\n"
-            "4. Kısa bir yürüyüş yapın",
+            "Mola zamanÄ±! LÃ¼tfen 5 dakika ara verin ve ÅŸunlarÄ± yapÄ±n:\n"
+            "1. GÃ¶zlerinizi dinlendirin\n"
+            "2. Esneme hareketleri yapÄ±n\n"
+            "3. Su iÃ§in\n"
+            "4. KÄ±sa bir yÃ¼rÃ¼yÃ¼ÅŸ yapÄ±n",
             duration=10
         )
         
     def generate_health_tips(self):
-        """Sağlıklı yaşam tavsiyeleri oluşturur"""
+        """SaÄŸlÄ±klÄ± yaÅŸam tavsiyeleri oluÅŸturur"""
         tips = [
-            "Düzenli egzersiz yapın - günde en az 30 dakika",
-            "Sağlıklı beslenin - meyve ve sebze tüketin",
-            "Yeterli uyku alın - günde 7-9 saat",
-            "Su tüketimine dikkat edin - günde 2-3 litre",
-            "Göz sağlığınız için ekranla aranıza mesafe bırakın",
-            "Duruşunuza dikkat edin - düz oturun",
-            "Stres yönetimi için meditasyon yapın",
-            "Sosyal ilişkilerinizi güçlendirin",
-            "Zihinsel aktiviteler yapın - kitap okuyun",
-            "Düzenli sağlık kontrolleri yaptırın"
+            "DÃ¼zenli egzersiz yapÄ±n - gÃ¼nde en az 30 dakika",
+            "SaÄŸlÄ±klÄ± beslenin - meyve ve sebze tÃ¼ketin",
+            "Yeterli uyku alÄ±n - gÃ¼nde 7-9 saat",
+            "Su tÃ¼ketimine dikkat edin - gÃ¼nde 2-3 litre",
+            "GÃ¶z saÄŸlÄ±ÄŸÄ±nÄ±z iÃ§in ekranla aranÄ±za mesafe bÄ±rakÄ±n",
+            "DuruÅŸunuza dikkat edin - dÃ¼z oturun",
+            "Stres yÃ¶netimi iÃ§in meditasyon yapÄ±n",
+            "Sosyal iliÅŸkilerinizi gÃ¼Ã§lendirin",
+            "Zihinsel aktiviteler yapÄ±n - kitap okuyun",
+            "DÃ¼zenli saÄŸlÄ±k kontrolleri yaptÄ±rÄ±n"
         ]
         
-        # Rastgele 5 tavsiye seç
+        # Rastgele 5 tavsiye seÃ§
         selected_tips = random.sample(tips, 5)
         self.health_system['health_tips'] = selected_tips
         
     def show_health_panel(self):
-        """Sağlık panelini gösterir"""
+        """SaÄŸlÄ±k panelini gÃ¶sterir"""
         self.health_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.health_panel,
-            text='Sağlık Yönetimi',
+            text='SaÄŸlÄ±k YÃ¶netimi',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Yaş bilgisi
+        # YaÅŸ bilgisi
         y_pos = 0.05
         Text(
             parent=self.health_panel,
-            text=f"Yaş: {self.health_system['player_age']}",
+            text=f"YaÅŸ: {self.health_system['player_age']}",
             position=(0, y_pos),
             scale=1.2,
             color=color.blue
         )
         y_pos -= 0.05
         
-        # Oyun süresi
+        # Oyun sÃ¼resi
         play_time_minutes = self.health_system['play_time'] / 60
         Text(
             parent=self.health_panel,
-            text=f"Oyun Süresi: {play_time_minutes:.0f} dakika",
+            text=f"Oyun SÃ¼resi: {play_time_minutes:.0f} dakika",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
         )
         y_pos -= 0.05
         
-        # Mola süresi
+        # Mola sÃ¼resi
         break_time_minutes = self.health_system['break_time'] / 60
         Text(
             parent=self.health_panel,
-            text=f"Mola Süresi: {break_time_minutes:.0f} dakika",
+            text=f"Mola SÃ¼resi: {break_time_minutes:.0f} dakika",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
         )
         y_pos -= 0.05
         
-        # Sağlık tavsiyeleri
+        # SaÄŸlÄ±k tavsiyeleri
         Text(
             parent=self.health_panel,
-            text="Sağlık Tavsiyeleri:",
+            text="SaÄŸlÄ±k Tavsiyeleri:",
             position=(0, y_pos),
             scale=1.2,
             color=color.orange
@@ -7144,49 +7144,49 @@ class FinAsisGame(Ursina):
             y_pos -= 0.03
             
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
-        # Sağlık kontrolleri
+        # SaÄŸlÄ±k kontrolleri
         if key == 'h':
             self.show_health_panel()
             
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
-        # Sağlık sistemi güncellemesi
+        # SaÄŸlÄ±k sistemi gÃ¼ncellemesi
         self.update_health_system()
 
     def update_exercise_system(self):
-        """Egzersiz sistemini günceller"""
+        """Egzersiz sistemini gÃ¼nceller"""
         current_time = time.time()
         
-        # Egzersiz hatırlatması
+        # Egzersiz hatÄ±rlatmasÄ±
         if current_time - self.exercise_system['last_exercise'] >= self.exercise_system['exercise_interval']:
             self.show_exercise_notification()
             self.exercise_system['last_exercise'] = current_time
             
-        # Mevcut egzersizleri güncelle
+        # Mevcut egzersizleri gÃ¼ncelle
         if len(self.exercise_system['current_exercises']) < 3:
             self.generate_exercises()
             
     def show_exercise_notification(self):
-        """Egzersiz bildirimi gösterir"""
+        """Egzersiz bildirimi gÃ¶sterir"""
         exercises = self.generate_exercises()
-        exercise_text = "Egzersiz zamanı! Şu hareketleri yapın:\n"
+        exercise_text = "Egzersiz zamanÄ±! Åžu hareketleri yapÄ±n:\n"
         for i, exercise in enumerate(exercises, 1):
             exercise_text += f"{i}. {exercise}\n"
             
         self.show_notification(
-            exercise_text + "\nHer hareketi 30 saniye yapın ve 10 saniye dinlenin.",
+            exercise_text + "\nHer hareketi 30 saniye yapÄ±n ve 10 saniye dinlenin.",
             duration=15
         )
         
     def generate_exercises(self):
-        """Yeni egzersizler oluşturur"""
+        """Yeni egzersizler oluÅŸturur"""
         exercises = []
-        # Her kategoriden bir egzersiz seç
+        # Her kategoriden bir egzersiz seÃ§
         for category in ['stretching', 'strength', 'cardio']:
             exercise = random.choice(self.exercise_system['exercise_types'][category])
             exercises.append(exercise)
@@ -7195,34 +7195,34 @@ class FinAsisGame(Ursina):
         return exercises
         
     def show_exercise_panel(self):
-        """Egzersiz panelini gösterir"""
+        """Egzersiz panelini gÃ¶sterir"""
         self.exercise_panel.visible = True
         
-        # Panel başlığı
+        # Panel baÅŸlÄ±ÄŸÄ±
         Text(
             parent=self.exercise_panel,
-            text='Egzersiz Programı',
+            text='Egzersiz ProgramÄ±',
             position=(0, 0.15),
             scale=2,
             color=color.white
         )
         
-        # Son egzersiz zamanı
+        # Son egzersiz zamanÄ±
         y_pos = 0.05
         last_exercise_minutes = (time.time() - self.exercise_system['last_exercise']) / 60
         Text(
             parent=self.exercise_panel,
-            text=f"Son Egzersiz: {last_exercise_minutes:.0f} dakika önce",
+            text=f"Son Egzersiz: {last_exercise_minutes:.0f} dakika Ã¶nce",
             position=(0, y_pos),
             scale=1.2,
             color=color.blue
         )
         y_pos -= 0.05
         
-        # Günlük egzersiz hedefi
+        # GÃ¼nlÃ¼k egzersiz hedefi
         Text(
             parent=self.exercise_panel,
-            text="Günlük Hedef: 30 dakika",
+            text="GÃ¼nlÃ¼k Hedef: 30 dakika",
             position=(0, y_pos),
             scale=1.2,
             color=color.green
@@ -7232,7 +7232,7 @@ class FinAsisGame(Ursina):
         # Mevcut egzersizler
         Text(
             parent=self.exercise_panel,
-            text="Güncel Egzersizler:",
+            text="GÃ¼ncel Egzersizler:",
             position=(0, y_pos),
             scale=1.2,
             color=color.yellow
@@ -7249,10 +7249,10 @@ class FinAsisGame(Ursina):
             )
             y_pos -= 0.03
             
-        # Egzersiz önerileri
+        # Egzersiz Ã¶nerileri
         Text(
             parent=self.exercise_panel,
-            text="Öneriler:",
+            text="Ã–neriler:",
             position=(0, y_pos),
             scale=1.2,
             color=color.orange
@@ -7260,11 +7260,11 @@ class FinAsisGame(Ursina):
         y_pos -= 0.05
         
         tips = [
-            "Her saat başı 5 dakika egzersiz yapın",
-            "Egzersiz öncesi ısınma hareketleri yapın",
-            "Egzersiz sonrası esneme hareketleri yapın",
-            "Düzenli su tüketin",
-            "Doğru nefes almayı unutmayın"
+            "Her saat baÅŸÄ± 5 dakika egzersiz yapÄ±n",
+            "Egzersiz Ã¶ncesi Ä±sÄ±nma hareketleri yapÄ±n",
+            "Egzersiz sonrasÄ± esneme hareketleri yapÄ±n",
+            "DÃ¼zenli su tÃ¼ketin",
+            "DoÄŸru nefes almayÄ± unutmayÄ±n"
         ]
         
         for tip in tips:
@@ -7278,7 +7278,7 @@ class FinAsisGame(Ursina):
             y_pos -= 0.03
             
     def input(self, key):
-        """Klavye girişlerini işler"""
+        """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
         # Egzersiz kontrolleri
@@ -7286,10 +7286,10 @@ class FinAsisGame(Ursina):
             self.show_exercise_panel()
             
     def update(self):
-        """Her frame'de çalışacak güncelleme fonksiyonu"""
+        """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
-        # Egzersiz sistemi güncellemesi
+        # Egzersiz sistemi gÃ¼ncellemesi
         self.update_exercise_system()
 
 if __name__ == '__main__':
