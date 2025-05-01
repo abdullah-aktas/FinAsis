@@ -491,55 +491,55 @@ def fix_templates_dir(module_name):
 
 def fix_mvt_structure():
     """
-    T√ºm MVT yapƒ±sƒ±nƒ± kontrol edip d√ºzeltir
+    Tüm MVT yapısını kontrol edip düzeltir
     """
-    logger.info("\nüîß FinAsis MVT Yapƒ± D√ºzeltme Aracƒ±")
-    logger.info("===================================\n")
+    logger.info("\nFinAsis MVT Yapı Düzeltme Aracı")
+    logger.info("===============================\n")
     
-    # Django mod√ºllerini bul
+    # Django modüllerini bul
     modules = find_django_modules()
-    logger.info(f"Bulunan Django mod√ºlleri: {len(modules)}")
     
-    # Her mod√ºl i√ßin kontrol ve d√ºzeltme i≈ülemleri
     for module_name in modules:
-        logger.info(f"\n[{module_name}] mod√ºl√º kontrol ediliyor...")
+        logger.info(f"\n[{module_name}] modülü düzenleniyor...")
         
-        # apps.py kontrol√º
-        check_apps_config(module_name)
+        # 1. Dizin yapısını oluştur
+        create_directory_structure(module_name)
         
-        # urls.py kontrol√º
-        urls_path = os.path.join(BASE_DIR, module_name, 'urls.py')
-        if not os.path.exists(urls_path):
-            create_missing_urls_file(module_name)
+        # 2. Model bağlantılarını düzenle
+        # fix_model_relations(module_name)
         
-        # views.py kontrol√º
-        views_path = os.path.join(BASE_DIR, module_name, 'views.py')
-        views_dir = os.path.join(BASE_DIR, module_name, 'views')
-        if not os.path.exists(views_path) and not os.path.exists(views_dir):
-            create_missing_views_file(module_name)
+        # 3. View sınıflarını oluştur
+        model_names = collect_models(module_name)
+        update_views_for_models(module_name, model_names)
         
-        # templates dizini kontrol√º
-        fix_templates_dir(module_name)
+        # 4. Template dosyalarını oluştur
+        create_missing_template_dir(module_name)
+        create_missing_model_templates(module_name, model_names)
         
-        # Modelleri topla
-        models = collect_models(module_name)
-        if models:
-            logger.info(f"{module_name} mod√ºl√ºnde {len(models)} model bulundu: {', '.join(models)}")
-            
-            # Model ≈üablonlarƒ± kontrol√º
-            create_missing_model_templates(module_name, models)
-            
-            # View'leri g√ºncelle
-            update_views_for_models(module_name, models)
-            
-            # URL'leri g√ºncelle
-            update_urls_for_models(module_name, models)
-        else:
-            logger.info(f"{module_name} mod√ºl√ºnde model bulunamadƒ±.")
+        # 5. URL pattern'lerini düzenle
+        update_urls_for_models(module_name, model_names)
+        
+        # 6. Form sınıflarını oluştur
+        # create_form_classes(module_name)
+        
+        logger.info(f"[{module_name}] modülü düzenlendi\n")
+        
+    logger.info("MVT yapısı başarıyla düzeltildi!")
+
+def create_directory_structure(module_name):
+    """Gerekli dizin yapısını oluşturur"""
+    paths = [
+        os.path.join(BASE_DIR, module_name, 'views'),
+        os.path.join(BASE_DIR, module_name, 'templates', module_name),
+        os.path.join(BASE_DIR, module_name, 'forms'),
+        os.path.join(BASE_DIR, module_name, 'tests'),
+        os.path.join(BASE_DIR, module_name, 'api'),
+    ]
     
-    logger.info("\n‚úÖ MVT yapƒ±sƒ± d√ºzeltme i≈ülemi tamamlandƒ±!")
-    logger.info("L√ºtfen yapƒ±lan deƒüi≈üiklikleri kontrol edin ve gerekirse d√ºzenlemeler yapƒ±n.")
-    logger.info("Detaylƒ± log i√ßin mvt_fix.log dosyasƒ±nƒ± inceleyebilirsiniz.\n")
+    for path in paths:
+        if not os.path.exists(path):
+            os.makedirs(path)
+            logger.info(f"Dizin oluşturuldu: {path}")
 
 if __name__ == "__main__":
-    fix_mvt_structure() 
+    fix_mvt_structure()

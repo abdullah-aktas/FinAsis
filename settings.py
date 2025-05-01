@@ -9,19 +9,34 @@ import environ
 import os
 from datetime import timedelta
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional, Union
 
 # === TEMEL AYARLAR ===
-env = environ.Env()
+# Type-safe env değişkenleri
+env = environ.Env(
+    DEBUG=(bool, True),
+    SECRET_KEY=(str, 'your-secret-key'),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
+    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://localhost:3000']),
+    EMAIL_HOST=(str, 'smtp.gmail.com'),
+    EMAIL_PORT=(int, 587),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    AWS_ACCESS_KEY_ID=(str, ''),
+    AWS_SECRET_ACCESS_KEY=(str, ''),
+    AWS_STORAGE_BUCKET_NAME=(str, ''),
+    AWS_S3_REGION_NAME=(str, 'eu-central-1')
+)
 environ.Env.read_env()
 
 # Proje dizin yapısı
 BASE_DIR = Path(__file__).resolve().parent
 
 # === GÜVENLİK AYARLARI ===
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-temporary-dev-key')
-DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+SECRET_KEY = env.str('SECRET_KEY', default='your-secret-key')
+DEBUG = env.bool('DEBUG', default='True')  # 'False' as string for env compatibility
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default='localhost,127.0.0.1')
 
 # === UYGULAMA TANIMLARI ===
 DJANGO_APPS = [
@@ -39,11 +54,6 @@ THIRD_PARTY_APPS = [
     'django_filters',
     'corsheaders',
     'drf_yasg',
-    'health_check',
-    'health_check.db',
-    'health_check.cache',
-    'health_check.storage',
-    'health_check.contrib.migrations',
 ]
 
 LOCAL_APPS = [
@@ -71,21 +81,27 @@ MIDDLEWARE = [
 ]
 
 # === VERİTABANI AYARLARI ===
+from decouple import config
+
+# PostgreSQL ayarları güncellemesi
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME', default='finasis'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='your-db-password'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
+        'OPTIONS': {
+            'client_encoding': 'UTF8'
+        }
     }
 }
 
 # === CORS AYARLARI ===
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://localhost:3000'
-])
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000')
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -172,18 +188,20 @@ CACHES = {
 }
 
 # === EMAIL AYARLARI ===
+# Tip güvenli email ayarları
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env.str('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST = env('EMAIL_HOST')  # type: str
+EMAIL_PORT = env('EMAIL_PORT')  # type: int
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')  # type: bool
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # type: str
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # type: str
 
 # === AWS S3 AYARLARI ===
-AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', default='')
-AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', default='')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', default='')
-AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', default='eu-central-1')
+# Tip güvenli AWS ayarları
+AWS_ACCESS_KEY_ID: str = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY: str = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME: str = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME: str = env('AWS_S3_REGION_NAME')
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
 ROOT_URLCONF = 'config.urls'

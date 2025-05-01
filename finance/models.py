@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.conf import settings
-from accounting.models import BaseModel
-from decimal import Decimal
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
+from permissions.decorators import permission_required, has_finance_permission
 
 class BaseModel(models.Model):
     """Temel model sınıfı"""
@@ -16,6 +14,22 @@ class BaseModel(models.Model):
     
     class Meta:
         abstract = True
+
+class TransactionCategory(BaseModel):
+    """İşlem kategorisi modeli"""
+    name = models.CharField(max_length=100, verbose_name=_('Kategori Adı'))
+    code = models.CharField(max_length=20, unique=True, verbose_name=_('Kategori Kodu'))
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, 
+                             related_name='children', verbose_name=_('Üst Kategori'))
+    description = models.TextField(blank=True, verbose_name=_('Açıklama'))
+
+    class Meta:
+        verbose_name = _('İşlem Kategorisi')
+        verbose_name_plural = _('İşlem Kategorileri')
+        ordering = ['code']
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
 
 class Account(BaseModel):
     """Hesap modeli"""
@@ -31,18 +45,21 @@ class Account(BaseModel):
     balance = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Bakiye'))
     currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
-    
+
     class Meta:
         verbose_name = _('Hesap')
         verbose_name_plural = _('Hesaplar')
         ordering = ['code']
-        
+
     def __str__(self):
         return f"{self.code} - {self.name}"
 
 class Transaction(BaseModel):
     """İşlem modeli"""
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='transactions', verbose_name=_('Hesap'))
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='transactions', 
+                              verbose_name=_('Hesap'))
+    category = models.ForeignKey(TransactionCategory, on_delete=models.PROTECT,
+                               related_name='transactions', verbose_name=_('Kategori'))
     date = models.DateField(verbose_name=_('İşlem Tarihi'))
     amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Tutar'))
     type = models.CharField(max_length=10, choices=[
@@ -56,12 +73,12 @@ class Transaction(BaseModel):
         ('POSTED', _('Kaydedildi')),
         ('CANCELLED', _('İptal Edildi')),
     ], default='DRAFT', verbose_name=_('Durum'))
-    
+
     class Meta:
         verbose_name = _('İşlem')
         verbose_name_plural = _('İşlemler')
         ordering = ['-date', '-created_at']
-        
+
     def __str__(self):
         return f"{self.date} - {self.account} - {self.amount} {self.type}"
 
@@ -74,12 +91,12 @@ class Budget(BaseModel):
     actual_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Gerçekleşen Tutar'))
     category = models.CharField(max_length=50, verbose_name=_('Kategori'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
-    
+
     class Meta:
         verbose_name = _('Bütçe')
         verbose_name_plural = _('Bütçeler')
         ordering = ['-start_date']
-        
+
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"
 
@@ -100,12 +117,12 @@ class FinancialReport(BaseModel):
         ('GENERATED', _('Oluşturuldu')),
         ('APPROVED', _('Onaylandı')),
     ], default='DRAFT', verbose_name=_('Durum'))
-    
+
     class Meta:
         verbose_name = _('Finansal Rapor')
         verbose_name_plural = _('Finansal Raporlar')
         ordering = ['-created_at']
-        
+
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"
 
@@ -124,40 +141,40 @@ class Tax(BaseModel):
         ('OTHER', _('Diğer')),
     ], verbose_name=_('Vergi Tipi'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
-    
+
     class Meta:
         verbose_name = _('Vergi')
         verbose_name_plural = _('Vergiler')
         ordering = ['code']
-        
+
     def __str__(self):
         return f"{self.code} - {self.name} ({self.rate}%)"
 
 class CashFlow(BaseModel):
     """Nakit akışı modeli"""
     PERIOD_CHOICES = [
-        ('daily', 'Günlük'),
-        ('weekly', 'Haftalık'),
-        ('monthly', 'Aylık'),
-        ('quarterly', '3 Aylık'),
-        ('yearly', 'Yıllık'),
+        ('daily', _('Günlük')),
+        ('weekly', _('Haftalık')),
+        ('monthly', _('Aylık')),
+        ('quarterly', _('3 Aylık')),
+        ('yearly', _('Yıllık')),
     ]
     
-    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, verbose_name='Dönem')
-    start_date = models.DateField(verbose_name='Başlangıç Tarihi')
-    end_date = models.DateField(verbose_name='Bitiş Tarihi')
-    opening_balance = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Açılış Bakiyesi')
-    closing_balance = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Kapanış Bakiyesi')
-    total_income = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Gelir')
-    total_expense = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Toplam Gider')
-    net_cash_flow = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Net Nakit Akışı')
+    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, verbose_name=_('Dönem'))
+    start_date = models.DateField(verbose_name=_('Başlangıç Tarihi'))
+    end_date = models.DateField(verbose_name=_('Bitiş Tarihi'))
+    opening_balance = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Açılış Bakiyesi'))
+    closing_balance = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Kapanış Bakiyesi'))
+    total_income = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Toplam Gelir'))
+    total_expense = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Toplam Gider'))
+    net_cash_flow = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Net Nakit Akışı'))
     
     class Meta:
-        verbose_name = 'Nakit Akışı'
-        verbose_name_plural = 'Nakit Akışları'
+        verbose_name = _('Nakit Akışı')
+        verbose_name_plural = _('Nakit Akışları')
         ordering = ['-start_date']
         app_label = 'finance'
-        
+
     def __str__(self):
         return f"{self.get_period_display()} - {self.start_date} - {self.end_date}"
 
@@ -188,7 +205,7 @@ class IncomeStatement(BaseModel):
         
     def __str__(self):
         return f"{self.get_period_display()} - {self.start_date} - {self.end_date}"
-        
+
     def save(self, *args, **kwargs):
         # Brüt kar hesaplama
         self.gross_profit = self.revenue - self.cost_of_goods_sold
@@ -199,4 +216,129 @@ class IncomeStatement(BaseModel):
         # Net kar hesaplama
         self.net_income = self.operating_income + self.other_income - self.other_expenses
         
-        super().save(*args, **kwargs) 
+        super().save(*args, **kwargs)
+
+class BankAccount(BaseModel):
+    """Banka hesabı modeli"""
+    account_name = models.CharField(max_length=100, verbose_name=_('Hesap Adı'))
+    account_number = models.CharField(max_length=50, verbose_name=_('Hesap Numarası'))
+    bank_name = models.CharField(max_length=100, verbose_name=_('Banka Adı'))
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Bakiye'))
+    currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
+
+    class Meta:
+        verbose_name = _('Banka Hesabı')
+        verbose_name_plural = _('Banka Hesapları')
+        ordering = ['bank_name', 'account_name']
+
+    def __str__(self):
+        return f"{self.account_name} - {self.bank_name}"
+
+class EInvoice(BaseModel):
+    """E-Fatura modeli"""
+    INVOICE_TYPE_CHOICES = [
+        ('SALES', _('Satış Faturası')),
+        ('PURCHASE', _('Alış Faturası')),
+        ('RETURN', _('İade Faturası'))
+    ]
+    
+    STATUS_CHOICES = [
+        ('DRAFT', _('Taslak')),
+        ('PENDING', _('Beklemede')), 
+        ('SENT', _('Gönderildi')),
+        ('ACCEPTED', _('Kabul Edildi')),
+        ('REJECTED', _('Reddedildi')),
+        ('CANCELLED', _('İptal Edildi'))
+    ]
+
+    invoice_number = models.CharField(max_length=50, unique=True, verbose_name=_('Fatura Numarası'))
+    invoice_type = models.CharField(max_length=20, choices=INVOICE_TYPE_CHOICES, verbose_name=_('Fatura Tipi'))
+    issue_date = models.DateField(verbose_name=_('Düzenleme Tarihi'))
+    due_date = models.DateField(verbose_name=_('Vade Tarihi'))
+    
+    customer = models.ForeignKey(
+        'customers.Customer',  # <-- Doğru import path'i ekledik
+        on_delete=models.PROTECT,
+        related_name='einvoices',
+        verbose_name=_('Müşteri')
+    )
+    
+    subtotal = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Ara Toplam'))
+    tax_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Vergi Toplamı'))
+    total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Genel Toplam'))
+    currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT', verbose_name=_('Durum'))
+    note = models.TextField(blank=True, null=True, verbose_name=_('Not'))
+    
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, verbose_name=_('UUID'))
+    xml_content = models.TextField(blank=True, null=True, verbose_name=_('XML İçeriği'))
+    
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Gönderim Zamanı'))
+    accepted_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Kabul Zamanı'))
+    
+    class Meta:
+        verbose_name = _('E-Fatura')
+        verbose_name_plural = _('E-Faturalar')
+        ordering = ['-issue_date', '-created_at']
+
+    def __str__(self):
+        return f"{self.invoice_number} - {self.customer.name}"
+        
+    def calculate_totals(self):
+        """Fatura toplamlarını hesaplar"""
+        items = self.items.all()
+        self.subtotal = sum(item.line_total for item in items)
+        self.tax_total = sum(item.tax_amount for item in items)
+        self.total = self.subtotal + self.tax_total
+        self.save()
+
+class EInvoiceItem(BaseModel):
+    """E-Fatura kalemlerini temsil eder"""
+    invoice = models.ForeignKey(
+        EInvoice,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name=_('Fatura')
+    )
+    product = models.ForeignKey(
+        'products.Product',
+        on_delete=models.PROTECT,
+        related_name='einvoice_items',
+        verbose_name=_('Ürün')
+    )
+    quantity = models.DecimalField(max_digits=12, decimal_places=3, verbose_name=_('Miktar'))
+    unit = models.CharField(max_length=10, default='ADET', verbose_name=_('Birim'))
+    unit_price = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Birim Fiyat'))
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('Vergi Oranı (%)'))
+    tax_amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Vergi Tutarı'))
+    line_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Satır Toplamı'))
+    description = models.CharField(max_length=255, blank=True, verbose_name=_('Açıklama'))
+
+    class Meta:
+        verbose_name = _('E-Fatura Kalemi')
+        verbose_name_plural = _('E-Fatura Kalemleri')
+        ordering = ['invoice', 'id']
+
+    def __str__(self):
+        return f"{self.invoice.invoice_number} - {self.product.name}"
+
+    def save(self, *args, **kwargs):
+        # Satır tutarlarını hesapla
+        self.line_total = self.quantity * self.unit_price
+        self.tax_amount = self.line_total * (self.tax_rate / 100)
+        
+        super().save(*args, **kwargs)
+        
+        # Fatura toplamlarını güncelle
+        self.invoice.calculate_totals()
+
+@permission_required('finance.view_transaction')
+def transaction_view(request):
+    # view logic
+    pass
+
+@has_finance_permission('manage_accounts')
+def manage_accounts(request):
+    # view logic
+    pass

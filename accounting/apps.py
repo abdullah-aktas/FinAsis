@@ -8,4 +8,13 @@ class AccountingConfig(AppConfig):
     verbose_name = 'Hesap Yönetimi'
 
     def ready(self):
-        import accounting.signals
+        """Uygulama başlatıldığında yapılacak işlemler"""
+        # Signal handlers'ları import et
+        try:
+            import accounting.signals  # noqa
+        except ImportError:
+            pass
+        # Diğer başlangıç işlemleri
+        # Örneğin, başlangıç verilerini yükleme, görev zamanlayıcıları ayarlama vb.
+        # Burada uygulama başlatıldığında yapılacak diğer işlemleri ekleyebilirsiniz.
+        # Örnek: print("Muhasebe uygulaması başlatıldı.")

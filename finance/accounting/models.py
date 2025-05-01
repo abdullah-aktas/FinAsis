@@ -11,8 +11,8 @@ from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils import timezone
-
-from core.models import BaseModel, AuditableMixin
+from finance.bank_integration.models import BankAccount
+from integrations.bank_integration.models import BankAccount
 from apps.company.models import Company, FiscalYear
 
 

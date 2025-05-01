@@ -10,6 +10,8 @@ import os
 import sys
 from pathlib import Path
 from typing import NoReturn
+import psycopg2
+from psycopg2 import extensions
 
 # Loglama yapılandırması
 logging.basicConfig(
@@ -55,10 +57,43 @@ def check_dependencies() -> None:
         )
         sys.exit(1)
 
+def init_database():
+    try:
+        # Connect to PostgreSQL
+        conn = psycopg2.connect(
+            dbname='postgres',
+            user=os.environ.get('DB_USER', 'postgres'),
+            password=os.environ.get('DB_PASSWORD', ''),
+            host=os.environ.get('DB_HOST', 'localhost'),
+            port=os.environ.get('DB_PORT', '5432')
+        )
+        conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        cur = conn.cursor()
+        
+        # Create database if not exists
+        cur.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = 'finasis'")
+        if not cur.fetchone():
+            cur.execute("""
+                CREATE DATABASE finasis
+                WITH OWNER = postgres
+                ENCODING = 'UTF8'
+                LC_COLLATE = 'tr_TR.UTF-8'
+                LC_CTYPE = 'tr_TR.UTF-8'
+                TEMPLATE = template0;
+            """)
+            print("Database 'finasis' created successfully")
+            
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+
 def execute_command() -> NoReturn:
     """Django yönetim komutunu çalıştırır."""
     try:
         from django.core.management import execute_from_command_line
+        if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'runserver']:
+            init_database()
         execute_from_command_line(sys.argv)
         sys.exit(0)  # Başarılı çalışma durumunda çıkış
     except Exception as e:

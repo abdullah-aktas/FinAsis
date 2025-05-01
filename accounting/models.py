@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 from virtual_company.models import VirtualCompany
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 import uuid
 from django.utils import timezone
 import os
@@ -60,7 +60,8 @@ class Account(BaseModel):
         ('employee', 'Çalışan'),
         ('other', 'Diğer'),
     ])
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    from decimal import Decimal
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     tax_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -91,7 +92,8 @@ class Invoice(BaseModel):
     total = models.DecimalField(max_digits=12, decimal_places=2)
     tax_total = models.DecimalField(max_digits=12, decimal_places=2)
     grand_total = models.DecimalField(max_digits=12, decimal_places=2)
-    exchange_rate = models.DecimalField(max_digits=10, decimal_places=4, default=1.0000)
+    from decimal import Decimal
+    exchange_rate = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal('1.0000'))
     description = models.TextField(blank=True, null=True)
     # E-belge entegrasyonu için eklenenler
     e_invoice_status = models.CharField(max_length=20, choices=[
@@ -112,7 +114,7 @@ class Invoice(BaseModel):
     recipient_email = models.EmailField(_('E-Posta'), blank=True, null=True)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)  # Düzeltildi: args ve kwargs düzgün şekilde iletildi
         self.lines = None
 
     def __str__(self):
@@ -142,7 +144,7 @@ class Invoice(BaseModel):
             return False
         
         # Fatura kalemlerinin olması gerekir
-        if not self.lines.exists():
+        if self.lines is None or not self.lines.exists():
             return False
         
         # Toplam tutarın sıfırdan büyük olması gerekir
@@ -150,7 +152,8 @@ class Invoice(BaseModel):
             return False
         
         # Zaten e-belge oluşturulmuş mu kontrolü
-        if self.edocument_set.exists():
+        edocument_set = getattr(self, 'edocument_set', None)
+        if edocument_set is not None and edocument_set.exists():
             return False
         
         return True
@@ -193,8 +196,9 @@ class TransactionLine(BaseModel):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='lines')
     account_code = models.CharField(max_length=20)
     description = models.CharField(max_length=255)
-    debit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    credit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    from decimal import Decimal
+    debit = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    credit = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return f"{self.transaction.number} - {self.account_code}"
@@ -209,7 +213,8 @@ class CashBox(BaseModel):
     """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    from decimal import Decimal
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -227,7 +232,8 @@ class Bank(BaseModel):
     code = models.CharField(max_length=20, unique=True)
     account_number = models.CharField(max_length=50)
     iban = models.CharField(max_length=50, blank=True, null=True)
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    from decimal import Decimal
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -244,8 +250,10 @@ class Stock(BaseModel):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
     unit = models.CharField(max_length=20)
-    quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    from decimal import Decimal
+    quantity = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    from decimal import Decimal
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     currency = models.CharField(max_length=3, default='TRY')
     description = models.TextField(blank=True, null=True)
 
@@ -351,7 +359,11 @@ class EInvoiceLog(BaseModel):
     response_data = models.TextField(blank=True, null=True, verbose_name="Yanıt Verisi")
     
     def __str__(self):
-        return f"{self.invoice.number} - {self.get_action_display()} - {self.get_status_display()}"
+        action_choices = dict(list(self._meta.get_field('action').choices.__iter__()))
+        status_choices = dict(list(self._meta.get_field('status').choices.__iter__()))
+        action_display = action_choices.get(self.action, self.action)
+        status_display = status_choices.get(self.status, self.status)
+        return f"{self.invoice.number} - {action_display} - {status_display}"
     
     class Meta:
         verbose_name = 'E-Fatura Log'
@@ -369,6 +381,11 @@ class EDocumentTemplate(BaseModel):
     template_html = models.TextField(verbose_name="HTML Şablonu")
     is_default = models.BooleanField(default=False, verbose_name="Varsayılan mı?")
     
+    def get_type_display(self):
+        """Returns the display value for the type field."""
+        choices_iter = list(self._meta.get_field('type').choices) # type: ignore
+        choices_dict = dict((str(key), value) for key, value in choices_iter)
+        return choices_dict.get(str(self.type), self.type)
     def __str__(self):
         return f"{self.name} - {self.get_type_display()}"
     
@@ -418,7 +435,7 @@ class EDocumentSettings(BaseModel):
     service_url = models.URLField(_('Servis URL'), blank=True, null=True)
     api_key = models.CharField(_('API Anahtarı'), max_length=255, blank=True, null=True)
     username = models.CharField(_('Kullanıcı Adı'), max_length=100, blank=True, null=True)
-    password = models.CharField(_('Şifre'), max_length=100, blank=True, null=None)
+    password = models.CharField(_('Şifre'), max_length=100, blank=True, null=True)
     
     is_test_mode = models.BooleanField(_('Test Modu'), default=True)
     is_active = models.BooleanField(_('Aktif'), default=False)
@@ -794,8 +811,10 @@ class BudgetLine(BaseModel):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='lines')
     account = models.ForeignKey(ChartOfAccounts, on_delete=models.PROTECT)
     planned_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Planlanan Tutar")
-    actual_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Gerçekleşen Tutar")
-    variance = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Fark")
+    from decimal import Decimal
+    actual_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Gerçekleşen Tutar")
+    from decimal import Decimal
+    variance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Fark")
     notes = models.TextField(blank=True, null=True, verbose_name="Notlar")
 
     class Meta:

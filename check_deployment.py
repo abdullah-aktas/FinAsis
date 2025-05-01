@@ -1297,4 +1297,4 @@ def generate_html_report(suggestions: Dict[str, List[str]]) -> str:
     return html
 
 if __name__ == "__main__":
-    create_deployment_report() 
+    create_deployment_report()

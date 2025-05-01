@@ -294,73 +294,110 @@ def print_module_report(report):
     if missing_templates:
         print(f"  [UYARI] Template eksik modeller: {', '.join(missing_templates)}")
 
+def check_app_configs():
+    """AppConfig yapılandırmalarını kontrol eder"""
+    modules = find_django_modules()
+    for module_name in modules:
+        has_apps, config = check_apps_config(module_name)
+        if not has_apps or not config.get('name'):
+            return False
+    return True
+
+def check_urls():
+    """URL yapılandırmalarını kontrol eder"""
+    modules = find_django_modules()
+    for module_name in modules:
+        has_urls, urls_data = check_urls_for_module(module_name)
+        if not has_urls or not (isinstance(urls_data, dict) and urls_data.get('app_name')):
+            return False
+    return True
+
+def check_templates():
+    """Template dizinlerini kontrol eder"""
+    modules = find_django_modules()
+    for module_name in modules:
+        templates_dir = os.path.join(BASE_DIR, module_name, 'templates', module_name)
+        if not os.path.exists(templates_dir):
+            return False
+    return True
+
+def check_production_readiness():
+    """Canlı ortam hazırlık kontrolü"""
+    issues = []
+    
+    # MVT yapısı kontrolleri
+    if not check_app_configs():
+        issues.append("⚠️ AppConfig yapılandırmaları eksik")
+    if not check_urls():
+        issues.append("⚠️ URL yapılandırmaları eksik")
+    if not check_templates():
+        issues.append("⚠️ Template dizinleri eksik")
+        
+    # Güvenlik kontrolleri
+    try:
+        from django.conf import settings
+        if getattr(settings, 'DEBUG', False):
+            issues.append("❌ DEBUG modu aktif")
+        if not getattr(settings, 'SECURE_SSL_REDIRECT', False):
+            issues.append("⚠️ SSL yönlendirme kapalı")
+    except Exception as e:
+        issues.append(f"⚠️ Django ayarları kontrol edilemedi: {str(e)}")
+    
+    # İzin kontrolü
+    if not os.access(BASE_DIR, os.W_OK):
+        issues.append("❌ Proje dizininde yazma izni yok")
+        
+    return issues
+
 def analyze_mvt_structure():
-    """
-    Tüm MVT yapısını analiz eder ve bir rapor oluşturur
-    """
+    """Tüm MVT yapısını analiz eder ve bir rapor oluşturur"""
     print("\nFinAsis - MVT Yapı Analizi")
     print("==============================\n")
     
+    # Canlı ortam hazırlık kontrolü
+    issues = check_production_readiness()
+    if issues:
+        print("\n⚠️ CANLI ORTAM SORUNLARI:")
+        for issue in issues:
+            print(f"  - {issue}")
+    else:
+        print("\n✅ CANLI ORTAM KONTROLÜ BAŞARILI")
+
+    # Mevcut analiz devam eder...
     modules = find_django_modules()
+    if not modules:
+        print("Django modülü bulunamadı!")
+        return
+        
     print(f"Bulunan Django modülleri: {len(modules)}")
     
-    all_reports = {}
-    
     for module_name in modules:
-        report = generate_module_report(module_name)
-        all_reports[module_name] = report
-        print_module_report(report)
-    
-    # Genel eksiklikler
-    print("\nGenel Eksiklik Raporu")
-    print("=====================\n")
-    
-    modules_without_apps = [m for m, r in all_reports.items() if not r['has_apps']]
-    if modules_without_apps:
-        print(f"[UYARI] AppConfig eksik modüller: {', '.join(modules_without_apps)}")
-    
-    modules_without_urls = [m for m, r in all_reports.items() if not r['has_urls']]
-    if modules_without_urls:
-        print(f"[UYARI] URLs eksik modüller: {', '.join(modules_without_urls)}")
-    
-    modules_without_templates = [m for m, r in all_reports.items() if not r['templates_dir']]
-    if modules_without_templates:
-        print(f"[UYARI] Templates dizini eksik modüller: {', '.join(modules_without_templates)}")
-    
-    all_missing_views = []
-    all_missing_templates = []
-    
-    for module_name, report in all_reports.items():
-        for model, model_data in report['models'].items():
-            if not model_data['has_views']:
-                all_missing_views.append(f"{module_name}.{model}")
+        print(f"\n[{module_name}] modülü kontrol ediliyor...")
+        
+        # Temel dizin yapısı kontrolü
+        paths_to_check = {
+            'views': os.path.join(BASE_DIR, module_name, 'views'),
+            'templates': os.path.join(BASE_DIR, module_name, 'templates', module_name),
+            'urls': os.path.join(BASE_DIR, module_name, 'urls.py'),
+            'forms': os.path.join(BASE_DIR, module_name, 'forms')
+        }
+        
+        for name, path in paths_to_check.items():
+            exists = os.path.exists(path)
+            print(f"- {name}: {'✓' if exists else 'X'}")
             
-            if not model_data['has_templates']:
-                all_missing_templates.append(f"{module_name}.{model}")
-    
-    if all_missing_views:
-        print(f"\n[UYARI] View eksik modeller ({len(all_missing_views)}):")
-        for model in sorted(all_missing_views):
-            print(f"  - {model}")
-    
-    if all_missing_templates:
-        print(f"\n[UYARI] Template eksik modeller ({len(all_missing_templates)}):")
-        for model in sorted(all_missing_templates):
-            print(f"  - {model}")
-    
-    # Öneriler
-    print("\nÖneriler")
-    print("---------\n")
-    
-    print("1. Eksik AppConfig dosyalarını oluşturun.")
-    print("2. Eksik URLs dosyalarını oluşturun ve app_name değerini ayarlayın.")
-    print("3. Eksik template dizinlerini oluşturun.")
-    print("4. Her model için view tanımlarını ekleyin.")
-    print("5. Her model için şablonları oluşturun.")
-    print("   a. *_list.html - Liste görünümü")
-    print("   b. *_detail.html - Detay görünümü")
-    print("   c. *_form.html - Ekleme/düzenleme formu")
-    print("   d. *_confirm_delete.html - Silme onayı")
+        # Model kontrolleri
+        models = collect_models(module_name)
+        if models:
+            print(f"\nBulunan modeller ({len(models)}):")
+            for model in models:
+                print(f"  {model}:")
+                view_exists, _ = check_views_for_model(module_name, model)
+                template_exists, _ = check_templates_for_model(module_name, model)
+                print(f"    - View: {'✓' if view_exists else 'X'}")
+                print(f"    - Template: {'✓' if template_exists else 'X'}")
+        else:
+            print("\nModel bulunamadı!")
 
 class MVTCheckerGUI:
     def __init__(self, root):
@@ -370,7 +407,7 @@ class MVTCheckerGUI:
         
         # Ana frame
         self.main_frame = ttk.Frame(root, padding="10")
-        self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.main_frame.grid(row=0, column=0, sticky="nsew")
         
         # Kontrol butonu
         self.check_button = ttk.Button(self.main_frame, text="Analiz Başlat", command=self.start_analysis)
@@ -422,4 +459,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--gui":
         main()
     else:
-        analyze_mvt_structure() 
+        analyze_mvt_structure()

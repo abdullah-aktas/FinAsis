@@ -95,20 +95,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'tr-tr'
-TIME_ZONE = 'Europe/Istanbul'
+# Internationalization and Localization
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+LANGUAGE_CODE = 'tr-tr'
+TIME_ZONE = 'Europe/Istanbul'
 
-# Desteklenen diller
 LANGUAGES = [
     ('tr', 'Türkçe'),
     ('en', 'English'),
-    ('de', 'Deutsch'),
-    ('ar', 'العربية'),
-    ('ku', 'Kurdî'),
 ]
 
 LOCALE_PATHS = [
@@ -155,10 +151,22 @@ CORS_ALLOWED_ORIGINS = [
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'finasis'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+            'timezone': 'Europe/Istanbul',
+        },
     }
 }
+
+# Dosya encoding ayarları
+FILE_CHARSET = 'utf-8'
+DEFAULT_CHARSET = 'utf-8'
 
 # PostgreSQL özel ayarları
 POSTGRES_OPTIMIZATIONS = {
@@ -265,4 +273,4 @@ BRUTE_FORCE_PROTECTED_URLS = [
 
 # IP kısıtlama ayarları (varsayılan olarak boş)
 RESTRICTED_IPS = []
-ALLOWED_IPS = [] 
+ALLOWED_IPS = []
