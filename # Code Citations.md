@@ -1,124 +1,327 @@
 # Code Citations
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
 
 ```
-),
-        
-```
-
-
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
-
-```
-),
-        'USER': config
+USER': os.
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
 
 ```
-),
-        'USER': config('DB_USER
-```
-
-
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
-
-```
-),
-        'USER': config('DB_USER', default='postgres
+USER': os.
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
+USER': os.getenv('DB
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
         '
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('
-```
-
-
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
-
-```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
+USER': os.getenv('DB_USER', 'postgres'),
+        '
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB
-```
-
-
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
-
-```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.get
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.get
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT':
 ```
 
 
-## License: MIT
-https://github.com/NicolasLM/feedsubs/blob/aa41222f25631866598316fc3b631f363f942c28/feedsubs/settings/base.py
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
 
 ```
-),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT':
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432
+```
+
+
+## License: bilinmiyor
+https://github.com/marco-santamaria/django-ansible-deploy/blob/5359b67eb44b4616fed7504b2633aa4ea4a854b3/pycon8/settings.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+```
+
+
+## License: bilinmiyor
+https://github.com/rji-futures-lab/sen_minutes/blob/b35c418a42af1cbcf5a31b5e0d7c78db73954fc2/config/settings/base.py
+
+```
+USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
 ```
 

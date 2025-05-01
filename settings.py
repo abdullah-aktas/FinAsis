@@ -7,41 +7,46 @@ Mantıksal bölümlere ayrılmış şekilde düzenlenmiştir.
 
 import environ
 import os
-from datetime import timedelta
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Union
+from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
 
-# === TEMEL AYARLAR ===
-# Type-safe env değişkenleri
+# Environment variables
 env = environ.Env(
-    DEBUG=(bool, True),
-    SECRET_KEY=(str, 'your-secret-key'),
+    DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
-    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://localhost:3000']),
+    REDIS_URL=(str, 'redis://127.0.0.1:6379/1'),
+    EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
     EMAIL_PORT=(int, 587),
     EMAIL_USE_TLS=(bool, True),
     EMAIL_HOST_USER=(str, ''),
     EMAIL_HOST_PASSWORD=(str, ''),
-    AWS_ACCESS_KEY_ID=(str, ''),
+    AWS_ACCESS_KEY_ID=(str, ''), 
     AWS_SECRET_ACCESS_KEY=(str, ''),
     AWS_STORAGE_BUCKET_NAME=(str, ''),
-    AWS_S3_REGION_NAME=(str, 'eu-central-1')
+    AWS_S3_REGION_NAME=(str, ''),
+    API_PAGE_SIZE=(int, 10),
+    SECURE_SSL_REDIRECT=(bool, True),
+    SESSION_COOKIE_SECURE=(bool, True),
+    CSRF_COOKIE_SECURE=(bool, True),
 )
+
+# .env dosyasını oku
 environ.Env.read_env()
 
-# Proje dizin yapısı
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent
 
-# === GÜVENLİK AYARLARI ===
-SECRET_KEY = env.str('SECRET_KEY', default='your-secret-key')
-DEBUG = env.bool('DEBUG', default='True')  # 'False' as string for env compatibility
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+# Security settings
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env('DEBUG')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
-# === UYGULAMA TANIMLARI ===
+# Application definition
 DJANGO_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth', 
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -51,68 +56,34 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
-    'django_filters',
     'corsheaders',
     'drf_yasg',
+    'django_filters',
 ]
 
 LOCAL_APPS = [
     'core.apps.CoreConfig',
-    'accounting.apps.AccountingConfig',
-    'inventory.apps.InventoryConfig',
-    'permissions.apps.PermissionsConfig',
-    'hr_management.apps.HrManagementConfig',
+    'users.apps.UsersConfig', 
     'finance.apps.FinanceConfig',
+    'virtual_company.apps.VirtualCompanyConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# === MIDDLEWARE AYARLARI ===
+# Middleware
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
-# === VERİTABANI AYARLARI ===
-from decouple import config
-
-# PostgreSQL ayarları güncellemesi
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='finasis'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='your-db-password'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-        'OPTIONS': {
-            'client_encoding': 'UTF8'
-        }
-    }
-}
-
-# === CORS AYARLARI ===
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000')
-
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-# === ŞABLON AYARLARI ===
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -130,15 +101,30 @@ TEMPLATES = [
     },
 ]
 
-# === STATİK DOSYA AYARLARI ===
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', 5432),
+    }
+}
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': env('REDIS_URL'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
-# === ULUSLARARASILAŞTIRMA AYARLARI ===
+# Internationalization
 LANGUAGE_CODE = 'tr'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
@@ -150,13 +136,27 @@ LANGUAGES = [
     ('en', 'English'),
     ('ku', 'Kurdî'),
     ('ar', 'العربية'),
-    ('de', 'Deutsch'),
-    ('fr', 'Français'),
 ]
 
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
-# === REST FRAMEWORK AYARLARI ===
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Security settings
+SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
+SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
+CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE')
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -166,44 +166,25 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': env('API_PAGE_SIZE'),
 }
 
-# === GÜVENLİK AYARLARI ===
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# Email
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST') 
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-# === CACHE AYARLARI ===
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
+# AWS Settings
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
 
-# === EMAIL AYARLARI ===
-# Tip güvenli email ayarları
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST')  # type: str
-EMAIL_PORT = env('EMAIL_PORT')  # type: int
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')  # type: bool
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # type: str
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # type: str
-
-# === AWS S3 AYARLARI ===
-# Tip güvenli AWS ayarları
-AWS_ACCESS_KEY_ID: str = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY: str = env('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME: str = env('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME: str = env('AWS_S3_REGION_NAME')
-AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-
+# Other settings
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 

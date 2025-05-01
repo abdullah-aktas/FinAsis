@@ -7,6 +7,8 @@ import os
 
 DEBUG = True
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 # Database - SQLite
 DATABASES = {
     'default': {
@@ -25,7 +27,8 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Debug toolbar
-# INSTALLED_APPS += ['debug_toolbar']  # debug_toolbar zaten base.py'de tanımlanmış
+INSTALLED_APPS += ['debug_toolbar']
+MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 INTERNAL_IPS = ['127.0.0.1']
 
 # CORS settings
@@ -82,4 +85,4 @@ LOGGING = {
             'propagate': False,
         },
     },
-} 
+}
