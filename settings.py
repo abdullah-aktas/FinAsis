@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 # Environment variables
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'www.finasis.com.tr', 'finasis.com.tr', '23.251.132.100']),
     REDIS_URL=(str, 'redis://127.0.0.1:6379/1'),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
@@ -26,10 +26,12 @@ env = environ.Env(
     AWS_SECRET_ACCESS_KEY=(str, ''),
     AWS_STORAGE_BUCKET_NAME=(str, ''),
     AWS_S3_REGION_NAME=(str, ''),
+    AWS_S3_FILE_OVERWRITE=(bool, False),
     API_PAGE_SIZE=(int, 10),
     SECURE_SSL_REDIRECT=(bool, True),
     SESSION_COOKIE_SECURE=(bool, True),
     CSRF_COOKIE_SECURE=(bool, True),
+    DB_PORT=(int, 5432),
 )
 
 # .env dosyasını oku
@@ -105,11 +107,19 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', 5432),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT'),
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'options': '-c search_path=public,finasis_user',
+            'client_encoding': 'UTF8'
+        },
+        'TEST': {
+            'NAME': 'test_finasis'
+        }
     }
 }
 
@@ -188,3 +198,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.finasis.com.tr",
+    "https://finasis.com.tr"
+]
+if env('AWS_STORAGE_BUCKET_NAME'):
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
+    AWS_S3_FILE_OVERWRITE = env.bool('AWS_S3_FILE_OVERWRITE')
+    AWS_DEFAULT_ACL = env('AWS_DEFAULT_ACL')
+    AWS_S3_OBJECT_PARAMETERS = {
+        "CacheControl": "max-age=86400"
+    }
+
+# Statik dosya ve medya ayarları için debug kontrolü
+if DEBUG:
+    STATICFILES_DIRS = [BASE_DIR / 'static']
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+    # Debug toolbar için ayarlar
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    INTERNAL_IPS = ['127.0.0.1']
