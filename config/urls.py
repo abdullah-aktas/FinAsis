@@ -85,16 +85,21 @@ urlpatterns += [
 
 # API Versiyon 1 URLs
 api_v1_patterns = [
-    # Kimlik Doğrulama
-    path('auth/token/', TokenObtainPairView.as_view(), name='token-obtain'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
-    path('auth/token/verify/', TokenVerifyView.as_view(), name='token-verify'),
-    
+    # Kimlik Doğrulama (JWT)
+    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
     # Kullanıcı Yönetimi
-    path('users/', include('users.urls', namespace='users')),
-    
+    path('users/', include(('users.urls', 'users'), namespace='users')),
+
     # Finans Modülleri
-    path('finance/', include('finance.urls', namespace='finance')),
+    path('finance/', include(('finance.urls', 'finance'), namespace='finance')),
+
+    # Diğer API modülleri eklenebilir
+    # path('checks/', include(('checks.urls', 'checks'), namespace='checks')),
+    # path('assets/', include(('assets.urls', 'assets'), namespace='assets')),
+    # path('stock/', include(('stock_management.urls', 'stock_management'), namespace='stock_management')),
 ]
 
 # API Versiyon 2 URLs (Geliştirme Aşamasında)

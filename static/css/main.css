@@ -4,30 +4,32 @@
  */
 
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --success-color: #2ecc71;
-    --danger-color: #e74c3c;
-    --warning-color: #f1c40f;
-    --info-color: #1abc9c;
-    --light-color: #ecf0f1;
-    --dark-color: #2c3e50;
-    --font-family: 'Roboto', sans-serif;
-    --transition-speed: 0.3s;
+    --primary: #1e3c72;
+    --secondary: #2a5298;
+    --success: #2ecc71;
+    --warning: #f1c40f;
+    --danger: #e74c3c;
+    --light: #f8f9fa;
+    --dark: #343a40;
 }
 
-/* Genel stiller */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Layout */
 body {
-    font-family: var(--font-family);
-    line-height: 1.6;
-    color: var(--dark-color);
-    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--light);
+}
+
+.main-content {
+    flex: 1 0 auto;
+    padding: 2rem 0;
+}
+
+/* Header */
+.main-header {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Navbar */
@@ -198,31 +200,26 @@ body {
     --primary-color: #1e3c72;
     --secondary-color: #2a5298;
     --accent-color: #2ecc71;
-    --text-light: #ffffff;
-    --text-dark: #333333;
-    --bg-light: rgba(255, 255, 255, 0.1);
-    --bg-dark: rgba(0, 0, 0, 0.2);
     --background-color: #f5f6fa;
-    --text-color: #2c3e50;
-    --border-color: #dcdde1;
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
 }
 
+/* Ana Layout */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-    color: var(--text-light);
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
+    background-color: var(--background-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+#main-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* Header Styles */
+.main-header {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Navbar Stilleri */
@@ -653,4 +650,4 @@ body {
     background: radial-gradient(circle, rgba(255,255,255,0.1) 5%, transparent 8%);
     background-size: 25px 25px;
     opacity: 0.2;
-} 
+}

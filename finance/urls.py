@@ -4,7 +4,7 @@ Finance uygulaması URL yapılandırmaları
 """
 
 from django.urls import path
-from finance.views import banking, einvoice, accounting, checks
+from finance.views import banking, einvoice
 
 app_name = 'finance'
 

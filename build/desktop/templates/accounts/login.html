@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Giriş Yap - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 2rem auto;
+    }
+    
+    .login-card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #0062cc, #0097a7);
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+    
+    .login-header img {
+        width: 70px;
+        margin-bottom: 1rem;
+    }
+    
+    .login-form {
+        padding: 2rem;
+    }
+    
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        transition: transform 0.3s;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .social-btn.google {
+        background-color: #DB4437;
+    }
+    
+    .social-btn.facebook {
+        background-color: #4267B2;
+    }
+    
+    .social-btn.apple {
+        background-color: #000000;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+    
+    .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: #e0e0e0;
+    }
+    
+    .divider-text {
+        padding: 0 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .form-floating > label {
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container login-container">
+    <div class="card login-card">
+        <div class="login-header">
+            <img src="{% static 'img/logo-light.png' %}" alt="FinAsis Logo" class="mb-3">
+            <h2 class="fw-bold">Giriş Yap</h2>
+            <p class="text-white-50 mb-0">Hesabınızla giriş yaparak devam edin</p>
+        </div>
+        
+        <div class="login-form">
+            <!-- Sosyal Medya Giriş -->
+            <div class="social-login">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
+                    <i class="bi bi-google"></i>
+                </a>
+                <a href="{% url 'social:begin' 'facebook' %}" class="social-btn facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="{% url 'social:begin' 'apple-id' %}" class="social-btn apple">
+                    <i class="bi bi-apple"></i>
+                </a>
+            </div>
+            
+            <!-- Ayraç -->
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">VEYA</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <!-- Giriş Formu -->
+            <form method="POST" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.
+                </div>
+                {% endif %}
+                
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+                
+                <div class="mb-3 form-floating">
+                    {% render_field form.username class="form-control" placeholder="Kullanıcı Adı veya E-posta" id="id_username" %}
+                    <label for="id_username">Kullanıcı Adı veya E-posta</label>
+                </div>
+                
+                <div class="mb-3 form-floating">
+                    {% render_field form.password class="form-control" placeholder="Şifre" id="id_password" %}
+                    <label for="id_password">Şifre</label>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                        <label class="form-check-label" for="rememberMe">Beni Hatırla</label>
+                    </div>
+                    
+                    <div>
+                        <a href="{% url 'accounts:password_reset' %}" class="text-primary fw-bold text-decoration-none">Şifremi Unuttum</a>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Giriş Yap</button>
+                
+                <p class="text-center mb-0">
+                    Hesabınız yok mu? 
+                    <a href="{% url 'accounts:register' %}" class="text-primary fw-bold text-decoration-none">Kayıt Ol</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

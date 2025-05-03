@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.schedulers import crontab # type: ignore
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,16 +18,16 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'False')
 ALLOWED_HOSTS = ['finasis.com.tr', 'www.finasis.com.tr', '23.251.132.100']
 
 # Application definition
-INSTALLED_APPS = {
+INSTALLED_APPS = [
+    # Django Core Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'virtual_company',
-
-    # Third party apps
+    
+    # Third Party Apps
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
@@ -36,19 +37,28 @@ INSTALLED_APPS = {
     'health_check.db',
     'health_check.cache',
     'health_check.storage',
-    'health_check.contrib.migrations',
+    'django_celery_beat',
+    
+    # Core Apps
+    'core.apps.CoreConfig',
+    
+    # Business Apps  
+    'crm.apps.CrmConfig',
+    'finance.apps.FinanceConfig',
+    'accounting.apps.AccountingConfig',
+    'banking.apps.BankingConfig',
+    
+    # Support Apps
+    'users.apps.UsersConfig',
+    'permissions.apps.PermissionsConfig',
+    'edocument.apps.EdocumentConfig',
+    'checks.apps.ChecksConfig',
+    
+    # Other Apps
+    'virtual_company.apps.VirtualCompanyConfig',
+    'blockchain.apps.BlockchainConfig',
+]
 
-    # Local apps
-    'finance',
-    'crm',
-    'edocument',
-    'accounting',
-    'banking',
-    'checks',
-    'users',  # Users uygulaması
-    'virtual_company',  # Virtual Company uygulaması
-    'blockchain',  # Blockchain uygulaması
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -85,17 +95,36 @@ WSGI_APPLICATION = 'FinAsis.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', default='localhost'),
+        'PORT': os.getenv('DB_PORT', default='5432'),
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
+        'TEST': {
+            'NAME': 'test_finasis'
+        }
     }
 }
 
 # Cache
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
+
+# Cache session backend
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -334,7 +363,8 @@ FINASIS = {
 }
 
 # Channels Configuration
-ASGI_APPLICATION = 'finasis.asgi.application'
+ASGI_APPLICATION = 'FinAsis.asgi.application'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -433,4 +463,4 @@ ETHEREUM_CONTRACT_ABI = [
         "stateMutability": "view",
         "type": "function"
     }
-] 
+]

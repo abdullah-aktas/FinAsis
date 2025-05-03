@@ -1,0 +1,61 @@
+/* Oyun kartları için özel stiller */
+.game-card {
+    transition: transform 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Görev kartları için özel stiller */
+.challenge-card {
+    border-left: 4px solid #007bff;
+}
+
+.challenge-card.completed {
+    border-left-color: #28a745;
+}
+
+/* İşlem listesi için özel stiller */
+.transaction-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.transaction-item {
+    border-left: 3px solid #dc3545;
+}
+
+.transaction-item.income {
+    border-left-color: #28a745;
+}
+
+/* Form alanları için özel stiller */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Puan rozeti için özel stiller */
+.score-badge {
+    font-size: 1.1em;
+    padding: 0.5em 1em;
+}
+
+/* Tarih gösterimi için özel stiller */
+.date-display {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+    .game-card {
+        margin-bottom: 1rem;
+    }
+    
+    .transaction-list {
+        max-height: 200px;
+    }
+} 

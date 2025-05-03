@@ -1,96 +1,40 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}FinAsis - KOBİ'ler için Finansal Yönetim Sistemi{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}kobi, finans, muhasebe, stok yönetimi, e-fatura{% endblock %}">
-    <meta name="author" content="FinAsis">
-    <meta name="robots" content="index, follow">
-    
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
     <title>{% block title %}FinAsis{% endblock %}</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Temel CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">FinAsis</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{% trans "Stok Yönetimi" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{% trans "Finans" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{% trans "CRM" %}</a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{% trans "Giriş" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{% trans "Kayıt Ol" %}</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body class="{% block body_class %}{% endblock %}">
+    {% block header %}
+        {% include "components/header.html" %}
+    {% endblock %}
 
-    <!-- Messages -->
-    {% if messages %}
-    <div class="container mt-3">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    {% block messages %}
+        {% include "components/messages.html" %}
+    {% endblock %}
 
-    <!-- Main Content -->
-    <main>
+    <main class="main-content">
+        {% block breadcrumb %}{% endblock %}
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="footer mt-5 py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">© {% now "Y" %} FinAsis. {% trans "Tüm hakları saklıdır." %}</span>
-        </div>
-    </footer>
+    {% block footer %}
+        {% include "components/footer.html" %}
+    {% endblock %}
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
+    <!-- Temel JavaScript -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-    
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

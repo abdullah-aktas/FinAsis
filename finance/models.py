@@ -1,19 +1,53 @@
 # -*- coding: utf-8 -*-
+"""
+Finance app models module.
+Contains database models for financial operations.
+"""
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
 import uuid
-from permissions.decorators import permission_required, has_finance_permission
 
 class BaseModel(models.Model):
-    """Temel model sınıfı"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Oluşturulma Tarihi'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Güncellenme Tarihi'))
-    is_active = models.BooleanField(default=True, verbose_name=_('Aktif'))
-    
+    """Abstract base model with common fields"""
+    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True) 
+    is_active = models.BooleanField(_('Aktif'), default=True)
+
     class Meta:
         abstract = True
+
+class Transaction(BaseModel):
+    """Finansal işlem modeli"""
+    TRANSACTION_TYPES = [
+        ('INCOME', _('Gelir')),
+        ('EXPENSE', _('Gider')),
+        ('TRANSFER', _('Transfer')),
+    ]
+    
+    type = models.CharField(max_length=20, choices=TRANSACTION_TYPES, verbose_name=_('İşlem Tipi'))
+    amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Tutar'))
+    description = models.TextField(blank=True, verbose_name=_('Açıklama'))
+    transaction_date = models.DateTimeField(verbose_name=_('İşlem Tarihi'))
+    
+    class Meta:
+        verbose_name = _('Finansal İşlem')
+        verbose_name_plural = _('Finansal İşlemler')
+        ordering = ['-transaction_date']
+
+class Invoice(BaseModel):
+    """Fatura modeli"""
+    invoice_number = models.CharField(max_length=50, unique=True, verbose_name=_('Fatura Numarası'))
+    customer = models.ForeignKey('crm.Customer', on_delete=models.PROTECT, verbose_name=_('Müşteri'))
+    issue_date = models.DateField(verbose_name=_('Düzenleme Tarihi'))
+    due_date = models.DateField(verbose_name=_('Vade Tarihi'))
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Toplam Tutar'))
+    
+    class Meta:
+        verbose_name = _('Fatura') 
+        verbose_name_plural = _('Faturalar')
+        ordering = ['-issue_date']
 
 class TransactionCategory(BaseModel):
     """İşlem kategorisi modeli"""
@@ -53,34 +87,6 @@ class Account(BaseModel):
 
     def __str__(self):
         return f"{self.code} - {self.name}"
-
-class Transaction(BaseModel):
-    """İşlem modeli"""
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='transactions', 
-                              verbose_name=_('Hesap'))
-    category = models.ForeignKey(TransactionCategory, on_delete=models.PROTECT,
-                               related_name='transactions', verbose_name=_('Kategori'))
-    date = models.DateField(verbose_name=_('İşlem Tarihi'))
-    amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Tutar'))
-    type = models.CharField(max_length=10, choices=[
-        ('DEBIT', _('Borç')),
-        ('CREDIT', _('Alacak')),
-    ], verbose_name=_('İşlem Tipi'))
-    description = models.TextField(verbose_name=_('Açıklama'))
-    reference = models.CharField(max_length=50, blank=True, verbose_name=_('Referans'))
-    status = models.CharField(max_length=20, choices=[
-        ('DRAFT', _('Taslak')),
-        ('POSTED', _('Kaydedildi')),
-        ('CANCELLED', _('İptal Edildi')),
-    ], default='DRAFT', verbose_name=_('Durum'))
-
-    class Meta:
-        verbose_name = _('İşlem')
-        verbose_name_plural = _('İşlemler')
-        ordering = ['-date', '-created_at']
-
-    def __str__(self):
-        return f"{self.date} - {self.account} - {self.amount} {self.type}"
 
 class Budget(BaseModel):
     """Bütçe modeli"""
@@ -332,6 +338,23 @@ class EInvoiceItem(BaseModel):
         
         # Fatura toplamlarını güncelle
         self.invoice.calculate_totals()
+
+class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.CharField(max_length=100)
+    employee_id = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.user.get_full_name()
+
+class Voucher(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.employee} - {self.amount}"
 
 @permission_required('finance.view_transaction')
 def transaction_view(request):

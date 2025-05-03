@@ -1,58 +1,30 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.utils.html import format_html
-from django.urls import reverse
-from django.db.models import Count, Sum, Avg
 from .models import (
     Customer, Contact, Opportunity, Activity,
-    Document, Communication, Note,
-    LoyaltyProgram, LoyaltyLevel, CustomerLoyalty,
-    SeasonalCampaign, PartnershipProgram, Partner,
-    InteractionLog
+    Document, Communication, Note
 )
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = (
-        'company_name', 'tax_number', 'email', 'phone',
-        'industry', 'risk_level', 'credit_score',
-        'annual_revenue', 'employee_count', 'is_active',
-        'created_at', 'updated_at'
-    )
-    list_filter = (
-        'industry', 'risk_level', 'is_active',
-        'created_at', 'updated_at'
-    )
-    search_fields = (
-        'company_name', 'tax_number', 'email',
-        'phone', 'address'
-    )
+    list_display = ('name', 'tax_number', 'credit_score', 'phone', 'email', 'is_active')
+    search_fields = ('name', 'tax_number', 'email')
+    list_filter = ('is_active', 'created_at')
     readonly_fields = ('created_at', 'updated_at')
+    
     fieldsets = (
         ('Temel Bilgiler', {
-            'fields': (
-                'company_name', 'tax_number', 'email',
-                'phone', 'address'
-            )
+            'fields': ('name', 'tax_number', 'tax_office')
         }),
-        ('İş Bilgileri', {
-            'fields': (
-                'industry', 'annual_revenue',
-                'employee_count'
-            )
+        ('İletişim Bilgileri', {
+            'fields': ('phone', 'email', 'address')
         }),
-        ('Risk ve Kredi', {
-            'fields': (
-                'risk_level', 'credit_score',
-                'credit_limit'
-            )
+        ('Finansal Bilgiler', {
+            'fields': ('credit_score',)
         }),
         ('Durum', {
-            'fields': ('is_active',)
+            'fields': ('is_active', 'created_at', 'updated_at')
         }),
-        ('Zaman Bilgileri', {
-            'fields': ('created_at', 'updated_at')
-        })
     )
 
 @admin.register(Contact)
@@ -197,104 +169,6 @@ class NoteAdmin(admin.ModelAdmin):
     search_fields = (
         'title', 'content',
         'customer__company_name'
-    )
-    readonly_fields = ('created_at', 'updated_at')
-
-    def customer_link(self, obj):
-        url = reverse('admin:crm_customer_change', args=[obj.customer.id])
-        return format_html('<a href="{}">{}</a>', url, obj.customer.company_name)
-    customer_link.short_description = 'Müşteri'
-
-@admin.register(LoyaltyProgram)
-class LoyaltyProgramAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'description', 'start_date',
-        'end_date', 'is_active', 'created_at'
-    )
-    list_filter = ('is_active', 'start_date', 'end_date')
-    search_fields = ('name', 'description')
-    readonly_fields = ('created_at', 'updated_at')
-
-@admin.register(LoyaltyLevel)
-class LoyaltyLevelAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'program', 'min_points',
-        'max_points', 'benefits', 'created_at'
-    )
-    list_filter = ('program', 'created_at')
-    search_fields = ('name', 'benefits')
-    readonly_fields = ('created_at', 'updated_at')
-
-@admin.register(CustomerLoyalty)
-class CustomerLoyaltyAdmin(admin.ModelAdmin):
-    list_display = (
-        'customer_link', 'program_link',
-        'current_level', 'total_points',
-        'created_at'
-    )
-    list_filter = ('program', 'current_level', 'created_at')
-    search_fields = (
-        'customer__company_name',
-        'program__name'
-    )
-    readonly_fields = ('created_at', 'updated_at')
-
-    def customer_link(self, obj):
-        url = reverse('admin:crm_customer_change', args=[obj.customer.id])
-        return format_html('<a href="{}">{}</a>', url, obj.customer.company_name)
-    customer_link.short_description = 'Müşteri'
-
-    def program_link(self, obj):
-        url = reverse('admin:crm_loyaltyprogram_change', args=[obj.program.id])
-        return format_html('<a href="{}">{}</a>', url, obj.program.name)
-    program_link.short_description = 'Program'
-
-@admin.register(SeasonalCampaign)
-class SeasonalCampaignAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'description', 'start_date',
-        'end_date', 'is_active', 'created_at'
-    )
-    list_filter = ('is_active', 'start_date', 'end_date')
-    search_fields = ('name', 'description')
-    readonly_fields = ('created_at', 'updated_at')
-
-@admin.register(PartnershipProgram)
-class PartnershipProgramAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'description', 'start_date',
-        'end_date', 'is_active', 'created_at'
-    )
-    list_filter = ('is_active', 'start_date', 'end_date')
-    search_fields = ('name', 'description')
-    readonly_fields = ('created_at', 'updated_at')
-
-@admin.register(Partner)
-class PartnerAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'program_link', 'contact_person',
-        'email', 'phone', 'is_active',
-        'created_at'
-    )
-    list_filter = ('program', 'is_active', 'created_at')
-    search_fields = ('name', 'contact_person', 'email', 'phone')
-    readonly_fields = ('created_at', 'updated_at')
-
-    def program_link(self, obj):
-        url = reverse('admin:crm_partnershipprogram_change', args=[obj.program.id])
-        return format_html('<a href="{}">{}</a>', url, obj.program.name)
-    program_link.short_description = 'Program'
-
-@admin.register(InteractionLog)
-class InteractionLogAdmin(admin.ModelAdmin):
-    list_display = (
-        'customer_link', 'type', 'description',
-        'created_by', 'created_at'
-    )
-    list_filter = ('type', 'created_at')
-    search_fields = (
-        'description', 'customer__company_name',
-        'created_by__username'
     )
     readonly_fields = ('created_at', 'updated_at')
 

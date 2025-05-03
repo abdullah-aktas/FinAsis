@@ -1,0 +1,42 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <title>{% block title %}FinAsis{% endblock %}</title>
+    
+    <!-- Core CSS -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% block header %}
+        {% include "components/header.html" %}
+    {% endblock %}
+
+    {% block pre_content %}{% endblock %}
+    
+    <main class="main-content">
+        {% block messages %}
+            {% include "components/messages.html" %}
+        {% endblock %}
+        
+        {% block breadcrumb %}
+            {% include "components/breadcrumb.html" %}
+        {% endblock %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+        {% include "components/footer.html" %} 
+    {% endblock %}
+
+    <!-- Core JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,123 @@
+.finasis-assistant-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.finasis-assistant-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.finasis-assistant-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+.finasis-assistant-chat {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.finasis-assistant-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.finasis-assistant-message {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.finasis-assistant-message.user {
+    background-color: #e3f2fd;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.finasis-assistant-message.assistant {
+    background-color: #f5f5f5;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+.finasis-assistant-input-container {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.finasis-assistant-input-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.finasis-assistant-input-container button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.finasis-assistant-input-container button:hover {
+    background-color: #45a049;
+}
+
+/* Karanlık mod desteği */
+@media (prefers-color-scheme: dark) {
+    .finasis-assistant-chat {
+        background: #2d2d2d;
+        color: #fff;
+    }
+
+    .finasis-assistant-message.user {
+        background-color: #1a237e;
+        color: #fff;
+    }
+
+    .finasis-assistant-message.assistant {
+        background-color: #424242;
+        color: #fff;
+    }
+
+    .finasis-assistant-input-container input {
+        background-color: #424242;
+        color: #fff;
+        border-color: #666;
+    }
+
+    .finasis-assistant-input-container input::placeholder {
+        color: #aaa;
+    }
+} 

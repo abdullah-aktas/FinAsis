@@ -93,6 +93,12 @@ class Customer(models.Model):
         if self.credit_score < 0 or self.credit_score > 1000:
             raise ValidationError(_('Kredi skoru 0-1000 arasında olmalıdır.'))
 
+    @property
+    def total_revenue(self):
+        return self.invoices.aggregate(
+            total=Sum('total_amount')
+        )['total'] or Decimal('0.00')
+
 class Contact(models.Model):
     """İletişim kişisi modeli"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -168,15 +174,13 @@ class Opportunity(models.Model):
 
 class Activity(models.Model):
     """Aktivite modeli"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name='activities')
-    type = models.CharField(_('Tür'), max_length=20, choices=[
-        ('CALL', _('Telefon Görüşmesi')),
-        ('MEETING', _('Toplantı')),
-        ('EMAIL', _('E-posta')),
-        ('TASK', _('Görev')),
-        ('NOTE', _('Not')),
-    ])
+    TYPE_CHOICES = [
+        ('call', _('Telefon')),
+        ('meeting', _('Toplantı')),
+        ('email', _('E-posta')),
+        ('task', _('Görev'))
+    ]
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     subject = models.CharField(_('Konu'), max_length=255)
     description = models.TextField(_('Açıklama'))
     due_date = models.DateTimeField(_('Bitiş Tarihi'))
@@ -668,29 +672,17 @@ class PremiumPackage(models.Model):
     def __str__(self):
         return f"{self.name} - {self.get_package_type_display()}"
 
-class ConsultingService(models.Model):
-    """Danışmanlık hizmeti modeli"""
-    SERVICE_TYPES = [
-        ('financial', 'Finansal Danışmanlık'),
-        ('technical', 'Teknik Danışmanlık'),
-        ('strategic', 'Stratejik Danışmanlık'),
-    ]
-    
-    name = models.CharField(_('Hizmet Adı'), max_length=100)
-    service_type = models.CharField(_('Hizmet Tipi'), max_length=20, choices=SERVICE_TYPES)
-    description = models.TextField(_('Açıklama'))
-    hourly_rate = models.DecimalField(_('Saatlik Ücret'), max_digits=10, decimal_places=2)
-    min_hours = models.IntegerField(_('Minimum Saat'), default=1)
-    is_active = models.BooleanField(_('Aktif'), default=True)
-    created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
+class BaseService(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     
     class Meta:
-        verbose_name = _('Danışmanlık Hizmeti')
-        verbose_name_plural = _('Danışmanlık Hizmetleri')
-    
-    def __str__(self):
-        return f"{self.name} - {self.get_service_type_display()}"
+        abstract = True
+
+class ConsultingService(BaseService):
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2)
+    min_hours = models.PositiveIntegerField()
 
 class TrainingProgram(models.Model):
     """Kurumsal eğitim programı modeli"""

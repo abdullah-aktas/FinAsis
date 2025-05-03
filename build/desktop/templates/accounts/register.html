@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Kayıt Ol - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        max-width: 650px;
+        margin: 2rem auto;
+    }
+    
+    .register-card {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .register-header {
+        background: linear-gradient(135deg, #0062cc, #0097a7);
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+    
+    .register-header img {
+        width: 70px;
+        margin-bottom: 1rem;
+    }
+    
+    .register-form {
+        padding: 2rem;
+    }
+    
+    .form-floating > label {
+        color: #6c757d;
+    }
+    
+    .form-check-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .progress {
+        height: 8px;
+        margin-top: 8px;
+    }
+    
+    .password-strength-meter {
+        font-size: 0.8rem;
+        margin-top: 5px;
+        color: #6c757d;
+    }
+    
+    .social-register {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        transition: transform 0.3s;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .social-btn.google {
+        background-color: #DB4437;
+    }
+    
+    .social-btn.facebook {
+        background-color: #4267B2;
+    }
+    
+    .social-btn.apple {
+        background-color: #000000;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+    
+    .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: #e0e0e0;
+    }
+    
+    .divider-text {
+        padding: 0 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container register-container">
+    <div class="card register-card">
+        <div class="register-header">
+            <img src="{% static 'img/logo-light.png' %}" alt="FinAsis Logo" class="mb-3">
+            <h2 class="fw-bold">Hesap Oluştur</h2>
+            <p class="text-white-50 mb-0">FinAsis ile finansal süreçlerinizi en verimli şekilde yönetin</p>
+        </div>
+        
+        <div class="register-form">
+            <!-- Sosyal Medya Kayıt -->
+            <div class="social-register">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
+                    <i class="bi bi-google"></i>
+                </a>
+                <a href="{% url 'social:begin' 'facebook' %}" class="social-btn facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="{% url 'social:begin' 'apple-id' %}" class="social-btn apple">
+                    <i class="bi bi-apple"></i>
+                </a>
+            </div>
+            
+            <!-- Ayraç -->
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">VEYA</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <!-- Kayıt Formu -->
+            <form method="POST" action="{% url 'accounts:register' %}">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Lütfen formdaki hataları düzeltin.
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% if field.errors %}
+                                <li>{{ field.label }}: {{ field.errors.0 }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {% render_field form.first_name class="form-control" placeholder="Ad" id="id_first_name" %}
+                            <label for="id_first_name">Ad</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {% render_field form.last_name class="form-control" placeholder="Soyad" id="id_last_name" %}
+                            <label for="id_last_name">Soyad</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-floating">
+                    {% render_field form.email class="form-control" placeholder="E-posta Adresi" id="id_email" %}
+                    <label for="id_email">E-posta Adresi</label>
+                </div>
+                
+                <div class="mb-3 form-floating">
+                    {% render_field form.username class="form-control" placeholder="Kullanıcı Adı" id="id_username" %}
+                    <label for="id_username">Kullanıcı Adı</label>
+                </div>
+                
+                <div class="mb-3 form-floating">
+                    {% render_field form.password1 class="form-control" placeholder="Şifre" id="id_password1" %}
+                    <label for="id_password1">Şifre</label>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" id="password-strength-meter" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="password-strength-meter" id="password-strength-text">Şifre gücü: Zayıf</div>
+                </div>
+                
+                <div class="mb-4 form-floating">
+                    {% render_field form.password2 class="form-control" placeholder="Şifre (Tekrar)" id="id_password2" %}
+                    <label for="id_password2">Şifre (Tekrar)</label>
+                </div>
+                
+                <div class="mb-4 form-check">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                    <label class="form-check-label" for="agreeTerms">
+                        <a href="{% url 'terms' %}" class="text-decoration-none" target="_blank">Kullanım Şartları</a> ve <a href="{% url 'privacy' %}" class="text-decoration-none" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Kayıt Ol</button>
+                
+                <p class="text-center mb-0">
+                    Zaten bir hesabınız var mı? 
+                    <a href="{% url 'accounts:login' %}" class="text-primary fw-bold text-decoration-none">Giriş Yap</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('id_password1');
+        const strengthMeter = document.getElementById('password-strength-meter');
+        const strengthText = document.getElementById('password-strength-text');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            const strength = calculatePasswordStrength(password);
+            
+            // Güncelle progress bar
+            strengthMeter.style.width = strength.score + '%';
+            strengthMeter.className = 'progress-bar ' + strength.class;
+            
+            // Güncelle metin
+            strengthText.textContent = 'Şifre gücü: ' + strength.text;
+        });
+        
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            let strengthClass = 'bg-danger';
+            let strengthText = 'Çok Zayıf';
+            
+            if (password.length > 6) score += 20;
+            if (password.length > 10) score += 20;
+            if (/[A-Z]/.test(password)) score += 20;
+            if (/[0-9]/.test(password)) score += 20;
+            if (/[^A-Za-z0-9]/.test(password)) score += 20;
+            
+            if (score < 40) {
+                strengthClass = 'bg-danger';
+                strengthText = 'Zayıf';
+            } else if (score < 60) {
+                strengthClass = 'bg-warning';
+                strengthText = 'Orta';
+            } else if (score < 80) {
+                strengthClass = 'bg-info';
+                strengthText = 'İyi';
+            } else {
+                strengthClass = 'bg-success';
+                strengthText = 'Güçlü';
+            }
+            
+            return {
+                score: score,
+                class: strengthClass,
+                text: strengthText
+            };
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,70 @@
+{
+    "application": {
+        "name": "FinAsis",
+        "version": "1.0.0",
+        "environment": "production",
+        "debug": false
+    },
+    "database": {
+        "host": "localhost",
+        "port": 5432,
+        "name": "finasis",
+        "user": "postgres",
+        "password": "postgres",
+        "pool_size": 20,
+        "timeout": 30
+    },
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0,
+        "password": "",
+        "timeout": 5
+    },
+    "celery": {
+        "broker_url": "redis://localhost:6379/0",
+        "result_backend": "redis://localhost:6379/0",
+        "worker_concurrency": 4,
+        "task_time_limit": 3600,
+        "task_soft_time_limit": 3000
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "finasis.log",
+        "max_size": 10485760,
+        "backup_count": 5,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "security": {
+        "secret_key": "your-secret-key",
+        "token_expiry": 3600,
+        "password_hash_algorithm": "pbkdf2_sha256",
+        "password_hash_iterations": 100000
+    },
+    "api": {
+        "host": "0.0.0.0",
+        "port": 8000,
+        "cors_origins": ["*"],
+        "rate_limit": "100/minute"
+    },
+    "monitoring": {
+        "enabled": true,
+        "prometheus_port": 9090,
+        "metrics_interval": 60,
+        "alert_rules": {
+            "cpu_threshold": 80,
+            "memory_threshold": 85,
+            "disk_threshold": 90
+        }
+    },
+    "updates": {
+        "check_interval": 3600,
+        "auto_update": true,
+        "update_server": "https://updates.finasis.com"
+    },
+    "plugins": {
+        "enabled": true,
+        "directory": "plugins",
+        "auto_load": true
+    }
+} 

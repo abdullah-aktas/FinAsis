@@ -1,0 +1,23 @@
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'img/logo.png' %}" alt="FinAsis" height="40">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                {% include "components/navigation.html" %}
+                
+                {% if user.is_authenticated %}
+                    {% include "components/user_menu.html" %}
+                {% else %}
+                    {% include "components/auth_buttons.html" %}
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</header>

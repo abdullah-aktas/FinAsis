@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FinAsis - Finansal Yönetim Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0062cc, #0097a7);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 3rem;
+    }
+    
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #0062cc;
+    }
+    
+    .testimonial-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    
+    .testimonial-img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .cta-section {
+        background-color: #f0f7ff;
+        padding: 60px 0;
+        border-radius: 10px;
+    }
+    
+    .footer {
+        margin-top: 3rem;
+        padding-top: 3rem;
+        background-color: #343a40;
+        color: white;
+    }
+    
+    /* Yeni Widget Stilleri */
+    .widget-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .weather-widget {
+        background: linear-gradient(135deg, #00b4db, #0083b0);
+        color: white;
+    }
+    
+    .finance-widget {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+    }
+    
+    .game-widget {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+    }
+    
+    .widget-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .widget-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .refresh-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .refresh-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Widgets Section -->
+<section class="container my-4">
+    <div class="row">
+        <!-- Hava Durumu Widget -->
+        <div class="col-md-4">
+            <div class="widget-card weather-widget">
+                <div class="widget-title">
+                    <i class="bi bi-cloud-sun"></i> Hava Durumu
+                </div>
+                <div class="widget-content">
+                    <div id="weather-info">
+                        <div class="location">📍 <span id="city">Yükleniyor...</span></div>
+                        <div class="temperature"><span id="temp">--</span>°C</div>
+                        <div class="condition"><span id="condition">--</span></div>
+                    </div>
+                    <button class="refresh-btn" onclick="updateWeather()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Borsa Bilgisi Widget -->
+        <div class="col-md-4">
+            <div class="widget-card finance-widget">
+                <div class="widget-title">
+                    <i class="bi bi-graph-up"></i> Piyasa Bilgileri
+                </div>
+                <div class="widget-content">
+                    <div id="finance-info">
+                        <div>BIST100: <span id="bist100">--</span></div>
+                        <div>USD/TRY: <span id="usd">--</span></div>
+                        <div>EUR/TRY: <span id="eur">--</span></div>
+                        <div>Altın: <span id="gold">--</span></div>
+                    </div>
+                    <button class="refresh-btn" onclick="updateFinance()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Oyun Modülü Widget -->
+        <div class="col-md-4">
+            <div class="widget-card game-widget">
+                <div class="widget-title">
+                    <i class="bi bi-controller"></i> Finansal Simülasyon Oyunu
+                </div>
+                <div class="widget-content">
+                    <div>
+                        <p>Şirket kur, bütçe yap, yatırımlarını yönet – öğrenirken eğlen!</p>
+                        <a href="{% url 'games:financial_simulation' %}" class="btn btn-light">
+                            <i class="bi bi-play-fill"></i> Oyunu Başlat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Finansal Yönetiminizi Kolaylaştırın</h1>
+                <p class="lead mb-4">FinAsis, şirketlerin finansal işlemlerini, müşteri ilişkilerini ve varlık yönetimini tek bir platform üzerinden yönetmelerine olanak tanıyan kapsamlı bir çözümdür.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg">Giriş Yap</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg">Ücretsiz Başlayın</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center d-none d-lg-block">
+                <img src="{% static 'img/dashboard-preview.png' %}" alt="FinAsis Dashboard" class="img-fluid rounded shadow" style="max-width: 90%;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Tek Platform, Çok Sayıda Özellik</h2>
+        <p class="lead text-muted">Finansal yönetim süreçlerinizi tek bir yerden yönetin</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-calculator"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">Muhasebe Yönetimi</h3>
+                    <p class="text-muted">Genel muhasebe işlemleri, hesap planı ve yevmiye fişlerini kolayca oluşturun ve yönetin.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">Müşteri İlişkileri</h3>
+                    <p class="text-muted">Müşterilerinizi takip edin, teklifler hazırlayın ve fırsatları kaçırmayın.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">Stok Yönetimi</h3>
+                    <p class="text-muted">Ürünlerinizi, depolarınızı ve stok hareketlerinizi etkin bir şekilde yönetin.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">Bankacılık İşlemleri</h3>
+                    <p class="text-muted">Banka hesaplarınızı ve işlemlerinizi kolaylıkla takip edin.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">E-Fatura Entegrasyonu</h3>
+                    <p class="text-muted">E-Fatura ve E-Arşiv süreçlerinizi yasal mevzuata uygun şekilde yönetin.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="bi bi-bar-chart"></i>
+                    </div>
+                    <h3 class="fs-4 mb-3">Raporlama</h3>
+                    <p class="text-muted">Kapsamlı analiz ve raporlarla işletmenizi daha iyi anlayın ve kararlar alın.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="container my-5">
+    <div class="row">
+        <div class="col-lg-5">
+            <h2 class="display-6 fw-bold mb-4">İşinizi Büyütürken Yanınızdayız</h2>
+            <p class="lead text-muted mb-4">FinAsis, işletmenizi büyütmenize yardımcı olmak için tasarlanmış kapsamlı bir finansal yönetim çözümüdür.</p>
+            <p class="mb-4">Modern ve kullanıcı dostu arayüzü ile karmaşık finansal süreçleri basitleştirerek zamandan tasarruf etmenizi sağlar.</p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary">Hemen Başlayın</a>
+        </div>
+        <div class="col-lg-7">
+            <div class="row g-4 mt-3">
+                <div class="col-6">
+                    <div class="p-4 text-center border rounded bg-light">
+                        <h3 class="display-5 fw-bold text-primary">5000+</h3>
+                        <p class="mb-0">Aktif Kullanıcı</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-4 text-center border rounded bg-light">
+                        <h3 class="display-5 fw-bold text-primary">2M+</h3>
+                        <p class="mb-0">İşlem</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-4 text-center border rounded bg-light">
+                        <h3 class="display-5 fw-bold text-primary">98%</h3>
+                        <p class="mb-0">Müşteri Memnuniyeti</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-4 text-center border rounded bg-light">
+                        <h3 class="display-5 fw-bold text-primary">40+</h3>
+                        <p class="mb-0">Sektör</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Müşterilerimiz Ne Diyor?</h2>
+        <p class="lead text-muted">Başarı hikayelerini dinleyin</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="testimonial-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'img/testimonial-1.jpg' %}" alt="Müşteri 1" class="testimonial-img me-3">
+                    <div>
+                        <h5 class="mb-0">Ahmet Yılmaz</h5>
+                        <p class="text-muted small mb-0">XYZ Şirketi, Genel Müdür</p>
+                    </div>
+                </div>
+                <p class="mb-0">"FinAsis ile finansal süreçlerimizi yönetmek çok daha kolay hale geldi. Şirketimizin muhasebe işlemlerini daha verimli bir şekilde takip edebiliyoruz."</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="testimonial-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'img/testimonial-2.jpg' %}" alt="Müşteri 2" class="testimonial-img me-3">
+                    <div>
+                        <h5 class="mb-0">Ayşe Demir</h5>
+                        <p class="text-muted small mb-0">ABC Ltd., Finans Direktörü</p>
+                    </div>
+                </div>
+                <p class="mb-0">"E-Fatura entegrasyonu ve stok yönetimi özellikleri ile işlerimizi çok daha hızlı halledebiliyoruz. Raporlama modülü ise karar alma süreçlerimizi geliştirdi."</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="testimonial-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'img/testimonial-3.jpg' %}" alt="Müşteri 3" class="testimonial-img me-3">
+                    <div>
+                        <h5 class="mb-0">Mehmet Kaya</h5>
+                        <p class="text-muted small mb-0">DEF A.Ş., Muhasebe Müdürü</p>
+                    </div>
+                </div>
+                <p class="mb-0">"Müşteri desteği harika ve sürekli güncellenen özellikleriyle FinAsis, şirketimizin büyümesinde önemli bir rol oynuyor. Kesinlikle tavsiye ederim."</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container my-5">
+    <div class="cta-section text-center">
+        <div class="container py-5">
+            <h2 class="display-5 fw-bold mb-4">Finansal Yönetimde Yeni Bir Dönem Başlıyor</h2>
+            <p class="lead mb-4">Hemen kayıt olun ve işletmenizin finansal süreçlerini dijitalleştirin</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Ücretsiz Hesap Oluşturun</a>
+                <a href="#" class="btn btn-outline-primary btn-lg px-4">Demo İsteyin</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h5 class="text-white mb-3">FinAsis</h5>
+                <p>Finansal yönetim süreçlerinizi dijitalleştirin ve işletmenizi bir üst seviyeye taşıyın.</p>
+                <div class="d-flex gap-2">
+                    <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h5 class="text-white mb-3">Şirket</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white text-decoration-none">Hakkımızda</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Kariyer</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Blog</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">İletişim</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h5 class="text-white mb-3">Ürünler</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white text-decoration-none">Muhasebe</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">CRM</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">E-Fatura</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Stok Yönetimi</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h5 class="text-white mb-3">Destek</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white text-decoration-none">Yardım Merkezi</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Dokümantasyon</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Topluluk</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">SSS</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h5 class="text-white mb-3">Yasal</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white text-decoration-none">Gizlilik Politikası</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Kullanım Şartları</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">KVKK</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Çerez Politikası</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="my-4 bg-light">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="small mb-0">© 2023-2025 FinAsis. Tüm hakları saklıdır.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="small mb-0">Türkiye'de tasarlandı ve geliştirildi.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Hava Durumu Güncelleme
+async function updateWeather() {
+    try {
+        const response = await fetch('/api/weather/');
+        const data = await response.json();
+        
+        document.getElementById('city').textContent = data.city;
+        document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('condition').textContent = data.condition;
+    } catch (error) {
+        console.error('Hava durumu güncellenirken hata:', error);
+    }
+}
+
+// Finans Bilgilerini Güncelleme
+async function updateFinance() {
+    try {
+        const response = await fetch('/api/finance/');
+        const data = await response.json();
+        
+        document.getElementById('bist100').textContent = data.bist100;
+        document.getElementById('usd').textContent = data.usd;
+        document.getElementById('eur').textContent = data.eur;
+        document.getElementById('gold').textContent = data.gold;
+    } catch (error) {
+        console.error('Finans bilgileri güncellenirken hata:', error);
+    }
+}
+
+// Sayfa yüklendiğinde widget'ları güncelle
+document.addEventListener('DOMContentLoaded', () => {
+    updateWeather();
+    updateFinance();
+    
+    // 15 dakikada bir otomatik güncelleme
+    setInterval(updateWeather, 15 * 60 * 1000);
+    setInterval(updateFinance, 15 * 60 * 1000);
+});
+</script>
+{% endblock %} 

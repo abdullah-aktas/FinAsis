@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 # Environment variables
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'www.finasis.com.tr', 'finasis.com.tr', '23.251.132.100']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'www.finasis.com.tr', 'finasis.com.tr', '34.38.231.39']),
     REDIS_URL=(str, 'redis://127.0.0.1:6379/1'),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_HOST=(str, 'smtp.gmail.com'),
@@ -32,10 +32,11 @@ env = environ.Env(
     SESSION_COOKIE_SECURE=(bool, True),
     CSRF_COOKIE_SECURE=(bool, True),
     DB_PORT=(int, 5432),
+    DB_HOST=(str, 'localhost'),
 )
 
 # .env dosyasını oku
-environ.Env.read_env()
+environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent
@@ -109,8 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('DB_NAME'),
         'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST', default='localhost'),
+        'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
@@ -226,3 +226,22 @@ if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
     INTERNAL_IPS = ['127.0.0.1']
+    
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs/errors.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

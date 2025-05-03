@@ -13,7 +13,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 
-from finance.models import EInvoice, Customer, Product
+from finance.models import EInvoice
 from permissions.decorators import permission_required
 
 import json

@@ -1,0 +1,27 @@
+.accounting-module .module-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+}
+
+.accounting-module .module-sidebar {
+    position: sticky;
+    top: 1rem;
+}
+
+.accounting-module .list-group-item {
+    border: none;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.accounting-module .list-group-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Muhasebe modülü özel bileşenleri */
+.accounting-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from virtual_company.models import VirtualCompany
 from django.utils.translation import gettext_lazy as _
+from decimal import Decimal
 import uuid
 from django.utils import timezone
 import os
@@ -60,7 +61,6 @@ class Account(BaseModel):
         ('employee', 'Çalışan'),
         ('other', 'Diğer'),
     ])
-    from decimal import Decimal
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     tax_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -79,7 +79,7 @@ class Account(BaseModel):
         verbose_name = 'Cari Hesap'
         verbose_name_plural = 'Cari Hesaplar'
 
-class Invoice(BaseModel):
+class Invoice(models.Model):
     """Fatura"""
     number = models.CharField(max_length=20, unique=True)
     date = models.DateField()
@@ -92,7 +92,6 @@ class Invoice(BaseModel):
     total = models.DecimalField(max_digits=12, decimal_places=2)
     tax_total = models.DecimalField(max_digits=12, decimal_places=2)
     grand_total = models.DecimalField(max_digits=12, decimal_places=2)
-    from decimal import Decimal
     exchange_rate = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal('1.0000'))
     description = models.TextField(blank=True, null=True)
     # E-belge entegrasyonu için eklenenler
@@ -196,7 +195,6 @@ class TransactionLine(BaseModel):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='lines')
     account_code = models.CharField(max_length=20)
     description = models.CharField(max_length=255)
-    from decimal import Decimal
     debit = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     credit = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
@@ -213,7 +211,6 @@ class CashBox(BaseModel):
     """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
-    from decimal import Decimal
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     description = models.TextField(blank=True, null=True)
 
@@ -232,7 +229,6 @@ class Bank(BaseModel):
     code = models.CharField(max_length=20, unique=True)
     account_number = models.CharField(max_length=50)
     iban = models.CharField(max_length=50, blank=True, null=True)
-    from decimal import Decimal
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     description = models.TextField(blank=True, null=True)
 
@@ -250,9 +246,7 @@ class Stock(BaseModel):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
     unit = models.CharField(max_length=20)
-    from decimal import Decimal
     quantity = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
-    from decimal import Decimal
     unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     currency = models.CharField(max_length=3, default='TRY')
     description = models.TextField(blank=True, null=True)
@@ -489,9 +483,7 @@ class EDocument(BaseModel):
     STATUS_CHOICES = [
         ('DRAFT', 'Taslak'),
         ('PENDING', 'Beklemede'),
-        ('SENT', 'Gönderildi'),
-        ('DELIVERED', 'Teslim Edildi'),
-        ('ACCEPTED', 'Onaylandı'),
+        ('APPROVED', 'Onaylandı'),
         ('REJECTED', 'Reddedildi'),
         ('CANCELED', 'İptal Edildi'),
         ('ERROR', 'Hata'),
@@ -569,6 +561,9 @@ class EDocument(BaseModel):
         self.xml_content = xml_content
         self.save()
 
+    def get_pdf_filename(self):
+        return f"e-belge-{self.document_number}.pdf"
+
 class DailyTask(models.Model):
     """Günlük görevler modeli"""
     
@@ -623,7 +618,9 @@ class DailyTask(models.Model):
     points = models.PositiveIntegerField(_('Puanlar'), default=10)
     estimated_time = models.PositiveIntegerField(_('Tahmini Süre (dakika)'), default=15)
     active = models.BooleanField(_('Aktif'), default=True)
-    knowledge_required = models.ManyToManyField('KnowledgeBase', related_name='related_tasks', blank=True)
+    knowledge_required = models.BooleanField(default=False)
+    related_tasks = models.ManyToManyField('self')
+    completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Güncellenme Tarihi'), auto_now=True)
 
@@ -636,6 +633,8 @@ class DailyTask(models.Model):
     reminder_date = models.DateTimeField(_('Hatırlatma Tarihi'), null=True, blank=True)
     invoice = models.ForeignKey('Invoice', on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks', verbose_name=_('İlgili Fatura'))
     e_document = models.ForeignKey('EDocument', on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks', verbose_name=_('İlgili E-Belge'))
+    knowledge_items = models.ManyToManyField('KnowledgeBase', related_name='tasks')
+    related_items = models.ManyToManyField('KnowledgeBaseRelatedItem', related_name='tasks')
     
     class Meta:
         verbose_name = _('Günlük Görev')
@@ -651,6 +650,7 @@ class UserDailyTask(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='daily_tasks')
     task = models.ForeignKey(DailyTask, on_delete=models.CASCADE, related_name='user_tasks')
     completed = models.BooleanField(_('Tamamlandı'), default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
     completion_date = models.DateTimeField(_('Tamamlanma Tarihi'), null=True, blank=True)
     notes = models.TextField(_('Notlar'), blank=True, null=True)
     created_at = models.DateTimeField(_('Oluşturulma Tarihi'), auto_now_add=True)
@@ -811,9 +811,7 @@ class BudgetLine(BaseModel):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='lines')
     account = models.ForeignKey(ChartOfAccounts, on_delete=models.PROTECT)
     planned_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Planlanan Tutar")
-    from decimal import Decimal
     actual_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Gerçekleşen Tutar")
-    from decimal import Decimal
     variance = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Fark")
     notes = models.TextField(blank=True, null=True, verbose_name="Notlar")
 

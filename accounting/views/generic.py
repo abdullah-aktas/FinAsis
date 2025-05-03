@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.db.models import Sum, Count, F, Q
+from django.core.paginator import Paginator
+from django.db import models, transaction  
+from django.db.models import Sum, Count
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from .models import (
-    ChartOfAccounts, Account, Invoice, InvoiceLine,
-    Transaction, TransactionLine, CashBox, Bank, Stock, StockTransaction, EDocument, EDocumentSettings,
-    Tax, Currency, ExchangeRate, Budget, BudgetCategory, DailyTask,
-    UserDailyTask, KnowledgeBase, UserKnowledgeRead, TaskCategory, TaskCompletion, TaskNote
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, TemplateView
 )
-from .forms import (
+import os
+
+from ..managers import AccountingManager
+from ..models import (
+    Account, Bank, Invoice, Transaction, EDocument, 
+    DailyTask, UserDailyTask, KnowledgeBase, CashBox, StockTransaction, 
+    ChartOfAccounts, Stock, UserKnowledgeRead, EDocumentSettings,
+    InvoiceLine, TransactionLine
+)
+from ..services import EDocumentService
+from ..forms import (
     AccountForm, InvoiceForm, InvoiceLineForm, InvoiceLineFormSet,
     TransactionForm, TransactionLineForm, TransactionLineFormSet,
-    BankForm, StockForm, StockTransactionForm, ChartOfAccountsForm, CashBoxForm,
-    EDocumentCreateForm, EDocumentFilterForm, EDocumentCancelForm, EDocumentSettingsForm,
-    DailyTaskForm, TaskResourceFormSet
+    BankForm, StockForm, StockTransactionForm,
+    ChartOfAccountsForm, CashBoxForm, EDocumentCreateForm,
+    EDocumentFilterForm, EDocumentCancelForm, EDocumentSettingsForm
 )
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, TemplateView
-from django.urls import reverse_lazy, reverse
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, FileResponse
-from django.views.decorators.http import require_POST
-from django.utils.translation import gettext_lazy as _
-from .services import EDocumentService
-from django.template.loader import render_to_string
-from django.db import transaction
-import os
-import mimetypes
-from datetime import datetime
-from django.contrib.messages.views import SuccessMessageMixin
-from django.core.paginator import Paginator
 
 @login_required
 def dashboard(request):
@@ -99,15 +100,17 @@ def account_detail(request, pk):
     account = get_object_or_404(Account, pk=pk, virtual_company=request.user.virtual_company)
     return render(request, 'accounting/account_detail.html', {'account': account})
 
-@login_required
+@login_required 
 def account_create(request):
     if request.method == 'POST':
         form = AccountForm(request.POST)
         if form.is_valid():
-            account = form.save(commit=False)
-            account.virtual_company = request.user.virtual_company
-            account.save()
-            messages.success(request, 'Cari hesap başarıyla oluşturuldu.')
+            manager = AccountingManager()
+            account = manager.create_account(
+                **form.cleaned_data,
+                virtual_company=request.user.virtual_company
+            )
+            messages.success(request, 'Hesap başarıyla oluşturuldu.')
             return redirect('accounting:account_list')
     else:
         form = AccountForm()
@@ -143,8 +146,14 @@ def invoice_list(request):
 
 @login_required
 def invoice_detail(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk, virtual_company=request.user.virtual_company)
-    return render(request, 'accounting/invoice_detail.html', {'invoice': invoice})
+    invoice = get_object_or_404(Invoice, pk=pk)
+    context = {
+        'invoice': invoice,
+        'lines': invoice.lines.all(),  # invoice_lines yerine lines kullan
+        'can_create_edoc': not invoice.edocument_set.filter(active=True).exists(),
+        'edocuments': invoice.edocument_set.filter(active=True)
+    }
+    return render(request, 'accounting/invoice_detail.html', context)
 
 @login_required
 def invoice_create(request):
@@ -611,19 +620,10 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        invoice = self.get_object()
-        
-        # Fatura kalemlerini context'e ekle
-        context['invoice_lines'] = invoice.lines.all()
-        
-        # E-belge kontrollerini ekle
-        context['has_edocument'] = invoice.edocument_set.exists()
-        context['can_create_edocument'] = invoice.can_create_e_invoice and not invoice.edocument_set.exists()
-        
-        # Eğer faturanın e-belgesi varsa, detayları context'e ekle
-        if context['has_edocument']:
-            context['edocument'] = invoice.edocument_set.first()
-        
+        obj = self.object
+        context['lines'] = obj.lines.all()  # invoice_lines yerine lines kullan
+        context['edocuments'] = obj.edocument_set.filter(active=True)
+        context['can_create_e_invoice'] = not obj.edocument_set.filter(active=True).exists()
         return context
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
@@ -1186,13 +1186,11 @@ class EDocumentDetailView(LoginRequiredMixin, DetailView):
     model = EDocument
     template_name = 'accounting/edocument_detail.html'
     context_object_name = 'edocument'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['invoice'] = self.object.invoice
-        context['cancel_form'] = EDocumentCancelForm()
         return context
-
 
 @login_required
 def create_edocument(request, pk):
@@ -1254,7 +1252,6 @@ def create_edocument(request, pk):
         'invoice': invoice
     })
 
-
 @login_required
 def check_edocument_status(request, pk):
     """E-belge durumunu kontrol etme"""
@@ -1278,7 +1275,6 @@ def check_edocument_status(request, pk):
         messages.error(request, _("Belge durumu kontrol edilirken bir hata oluştu."))
     
     return redirect('accounting:edocument_detail', pk=edocument.pk)
-
 
 @login_required
 def download_edocument(request, pk):
@@ -1309,7 +1305,6 @@ def download_edocument(request, pk):
         messages.error(request, _("PDF dosyası indirilirken bir hata oluştu: {}").format(str(e)))
     
     return redirect('accounting:edocument_detail', pk=edocument.pk)
-
 
 @login_required
 @require_POST
@@ -1576,6 +1571,23 @@ class UserStatsView(LoginRequiredMixin, TemplateView):
         
         return context
 
+@login_required
+def daily_task_list(request):
+    tasks = DailyTask.objects.filter(
+        knowledge_items__isnull=False
+    ).distinct()
+    return render(request, 'accounting/daily_task_list.html', {'tasks': tasks})
+
+@login_required
+def get_user_stats(request):
+    profile = request.user.profile
+    context = {
+        'completed_tasks': profile.completed_tasks.count(),
+        'pending_tasks': profile.pending_tasks.count()
+    }
+    return render(request, 'accounting/user_stats.html', context)
+
+# Günlük Görevler CRUD Görünümleri
 class DailyTaskCreateView(LoginRequiredMixin, CreateView):
     model = DailyTask
     template_name = 'accounting/daily_task_form.html'
@@ -1608,6 +1620,7 @@ class DailyTaskDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# Bilgi Bankası CRUD Görünümleri
 class KnowledgeBaseCreateView(LoginRequiredMixin, CreateView):
     model = KnowledgeBase
     template_name = 'accounting/knowledge_base_form.html'
