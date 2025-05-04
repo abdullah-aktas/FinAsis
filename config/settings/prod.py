@@ -3,15 +3,20 @@
 Üretim ortamı ayarları
 """
 from .base import *
+from typing import List
 from datetime import timedelta
 import os
 import environ
+
+# Create logs directory if it doesn't exist
+os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
 
 env = environ.Env()
 
 DEBUG = False
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='finasis.com.tr').split(',')
+# Host settings
+ALLOWED_HOSTS: List[str] = os.environ.get('ALLOWED_HOSTS', 'finasis.com.tr').split(',')
 
 # Static/Media Settings
 STATIC_ROOT = '/var/www/finasis/static'
@@ -44,21 +49,27 @@ CSP_BASE_URI = ("'self'",)
 CSP_FORM_ACTION = ("'self'",)
 CSP_FRAME_ANCESTORS = ("'self'",)
 
-# Database
+# Database settings  
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT', default='5432'),
-        'CONN_MAX_AGE': 60,
+        'NAME': os.environ.get('DB_NAME', 'finasis'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'connect_timeout': 10,
+            'client_encoding': 'UTF8'
         }
     }
 }
+
+# Cloud SQL settings (if needed)
+if os.environ.get('USE_CLOUD_SQL_AUTH_PROXY', 'False').lower() == 'true':
+    DATABASES['default']['HOST'] = '/cloudsql/' + os.environ.get('CLOUD_SQL_CONNECTION_NAME', '')
+    DATABASES['default']['PORT'] = ''
 
 # Veritabanı yedekleme için ikinci bağlantı (salt okunur)
 if os.environ.get('DB_USE_READONLY_REPLICA', 'False') == 'True':
@@ -141,7 +152,7 @@ SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
 EMAIL_TIMEOUT = 30  # 30 saniye timeout
 EMAIL_SUBJECT_PREFIX = '[FinAsis] '
 
-# Logging
+# Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -150,67 +161,30 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
         'json': {
-            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "message": "%(message)s", "module": "%(module)s", "process": %(process)d, "thread": %(thread)d}',
-            'datefmt': '%Y-%m-%dT%H:%M:%S%z',
-        },
+            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "message": "%(message)s"}',
+            'datefmt': '%Y-%m-%dT%H:%M:%S%z'
+        }
     },
     'handlers': {
         'file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/finasis/django.log',
-            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'maxBytes': 10485760,  # 10 MB
             'backupCount': 10,
-            'formatter': 'verbose',
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'json',
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-            'formatter': 'verbose',
-            'include_html': True,
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console', 'mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'finasis': {
-            'handlers': ['file', 'console', 'mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'django.security': {
-            'handlers': ['file', 'console', 'mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['file', 'console', 'mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.db.backends': {
-            'handlers': ['file', 'console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
+            'formatter': 'json'
+        }
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'ERROR',
-    },
+        'level': 'INFO',
+    }
 }
 
 # AWS S3 Configuration for static and media files
@@ -367,8 +341,8 @@ SIMPLE_JWT = {
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
     'JTI_CLAIM': 'jti',
 }
-
-# CORS settings
+ORS_ALLOW_CREDENTIALS = True
+# CORS settingsCORS_ALLOW_METHODS = [
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://finasis.com.tr,https://www.finasis.com.tr,https://api.finasis.com.tr').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -393,8 +367,8 @@ CORS_ALLOW_HEADERS = [
 ]
 CORS_EXPOSE_HEADERS = [
     'content-disposition',
-]
-CORS_PREFLIGHT_MAX_AGE = 86400  # 24 saat
+]  # Dil ayarları
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 saat 'tr'
 
 # Dil ayarları
 LANGUAGE_CODE = 'tr'
@@ -406,25 +380,13 @@ LANGUAGES = [
     ('de', 'Deutsch'),
 ]
 
-# E-Belge Dosya Ayarları
-EDOCUMENT_STORAGE_PATH = os.path.join(BASE_DIR, 'media', 'edocuments')
-EDOCUMENT_PDF_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'pdf')
-EDOCUMENT_XML_PATH = os.path.join(EDOCUMENT_STORAGE_PATH, 'xml')
-
-# E-Belge Arşivleme Ayarları
-EDOCUMENT_RETENTION_PERIOD = int(os.getenv('EDOCUMENT_RETENTION_PERIOD', '10'))  # Yıl
-EDOCUMENT_BACKUP_ENABLED = True
-EDOCUMENT_BACKUP_PATH = os.path.join(BASE_DIR, 'backups', 'edocuments')
-
-# E-Belge Önbellek Ayarları
-EDOCUMENT_CACHE_ENABLED = True
-EDOCUMENT_CACHE_TIMEOUT = 3600  # Saniye
-
-# E-Belge Log Ayarları
+# E-Belge Ayarları
 EDOCUMENT_LOG_LEVEL = 'INFO'
 EDOCUMENT_LOG_FILE = os.path.join(BASE_DIR, 'logs', 'edocument.log')
+EDOCUMENT_STORAGE_PATH = os.path.join(BASE_DIR, 'media', 'edocuments')
+os.makedirs(EDOCUMENT_STORAGE_PATH, exist_ok=True)
 
-# Yetkilendirme ayarları
+# Yetkilendirme Ayarları
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -445,12 +407,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-    {
-        'NAME': 'accounts.validators.PasswordStrengthValidator',
-    },
 ]
 
-# Admin site ayarları
+# Admin Ayarları
 ADMIN_URL = os.environ.get('ADMIN_URL', 'admin/')
 ADMINS = [tuple(admin.split(':')) for admin in os.environ.get('ADMINS', 'Admin:admin@finasis.com.tr').split(',')]
 MANAGERS = ADMINS

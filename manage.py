@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import NoReturn
 import psycopg2
 from psycopg2 import extensions
+from dotenv import load_dotenv
+
+# .env dosyasını yükle
+load_dotenv()
 
 # Loglama yapılandırması
 logging.basicConfig(
@@ -59,30 +63,36 @@ def check_dependencies() -> None:
 
 def init_database():
     try:
-        # Connect to PostgreSQL
+        # Connect to PostgreSQL with UTF8 encoding
         conn = psycopg2.connect(
             dbname='postgres',
             user=os.environ.get('DB_USER', 'postgres'),
             password=os.environ.get('DB_PASSWORD', ''),
             host=os.environ.get('DB_HOST', 'localhost'),
-            port=os.environ.get('DB_PORT', '5432')
+            port=os.environ.get('DB_PORT', '5432'),
+            client_encoding='UTF8'
         )
         conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
         
         # Create database if not exists
-        cur.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = 'finasis'")
-        if not cur.fetchone():
-            cur.execute("""
-                CREATE DATABASE finasis
-                WITH OWNER = postgres
-                ENCODING = 'UTF8'
-                LC_COLLATE = 'tr_TR.UTF-8'
-                LC_CTYPE = 'tr_TR.UTF-8'
-                TEMPLATE = template0;
-            """)
-            print("Database 'finasis' created successfully")
-            
+        cur.execute('''
+            SELECT pg_terminate_backend(pg_stat_activity.pid)
+            FROM pg_stat_activity
+            WHERE pg_stat_activity.datname = 'finasis';
+        ''')
+        
+        cur.execute("DROP DATABASE IF EXISTS finasis;")
+        cur.execute('''
+            CREATE DATABASE finasis
+            WITH OWNER = postgres
+            ENCODING = 'UTF8'
+            LC_COLLATE = 'en_US.UTF-8'
+            LC_CTYPE = 'en_US.UTF-8'
+            TEMPLATE = template0;
+        ''')
+        print("Database 'finasis' created successfully")
+        
         cur.close()
         conn.close()
     except Exception as e:

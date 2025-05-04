@@ -1,28 +1,20 @@
 version: '3.8'
 
 services:
-  django:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    image: finasis:latest
     restart: always
-    env_file: .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - CLOUD_SQL_CONNECTION_NAME=${CLOUD_SQL_CONNECTION_NAME}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER} 
+      - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - finasis_net
-
-  postgres:
-    image: postgres:15-alpine
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file: .env
     networks:
       - finasis_net
 
@@ -38,110 +30,20 @@ services:
     image: nginx:alpine
     restart: always
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx:/etc/nginx/conf.d
       - static_volume:/app/static
       - media_volume:/app/media
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - django
-    networks:
-      - finasis_net
-
-  certbot:
-    image: certbot/certbot
-    restart: unless-stopped
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-  prometheus:
-    image: prom/prometheus:latest
-    restart: always
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./monitoring/rules:/etc/prometheus/rules
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-    networks:
-      - finasis_net
-
-  grafana:
-    image: grafana/grafana:latest
-    restart: always
-    volumes:
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-      - GF_USERS_ALLOW_SIGN_UP=false
-    depends_on:
-      - prometheus
-    networks:
-      - finasis_net
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    restart: always
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - finasis_net
-
-  postgres-exporter:
-    image: wrouesnel/postgres_exporter:latest
-    restart: always
-    environment:
-      - DATA_SOURCE_NAME=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable
-    depends_on:
-      - postgres
-    networks:
-      - finasis_net
-
-  redis-exporter:
-    image: oliver006/redis_exporter:latest
-    restart: always
-    environment:
-      - REDIS_ADDR=redis://redis:6379
-    depends_on:
-      - redis
-    networks:
-      - finasis_net
-
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:latest
-    restart: always
-    command:
-      - '-nginx.scrape-uri=http://nginx:8080/stub_status'
-    depends_on:
-      - nginx
     networks:
       - finasis_net
 
 volumes:
-  postgres_data:
-  redis_data:
   static_volume:
   media_volume:
-  prometheus_data:
-  grafana_data:
+  redis_data:
 
 networks:
   finasis_net:
-    driver: bridge 
+    driver: bridge

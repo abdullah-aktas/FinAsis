@@ -38,6 +38,8 @@ env_variables:
   DEFAULT_TIMEOUT: "30"
   COMPRESS_ENABLED: "True"
   USE_X_FORWARDED_HOST: "True"
+  
+  CLOUD_SQL_CONNECTION_NAME: "high-winter-457322-n1:europe-west1:finasis-db"
 
 # Statik ve Media Dosya Yönetimi
 handlers:
@@ -114,4 +116,7 @@ env:
 
 inbound_services:
 - warmup
-- health_check 
+- health_check
+
+beta_settings:
+  cloud_sql_instances: high-winter-457322-n1:europe-west1:finasis-db
