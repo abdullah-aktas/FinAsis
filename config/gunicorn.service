@@ -7,8 +7,8 @@ User=finasis
 Group=www-data
 WorkingDirectory=/var/www/finasis
 Environment="PATH=/var/www/finasis/venv/bin"
-Environment="DJANGO_SETTINGS_MODULE=finasis.settings.prod"
-ExecStart=/var/www/finasis/venv/bin/gunicorn finasis.wsgi:application \
+Environment="DJANGO_SETTINGS_MODULE=FinAsis.settings"
+ExecStart=/var/www/finasis/venv/bin/gunicorn FinAsis.wsgi:application \
     --name finasis \
     --workers 3 \
     --bind unix:/run/finasis.sock \

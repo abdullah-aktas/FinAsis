@@ -4,6 +4,8 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
+from celery.schedules import crontab
+
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finasis.settings')

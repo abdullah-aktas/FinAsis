@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
+from celery.schedules import crontab
 from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
-from django_celery_beat.schedulers import crontab # type: ignore
-from decouple import config, Csv
+import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
