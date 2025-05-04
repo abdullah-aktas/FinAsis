@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 import os
 from dotenv import load_dotenv
+from celery.schedules import crontab
+
 
 # Load environment variables from .env file
 load_dotenv()

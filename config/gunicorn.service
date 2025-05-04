@@ -7,16 +7,11 @@ User=finasis
 Group=www-data
 WorkingDirectory=/var/www/finasis
 Environment="PATH=/var/www/finasis/venv/bin"
-Environment="DJANGO_SETTINGS_MODULE=FinAsis.settings"
-ExecStart=/var/www/finasis/venv/bin/gunicorn FinAsis.wsgi:application \
+Environment="DJANGO_SETTINGS_MODULE=config.settings"
+ExecStart=/var/www/finasis/venv/bin/gunicorn config.wsgi:application \
     --name finasis \
-    --workers 3 \
-    --bind unix:/run/finasis.sock \
-    --log-level=info \
-    --log-file=/var/log/finasis/gunicorn.log \
-    --access-logfile=/var/log/finasis/access.log \
-    --error-logfile=/var/log/finasis/error.log \
-    --capture-output
+    --config /var/www/finasis/config/gunicorn.conf.py \
+    --bind unix:/run/finasis.sock
 
 [Install]
 WantedBy=multi-user.target

@@ -3,6 +3,8 @@ from pathlib import Path
 from decouple import config
 import os
 from datetime import timedelta
+from celery.schedules import crontab
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
