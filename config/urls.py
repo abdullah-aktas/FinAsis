@@ -192,4 +192,41 @@ urlpatterns += [
     # API Dokümantasyonu
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-] 
+]
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    
+    # Core apps
+    path('', include('core.urls')),
+    path('users/', include('users.urls')),
+    path('permissions/', include('permissions.urls')),
+    
+    # Business apps 
+    path('finance/', include('finance.urls')),
+    path('accounting/', include('finance.accounting.urls')),
+    path('banking/', include('finance.banking.urls')),
+    path('einvoice/', include('finance.einvoice.urls')),
+    
+    # Operation apps
+    path('stock/', include('stock_management.urls')),
+    path('assets/', include('assets.urls')),
+    path('ai-assistant/', include('ai_assistant.urls')),
+    path('virtual-company/', include('virtual_company.urls')),
+    path('analytics/', include('analytics.urls')),
+    path('seo/', include('seo.urls')),
+    path('blockchain/', include('blockchain.urls')),
+    
+    # Games
+    path('games/', include('games.urls')),
+    
+    # API endpoints
+    path('api/v1/', include('config.api_router')),
+    
+    # Health checks
+    path('health/', include('health_check.urls')),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

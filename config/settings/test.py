@@ -15,7 +15,9 @@ DATABASES = {
 }
 
 # Test için hızlandırma
-PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]
 
 # Cache disable
 CACHES = {
@@ -24,24 +26,16 @@ CACHES = {
     }
 }
 
-# Test için gereksiz middleware'leri kaldırıyoruz
+# Debug toolbar'ı devre dışı bırak
 MIDDLEWARE = [
     middleware for middleware in MIDDLEWARE
-    if middleware not in [
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'whitenoise.middleware.WhiteNoiseMiddleware',
-    ]
+    if middleware != 'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 # Third-party uygulamaları test ortamında kullanmayacağız
 INSTALLED_APPS = [
     app for app in INSTALLED_APPS
-    if app not in [
-        'debug_toolbar',
-        'django_celery_beat',
-        'django_celery_results',
-        'pwa',
-    ]
+    if not app.startswith('debug_toolbar')
 ]
 
 # Email
@@ -55,4 +49,4 @@ CELERY_TASK_EAGER_PROPAGATES = True
 MEDIA_ROOT = os.path.join(BASE_DIR, 'tests/media')
 
 # Süreçleri hızlandırmak için
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage' 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'

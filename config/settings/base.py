@@ -36,13 +36,30 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'drf_yasg',
     'django_filters',
+    'debug_toolbar',
+    'django_celery_beat',
+    'health_check',
+    'health_check.db',
+    'health_check.cache',
 ]
 
 LOCAL_APPS = [
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
+    'permissions.apps.PermissionsConfig',
     'finance.apps.FinanceConfig',
+    'finance.accounting.apps.AccountingConfig', 
+    'finance.banking.apps.BankingConfig',
+    'finance.einvoice.apps.EInvoiceConfig',
+    'stock_management.apps.StockManagementConfig',
+    'assets.apps.AssetManagementConfig',
+    'ai_assistant.apps.AIAssistantConfig',
     'virtual_company.apps.VirtualCompanyConfig',
+    'analytics.apps.AnalyticsConfig',
+    'seo.apps.SeoConfig',
+    'blockchain.apps.BlockchainConfig',
+    'games.ursina_game.apps.UrsinaGameConfig',
+    'games.game_app.apps.GamesConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

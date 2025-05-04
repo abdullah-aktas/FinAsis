@@ -16,6 +16,13 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Görev modüllerini otomatik olarak yükle
 app.autodiscover_tasks()
 
+# Görev sonuçlarının yaşam süresi
+app.conf.update(
+    result_expires=3600,  # 1 saat
+    broker_url=settings.CELERY_BROKER_URL,
+    broker_connection_retry_on_startup=True
+)
+
 # Periyodik görevleri tanımla
 app.conf.beat_schedule = {
     'check-overdue-activities': {
@@ -47,9 +54,4 @@ app.conf.task_default_retry_delay = 300  # 5 dakika
 app.conf.task_max_retries = 3
 
 # Sonuç backend ayarları
-app.conf.result_backend = 'django-db'
-app.conf.result_expires = 3600  # 1 saat
-
-# Broker ayarları
-app.conf.broker_url = settings.CELERY_BROKER_URL
-app.conf.broker_connection_retry_on_startup = True 
+# 'result_backend' doğrudan burada atanamaz, bunun yerine Django ayarlarında 'CELERY_RESULT_BACKEND' olarak tanımlayın.

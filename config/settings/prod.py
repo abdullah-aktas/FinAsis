@@ -5,10 +5,19 @@
 from .base import *
 from datetime import timedelta
 import os
+import environ
+
+env = environ.Env()
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'finasis.com.tr').split(',')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='finasis.com.tr').split(',')
+
+# Static/Media Settings
+STATIC_ROOT = '/var/www/finasis/static'
+STATIC_URL = '/static/'
+MEDIA_ROOT = '/var/www/finasis/media'
+MEDIA_URL = '/media/'
 
 # Security Settings
 SECURE_SSL_REDIRECT = True
@@ -39,20 +48,15 @@ CSP_FRAME_ANCESTORS = ("'self'",)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'CONN_MAX_AGE': 600,
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT', default='5432'),
+        'CONN_MAX_AGE': 60,
         'OPTIONS': {
             'connect_timeout': 10,
-            'client_encoding': 'UTF8',
-            'application_name': 'FinAsis',
-            'sslmode': os.environ.get('DB_SSL_MODE', 'prefer'),
-        },
-        'ATOMIC_REQUESTS': True,
-        'CONN_HEALTH_CHECKS': True,
+        }
     }
 }
 
@@ -208,10 +212,6 @@ LOGGING = {
         'level': 'ERROR',
     },
 }
-
-# Static files
-STATIC_ROOT = '/app/staticfiles'
-MEDIA_ROOT = '/app/media'
 
 # AWS S3 Configuration for static and media files
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', None)
