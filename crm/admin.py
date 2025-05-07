@@ -4,6 +4,8 @@ from .models import (
     Customer, Contact, Opportunity, Activity,
     Document, Communication, Note
 )
+from django.utils.html import format_html
+from django.urls import reverse
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -52,16 +54,16 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(Opportunity)
 class OpportunityAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'customer_link', 'amount',
-        'probability', 'stage', 'expected_close_date',
-        'actual_close_date', 'status', 'created_at'
+        'name', 'customer_link', 'value',
+        'probability', 'status', 'expected_close_date',
+        'created_at'
     )
     list_filter = (
-        'stage', 'status', 'probability',
+        'status', 'probability',
         'expected_close_date', 'created_at'
     )
     search_fields = (
-        'title', 'description', 'customer__company_name'
+        'name', 'notes', 'customer__company_name'
     )
     readonly_fields = ('created_at', 'updated_at')
 
@@ -105,7 +107,7 @@ class ActivityAdmin(admin.ModelAdmin):
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'type', 'file_size',
+        'title', 'type',
         'customer_link', 'uploaded_by',
         'created_at'
     )
@@ -115,7 +117,7 @@ class DocumentAdmin(admin.ModelAdmin):
         'customer__company_name'
     )
     readonly_fields = (
-        'file_size', 'created_at',
+        'created_at',
         'updated_at'
     )
 

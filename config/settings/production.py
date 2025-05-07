@@ -3,6 +3,8 @@
 Canlı ortam için Django ayarları
 Bu dosya, canlı ortamda (production) kullanılacak özel ayarları içerir.
 """
+import os
+from datetime import timedelta
 from core.settings import *
 
 # Güvenlik Ayarları

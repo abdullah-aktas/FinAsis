@@ -4,7 +4,7 @@ E-fatura entegrasyonları için test dosyası.
 """
 import pytest
 from django.test import TestCase
-from integrations.efatura.models import EInvoice, EInvoiceItem
+from integrations.efatura.models import EInvoice, InvoiceItem
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 from decimal import Decimal
@@ -23,7 +23,7 @@ class EInvoiceModelTest(TestCase):
             customer_tax_id="1234567890"
         )
         
-        self.invoice_item = EInvoiceItem.objects.create(
+        self.invoice_item = InvoiceItem.objects.create(
             invoice=self.einvoice,
             description="Test Ürün",
             quantity=2,

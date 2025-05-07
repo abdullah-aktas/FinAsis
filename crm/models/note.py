@@ -18,7 +18,7 @@ User = get_user_model()
 class Note(models.Model):
     """Not modeli"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='notes')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='notes')
     title = models.CharField(_('Başlık'), max_length=255)
     content = models.TextField(_('İçerik'))
     is_private = models.BooleanField(_('Özel'), default=False)

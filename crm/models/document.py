@@ -18,7 +18,7 @@ User = get_user_model()
 class Document(models.Model):
     """Doküman modeli"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='documents')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='documents')
     title = models.CharField(_('Başlık'), max_length=255)
     description = models.TextField(_('Açıklama'), blank=True)
     file = models.FileField(_('Dosya'), upload_to='documents/')

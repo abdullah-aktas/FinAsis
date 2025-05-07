@@ -64,4 +64,16 @@ handler500 = 'FinAsis.views.server_error'
 # Debug modunda statik ve medya dosyaları
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Eski import
+from apps.users.models import User
+
+# Yeni import  
+from users.models import User
+
+# Eski import
+from apps.core.mixins import StatusMixin
+
+# Yeni import
+from core.mixins import StatusMixin

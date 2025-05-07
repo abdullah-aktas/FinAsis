@@ -18,8 +18,8 @@ User = get_user_model()
 class Communication(models.Model):
     """İletişim kaydı modeli"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='communications')
-    contact = models.ForeignKey(Contact, on_delete=models.SET_NULL, null=True, related_name='communications')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='communications')
+    contact = models.ForeignKey('crm.Contact', on_delete=models.SET_NULL, null=True, related_name='communications')
     type = models.CharField(_('Tür'), max_length=20, choices=[
         ('CALL', _('Telefon Görüşmesi')),
         ('EMAIL', _('E-posta')),

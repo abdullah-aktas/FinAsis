@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
-from virtual_company.models import VirtualCompany
 from django.utils.translation import gettext_lazy as _
 from decimal import Decimal
 import uuid
@@ -14,7 +13,7 @@ class BaseModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
-    virtual_company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, null=True, blank=True, related_name='%(app_label)s_%(class)s_set')
+    virtual_company = models.ForeignKey('virtual_company.VirtualCompany', on_delete=models.CASCADE, null=True, blank=True, related_name='%(app_label)s_%(class)s_set')
     currency = models.CharField(max_length=3, default='TRY', choices=[
         ('TRY', 'Türk Lirası'),
         ('USD', 'Amerikan Doları'),

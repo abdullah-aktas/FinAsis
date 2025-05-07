@@ -25,7 +25,7 @@ class Opportunity(models.Model):
     ]
     
     name = models.CharField(max_length=200, verbose_name='Fırsat Adı')
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='opportunities', verbose_name='Müşteri')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='opportunities', verbose_name='Müşteri')
     value = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Değer')
     expected_close_date = models.DateField(verbose_name='Tahmini Kapanış Tarihi')
     status = models.CharField(max_length=20, choices=OPPORTUNITY_STATUS_CHOICES, default='open', verbose_name='Durum')

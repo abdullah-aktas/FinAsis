@@ -262,12 +262,12 @@ class EInvoice(BaseModel):
     issue_date = models.DateField(verbose_name=_('Düzenleme Tarihi'))
     due_date = models.DateField(verbose_name=_('Vade Tarihi'))
     
-    customer = models.ForeignKey(
-        'customers.Customer',  # <-- Doğru import path'i ekledik
-        on_delete=models.PROTECT,
-        related_name='einvoices',
-        verbose_name=_('Müşteri')
-    )
+    # customer = models.ForeignKey(
+    #     'customers.Customer',  # <-- Doğru import path'i ekledik
+    #     on_delete=models.PROTECT,
+    #     related_name='einvoices',
+    #     verbose_name=_('Müşteri')
+    # )
     
     subtotal = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Ara Toplam'))
     tax_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Vergi Toplamı'))
@@ -307,12 +307,12 @@ class EInvoiceItem(BaseModel):
         related_name='items',
         verbose_name=_('Fatura')
     )
-    product = models.ForeignKey(
-        'products.Product',
-        on_delete=models.PROTECT,
-        related_name='einvoice_items',
-        verbose_name=_('Ürün')
-    )
+    # product = models.ForeignKey(
+    #     'products.Product',
+    #     on_delete=models.PROTECT,
+    #     related_name='einvoice_items',
+    #     verbose_name=_('Ürün')
+    # )
     quantity = models.DecimalField(max_digits=12, decimal_places=3, verbose_name=_('Miktar'))
     unit = models.CharField(max_length=10, default='ADET', verbose_name=_('Birim'))
     unit_price = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Birim Fiyat'))
@@ -340,7 +340,7 @@ class EInvoiceItem(BaseModel):
         self.invoice.calculate_totals()
 
 class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE)
     department = models.CharField(max_length=100)
     employee_id = models.CharField(max_length=50, unique=True)
     
@@ -355,13 +355,3 @@ class Voucher(models.Model):
     
     def __str__(self):
         return f"{self.employee} - {self.amount}"
-
-@permission_required('finance.view_transaction')
-def transaction_view(request):
-    # view logic
-    pass
-
-@has_finance_permission('manage_accounts')
-def manage_accounts(request):
-    # view logic
-    pass

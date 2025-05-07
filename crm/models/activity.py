@@ -38,7 +38,6 @@ class Activity(models.Model):
         verbose_name_plural = _('Aktiviteler')
         ordering = ['-due_date']
         indexes = [
-            models.Index(fields=['opportunity']),
             models.Index(fields=['type']),
             models.Index(fields=['assigned_to']),
             models.Index(fields=['due_date']),

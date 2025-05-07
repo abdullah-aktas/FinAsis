@@ -18,7 +18,7 @@ User = get_user_model()
 class Contact(models.Model):
     """İletişim kişisi modeli"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='contacts')
+    customer = models.ForeignKey('crm.Customer', on_delete=models.CASCADE, related_name='contacts')
     first_name = models.CharField(_('Ad'), max_length=100)
     last_name = models.CharField(_('Soyad'), max_length=100)
     position = models.CharField(_('Pozisyon'), max_length=100)

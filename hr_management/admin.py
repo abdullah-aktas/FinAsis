@@ -51,7 +51,7 @@ class SalaryAdmin(admin.ModelAdmin):
     fieldsets = (
         (_('Temel Bilgiler'), {
             'fields': ('employee', 'base_salary', 'currency', 'effective_date', 'payment_frequency')
-        })
+        }),
     )
     readonly_fields = ('created_at', 'updated_at')
 
