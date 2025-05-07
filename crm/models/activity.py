@@ -42,7 +42,5 @@ class Activity(models.Model):
             models.Index(fields=['assigned_to']),
             models.Index(fields=['due_date']),
         ]
-
     def __str__(self):
-        return f"{self.get_type_display()} - {self.subject}"
-
+        return f"{self.type} - {self.subject}"

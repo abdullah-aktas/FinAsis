@@ -44,7 +44,7 @@ environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'
 BASE_DIR = Path(__file__).resolve().parent
 
 # Security settings
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
