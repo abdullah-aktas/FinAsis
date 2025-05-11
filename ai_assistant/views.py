@@ -27,6 +27,7 @@ from .serializers import (
     RecommendationSerializer, NotificationSerializer, MarketAnalysisSerializer
 )
 from django.utils.translation import gettext_lazy as _
+from ai.services.ai_assistant_service import AIAssistantService
 
 logger = logging.getLogger(__name__)
 
@@ -582,3 +583,21 @@ class OCRViewSet(viewsets.ViewSet):
                 {'error': _('OCR işlemi sırasında bir hata oluştu.')},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ai_assistant_chat(request):
+    """
+    Kullanıcıdan gelen mesajı AI asistanına iletir ve yanıtı döner.
+    """
+    try:
+        data = request.data
+        message = data.get('message')
+        if not message:
+            return Response({'error': 'Mesaj boş olamaz.'}, status=status.HTTP_400_BAD_REQUEST)
+        ai_service = AIAssistantService()
+        response = ai_service.chat(message)
+        return Response({'response': response}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"AI asistan chat endpoint hatası: {str(e)}")
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

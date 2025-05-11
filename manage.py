@@ -10,8 +10,6 @@ import os
 import sys
 from pathlib import Path
 from typing import NoReturn
-import psycopg2
-from psycopg2 import extensions
 from dotenv import load_dotenv
 
 # .env dosyasını yükle
@@ -61,49 +59,10 @@ def check_dependencies() -> None:
         )
         sys.exit(1)
 
-def init_database():
-    try:
-        # Connect to PostgreSQL with UTF8 encoding
-        conn = psycopg2.connect(
-            dbname='postgres',
-            user=os.environ.get('DB_USER', 'postgres'),
-            password=os.environ.get('DB_PASSWORD', ''),
-            host=os.environ.get('DB_HOST', 'localhost'),
-            port=os.environ.get('DB_PORT', '5432'),
-            client_encoding='UTF8'
-        )
-        conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-        cur = conn.cursor()
-        
-        # Create database if not exists
-        cur.execute('''
-            SELECT pg_terminate_backend(pg_stat_activity.pid)
-            FROM pg_stat_activity
-            WHERE pg_stat_activity.datname = 'finasis';
-        ''')
-        
-        cur.execute("DROP DATABASE IF EXISTS finasis;")
-        cur.execute('''
-            CREATE DATABASE finasis
-            WITH OWNER = postgres
-            ENCODING = 'UTF8'
-            LC_COLLATE = 'en_US.UTF-8'
-            LC_CTYPE = 'en_US.UTF-8'
-            TEMPLATE = template0;
-        ''')
-        print("Database 'finasis' created successfully")
-        
-        cur.close()
-        conn.close()
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-
 def execute_command() -> NoReturn:
     """Django yönetim komutunu çalıştırır."""
     try:
         from django.core.management import execute_from_command_line
-        if len(sys.argv) > 1 and sys.argv[1] in ['migrate', 'runserver']:
-            init_database()
         execute_from_command_line(sys.argv)
         sys.exit(0)  # Başarılı çalışma durumunda çıkış
     except Exception as e:

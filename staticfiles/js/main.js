@@ -355,4 +355,32 @@ function initializeDynamicFormFields() {
             this.closest('.form-field').remove();
         });
     });
-} 
+}
+
+// Form doğrulama
+const validateForm = (formElement) => {
+    // ...form validation logic
+};
+
+// Toast bildirimleri
+const showToast = (message, type = 'info') => {
+    // ...toast notification logic
+};
+
+// AJAX istekleri için yardımcı fonksiyon
+const ajaxRequest = async (url, options = {}) => {
+    // ...ajax helper logic
+};
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', () => {
+    // Bootstrap tooltips
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+
+    // Form doğrulama
+    const forms = document.querySelectorAll('form.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', (e) => validateForm(form));
+    });
+});

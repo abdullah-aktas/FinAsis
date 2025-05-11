@@ -37,4 +37,5 @@ router.register(r'ocr', views.OCRViewSet, basename='ocr')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('assistant/chat/', views.ai_assistant_chat, name='ai-assistant-chat'),
 ] 

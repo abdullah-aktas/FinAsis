@@ -1,11 +1,28 @@
-# FinAsis - Finansal Yönetim ve Eğitim Platformu
+# FinAsis
 
-<p align="center">
-  <img src="docs/assets/logo.png" alt="FinAsis Logo" width="200"/>
-</p>
+FinAsis, dünya standartlarının üstünde, kullanıcı dostu, iş yürüten, eğiten ve eğlendiren modern bir finansal ekosistemdir. Proje; web, mobil ve masaüstü platformlarında çalışır, yapay zeka ve blockchain (Solidity) desteği sunar.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/username/finasis)
+## Özellikler
+- **Modern Web Arayüzü:** React tabanlı, hızlı ve kullanıcı dostu.
+- **Mobil Uygulama:** React Native tabanlı, Android ve iOS desteği.
+- **Masaüstü Uygulama:** Electron tabanlı, Windows/Mac/Linux desteği.
+- **Yapay Zeka:** Akıllı asistan, öneri sistemi, otomasyon ve veri analizi.
+- **Blockchain:** Solidity ile akıllı kontratlar, dijital varlık yönetimi.
+- **Oyunlaştırma ve Eğitim:** Görevler, ödüller, simülasyonlar ve mini oyunlar.
+
+## Kurulum ve Kullanım
+Her platform için detaylı kurulum ve geliştirme adımları ilgili klasörlerin README dosyalarında açıklanmıştır:
+- [Web Frontend](frontend/README.md)
+- [Mobil Uygulama](mobile/README.md)
+- [Masaüstü Uygulama](desktop_app/README.md)
+
+## Katkı ve Geliştirme
+- Kodunuzu modüler ve okunabilir şekilde yazın.
+- Güvenlik, performans ve kullanıcı deneyimine öncelik verin.
+- Yapay zeka ve blockchain entegrasyonlarını sürekli güncel tutun.
+
+## Lisans
+MIT
 
 ## 📖 Dokümantasyon
 
@@ -51,12 +68,24 @@ Detaylı kurulum talimatları için [kurulum kılavuzunu](docs/tr/KURULUM.md) in
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
-
 ## 🤝 İletişim
 
 - Proje Yöneticisi: [İsim Soyisim](mailto:email@example.com)
 - Website: [finasis.com](https://finasis.com)
 - LinkedIn: [FinAsis](https://linkedin.com/company/finasis)
+
+## API Entegrasyonları
+
+### AI Asistanı
+- Endpoint: `/api/v2/ai-assistant/assistant/chat/`
+- Yöntem: `POST`
+- Body: `{ "message": "Merhaba!" }`
+- Yanıt: `{ "response": "AI: Merhaba! mesajını aldım. Size nasıl yardımcı olabilirim?" }`
+
+### Oyunlaştırma
+- Endpoint: `/api/v2/education/interactive-exercises/complete-task/`
+- Yöntem: `POST`
+- Body: `{ "task": "Giriş Yap" }`
+- Yanıt: `{ "reward": "Hoşgeldin Rozeti" }`
+
+Bu endpoint'ler web, mobil ve masaüstü uygulamalarınızdan kolayca çağrılabilir.

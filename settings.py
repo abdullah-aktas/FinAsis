@@ -113,20 +113,8 @@ TEMPLATES = [
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
-        'CONN_MAX_AGE': 60,
-        'OPTIONS': {
-            'options': '-c search_path=public,finasis_user',
-            'client_encoding': 'UTF8'
-        },
-        'TEST': {
-            'NAME': 'test_finasis'
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

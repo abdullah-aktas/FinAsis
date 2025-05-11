@@ -106,7 +106,7 @@ class Contact(models.Model):
     first_name = models.CharField(_('Ad'), max_length=100)
     last_name = models.CharField(_('Soyad'), max_length=100)
     position = models.CharField(_('Pozisyon'), max_length=100)
-    department = models.CharField(_('Departman'), max_length=100)
+    department = models.CharField(_('Departman'), max_length=100, null=True, blank=True)
     phone = models.CharField(_('Telefon'), max_length=20)
     mobile = models.CharField(_('Cep Telefonu'), max_length=20)
     email = models.EmailField(_('E-posta'))

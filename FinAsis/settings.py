@@ -46,15 +46,8 @@ INSTALLED_APPS = [
 # Database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'finasis'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'OPTIONS': {
-            'client_encoding': 'UTF8',
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -202,8 +195,8 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour='*/1'),
     },
     'check-expired-documents': {
-        'task': 'edocument.tasks.check_expired_documents',
-        'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı çalışır
+        # 'task': 'edocument.tasks.check_expired_documents',  # KALDIRILDI veya yoruma alındı
+        # 'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı çalışır
     },
     'check-upcoming-payments': {
         'task': 'finance.tasks.check_upcoming_payments',
