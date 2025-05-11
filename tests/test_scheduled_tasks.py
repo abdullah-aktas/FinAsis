@@ -2,6 +2,9 @@
 """
 Düzenli çalışan finansal görevler için test dosyası.
 """
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 import pytest
 from unittest.mock import patch, MagicMock
 from django.test import TestCase

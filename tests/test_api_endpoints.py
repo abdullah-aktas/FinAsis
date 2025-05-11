@@ -2,6 +2,9 @@
 """
 Finans modülü ve entegrasyonlar için API Endpoint testleri.
 """
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 import pytest
 import json
 from django.urls import reverse

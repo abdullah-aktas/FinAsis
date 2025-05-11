@@ -75,6 +75,8 @@ LOCAL_APPS = [
     'virtual_company.apps.VirtualCompanyConfig',
     'apps.edocument',
     'apps.customers.apps.CustomersConfig',
+    'integrations.bank_integration',
+    'integrations.efatura',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -241,10 +243,11 @@ LOGGING = {
     },
 }
 
-if not DEBUG and env('SENTRY_DSN', default=None):
-    import sentry_sdk
-    sentry_sdk.init(
-        dsn=env('SENTRY_DSN', default=None),
-        traces_sample_rate=1.0,
-        send_default_pii=True
-    )
+# Sentry devre dışı bırakıldı (testler için)
+# if not DEBUG and env('SENTRY_DSN', default=None):
+#     import sentry_sdk
+#     sentry_sdk.init(
+#         dsn=env('SENTRY_DSN', default=None),
+#         traces_sample_rate=1.0,
+#         send_default_pii=True
+#     )

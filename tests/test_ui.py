@@ -2,6 +2,9 @@
 """
 Finans modülü için UI testleri.
 """
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 import pytest
 from django.test import LiveServerTestCase
 from django.contrib.auth import get_user_model

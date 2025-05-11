@@ -2,6 +2,9 @@
 """
 Banka entegrasyonları için test dosyası.
 """
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 import pytest
 from django.test import TestCase
 from integrations.bank_integration.models import BankAccount, BankTransaction
