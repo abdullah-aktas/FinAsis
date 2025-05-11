@@ -35,6 +35,8 @@ env = environ.Env(
     CSRF_COOKIE_SECURE=(bool, True),
     DB_PORT=(int, 5432),
     DB_HOST=(str, 'localhost'),
+    AWS_DEFAULT_ACL=(str, ''),
+    SENTRY_DSN=(str, ''),
 )
 
 # .env dosyasını oku
@@ -44,7 +46,7 @@ environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'
 BASE_DIR = Path(__file__).resolve().parent
 
 # Security settings
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key')
+SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
@@ -71,6 +73,8 @@ LOCAL_APPS = [
     'users.apps.UsersConfig', 
     'finance.apps.FinanceConfig',
     'virtual_company.apps.VirtualCompanyConfig',
+    'apps.edocument',
+    'apps.customers.apps.CustomersConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -112,6 +116,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('DB_NAME'),
         'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
         'CONN_MAX_AGE': 60,
@@ -213,7 +218,7 @@ if env('AWS_STORAGE_BUCKET_NAME'):
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
     AWS_S3_FILE_OVERWRITE = env.bool('AWS_S3_FILE_OVERWRITE')
-    AWS_DEFAULT_ACL = env('AWS_DEFAULT_ACL')
+    AWS_DEFAULT_ACL = env('AWS_DEFAULT_ACL', default=None)
     AWS_S3_OBJECT_PARAMETERS = {
         "CacheControl": "max-age=86400"
     }
@@ -247,3 +252,11 @@ LOGGING = {
         },
     },
 }
+
+if not DEBUG and env('SENTRY_DSN', default=None):
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=env('SENTRY_DSN', default=None),
+        traces_sample_rate=1.0,
+        send_default_pii=True
+    )

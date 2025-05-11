@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("accounting", "0002_bank_cashbox_chartofaccounts_stock_stocktransaction"),
-        (
-            "virtual_company",
-            "0002_dailytask_product_alter_virtualcompany_options_and_more",
-        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

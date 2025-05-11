@@ -9,10 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("accounting", "0003_knowledgebase_account_e_archive_registered_and_more"),
-        (
-            "virtual_company",
-            "0002_dailytask_product_alter_virtualcompany_options_and_more",
-        ),
+        # ("virtual_company", "0002_dailytask_product_alter_virtualcompany_options_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

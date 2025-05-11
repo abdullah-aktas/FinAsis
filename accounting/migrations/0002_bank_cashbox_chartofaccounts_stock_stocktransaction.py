@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('accounting', '0001_initial'),
-        ('virtual_company', '0001_initial'),
     ]
 
     operations = [
