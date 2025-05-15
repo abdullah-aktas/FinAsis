@@ -4,50 +4,35 @@ from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 from celery.schedules import crontab
 from datetime import timedelta
+import traceback
+import sys
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key')
+SECRET_KEY = 'test'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    # Django Core Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions', 
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # FinAsis Apps - Sade ve gerekli olanlar
-    'core.apps.CoreConfig',
-    'users.apps.UsersConfig',
-    'finance.apps.FinanceConfig',
-    'accounting.apps.AccountingConfig',
-    'crm.apps.CrmConfig',
-    'hr_management.apps.HrManagementConfig',
-    'stock_management.apps.StockManagementConfig',
-    'virtual_company.apps.VirtualCompanyConfig',
-    
-    # Third Party Apps
-    'rest_framework',
-    'corsheaders',
-    'integrations.bank_integration',
-    'integrations.efatura',
 ]
 
 # Database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'db.sqlite3',
     }
 }
 

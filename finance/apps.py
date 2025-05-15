@@ -15,7 +15,10 @@ class FinanceConfig(AppConfig):
     
     def ready(self):
         """Uygulama hazır olduğunda sinyalleri yükle"""
-        import finance.signals
+        try:
+            import finance.signals
+        except ImportError:
+            pass
 
     def get_urls(self):
         """
