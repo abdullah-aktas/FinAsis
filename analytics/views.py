@@ -11,6 +11,10 @@ from .models import AnalyticsDashboard, DashboardWidget, AnalyticsReport, DataSo
 from .services import AnalyticsService
 import json
 import logging
+import pandas as pd
+import io
+from reportlab.pdfgen import canvas
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -234,3 +238,47 @@ def sync_data_source(request, source_id):
             {"error": "Senkronizasyon başarısız"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def monthly_sales_expense_chart(request):
+    """
+    Aylık satış ve gider verilerini JSON olarak döner (Chart.js için).
+    """
+    # Örnek veri, gerçek ortamda veritabanından alınmalı
+    months = [f"{i}.Ay" for i in range(1, 13)]
+    sales = [10000 + i*500 for i in range(12)]
+    expenses = [7000 + i*400 for i in range(12)]
+    return Response({
+        'labels': months,
+        'datasets': [
+            {'label': 'Satış', 'data': sales, 'backgroundColor': 'rgba(54, 162, 235, 0.5)'},
+            {'label': 'Gider', 'data': expenses, 'backgroundColor': 'rgba(255, 99, 132, 0.5)'}
+        ]
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def monthly_sales_expense_pdf(request):
+    """
+    Aylık satış ve gider verilerini PDF olarak dışa aktarır.
+    """
+    months = [f"{i}.Ay" for i in range(1, 13)]
+    sales = [10000 + i*500 for i in range(12)]
+    expenses = [7000 + i*400 for i in range(12)]
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer)
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 800, "Aylık Satış ve Gider Raporu")
+    y = 780
+    for i in range(12):
+        p.drawString(50, y, f"{months[i]} | Satış: {sales[i]} | Gider: {expenses[i]}")
+        y -= 20
+        if y < 50:
+            p.showPage()
+            y = 800
+    p.save()
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="aylik_satis_gider.pdf"'
+    return response

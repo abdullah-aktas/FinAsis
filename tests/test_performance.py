@@ -176,10 +176,10 @@ class BankAPIPerformanceTests(TestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from integrations.bank_integration.models import BankAccount, BankTransaction
+        from integrations.bank_integration.models import IntegratedBankAccount, BankTransaction
         
         # Test banka hesabı oluştur
-        self.bank_account = BankAccount.objects.create(
+        self.bank_account = IntegratedBankAccount.objects.create(
             name="Test Hesabı",
             account_number="TR123456789012345678901234",
             currency="TRY"

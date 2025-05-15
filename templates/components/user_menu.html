@@ -1,0 +1,11 @@
+<div class="dropdown ms-3">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ user.get_full_name|default:user.username }}
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="userMenu">
+        <li><a class="dropdown-item" href="/profile/">Profilim</a></li>
+        <li><a class="dropdown-item" href="/settings/">Ayarlar</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="/logout/">Çıkış Yap</a></li>
+    </ul>
+</div> 

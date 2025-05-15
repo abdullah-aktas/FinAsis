@@ -4,7 +4,19 @@ from decouple import config
 import os
 from datetime import timedelta
 from celery.schedules import crontab
+import sys
 
+# Ortam değişkenine göre uygun ayar dosyasını yükle
+settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+
+if settings_module.endswith('production'):
+    from config.settings.production import *
+elif settings_module.endswith('dev'):
+    from config.settings.dev import *
+elif settings_module.endswith('ci'):
+    from config.settings.ci import *
+else:
+    from config.settings.base import *
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

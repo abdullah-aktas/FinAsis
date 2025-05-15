@@ -102,4 +102,7 @@ urlpatterns = [
     path('budgets/<int:pk>/activate/', views.budget_activate, name='budget_activate'),
     path('budgets/<int:pk>/close/', views.budget_close, name='budget_close'),
     path('budgets/<int:pk>/report/', views.budget_report, name='budget_report'),
+    path('trial-balance/export/', views.export_trial_balance, name='export_trial_balance'),
+    path('journal/export/', views.export_journal, name='export_journal'),
+    path('general-ledger/export/', views.export_general_ledger, name='export_general_ledger'),
 ] 

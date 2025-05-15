@@ -15,6 +15,7 @@ from decimal import Decimal
 from datetime import datetime
 from unittest.mock import patch
 from rest_framework.test import APIClient
+from integrations.bank_integration.models import IntegratedBankAccount
 
 User = get_user_model()
 
@@ -121,10 +122,10 @@ class BankIntegrationAPITests(APITestCase):
         self.client.force_authenticate(user=self.user)
         
         # İlgili modelleri import et
-        from integrations.bank_integration.models import BankAccount
+        from integrations.bank_integration.models import IntegratedBankAccount
         
         # Test banka hesabı oluştur
-        self.bank_account = BankAccount.objects.create(
+        self.bank_account = IntegratedBankAccount.objects.create(
             name="Test Hesabı",
             account_number="TR123456789012345678901234",
             currency="TRY"

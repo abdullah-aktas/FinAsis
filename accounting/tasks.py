@@ -3,6 +3,8 @@ from celery import shared_task
 from django.db import connection
 from django.conf import settings
 import logging
+from django.utils import timezone
+from finance.accounting.models import FinancialReport
 
 logger = logging.getLogger(__name__)
 
@@ -102,4 +104,24 @@ def optimize_tables():
             logger.info("Tüm tablolar başarıyla optimize edildi.")
     except Exception as e:
         logger.error(f"Tablo optimizasyon işlemi sırasında hata oluştu: {str(e)}")
-        raise 
+        raise
+
+@shared_task
+def generate_weekly_trial_balance():
+    """
+    Haftalık mizan raporu oluşturur ve kaydeder.
+    Gerçek ortamda PDF/Excel çıktısı da eklenebilir.
+    """
+    now = timezone.now()
+    start_date = now - timezone.timedelta(days=7)
+    end_date = now
+    report = FinancialReport.objects.create(
+        name=f"Otomatik Haftalık Mizan ({start_date:%d.%m.%Y}-{end_date:%d.%m.%Y})",
+        type="trial_balance",
+        company_id=1,  # Örnek, gerçek ortamda dinamik olmalı
+        start_date=start_date,
+        end_date=end_date,
+        description="Otomatik oluşturulan haftalık mizan raporu."
+    )
+    # Burada PDF/Excel export fonksiyonu çağrılabilir
+    return report.id 

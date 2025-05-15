@@ -7,7 +7,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/.."))
 import pytest
 from django.test import TestCase
-from integrations.bank_integration.models import BankAccount, BankTransaction
+from integrations.bank_integration.models import IntegratedBankAccount, BankTransaction
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 from decimal import Decimal
@@ -16,7 +16,7 @@ class BankAccountModelTest(TestCase):
     """Banka hesap modeli testleri."""
     
     def setUp(self):
-        self.bank_account = BankAccount.objects.create(
+        self.bank_account = IntegratedBankAccount.objects.create(
             name="Test Hesabı",
             account_number="TR123456789012345678901234",
             currency="TRY"
@@ -32,7 +32,7 @@ class BankTransactionTest(TestCase):
     """Banka işlemleri testleri."""
     
     def setUp(self):
-        self.bank_account = BankAccount.objects.create(
+        self.bank_account = IntegratedBankAccount.objects.create(
             name="Test Hesabı",
             account_number="TR123456789012345678901234",
             currency="TRY"

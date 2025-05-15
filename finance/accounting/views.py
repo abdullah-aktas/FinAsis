@@ -16,6 +16,14 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.db import transaction
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+import io
+import pandas as pd
+from reportlab.pdfgen import canvas
+from django.utils import timezone
 
 from .models import AccountType, Account, VoucherType, Voucher, VoucherLine
 from .forms import (
@@ -433,4 +441,173 @@ def create_reverse_voucher(request, pk):
             
     except Exception as e:
         messages.error(request, str(e))
-        return redirect('accounting:voucher_detail', pk=source_voucher.pk) 
+        return redirect('accounting:voucher_detail', pk=source_voucher.pk)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_trial_balance(request):
+    """
+    Mizanı PDF veya Excel olarak dışa aktarır.
+    ?format=pdf veya ?format=excel parametresi ile çıktı tipi seçilebilir.
+    """
+    format_ = request.GET.get('format', 'pdf')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        today = timezone.now().date()
+        start_date = today.replace(day=1)
+        end_date = today
+    
+    # Hesap bakiyelerini topla
+    accounts = Account.objects.all()
+    data = []
+    for acc in accounts:
+        debit = VoucherLine.objects.filter(account=acc, voucher__date__gte=start_date, voucher__date__lte=end_date).aggregate(total=Sum('debit_amount'))['total'] or 0
+        credit = VoucherLine.objects.filter(account=acc, voucher__date__gte=start_date, voucher__date__lte=end_date).aggregate(total=Sum('credit_amount'))['total'] or 0
+        balance = debit - credit
+        data.append({
+            'Hesap Kodu': acc.code,
+            'Hesap Adı': acc.name,
+            'Borç': float(debit),
+            'Alacak': float(credit),
+            'Bakiye': float(balance),
+        })
+    
+    if format_ == 'excel':
+        df = pd.DataFrame(data)
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Mizan')
+        output.seek(0)
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="mizan.xlsx"'
+        return response
+    else:
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 800, "Mizan Raporu")
+        y = 780
+        for row in data:
+            p.drawString(50, y, f"{row['Hesap Kodu']} - {row['Hesap Adı']} | Borç: {row['Borç']} | Alacak: {row['Alacak']} | Bakiye: {row['Bakiye']}")
+            y -= 20
+            if y < 50:
+                p.showPage()
+                y = 800
+        p.save()
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="mizan.pdf"'
+        return response
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_journal(request):
+    """
+    Yevmiye defterini PDF veya Excel olarak dışa aktarır.
+    ?format=pdf veya ?format=excel parametresi ile çıktı tipi seçilebilir.
+    """
+    format_ = request.GET.get('format', 'pdf')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        today = timezone.now().date()
+        start_date = today.replace(day=1)
+        end_date = today
+    vouchers = Voucher.objects.filter(date__gte=start_date, date__lte=end_date).order_by('date', 'number')
+    data = []
+    for v in vouchers:
+        for line in v.lines.all():
+            data.append({
+                'Fiş No': v.number,
+                'Tarih': v.date.strftime('%d.%m.%Y'),
+                'Açıklama': v.description,
+                'Hesap Kodu': line.account.code,
+                'Hesap Adı': line.account.name,
+                'Borç': float(line.debit_amount),
+                'Alacak': float(line.credit_amount),
+            })
+    if format_ == 'excel':
+        df = pd.DataFrame(data)
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Yevmiye')
+        output.seek(0)
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="yevmiye.xlsx"'
+        return response
+    else:
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 800, "Yevmiye Defteri")
+        y = 780
+        for row in data:
+            p.drawString(50, y, f"{row['Fiş No']} | {row['Tarih']} | {row['Açıklama']} | {row['Hesap Kodu']} - {row['Hesap Adı']} | Borç: {row['Borç']} | Alacak: {row['Alacak']}")
+            y -= 20
+            if y < 50:
+                p.showPage()
+                y = 800
+        p.save()
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="yevmiye.pdf"'
+        return response
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_general_ledger(request):
+    """
+    Defter-i kebiri PDF veya Excel olarak dışa aktarır.
+    ?format=pdf veya ?format=excel parametresi ile çıktı tipi seçilebilir.
+    """
+    format_ = request.GET.get('format', 'pdf')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        today = timezone.now().date()
+        start_date = today.replace(day=1)
+        end_date = today
+    accounts = Account.objects.all()
+    data = []
+    for acc in accounts:
+        lines = VoucherLine.objects.filter(account=acc, voucher__date__gte=start_date, voucher__date__lte=end_date).order_by('voucher__date', 'voucher__number')
+        for line in lines:
+            data.append({
+                'Hesap Kodu': acc.code,
+                'Hesap Adı': acc.name,
+                'Fiş No': line.voucher.number,
+                'Tarih': line.voucher.date.strftime('%d.%m.%Y'),
+                'Açıklama': line.description,
+                'Borç': float(line.debit_amount),
+                'Alacak': float(line.credit_amount),
+            })
+    if format_ == 'excel':
+        df = pd.DataFrame(data)
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Defter-i Kebir')
+        output.seek(0)
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="defterikebir.xlsx"'
+        return response
+    else:
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 800, "Defter-i Kebir")
+        y = 780
+        for row in data:
+            p.drawString(50, y, f"{row['Hesap Kodu']} - {row['Hesap Adı']} | {row['Fiş No']} | {row['Tarih']} | {row['Açıklama']} | Borç: {row['Borç']} | Alacak: {row['Alacak']}")
+            y -= 20
+            if y < 50:
+                p.showPage()
+                y = 800
+        p.save()
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="defterikebir.pdf"'
+        return response 

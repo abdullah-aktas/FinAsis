@@ -15,7 +15,7 @@ from django.utils import timezone
 
 
 # External model imports (doğru app yolları ile)
-from finance.bank_integration.models import BankAccount as FinanceBankAccount
+from finance.bank_integration.models import IntegratedBankAccount as FinanceBankAccount
 from apps.company.models import Company, FiscalYear
 
 

@@ -16,7 +16,7 @@ class Bank(models.Model):
     def __str__(self):
         return self.name
 
-class BankAccount(models.Model):
+class IntegratedBankAccount(models.Model):
     ACCOUNT_TYPES = (
         ('CHECKING', 'Vadesiz Hesap'),
         ('SAVINGS', 'Vadeli Hesap'),
@@ -36,7 +36,7 @@ class BankAccount(models.Model):
     iban = models.CharField(max_length=50, unique=True)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TRY')
-    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,7 +54,7 @@ class BankTransaction(models.Model):
         ('OTHER', 'Diğer'),
     )
 
-    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='transactions')
+    account = models.ForeignKey(IntegratedBankAccount, on_delete=models.CASCADE, related_name='transactions')
     transaction_date = models.DateTimeField()
     value_date = models.DateField()
     description = models.CharField(max_length=200)
@@ -77,8 +77,8 @@ class BankTransfer(models.Model):
         ('CANCELLED', 'İptal Edildi'),
     )
 
-    from_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='outgoing_transfers')
-    to_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='incoming_transfers')
+    from_account = models.ForeignKey(IntegratedBankAccount, on_delete=models.CASCADE, related_name='outgoing_transfers')
+    to_account = models.ForeignKey(IntegratedBankAccount, on_delete=models.CASCADE, related_name='incoming_transfers')
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     description = models.CharField(max_length=200)
     transfer_date = models.DateTimeField()
@@ -97,7 +97,7 @@ class BankReconciliation(models.Model):
         ('FAILED', 'Başarısız'),
     )
 
-    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='reconciliations')
+    account = models.ForeignKey(IntegratedBankAccount, on_delete=models.CASCADE, related_name='reconciliations')
     start_date = models.DateField()
     end_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')

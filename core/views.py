@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import requests
 from datetime import datetime
@@ -18,6 +18,7 @@ import os
 from django.utils import translation
 from django.http import HttpResponseRedirect
 from django.db import connection
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 logger = logging.getLogger(__name__)
 
@@ -221,4 +222,7 @@ def set_language(request):
         response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
         translation.activate(lang_code)
         return response
-    return HttpResponseRedirect(next_url) 
+    return HttpResponseRedirect(next_url)
+
+def metrics(request):
+    return HttpResponse(generate_latest(), content_type=CONTENT_TYPE_LATEST) 

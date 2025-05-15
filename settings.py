@@ -5,55 +5,32 @@ Projenin tüm yapılandırma ayarlarını içerir.
 Mantıksal bölümlere ayrılmış şekilde düzenlenmiştir.
 """
 
-import environ
 import os
 from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
-from celery.schedules import crontab
-
-
-# Environment variables
-env = environ.Env(
-    DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'www.finasis.com.tr', 'finasis.com.tr', '34.38.231.39']),
-    REDIS_URL=(str, 'redis://127.0.0.1:6379/1'),
-    EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
-    EMAIL_HOST=(str, 'smtp.gmail.com'),
-    EMAIL_PORT=(int, 587),
-    EMAIL_USE_TLS=(bool, True),
-    EMAIL_HOST_USER=(str, ''),
-    EMAIL_HOST_PASSWORD=(str, ''),
-    AWS_ACCESS_KEY_ID=(str, ''), 
-    AWS_SECRET_ACCESS_KEY=(str, ''),
-    AWS_STORAGE_BUCKET_NAME=(str, ''),
-    AWS_S3_REGION_NAME=(str, ''),
-    AWS_S3_FILE_OVERWRITE=(bool, False),
-    API_PAGE_SIZE=(int, 10),
-    SECURE_SSL_REDIRECT=(bool, True),
-    SESSION_COOKIE_SECURE=(bool, True),
-    CSRF_COOKIE_SECURE=(bool, True),
-    DB_PORT=(int, 5432),
-    DB_HOST=(str, 'localhost'),
-    AWS_DEFAULT_ACL=(str, ''),
-    SENTRY_DSN=(str, ''),
-)
+import environ
+from django.contrib.auth.signals import user_logged_in
+import logging
 
 # .env dosyasını oku
+env = environ.Env(
+    DEBUG=(bool, True),
+)
 environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
-# Build paths
-BASE_DIR = Path(__file__).resolve().parent
+# Temel dizin
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security settings
-SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+# Güvenlik
+SECRET_KEY = env("SECRET_KEY") or "degistir_bunu_gizli_bir_degerle"
+DEBUG = True  # Hata ayıklama için doğrudan True
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS") or ["127.0.0.1", "localhost", "finasis.com.tr", "www.finasis.com.tr"]
 
-# Application definition
+# Uygulamalar
 DJANGO_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth', 
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -70,7 +47,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'core.apps.CoreConfig',
-    'users.apps.UsersConfig', 
+    'users.apps.UsersConfig',
     'finance.apps.FinanceConfig',
     'virtual_company.apps.VirtualCompanyConfig',
     'apps.edocument',
@@ -81,10 +58,13 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', 
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -94,25 +74,13 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
 ]
 
-# Templates
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.i18n',
-            ],
-        },
-    },
-]
+if DEBUG:
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
-# Database
+ROOT_URLCONF = 'FinAsis.urls'
+WSGI_APPLICATION = 'config.wsgi.application'
+
+# Veritabanı (SQLite)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -120,23 +88,21 @@ DATABASES = {
     }
 }
 
-# Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env('REDIS_URL'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
-
-# Internationalization
-LANGUAGE_CODE = 'tr'
-TIME_ZONE = 'Europe/Istanbul'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
+# Uluslararasılaştırma
+LANGUAGE_CODE = env("LANGUAGE_CODE") or "tr"
+TIME_ZONE = env("TIME_ZONE") or "Europe/Istanbul"
+try:
+    USE_I18N = env.bool("USE_I18N")
+except Exception:
+    USE_I18N = True
+try:
+    USE_L10N = env.bool("USE_L10N")
+except Exception:
+    USE_L10N = True
+try:
+    USE_TZ = env.bool("USE_TZ")
+except Exception:
+    USE_TZ = True
 
 LANGUAGES = [
     ('tr', 'Türkçe'),
@@ -144,26 +110,43 @@ LANGUAGES = [
     ('ku', 'Kurdî'),
     ('ar', 'العربية'),
 ]
-
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
-# Static files
+# Statik ve Medya
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Security settings
-SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
-SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
-CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE')
+# Güvenlik
+try:
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT")
+except Exception:
+    SECURE_SSL_REDIRECT = False
+try:
+    SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE")
+except Exception:
+    SESSION_COOKIE_SECURE = True
+try:
+    CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE")
+except Exception:
+    CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+# CSRF güvenilen domainler
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.finasis.com.tr",
+    "https://finasis.com.tr",
+]
+
 # REST Framework
+try:
+    PAGE_SIZE = env.int("API_PAGE_SIZE")
+except Exception:
+    PAGE_SIZE = 10
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -173,81 +156,67 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': env('API_PAGE_SIZE'),
+    'PAGE_SIZE': PAGE_SIZE,
 }
 
 # Email
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-EMAIL_HOST = env('EMAIL_HOST') 
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env.int("EMAIL_PORT")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
-# AWS Settings
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
-
-# Other settings
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-ROOT_URLCONF = 'config.urls'
-WSGI_APPLICATION = 'config.wsgi.application'
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://www.finasis.com.tr",
-    "https://finasis.com.tr"
-]
-if env('AWS_STORAGE_BUCKET_NAME'):
+# AWS S3 (isteğe bağlı)
+try:
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+except Exception:
+    AWS_STORAGE_BUCKET_NAME = None
+if AWS_STORAGE_BUCKET_NAME:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+    try:
+        AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
+    except Exception:
+        AWS_S3_REGION_NAME = ""
+    try:
+        AWS_S3_FILE_OVERWRITE = env.bool("AWS_S3_FILE_OVERWRITE")
+    except Exception:
+        AWS_S3_FILE_OVERWRITE = False
+    try:
+        AWS_DEFAULT_ACL = env("AWS_DEFAULT_ACL")
+    except Exception:
+        AWS_DEFAULT_ACL = ""
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
 
-    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
-    AWS_S3_FILE_OVERWRITE = env.bool('AWS_S3_FILE_OVERWRITE')
-    AWS_DEFAULT_ACL = env('AWS_DEFAULT_ACL', default=None)
-    AWS_S3_OBJECT_PARAMETERS = {
-        "CacheControl": "max-age=86400"
-    }
+# Debug Toolbar
+INTERNAL_IPS = ['127.0.0.1'] if DEBUG else []
 
-# Statik dosya ve medya ayarları için debug kontrolü
-if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-
-    # Debug toolbar için ayarlar
-    INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-    INTERNAL_IPS = ['127.0.0.1']
-    
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs/errors.log',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
     },
 }
 
-# Sentry devre dışı bırakıldı (testler için)
-# if not DEBUG and env('SENTRY_DSN', default=None):
-#     import sentry_sdk
-#     sentry_sdk.init(
-#         dsn=env('SENTRY_DSN', default=None),
-#         traces_sample_rate=1.0,
-#         send_default_pii=True
-#     )
+# Varsayılan otomatik alan tipi
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# JWT Ayarları
+
+logger = logging.getLogger("user_login")
+
+def log_user_login(sender, request, user, **kwargs):
+    logger.info(f"Kullanıcı girişi: {user.username} - IP: {request.META.get('REMOTE_ADDR')}")
+
+user_logged_in.connect(log_user_login)

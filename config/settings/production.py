@@ -6,6 +6,7 @@ Bu dosya, canlı ortamda (production) kullanılacak özel ayarları içerir.
 import os
 from datetime import timedelta
 from core.settings import *
+from config.settings.base import BASE_DIR, TIME_ZONE
 
 # Güvenlik Ayarları
 DEBUG = False
@@ -200,4 +201,9 @@ if os.getenv('SENTRY_DSN'):
     )
 
 # Ek üretim ortamı ayarları
-VERSION = os.getenv('VERSION', '1.0.0') 
+VERSION = os.getenv('VERSION', '1.0.0')
+
+# INSTALLED_APPS += [
+#     'django_otp',
+#     'two_factor',
+# ] 

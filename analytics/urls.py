@@ -52,4 +52,8 @@ urlpatterns = [
     path('tools/data-export/', views.DataExportView.as_view(), name='data-export'),
     path('tools/data-import/', views.DataImportView.as_view(), name='data-import'),
     path('tools/data-cleanup/', views.DataCleanupView.as_view(), name='data-cleanup'),
+    
+    # Yeni eklenen endpoint'ler
+    path('monthly-sales-expense/', views.monthly_sales_expense_chart, name='monthly_sales_expense_chart'),
+    path('monthly-sales-expense/pdf/', views.monthly_sales_expense_pdf, name='monthly_sales_expense_pdf'),
 ] 
