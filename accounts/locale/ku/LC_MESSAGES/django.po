@@ -1,0 +1,5 @@
+# Kurdish translation file for accounts
+msgid ""
+msgstr ""
+"Language: ku\n"
+"Content-Type: text/plain; charset=UTF-8\n" 

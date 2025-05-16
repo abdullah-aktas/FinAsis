@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/banking/', include('banking.urls')),
     path('api/checks/', include('checks.urls')),
     path('api/virtual-company/', include('virtual_company.urls')),
+    path('api/education/', include('education.urls')),
     
     # Ana sayfa
     path('', TemplateView.as_view(template_name='index.html'), name='home'),

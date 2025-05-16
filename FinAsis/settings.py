@@ -6,17 +6,22 @@ from celery.schedules import crontab
 from datetime import timedelta
 import traceback
 import sys
+from dotenv import load_dotenv
+import logging.config
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables
+load_dotenv()
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'test'
+SECRET_KEY = os.getenv('SECRET_KEY', 'test')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -31,8 +36,12 @@ INSTALLED_APPS = [
 # Database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
     }
 }
 
@@ -80,6 +89,8 @@ USE_TZ = True
 LANGUAGES = [
     ('tr', _('Türkçe')),
     ('en', _('English')),
+    ('ku', _('Kurdî')),
+    ('ar', _('العربية')),
 ]
 
 LOCALE_PATHS = [
@@ -183,65 +194,12 @@ CELERY_BEAT_SCHEDULE = {
         # 'task': 'edocument.tasks.check_expired_documents',  # KALDIRILDI veya yoruma alındı
         # 'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı çalışır
     },
-    'check-upcoming-payments': {
-        'task': 'finance.tasks.check_upcoming_payments',
-        'schedule': crontab(hour=9, minute=0),  # Her gün sabah 9'da çalışır
-    },
-    'cleanup-inactive-sessions': {
-        'task': 'users.tasks.cleanup_inactive_sessions',
-        'schedule': crontab(hour=0, minute=0),  # Her gün gece yarısı
-    },
-    'cleanup-old-notifications': {
-        'task': 'users.tasks.cleanup_old_notifications',
-        'schedule': crontab(hour=0, minute=0, day_of_week='monday'),  # Her Pazartesi
-    },
-    'cleanup-old-activities': {
-        'task': 'users.tasks.cleanup_old_activities',
-        'schedule': crontab(hour=0, minute=0, day_of_month='1'),  # Her ayın 1'i
-    },
-    'send-scheduled-notifications': {
-        'task': 'users.tasks.send_scheduled_notifications',
-        'schedule': crontab(minute='*/15'),  # Her 15 dakikada bir
-    },
 }
 
-# Logging
+# Logging ayarları
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'finasis.log',
-            'maxBytes': 1024 * 1024 * 5,  # 5 MB
-            'backupCount': 5,
-            'formatter': 'verbose',
-        },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'finasis': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
 }
 
 # Security settings
@@ -387,6 +345,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 TEMPLATES = [
@@ -404,3 +363,5 @@ TEMPLATES = [
         },
     },
 ]
+
+ROOT_URLCONF = 'FinAsis.urls'

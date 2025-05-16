@@ -71,3 +71,12 @@ class StockTransactionAdmin(admin.ModelAdmin):
     list_filter = ('type', 'date', 'stock')
     search_fields = ('stock__code', 'stock__name', 'description')
     date_hierarchy = 'date'
+
+"""
+Muhasebe modülü admin arayüzü ayarları burada tanımlanır.
+"""
+
+# class AccountAdmin(admin.ModelAdmin):
+#     """Hesap modeli için admin arayüzü ayarları."""
+#     list_display = ('id', 'hesap_adi')
+# admin.site.register(Account, AccountAdmin)

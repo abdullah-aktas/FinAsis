@@ -36,6 +36,7 @@ class Role(models.Model):
     """
     Rol modeli.
     """
+    OYUNCU = 'Oyuncu'
     name = models.CharField(_('İsim'), max_length=255)
     permissions = models.ManyToManyField(
         Permission,
@@ -54,6 +55,14 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def create_game_role(cls):
+        """Oyun için özel rolü oluşturur veya döner."""
+        obj, created = cls.objects.get_or_create(name=cls.OYUNCU, defaults={
+            'description': 'Sadece oyun modülüne erişimi olan kullanıcı rolü.'
+        })
+        return obj
 
 class UserRole(models.Model):
     """

@@ -123,4 +123,12 @@ class PasswordResetConfirmForm(SetPasswordForm):
     new_password2 = forms.CharField(
         label=_('Yeni Şifre (Tekrar)'),
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    ) 
+    )
+
+"""
+Kullanıcı yönetimi ile ilgili formlar burada tanımlanır.
+"""
+
+# class UserForm(forms.Form):
+#     """Kullanıcı formu açıklaması."""
+#     username = forms.CharField(max_length=150) 

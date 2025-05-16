@@ -1,3 +1,11 @@
+"""
+Stok ve ürün yönetimi modülü için testler burada tanımlanır.
+"""
+
 from django.test import TestCase
 
-# Create your tests here.
+# class InventoryTests(TestCase):
+#     """Stok testleri için açıklama."""
+#     def test_product_add(self):
+#         """Ürün ekleme testini yapar."""
+#         pass

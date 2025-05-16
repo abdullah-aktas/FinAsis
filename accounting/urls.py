@@ -153,4 +153,10 @@ urlpatterns = [
     path('knowledgebase/related/create/', views.KnowledgeBaseRelatedItemCreateView.as_view(), name='knowledgebase_related_item_create'),
     path('knowledgebase/related/<int:pk>/update/', views.KnowledgeBaseRelatedItemUpdateView.as_view(), name='knowledgebase_related_item_update'),
     path('knowledgebase/related/<int:pk>/delete/', views.KnowledgeBaseRelatedItemDeleteView.as_view(), name='knowledgebase_related_item_delete'),
-] 
+]
+
+"""
+Muhasebe modülünün URL yönlendirmeleri burada tanımlanır.
+"""
+
+# path('', views.account_list, name='account_list'), 
