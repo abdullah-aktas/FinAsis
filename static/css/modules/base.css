@@ -1,0 +1,36 @@
+:root {
+    --module-header-height: 200px;
+    --sidebar-width: 280px;
+}
+
+.module-header {
+    min-height: var(--module-header-height);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    margin-bottom: 2rem;
+}
+
+.module-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.module-sidebar {
+    position: sticky;
+    top: 1rem;
+    width: var(--sidebar-width);
+}
+
+.module-content {
+    min-height: calc(100vh - var(--module-header-height));
+    padding: 2rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .module-sidebar {
+        position: static;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+}

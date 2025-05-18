@@ -1,0 +1,288 @@
+# English translations for FinAsis project.
+# Copyright (C) 2024 FinAsis
+# This file is distributed under the same license as the FinAsis project.
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-20 20:00+0300\n"
+"PO-Revision-Date: 2024-04-20 20:00+0300\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: integrations/base.py
+msgid "Integration Error"
+msgstr "Integration Error"
+
+#: integrations/base.py
+msgid "Authentication failed"
+msgstr "Authentication failed"
+
+#: integrations/base.py
+msgid "Invalid credentials"
+msgstr "Invalid credentials"
+
+#: integrations/base.py
+msgid "Rate limit exceeded"
+msgstr "Rate limit exceeded"
+
+#: integrations/base.py
+msgid "Service unavailable"
+msgstr "Service unavailable"
+
+#: integrations/base.py
+msgid "Invalid response format"
+msgstr "Invalid response format"
+
+#: integrations/bank_integration/service.py
+msgid "Bank account not found"
+msgstr "Bank account not found"
+
+#: integrations/bank_integration/service.py
+msgid "Insufficient funds"
+msgstr "Insufficient funds"
+
+#: integrations/bank_integration/service.py
+msgid "Invalid transaction"
+msgstr "Invalid transaction"
+
+#: integrations/ecommerce/service.py
+msgid "Product not found"
+msgstr "Product not found"
+
+#: integrations/ecommerce/service.py
+msgid "Out of stock"
+msgstr "Out of stock"
+
+#: integrations/ecommerce/service.py
+msgid "Invalid order"
+msgstr "Invalid order"
+
+#: integrations/e_invoice/service.py
+msgid "Invoice not found"
+msgstr "Invoice not found"
+
+#: integrations/e_invoice/service.py
+msgid "Invalid invoice format"
+msgstr "Invalid invoice format"
+
+#: integrations/erp/service.py
+msgid "Department not found"
+msgstr "Department not found"
+
+#: integrations/erp/service.py
+msgid "Employee not found"
+msgstr "Employee not found"
+
+#: integrations/erp/service.py
+msgid "Project not found"
+msgstr "Project not found"
+
+#: integrations/payment/service.py
+msgid "Payment failed"
+msgstr "Payment failed"
+
+#: integrations/payment/service.py
+msgid "Invalid payment method"
+msgstr "Invalid payment method"
+
+#: integrations/payment/service.py
+msgid "Payment declined"
+msgstr "Payment declined"
+
+#: integrations/external_services/service.py
+msgid "Service not available"
+msgstr "Service not available"
+
+#: integrations/external_services/service.py
+msgid "Invalid request"
+msgstr "Invalid request"
+
+#: integrations/external_services/service.py
+msgid "Data not found"
+msgstr "Data not found"
+
+#: integrations/services.py
+msgid "Cache error"
+msgstr "Cache error"
+
+#: integrations/services.py
+msgid "Configuration error"
+msgstr "Configuration error"
+
+#: integrations/services.py
+msgid "Validation error"
+msgstr "Validation error"
+
+#: templates/base.html:10
+msgid "FinAsis - Finansal yönetim ve analiz sistemi"
+msgstr "FinAsis - Financial management and analysis system"
+
+#: templates/base.html:11
+msgid "finans, muhasebe, stok yönetimi, crm, e-fatura"
+msgstr "finance, accounting, inventory management, crm, e-invoice"
+
+#: templates/base.html:13
+msgid "FinAsis"
+msgstr "FinAsis"
+
+#: templates/base.html:14
+msgid "FinAsis - Finansal Asistan ve Entegrasyon Platformu"
+msgstr "FinAsis - Financial Assistant and Integration Platform"
+
+#: templates/accounts/login.html:8
+msgid "Giriş Yap"
+msgstr "Login"
+
+#: templates/accounts/login.html:15
+msgid "E-posta"
+msgstr "Email"
+
+#: templates/accounts/login.html:21
+msgid "Şifre"
+msgstr "Password"
+
+#: templates/accounts/login.html:28
+msgid "Beni Hatırla"
+msgstr "Remember Me"
+
+#: templates/accounts/login.html:35
+msgid "Giriş"
+msgstr "Login"
+
+#: templates/accounts/login.html:39
+msgid "Şifremi Unuttum"
+msgstr "Forgot Password"
+
+#: templates/accounts/register.html:8
+msgid "Kayıt Ol"
+msgstr "Register"
+
+#: templates/accounts/register.html:15
+msgid "Kullanıcı Adı"
+msgstr "Username"
+
+#: templates/accounts/register.html:29
+msgid "Şifre (Tekrar)"
+msgstr "Password (Confirm)"
+
+#: templates/accounts/register.html:36
+msgid "Kayıt"
+msgstr "Register"
+
+#: templates/base.html:103
+msgid "Modüller"
+msgstr "Modules"
+
+#: templates/base.html:106
+msgid "Muhasebe"
+msgstr "Accounting"
+
+#: templates/base.html:107
+msgid "CRM"
+msgstr "CRM"
+
+#: templates/base.html:108
+msgid "Stok Yönetimi"
+msgstr "Inventory Management"
+
+#: templates/base.html:109
+msgid "Banka İşlemleri"
+msgstr "Banking Operations"
+
+#: templates/base.html:110
+msgid "E-Fatura"
+msgstr "E-Invoice"
+
+#: templates/base.html:112
+msgid "Eğitim Oyunları"
+msgstr "Educational Games"
+
+#: templates/base.html:116
+msgid "Raporlar"
+msgstr "Reports"
+
+#: templates/base.html:119
+msgid "Eğitim"
+msgstr "Education"
+
+#: templates/base.html:122
+msgid "AI Asistan"
+msgstr "AI Assistant"
+
+#: templates/base.html:125
+msgid "Destek"
+msgstr "Support"
+
+#: templates/base.html:187
+msgid "Gösterge Paneli"
+msgstr "Dashboard"
+
+#: templates/base.html:188
+msgid "Profil"
+msgstr "Profile"
+
+#: templates/base.html:189
+msgid "Ayarlar"
+msgstr "Settings"
+
+#: templates/base.html:191
+msgid "Yönetim Paneli"
+msgstr "Admin Panel"
+
+#: templates/base.html:194
+msgid "Çıkış Yap"
+msgstr "Logout"
+
+#: templates/base.html:200
+msgid "Bildirimler"
+msgstr "Notifications"
+
+#: templates/base.html:217
+msgid "Tümünü Okundu İşaretle"
+msgstr "Mark All as Read"
+
+#: templates/base.html:237
+msgid "Bildirim bulunmuyor"
+msgstr "No notifications"
+
+#: templates/base.html:242
+msgid "Tüm Bildirimleri Gör"
+msgstr "View All Notifications"
+
+#: templates/base.html:248
+msgid "Ücretsiz Başla"
+msgstr "Start Free"
+
+#: templates/dashboard/dashboard.html:10
+msgid "Hoş Geldiniz"
+msgstr "Welcome"
+
+#: templates/dashboard/dashboard.html:18
+msgid "Genel Bakış"
+msgstr "Overview"
+
+#: templates/dashboard/dashboard.html:26
+msgid "Gelir"
+msgstr "Income"
+
+#: templates/dashboard/dashboard.html:37
+msgid "Gider"
+msgstr "Expense"
+
+#: templates/dashboard/dashboard.html:48
+msgid "Müşteriler"
+msgstr "Customers"
+
+#: templates/dashboard/dashboard.html:59
+msgid "Faturalar"
+msgstr "Invoices"
+
+#: templates/base.html:295
+msgid "Tüm hakları saklıdır."
+msgstr "All rights reserved." 

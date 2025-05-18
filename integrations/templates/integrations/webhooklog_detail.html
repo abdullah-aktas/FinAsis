@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Webhook Log Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Webhook Log Detayı</h2>
+            <div>
+                <a href="{% url 'integrations:webhooklog_update' log.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'integrations:webhooklog_delete' log.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Webhook</h5>
+                    <p>{{ log.webhook }}</p>
+                    
+                    <h5>Durum</h5>
+                    <p>
+                        {% if log.status == 'success' %}
+                            <span class="badge bg-success">Başarılı</span>
+                        {% elif log.status == 'error' %}
+                            <span class="badge bg-danger">Hata</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ log.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Mesaj</h5>
+                    <p>{{ log.message }}</p>
+                    
+                    <h5>Tarih</h5>
+                    <p>{{ log.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+            
+            {% if log.request_data %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>İstek Verisi</h5>
+                    <div class="border p-3 bg-light">
+                        <pre>{{ log.request_data }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if log.response_data %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>Yanıt Verisi</h5>
+                    <div class="border p-3 bg-light">
+                        <pre>{{ log.response_data }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if log.error_message %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>Hata Mesajı</h5>
+                    <div class="border p-3 bg-light">
+                        <pre>{{ log.error_message }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'integrations:webhooklog_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Çevrimdışı Test - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Çevrimdışı Veri Girişi Testi</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Gider Formu -->
+                    <form id="expenseForm" class="mb-4">
+                        <h6 class="mb-3">Yeni Gider Ekle</h6>
+                        <div class="mb-3">
+                            <label for="expenseTitle" class="form-label">Gider Başlığı</label>
+                            <input type="text" class="form-control" id="expenseTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expenseAmount" class="form-label">Tutar</label>
+                            <input type="number" class="form-control" id="expenseAmount" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gider Ekle</button>
+                    </form>
+
+                    <!-- Nakit Hareketi Formu -->
+                    <form id="cashTransactionForm" class="mb-4">
+                        <h6 class="mb-3">Nakit Hareketi Ekle</h6>
+                        <div class="mb-3">
+                            <label for="transactionType" class="form-label">İşlem Tipi</label>
+                            <select class="form-select" id="transactionType" required>
+                                <option value="income">Gelir</option>
+                                <option value="expense">Gider</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transactionAmount" class="form-label">Tutar</label>
+                            <input type="number" class="form-control" id="transactionAmount" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Hareket Ekle</button>
+                    </form>
+
+                    <!-- Müşteri Formu -->
+                    <form id="customerForm">
+                        <h6 class="mb-3">Yeni Müşteri Ekle</h6>
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Müşteri Adı</label>
+                            <input type="text" class="form-control" id="customerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customerEmail" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="customerEmail" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Müşteri Ekle</button>
+                    </form>
+
+                    <!-- Kayıtlı Veriler -->
+                    <div class="mt-5">
+                        <h6 class="mb-3">Kayıtlı Veriler</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tip</th>
+                                        <th>Detay</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="savedDataList">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form elementleri
+    const expenseForm = document.getElementById('expenseForm');
+    const cashTransactionForm = document.getElementById('cashTransactionForm');
+    const customerForm = document.getElementById('customerForm');
+    const savedDataList = document.getElementById('savedDataList');
+
+    // Gider formu işleme
+    expenseForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = {
+            title: document.getElementById('expenseTitle').value,
+            amount: document.getElementById('expenseAmount').value,
+            date: new Date().toISOString()
+        };
+
+        try {
+            await indexedDBService.saveData('expenses', data);
+            showOfflineNotification();
+            updateSavedDataList();
+            expenseForm.reset();
+        } catch (error) {
+            console.error('Gider kaydedilemedi:', error);
+        }
+    });
+
+    // Nakit hareketi formu işleme
+    cashTransactionForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = {
+            type: document.getElementById('transactionType').value,
+            amount: document.getElementById('transactionAmount').value,
+            date: new Date().toISOString()
+        };
+
+        try {
+            await indexedDBService.saveData('cash_transactions', data);
+            showOfflineNotification();
+            updateSavedDataList();
+            cashTransactionForm.reset();
+        } catch (error) {
+            console.error('Nakit hareketi kaydedilemedi:', error);
+        }
+    });
+
+    // Müşteri formu işleme
+    customerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = {
+            name: document.getElementById('customerName').value,
+            email: document.getElementById('customerEmail').value,
+            date: new Date().toISOString()
+        };
+
+        try {
+            await indexedDBService.saveData('customers', data);
+            showOfflineNotification();
+            updateSavedDataList();
+            customerForm.reset();
+        } catch (error) {
+            console.error('Müşteri kaydedilemedi:', error);
+        }
+    });
+
+    // Kayıtlı verileri listeleme
+    async function updateSavedDataList() {
+        try {
+            const expenses = await indexedDBService.getAllData('expenses');
+            const transactions = await indexedDBService.getAllData('cash_transactions');
+            const customers = await indexedDBService.getAllData('customers');
+
+            let html = '';
+            
+            expenses.forEach(expense => {
+                html += `
+                    <tr>
+                        <td>Gider</td>
+                        <td>${expense.title} - ${expense.amount} TL</td>
+                        <td><span class="badge bg-warning">Çevrimdışı</span></td>
+                    </tr>
+                `;
+            });
+
+            transactions.forEach(transaction => {
+                html += `
+                    <tr>
+                        <td>Nakit Hareketi</td>
+                        <td>${transaction.type === 'income' ? 'Gelir' : 'Gider'} - ${transaction.amount} TL</td>
+                        <td><span class="badge bg-warning">Çevrimdışı</span></td>
+                    </tr>
+                `;
+            });
+
+            customers.forEach(customer => {
+                html += `
+                    <tr>
+                        <td>Müşteri</td>
+                        <td>${customer.name} - ${customer.email}</td>
+                        <td><span class="badge bg-warning">Çevrimdışı</span></td>
+                    </tr>
+                `;
+            });
+
+            savedDataList.innerHTML = html;
+        } catch (error) {
+            console.error('Veriler listelenemedi:', error);
+        }
+    }
+
+    // Sayfa yüklendiğinde verileri listele
+    updateSavedDataList();
+});
+</script>
+{% endblock %} 

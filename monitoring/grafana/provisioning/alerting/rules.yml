@@ -1,0 +1,47 @@
+groups:
+  - name: FinAsis Alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: avg(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (container) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek CPU Kullanımı ({{ $value }}%)"
+          description: "{{ $labels.container }} konteynerinde yüksek CPU kullanımı tespit edildi"
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{container!=""} / container_spec_memory_limit_bytes{container!=""} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek Bellek Kullanımı ({{ $value }}%)"
+          description: "{{ $labels.container }} konteynerinde yüksek bellek kullanımı tespit edildi"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek Gecikme Süresi"
+          description: "95. yüzdelik HTTP istekleri 2 saniyeden uzun sürüyor"
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Yüksek Hata Oranı"
+          description: "HTTP 5xx hata oranı %5'in üzerinde"
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Servis Çalışmıyor"
+          description: "{{ $labels.instance }} servisi çalışmıyor" 

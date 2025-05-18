@@ -1,0 +1,150 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Yeni Rapor{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Yeni Rapor</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_name" class="form-label">Rapor Adı <span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" required>
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.name.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_type" class="form-label">Rapor Türü <span class="text-danger">*</span></label>
+                    <select name="type" id="id_type" class="form-select {% if form.type.errors %}is-invalid{% endif %}" required>
+                        <option value="">Tür Seçin</option>
+                        <option value="sales" {% if form.type.value == 'sales' %}selected{% endif %}>Satış Raporu</option>
+                        <option value="customer" {% if form.type.value == 'customer' %}selected{% endif %}>Müşteri Raporu</option>
+                        <option value="activity" {% if form.type.value == 'activity' %}selected{% endif %}>Aktivite Raporu</option>
+                        <option value="opportunity" {% if form.type.value == 'opportunity' %}selected{% endif %}>Fırsat Raporu</option>
+                    </select>
+                    {% if form.type.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.type.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_period" class="form-label">Dönem <span class="text-danger">*</span></label>
+                    <select name="period" id="id_period" class="form-select {% if form.period.errors %}is-invalid{% endif %}" required>
+                        <option value="">Dönem Seçin</option>
+                        <option value="today" {% if form.period.value == 'today' %}selected{% endif %}>Bugün</option>
+                        <option value="week" {% if form.period.value == 'week' %}selected{% endif %}>Bu Hafta</option>
+                        <option value="month" {% if form.period.value == 'month' %}selected{% endif %}>Bu Ay</option>
+                        <option value="quarter" {% if form.period.value == 'quarter' %}selected{% endif %}>Bu Çeyrek</option>
+                        <option value="year" {% if form.period.value == 'year' %}selected{% endif %}>Bu Yıl</option>
+                        <option value="custom" {% if form.period.value == 'custom' %}selected{% endif %}>Özel Dönem</option>
+                    </select>
+                    {% if form.period.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.period.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_customer" class="form-label">Müşteri</label>
+                    <select name="customer" id="id_customer" class="form-select {% if form.customer.errors %}is-invalid{% endif %}">
+                        <option value="">Tüm Müşteriler</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.pk }}" {% if form.customer.value == customer.pk %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.customer.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.customer.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3 custom-date-range" style="display: none;">
+                <div class="col-md-6">
+                    <label for="id_start_date" class="form-label">Başlangıç Tarihi <span class="text-danger">*</span></label>
+                    <input type="date" name="start_date" id="id_start_date" class="form-control {% if form.start_date.errors %}is-invalid{% endif %}" value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}">
+                    {% if form.start_date.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.start_date.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_end_date" class="form-label">Bitiş Tarihi <span class="text-danger">*</span></label>
+                    <input type="date" name="end_date" id="id_end_date" class="form-control {% if form.end_date.errors %}is-invalid{% endif %}" value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}">
+                    {% if form.end_date.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.end_date.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="id_description" class="form-label">Açıklama</label>
+                    <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="3">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.description.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Kaydet
+                    </button>
+                    <a href="{% url 'crm:report_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>İptal
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const periodSelect = document.getElementById('id_period');
+        const customDateRange = document.querySelector('.custom-date-range');
+        const startDateInput = document.getElementById('id_start_date');
+        const endDateInput = document.getElementById('id_end_date');
+        
+        function toggleCustomDateRange() {
+            if (periodSelect.value === 'custom') {
+                customDateRange.style.display = 'flex';
+                startDateInput.required = true;
+                endDateInput.required = true;
+            } else {
+                customDateRange.style.display = 'none';
+                startDateInput.required = false;
+                endDateInput.required = false;
+            }
+        }
+        
+        periodSelect.addEventListener('change', toggleCustomDateRange);
+        toggleCustomDateRange();
+    });
+</script>
+{% endblock %}
+{% endblock %} 

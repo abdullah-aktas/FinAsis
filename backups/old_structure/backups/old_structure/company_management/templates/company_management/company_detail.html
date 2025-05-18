@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ company.name }} - {% trans "Şirket Detayı" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Üst Başlık ve Butonlar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="company-logo me-3" style="width: 60px; height: 60px; object-fit: cover;">
+            {% else %}
+            <div class="company-logo-placeholder me-3">
+                <i class="fas fa-building"></i>
+            </div>
+            {% endif %}
+            <div>
+                <h1 class="h3 mb-0">{{ company.name }}</h1>
+                <p class="text-muted mb-0">{% trans "Vergi No" %}: {{ company.tax_number }}</p>
+            </div>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'company_management:company_edit' company.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+            </a>
+            <a href="{% url 'company_management:company_delete' company.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {% trans "Sil" %}
+            </a>
+            <a href="{% url 'company_management:company_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Şirket Bilgileri -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Şirket Bilgileri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">{% trans "Vergi Dairesi" %}</dt>
+                        <dd class="col-sm-8">{{ company.tax_office }}</dd>
+
+                        <dt class="col-sm-4">{% trans "Adres" %}</dt>
+                        <dd class="col-sm-8">{{ company.address }}</dd>
+
+                        <dt class="col-sm-4">{% trans "Telefon" %}</dt>
+                        <dd class="col-sm-8">{{ company.phone }}</dd>
+
+                        <dt class="col-sm-4">{% trans "E-posta" %}</dt>
+                        <dd class="col-sm-8">{{ company.email }}</dd>
+
+                        <dt class="col-sm-4">{% trans "Web Sitesi" %}</dt>
+                        <dd class="col-sm-8">
+                            {% if company.website %}
+                            <a href="{{ company.website }}" target="_blank">{{ company.website }}</a>
+                            {% else %}
+                            <span class="text-muted">{% trans "Belirtilmemiş" %}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{% trans "Durum" %}</dt>
+                        <dd class="col-sm-8">
+                            {% if company.is_active %}
+                            <span class="badge bg-success">{% trans "Aktif" %}</span>
+                            {% else %}
+                            <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">{% trans "Oluşturan" %}</dt>
+                        <dd class="col-sm-8">{{ company.created_by.get_full_name }}</dd>
+
+                        <dt class="col-sm-4">{% trans "Oluşturulma Tarihi" %}</dt>
+                        <dd class="col-sm-8">{{ company.created_at|date:"d.m.Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">{% trans "Son Güncelleme" %}</dt>
+                        <dd class="col-sm-8">{{ company.updated_at|date:"d.m.Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departmanlar -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{% trans "Departmanlar" %}</h5>
+                    <a href="{% url 'company_management:department_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> {% trans "Yeni Departman" %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Departman Adı" %}</th>
+                                    <th>{% trans "Yönetici" %}</th>
+                                    <th>{% trans "Durum" %}</th>
+                                    <th>{% trans "İşlemler" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for department in departments %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'company_management:department_detail' department.pk %}" class="text-decoration-none">
+                                            {{ department.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if department.manager %}
+                                        {{ department.manager.get_full_name }}
+                                        {% else %}
+                                        <span class="text-muted">{% trans "Belirtilmemiş" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if department.is_active %}
+                                        <span class="badge bg-success">{% trans "Aktif" %}</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'company_management:department_detail' department.pk %}" class="btn btn-sm btn-info" title="{% trans 'Detay' %}">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'company_management:department_edit' department.pk %}" class="btn btn-sm btn-warning" title="{% trans 'Düzenle' %}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        {% trans "Henüz departman bulunmuyor." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Çalışanlar -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{% trans "Çalışanlar" %}</h5>
+                    <a href="{% url 'company_management:employee_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> {% trans "Yeni Çalışan" %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Ad Soyad" %}</th>
+                                    <th>{% trans "Departman" %}</th>
+                                    <th>{% trans "Pozisyon" %}</th>
+                                    <th>{% trans "İşe Başlama" %}</th>
+                                    <th>{% trans "Durum" %}</th>
+                                    <th>{% trans "İşlemler" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employees %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'company_management:employee_detail' employee.pk %}" class="text-decoration-none">
+                                            {{ employee.user.get_full_name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if employee.department %}
+                                        {{ employee.department.name }}
+                                        {% else %}
+                                        <span class="text-muted">{% trans "Belirtilmemiş" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ employee.position }}</td>
+                                    <td>{{ employee.hire_date|date:"d.m.Y" }}</td>
+                                    <td>
+                                        {% if employee.is_active %}
+                                        <span class="badge bg-success">{% trans "Aktif" %}</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'company_management:employee_detail' employee.pk %}" class="btn btn-sm btn-info" title="{% trans 'Detay' %}">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'company_management:employee_edit' employee.pk %}" class="btn btn-sm btn-warning" title="{% trans 'Düzenle' %}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        {% trans "Henüz çalışan bulunmuyor." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .company-logo-placeholder {
+        width: 60px;
+        height: 60px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+    .company-logo-placeholder i {
+        color: #6c757d;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %} 

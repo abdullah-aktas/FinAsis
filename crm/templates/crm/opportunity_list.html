@@ -1,0 +1,175 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Fırsatlar{% endblock %}
+
+{% block actions %}
+<a href="{% url 'crm:opportunity_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Yeni Fırsat
+</a>
+{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Fırsatlar</h5>
+    </div>
+    <div class="card-body">
+        <!-- Filtreler -->
+        <form method="get" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Fırsat adı veya müşteri..." value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>Yeni</option>
+                        <option value="qualified" {% if request.GET.status == 'qualified' %}selected{% endif %}>Nitelikli</option>
+                        <option value="proposal" {% if request.GET.status == 'proposal' %}selected{% endif %}>Teklif</option>
+                        <option value="negotiation" {% if request.GET.status == 'negotiation' %}selected{% endif %}>Görüşme</option>
+                        <option value="closed_won" {% if request.GET.status == 'closed_won' %}selected{% endif %}>Kazanıldı</option>
+                        <option value="closed_lost" {% if request.GET.status == 'closed_lost' %}selected{% endif %}>Kaybedildi</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="customer" class="form-select">
+                        <option value="">Tüm Müşteriler</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.pk }}" {% if request.GET.customer == customer.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrele
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Fırsat Listesi -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fırsat Adı</th>
+                        <th>Müşteri</th>
+                        <th>Tutar</th>
+                        <th>Olasılık</th>
+                        <th>Durum</th>
+                        <th>Beklenen Kapanış</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for opportunity in opportunities %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'crm:opportunity_detail' pk=opportunity.pk %}">
+                                {{ opportunity.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'crm:customer_detail' pk=opportunity.customer.pk %}">
+                                {{ opportunity.customer.name }}
+                            </a>
+                        </td>
+                        <td>{{ opportunity.amount|floatformat:2 }} TL</td>
+                        <td>%{{ opportunity.probability }}</td>
+                        <td>
+                            {% if opportunity.status == 'new' %}
+                            <span class="badge bg-info">Yeni</span>
+                            {% elif opportunity.status == 'qualified' %}
+                            <span class="badge bg-primary">Nitelikli</span>
+                            {% elif opportunity.status == 'proposal' %}
+                            <span class="badge bg-warning">Teklif</span>
+                            {% elif opportunity.status == 'negotiation' %}
+                            <span class="badge bg-info">Görüşme</span>
+                            {% elif opportunity.status == 'closed_won' %}
+                            <span class="badge bg-success">Kazanıldı</span>
+                            {% elif opportunity.status == 'closed_lost' %}
+                            <span class="badge bg-danger">Kaybedildi</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ opportunity.expected_close_date|date:"d.m.Y" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'crm:opportunity_detail' pk=opportunity.pk %}" class="btn btn-sm btn-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'crm:opportunity_update' pk=opportunity.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'crm:opportunity_delete' pk=opportunity.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Henüz fırsat bulunmuyor.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sayfalama -->
+        {% if is_paginated %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.customer %}&customer={{ request.GET.customer }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.customer %}&customer={{ request.GET.customer }}{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.customer %}&customer={{ request.GET.customer }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.customer %}&customer={{ request.GET.customer }}{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.customer %}&customer={{ request.GET.customer }}{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Entegrasyon Görevleri{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Entegrasyon Görevleri</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'integrations:integrationtask_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Görev Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Entegrasyon</th>
+                    <th>Görev Tipi</th>
+                    <th>Durum</th>
+                    <th>Tarih</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.integration }}</td>
+                    <td>{{ task.get_task_type_display }}</td>
+                    <td>
+                        {% if task.status == 'completed' %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                        {% elif task.status == 'failed' %}
+                            <span class="badge bg-danger">Başarısız</span>
+                        {% elif task.status == 'running' %}
+                            <span class="badge bg-warning">Çalışıyor</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ task.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ task.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'integrations:integrationtask_detail' task.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'integrations:integrationtask_update' task.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'integrations:integrationtask_delete' task.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Henüz görev kaydı bulunmuyor.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

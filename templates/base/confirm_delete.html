@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ object }} Sil{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ object }} Sil</h3>
+                </div>
+                <form method="post">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        <p>{{ object }} kaydını silmek istediğinizden emin misiniz?</p>
+                        <p class="text-danger">Bu işlem geri alınamaz!</p>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Sil
+                        </button>
+                        <a href="{% url '{{ app_label }}:{{ model_name_lower }}_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> İptal
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

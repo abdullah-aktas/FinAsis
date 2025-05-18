@@ -1,0 +1,66 @@
+# Proje Özel Yapılandırmaları
+config.local.json
+settings.local.yaml
+local.properties
+
+# Geliştirici Özel Dosyaları
+.todo
+.notes
+scratch/
+playground/
+
+# Test Verileri
+test_data/
+mock_data/
+sample_data/
+
+# Geçici Proje Dosyaları
+.temp-*
+_temp-*
+*.tmp-*
+
+# IDE Proje Özel Dosyaları
+.vscode/launch.local.json
+.idea/workspace.local.xml
+
+# Yerel Derleme Çıktıları
+debug/
+release/
+out/
+
+# Yerel Veritabanı
+*.local.db
+*.local.sqlite3
+
+# Yerel Log Dosyaları
+app.local.log
+debug.local.log
+
+# Yerel Cache
+.local-cache/
+.build-cache/
+
+# Özel Araç Yapılandırmaları
+.prettierrc.local
+.eslintrc.local
+pytest.local.ini
+
+# Yerel Sertifikalar
+local-certs/
+dev-certs/
+
+# Yerel Docker Yapılandırmaları
+docker-compose.local.yml
+Dockerfile.local
+
+# Yerel Kubernetes Yapılandırmaları
+k8s/local/
+helm/local/
+
+# Yerel CI/CD Yapılandırmaları
+.github/workflows/local.yml
+.gitlab-ci.local.yml
+
+# Yerel Paket Yöneticisi Yapılandırmaları
+npm.local.json
+poetry.local.toml 

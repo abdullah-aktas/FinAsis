@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Eğitim - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ar-simulation-btn {
+        background: linear-gradient(135deg, #38a169 0%, #68d391 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        width: 100%;
+        margin-bottom: 2rem;
+        transition: all 0.3s;
+    }
+
+    .ar-simulation-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(56, 161, 105, 0.3);
+    }
+
+    .course-card {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        background: white;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+
+    .course-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .course-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .course-icon.blue {
+        background: rgba(66, 153, 225, 0.1);
+        color: #4299e1;
+    }
+
+    .course-icon.purple {
+        background: rgba(159, 122, 234, 0.1);
+        color: #9f7aea;
+    }
+
+    .course-icon.orange {
+        background: rgba(237, 137, 54, 0.1);
+        color: #ed8936;
+    }
+
+    .course-progress {
+        flex-grow: 1;
+        margin-right: 1rem;
+    }
+
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+        background: #edf2f7;
+    }
+
+    .progress-bar {
+        background: #38a169;
+        border-radius: 4px;
+    }
+
+    .completion-circle {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 2rem auto;
+    }
+
+    .completion-circle svg {
+        transform: rotate(-90deg);
+    }
+
+    .completion-circle circle {
+        fill: none;
+        stroke-width: 8;
+    }
+
+    .completion-circle .bg {
+        stroke: #edf2f7;
+    }
+
+    .completion-circle .progress {
+        stroke: #38a169;
+        stroke-linecap: round;
+        transition: all 0.3s;
+    }
+
+    .completion-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Eğitim</h1>
+
+    <!-- AR Simülasyonu Butonu -->
+    <button class="ar-simulation-btn">
+        <i class="fas fa-vr-cardboard me-2"></i>
+        AR Simülasyonu
+    </button>
+
+    <!-- Tamamlanma Yüzdesi -->
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <div class="completion-circle">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle class="bg" cx="60" cy="60" r="54" />
+                    <circle class="progress" cx="60" cy="60" r="54" 
+                            stroke-dasharray="339.292" 
+                            stroke-dashoffset="84.823" /> <!-- 75% tamamlanma -->
+                </svg>
+                <div class="completion-text">75%</div>
+            </div>
+            <h5>Genel İlerleme</h5>
+        </div>
+    </div>
+
+    <!-- Dersler -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Dersler</h5>
+            
+            <!-- Finansmana Dersi -->
+            <div class="course-card">
+                <div class="course-icon blue">
+                    <i class="fas fa-chart-line fa-lg"></i>
+                </div>
+                <div class="course-progress">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Finansmana</strong>
+                        <span>90%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Muhasebe İlkeleri -->
+            <div class="course-card">
+                <div class="course-icon purple">
+                    <i class="fas fa-calculator fa-lg"></i>
+                </div>
+                <div class="course-progress">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Muhasebe İlkeleri</strong>
+                        <span>65%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raporlama -->
+            <div class="course-card">
+                <div class="course-icon orange">
+                    <i class="fas fa-file-alt fa-lg"></i>
+                </div>
+                <div class="course-progress">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Raporlama</strong>
+                        <span>40%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

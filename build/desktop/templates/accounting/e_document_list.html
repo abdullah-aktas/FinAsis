@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% translate "E-Belgeler" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Başlık -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "E-Belgeler" %}</h1>
+    </div>
+
+    <!-- Filtreler -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Filtreler" %}</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="type" class="mr-2">{% translate "Belge Tipi" %}</label>
+                    <select name="type" id="type" class="form-control">
+                        <option value="">{% translate "Tümü" %}</option>
+                        {% for type_code, type_name in document_types %}
+                        <option value="{{ type_code }}" {% if filters.type == type_code %}selected{% endif %}>
+                            {{ type_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="status" class="mr-2">{% translate "Durum" %}</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">{% translate "Tümü" %}</option>
+                        {% for status_code, status_name in status_choices %}
+                        <option value="{{ status_code }}" {% if filters.status == status_code %}selected{% endif %}>
+                            {{ status_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="date_start" class="mr-2">{% translate "Başlangıç Tarihi" %}</label>
+                    <input type="date" name="date_start" id="date_start" class="form-control" value="{{ filters.date_start }}">
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="date_end" class="mr-2">{% translate "Bitiş Tarihi" %}</label>
+                    <input type="date" name="date_end" id="date_end" class="form-control" value="{{ filters.date_end }}">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">{% translate "Filtrele" %}</button>
+                <a href="{% url 'accounting:e_document_list' %}" class="btn btn-secondary mb-2 ml-2">{% translate "Temizle" %}</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- E-Belge Listesi -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Belge No" %}</th>
+                            <th>{% translate "Belge Tipi" %}</th>
+                            <th>{% translate "Fatura No" %}</th>
+                            <th>{% translate "Tarih" %}</th>
+                            <th>{% translate "Durum" %}</th>
+                            <th>{% translate "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                        <tr>
+                            <td>{{ document.document_number }}</td>
+                            <td>{{ document.get_document_type_display }}</td>
+                            <td>{{ document.invoice.number }}</td>
+                            <td>{{ document.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <span class="badge badge-{{ document.status|status_color }}">
+                                    {{ document.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'accounting:e_document_detail' pk=document.pk %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if document.pdf_file %}
+                                <a href="{{ document.pdf_file.url }}" class="btn btn-primary btn-sm" target="_blank">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                                {% if document.xml_file %}
+                                <a href="{{ document.xml_file.url }}" class="btn btn-secondary btn-sm" target="_blank">
+                                    <i class="fas fa-file-code"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">{% translate "E-Belge bulunamadı." %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sayfalama -->
+    {% if documents.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if documents.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documents.previous_page_number }}{% if filters.type %}&type={{ filters.type }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.date_start %}&date_start={{ filters.date_start }}{% endif %}{% if filters.date_end %}&date_end={{ filters.date_end }}{% endif %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in documents.paginator.page_range %}
+            <li class="page-item {% if documents.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if filters.type %}&type={{ filters.type }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.date_start %}&date_start={{ filters.date_start }}{% endif %}{% if filters.date_end %}&date_end={{ filters.date_end }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if documents.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ documents.next_page_number }}{% if filters.type %}&type={{ filters.type }}{% endif %}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.date_start %}&date_start={{ filters.date_start }}{% endif %}{% if filters.date_end %}&date_end={{ filters.date_end }}{% endif %}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+            }
+        });
+    });
+</script>
+{% endblock %} 

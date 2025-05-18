@@ -1,0 +1,313 @@
+/* Bildirim Konteyneri */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    background: white;
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+/* Bildirim İçeriği */
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.notification-content i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.notification-content span {
+    flex: 1;
+    word-break: break-word;
+}
+
+/* Bildirim Tipleri */
+.notification.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.notification.success i {
+    color: var(--success-color);
+}
+
+.notification.error {
+    border-left: 4px solid var(--danger-color);
+}
+
+.notification.error i {
+    color: var(--danger-color);
+}
+
+.notification.warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+.notification.warning i {
+    color: var(--warning-color);
+}
+
+.notification.info {
+    border-left: 4px solid var(--info-color);
+}
+
+.notification.info i {
+    color: var(--info-color);
+}
+
+/* Bildirim Animasyonları */
+@keyframes slideIn {
+    from {
+        transform: translateX(120%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(120%);
+    }
+}
+
+.notification.show {
+    animation: slideIn 0.3s ease-in-out forwards;
+}
+
+.notification:not(.show) {
+    animation: slideOut 0.3s ease-in-out forwards;
+}
+
+/* Bildirim Kapatma Butonu */
+.notification-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--dark-color);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+/* Bildirim Grupları */
+.notification-group {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+    .notification {
+        min-width: auto;
+        max-width: 90%;
+        right: 10px;
+        left: 10px;
+    }
+
+    .notification-group {
+        right: 10px;
+        left: 10px;
+    }
+}
+
+/* Bildirim Öncelikleri */
+.notification.high {
+    z-index: 10000;
+}
+
+.notification.medium {
+    z-index: 9999;
+}
+
+.notification.low {
+    z-index: 9998;
+}
+
+/* Bildirim Süre Ayarları */
+.notification.quick {
+    animation-duration: 0.2s;
+}
+
+.notification.normal {
+    animation-duration: 0.3s;
+}
+
+.notification.slow {
+    animation-duration: 0.4s;
+}
+
+/* Bildirim Temaları */
+.notification.light {
+    background: white;
+    color: var(--dark-color);
+}
+
+.notification.dark {
+    background: var(--dark-color);
+    color: white;
+}
+
+.notification.dark i {
+    color: white;
+}
+
+/* Bildirim Efektleri */
+.notification.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+    }
+}
+
+/* Bildirim İkonları */
+.notification-content i.success {
+    color: var(--success-color);
+}
+
+.notification-content i.error {
+    color: var(--danger-color);
+}
+
+.notification-content i.warning {
+    color: var(--warning-color);
+}
+
+.notification-content i.info {
+    color: var(--info-color);
+}
+
+/* Bildirim Başlıkları */
+.notification-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Bildirim Mesajları */
+.notification-message {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+    opacity: 0.8;
+}
+
+/* Bildirim İlerleme Çubuğu */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--primary-color);
+    width: 100%;
+    transform-origin: left;
+    transition: transform 0.1s linear;
+}
+
+/* Bildirim Aksiyonları */
+.notification-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.notification-actions button {
+    flex: 1;
+    padding: 5px 10px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.notification-actions button.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.notification-actions button.secondary {
+    background: var(--light-color);
+    color: var(--dark-color);
+}
+
+/* Bildirim Yığını */
+.notification-stack {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Bildirim Filtreleme */
+.notification-filter {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: white;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    gap: 10px;
+}
+
+.notification-filter button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.notification-filter button.active {
+    background: var(--primary-color);
+    color: white;
+} 

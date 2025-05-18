@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Ana Sayfa" %} | FinAsis{% endblock %}
+
+{% block content %}
+<style>
+.card {
+    transition: box-shadow 0.3s;
+}
+.card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.quick-links .btn {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.summary-card h3 {
+    font-weight: bold;
+    color: #007bff;
+}
+</style>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Hoş Geldiniz, {{ user.get_full_name|default:user.username }}!</h1>
+            
+            <!-- Özet kutuları -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-users"></i> Toplam Müşteri</h6>
+                            <h3>{{ total_customers|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-file-invoice"></i> Açık Fatura</h6>
+                            <h3>{{ open_invoices|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-boxes"></i> Stok</h6>
+                            <h3>{{ stock_count|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-coins"></i> Bakiye</h6>
+                            <h3>{{ balance|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-chart-line"></i> Son Rapor</h6>
+                            <h3>{{ last_report|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center bg-light summary-card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-user-tie"></i> Aktif Kullanıcı</h6>
+                            <h3>{{ active_users|default:"-" }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hızlı erişim kısayolları -->
+            <div class="row mb-4 quick-links">
+                <div class="col">
+                    <a href="{% url 'finance:create_invoice' %}" class="btn btn-success"><i class="fas fa-plus"></i> Yeni Fatura Oluştur</a>
+                    <a href="{% url 'crm:add_customer' %}" class="btn btn-info"><i class="fas fa-user-plus"></i> Yeni Müşteri Ekle</a>
+                    <a href="{% url 'stock:add_product' %}" class="btn btn-warning"><i class="fas fa-box"></i> Yeni Ürün Ekle</a>
+                    <a href="{% url 'edocument:create' %}" class="btn btn-secondary"><i class="fas fa-file-alt"></i> Yeni E-Belge</a>
+                </div>
+            </div>
+            
+            <!-- Modül kartları -->
+            <div class="row">
+                <!-- Finans Modülü -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-coins"></i> Finans Yönetimi</h5>
+                            <p class="card-text">Finansal işlemlerinizi yönetin, raporlar oluşturun ve analiz edin.</p>
+                            <a href="{% url 'finance:dashboard' %}" class="btn btn-primary">Finans Modülü</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- CRM Modülü -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-handshake"></i> Müşteri İlişkileri</h5>
+                            <p class="card-text">Müşterilerinizi yönetin, fırsatları takip edin ve iletişimi güçlendirin.</p>
+                            <a href="{% url 'crm:dashboard' %}" class="btn btn-primary">CRM Modülü</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- E-Belge Modülü -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-file-alt"></i> E-Belge Yönetimi</h5>
+                            <p class="card-text">E-Fatura, E-İrsaliye ve diğer resmi belgelerinizi yönetin.</p>
+                            <a href="{% url 'edocument:dashboard' %}" class="btn btn-primary">E-Belge Modülü</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <!-- Muhasebe Modülü -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-calculator"></i> Muhasebe</h5>
+                            <p class="card-text">Muhasebe işlemlerinizi yönetin ve raporlarınızı oluşturun.</p>
+                            <a href="{% url 'accounting:dashboard' %}" class="btn btn-primary">Muhasebe Modülü</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stok Yönetimi -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-boxes"></i> Stok Yönetimi</h5>
+                            <p class="card-text">Stok hareketlerinizi takip edin ve envanter yönetimi yapın.</p>
+                            <a href="{% url 'stock:dashboard' %}" class="btn btn-primary">Stok Modülü</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Raporlama -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-chart-bar"></i> Raporlama</h5>
+                            <p class="card-text">Detaylı raporlar oluşturun ve işletmenizi analiz edin.</p>
+                            <a href="{% url 'reports:dashboard' %}" class="btn btn-primary">Raporlama Modülü</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+  <div class="mb-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="alert alert-info text-end mt-3">
+    <i class="fas fa-cloud-sun"></i> İstanbul'da hava: {{ weather.temperature }}°C, {{ weather.condition }}
+</div>
+{% endblock %} 

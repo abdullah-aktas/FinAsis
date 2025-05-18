@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Hoş Geldiniz, {{ user.first_name }}</h1>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-download me-2"></i>Rapor İndir
+            </button>
+            <button class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Yeni İşlem
+            </button>
+        </div>
+    </div>
+
+    <!-- İstatistik Kartları -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card income">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-success-light me-3">
+                        <i class="fas fa-arrow-up text-success"></i>
+                    </div>
+                    <span class="text-muted">Toplam Gelir</span>
+                </div>
+                <div class="value">₺125.000</div>
+                <div class="mt-2 text-success">
+                    <i class="fas fa-caret-up me-1"></i>
+                    <small>%12 artış</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card expense">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-danger-light me-3">
+                        <i class="fas fa-arrow-down text-danger"></i>
+                    </div>
+                    <span class="text-muted">Toplam Gider</span>
+                </div>
+                <div class="value">₺87.500</div>
+                <div class="mt-2 text-danger">
+                    <i class="fas fa-caret-up me-1"></i>
+                    <small>%8 artış</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-circle bg-info-light me-3">
+                        <i class="fas fa-wallet text-info"></i>
+                    </div>
+                    <span class="text-muted">Nakit Dengesi</span>
+                </div>
+                <div class="value">₺37.500</div>
+                <div class="mt-2 text-info">
+                    <i class="fas fa-equals me-1"></i>
+                    <small>Net Bakiye</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Gelir-Gider Grafiği -->
+        <div class="col-lg-8">
+            <div class="card chart-container">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Gelir ve Gider Analizi</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary active">Aylık</button>
+                        <button class="btn btn-sm btn-outline-secondary">Yıllık</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son İşlemler -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Son İşlemler</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="transactions-list">
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div>
+                                    <strong>Vergi Ödemesi</strong>
+                                    <div class="text-muted">18.07.2023</div>
+                                </div>
+                            </div>
+                            <span class="amount-negative">-₺5.200</span>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                </div>
+                                <div>
+                                    <strong>Hizmet Geliri</strong>
+                                    <div class="text-muted">18.07.2023</div>
+                                </div>
+                            </div>
+                            <span class="amount-positive">+₺8.500</span>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div>
+                                    <strong>Kira Ödemesi</strong>
+                                    <div class="text-muted">15.07.2023</div>
+                                </div>
+                            </div>
+                            <span class="amount-negative">-₺12.000</span>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div>
+                                    <strong>Ürün Satışı</strong>
+                                    <div class="text-muted">10.07.2023</div>
+                                </div>
+                            </div>
+                            <span class="amount-positive">+₺25.000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a href="#" class="btn btn-link text-muted">Tüm İşlemleri Gör</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yapay Zeka Önerileri -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-warning-light me-3">
+                            <i class="fas fa-lightbulb text-warning"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">Yapay Zeka Önerisi</h5>
+                            <p class="mb-0">Bu hafta gelirlerinizi artırmak için satış aktivitelerine odaklanın. Son 3 ayın en yüksek gelir artışı bu strateji ile elde edildi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    
+    // Gradient arka plan için
+    const incomeGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    incomeGradient.addColorStop(0, 'rgba(56, 161, 105, 0.1)');
+    incomeGradient.addColorStop(1, 'rgba(56, 161, 105, 0)');
+    
+    const expenseGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    expenseGradient.addColorStop(0, 'rgba(229, 62, 62, 0.1)');
+    expenseGradient.addColorStop(1, 'rgba(229, 62, 62, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Oca', 'Mar', 'Mis', 'May', 'Haz'],
+            datasets: [{
+                label: 'Gelir',
+                data: [4000, 6000, 8000, 13000, 8000],
+                borderColor: '#38A169',
+                backgroundColor: incomeGradient,
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Gider',
+                data: [4000, 4500, 5000, 7500, 11000],
+                borderColor: '#E53E3E',
+                backgroundColor: expenseGradient,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [5, 5],
+                        drawBorder: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + ' ₺';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,922 @@
+# Turkish translations for FinAsis project.
+# Copyright (C) 2024 FinAsis
+# This file is distributed under the same license as the FinAsis project.
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-20 20:00+0300\n"
+"PO-Revision-Date: 2024-04-20 20:00+0300\n"
+"Last-Translator: \n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: integrations/base.py
+msgid "Integration Error"
+msgstr "Entegrasyon Hatası"
+
+#: integrations/base.py
+msgid "Authentication failed"
+msgstr "Kimlik doğrulama başarısız"
+
+#: integrations/base.py
+msgid "Invalid credentials"
+msgstr "Geçersiz kimlik bilgileri"
+
+#: integrations/base.py
+msgid "Rate limit exceeded"
+msgstr "İstek limiti aşıldı"
+
+#: integrations/base.py
+msgid "Service unavailable"
+msgstr "Servis kullanılamıyor"
+
+#: integrations/base.py
+msgid "Invalid response format"
+msgstr "Geçersiz yanıt formatı"
+
+#: integrations/bank_integration/service.py
+msgid "Bank account not found"
+msgstr "Banka hesabı bulunamadı"
+
+#: integrations/bank_integration/service.py
+msgid "Insufficient funds"
+msgstr "Yetersiz bakiye"
+
+#: integrations/bank_integration/service.py
+msgid "Invalid transaction"
+msgstr "Geçersiz işlem"
+
+#: integrations/ecommerce/service.py
+msgid "Product not found"
+msgstr "Ürün bulunamadı"
+
+#: integrations/ecommerce/service.py
+msgid "Out of stock"
+msgstr "Stokta yok"
+
+#: integrations/ecommerce/service.py
+msgid "Invalid order"
+msgstr "Geçersiz sipariş"
+
+#: integrations/e_invoice/service.py
+msgid "Invoice not found"
+msgstr "Fatura bulunamadı"
+
+#: integrations/e_invoice/service.py
+msgid "Invalid invoice format"
+msgstr "Geçersiz fatura formatı"
+
+#: integrations/erp/service.py
+msgid "Department not found"
+msgstr "Departman bulunamadı"
+
+#: integrations/erp/service.py
+msgid "Employee not found"
+msgstr "Çalışan bulunamadı"
+
+#: integrations/erp/service.py
+msgid "Project not found"
+msgstr "Proje bulunamadı"
+
+#: integrations/payment/service.py
+msgid "Payment failed"
+msgstr "Ödeme başarısız"
+
+#: integrations/payment/service.py
+msgid "Invalid payment method"
+msgstr "Geçersiz ödeme yöntemi"
+
+#: integrations/payment/service.py
+msgid "Payment declined"
+msgstr "Ödeme reddedildi"
+
+#: integrations/external_services/service.py
+msgid "Service not available"
+msgstr "Servis kullanılamıyor"
+
+#: integrations/external_services/service.py
+msgid "Invalid request"
+msgstr "Geçersiz istek"
+
+#: integrations/external_services/service.py
+msgid "Data not found"
+msgstr "Veri bulunamadı"
+
+#: integrations/services.py
+msgid "Cache error"
+msgstr "Önbellek hatası"
+
+#: integrations/services.py
+msgid "Configuration error"
+msgstr "Yapılandırma hatası"
+
+#: integrations/services.py
+msgid "Validation error"
+msgstr "Doğrulama hatası"
+
+#: apps/users/models.py:15
+msgid "E-posta adresi zorunludur"
+msgstr "E-posta adresi zorunludur"
+
+#: apps/users/models.py:28
+msgid "Süper kullanıcı için is_staff=True olmalıdır"
+msgstr "Süper kullanıcı için is_staff=True olmalıdır"
+
+#: apps/users/models.py:30
+msgid "Süper kullanıcı için is_superuser=True olmalıdır"
+msgstr "Süper kullanıcı için is_superuser=True olmalıdır"
+
+#: apps/users/models.py:37
+msgid "e-posta adresi"
+msgstr "e-posta adresi"
+
+#: apps/users/models.py:38
+msgid "kullanıcı adı"
+msgstr "kullanıcı adı"
+
+#: apps/users/models.py:39
+msgid "adı"
+msgstr "adı"
+
+#: apps/users/models.py:40
+msgid "soyadı"
+msgstr "soyadı"
+
+#: apps/users/models.py:41
+msgid "kayıt tarihi"
+msgstr "kayıt tarihi"
+
+#: apps/users/models.py:42
+msgid "aktif"
+msgstr "aktif"
+
+#: apps/users/models.py:43
+msgid "personel durumu"
+msgstr "personel durumu"
+
+#: apps/users/models.py:44
+msgid "telefon numarası"
+msgstr "telefon numarası"
+
+#: apps/users/models.py:45
+msgid "profil resmi"
+msgstr "profil resmi"
+
+#: apps/users/models.py:53
+msgid "kullanıcı"
+msgstr "kullanıcı"
+
+#: apps/users/models.py:54
+msgid "kullanıcılar"
+msgstr "kullanıcılar"
+
+#: apps/users/models.py:67
+msgid "biyografi"
+msgstr "biyografi"
+
+#: apps/users/models.py:68
+msgid "doğum tarihi"
+msgstr "doğum tarihi"
+
+#: apps/users/models.py:69
+msgid "adres"
+msgstr "adres"
+
+#: apps/users/models.py:70
+msgid "şirket adı"
+msgstr "şirket adı"
+
+#: apps/users/models.py:71
+msgid "iş unvanı"
+msgstr "iş unvanı"
+
+#: apps/users/models.py:74
+msgid "kullanıcı profili"
+msgstr "kullanıcı profili"
+
+#: apps/users/models.py:75
+msgid "kullanıcı profilleri"
+msgstr "kullanıcı profilleri"
+
+#: apps/users/forms.py:11
+msgid "E-posta"
+msgstr "E-posta"
+
+#: apps/users/forms.py:12
+msgid "E-posta adresiniz"
+msgstr "E-posta adresiniz"
+
+#: apps/users/forms.py:13
+msgid "Geçerli bir e-posta adresi girin."
+msgstr "Geçerli bir e-posta adresi girin."
+
+#: apps/users/forms.py:16
+msgid "Kullanıcı Adı"
+msgstr "Kullanıcı Adı"
+
+#: apps/users/forms.py:17
+msgid "Kullanıcı adınız"
+msgstr "Kullanıcı adınız"
+
+#: apps/users/forms.py:18
+msgid "Kullanıcı adınızı yazın."
+msgstr "Kullanıcı adınızı yazın."
+
+#: apps/users/forms.py:21
+msgid "Ad"
+msgstr "Ad"
+
+#: apps/users/forms.py:22
+msgid "Adınız"
+msgstr "Adınız"
+
+#: apps/users/forms.py:25
+msgid "Soyad"
+msgstr "Soyad"
+
+#: apps/users/forms.py:26
+msgid "Soyadınız"
+msgstr "Soyadınız"
+
+#: apps/users/forms.py:29
+msgid "Şifre"
+msgstr "Şifre"
+
+#: apps/users/forms.py:30
+msgid "Şifreniz"
+msgstr "Şifreniz"
+
+#: apps/users/forms.py:31
+msgid "En az 8 karakter uzunluğunda, rakam ve harf içeren bir şifre belirleyin."
+msgstr "En az 8 karakter uzunluğunda, rakam ve harf içeren bir şifre belirleyin."
+
+#: apps/users/forms.py:34
+msgid "Şifre Onayı"
+msgstr "Şifre Onayı"
+
+#: apps/users/forms.py:35
+msgid "Şifrenizi tekrar yazın"
+msgstr "Şifrenizi tekrar yazın"
+
+#: apps/users/forms.py:36
+msgid "Doğrulama için şifrenizi tekrar girin."
+msgstr "Doğrulama için şifrenizi tekrar girin."
+
+#: apps/users/forms.py:47
+msgid "Bu e-posta adresi zaten kullanılıyor."
+msgstr "Bu e-posta adresi zaten kullanılıyor."
+
+#: apps/users/forms.py:59
+msgid "Beni hatırla"
+msgstr "Beni hatırla"
+
+#: apps/users/forms.py:88
+msgid "Doğum Tarihi"
+msgstr "Doğum Tarihi"
+
+#: apps/users/views.py:21
+msgid "Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz."
+msgstr "Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz."
+
+#: apps/users/views.py:34
+msgid "Başarıyla giriş yaptınız!"
+msgstr "Başarıyla giriş yaptınız!"
+
+#: apps/users/views.py:36
+msgid "Geçersiz e-posta veya şifre."
+msgstr "Geçersiz e-posta veya şifre."
+
+#: apps/users/views.py:64
+msgid "Profiliniz başarıyla güncellendi!"
+msgstr "Profiliniz başarıyla güncellendi!"
+
+#: apps/users/views.py:77
+msgid "Kullanıcı bilgileriniz başarıyla güncellendi!"
+msgstr "Kullanıcı bilgileriniz başarıyla güncellendi!"
+
+#: apps/users/admin.py:13
+msgid "Kullanıcı Profili"
+msgstr "Kullanıcı Profili"
+
+#: apps/users/admin.py:27
+msgid "Kişisel Bilgiler"
+msgstr "Kişisel Bilgiler"
+
+#: apps/users/admin.py:28
+msgid "İzinler"
+msgstr "İzinler"
+
+#: apps/users/admin.py:29
+msgid "Önemli Tarihler"
+msgstr "Önemli Tarihler"
+
+#: templates/users/registration.html:5
+#: templates/users/login.html:62
+msgid "Kayıt Ol"
+msgstr "Kayıt Ol"
+
+#: templates/users/registration.html:11
+msgid "Hesap Oluştur"
+msgstr "Hesap Oluştur"
+
+#: templates/users/registration.html:45
+msgid "Kullanım şartlarını ve gizlilik politikasını okudum ve kabul ediyorum."
+msgstr "Kullanım şartlarını ve gizlilik politikasını okudum ve kabul ediyorum."
+
+#: templates/users/registration.html:49
+msgid "Kayıt Ol"
+msgstr "Kayıt Ol"
+
+#: templates/users/registration.html:55
+msgid "Zaten bir hesabınız var mı?"
+msgstr "Zaten bir hesabınız var mı?"
+
+#: templates/users/registration.html:56
+#: templates/users/login.html:7
+msgid "Giriş Yap"
+msgstr "Giriş Yap"
+
+#: templates/users/login.html:30
+msgid "Giriş Yap"
+msgstr "Giriş Yap"
+
+#: templates/users/login.html:47
+msgid "Şifrenizi mi unuttunuz?"
+msgstr "Şifrenizi mi unuttunuz?"
+
+#: templates/users/login.html:54
+msgid "Henüz bir hesabınız yok mu?"
+msgstr "Henüz bir hesabınız yok mu?"
+
+#: templates/users/login.html:60
+msgid "Ayrıca şunlarla giriş yapabilirsiniz:"
+msgstr "Ayrıca şunlarla giriş yapabilirsiniz:"
+
+#: templates/users/profile_detail.html:5
+msgid "Profil"
+msgstr "Profil"
+
+#: templates/users/profile_detail.html:23
+msgid "Profili Düzenle"
+msgstr "Profili Düzenle"
+
+#: templates/users/profile_detail.html:26
+msgid "Hesap Ayarları"
+msgstr "Hesap Ayarları"
+
+#: templates/users/profile_detail.html:38
+msgid "Profil Görünürlüğü:"
+msgstr "Profil Görünürlüğü:"
+
+#: templates/users/profile_detail.html:38
+msgid "Herkese Açık"
+msgstr "Herkese Açık"
+
+#: templates/users/profile_detail.html:42
+msgid "2 Faktörlü Doğrulama:"
+msgstr "2 Faktörlü Doğrulama:"
+
+#: templates/users/profile_detail.html:42
+msgid "Aktif"
+msgstr "Aktif"
+
+#: templates/users/profile_detail.html:46
+msgid "Son Giriş:"
+msgstr "Son Giriş:"
+
+#: templates/users/profile_detail.html:58
+msgid "Kişisel Bilgiler"
+msgstr "Kişisel Bilgiler"
+
+#: templates/users/profile_detail.html:63
+msgid "Ad Soyad"
+msgstr "Ad Soyad"
+
+#: templates/users/profile_detail.html:72
+msgid "E-posta"
+msgstr "E-posta"
+
+#: templates/users/profile_detail.html:81
+msgid "Telefon"
+msgstr "Telefon"
+
+#: templates/users/profile_detail.html:84
+#: templates/users/profile_detail.html:93
+#: templates/users/profile_detail.html:102
+#: templates/users/profile_detail.html:128
+#: templates/users/profile_detail.html:137
+msgid "Belirtilmemiş"
+msgstr "Belirtilmemiş"
+
+#: templates/users/profile_detail.html:90
+msgid "Doğum Tarihi"
+msgstr "Doğum Tarihi"
+
+#: templates/users/profile_detail.html:99
+msgid "Adres"
+msgstr "Adres"
+
+#: templates/users/profile_detail.html:111
+msgid "Biyografi"
+msgstr "Biyografi"
+
+#: templates/users/profile_detail.html:114
+msgid "Henüz biyografi eklenmemiş."
+msgstr "Henüz biyografi eklenmemiş."
+
+#: templates/users/profile_detail.html:120
+msgid "İş Bilgileri"
+msgstr "İş Bilgileri"
+
+#: templates/users/profile_detail.html:125
+msgid "Şirket"
+msgstr "Şirket"
+
+#: templates/users/profile_detail.html:134
+msgid "Unvan"
+msgstr "Unvan"
+
+#: core/settings/base.py:125
+msgid "Türkçe"
+msgstr "Türkçe"
+
+#: core/settings/base.py:126
+msgid "English"
+msgstr "İngilizce"
+
+#: apps/finance/accounting/models.py:24
+msgid "Müşteri"
+msgstr "Müşteri"
+
+#: apps/finance/accounting/models.py:25
+msgid "Fatura Numarası"
+msgstr "Fatura Numarası"
+
+#: apps/finance/accounting/models.py:26
+msgid "Düzenleme Tarihi"
+msgstr "Düzenleme Tarihi"
+
+#: apps/finance/accounting/models.py:27
+msgid "Vade Tarihi"
+msgstr "Vade Tarihi"
+
+#: apps/finance/accounting/models.py:28
+msgid "Toplam Tutar"
+msgstr "Toplam Tutar"
+
+#: apps/finance/accounting/models.py:29
+msgid "Durum"
+msgstr "Durum"
+
+#: apps/finance/accounting/models.py:34
+msgid "Taslak"
+msgstr "Taslak"
+
+#: apps/finance/accounting/models.py:35
+msgid "Onaylandı"
+msgstr "Onaylandı"
+
+#: apps/finance/accounting/models.py:36
+msgid "Ödendi"
+msgstr "Ödendi"
+
+#: apps/finance/accounting/models.py:37
+msgid "İptal Edildi"
+msgstr "İptal Edildi"
+
+#: apps/finance/accounting/models.py:40
+msgid "Oluşturulma Tarihi"
+msgstr "Oluşturulma Tarihi"
+
+#: apps/finance/accounting/models.py:41
+msgid "Güncellenme Tarihi"
+msgstr "Güncellenme Tarihi"
+
+#: apps/finance/accounting/models.py:45
+msgid "Fatura"
+msgstr "Fatura"
+
+#: apps/finance/accounting/models.py:46
+msgid "Faturalar"
+msgstr "Faturalar"
+
+#: apps/integrations/efatura/models.py:15
+msgid "Şirket Adı"
+msgstr "Şirket Adı"
+
+#: apps/integrations/efatura/models.py:16
+msgid "Vergi Numarası"
+msgstr "Vergi Numarası"
+
+#: apps/integrations/efatura/models.py:17
+msgid "API Anahtarı"
+msgstr "API Anahtarı"
+
+#: apps/integrations/efatura/models.py:18
+msgid "API URL"
+msgstr "API URL"
+
+#: apps/integrations/efatura/models.py:19
+msgid "Sertifika"
+msgstr "Sertifika"
+
+#: apps/integrations/efatura/models.py:20
+msgid "Test Modu"
+msgstr "Test Modu"
+
+#: apps/integrations/efatura/models.py:24
+msgid "E-Belge Ayarı"
+msgstr "E-Belge Ayarı"
+
+#: apps/integrations/efatura/models.py:25
+msgid "E-Belge Ayarları"
+msgstr "E-Belge Ayarları"
+
+#: apps/integrations/bank_integration/models.py:16
+msgid "Hesap Adı"
+msgstr "Hesap Adı"
+
+#: apps/integrations/bank_integration/models.py:17
+msgid "Hesap Numarası"
+msgstr "Hesap Numarası"
+
+#: apps/integrations/bank_integration/models.py:18
+msgid "Para Birimi"
+msgstr "Para Birimi"
+
+#: apps/integrations/bank_integration/models.py:22
+msgid "Banka Hesabı"
+msgstr "Banka Hesabı"
+
+#: apps/integrations/bank_integration/models.py:23
+msgid "Banka Hesapları"
+msgstr "Banka Hesapları"
+
+#: apps/accounts/forms.py:15
+msgid "Username"
+msgstr "Kullanıcı Adı"
+
+#: apps/accounts/forms.py:16
+msgid "E-mail"
+msgstr "E-posta"
+
+#: apps/accounts/forms.py:17
+msgid "Password"
+msgstr "Parola"
+
+#: apps/accounts/forms.py:18
+msgid "Password (again)"
+msgstr "Parola (tekrar)"
+
+#: apps/accounts/forms.py:19
+msgid "First name"
+msgstr "Ad"
+
+#: apps/accounts/forms.py:20
+msgid "Last name"
+msgstr "Soyad"
+
+#: apps/accounts/models.py:13
+msgid "Business"
+msgstr "İşletme"
+
+#: apps/accounts/models.py:14
+msgid "Student"
+msgstr "Öğrenci"
+
+#: apps/accounts/models.py:15
+msgid "Teacher"
+msgstr "Öğretmen"
+
+#: apps/accounts/models.py:16
+msgid "Admin"
+msgstr "Yönetici"
+
+#: apps/accounts/models.py:17
+msgid "Finance Manager"
+msgstr "Finans Sorumlusu"
+
+#: apps/accounts/models.py:18
+msgid "Accounting"
+msgstr "Muhasebe Sorumlusu"
+
+#: apps/accounts/models.py:19
+msgid "Stock Operator"
+msgstr "Depo Yetkilisi"
+
+#: apps/accounts/models.py:20
+msgid "Sales"
+msgstr "Satış Sorumlusu"
+
+#: apps/accounts/models.py:21
+msgid "HR"
+msgstr "İnsan Kaynakları"
+
+#: apps/accounts/models.py:22
+msgid "Guest"
+msgstr "Misafir"
+
+#: apps/accounts/models.py:25
+msgid "User Role"
+msgstr "Kullanıcı Rolü"
+
+#: apps/accounts/models.py:26
+msgid "Virtual Company User"
+msgstr "Sanal Şirket Kullanıcısı"
+
+#: apps/accounts/models.py:27
+msgid "Phone"
+msgstr "Telefon"
+
+#: apps/accounts/models.py:28
+msgid "Profile Picture"
+msgstr "Profil Resmi"
+
+#: apps/accounts/models.py:31
+msgid "Last Login IP"
+msgstr "Son Giriş IP Adresi"
+
+#: apps/accounts/models.py:32
+msgid "Failed Login Attempts"
+msgstr "Başarısız Giriş Denemeleri"
+
+#: apps/accounts/models.py:33
+msgid "Account Locked Until"
+msgstr "Hesap Kilitleme Süresi"
+
+#: apps/accounts/models.py:39
+msgid "User"
+msgstr "Kullanıcı"
+
+#: apps/accounts/models.py:40
+msgid "Users"
+msgstr "Kullanıcılar"
+
+#: apps/crm/models.py:10
+msgid "Customer"
+msgstr "Müşteri"
+
+#: apps/crm/models.py:11
+msgid "Supplier"
+msgstr "Tedarikçi"
+
+#: apps/crm/models.py:12
+msgid "Both"
+msgstr "Her İkisi"
+
+#: apps/accounting/models.py:15
+msgid "Invoice"
+msgstr "Fatura"
+
+#: apps/accounting/models.py:16
+msgid "Receipt"
+msgstr "Makbuz"
+
+#: apps/accounting/models.py:17
+msgid "Credit Note"
+msgstr "İade Faturası"
+
+#: apps/accounting/models.py:18
+msgid "Debit Note"
+msgstr "Borç Dekontu"
+
+#: apps/accounting/models.py:19
+msgid "Bank Statement"
+msgstr "Banka Ekstresi"
+
+#: apps/accounting/models.py:20
+msgid "Payment"
+msgstr "Ödeme"
+
+#: templates/base.html:15
+msgid "FinAsis - Financial Management and Assistant Platform"
+msgstr "FinAsis - Finansal Yönetim ve Asistan Platformu"
+
+#: templates/accounts/login.html:7
+msgid "Login"
+msgstr "Giriş Yap"
+
+#: templates/accounts/login.html:15
+msgid "Don't have an account?"
+msgstr "Hesabınız yok mu?"
+
+#: templates/accounts/login.html:15
+msgid "Register"
+msgstr "Kayıt Ol"
+
+#: templates/accounts/register.html:7
+msgid "Register Account"
+msgstr "Hesap Oluştur"
+
+#: templates/accounts/register.html:15
+msgid "Already have an account?"
+msgstr "Zaten bir hesabınız var mı?"
+
+#: templates/accounts/register.html:15
+msgid "Login here"
+msgstr "Giriş yapın"
+
+#: templates/partials/header.html:8
+msgid "Home"
+msgstr "Ana Sayfa"
+
+#: templates/partials/header.html:9
+msgid "Dashboard"
+msgstr "Kontrol Paneli"
+
+#: templates/partials/header.html:10
+msgid "Accounting"
+msgstr "Muhasebe"
+
+#: templates/partials/header.html:11
+msgid "CRM"
+msgstr "Müşteri İlişkileri"
+
+#: templates/partials/header.html:12
+msgid "Stock"
+msgstr "Stok"
+
+#: templates/partials/header.html:13
+msgid "Reports"
+msgstr "Raporlar"
+
+#: templates/partials/header.html:14
+msgid "Settings"
+msgstr "Ayarlar"
+
+#: templates/partials/header.html:15
+msgid "Logout"
+msgstr "Çıkış"
+
+#: templates/base.html:10
+msgid "FinAsis - Finansal yönetim ve analiz sistemi"
+msgstr "FinAsis - Finansal yönetim ve analiz sistemi"
+
+#: templates/base.html:11
+msgid "finans, muhasebe, stok yönetimi, crm, e-fatura"
+msgstr "finans, muhasebe, stok yönetimi, crm, e-fatura"
+
+#: templates/base.html:13
+msgid "FinAsis"
+msgstr "FinAsis"
+
+#: templates/base.html:14
+msgid "FinAsis - Finansal Asistan ve Entegrasyon Platformu"
+msgstr "FinAsis - Finansal Asistan ve Entegrasyon Platformu"
+
+#: templates/accounts/login.html:8
+msgid "Giriş Yap"
+msgstr "Giriş Yap"
+
+#: templates/accounts/login.html:15
+msgid "E-posta"
+msgstr "E-posta"
+
+#: templates/accounts/login.html:21
+msgid "Şifre"
+msgstr "Şifre"
+
+#: templates/accounts/login.html:28
+msgid "Beni Hatırla"
+msgstr "Beni Hatırla"
+
+#: templates/accounts/login.html:35
+msgid "Giriş"
+msgstr "Giriş"
+
+#: templates/accounts/login.html:39
+msgid "Şifremi Unuttum"
+msgstr "Şifremi Unuttum"
+
+#: templates/accounts/register.html:8
+msgid "Kayıt Ol"
+msgstr "Kayıt Ol"
+
+#: templates/accounts/register.html:15
+msgid "Kullanıcı Adı"
+msgstr "Kullanıcı Adı"
+
+#: templates/accounts/register.html:29
+msgid "Şifre (Tekrar)"
+msgstr "Şifre (Tekrar)"
+
+#: templates/accounts/register.html:36
+msgid "Kayıt"
+msgstr "Kayıt"
+
+#: templates/base.html:103
+msgid "Modüller"
+msgstr "Modüller"
+
+#: templates/base.html:106
+msgid "Muhasebe"
+msgstr "Muhasebe"
+
+#: templates/base.html:107
+msgid "CRM"
+msgstr "CRM"
+
+#: templates/base.html:108
+msgid "Stok Yönetimi"
+msgstr "Stok Yönetimi"
+
+#: templates/base.html:109
+msgid "Banka İşlemleri"
+msgstr "Banka İşlemleri"
+
+#: templates/base.html:110
+msgid "E-Fatura"
+msgstr "E-Fatura"
+
+#: templates/base.html:112
+msgid "Eğitim Oyunları"
+msgstr "Eğitim Oyunları"
+
+#: templates/base.html:116
+msgid "Raporlar"
+msgstr "Raporlar"
+
+#: templates/base.html:119
+msgid "Eğitim"
+msgstr "Eğitim"
+
+#: templates/base.html:122
+msgid "AI Asistan"
+msgstr "AI Asistan"
+
+#: templates/base.html:125
+msgid "Destek"
+msgstr "Destek"
+
+#: templates/base.html:187
+msgid "Gösterge Paneli"
+msgstr "Gösterge Paneli"
+
+#: templates/base.html:188
+msgid "Profil"
+msgstr "Profil"
+
+#: templates/base.html:189
+msgid "Ayarlar"
+msgstr "Ayarlar"
+
+#: templates/base.html:191
+msgid "Yönetim Paneli"
+msgstr "Yönetim Paneli"
+
+#: templates/base.html:194
+msgid "Çıkış Yap"
+msgstr "Çıkış Yap"
+
+#: templates/base.html:200
+msgid "Bildirimler"
+msgstr "Bildirimler"
+
+#: templates/base.html:217
+msgid "Tümünü Okundu İşaretle"
+msgstr "Tümünü Okundu İşaretle"
+
+#: templates/base.html:237
+msgid "Bildirim bulunmuyor"
+msgstr "Bildirim bulunmuyor"
+
+#: templates/base.html:242
+msgid "Tüm Bildirimleri Gör"
+msgstr "Tüm Bildirimleri Gör"
+
+#: templates/base.html:248
+msgid "Ücretsiz Başla"
+msgstr "Ücretsiz Başla"
+
+#: templates/dashboard/dashboard.html:10
+msgid "Hoş Geldiniz"
+msgstr "Hoş Geldiniz"
+
+#: templates/dashboard/dashboard.html:18
+msgid "Genel Bakış"
+msgstr "Genel Bakış"
+
+#: templates/dashboard/dashboard.html:26
+msgid "Gelir"
+msgstr "Gelir"
+
+#: templates/dashboard/dashboard.html:37
+msgid "Gider"
+msgstr "Gider"
+
+#: templates/dashboard/dashboard.html:48
+msgid "Müşteriler"
+msgstr "Müşteriler"
+
+#: templates/dashboard/dashboard.html:59
+msgid "Faturalar"
+msgstr "Faturalar"
+
+#: templates/base.html:295
+msgid "Tüm hakları saklıdır."
+msgstr "Tüm hakları saklıdır." 

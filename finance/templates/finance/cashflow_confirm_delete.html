@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Nakit Akışı Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Nakit Akışı Sil</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Bu nakit akışı kaydını silmek istediğinizden emin misiniz?</p>
+            <p class="text-danger">Bu işlem geri alınamaz!</p>
+            
+            <div class="alert alert-info">
+                <strong>Nakit Akışı Detayları:</strong><br>
+                Tarih: {{ object.date|date:"d.m.Y" }}<br>
+                Açıklama: {{ object.description }}<br>
+                Tutar: {{ object.amount|floatformat:2 }} TL<br>
+                Tip: {% if object.flow_type == 'in' %}Giriş{% else %}Çıkış{% endif %}
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'finance:cashflow_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

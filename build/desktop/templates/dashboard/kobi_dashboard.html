@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}KOBİ Gösterge Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 1.5rem 0;
+    }
+    
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header-bg {
+        background: linear-gradient(135deg, #0062cc, #0097a7);
+        color: white;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+    }
+    
+    .summary-card {
+        text-align: center;
+        padding: 1.25rem;
+    }
+    
+    .summary-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .summary-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .summary-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .summary-trend {
+        display: inline-block;
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .trend-up {
+        color: #198754;
+    }
+    
+    .trend-down {
+        color: #dc3545;
+    }
+    
+    .activity-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .transaction-tag {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 250px;
+    }
+    
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .invoice-status {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .status-paid {
+        background-color: #198754;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+    }
+    
+    .status-overdue {
+        background-color: #dc3545;
+    }
+    
+    .quick-action-btn {
+        border-radius: 50px;
+        margin: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.6rem 1rem;
+    }
+    
+    .quick-action-btn i {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Ana Sayfa</a></li>
+            <li class="breadcrumb-item active" aria-current="page">KOBİ Gösterge Paneli</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <!-- Sayfa Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 fw-bold">KOBİ Gösterge Paneli</h1>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-download me-1"></i> Rapor İndir
+            </button>
+            <button class="btn btn-sm btn-primary">
+                <i class="bi bi-arrow-repeat me-1"></i> Yenile
+            </button>
+        </div>
+    </div>
+    
+    <!-- Özet Kartları -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card dashboard-card summary-card">
+                <div class="summary-icon text-primary">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="summary-value">₺47,582.25</div>
+                <div class="summary-label">Aylık Gelir <span class="summary-trend trend-up"><i class="bi bi-graph-up-arrow"></i> 12%</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card summary-card">
+                <div class="summary-icon text-danger">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div class="summary-value">₺31,250.80</div>
+                <div class="summary-label">Aylık Gider <span class="summary-trend trend-down"><i class="bi bi-graph-down-arrow"></i> 5%</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card summary-card">
+                <div class="summary-icon text-success">
+                    <i class="bi bi-piggy-bank"></i>
+                </div>
+                <div class="summary-value">₺16,331.45</div>
+                <div class="summary-label">Net Kâr <span class="summary-trend trend-up"><i class="bi bi-graph-up-arrow"></i> 18%</span></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card dashboard-card summary-card">
+                <div class="summary-icon text-warning">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="summary-value">23</div>
+                <div class="summary-label">Bekleyen Faturalar</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div class="row g-3">
+        <!-- Sol Kolon -->
+        <div class="col-lg-8">
+            <!-- Nakit Akışı Grafiği -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header-bg d-flex justify-content-between align-items-center">
+                    <span>Nakit Akışı</span>
+                    <div class="dropdown">
+                        <button class="btn btn-sm text-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Son 30 Gün
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Son 7 Gün</a></li>
+                            <li><a class="dropdown-item" href="#">Son 30 Gün</a></li>
+                            <li><a class="dropdown-item" href="#">Son 3 Ay</a></li>
+                            <li><a class="dropdown-item" href="#">Son 6 Ay</a></li>
+                            <li><a class="dropdown-item" href="#">Son 1 Yıl</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="cashFlowChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Son Faturalar -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header-bg d-flex justify-content-between align-items-center">
+                    <span>Son Faturalar</span>
+                    <a href="{% url 'accounting:invoices' %}" class="btn btn-sm text-white">Tümünü Gör</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fatura No</th>
+                                    <th>Müşteri</th>
+                                    <th>Tutar</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>FTR-2025</td>
+                                    <td>ABC Ltd. Şti.</td>
+                                    <td>₺5,850.00</td>
+                                    <td>15.03.2023</td>
+                                    <td><span class="invoice-status status-paid"></span> Ödendi</td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-primary">Görüntüle</a></td>
+                                </tr>
+                                <tr>
+                                    <td>FTR-2024</td>
+                                    <td>XYZ A.Ş.</td>
+                                    <td>₺3,200.00</td>
+                                    <td>12.03.2023</td>
+                                    <td><span class="invoice-status status-pending"></span> Beklemede</td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-primary">Görüntüle</a></td>
+                                </tr>
+                                <tr>
+                                    <td>FTR-2023</td>
+                                    <td>DEF Elektronik</td>
+                                    <td>₺8,750.00</td>
+                                    <td>10.03.2023</td>
+                                    <td><span class="invoice-status status-overdue"></span> Gecikmiş</td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-primary">Görüntüle</a></td>
+                                </tr>
+                                <tr>
+                                    <td>FTR-2022</td>
+                                    <td>GHI Gıda San.</td>
+                                    <td>₺2,340.00</td>
+                                    <td>07.03.2023</td>
+                                    <td><span class="invoice-status status-paid"></span> Ödendi</td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-primary">Görüntüle</a></td>
+                                </tr>
+                                <tr>
+                                    <td>FTR-2021</td>
+                                    <td>JKL İnşaat</td>
+                                    <td>₺12,500.00</td>
+                                    <td>05.03.2023</td>
+                                    <td><span class="invoice-status status-paid"></span> Ödendi</td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-primary">Görüntüle</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alacak-Borç Özeti -->
+            <div class="card dashboard-card">
+                <div class="card-header-bg">
+                    <span>Alacak ve Borç Özeti</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3 fw-bold text-primary">Alacaklar</h5>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>0-30 gün</span>
+                                    <span>₺18,500.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 55%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>31-60 gün</span>
+                                    <span>₺9,270.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: 28%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>60+ gün</span>
+                                    <span>₺5,780.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: 17%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3 fw-bold text-danger">Borçlar</h5>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>0-30 gün</span>
+                                    <span>₺11,200.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>31-60 gün</span>
+                                    <span>₺7,580.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>60+ gün</span>
+                                    <span>₺6,250.00</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light d-flex justify-content-between">
+                    <div>
+                        <span class="fw-bold">Toplam Alacak:</span> ₺33,550.00
+                    </div>
+                    <div>
+                        <span class="fw-bold">Toplam Borç:</span> ₺25,030.00
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sağ Kolon -->
+        <div class="col-lg-4">
+            <!-- Hızlı İşlemler -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header-bg">
+                    <span>Hızlı İşlemler</span>
+                </div>
+                <div class="card-body d-flex flex-wrap justify-content-center">
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-receipt"></i> Fatura Oluştur
+                    </a>
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-person-plus"></i> Müşteri Ekle
+                    </a>
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-currency-exchange"></i> Ödeme Kaydet
+                    </a>
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-bar-chart"></i> Rapor Oluştur
+                    </a>
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-box"></i> Ürün Ekle
+                    </a>
+                    <a href="#" class="btn btn-outline-primary quick-action-btn">
+                        <i class="bi bi-journal-plus"></i> Gider Ekle
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Gider Dağılımı -->
+            <div class="card dashboard-card mb-4">
+                <div class="card-header-bg">
+                    <span>Gider Dağılımı</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Son Aktiviteler -->
+            <div class="card dashboard-card">
+                <div class="card-header-bg">
+                    <span>Son Aktiviteler</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="activity-item p-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="transaction-tag bg-success bg-opacity-10 text-success me-2">Ödeme</span>
+                                <span class="small text-muted ms-auto">Bugün, 14:30</span>
+                            </div>
+                            <p class="mb-0">ABC Ltd. Şti.'den ₺5,850 ödeme alındı.</p>
+                        </div>
+                        <div class="activity-item p-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="transaction-tag bg-primary bg-opacity-10 text-primary me-2">Fatura</span>
+                                <span class="small text-muted ms-auto">Bugün, 11:20</span>
+                            </div>
+                            <p class="mb-0">DEF Elektronik için yeni fatura oluşturuldu.</p>
+                        </div>
+                        <div class="activity-item p-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="transaction-tag bg-warning bg-opacity-10 text-warning me-2">Ürün</span>
+                                <span class="small text-muted ms-auto">Dün, 16:45</span>
+                            </div>
+                            <p class="mb-0">Stok seviyesi düşük: 'Widget XYZ' ürünü.</p>
+                        </div>
+                        <div class="activity-item p-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="transaction-tag bg-danger bg-opacity-10 text-danger me-2">Gider</span>
+                                <span class="small text-muted ms-auto">Dün, 09:15</span>
+                            </div>
+                            <p class="mb-0">Ofis kirası için ₺8,500 ödeme yapıldı.</p>
+                        </div>
+                        <div class="activity-item p-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="transaction-tag bg-info bg-opacity-10 text-info me-2">Müşteri</span>
+                                <span class="small text-muted ms-auto">14.03.2023</span>
+                            </div>
+                            <p class="mb-0">Yeni müşteri eklendi: JKL İnşaat.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <a href="#" class="text-decoration-none">Tüm aktiviteleri görüntüle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Nakit Akışı Grafiği
+        var cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
+        var cashFlowChart = new Chart(cashFlowCtx, {
+            type: 'line',
+            data: {
+                labels: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
+                datasets: [
+                    {
+                        label: 'Gelir',
+                        data: [12500, 17800, 15200, 25400, 19800, 32500, 27800],
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Gider',
+                        data: [9200, 12500, 11800, 18900, 15600, 24800, 22100],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₺' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gider Dağılımı Grafiği
+        var expenseCtx = document.getElementById('expenseChart').getContext('2d');
+        var expenseChart = new Chart(expenseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kira', 'Personel', 'Malzeme', 'Pazarlama', 'Diğer'],
+                datasets: [{
+                    data: [25, 40, 15, 12, 8],
+                    backgroundColor: [
+                        '#0d6efd',
+                        '#198754',
+                        '#ffc107',
+                        '#dc3545',
+                        '#6c757d'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

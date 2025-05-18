@@ -1,0 +1,142 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if attendance %}{% trans "Devam Kaydı Düzenle" %}{% else %}{% trans "Yeni Devam Kaydı" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'hr:attendance_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Devam Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="employee" class="form-label">{% trans "Çalışan" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.employee.errors %}is-invalid{% endif %}" id="employee" name="employee" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee.id }}" {% if form.employee.value|stringformat:"i" == employee.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ employee.full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.employee.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.employee.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Devam kaydı oluşturulacak çalışanı seçiniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="date" class="form-label">{% trans "Tarih" %} <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control {% if form.date.errors %}is-invalid{% endif %}" id="date" name="date" value="{{ form.date.value|date:'Y-m-d' }}" required>
+                            {% if form.date.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.date.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Devam kaydının tarihini seçiniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="check_in" class="form-label">{% trans "Giriş Saati" %} <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control {% if form.check_in.errors %}is-invalid{% endif %}" id="check_in" name="check_in" value="{{ form.check_in.value|time:'H:i' }}" required>
+                            {% if form.check_in.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.check_in.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Çalışanın işe giriş saatini seçiniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="check_out" class="form-label">{% trans "Çıkış Saati" %}</label>
+                            <input type="time" class="form-control {% if form.check_out.errors %}is-invalid{% endif %}" id="check_out" name="check_out" value="{{ form.check_out.value|time:'H:i' }}">
+                            {% if form.check_out.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.check_out.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Çalışanın işten çıkış saatini seçiniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" id="status" name="status" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.status.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.status.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Devam durumunu seçiniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{% trans "Notlar" %}</label>
+                        <textarea class="form-control {% if form.notes.errors %}is-invalid{% endif %}" id="notes" name="notes" rows="4">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.notes.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Devam kaydı hakkında notlar giriniz." %}</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            {% if attendance %}{% trans "Güncelle" %}{% else %}{% trans "Oluştur" %}{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">{% trans "Çalışan Seçimi" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Devam kaydı oluşturulacak çalışanı seçiniz. Sadece aktif çalışanlar listelenir." %}</p>
+                
+                <h6 class="mb-3">{% trans "Tarih ve Saat Seçimi" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Devam kaydının tarihini ve giriş/çıkış saatlerini seçiniz. Çıkış saati giriş saatinden önce olamaz." %}</p>
+                
+                <h6 class="mb-3">{% trans "Durum Seçimi" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Devam durumunu seçiniz. Durumlar: Mevcut, Geç, Yok, İzinli." %}</p>
+                
+                <h6 class="mb-3">{% trans "Notlar" %}</h6>
+                <p class="text-muted small mb-0">{% trans "Devam kaydı hakkında detaylı notlar girebilirsiniz. Bu bilgiler devam detay sayfasında görüntülenir." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

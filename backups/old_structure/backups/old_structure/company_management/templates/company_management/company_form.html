@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ title }}</h1>
+        <a href="{% url 'company_management:company_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Temel Bilgiler -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3">{% trans "Temel Bilgiler" %}</h5>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{% trans "Şirket Adı" %} *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.tax_number.id_for_label }}" class="form-label">{% trans "Vergi Numarası" %} *</label>
+                            {{ form.tax_number }}
+                            {% if form.tax_number.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tax_number.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.tax_office.id_for_label }}" class="form-label">{% trans "Vergi Dairesi" %} *</label>
+                            {{ form.tax_office }}
+                            {% if form.tax_office.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tax_office.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">{% trans "Adres" %} *</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.address.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- İletişim Bilgileri -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3">{% trans "İletişim Bilgileri" %}</h5>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">{% trans "Telefon" %} *</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.phone.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">{% trans "E-posta" %} *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.website.id_for_label }}" class="form-label">{% trans "Web Sitesi" %}</label>
+                            {{ form.website }}
+                            {% if form.website.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.website.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.logo.id_for_label }}" class="form-label">{% trans "Logo" %}</label>
+                            {% if company and company.logo %}
+                            <div class="mb-2">
+                                <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            {% endif %}
+                            {{ form.logo }}
+                            {% if form.logo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.logo.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Önerilen boyut: 200x200 piksel" %}</div>
+                        </div>
+                    </div>
+
+                    <!-- Açıklama ve Durum -->
+                    <div class="col-12 mt-4">
+                        <h5 class="mb-3">{% trans "Diğer Bilgiler" %}</h5>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">{% trans "Açıklama" %}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{% trans "Aktif" %}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                    <a href="{% url 'company_management:company_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> {% trans "İptal" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form elemanlarına Bootstrap sınıflarını ekle
+    document.addEventListener('DOMContentLoaded', function() {
+        // Input ve select elemanlarına form-control sınıfı ekle
+        document.querySelectorAll('input:not([type="checkbox"]):not([type="file"]), select, textarea').forEach(function(element) {
+            element.classList.add('form-control');
+        });
+
+        // Checkbox elemanlarına form-check-input sınıfı ekle
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(element) {
+            element.classList.add('form-check-input');
+        });
+    });
+</script>
+{% endblock %} 

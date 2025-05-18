@@ -1,0 +1,78 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "AI Asistan Sohbet" %}</h5>
+    </div>
+    <div class="card-body">
+        <div class="chat-container" style="height: 400px; overflow-y: auto;">
+            <div class="chat-messages">
+                {% for message in messages %}
+                <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %} mb-3">
+                    <div class="message-content p-3 rounded">
+                        {% if message.is_user %}
+                        <div class="d-flex justify-content-end">
+                            <div class="message-text bg-primary text-white p-2 rounded">
+                                {{ message.content }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="d-flex">
+                            <div class="message-text bg-light p-2 rounded">
+                                {{ message.content }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <small class="text-muted mt-1 d-block">
+                            {{ message.timestamp|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" name="message" class="form-control" placeholder="{% trans 'Mesajınızı yazın...' %}" required>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> {% trans "Gönder" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.chat-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.message {
+    margin-bottom: 1rem;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.ai-message {
+    text-align: left;
+}
+
+.message-content {
+    max-width: 80%;
+    display: inline-block;
+}
+
+.message-text {
+    word-wrap: break-word;
+}
+</style>
+{% endblock %} 

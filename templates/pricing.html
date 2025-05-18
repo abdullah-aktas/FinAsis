@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Abonelik Paketleri - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis'in farklı işletme ihtiyaçlarına uygun abonelik paketleri. Standart, Profesyonel ve Kurumsal paketlerimiz arasından işletmenize en uygun olanı seçin.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-header-section {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+        padding: 100px 0 50px;
+        color: white;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pricing-header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: radial-gradient(circle at 20% 150%, var(--primary) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 30%, var(--accent) 0%, transparent 50%);
+        opacity: 0.4;
+        z-index: 0;
+    }
+    
+    .pricing-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .pricing-tabs {
+        background-color: white;
+        border-radius: 50px;
+        padding: 0.5rem;
+        display: inline-flex;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pricing-tab {
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .pricing-tab.active {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .monthly-price, .annual-price {
+        transition: all 0.3s ease;
+    }
+    
+    .save-badge {
+        background-color: rgba(76, 175, 80, 0.15);
+        color: #2e7d32;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+    
+    .guarantee-section {
+        background-color: rgba(0, 151, 167, 0.05);
+        border-radius: 16px;
+        padding: 3rem 0;
+        margin: 5rem 0;
+    }
+    
+    .guarantee-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .comparison-header {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: 1.5rem;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .comparison-table th {
+        font-weight: 600;
+        vertical-align: middle;
+    }
+    
+    .comparison-highlight {
+        background-color: rgba(0, 151, 167, 0.05);
+    }
+    
+    .feature-check {
+        color: var(--success);
+        font-size: 1.2rem;
+    }
+    
+    .feature-times {
+        color: var(--text-hint);
+        font-size: 1.2rem;
+    }
+    
+    .faq-section {
+        padding: 5rem 0;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(0, 151, 167, 0.05);
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 151, 167, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Pricing Header -->
+<section class="pricing-header-section">
+    <div class="container text-center pricing-content">
+        <h1 class="display-4 fw-bold mb-3">Esnek Abonelik Paketleri</h1>
+        <p class="lead mb-5">İşletmenizin ihtiyaçlarına göre ölçeklenebilir çözümler</p>
+        
+        <div class="pricing-tabs">
+            <div class="pricing-tab active" id="monthly-tab">Aylık</div>
+            <div class="pricing-tab" id="annual-tab">Yıllık</div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Cards -->
+<section class="container mb-5">
+    <div class="row">
+        <!-- Standart Paket -->
+        <div class="col-lg-4 mb-4">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Standart</h3>
+                    <div class="monthly-price">
+                        <div class="price">₺299<span class="price-period">/ay</span></div>
+                    </div>
+                    <div class="annual-price" style="display: none;">
+                        <div class="price">₺249<span class="price-period">/ay</span></div>
+                        <div class="save-badge">%17 Tasarruf</div>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            1 Kullanıcı
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            5 GB Depolama
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Muhasebe Modülü
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            CRM Temel Özellikler
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Aylık 100 E-Fatura
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-x-circle text-secondary"></i>
+                        </div>
+                        <div class="pricing-feature-text text-secondary">
+                            E-Defter Desteği
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-x-circle text-secondary"></i>
+                        </div>
+                        <div class="pricing-feature-text text-secondary">
+                            API Erişimi
+                        </div>
+                    </div>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg w-100">Ücretsiz Başla</a>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">14 gün ücretsiz deneme</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profesyonel Paket -->
+        <div class="col-lg-4 mb-4">
+            <div class="pricing-card">
+                <div class="pricing-popular">En Popüler</div>
+                <div class="pricing-header">
+                    <h3>Profesyonel</h3>
+                    <div class="monthly-price">
+                        <div class="price">₺599<span class="price-period">/ay</span></div>
+                    </div>
+                    <div class="annual-price" style="display: none;">
+                        <div class="price">₺499<span class="price-period">/ay</span></div>
+                        <div class="save-badge">%17 Tasarruf</div>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            5 Kullanıcı
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            25 GB Depolama
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Muhasebe Modülü
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            CRM Tam Sürüm
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Aylık 500 E-Fatura
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            E-Defter Desteği
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-x-circle text-secondary"></i>
+                        </div>
+                        <div class="pricing-feature-text text-secondary">
+                            API Erişimi
+                        </div>
+                    </div>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg w-100">Ücretsiz Başla</a>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">14 gün ücretsiz deneme</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kurumsal Paket -->
+        <div class="col-lg-4 mb-4">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Kurumsal</h3>
+                    <div class="monthly-price">
+                        <div class="price">₺1299<span class="price-period">/ay</span></div>
+                    </div>
+                    <div class="annual-price" style="display: none;">
+                        <div class="price">₺999<span class="price-period">/ay</span></div>
+                        <div class="save-badge">%23 Tasarruf</div>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Sınırsız Kullanıcı
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            100 GB Depolama
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Muhasebe Modülü
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            CRM Tam Sürüm
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            Sınırsız E-Fatura
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            E-Defter Desteği
+                        </div>
+                    </div>
+                    <div class="pricing-feature">
+                        <div class="pricing-feature-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="pricing-feature-text">
+                            API Erişimi
+                        </div>
+                    </div>
+                </div>
+                <div class="pricing-footer">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg w-100">Ücretsiz Başla</a>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">14 gün ücretsiz deneme</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Money Back Guarantee -->
+<section class="guarantee-section">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="guarantee-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h2 class="mb-4">30 Gün Para İade Garantisi</h2>
+                <p class="lead mb-0">FinAsis'den %100 memnun kalacağınıza inanıyoruz. Eğer herhangi bir nedenle memnun kalmazsanız, ilk 30 gün içinde ödemenizi iade ediyoruz.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Comparison -->
+<section class="container mb-5">
+    <h2 class="text-center mb-5">Paket Karşılaştırması</h2>
+    
+    <div class="table-responsive">
+        <table class="table comparison-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%">Özellik</th>
+                    <th class="text-center">Standart</th>
+                    <th class="text-center comparison-highlight">Profesyonel</th>
+                    <th class="text-center">Kurumsal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">Kullanıcı Sayısı</th>
+                    <td class="text-center">1</td>
+                    <td class="text-center comparison-highlight">5</td>
+                    <td class="text-center">Sınırsız</td>
+                </tr>
+                <tr>
+                    <th scope="row">Depolama</th>
+                    <td class="text-center">5 GB</td>
+                    <td class="text-center comparison-highlight">25 GB</td>
+                    <td class="text-center">100 GB</td>
+                </tr>
+                <tr>
+                    <th scope="row">Muhasebe Modülü</th>
+                    <td class="text-center"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                    <td class="text-center comparison-highlight"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                    <td class="text-center"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                </tr>
+                <tr>
+                    <th scope="row">CRM Modülü</th>
+                    <td class="text-center">Temel Özellikler</td>
+                    <td class="text-center comparison-highlight">Tam Sürüm</td>
+                    <td class="text-center">Tam Sürüm</td>
+                </tr>
+                <tr>
+                    <th scope="row">E-Fatura</th>
+                    <td class="text-center">Aylık 100</td>
+                    <td class="text-center comparison-highlight">Aylık 500</td>
+                    <td class="text-center">Sınırsız</td>
+                </tr>
+                <tr>
+                    <th scope="row">E-Defter</th>
+                    <td class="text-center"><i class="bi bi-x feature-times"></i></td>
+                    <td class="text-center comparison-highlight"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                    <td class="text-center"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                </tr>
+                <tr>
+                    <th scope="row">API Erişimi</th>
+                    <td class="text-center"><i class="bi bi-x feature-times"></i></td>
+                    <td class="text-center comparison-highlight"><i class="bi bi-x feature-times"></i></td>
+                    <td class="text-center"><i class="bi bi-check-circle-fill feature-check"></i></td>
+                </tr>
+                <tr>
+                    <th scope="row">Telefon Desteği</th>
+                    <td class="text-center">Mesai Saatleri</td>
+                    <td class="text-center comparison-highlight">Mesai Saatleri</td>
+                    <td class="text-center">7/24</td>
+                </tr>
+                <tr>
+                    <th scope="row">Eğitim Desteği</th>
+                    <td class="text-center"><i class="bi bi-x feature-times"></i></td>
+                    <td class="text-center comparison-highlight">2 Saat</td>
+                    <td class="text-center">10 Saat</td>
+                </tr>
+                <tr>
+                    <th scope="row">Hız Limiti</th>
+                    <td class="text-center">Standart</td>
+                    <td class="text-center comparison-highlight">Hızlı</td>
+                    <td class="text-center">En Hızlı</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Sıkça Sorulan Sorular</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="pricingFaq">
+                    <!-- FAQ Item 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                Aboneliğimi istediğim zaman değiştirebilir miyim?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="heading1" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                Evet, FinAsis'de aboneliğinizi istediğiniz zaman yükseltebilir veya düşürebilirsiniz. Yükseltme işleminde fark tutarı hesaplanarak ödeme yapılır ve yeni paket hemen aktif olur. Düşürme işlemi ise mevcut dönem sonunda gerçekleşir.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                Ücretsiz deneme süresi neleri kapsar?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                14 günlük ücretsiz deneme süresi, seçtiğiniz paketin tüm özelliklerini sınırsız olarak kullanmanızı sağlar. Kredi kartı bilgisi gerektirmez ve herhangi bir taahhüt içermez. Deneme süresi sonunda ücretli aboneliğe geçmek istemezseniz hesabınız otomatik olarak dondurulur.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                Yıllık ödeme yaparsam nasıl bir avantaj sağlarım?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                Yıllık ödeme seçeneği ile standart ve profesyonel paketlerde %17, kurumsal pakette ise %23 tasarruf sağlarsınız. Ayrıca yıllık abonelikler için ek 1 ay ücretsiz kullanım hediye edilir.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                Ödeme yöntemleri nelerdir?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                Kredi kartı, banka havalesi/EFT ve mail order ile ödeme yapabilirsiniz. Kredi kartı ödemelerinde 12 aya kadar taksit imkanı sunulmaktadır. Banka havalesi/EFT ile ödemelerde fatura kesildikten sonra 3 iş günü içinde ödeme yapılmalıdır.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 5 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                                30 gün para iade garantisi nasıl işler?
+                            </button>
+                        </h2>
+                        <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                FinAsis'e abone olduktan sonraki ilk 30 gün içinde, herhangi bir sebepten memnun kalmazsanız, destek ekibimize başvurarak iade talebinde bulunabilirsiniz. Ödemeniz 5-10 iş günü içinde iade edilecektir. İade işlemi için kullanım verileri silinecektir.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container my-5">
+    <div class="cta-section text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2>İşletmenizi Geleceğe Taşıyın</h2>
+                <p>FinAsis ile finansal süreçlerinizi dijitalleştirin ve işinizi büyütün.</p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3">
+                    <i class="bi bi-rocket-takeoff me-2"></i> Ücretsiz Denemeye Başlayın
+                </a>
+                <div class="mt-3 text-white-50">
+                    <small>Kredi kartı gerektirmez. İstediğiniz zaman iptal edebilirsiniz.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const monthlyTab = document.getElementById('monthly-tab');
+        const annualTab = document.getElementById('annual-tab');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const annualPrices = document.querySelectorAll('.annual-price');
+        
+        // Aylık/Yıllık tab değişimi
+        monthlyTab.addEventListener('click', function() {
+            monthlyTab.classList.add('active');
+            annualTab.classList.remove('active');
+            
+            monthlyPrices.forEach(el => el.style.display = 'block');
+            annualPrices.forEach(el => el.style.display = 'none');
+        });
+        
+        annualTab.addEventListener('click', function() {
+            annualTab.classList.add('active');
+            monthlyTab.classList.remove('active');
+            
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            annualPrices.forEach(el => el.style.display = 'block');
+        });
+    });
+</script>
+{% endblock %} 

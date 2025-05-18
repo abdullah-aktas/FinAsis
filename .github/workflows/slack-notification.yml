@@ -1,0 +1,77 @@
+name: Test Sonuçları Bildirimi
+
+on:
+  workflow_run:
+    workflows: ["Django Test CI"]
+    types:
+      - completed
+
+jobs:
+  slack-notification:
+    runs-on: ubuntu-latest
+    # Sadece main, master ve dev dallarındaki değişiklikler için çalıştır
+    if: >
+      github.event.workflow_run.head_branch == 'main' || 
+      github.event.workflow_run.head_branch == 'master' || 
+      github.event.workflow_run.head_branch == 'dev'
+    steps:
+      - name: Webhook URL Kontrolü
+        id: check-webhook
+        run: |
+          if [[ -z "${{ secrets.SLACK_WEBHOOK }}" ]]; then
+            echo "::warning::SLACK_WEBHOOK değişkeni ayarlanmamış. Slack bildirimi atlanacak."
+            echo "has_webhook=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_webhook=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Slack Kanalı Kontrolü
+        id: check-channel
+        run: |
+          if [[ -z "${{ vars.SLACK_CHANNEL }}" ]]; then
+            echo "::notice::SLACK_CHANNEL ayarlanmamış. Varsayılan 'genel' kanalı kullanılacak."
+            echo "channel=genel" >> $GITHUB_OUTPUT
+          else
+            echo "channel=${{ vars.SLACK_CHANNEL }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bildirim Kontrol
+        id: check-notification
+        run: |
+          # Sadece başarısız testlerde veya haftada bir kez bildirim gönder
+          if [[ "${{ github.event.workflow_run.conclusion }}" == "failure" ]]; then
+            echo "send_notification=true" >> $GITHUB_OUTPUT
+          else
+            # Günün haftanın hangi günü olduğunu kontrol et (0=Pazar, 6=Cumartesi)
+            DAY_OF_WEEK=$(date +%u)
+            # Sadece Pazartesi günleri (1) başarılı bildirimleri gönder
+            if [[ "$DAY_OF_WEEK" == "1" && "${{ github.event.workflow_run.conclusion }}" == "success" ]]; then
+              echo "send_notification=true" >> $GITHUB_OUTPUT
+            else
+              echo "send_notification=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+        
+      - name: Slack Bildirimi - Sadece Gerektiğinde
+        if: steps.check-webhook.outputs.has_webhook == 'true' && steps.check-notification.outputs.send_notification == 'true'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ steps.check-channel.outputs.channel }}
+          SLACK_TITLE: "FinAsis Test Sonuçları"
+          SLACK_USERNAME: "FinAsis CI/CD Bot"
+          SLACK_MESSAGE: |
+            ${{ github.workflow }} iş akışı ${{ github.event.workflow_run.conclusion }} durumunda tamamlandı.
+            Commit: ${{ github.event.workflow_run.head_commit.message }}
+            Kaynak Dalı: ${{ github.event.workflow_run.head_branch }}
+            Kaynak: ${{ github.event.workflow_run.html_url }}
+            
+            ${{ github.event.workflow_run.conclusion == 'success' && '✅ Testler başarılı. Yeni sürümü test sunucusuna yüklemek için onay verebilirsiniz.' || '❌ Testler başarısız! Lütfen hataları düzeltin.' }}
+          SLACK_COLOR: ${{ github.event.workflow_run.conclusion == 'success' && 'good' || 'danger' }}
+          SLACK_FOOTER: "FinAsis CI/CD Sistemi | ${{ github.event.workflow_run.created_at }}"
+          SLACK_ICON: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          
+      # GitHub bildirimleri için değişken ayarla
+      - name: GitHub Bildirimleri Kontrolü
+        run: |
+          echo "GITHUB_ACTIONS_NOTIFICATIONS_ENABLED=false" >> $GITHUB_ENV 

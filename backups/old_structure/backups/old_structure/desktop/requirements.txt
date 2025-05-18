@@ -1,0 +1,14 @@
+# Temel bağımlılıklar
+requests==2.31.0
+packaging==23.1
+Pillow==10.0.0
+pystray==0.19.4
+
+# Veritabanı
+sqlite3-utils==3.35.1
+
+# GUI
+tkinter  # Python ile birlikte gelir, ayrıca kurulum gerektirmez
+
+# Yardımcı araçlar
+python-dotenv==1.0.0 

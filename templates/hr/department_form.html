@@ -1,0 +1,125 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if department %}{% trans "Departman Düzenle" %}{% else %}{% trans "Yeni Departman" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'hr:department_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Departman Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="code" class="form-label">{% trans "Kod" %} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.code.errors %}is-invalid{% endif %}" id="code" name="code" value="{{ form.code.value|default:'' }}" required>
+                            {% if form.code.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.code.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Departman kodunu giriniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.name.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Departman adını giriniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="manager" class="form-label">{% trans "Yönetici" %}</label>
+                            <select class="form-select {% if form.manager.errors %}is-invalid{% endif %}" id="manager" name="manager">
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee.id }}" {% if form.manager.value|stringformat:"i" == employee.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ employee.full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.manager.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.manager.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Departman yöneticisini seçiniz." %}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="is_active" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                            <select class="form-select {% if form.is_active.errors %}is-invalid{% endif %}" id="is_active" name="is_active" required>
+                                <option value="1" {% if form.is_active.value %}selected{% endif %}>{% trans "Aktif" %}</option>
+                                <option value="0" {% if not form.is_active.value %}selected{% endif %}>{% trans "Pasif" %}</option>
+                            </select>
+                            {% if form.is_active.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.is_active.errors.0 }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Departmanın durumunu seçiniz." %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" id="description" name="description" rows="4">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Departman hakkında açıklama giriniz." %}</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            {% if department %}{% trans "Güncelle" %}{% else %}{% trans "Oluştur" %}{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">{% trans "Departman Kodu" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Departman kodları benzersiz olmalıdır ve genellikle kısaltmalar kullanılır. Örneğin: IT, HR, FIN gibi." %}</p>
+                
+                <h6 class="mb-3">{% trans "Yönetici Seçimi" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Departman yöneticisi, departmanın sorumlusu olan çalışandır. Yönetici seçimi zorunlu değildir." %}</p>
+                
+                <h6 class="mb-3">{% trans "Durum" %}</h6>
+                <p class="text-muted small mb-3">{% trans "Aktif departmanlar kullanılabilir durumdadır. Pasif departmanlar kullanılamaz ve yeni çalışan atanamaz." %}</p>
+                
+                <h6 class="mb-3">{% trans "Açıklama" %}</h6>
+                <p class="text-muted small mb-0">{% trans "Departman hakkında detaylı bilgi verebilirsiniz. Bu bilgi departman detay sayfasında görüntülenir." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

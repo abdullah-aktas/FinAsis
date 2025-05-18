@@ -1,0 +1,68 @@
+{% extends 'social/base.html' %}
+
+{% block title %}Profili Düzenle - FinAsis Sosyal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Profili Düzenle</h4>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profil Fotoğrafı</label>
+                        {% if form.instance.profile_picture %}
+                        <div class="mb-2">
+                            <img src="{{ form.instance.profile_picture.url }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.profile_picture.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">Hakkımda</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.bio.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.location.id_for_label }}" class="form-label">Konum</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.location.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.website.id_for_label }}" class="form-label">Website</label>
+                        {{ form.website }}
+                        {% if form.website.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.website.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'social:user_profile' username=user.username %}" class="btn btn-secondary">İptal</a>
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,32 @@
+.finance-module .module-header {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.finance-module .quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.finance-module .stat-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 1rem;
+    color: white;
+}
+
+.finance-module .sidebar-nav .nav-link {
+    color: var(--primary);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.finance-module .sidebar-nav .nav-link:hover,
+.finance-module .sidebar-nav .nav-link.active {
+    background-color: var(--primary);
+    color: white;
+}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Depo Sil: {{ warehouse.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Depo Silme Onayı</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'stock_management:warehouse_list' %}">Depolar</a></li>
+        <li class="breadcrumb-item active">Depo Sil</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Dikkat: Bu işlem geri alınamaz!
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i>Depo Silinecek</h5>
+                        <p class="mb-0">
+                            <strong>{{ warehouse.name }}</strong> adlı depoyu silmek üzeresiniz. 
+                            Bu işlem geri alınamaz ve depoya bağlı tüm stok verileri de silinebilir.
+                        </p>
+                    </div>
+                    
+                    <table class="table table-bordered mt-3">
+                        <tr>
+                            <th style="width: 30%">Depo Adı</th>
+                            <td>{{ warehouse.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Konum</th>
+                            <td>{{ warehouse.location }}</td>
+                        </tr>
+                        <tr>
+                            <th>Yönetici</th>
+                            <td>{{ warehouse.manager }}</td>
+                        </tr>
+                    </table>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <p>Bu depoyu silmek istediğinizden emin misiniz?</p>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i> Evet, Sil
+                            </button>
+                            <a href="{% url 'stock_management:warehouse_detail' warehouse.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

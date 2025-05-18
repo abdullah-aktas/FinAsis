@@ -1,0 +1,18 @@
+<div class="module-sidebar">
+    <div class="list-group">
+        <a href="{% url 'accounting:dashboard' %}" 
+           class="list-group-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line me-2"></i> {% trans "Gösterge Paneli" %}
+        </a>
+        
+        <a href="{% url 'accounting:transactions' %}"
+           class="list-group-item {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+            <i class="fas fa-exchange-alt me-2"></i> {% trans "İşlemler" %}
+        </a>
+
+        <a href="{% url 'accounting:reports' %}"
+           class="list-group-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+            <i class="fas fa-file-alt me-2"></i> {% trans "Raporlar" %}
+        </a>
+    </div>
+</div>

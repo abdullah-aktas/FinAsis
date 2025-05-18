@@ -1,0 +1,26 @@
+Django>=3.2,<4.0
+django-crispy-forms>=1.14.0
+django-filter>=21.1
+accounting/
+  ├── templates/
+  │   └── accounting/
+  │       ├── index.html
+  │       └── detail.html 
+  └── static/
+      └── accounting/
+          ├── css/
+          └── js/
+
+# Genel Django
+*.pyc
+__pycache__/
+*.sqlite3
+
+# Media ve Static
+/media/
+/static/
+/staticfiles/
+
+# Ortam dosyaları
+.env
+venv/

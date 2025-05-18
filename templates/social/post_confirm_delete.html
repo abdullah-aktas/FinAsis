@@ -1,0 +1,23 @@
+{% extends 'social/base.html' %}
+
+{% block title %}Gönderiyi Sil - FinAsis Sosyal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="card-title mb-4">Gönderiyi Sil</h4>
+                <p class="mb-4">"{{ post.title }}" başlıklı gönderiyi silmek istediğinizden emin misiniz?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'social:post_detail' pk=post.pk %}" class="btn btn-secondary">İptal</a>
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

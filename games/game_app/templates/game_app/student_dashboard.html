@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <h1 class="display-4">{{ title }}</h1>
+            <p class="lead">Finansal eğitim oyunları ve simülasyonlar ile öğrenmeye başlayın.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for game in games %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas {{ game.icon }} fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="card-title">{{ game.name }}</h3>
+                    <p class="card-text">{{ game.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info">{{ game.difficulty }}</span>
+                        <a href="{% url 'game_app:'|add:game.url %}" class="btn btn-primary">Oyna</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2>İlerleme Durumunuz</h2>
+            <div class="progress mb-3">
+                <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Tamamlanan Oyunlar</h5>
+                            <p class="card-text display-4">3/12</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Kazanılan Rozetler</h5>
+                            <p class="card-text display-4">5</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Toplam Puan</h5>
+                            <p class="card-text display-4">750</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,51 @@
+{
+    "game": {
+        "title": "Financial Simulation",
+        "menu": {
+            "continue": "Continue",
+            "save": "Save",
+            "load": "Load",
+            "settings": "Settings",
+            "exit": "Exit"
+        },
+        "stats": {
+            "balance": "Balance",
+            "score": "Score",
+            "level": "Level",
+            "experience": "Experience"
+        },
+        "transactions": {
+            "buy": "Buy",
+            "sell": "Sell",
+            "success": "Transaction successful!",
+            "fail": "Transaction failed!",
+            "insufficient_balance": "Insufficient balance!"
+        },
+        "events": {
+            "stock_rise": "Stock Market Rise",
+            "stock_fall": "Stock Market Fall",
+            "inflation_rise": "Inflation Increase",
+            "inflation_fall": "Inflation Decrease",
+            "interest_rise": "Interest Rate Increase",
+            "interest_fall": "Interest Rate Decrease",
+            "currency_fluctuation": "Currency Fluctuation",
+            "gold_price_change": "Gold Price Change"
+        },
+        "buildings": {
+            "bank": "Bank",
+            "stock_exchange": "Stock Exchange",
+            "investment": "Investment",
+            "insurance": "Insurance"
+        },
+        "workplaces": {
+            "technology": "Technology",
+            "food": "Food",
+            "automotive": "Automotive",
+            "energy": "Energy",
+            "health": "Health",
+            "retail": "Retail",
+            "construction": "Construction",
+            "logistics": "Logistics"
+        }
+    }
+} 

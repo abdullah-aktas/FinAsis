@@ -1,0 +1,26 @@
+{% trans "Merhaba" %} {{ user.user.username }},
+
+{% if notification_type == 'new_post' %}
+{% trans "Yeni bir gönderi paylaşıldı:" %}
+{{ post.content|truncatechars:200 }}
+
+{% elif notification_type == 'like' %}
+{% trans "Gönderiniz beğenildi:" %}
+{{ post.content|truncatechars:200 }}
+
+{% elif notification_type == 'comment' %}
+{% trans "Gönderinize yorum yapıldı:" %}
+{{ post.content|truncatechars:200 }}
+
+{% elif notification_type == 'follow' %}
+{% trans "Yeni bir takipçiniz var!" %}
+
+{% endif %}
+
+{% trans "Gönderiyi görüntülemek için tıklayın:" %}
+{{ settings.SITE_URL }}{% url 'social:post_detail' post.id %}
+
+---
+{% trans "Bu e-posta" %} {{ settings.SITE_NAME }} {% trans "tarafından gönderilmiştir." %}
+{% trans "Bildirim ayarlarınızı değiştirmek için:" %}
+{{ settings.SITE_URL }}{% url 'social:notification_settings' %} 

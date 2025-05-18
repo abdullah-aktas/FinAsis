@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% block page_title %}{% endblock %} - Stok Yönetimi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stock_management.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Yan Menü -->
+    <div class="col-md-3">
+        {% include "stock_management/sidebar.html" %}
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">{% block page_title %}{% endblock %}</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                {% block page_actions %}{% endblock %}
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block stock_content %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/stock_management.js' %}"></script>
+{% endblock %} 

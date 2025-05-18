@@ -1,0 +1,118 @@
+/* RTL (Right-to-Left) Desteği */
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .navbar-nav {
+    padding-right: 0;
+}
+
+[dir="rtl"] .dropdown-menu {
+    text-align: right;
+}
+
+[dir="rtl"] .input-group > .input-group-prepend > .input-group-text {
+    border-radius: 0 4px 4px 0;
+}
+
+[dir="rtl"] .input-group > .form-control {
+    border-radius: 4px 0 0 4px;
+}
+
+[dir="rtl"] .ml-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+[dir="rtl"] .mr-auto {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+
+[dir="rtl"] .text-left {
+    text-align: right !important;
+}
+
+[dir="rtl"] .text-right {
+    text-align: left !important;
+}
+
+[dir="rtl"] .float-left {
+    float: right !important;
+}
+
+[dir="rtl"] .float-right {
+    float: left !important;
+}
+
+[dir="rtl"] .border-left {
+    border-right: 1px solid #dee2e6 !important;
+    border-left: none !important;
+}
+
+[dir="rtl"] .border-right {
+    border-left: 1px solid #dee2e6 !important;
+    border-right: none !important;
+}
+
+[dir="rtl"] .pl-0 {
+    padding-right: 0 !important;
+    padding-left: 0.25rem !important;
+}
+
+[dir="rtl"] .pr-0 {
+    padding-left: 0 !important;
+    padding-right: 0.25rem !important;
+}
+
+[dir="rtl"] .ml-1 {
+    margin-right: 0.25rem !important;
+    margin-left: 0 !important;
+}
+
+[dir="rtl"] .mr-1 {
+    margin-left: 0.25rem !important;
+    margin-right: 0 !important;
+}
+
+/* Form elemanları için RTL düzenlemeleri */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] textarea {
+    text-align: right;
+}
+
+/* Tablo hücreleri için RTL düzenlemeleri */
+[dir="rtl"] td,
+[dir="rtl"] th {
+    text-align: right;
+}
+
+/* İkonlar için RTL düzenlemeleri */
+[dir="rtl"] .fa-chevron-right:before {
+    content: "\f053";
+}
+
+[dir="rtl"] .fa-chevron-left:before {
+    content: "\f054";
+}
+
+/* Modal ve dialog pencereleri için RTL düzenlemeleri */
+[dir="rtl"] .modal-header .close {
+    margin: -1rem auto -1rem -1rem;
+}
+
+[dir="rtl"] .modal-footer {
+    justify-content: flex-start;
+}
+
+/* Scrollbar için RTL düzenlemeleri */
+[dir="rtl"] ::-webkit-scrollbar {
+    direction: rtl;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb {
+    direction: rtl;
+} 

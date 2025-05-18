@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% translate "E-Belge Detayı" %} - {{ e_document.document_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Başlık -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {% translate "E-Belge Detayı" %} - {{ e_document.document_number }}
+        </h1>
+        <div>
+            {% if e_document.pdf_file %}
+            <a href="{{ e_document.pdf_file.url }}" class="btn btn-primary btn-sm" target="_blank">
+                <i class="fas fa-file-pdf"></i> {% translate "PDF İndir" %}
+            </a>
+            {% endif %}
+            {% if e_document.xml_file %}
+            <a href="{{ e_document.xml_file.url }}" class="btn btn-info btn-sm" target="_blank">
+                <i class="fas fa-file-code"></i> {% translate "XML İndir" %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Durum Kartı -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-{{ status_colors|get_item:e_document.status }} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-{{ status_colors|get_item:e_document.status }} text-uppercase mb-1">
+                                {% translate "Durum" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ e_document.get_status_display }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-circle fa-2x text-{{ status_colors|get_item:e_document.status }}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detay Kartları -->
+    <div class="row">
+        <!-- E-Belge Bilgileri -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Belge Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>{% translate "Belge Tipi" %}</th>
+                                    <td>{{ e_document.get_document_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Belge Numarası" %}</th>
+                                    <td>{{ e_document.document_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Oluşturulma Tarihi" %}</th>
+                                    <td>{{ e_document.created_at|date:"d.m.Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Gönderim Tarihi" %}</th>
+                                    <td>{{ e_document.sent_at|date:"d.m.Y H:i"|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Onay Tarihi" %}</th>
+                                    <td>{{ e_document.accepted_at|date:"d.m.Y H:i"|default:"-" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fatura Bilgileri -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Fatura Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>{% translate "Fatura Numarası" %}</th>
+                                    <td>{{ invoice.number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Fatura Tarihi" %}</th>
+                                    <td>{{ invoice.date|date:"d.m.Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Vade Tarihi" %}</th>
+                                    <td>{{ invoice.due_date|date:"d.m.Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Tutar" %}</th>
+                                    <td>{{ invoice.total|floatformat:2 }} {{ invoice.currency }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "KDV" %}</th>
+                                    <td>{{ invoice.tax_total|floatformat:2 }} {{ invoice.currency }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% translate "Toplam" %}</th>
+                                    <td>{{ invoice.grand_total|floatformat:2 }} {{ invoice.currency }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hata Mesajı -->
+    {% if e_document.error_message %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-left-danger shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">{% translate "Hata Mesajı" %}</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-danger">{{ e_document.error_message }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

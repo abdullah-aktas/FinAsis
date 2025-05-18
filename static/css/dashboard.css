@@ -1,0 +1,160 @@
+/* Dashboard Stilleri */
+:root {
+    --primary-blue: #2B6CB0;
+    --primary-green: #38A169;
+    --primary-red: #E53E3E;
+    --primary-orange: #ED8936;
+    --light-gray: #F7FAFC;
+    --dark-gray: #4A5568;
+}
+
+/* Genel Stiller */
+.container-fluid {
+    padding: 2rem;
+}
+
+/* İstatistik Kartları */
+.stat-card {
+    padding: 1.5rem;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bg-success-light {
+    background-color: rgba(56, 161, 105, 0.1);
+}
+
+.bg-danger-light {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.bg-info-light {
+    background-color: rgba(49, 130, 206, 0.1);
+}
+
+.bg-warning-light {
+    background-color: rgba(237, 137, 54, 0.1);
+}
+
+/* Grafik Kartı */
+.chart-container {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+}
+
+.chart-container .card-header {
+    padding: 1rem;
+}
+
+.btn-group .btn {
+    padding: 0.25rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* İşlem Listesi */
+.transactions-list {
+    padding: 1rem;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.transaction-icon.income {
+    background-color: rgba(56, 161, 105, 0.1);
+    color: var(--primary-green);
+}
+
+.transaction-icon.expense {
+    background-color: rgba(229, 62, 62, 0.1);
+    color: var(--primary-red);
+}
+
+.amount-positive {
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.amount-negative {
+    color: var(--primary-red);
+    font-weight: 600;
+}
+
+/* Yapay Zeka Önerisi */
+.ai-suggestion {
+    background: linear-gradient(135deg, #fff 0%, var(--light-gray) 100%);
+    border: none;
+    border-radius: 1rem;
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        margin-bottom: 1rem;
+    }
+    
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .amount {
+        align-self: flex-end;
+    }
+} 

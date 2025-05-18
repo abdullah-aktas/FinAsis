@@ -1,0 +1,141 @@
+{% extends 'social/base.html' %}
+
+{% block title %}Gönderiler - FinAsis Sosyal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        {% if user.is_authenticated %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Yeni Gönderi Oluştur</h5>
+                <form method="post" action="{% url 'social:post_create' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" name="title" class="form-control" placeholder="Başlık" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Ne düşünüyorsun?" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" name="image" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Paylaş</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for post in posts %}
+        <div class="card post-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ post.author.profile.profile_picture.url|default:'/static/images/default-profile.png' }}" 
+                             class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        <div>
+                            <h6 class="mb-0">
+                                <a href="{% url 'social:user_profile' username=post.author.username %}" class="text-decoration-none">
+                                    {{ post.author.username }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ post.created_at|timesince }} önce</small>
+                        </div>
+                    </div>
+                    {% if user == post.author %}
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'social:post_edit' pk=post.pk %}">
+                                    <i class="fas fa-edit me-2"></i>Düzenle
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'social:post_delete' pk=post.pk %}">
+                                    <i class="fas fa-trash me-2"></i>Sil
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.content }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid rounded mb-3">
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-link text-dark like-button" data-post-id="{{ post.pk }}">
+                            <i class="fas fa-heart {% if user in post.likes.all %}text-danger{% endif %}"></i>
+                            <span class="likes-count">{{ post.likes.count }}</span>
+                        </button>
+                        <a href="{% url 'social:post_detail' pk=post.pk %}" class="btn btn-link text-dark">
+                            <i class="fas fa-comment"></i>
+                            <span>{{ post.comments.count }}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <h4>Henüz gönderi yok</h4>
+            <p class="text-muted">İlk gönderiyi sen oluştur!</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Popüler Kullanıcılar</h5>
+                <div class="list-group list-group-flush">
+                    {% for user in users %}
+                    <a href="{% url 'social:user_profile' username=user.username %}" 
+                       class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="{{ user.profile.profile_picture.url|default:'/static/images/default-profile.png' }}" 
+                             class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                        <div>
+                            <h6 class="mb-0">{{ user.username }}</h6>
+                            <small class="text-muted">{{ user.profile.followers.count }} takipçi</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch(`/social/post/${postId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const heartIcon = this.querySelector('.fa-heart');
+            const likesCount = this.querySelector('.likes-count');
+            
+            if (data.liked) {
+                heartIcon.classList.add('text-danger');
+            } else {
+                heartIcon.classList.remove('text-danger');
+            }
+            
+            likesCount.textContent = data.likes_count;
+        });
+    });
+});
+</script>
+{% endblock %} 

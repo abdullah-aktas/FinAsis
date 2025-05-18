@@ -1,0 +1,80 @@
+groups:
+- name: django
+  rules:
+  - alert: HighErrorRate
+    expr: rate(django_http_requests_total{status=~"5.."}[5m]) / rate(django_http_requests_total[5m]) > 0.05
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Yüksek hata oranı"
+      description: "5xx hata oranı %5'in üzerinde"
+
+  - alert: HighLatency
+    expr: histogram_quantile(0.95, rate(django_http_requests_latency_seconds_bucket[5m])) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Yüksek gecikme süresi"
+      description: "95. persentil yanıt süresi 1 saniyeden fazla"
+
+- name: postgres
+  rules:
+  - alert: HighConnections
+    expr: pg_stat_activity_count > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Yüksek bağlantı sayısı"
+      description: "Veritabanı bağlantı sayısı 50'den fazla"
+
+  - alert: HighCPUUsage
+    expr: rate(process_cpu_seconds_total[5m]) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Yüksek CPU kullanımı"
+      description: "CPU kullanımı %80'in üzerinde"
+
+- name: redis
+  rules:
+  - alert: HighMemoryUsage
+    expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Yüksek bellek kullanımı"
+      description: "Redis bellek kullanımı %80'in üzerinde"
+
+  - alert: HighKeyEvictionRate
+    expr: rate(redis_evicted_keys_total[5m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Yüksek anahtar çıkarma oranı"
+      description: "Saniyede 10'dan fazla anahtar çıkarılıyor"
+
+- name: celery
+  rules:
+  - alert: FailedTasks
+    expr: rate(celery_tasks_failed_total[5m]) > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Başarısız görevler"
+      description: "Celery görevleri başarısız oluyor"
+
+  - alert: LongRunningTasks
+    expr: celery_tasks_runtime_seconds > 300
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Uzun süren görevler"
+      description: "Görevler 5 dakikadan uzun sürüyor" 

@@ -1,0 +1,153 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "AI Modelleri" %}</h3>
+        <div class="card-tools">
+            <a href="{% url 'ai_assistant:model_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans "Yeni Model" %}
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Model Adı" %}</th>
+                        <th>{% trans "Tip" %}</th>
+                        <th>{% trans "Versiyon" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "Başarı Oranı" %}</th>
+                        <th>{% trans "Son Güncelleme" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for model in models %}
+                    <tr>
+                        <td>{{ model.name }}</td>
+                        <td>{{ model.get_type_display }}</td>
+                        <td>{{ model.version }}</td>
+                        <td>
+                            <span class="badge badge-{{ model.get_status_color }}">
+                                {{ model.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="progress">
+                                <div class="progress-bar bg-{{ model.get_accuracy_color }}" 
+                                     role="progressbar" 
+                                     style="width: {{ model.accuracy_score }}%"
+                                     aria-valuenow="{{ model.accuracy_score }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ model.accuracy_score }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ model.updated_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'ai_assistant:model_detail' model.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'ai_assistant:model_update' model.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'ai_assistant:model_train' model.id %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-sync"></i>
+                                </a>
+                                <a href="{% url 'ai_assistant:model_delete' model.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">{% trans "Henüz model bulunmuyor." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{% trans "Model Performansı" %}</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{% trans "Model Dağılımı" %}</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Performans grafiği
+    var perfCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(perfCtx, {
+        type: 'line',
+        data: {
+            labels: {{ performance_labels|safe }},
+            datasets: [{
+                label: '{% trans "Başarı Oranı" %}',
+                data: {{ performance_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Dağılım grafiği
+    var distCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ distribution_labels|safe }},
+            datasets: [{
+                data: {{ distribution_data|safe }},
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

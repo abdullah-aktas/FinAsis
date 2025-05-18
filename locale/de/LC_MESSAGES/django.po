@@ -1,0 +1,120 @@
+# German translations for FinAsis project.
+# Copyright (C) 2024 FinAsis
+# This file is distributed under the same license as the FinAsis project.
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-20 20:00+0300\n"
+"PO-Revision-Date: 2024-04-20 20:00+0300\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: integrations/base.py
+msgid "Integration Error"
+msgstr "Integrationsfehler"
+
+#: integrations/base.py
+msgid "Authentication failed"
+msgstr "Authentifizierung fehlgeschlagen"
+
+#: integrations/base.py
+msgid "Invalid credentials"
+msgstr "Ungültige Anmeldedaten"
+
+#: integrations/base.py
+msgid "Rate limit exceeded"
+msgstr "Rate-Limit überschritten"
+
+#: integrations/base.py
+msgid "Service unavailable"
+msgstr "Dienst nicht verfügbar"
+
+#: integrations/base.py
+msgid "Invalid response format"
+msgstr "Ungültiges Antwortformat"
+
+#: integrations/bank_integration/service.py
+msgid "Bank account not found"
+msgstr "Bankkonto nicht gefunden"
+
+#: integrations/bank_integration/service.py
+msgid "Insufficient funds"
+msgstr "Unzureichende Mittel"
+
+#: integrations/bank_integration/service.py
+msgid "Invalid transaction"
+msgstr "Ungültige Transaktion"
+
+#: integrations/ecommerce/service.py
+msgid "Product not found"
+msgstr "Produkt nicht gefunden"
+
+#: integrations/ecommerce/service.py
+msgid "Out of stock"
+msgstr "Nicht auf Lager"
+
+#: integrations/ecommerce/service.py
+msgid "Invalid order"
+msgstr "Ungültige Bestellung"
+
+#: integrations/e_invoice/service.py
+msgid "Invoice not found"
+msgstr "Rechnung nicht gefunden"
+
+#: integrations/e_invoice/service.py
+msgid "Invalid invoice format"
+msgstr "Ungültiges Rechnungsformat"
+
+#: integrations/erp/service.py
+msgid "Department not found"
+msgstr "Abteilung nicht gefunden"
+
+#: integrations/erp/service.py
+msgid "Employee not found"
+msgstr "Mitarbeiter nicht gefunden"
+
+#: integrations/erp/service.py
+msgid "Project not found"
+msgstr "Projekt nicht gefunden"
+
+#: integrations/payment/service.py
+msgid "Payment failed"
+msgstr "Zahlung fehlgeschlagen"
+
+#: integrations/payment/service.py
+msgid "Invalid payment method"
+msgstr "Ungültige Zahlungsmethode"
+
+#: integrations/payment/service.py
+msgid "Payment declined"
+msgstr "Zahlung abgelehnt"
+
+#: integrations/external_services/service.py
+msgid "Service not available"
+msgstr "Dienst nicht verfügbar"
+
+#: integrations/external_services/service.py
+msgid "Invalid request"
+msgstr "Ungültige Anfrage"
+
+#: integrations/external_services/service.py
+msgid "Data not found"
+msgstr "Daten nicht gefunden"
+
+#: integrations/services.py
+msgid "Cache error"
+msgstr "Cache-Fehler"
+
+#: integrations/services.py
+msgid "Configuration error"
+msgstr "Konfigurationsfehler"
+
+#: integrations/services.py
+msgid "Validation error"
+msgstr "Validierungsfehler" 

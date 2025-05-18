@@ -1,0 +1,17 @@
+[Unit]
+Description=FinAsis Gunicorn Service
+After=network.target
+
+[Service]
+User=finasis
+Group=www-data
+WorkingDirectory=/var/www/finasis
+Environment="PATH=/var/www/finasis/venv/bin"
+Environment="DJANGO_SETTINGS_MODULE=config.settings"
+ExecStart=/var/www/finasis/venv/bin/gunicorn config.wsgi:application \
+    --name finasis \
+    --config /var/www/finasis/config/gunicorn.conf.py \
+    --bind unix:/run/finasis.sock
+
+[Install]
+WantedBy=multi-user.target

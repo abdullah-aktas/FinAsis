@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Müşteri Edinme Stratejileri - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Müşteri Edinme Stratejileri</h1>
+        </div>
+    </div>
+
+    <!-- Özet Kartları -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Müşteri</h5>
+                    <h2 class="card-text">{{ total_customers }}</h2>
+                    <p class="mb-0">Son 30 gün</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Dönüşüm Oranı</h5>
+                    <h2 class="card-text">%{{ conversion_rate|floatformat:1 }}</h2>
+                    <p class="mb-0">Ortalama</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Edinme Maliyeti</h5>
+                    <h2 class="card-text">₺{{ acquisition_cost|floatformat:2 }}</h2>
+                    <p class="mb-0">Müşteri başına</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Yaşam Boyu Değer</h5>
+                    <h2 class="card-text">₺{{ lifetime_value|floatformat:2 }}</h2>
+                    <p class="mb-0">Ortalama</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanal Analizi -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Kanal Bazlı Dağılım</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Kanal Performansı</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Kanal</th>
+                                    <th>Müşteri</th>
+                                    <th>Dönüşüm</th>
+                                    <th>Maliyet</th>
+                                    <th>ROI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for channel in channel_metrics %}
+                                <tr>
+                                    <td>{{ channel.get_channel_display }}</td>
+                                    <td>{{ channel.total_customers }}</td>
+                                    <td>%{{ channel.conversion_rate|floatformat:1 }}</td>
+                                    <td>₺{{ channel.acquisition_cost|floatformat:2 }}</td>
+                                    <td>%{{ channel.roi|floatformat:1 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kampanya Yönetimi -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Aktif Kampanyalar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="campaign-card">
+                                <h6>Öğrenci İndirimi</h6>
+                                <p class="text-success">%30 İndirim</p>
+                                <small class="text-muted">Geçerli: 31 Aralık 2024</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="campaign-card">
+                                <h6>Startup Paketi</h6>
+                                <p class="text-success">%20 İndirim</p>
+                                <small class="text-muted">Geçerli: 31 Aralık 2024</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="campaign-card">
+                                <h6>Referans Programı</h6>
+                                <p class="text-success">₺50 Bonus</p>
+                                <small class="text-muted">Süresiz</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.campaign-card {
+    padding: 1rem;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    margin-bottom: 1rem;
+}
+.campaign-card h6 {
+    margin-bottom: 0.5rem;
+    color: #4e73df;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Kanal dağılım grafiği
+    const ctx = document.getElementById('channelChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ channel_labels|safe }},
+            datasets: [{
+                data: {{ channel_data|safe }},
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a',
+                    '#36b9cc',
+                    '#f6c23e',
+                    '#e74a3b',
+                    '#858796'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,138 @@
+# FinAsis Canlı Ortam Hazırlık Kontrol Listesi
+
+## 1. MVT Yapısı Kontrolü
+- [ ] Model validasyonları tamamlandı
+  - [ ] Tüm modüllerin AppConfig sınıfları kontrol edildi
+  - [ ] Eksik modül dizinleri oluşturuldu (assets, checks, hr_management, seo, stock_management)
+  - [ ] Model alan tipleri ve kısıtlamaları gözden geçirildi
+  - [ ] Model migrasyonları test edildi
+- [ ] View güvenlik kontrolleri yapıldı
+  - [ ] Permission sınıfları kontrol edildi
+  - [ ] Authentication decorator'lar eklendi
+  - [ ] API rate limiting yapılandırıldı
+- [ ] Template XSS koruması eklendi
+  - [ ] Template escape karakterleri kontrol edildi
+  - [ ] Content Security Policy başlıkları eklendi
+  - [ ] Custom template tag'ler güvenlik açısından incelendi
+- [ ] URL yapılandırmaları gözden geçirildi
+  - [ ] URL pattern'ları doğrulandı
+  - [ ] Admin URL'i özelleştirildi
+  - [ ] API endpoint'leri versiyonlandı
+- [ ] Form validasyonları kontrol edildi
+  - [ ] CSRF koruması aktif
+  - [ ] Input sanitization eklendi
+  - [ ] File upload kontrolleri yapıldı
+
+## 2. Güvenlik Kontrolleri
+- [ ] SQL injection koruması
+  - [ ] ORM sorguları gözden geçirildi
+  - [ ] Raw SQL sorguları kontrol edildi
+  - [ ] Parametre doğrulaması eklendi
+- [ ] CSRF token kontrolleri
+  - [ ] CSRF middleware aktif
+  - [ ] CSRF_TRUSTED_ORIGINS ayarlandı
+  - [ ] API istisnaları belirlendi
+- [ ] Rate limiting ayarları
+  - [ ] API endpoint rate limitleri
+  - [ ] Login attempt limitleri
+  - [ ] IP bazlı kısıtlamalar
+- [ ] Input sanitization
+  - [ ] XSS koruması
+  - [ ] HTML sanitization
+  - [ ] File upload filtreleri
+- [ ] Hassas veri şifreleme
+  - [ ] Veritabanı şifreleme
+  - [ ] SSL/TLS bağlantıları
+  - [ ] API token güvenliği
+- [ ] SSL/TLS sertifikası
+  - [ ] Let's Encrypt sertifikası alındı
+  - [ ] SSL yönlendirmeleri aktif
+  - [ ] HSTS yapılandırıldı
+- [ ] Güvenlik başlıkları
+  - [ ] X-Frame-Options
+  - [ ] X-Content-Type-Options
+  - [ ] Content-Security-Policy
+
+## 3. Performans İyileştirmeleri
+- [ ] Database indeksleme
+  - [ ] Model indeksleri optimize edildi
+  - [ ] Compound indeksler eklendi
+  - [ ] Foreign key indeksleri kontrol edildi
+- [ ] Query optimizasyonu
+  - [ ] N+1 sorguları çözüldü
+  - [ ] select_related/prefetch_related kullanıldı
+  - [ ] Gereksiz sorgular temizlendi
+- [ ] Caching yapılandırması
+  - [ ] Redis cache aktif
+  - [ ] Template cache ayarlandı
+  - [ ] API response caching
+- [ ] Statik dosya sıkıştırma
+  - [ ] Gzip/Brotli aktif
+  - [ ] CSS/JS minification
+  - [ ] Resim optimizasyonu
+- [ ] CDN entegrasyonu
+  - [ ] Statik dosyalar CDN'de
+  - [ ] Media dosyaları CDN'de
+  - [ ] Cache-Control başlıkları
+- [ ] Load testing
+  - [ ] Stress testi yapıldı
+  - [ ] Endurance testi yapıldı
+  - [ ] Spike testi yapıldı
+
+## 4. Deployment Hazırlığı
+- [ ] Environment değişkenleri
+  - [ ] .env.prod dosyası hazır
+  - [ ] Hassas bilgiler şifreli
+  - [ ] Debug modu kapalı
+- [ ] Database yedekleme
+  - [ ] Otomatik yedekleme aktif
+  - [ ] S3 yedekleme ayarlandı
+  - [ ] Yedek doğrulama testleri
+- [ ] Log yapılandırması
+  - [ ] Log rotasyonu ayarlandı
+  - [ ] Error logging aktif
+  - [ ] Access logging yapılandırıldı
+- [ ] Monitoring araçları
+  - [ ] Prometheus kuruldu
+  - [ ] Grafana dashboard'ları hazır
+  - [ ] Alert yapılandırması tamamlandı
+- [ ] CI/CD pipeline
+  - [ ] GitHub Actions yapılandırıldı
+  - [ ] Test coverage kontrolleri
+  - [ ] Otomatik deployment
+- [ ] Docker container hazırlığı
+  - [ ] Docker imajları optimize edildi
+  - [ ] Container health checks
+  - [ ] Resource limitleri ayarlandı
+
+## 5. Rollback Planı
+- [ ] Database snapshot
+  - [ ] Production öncesi snapshot
+  - [ ] Point-in-time recovery test edildi
+  - [ ] Snapshot restore prosedürü
+- [ ] Kod versiyonu yedeği
+  - [ ] Git tag'leri oluşturuldu
+  - [ ] Release notes hazırlandı
+  - [ ] Hotfix branch'leri hazır
+- [ ] Rollback prosedürü
+  - [ ] Rollback komutları dokümante edildi
+  - [ ] Veri tutarlılığı kontrolleri
+  - [ ] Service restart sequence
+- [ ] Test senaryoları
+  - [ ] Smoke testleri hazır
+  - [ ] Integration testleri
+  - [ ] User acceptance testleri
+- [ ] İletişim planı
+  - [ ] Ekip iletişim listesi
+  - [ ] Duyuru şablonları
+  - [ ] Escalation matrix
+
+## 6. Yasal ve Dokümantasyon
+- [ ] Yasal gereksinimler
+  - [ ] KVKK uyumluluğu
+  - [ ] Çerez politikası
+  - [ ] Kullanıcı sözleşmeleri
+- [ ] Dokümantasyon
+  - [ ] API dokümantasyonu
+  - [ ] Kurulum kılavuzu
+  - [ ] Kullanıcı rehberi

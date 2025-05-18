@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Stok Detayı{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Stok Detayı</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'stock_management:stock_list' %}">Stoklar</a></li>
+        <li class="breadcrumb-item active">{{ stock.product.name }} @ {{ stock.warehouse.name }}</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-box me-1"></i>
+                        Stok Bilgileri
+                    </div>
+                    <div>
+                        <a href="{% url 'stock_management:stock_update' stock.pk %}" class="btn btn-warning btn-sm me-1">
+                            <i class="fas fa-edit me-1"></i> Düzenle
+                        </a>
+                        <a href="{% url 'stock_management:stock_delete' stock.pk %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i> Sil
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Ürün</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stock.product.name }}</h5>
+                                    <p class="card-text">Kod: {{ stock.product.code }}</p>
+                                    <a href="{% url 'stock_management:product_detail' stock.product.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-link me-1"></i> Ürün Detayı
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Depo</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stock.warehouse.name }}</h5>
+                                    <p class="card-text">Konum: {{ stock.warehouse.location }}</p>
+                                    <a href="{% url 'stock_management:warehouse_detail' stock.warehouse.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-link me-1"></i> Depo Detayı
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Miktar</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stock.quantity }} {{ stock.product.unit }}</h5>
+                                    <p class="card-text">Min. Miktar: {{ stock.minimum_quantity }} {{ stock.product.unit }}</p>
+                                    {% if stock.quantity < stock.minimum_quantity %}
+                                    <div class="alert alert-danger mb-0 p-1 text-center">
+                                        <small>Stok seviyesi kritik!</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Detaylı Bilgiler</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 30%">Raf/Lokasyon</th>
+                            <td>{{ stock.location|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Kayıt Tarihi</th>
+                            <td>{{ stock.created_at|date:"d.m.Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Son Güncelleme</th>
+                            <td>{{ stock.updated_at|date:"d.m.Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Notlar</th>
+                            <td>{{ stock.notes|linebreaks|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-line me-1"></i>
+                    Stok Hareketi Ekle
+                </div>
+                <div class="card-body">
+                    <p>Bu ürün için hızlı stok hareketi ekleyebilirsiniz:</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'stock_management:stockmovement_create' %}?product={{ stock.product.pk }}&warehouse={{ stock.warehouse.pk }}&movement_type=IN" class="btn btn-success">
+                            <i class="fas fa-arrow-circle-down me-1"></i> Stok Girişi
+                        </a>
+                        <a href="{% url 'stock_management:stockmovement_create' %}?product={{ stock.product.pk }}&warehouse={{ stock.warehouse.pk }}&movement_type=OUT" class="btn btn-danger">
+                            <i class="fas fa-arrow-circle-up me-1"></i> Stok Çıkışı
+                        </a>
+                        <a href="{% url 'stock_management:stockmovement_create' %}?product={{ stock.product.pk }}&warehouse={{ stock.warehouse.pk }}&movement_type=TRANSFER" class="btn btn-info">
+                            <i class="fas fa-exchange-alt me-1"></i> Transfer
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-history me-1"></i>
+                    Son Hareketler
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for movement in stock.product.stockmovement_set.all|slice:":5" %}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    {% if movement.movement_type == 'IN' %}
+                                    <span class="badge bg-success">Giriş</span>
+                                    {% elif movement.movement_type == 'OUT' %}
+                                    <span class="badge bg-danger">Çıkış</span>
+                                    {% else %}
+                                    <span class="badge bg-info">Transfer</span>
+                                    {% endif %}
+                                    {{ movement.quantity }} {{ movement.product.unit }}
+                                </h6>
+                                <small>{{ movement.movement_date|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">Depo: {{ movement.warehouse.name }}</p>
+                            <small>{{ movement.reference|default:"Referans yok" }}</small>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-3">
+                            <p class="mb-0 text-muted">Henüz hareket kaydı bulunmamaktadır.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

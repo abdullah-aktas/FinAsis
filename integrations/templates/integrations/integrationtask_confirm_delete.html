@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Entegrasyon Görev Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Entegrasyon Görev Sil</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Bu entegrasyon görevini silmek istediğinizden emin misiniz?</p>
+            <p class="text-danger">Bu işlem geri alınamaz!</p>
+            
+            <div class="alert alert-info">
+                <strong>Görev Detayları:</strong><br>
+                Entegrasyon: {{ object.integration }}<br>
+                Görev Tipi: {{ object.get_task_type_display }}<br>
+                Durum: {{ object.status }}<br>
+                Tarih: {{ object.created_at|date:"d.m.Y H:i" }}
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'integrations:integrationtask_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

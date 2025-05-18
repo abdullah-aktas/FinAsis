@@ -1,0 +1,226 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Geliştirici detay sayfası" %}{% endblock %}
+
+{% block meta_keywords %}geliştirici detayı, oyun geliştiricileri, oyun yönetimi{% endblock %}
+
+{% block page_title %}{{ developer.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'games:developer_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Geliştirici listesine dön' %}">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'games:developer_update' developer.id %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Geliştiriciyi düzenle' %}">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="{% trans 'Geliştiriciyi sil' %}">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <!-- Sol Bölüm -->
+    <div class="col-md-8">
+        <!-- Geliştirici Bilgileri -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    {% if developer.logo %}
+                    <img src="{{ developer.logo.url }}" alt="{{ developer.name }}" class="rounded me-4" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h2 class="card-title mb-1">{{ developer.name }}</h2>
+                        <p class="text-muted mb-2">{{ developer.description|default:'' }}</p>
+                        <div class="d-flex align-items-center">
+                            <span class="badge {% if developer.status == 'active' %}bg-success{% else %}bg-danger{% endif %} me-2">
+                                {% if developer.status == 'active' %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                            </span>
+                            {% if developer.country %}
+                            <span class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ developer.country }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">{% trans "Oluşturulma Tarihi" %}</h6>
+                                <p class="card-text">{{ developer.created_at|date:"d.m.Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">{% trans "Son Güncelleme" %}</h6>
+                                <p class="card-text">{{ developer.updated_at|date:"d.m.Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Geliştirici Oyunları -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Geliştirilen Oyunlar" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if developer.games.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">{% trans "Oyun" %}</th>
+                                <th scope="col">{% trans "Kategori" %}</th>
+                                <th scope="col">{% trans "Çıkış Tarihi" %}</th>
+                                <th scope="col">{% trans "Puan" %}</th>
+                                <th scope="col">{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for game in developer.games.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if game.cover_image %}
+                                        <img src="{{ game.cover_image.url }}" alt="{{ game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ game.title }}</div>
+                                            <small class="text-muted">{{ game.subtitle|default:'' }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ game.category.name }}</td>
+                                <td>{{ game.release_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if game.rating >= 8 %}bg-success{% elif game.rating >= 6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ game.rating|multiply:10 }}%" 
+                                             aria-valuenow="{{ game.rating }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="10">
+                                            {{ game.rating }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'games:game_detail' game.id %}" class="btn btn-outline-primary" aria-label="{% trans 'Oyun detaylarını görüntüle' %}">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'games:game_update' game.id %}" class="btn btn-outline-secondary" aria-label="{% trans 'Oyunu düzenle' %}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-gamepad fa-3x mb-3"></i>
+                        <p class="mb-0">{% trans "Bu geliştiriciye ait henüz hiç oyun eklenmemiş." %}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Bölüm -->
+    <div class="col-md-4">
+        <!-- İstatistikler -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "İstatistikler" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "Toplam Oyun" %}</h6>
+                    <h3 class="mb-0">{{ developer.games.count }}</h3>
+                </div>
+                
+                {% if developer.games.count > 0 %}
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "Ortalama Puan" %}</h6>
+                    <h3 class="mb-0">{{ developer.average_rating|floatformat:1 }}</h3>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2">{% trans "En Yüksek Puanlı Oyun" %}</h6>
+                    <div class="d-flex align-items-center">
+                        {% if developer.highest_rated_game.cover_image %}
+                        <img src="{{ developer.highest_rated_game.cover_image.url }}" alt="{{ developer.highest_rated_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ developer.highest_rated_game.title }}</div>
+                            <small class="text-muted">{{ developer.highest_rated_game.rating }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-2">{% trans "En Son Eklenen Oyun" %}</h6>
+                    <div class="d-flex align-items-center">
+                        {% if developer.latest_game.cover_image %}
+                        <img src="{{ developer.latest_game.cover_image.url }}" alt="{{ developer.latest_game.title }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <div class="fw-bold">{{ developer.latest_game.title }}</div>
+                            <small class="text-muted">{{ developer.latest_game.created_at|date:"d.m.Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{% trans "Geliştiriciyi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu geliştiriciyi silmek istediğinizden emin misiniz?" %}</p>
+                <div class="alert alert-warning">
+                    <strong>{% trans "Geliştirici:" %}</strong> {{ developer.name }}<br>
+                    <strong>{% trans "Oyun Sayısı:" %}</strong> {{ developer.games.count }}
+                </div>
+                {% if developer.games.count > 0 %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Bu geliştiriciye ait oyunlar da silinecektir." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form action="{% url 'games:developer_delete' developer.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

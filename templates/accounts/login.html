@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Giriş Yap - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 4rem auto;
+    }
+    
+    .login-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 151, 167, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 151, 167, 0.2);
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+    
+    .login-header img {
+        width: 80px;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .login-header img:hover {
+        transform: scale(1.05);
+    }
+    
+    .login-form {
+        padding: 2.5rem;
+        background-color: var(--surface);
+    }
+    
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .social-btn.google {
+        background: linear-gradient(135deg, #DB4437, #f66d5b);
+    }
+    
+    .social-btn.facebook {
+        background: linear-gradient(135deg, #3b5998, #4c70ba);
+    }
+    
+    .social-btn.apple {
+        background: linear-gradient(135deg, #000000, #333333);
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+    
+    .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: var(--divider);
+    }
+    
+    .divider-text {
+        padding: 0 1rem;
+        color: var(--text-hint);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .form-floating > label {
+        color: var(--text-secondary);
+    }
+    
+    .form-control {
+        border: 2px solid var(--divider);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 151, 167, 0.15);
+    }
+    
+    .btn-primary {
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 151, 167, 0.2);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 151, 167, 0.3);
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    .alert-danger {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-color: transparent;
+        color: var(--error);
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container login-container">
+    <div class="card login-card">
+        <div class="login-header">
+            <img src="{% static 'img/logo.png' %}" alt="FinAsis Logo" class="mb-3">
+            <h2 class="fw-bold">Giriş Yap</h2>
+            <p class="text-white-50 mb-0">Hesabınızla giriş yaparak devam edin</p>
+        </div>
+        
+        <div class="login-form">
+            <!-- Sosyal Medya Giriş -->
+            <div class="social-login">
+                <a href="javascript:void(0)" onclick="showSocialLoginMessage('Google')" class="social-btn google">
+                    <i class="bi bi-google fs-5"></i>
+                </a>
+                <a href="javascript:void(0)" onclick="showSocialLoginMessage('Facebook')" class="social-btn facebook">
+                    <i class="bi bi-facebook fs-5"></i>
+                </a>
+                <a href="javascript:void(0)" onclick="showSocialLoginMessage('Apple')" class="social-btn apple">
+                    <i class="bi bi-apple fs-5"></i>
+                </a>
+            </div>
+            
+            <!-- Ayraç -->
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">VEYA</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <!-- Giriş Formu -->
+            <form method="POST" action="{% url 'accounts:login' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.
+                </div>
+                {% endif %}
+                
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+                
+                <div class="mb-4 form-floating">
+                    {% render_field form.username class="form-control" placeholder="Kullanıcı Adı veya E-posta" id="id_username" required="required" %}
+                    <label for="id_username">Kullanıcı Adı veya E-posta</label>
+                    <div class="invalid-feedback">
+                        Lütfen kullanıcı adınızı veya e-posta adresinizi girin.
+                    </div>
+                </div>
+                
+                <div class="mb-4 form-floating">
+                    {% render_field form.password class="form-control" placeholder="Şifre" id="id_password" required="required" %}
+                    <label for="id_password">Şifre</label>
+                    <div class="invalid-feedback">
+                        Lütfen şifrenizi girin.
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                        <label class="form-check-label text-secondary" for="rememberMe">Beni Hatırla</label>
+                    </div>
+                    
+                    <div>
+                        <a href="{% url 'accounts:password_reset' %}" class="fw-semibold text-decoration-none">Şifremi Unuttum</a>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-3 mb-4">Giriş Yap</button>
+                
+                <p class="text-center mb-0 text-secondary">
+                    Hesabınız yok mu? 
+                    <a href="{% url 'accounts:register' %}" class="fw-bold text-decoration-none">Kayıt Ol</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sosyal medya bağlantıları için mesaj
+    function showSocialLoginMessage(platform) {
+        alert(`${platform} ile giriş özelliği yakında eklenecektir. Şu an için kullanıcı adı ve şifre ile giriş yapabilirsiniz.`);
+    }
+</script>
+{% endblock %} 

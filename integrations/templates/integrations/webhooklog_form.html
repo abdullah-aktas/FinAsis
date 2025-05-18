@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Webhook Log Düzenle{% else %}Yeni Webhook Log Ekle{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                {% if form.instance.pk %}
+                    Webhook Log Düzenle
+                {% else %}
+                    Yeni Webhook Log Ekle
+                {% endif %}
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.webhook.id_for_label }}" class="form-label">Webhook</label>
+                    {{ form.webhook }}
+                    {% if form.webhook.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.webhook.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Durum</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">Mesaj</label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.message.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.request_data.id_for_label }}" class="form-label">İstek Verisi</label>
+                    {{ form.request_data }}
+                    {% if form.request_data.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.request_data.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.response_data.id_for_label }}" class="form-label">Yanıt Verisi</label>
+                    {{ form.response_data }}
+                    {% if form.response_data.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.response_data.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.error_message.id_for_label }}" class="form-label">Hata Mesajı</label>
+                    {{ form.error_message }}
+                    {% if form.error_message.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.error_message.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'integrations:webhooklog_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> İptal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

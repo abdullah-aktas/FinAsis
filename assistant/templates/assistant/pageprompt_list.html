@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Sayfa İstemleri{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Sayfa İstemleri</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'assistant:pageprompt_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni İstem Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Sayfa Tipi</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prompt in prompts %}
+                <tr>
+                    <td>{{ prompt.title }}</td>
+                    <td>{{ prompt.get_page_type_display }}</td>
+                    <td>
+                        {% if prompt.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                            <span class="badge bg-danger">Pasif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'assistant:pageprompt_detail' prompt.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'assistant:pageprompt_update' prompt.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'assistant:pageprompt_delete' prompt.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Henüz istem eklenmemiş.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

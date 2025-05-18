@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ _('Entegrasyonlar') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{{ _('Entegrasyonlar') }}</h1>
+        <a href="{% url 'external_integrations:integration_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {{ _('Yeni Entegrasyon') }}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if integrations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Entegrasyon Adı') }}</th>
+                                <th>{{ _('Sağlayıcı') }}</th>
+                                <th>{{ _('Tip') }}</th>
+                                <th>{{ _('Durum') }}</th>
+                                <th>{{ _('Oluşturan') }}</th>
+                                <th>{{ _('Oluşturulma Tarihi') }}</th>
+                                <th>{{ _('İşlemler') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for integration in integrations %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'external_integrations:integration_detail' integration.pk %}" class="text-decoration-none">
+                                            {{ integration.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ integration.provider.name }}</td>
+                                    <td>{{ integration.get_integration_type_display }}</td>
+                                    <td>
+                                        {% if integration.is_active %}
+                                            <span class="badge bg-success">{{ _('Aktif') }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ _('Pasif') }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ integration.created_by.get_full_name|default:integration.created_by.username }}</td>
+                                    <td>{{ integration.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'external_integrations:integration_detail' integration.pk %}" 
+                                               class="btn btn-sm btn-info" title="{{ _('Detay') }}">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'external_integrations:integration_update' integration.pk %}" 
+                                               class="btn btn-sm btn-warning" title="{{ _('Düzenle') }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'external_integrations:integration_delete' integration.pk %}" 
+                                               class="btn btn-sm btn-danger" title="{{ _('Sil') }}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-success test-connection" 
+                                                    data-integration-id="{{ integration.pk }}" title="{{ _('Bağlantıyı Test Et') }}">
+                                                <i class="fas fa-plug"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    {{ _('Henüz hiç entegrasyon bulunmamaktadır.') }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const testButtons = document.querySelectorAll('.test-connection');
+        
+        testButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const integrationId = this.dataset.integrationId;
+                const button = this;
+                
+                // Butonu devre dışı bırak ve yükleniyor göster
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                // API'ye istek gönder
+                fetch(`/external_integrations/api/integrations/${integrationId}/test_connection/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Sonucu göster
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ _("Başarılı") }}',
+                            text: data.message,
+                            confirmButtonText: '{{ _("Tamam") }}'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ _("Hata") }}',
+                            text: data.message,
+                            confirmButtonText: '{{ _("Tamam") }}'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ _("Hata") }}',
+                        text: '{{ _("Bağlantı testi sırasında bir hata oluştu.") }}',
+                        confirmButtonText: '{{ _("Tamam") }}'
+                    });
+                })
+                .finally(() => {
+                    // Butonu tekrar aktif et
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-plug"></i>';
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

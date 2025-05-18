@@ -1,0 +1,87 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Rapor Sil{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Rapor Sil</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Bu raporu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+        </div>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th style="width: 200px;">Rapor Adı</th>
+                        <td>{{ report.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tür</th>
+                        <td>
+                            {% if report.type == 'sales' %}
+                            <span class="badge bg-primary">Satış Raporu</span>
+                            {% elif report.type == 'customer' %}
+                            <span class="badge bg-success">Müşteri Raporu</span>
+                            {% elif report.type == 'activity' %}
+                            <span class="badge bg-info">Aktivite Raporu</span>
+                            {% elif report.type == 'opportunity' %}
+                            <span class="badge bg-warning">Fırsat Raporu</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Dönem</th>
+                        <td>
+                            {% if report.period == 'today' %}
+                            Bugün
+                            {% elif report.period == 'week' %}
+                            Bu Hafta
+                            {% elif report.period == 'month' %}
+                            Bu Ay
+                            {% elif report.period == 'quarter' %}
+                            Bu Çeyrek
+                            {% elif report.period == 'year' %}
+                            Bu Yıl
+                            {% else %}
+                            {{ report.start_date|date:"d.m.Y" }} - {{ report.end_date|date:"d.m.Y" }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Oluşturan</th>
+                        <td>{{ report.created_by.get_full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Oluşturma Tarihi</th>
+                        <td>{{ report.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    {% if report.description %}
+                    <tr>
+                        <th>Açıklama</th>
+                        <td>{{ report.description|linebreaks }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Sil
+                </button>
+                <a href="{% url 'crm:report_detail' pk=report.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

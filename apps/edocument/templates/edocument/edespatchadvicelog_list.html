@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}E-İrsaliye Logları{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>E-İrsaliye Logları</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'edocument:edespatchadvicelog_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Log Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>İrsaliye</th>
+                    <th>Durum</th>
+                    <th>Mesaj</th>
+                    <th>Tarih</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.despatch_advice }}</td>
+                    <td>
+                        {% if log.status == 'success' %}
+                            <span class="badge bg-success">Başarılı</span>
+                        {% elif log.status == 'error' %}
+                            <span class="badge bg-danger">Hata</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ log.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.message|truncatechars:50 }}</td>
+                    <td>{{ log.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'edocument:edespatchadvicelog_detail' log.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'edocument:edespatchadvicelog_update' log.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'edocument:edespatchadvicelog_delete' log.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Henüz log kaydı bulunmuyor.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

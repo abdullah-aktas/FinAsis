@@ -1,0 +1,107 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Kullanıcı Etkileşimleri" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm mr-2">
+                    <select name="user" class="form-control">
+                        <option value="">{% trans "Kullanıcı Seçin" %}</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}" {% if request.GET.user == user.id %}selected{% endif %}>
+                            {{ user.get_full_name|default:user.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group input-group-sm mr-2">
+                    <select name="interaction_type" class="form-control">
+                        <option value="">{% trans "Etkileşim Tipi" %}</option>
+                        {% for type in interaction_types %}
+                        <option value="{{ type.0 }}" {% if request.GET.interaction_type == type.0 %}selected{% endif %}>
+                            {{ type.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> {% trans "Filtrele" %}
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tarih" %}</th>
+                        <th>{% trans "Kullanıcı" %}</th>
+                        <th>{% trans "Etkileşim Tipi" %}</th>
+                        <th>{% trans "Modül" %}</th>
+                        <th>{% trans "Başarı Durumu" %}</th>
+                        <th>{% trans "Süre (sn)" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for interaction in interactions %}
+                    <tr>
+                        <td>{{ interaction.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ interaction.user.get_full_name|default:interaction.user.username }}</td>
+                        <td>{{ interaction.get_type_display }}</td>
+                        <td>{{ interaction.module }}</td>
+                        <td>
+                            <span class="badge badge-{{ interaction.get_success_color }}">
+                                {{ interaction.get_success_display }}
+                            </span>
+                        </td>
+                        <td class="text-right">{{ interaction.duration|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'ai_assistant:interaction_detail' interaction.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">{% trans "Etkileşim kaydı bulunamadı." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if interactions.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if interactions.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ interactions.previous_page_number }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for i in interactions.paginator.page_range %}
+                <li class="page-item {% if interactions.number == i %}active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if interactions.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ interactions.next_page_number }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

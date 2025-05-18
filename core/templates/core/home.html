@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Ana Sayfa" %} | FinAsis{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">{% trans "FinAsis'e Hoş Geldiniz" %}</h1>
+            <p class="lead text-center">{% trans "KOBİ'ler için Akıllı Finansal Yönetim Sistemi" %}</p>
+            
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Stok Yönetimi" %}</h5>
+                            <p class="card-text">{% trans "Stok takibi, ürün yönetimi ve envanter kontrolü için kapsamlı çözümler." %}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Finans Yönetimi" %}</h5>
+                            <p class="card-text">{% trans "Finansal işlemler, raporlama ve analiz araçları ile işletmenizi kontrol edin." %}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{% trans "Müşteri İlişkileri" %}</h5>
+                            <p class="card-text">{% trans "Müşteri takibi, satış yönetimi ve CRM çözümleri." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

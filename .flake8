@@ -1,0 +1,27 @@
+[flake8]
+max-line-length = 88
+ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    migrations,
+    staticfiles,
+    venv,
+    .env,
+    node_modules,
+    *.pyc,
+    *.pyo,
+    *.pyd,
+    .DS_Store
+per-file-ignores =
+    __init__.py:F401
+    tests/*:E402
+    migrations/*:E402
+select = E,F,W,C,N
+max-complexity = 10
+statistics = True
+count = True
+format = pylint
+show-source = True

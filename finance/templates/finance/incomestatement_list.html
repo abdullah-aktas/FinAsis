@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Gelir Tablosu{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Gelir Tablosu</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'finance:incomestatement_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Gelir Tablosu Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Dönem Başlangıcı</th>
+                    <th>Dönem Bitişi</th>
+                    <th>Gelir</th>
+                    <th>Gider</th>
+                    <th>Net Gelir</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for statement in statements %}
+                <tr>
+                    <td>{{ statement.period_start|date:"d.m.Y" }}</td>
+                    <td>{{ statement.period_end|date:"d.m.Y" }}</td>
+                    <td>{{ statement.revenue|floatformat:2 }} TL</td>
+                    <td>{{ statement.expenses|floatformat:2 }} TL</td>
+                    <td>
+                        <span class="{% if statement.net_income >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {{ statement.net_income|floatformat:2 }} TL
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'finance:incomestatement_detail' statement.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'finance:incomestatement_update' statement.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'finance:incomestatement_delete' statement.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Henüz gelir tablosu kaydı bulunmuyor.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

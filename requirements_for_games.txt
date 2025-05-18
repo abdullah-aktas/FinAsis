@@ -1,0 +1,34 @@
+# FinAsis Oyun Modülleri Gereksinimleri
+
+# Temel Paketler
+pygame==2.6.1
+ursina==7.0.0
+Pillow==11.1.0
+numpy>=1.24.3
+opencv-python>=4.8.0
+
+# PyQt6 - Masaüstü Uygulaması için
+PyQt6==6.9.0
+PyQt6-Qt6>=6.9.0
+PyQt6-sip>=13.8.0
+
+# Diğer Gerekli Paketler
+panda3d==1.10.15
+panda3d-gltf>=1.3.0
+pyperclip>=1.9.0
+screeninfo>=0.8.0
+python-dateutil>=2.8.2
+
+# Mobil Dağıtım için (Yoruma alınmış)
+# kivy>=2.2.1
+# buildozer>=1.5.0
+
+# Masaüstü Dağıtım için
+pyinstaller>=6.1.0
+
+# OpenCV Bağımlılıkları
+scipy>=1.10.1
+matplotlib>=3.7.2
+
+# SQLite ve Diğer DB Bağlantıları
+sqlalchemy>=2.0.27 

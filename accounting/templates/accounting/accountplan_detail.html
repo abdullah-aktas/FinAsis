@@ -1,0 +1,69 @@
+{% extends "accounting/base.html" %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Hesap Planı Detayı</h5>
+        <div>
+            <a href="{% url 'accounting:accountplan_update' object.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Düzenle
+            </a>
+            <a href="{% url 'accounting:accountplan_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 200px;">Hesap Kodu:</th>
+                        <td>{{ object.code }}</td>
+                    </tr>
+                    <tr>
+                        <th>Hesap Adı:</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Hesap Türü:</th>
+                        <td>{{ object.get_account_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Durum:</th>
+                        <td>
+                            {% if object.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                            {% else %}
+                            <span class="badge bg-danger">Pasif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Oluşturulma Tarihi:</th>
+                        <td>{{ object.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Son Güncelleme:</th>
+                        <td>{{ object.updated_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Açıklama</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.description %}
+                            {{ object.description|linebreaks }}
+                        {% else %}
+                            <p class="text-muted">Açıklama bulunmamaktadır.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

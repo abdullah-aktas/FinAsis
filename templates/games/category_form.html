@@ -1,0 +1,130 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Kategori form sayfası" %}{% endblock %}
+
+{% block meta_keywords %}kategori formu, kategori ekle, kategori düzenle, oyun yönetimi{% endblock %}
+
+{% block page_title %}
+{% if category %}
+{% trans "Kategori Düzenle" %}
+{% else %}
+{% trans "Yeni Kategori" %}
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'games:category_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Kategori listesine dön' %}">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Temel Bilgiler" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{% trans "Kategori Adı" %} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="icon" class="form-label">{% trans "İkon" %}</label>
+                        <input type="text" class="form-control {% if form.icon.errors %}is-invalid{% endif %}" id="icon" name="icon" value="{{ form.icon.value|default:'' }}" placeholder="fas fa-gamepad">
+                        {% if form.icon.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.icon.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Font Awesome ikon sınıfını giriniz. Örnek:" %} <code>fas fa-gamepad</code>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" id="status" name="status" required>
+                            <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.status.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    {% if category %}
+                    {% trans "Güncelle" %}
+                    {% else %}
+                    {% trans "Oluştur" %}
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Kategori Adı" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Kategorinin adını giriniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Açıklama" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Kategori hakkında kısa bir açıklama giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "İkon" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Kategori için bir ikon seçiniz. Font Awesome ikon sınıfını giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Durum" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Kategorinin durumunu seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

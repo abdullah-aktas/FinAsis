@@ -1,0 +1,212 @@
+{% extends "stock_management/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}{{ product.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:product_edit' product.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProductModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+<a href="{% url 'stock_management:product_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <!-- Ürün Bilgileri -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Ürün Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded">
+                        {% else %}
+                        <div class="text-center py-5 bg-light rounded">
+                            <i class="fas fa-box fa-3x text-muted"></i>
+                            <p class="mt-2 text-muted">{% trans "Resim Yok" %}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="30%">{% trans "Kod" %}</th>
+                                <td>{{ product.code }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Ad" %}</th>
+                                <td>{{ product.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Kategori" %}</th>
+                                <td>{{ product.category.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Birim" %}</th>
+                                <td>{{ product.unit }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Birim Fiyat" %}</th>
+                                <td>{{ product.unit_price|floatformat:2 }} {{ product.currency }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Durum" %}</th>
+                                <td>
+                                    <span class="badge {% if product.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if product.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>{% trans "Açıklama" %}</h6>
+                    <p class="text-muted">{{ product.description|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stok Bilgileri -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Stok Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{% trans "Mevcut Stok" %}</h6>
+                                <h3 class="mb-0">{{ product.quantity }} {{ product.unit }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{% trans "Minimum Stok" %}</h6>
+                                <h3 class="mb-0">{{ product.min_stock }} {{ product.unit }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{% trans "Maksimum Stok" %}</h6>
+                                <h3 class="mb-0">{{ product.max_stock }} {{ product.unit }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="progress">
+                        <div class="progress-bar {% if product.quantity <= product.min_stock %}bg-danger{% elif product.quantity >= product.max_stock %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ product.quantity|div:product.max_stock|mul:100 }}%"
+                             aria-valuenow="{{ product.quantity }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="{{ product.max_stock }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yan Bilgiler -->
+    <div class="col-md-4">
+        <!-- Son İşlemler -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Son İşlemler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="list-group list-group-flush">
+                    {% for transaction in transactions %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ transaction.get_type_display }}</h6>
+                                <small class="text-muted">{{ transaction.date|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            <span class="badge {% if transaction.type == 'in' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ transaction.quantity }} {{ product.unit }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    {% trans "Henüz işlem kaydı bulunmuyor." %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Ek Bilgiler -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Ek Bilgiler" %}</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="40%">{% trans "Oluşturulma" %}</th>
+                        <td>{{ product.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Güncellenme" %}</th>
+                        <td>{{ product.updated_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Oluşturan" %}</th>
+                        <td>{{ product.created_by.get_full_name|default:product.created_by.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Güncelleyen" %}</th>
+                        <td>{{ product.updated_by.get_full_name|default:product.updated_by.username }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Ürünü Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu ürünü silmek istediğinizden emin misiniz?" %}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'stock_management:product_delete' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

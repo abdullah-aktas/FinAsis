@@ -1,0 +1,31 @@
+# Python bytecode dosyaları
+__pycache__/
+*.py[cod]
+
+# Ortam klasörü
+venv/
+env/
+.venv/
+
+# Django runtime dosyaları
+db.sqlite3
+*.log
+
+# IDE/editor klasörleri
+.vscode/
+.idea/
+*.swp
+
+# Ortam değişkenleri
+.env
+.env.*
+
+# Statik ve medya dosyaları (GCP'de ayrı tutulur)
+staticfiles/
+media/
+
+# Pipenv, poetry, docker cache
+Pipfile.lock
+poetry.lock
+*.pid
+node_modules

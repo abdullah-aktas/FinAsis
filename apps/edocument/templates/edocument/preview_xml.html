@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}XML Önizleme - {{ document_type }} - {{ document_number }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/xml-preview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-code mr-2"></i>
+                        {{ document_type }} XML Önizleme
+                        <small class="text-muted">#{{ document_number }}</small>
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary" onclick="downloadXML()">
+                                    <i class="fas fa-download mr-1"></i> XML İndir
+                                </button>
+                                <button type="button" class="btn btn-success" onclick="validateXML()">
+                                    <i class="fas fa-check mr-1"></i> Doğrula
+                                </button>
+                                <button type="button" class="btn btn-info" onclick="signXML()">
+                                    <i class="fas fa-signature mr-1"></i> İmzala
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" onclick="formatXML()">
+                                    <i class="fas fa-code mr-1"></i> Formatla
+                                </button>
+                                <button type="button" class="btn btn-default" onclick="toggleLineNumbers()">
+                                    <i class="fas fa-list-ol mr-1"></i> Satır Numaraları
+                                </button>
+                                <button type="button" class="btn btn-default" onclick="toggleWrap()">
+                                    <i class="fas fa-text-width mr-1"></i> Satır Kaydırma
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="xml-editor">
+                        <pre id="xml-content" class="prettyprint linenums">{{ xml_content }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/xml-preview.js' %}"></script>
+<script>
+    // XML içeriğini global değişkene ata
+    window.xmlContent = `{{ xml_content|escapejs }}`;
+    
+    // Sayfa yüklendiğinde
+    document.addEventListener('DOMContentLoaded', function() {
+        // XML'i formatla
+        formatXML();
+        
+        // Satır numaralarını göster
+        document.getElementById('xml-content').classList.add('linenums');
+    });
+    
+    // XML'i indir
+    function downloadXML() {
+        const blob = new Blob([window.xmlContent], { type: 'text/xml' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '{{ document_type|lower }}_{{ document_number }}.xml';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+    
+    // XML'i doğrula
+    function validateXML() {
+        fetch('{% url "edocument:validate_xml" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                document_type: '{{ document_type }}',
+                xml_content: window.xmlContent
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Doğrulama Başarılı',
+                    text: 'XML içeriği şema ile uyumludur.'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Doğrulama Hatası',
+                    html: data.error.replace(/\n/g, '<br>')
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hata',
+                text: 'Doğrulama sırasında bir hata oluştu: ' + error
+            });
+        });
+    }
+    
+    // XML'i imzala
+    function signXML() {
+        fetch('{% url "edocument:sign_xml" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                document_type: '{{ document_type }}',
+                xml_content: window.xmlContent
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.xmlContent = data.signed_xml;
+                document.getElementById('xml-content').textContent = data.signed_xml;
+                formatXML();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'İmzalama Başarılı',
+                    text: 'XML içeriği başarıyla imzalandı.'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'İmzalama Hatası',
+                    text: data.error
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hata',
+                text: 'İmzalama sırasında bir hata oluştu: ' + error
+            });
+        });
+    }
+    
+    // XML'i formatla
+    function formatXML() {
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(window.xmlContent, 'text/xml');
+            const serializer = new XMLSerializer();
+            const formatted = serializer.serializeToString(xmlDoc)
+                .replace(/></g, '>\n<')
+                .replace(/\n/g, '\n    ')
+                .replace(/    </g, '<');
+            
+            window.xmlContent = formatted;
+            document.getElementById('xml-content').textContent = formatted;
+        } catch (error) {
+            console.error('XML formatlanırken hata oluştu:', error);
+        }
+    }
+    
+    // Satır numaralarını aç/kapat
+    function toggleLineNumbers() {
+        const element = document.getElementById('xml-content');
+        element.classList.toggle('linenums');
+    }
+    
+    // Satır kaydırmayı aç/kapat
+    function toggleWrap() {
+        const element = document.getElementById('xml-content');
+        element.classList.toggle('wrap');
+    }
+</script>
+{% endblock %} 

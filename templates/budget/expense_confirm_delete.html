@@ -1,0 +1,36 @@
+{% extends "budget/base.html" %}
+{% load i18n %}
+
+{% block budget_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "Gider Sil" %}</h5>
+    </div>
+    <div class="card-body">
+        <p>{% trans "Bu gideri silmek istediğinizden emin misiniz?" %}</p>
+        
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title">{{ expense.category.name }}</h6>
+                <p class="card-text">
+                    <strong>{% trans "Tutar:" %}</strong> {{ expense.amount }} ₺<br>
+                    <strong>{% trans "Tarih:" %}</strong> {{ expense.date|date:"d.m.Y" }}<br>
+                    <strong>{% trans "Açıklama:" %}</strong> {{ expense.description }}
+                </p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'budget:expense_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> {% trans "İptal" %}
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> {% trans "Sil" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

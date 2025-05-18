@@ -1,0 +1,39 @@
+{
+  "price": "Preis",
+  "owned": "Im Besitz",
+  "buy": "Kaufen",
+  "sell": "Verkaufen",
+  "not_enough_money": "Nicht genug Geld",
+  "welcome_message": "Willkommen beim Finanzhandelsspiel!",
+  "day": "Tag",
+  "money": "Geld",
+  "portfolio_value": "Portfoliowert",
+  "total_value": "Gesamtwert",
+  "market_closed": "Markt geschlossen",
+  "market_open": "Markt geöffnet",
+  "next_day": "Nächster Tag",
+  "save_game": "Spiel speichern",
+  "load_game": "Spiel laden",
+  "settings": "Einstellungen",
+  "exit": "Beenden",
+  "confirm": "Bestätigen",
+  "cancel": "Abbrechen",
+  
+  "tutorial": {
+    "welcome": "Willkommen beim Tutorial!",
+    "basic_controls": "Grundlegende Steuerung",
+    "trading_basics": "Grundlagen des Handels",
+    "market_info": "Marktinformationen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "finish": "Beenden"
+  },
+  
+  "notifications": {
+    "transaction_success": "Transaktion erfolgreich",
+    "transaction_failed": "Transaktion fehlgeschlagen",
+    "market_update": "Marktaktualisierung",
+    "game_saved": "Spiel gespeichert",
+    "game_loaded": "Spiel geladen"
+  }
+} 

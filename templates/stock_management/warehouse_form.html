@@ -1,0 +1,155 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if warehouse %}{% trans "Depo Düzenle" %}{% else %}{% trans "Yeni Depo" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'stock_management:warehouse_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    {% if warehouse %}{% trans "Depo Düzenle" %}{% else %}{% trans "Yeni Depo" %}{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">{% trans "Kod" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.code.errors %}is-invalid{% endif %}" 
+                                       id="code" name="code" value="{{ form.code.value|default:'' }}" required>
+                                {% if form.code.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.code.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                       id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="capacity" class="form-label">{% trans "Kapasite" %} <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control {% if form.capacity.errors %}is-invalid{% endif %}" 
+                                       id="capacity" name="capacity" value="{{ form.capacity.value|default:'' }}" required min="1">
+                                {% if form.capacity.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.capacity.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="occupancy_rate" class="form-label">{% trans "Doluluk Oranı (%)" %}</label>
+                                <input type="number" class="form-control {% if form.occupancy_rate.errors %}is-invalid{% endif %}" 
+                                       id="occupancy_rate" name="occupancy_rate" value="{{ form.occupancy_rate.value|default:'0' }}" 
+                                       min="0" max="100">
+                                {% if form.occupancy_rate.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.occupancy_rate.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                           {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">{% trans "Aktif" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">{% trans "Adres" %} <span class="text-danger">*</span></label>
+                        <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
+                                  id="address" name="address" rows="3" required>{{ form.address.value|default:'' }}</textarea>
+                        {% if form.address.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.address.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Kod Formatı" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Depo kodu benzersiz olmalıdır. Önerilen format: DEP-XXXX" %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Kapasite" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Depo kapasitesi, depoda bulunabilecek maksimum ürün miktarını belirtir. Bu değer, doluluk oranının hesaplanmasında kullanılır." %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Doluluk Oranı" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Deponun doluluk oranı yüzde olarak belirtilir. Bu değer, depo yönetimi ve raporlama için kullanılır." %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Durum" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Pasif olarak işaretlenen depolar yeni ürün ekleme işlemlerinde görünmeyecektir." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

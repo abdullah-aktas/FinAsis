@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+      - CLOUD_SQL_CONNECTION_NAME=${CLOUD_SQL_CONNECTION_NAME}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER} 
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      - finasis_net
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - finasis_net
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - finasis_net
+
+volumes:
+  static_volume:
+  media_volume:
+  redis_data:
+
+networks:
+  finasis_net:
+    driver: bridge

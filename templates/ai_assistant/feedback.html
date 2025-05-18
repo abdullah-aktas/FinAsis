@@ -1,0 +1,113 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "AI Geri Bildirimleri" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm mr-2">
+                    <select name="model" class="form-control">
+                        <option value="">{% trans "Model Seçin" %}</option>
+                        {% for model in ai_models %}
+                        <option value="{{ model.id }}" {% if request.GET.model == model.id %}selected{% endif %}>
+                            {{ model.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group input-group-sm mr-2">
+                    <select name="rating" class="form-control">
+                        <option value="">{% trans "Değerlendirme" %}</option>
+                        <option value="1" {% if request.GET.rating == '1' %}selected{% endif %}>1 ★</option>
+                        <option value="2" {% if request.GET.rating == '2' %}selected{% endif %}>2 ★</option>
+                        <option value="3" {% if request.GET.rating == '3' %}selected{% endif %}>3 ★</option>
+                        <option value="4" {% if request.GET.rating == '4' %}selected{% endif %}>4 ★</option>
+                        <option value="5" {% if request.GET.rating == '5' %}selected{% endif %}>5 ★</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> {% trans "Filtrele" %}
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tarih" %}</th>
+                        <th>{% trans "Model" %}</th>
+                        <th>{% trans "Kullanıcı" %}</th>
+                        <th>{% trans "Değerlendirme" %}</th>
+                        <th>{% trans "Yorum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ feedback.model.name }}</td>
+                        <td>{{ feedback.user.get_full_name|default:feedback.user.username }}</td>
+                        <td>
+                            {% for i in "12345"|make_list %}
+                            <i class="fas fa-star {% if forloop.counter <= feedback.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                            {% endfor %}
+                        </td>
+                        <td>{{ feedback.comment|truncatechars:50 }}</td>
+                        <td>
+                            <a href="{% url 'ai_assistant:feedback_detail' feedback.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if feedback.user == request.user %}
+                            <a href="{% url 'ai_assistant:feedback_update' feedback.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:feedback_delete' feedback.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">{% trans "Henüz geri bildirim bulunmuyor." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if feedbacks.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if feedbacks.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ feedbacks.previous_page_number }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for i in feedbacks.paginator.page_range %}
+                <li class="page-item {% if feedbacks.number == i %}active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if feedbacks.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ feedbacks.next_page_number }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

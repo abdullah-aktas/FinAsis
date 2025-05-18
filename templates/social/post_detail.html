@@ -1,0 +1,150 @@
+{% extends 'social/base.html' %}
+
+{% block title %}{{ post.title }} - FinAsis Sosyal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ post.author.profile.profile_picture.url|default:'/static/images/default-profile.png' }}" 
+                             class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                        <div>
+                            <h6 class="mb-0">
+                                <a href="{% url 'social:user_profile' username=post.author.username %}" class="text-decoration-none">
+                                    {{ post.author.username }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ post.created_at|timesince }} önce</small>
+                        </div>
+                    </div>
+                    {% if user == post.author %}
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'social:post_edit' pk=post.pk %}">
+                                    <i class="fas fa-edit me-2"></i>Düzenle
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'social:post_delete' pk=post.pk %}">
+                                    <i class="fas fa-trash me-2"></i>Sil
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                <h4 class="card-title">{{ post.title }}</h4>
+                <p class="card-text">{{ post.content }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid rounded mb-3">
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-link text-dark like-button" data-post-id="{{ post.pk }}">
+                            <i class="fas fa-heart {% if user in post.likes.all %}text-danger{% endif %}"></i>
+                            <span class="likes-count">{{ post.likes.count }}</span>
+                        </button>
+                        <button class="btn btn-link text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#comments">
+                            <i class="fas fa-comment"></i>
+                            <span>{{ post.comments.count }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="collapse show" id="comments">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Yorumlar</h5>
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'social:add_comment' pk=post.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="2" placeholder="Yorum yaz..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Yorum Yap</button>
+                    </form>
+                    {% endif %}
+
+                    {% for comment in comments %}
+                    <div class="d-flex mb-3">
+                        <img src="{{ comment.author.profile.profile_picture.url|default:'/static/images/default-profile.png' }}" 
+                             class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <a href="{% url 'social:user_profile' username=comment.author.username %}" class="text-decoration-none">
+                                        {{ comment.author.username }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ comment.created_at|timesince }} önce</small>
+                            </div>
+                            <p class="mb-0">{{ comment.content }}</p>
+                            {% if user == comment.author %}
+                            <a href="{% url 'social:delete_comment' pk=comment.pk %}" class="text-danger text-decoration-none">
+                                <small><i class="fas fa-trash"></i> Sil</small>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Henüz yorum yapılmamış.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Benzer Gönderiler</h5>
+                <div class="list-group list-group-flush">
+                    {% for similar_post in similar_posts %}
+                    <a href="{% url 'social:post_detail' pk=similar_post.pk %}" class="list-group-item list-group-item-action">
+                        <h6 class="mb-1">{{ similar_post.title }}</h6>
+                        <small class="text-muted">{{ similar_post.author.username }} tarafından</small>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted">Benzer gönderi bulunamadı.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelector('.like-button').addEventListener('click', function() {
+    const postId = this.dataset.postId;
+    fetch(`/social/post/${postId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const heartIcon = this.querySelector('.fa-heart');
+        const likesCount = this.querySelector('.likes-count');
+        
+        if (data.liked) {
+            heartIcon.classList.add('text-danger');
+        } else {
+            heartIcon.classList.remove('text-danger');
+        }
+        
+        likesCount.textContent = data.likes_count;
+    });
+});
+</script>
+{% endblock %} 

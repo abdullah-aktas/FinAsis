@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if stock %}Stok Düzenle: {{ stock.product.name }}{% else %}Yeni Stok Kaydı{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">
+        {% if stock %}Stok Düzenle: {{ stock.product.name }}{% else %}Yeni Stok Kaydı{% endif %}
+    </h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'stock_management:stock_list' %}">Stoklar</a></li>
+        <li class="breadcrumb-item active">
+            {% if stock %}{{ stock.product.name }} Düzenle{% else %}Yeni Stok Kaydı{% endif %}
+        </li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-boxes me-1"></i>
+                    Stok Bilgileri
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.warehouse|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.product|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.quantity|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.minimum_quantity|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {{ form.location|as_crispy_field }}
+                        {{ form.notes|as_crispy_field }}
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Kaydet
+                            </button>
+                            <a href="{% url 'stock_management:stock_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Bilgi
+                </div>
+                <div class="card-body">
+                    <p>Stok bilgilerini eksiksiz ve doğru bir şekilde giriniz.</p>
+                    <p>Zorunlu alanlar <strong>kalın</strong> gösterilmektedir.</p>
+                    <hr>
+                    <h6>Önemli Notlar:</h6>
+                    <ul>
+                        <li>Aynı depo ve ürün için birden fazla stok kaydı oluşturmayınız.</li>
+                        <li>Stok miktarı manuel olarak güncellendiğinde, bir stok hareketi kaydı oluşturulmalıdır.</li>
+                        <li>Minimum stok miktarı, stoğun kritik seviyesini belirler.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

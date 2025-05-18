@@ -1,0 +1,185 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if supplier %}{% trans "Tedarikçi Düzenle" %}{% else %}{% trans "Yeni Tedarikçi" %}{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'stock_management:supplier_list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    {% if supplier %}{% trans "Tedarikçi Düzenle" %}{% else %}{% trans "Yeni Tedarikçi" %}{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">{% trans "Kod" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.code.errors %}is-invalid{% endif %}" 
+                                       id="code" name="code" value="{{ form.code.value|default:'' }}" required>
+                                {% if form.code.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.code.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">{% trans "Ad" %} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                       id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="tax_number" class="form-label">{% trans "Vergi Numarası" %}</label>
+                                <input type="text" class="form-control {% if form.tax_number.errors %}is-invalid{% endif %}" 
+                                       id="tax_number" name="tax_number" value="{{ form.tax_number.value|default:'' }}">
+                                {% if form.tax_number.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.tax_number.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">{% trans "Telefon" %}</label>
+                                <input type="tel" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" 
+                                       id="phone" name="phone" value="{{ form.phone.value|default:'' }}">
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.phone.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">{% trans "E-posta" %}</label>
+                                <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                       id="email" name="email" value="{{ form.email.value|default:'' }}">
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="website" class="form-label">{% trans "Web Sitesi" %}</label>
+                                <input type="url" class="form-control {% if form.website.errors %}is-invalid{% endif %}" 
+                                       id="website" name="website" value="{{ form.website.value|default:'' }}">
+                                {% if form.website.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.website.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="logo" class="form-label">{% trans "Logo" %}</label>
+                                <input type="file" class="form-control {% if form.logo.errors %}is-invalid{% endif %}" 
+                                       id="logo" name="logo" accept="image/*">
+                                {% if form.logo.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.logo.errors.0 }}
+                                </div>
+                                {% endif %}
+                                {% if supplier.logo %}
+                                <div class="mt-2">
+                                    <img src="{{ supplier.logo.url }}" alt="{{ supplier.name }}" class="img-thumbnail" style="max-height: 100px;">
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                           {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">{% trans "Aktif" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">{% trans "Adres" %}</label>
+                        <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
+                                  id="address" name="address" rows="3">{{ form.address.value|default:'' }}</textarea>
+                        {% if form.address.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.address.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.description.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Kod Formatı" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Tedarikçi kodu benzersiz olmalıdır. Önerilen format: TED-XXXX" %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Logo" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Logo yüklemek için desteklenen formatlar: JPG, PNG, GIF. Maksimum boyut: 2MB" %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">{% trans "Durum" %}</h6>
+                    <p class="small text-muted">
+                        {% trans "Pasif olarak işaretlenen tedarikçiler yeni ürün ekleme işlemlerinde görünmeyecektir." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

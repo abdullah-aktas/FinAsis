@@ -1,0 +1,5 @@
+# English translation file for ai_assistant
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n" 

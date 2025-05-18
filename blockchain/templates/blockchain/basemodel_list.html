@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Temel Modeller{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Temel Modeller</h1>
+    
+    <div class="mb-3">
+        <a href="{% url 'blockchain:basemodel_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Model Ekle
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>İsim</th>
+                    <th>Açıklama</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model in models %}
+                <tr>
+                    <td>{{ model.name }}</td>
+                    <td>{{ model.description|truncatechars:50 }}</td>
+                    <td>
+                        {% if model.is_active %}
+                            <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                            <span class="badge bg-danger">Pasif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'blockchain:basemodel_detail' model.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'blockchain:basemodel_update' model.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'blockchain:basemodel_delete' model.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Henüz model eklenmemiş.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

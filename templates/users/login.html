@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Giriş Yap" %} | FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{% trans "Giriş Yap" %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.email|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.password|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.remember_me }}
+                            <label class="form-check-label" for="{{ form.remember_me.id_for_label }}">
+                                {{ form.remember_me.label }}
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">{% trans "Giriş Yap" %}</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'users:password_reset' %}" class="text-decoration-none">
+                            {% trans "Şifrenizi mi unuttunuz?" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">
+                        {% trans "Henüz bir hesabınız yok mu?" %} 
+                        <a href="{% url 'users:register' %}">{% trans "Kayıt Ol" %}</a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <p class="text-muted">{% trans "Ayrıca şunlarla giriş yapabilirsiniz:" %}</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-primary">
+                        <i class="fab fa-google me-2"></i> Google
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fab fa-facebook-f me-2"></i> Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

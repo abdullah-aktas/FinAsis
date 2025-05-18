@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MÃ¼ÅŸteri Risk Skoru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .risk-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .risk-score {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .risk-level {
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .risk-explanation {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .risk-factors {
+        margin-top: 20px;
+    }
+    
+    .risk-factor-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .risk-factor-icon {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+    
+    .high-risk {
+        color: #dc3545;
+    }
+    
+    .medium-risk {
+        color: #ffc107;
+    }
+    
+    .low-risk {
+        color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="risk-card">
+                <h2>MÃ¼ÅŸteri Risk Skoru</h2>
+                <h4>MÃ¼ÅŸteri ID: {{ customer_id }}</h4>
+                
+                <div class="risk-score {{ risk_score.color }}-risk">
+                    {{ risk_score.risk_score }}
+                </div>
+                
+                <div class="risk-level {{ risk_score.color }}-risk">
+                    {{ risk_score.risk_level }} Risk
+                </div>
+                
+                <div class="risk-explanation">
+                    <h5>Risk AÃ§Ä±klamasÄ±</h5>
+                    <p>{{ risk_score.explanation }}</p>
+                </div>
+                
+                <div class="risk-factors">
+                    <h5>Risk FaktÃ¶rleri</h5>
+                    <div class="risk-factor-item">
+                        <span class="risk-factor-icon">ðŸ“Š</span>
+                        <span>Ã–deme Gecikmesi: {{ risk_score.payment_delay_avg }} gÃ¼n</span>
+                    </div>
+                    <div class="risk-factor-item">
+                        <span class="risk-factor-icon">ðŸ’°</span>
+                        <span>Ortalama Ä°ÅŸlem TutarÄ±: {{ risk_score.transaction_amount_avg }} TL</span>
+                    </div>
+                    <div class="risk-factor-item">
+                        <span class="risk-factor-icon">ðŸ“…</span>
+                        <span>Son Ã–demeden Bu Yana: {{ risk_score.days_since_last_payment }} gÃ¼n</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Ã–neriler</h5>
+                    <ul>
+                        {% if risk_score.risk_score >= 80 %}
+                            <li>MÃ¼ÅŸteri ile acil gÃ¶rÃ¼ÅŸme talep edin</li>
+                            <li>Ã–deme planÄ± oluÅŸturun</li>
+                            <li>Kredi limitini gÃ¶zden geÃ§irin</li>
+                        {% elif risk_score.risk_score >= 60 %}
+                            <li>DÃ¼zenli takip yapÄ±n</li>
+                            <li>Ã–deme hatÄ±rlatmalarÄ± gÃ¶nderin</li>
+                            <li>Risk skorunu aylÄ±k kontrol edin</li>
+                        {% else %}
+                            <li>Normal iÅŸlem sÃ¼recine devam edin</li>
+                            <li>MÃ¼ÅŸteri iliÅŸkilerini gÃ¼Ã§lendirin</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Risk skorunu periyodik olarak gÃ¼ncelle
+    function updateRiskScore() {
+        fetch(`/api/ai/risk-score/{{ customer_id }}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    
+    // Her 5 dakikada bir gÃ¼ncelle
+    setInterval(updateRiskScore, 300000);
+</script>
+{% endblock %} 

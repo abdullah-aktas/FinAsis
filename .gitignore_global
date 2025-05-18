@@ -1,0 +1,73 @@
+# Takım Üyelerinin Kişisel Dosyaları
+.personal/
+personal-notes/
+*.personal.*
+
+# Takım IDE Ayarları
+.vscode/team-settings.json
+.idea/team-shared.xml
+*.team-workspace
+
+# Takım Geliştirme Araçları
+.team-tools/
+shared-scripts/
+team-utils/
+
+# Takım Sertifikaları ve Güvenlik
+team-certs/
+shared-keys/
+team-credentials/
+
+# Takım CI/CD Yapılandırmaları
+.github/workflows/team.yml
+.gitlab-ci.team.yml
+jenkins/team/
+
+# Takım Docker Yapılandırmaları
+docker/team/
+docker-compose.team.yml
+
+# Takım Kubernetes Yapılandırmaları
+k8s/team/
+helm/team-values/
+
+# Takım Test Yapılandırmaları
+tests/team-config/
+pytest.team.ini
+
+# Takım Linter ve Formatter Ayarları
+.eslintrc.team.json
+.prettierrc.team.json
+.stylelintrc.team.json
+
+# Takım Dökümantasyon
+docs/team/
+wiki/team/
+
+# Takım Paket Yöneticisi Ayarları
+package.team.json
+poetry.team.toml
+
+# Takım Veritabanı Şemaları
+db/team-schemas/
+migrations/team/
+
+# Takım Monitoring ve Logging
+monitoring/team/
+logging/team/
+
+# Takım API Dokümantasyonu
+api/team-docs/
+swagger/team/
+
+# Takım Güvenlik Politikaları
+security/team/
+compliance/team/
+
+# Takım Deployment Yapılandırmaları
+deploy/team/
+release/team/
+
+# Takım Metrik ve Analiz Dosyaları
+metrics/team/
+analytics/team/ 

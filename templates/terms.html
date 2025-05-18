@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Kullanım Koşulları - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis kullanım koşulları ve abonelik şartları. Hizmetimizi kullanmadan önce lütfen bu şartları dikkatlice okuyun.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .terms-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+        padding: 80px 0;
+        color: white;
+        margin-bottom: 3rem;
+    }
+    
+    .terms-container {
+        max-width: 800px;
+        margin: 0 auto 5rem;
+    }
+    
+    .terms-section {
+        margin-bottom: 3rem;
+    }
+    
+    .terms-section h2 {
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--divider);
+    }
+    
+    .terms-section h3 {
+        color: var(--text-primary);
+        margin: 1.5rem 0 1rem;
+        font-weight: 600;
+    }
+    
+    .terms-section p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+    }
+    
+    .terms-section ul {
+        margin-bottom: 1.5rem;
+    }
+    
+    .terms-section li {
+        margin-bottom: 0.75rem;
+        line-height: 1.7;
+    }
+    
+    .highlighted-box {
+        background-color: rgba(0, 151, 167, 0.05);
+        border-left: 4px solid var(--primary);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 6px;
+    }
+    
+    .highlighted-box h4 {
+        color: var(--primary);
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4">Kullanım Koşulları</h1>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">1. Genel Hükümler</h2>
+                <p>FinAsis platformunu kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız. Lütfen bu koşulları dikkatle okuyunuz.</p>
+            </div>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">2. Hizmet Kullanımı</h2>
+                <ul>
+                    <li>Platformu yasal amaçlar için kullanmalısınız</li>
+                    <li>Diğer kullanıcıların haklarına saygı göstermelisiniz</li>
+                    <li>Platformun güvenliğini tehlikeye atmamalısınız</li>
+                    <li>Yanlış veya yanıltıcı bilgi paylaşmamalısınız</li>
+                </ul>
+            </div>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">3. Hesap Güvenliği</h2>
+                <p>Hesap bilgilerinizin güvenliğinden siz sorumlusunuz. Şüpheli bir durum fark ettiğinizde derhal bizimle iletişime geçmelisiniz.</p>
+            </div>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">4. Fikri Mülkiyet</h2>
+                <p>Platform üzerindeki tüm içerik, yazılım ve tasarımlar FinAsis'in fikri mülkiyetidir. İzinsiz kullanılamaz.</p>
+            </div>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">5. Sorumluluk Sınırlaması</h2>
+                <p>FinAsis, platform üzerinden alınan kararların sonuçlarından sorumlu değildir. Yatırım kararlarınızı kendi sorumluluğunuzda almalısınız.</p>
+            </div>
+            
+            <div class="terms-section mb-5">
+                <h2 class="h4 mb-3">6. Değişiklikler</h2>
+                <p>Bu koşullar zaman zaman güncellenebilir. Değişikliklerden haberdar olmak için düzenli olarak kontrol etmenizi öneririz.</p>
+            </div>
+            
+            <div class="terms-section">
+                <h2 class="h4 mb-3">7. İletişim</h2>
+                <p>Kullanım koşulları ile ilgili sorularınız için:</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> support@finasis.com.tr</li>
+                    <li><i class="fas fa-phone me-2"></i> +90 212 123 45 67</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: ..
+      dockerfile: deployment/Dockerfile.prod
+    image: finasis-web:latest
+    restart: always
+    env_file: .env.prod
+    volumes:
+      - static_volume:/var/www/finasis/static
+      - media_volume:/var/www/finasis/media
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env.prod
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/var/www/finasis/static
+      - media_volume:/var/www/finasis/media
+      - certbot_certs:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
+  certbot_certs:

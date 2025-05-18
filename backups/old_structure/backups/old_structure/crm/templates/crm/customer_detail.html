@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% translate "Müşteri Detayı" %} - {{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "Müşteri Detayı" %} - {{ customer.name }}</h1>
+        <div>
+            <a href="{% url 'crm:customer_update' customer.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-edit fa-sm text-white-50"></i> {% translate "Düzenle" %}
+            </a>
+            <a href="{% url 'crm:sale_create' %}?customer_id={{ customer.id }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-cart-plus fa-sm text-white-50"></i> {% translate "Yeni Satış" %}
+            </a>
+            <a href="{% url 'crm:customer_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> {% translate "Listeye Dön" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Müşteri Bilgileri -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {% translate "Müşteri Kategorisi" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ customer.get_customer_type_display }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-tag fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Müşteri Durumu -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {% translate "Durum" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if customer.is_active %}
+                                <span class="badge badge-success">{% translate "Aktif" %}</span>
+                                {% else %}
+                                <span class="badge badge-danger">{% translate "Pasif" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-toggle-on fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toplam Satış -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {% translate "Toplam Satış" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sales }} ₺</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Temel Bilgiler -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Temel Bilgiler" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>{% translate "Müşteri Adı:" %}</strong> {{ customer.name }}</p>
+                            <p class="mb-2"><strong>{% translate "Vergi No:" %}</strong> {{ customer.tax_number }}</p>
+                            <p class="mb-2"><strong>{% translate "Vergi Dairesi:" %}</strong> {{ customer.tax_office }}</p>
+                            <p class="mb-2"><strong>{% translate "Telefon:" %}</strong> {{ customer.phone }}</p>
+                            <p class="mb-2"><strong>{% translate "E-posta:" %}</strong> {{ customer.email }}</p>
+                            <p class="mb-2"><strong>{% translate "Web Sitesi:" %}</strong> 
+                                {% if customer.website %}
+                                <a href="{{ customer.website }}" target="_blank">{{ customer.website }}</a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>{% translate "Müşteri Tipi:" %}</strong> {{ customer.get_customer_type_display }}</p>
+                            <p class="mb-2"><strong>{% translate "Oluşturulma Tarihi:" %}</strong> {{ customer.created_at|date:"d.m.Y" }}</p>
+                            <p class="mb-2"><strong>{% translate "Son Güncelleme:" %}</strong> {{ customer.updated_at|date:"d.m.Y" }}</p>
+                            <p class="mb-2"><strong>{% translate "Ekleyen:" %}</strong> {{ customer.created_by.get_full_name }}</p>
+                            <p class="mb-2"><strong>{% translate "Son Güncelleyen:" %}</strong> {{ customer.updated_by.get_full_name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adres Bilgileri -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Adres Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">{% translate "Fatura Adresi" %}</h6>
+                        <p>{{ customer.address }}</p>
+                        <p>{{ customer.zip_code }} {{ customer.city }}/{{ customer.country }}</p>
+                    </div>
+                    
+                    {% if customer.shipping_address %}
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">{% translate "Teslimat Adresi" %}</h6>
+                        <p>{{ customer.shipping_address }}</p>
+                        <p>{{ customer.shipping_zip_code }} {{ customer.shipping_city }}/{{ customer.shipping_country }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- E-Fatura Bilgileri -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Fatura Bilgileri" %}</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong>{% translate "E-Fatura Mükellefi:" %}</strong> 
+                        {% if customer.is_e_invoice_obligator %}
+                        <span class="badge badge-success">{% translate "Evet" %}</span>
+                        {% else %}
+                        <span class="badge badge-secondary">{% translate "Hayır" %}</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-2"><strong>{% translate "E-Arşiv Mükellefi:" %}</strong> 
+                        {% if customer.is_e_archive_obligator %}
+                        <span class="badge badge-success">{% translate "Evet" %}</span>
+                        {% else %}
+                        <span class="badge badge-secondary">{% translate "Hayır" %}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2"><strong>{% translate "Ödeme Şekli:" %}</strong> {{ customer.get_payment_method_display }}</p>
+                    <p class="mb-2"><strong>{% translate "Ödeme Vadesi:" %}</strong> {{ customer.payment_term }} gün</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yetkili Kişiler -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Yetkili Kişiler" %}</h6>
+            <a href="{% url 'crm:customer_contact_create' customer.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus fa-sm"></i> {% translate "Yetkili Ekle" %}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if customer.contacts.all %}
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" id="contactsTable">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Adı Soyadı" %}</th>
+                            <th>{% translate "Ünvan" %}</th>
+                            <th>{% translate "Telefon" %}</th>
+                            <th>{% translate "E-posta" %}</th>
+                            <th>{% translate "Birincil" %}</th>
+                            <th>{% translate "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contact in customer.contacts.all %}
+                        <tr>
+                            <td>{{ contact.name }}</td>
+                            <td>{{ contact.title }}</td>
+                            <td>{{ contact.phone }}</td>
+                            <td>{{ contact.email }}</td>
+                            <td>
+                                {% if contact.is_primary %}
+                                <span class="badge badge-success">{% translate "Evet" %}</span>
+                                {% else %}
+                                <span class="badge badge-secondary">{% translate "Hayır" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'crm:customer_contact_update' customer.id contact.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'crm:customer_contact_delete' customer.id contact.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>{% translate "Bu müşteri için henüz yetkili kişi eklenmemiştir." %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Satışlar -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Satışlar" %}</h6>
+        </div>
+        <div class="card-body">
+            {% if sales %}
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0" id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Satış No" %}</th>
+                            <th>{% translate "Tarih" %}</th>
+                            <th>{% translate "Toplam" %}</th>
+                            <th>{% translate "Durum" %}</th>
+                            <th>{% translate "E-Fatura" %}</th>
+                            <th>{% translate "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.number }}</td>
+                            <td>{{ sale.date|date:"d.m.Y" }}</td>
+                            <td>{{ sale.total_with_tax }} ₺</td>
+                            <td>
+                                {% if sale.status == 'draft' %}
+                                <span class="badge badge-warning">{% translate "Taslak" %}</span>
+                                {% elif sale.status == 'confirmed' %}
+                                <span class="badge badge-success">{% translate "Onaylandı" %}</span>
+                                {% elif sale.status == 'canceled' %}
+                                <span class="badge badge-danger">{% translate "İptal Edildi" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if sale.e_document %}
+                                    {% if sale.e_document.status == 'waiting' %}
+                                    <span class="badge badge-info">{% translate "Bekliyor" %}</span>
+                                    {% elif sale.e_document.status == 'success' %}
+                                    <span class="badge badge-success">{% translate "Başarılı" %}</span>
+                                    {% elif sale.e_document.status == 'error' %}
+                                    <span class="badge badge-danger">{% translate "Hata" %}</span>
+                                    {% endif %}
+                                {% else %}
+                                <span class="badge badge-secondary">{% translate "Yok" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'crm:sale_detail' sale.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if sale.status == 'draft' %}
+                                    <a href="{% url 'crm:sale_update' sale.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>{% translate "Bu müşteriye ait satış bulunamadı." %}</p>
+            <a href="{% url 'crm:sale_create' %}?customer_id={{ customer.id }}" class="btn btn-sm btn-success">
+                <i class="fas fa-cart-plus fa-sm text-white-50"></i> {% translate "Yeni Satış Oluştur" %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notlar -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Notlar" %}</h6>
+            <a href="{% url 'crm:customer_note_create' customer.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus fa-sm"></i> {% translate "Not Ekle" %}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if customer.notes.all %}
+            <div class="timeline">
+                {% for note in customer.notes.all %}
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h5 class="timeline-title">{{ note.created_by.get_full_name }}</h5>
+                        <span class="timeline-date">{{ note.created_at|date:"d.m.Y H:i" }}</span>
+                        <p>{{ note.content }}</p>
+                        <div class="btn-group">
+                            <a href="{% url 'crm:customer_note_update' customer.id note.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'crm:customer_note_delete' customer.id note.id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>{% translate "Bu müşteri için henüz not eklenmemiştir." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // İletişim kişileri tablosu
+        $('#contactsTable').DataTable({
+            "language": {
+                "url": "{% static 'vendor/datatables/tr.json' %}"
+            },
+            "order": [[4, "desc"], [0, "asc"]]
+        });
+        
+        // Satışlar tablosu
+        $('#salesTable').DataTable({
+            "language": {
+                "url": "{% static 'vendor/datatables/tr.json' %}"
+            },
+            "order": [[1, "desc"]]
+        });
+    });
+</script>
+{% endblock %} 

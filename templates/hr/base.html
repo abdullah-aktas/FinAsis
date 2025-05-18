@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block meta %}
+<meta name="description" content="{% block meta_description %}{% trans 'İnsan Kaynakları Yönetim Sistemi' %}{% endblock %}">
+<meta name="keywords" content="{% block meta_keywords %}insan kaynakları, hr, yönetim, çalışan, departman, pozisyon, izin, devam, performans{% endblock %}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:title" content="{% block og_title %}{% block page_title %}{% endblock %} - {% trans 'İnsan Kaynakları' %}{% endblock %}">
+<meta property="og:description" content="{% block og_description %}{% block meta_description %}{% endblock %}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ STATIC_URL }}img/logo.png{% endblock %}">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+<meta property="twitter:title" content="{% block twitter_title %}{% block og_title %}{% endblock %}{% endblock %}">
+<meta property="twitter:description" content="{% block twitter_description %}{% block og_description %}{% endblock %}{% endblock %}">
+<meta property="twitter:image" content="{% block twitter_image %}{% block og_image %}{% endblock %}{% endblock %}">
+{% endblock %}
+
+{% block page_title %}{% trans "İnsan Kaynakları" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'hr:dashboard' %}" aria-current="{% if request.resolver_match.url_name == 'dashboard' %}page{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> {% trans "Dashboard" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}" href="{% url 'hr:employee_list' %}" aria-current="{% if request.resolver_match.url_name == 'employee_list' %}page{% endif %}">
+                            <i class="fas fa-users"></i> {% trans "Çalışanlar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'department_list' %}active{% endif %}" href="{% url 'hr:department_list' %}" aria-current="{% if request.resolver_match.url_name == 'department_list' %}page{% endif %}">
+                            <i class="fas fa-building"></i> {% trans "Departmanlar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'position_list' %}active{% endif %}" href="{% url 'hr:position_list' %}" aria-current="{% if request.resolver_match.url_name == 'position_list' %}page{% endif %}">
+                            <i class="fas fa-briefcase"></i> {% trans "Pozisyonlar" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'leave_list' %}active{% endif %}" href="{% url 'hr:leave_list' %}" aria-current="{% if request.resolver_match.url_name == 'leave_list' %}page{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> {% trans "İzinler" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}" href="{% url 'hr:attendance_list' %}" aria-current="{% if request.resolver_match.url_name == 'attendance_list' %}page{% endif %}">
+                            <i class="fas fa-clock"></i> {% trans "Devam Takibi" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}" href="{% url 'hr:performance_list' %}" aria-current="{% if request.resolver_match.url_name == 'performance_list' %}page{% endif %}">
+                            <i class="fas fa-chart-line"></i> {% trans "Performans" %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2" role="heading" aria-level="1">{% block page_title %}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {% block hr_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/hr.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/hr.js' %}"></script>
+{% endblock %} 

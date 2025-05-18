@@ -1,0 +1,20 @@
+--- Temizlik Raporu ---
+
+Boş klasör yok.
+
+Modüllerde eksik temel dosyalar:
+  - api: apps.py, README.md
+  - assistant: __init__.py, README.md
+
+Oluşturulan dosyalar:
+  - api: apps.py, README.md
+  - assistant: __init__.py, README.md
+
+Kullanılmayan/örnek klasörler:
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\testapp
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\TestProje
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\testsite
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\backups\old_structure
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\testapp
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\testsite
+  - C:\Users\Lenovo PC\Desktop\Abdullah AKTAŞ\FinAsis\TestProje

@@ -1,0 +1,75 @@
+{% extends "accounting/base.html" %}
+{% load i18n %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Bilan√ßo" %}</h3>
+        <div class="card-tools">
+            <form class="form-inline" method="get">
+                <div class="input-group input-group-sm">
+                    <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> {% trans "Filtrele" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Aktifler -->
+            <div class="col-md-6">
+                <h4>{% trans "Aktifler" %}</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Hesap" %}</th>
+                            <th class="text-right">{% trans "Tutar" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td>{{ asset.name }}</td>
+                            <td class="text-right">{{ asset.amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td>{% trans "Toplam Aktifler" %}</td>
+                            <td class="text-right">{{ total_assets|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pasifler -->
+            <div class="col-md-6">
+                <h4>{% trans "Pasifler" %}</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Hesap" %}</th>
+                            <th class="text-right">{% trans "Tutar" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for liability in liabilities %}
+                        <tr>
+                            <td>{{ liability.name }}</td>
+                            <td class="text-right">{{ liability.amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td>{% trans "Toplam Pasifler" %}</td>
+                            <td class="text-right">{{ total_liabilities|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

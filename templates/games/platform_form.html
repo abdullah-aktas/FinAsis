@@ -1,0 +1,172 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Platform form sayfası" %}{% endblock %}
+
+{% block meta_keywords %}platform formu, oyun platformları, oyun yönetimi{% endblock %}
+
+{% block page_title %}
+{% if platform %}
+{% trans "Platform Düzenle" %}
+{% else %}
+{% trans "Yeni Platform" %}
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'games:platform_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Platform listesine dön' %}">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <!-- Sol Bölüm -->
+    <div class="col-md-8">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <!-- Platform Adı -->
+            <div class="mb-3">
+                <label for="name" class="form-label">{% trans "Platform Adı" %} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                       id="name" name="name" value="{{ form.name.value|default:'' }}" required>
+                {% if form.name.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Açıklama -->
+            <div class="mb-3">
+                <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                          id="description" name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Üretici -->
+            <div class="mb-3">
+                <label for="manufacturer" class="form-label">{% trans "Üretici" %} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control {% if form.manufacturer.errors %}is-invalid{% endif %}" 
+                       id="manufacturer" name="manufacturer" value="{{ form.manufacturer.value|default:'' }}" required>
+                {% if form.manufacturer.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.manufacturer.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Çıkış Tarihi -->
+            <div class="mb-3">
+                <label for="release_date" class="form-label">{% trans "Çıkış Tarihi" %} <span class="text-danger">*</span></label>
+                <input type="date" class="form-control {% if form.release_date.errors %}is-invalid{% endif %}" 
+                       id="release_date" name="release_date" value="{{ form.release_date.value|date:'Y-m-d' }}" required>
+                {% if form.release_date.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.release_date.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- İkon -->
+            <div class="mb-3">
+                <label for="icon" class="form-label">{% trans "İkon" %}</label>
+                <input type="file" class="form-control {% if form.icon.errors %}is-invalid{% endif %}" 
+                       id="icon" name="icon" accept="image/*">
+                {% if form.icon.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.icon.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if platform.icon %}
+                <div class="mt-2">
+                    <img src="{{ platform.icon.url }}" alt="{{ platform.name }}" class="img-thumbnail" style="max-width: 200px;">
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Durum -->
+            <div class="mb-3">
+                <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" 
+                        id="status" name="status" required>
+                    <option value="">{% trans "Seçiniz" %}</option>
+                    <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                    <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                </select>
+                {% if form.status.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.status.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                {% if platform %}
+                {% trans "Güncelle" %}
+                {% else %}
+                {% trans "Oluştur" %}
+                {% endif %}
+            </button>
+        </form>
+    </div>
+    
+    <!-- Sağ Bölüm -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Platform Adı" %}</h6>
+                    <p class="mb-0">{% trans "Platformun tam adını giriniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Açıklama" %}</h6>
+                    <p class="mb-0">{% trans "Platform hakkında kısa bir açıklama giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Üretici" %}</h6>
+                    <p class="mb-0">{% trans "Platformun üretici firmasını giriniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "Çıkış Tarihi" %}</h6>
+                    <p class="mb-0">{% trans "Platformun piyasaya çıkış tarihini seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">{% trans "İkon" %}</h6>
+                    <p class="mb-0">{% trans "Platformun ikonunu yükleyiniz. Önerilen boyut: 200x200 piksel. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-2">{% trans "Durum" %}</h6>
+                    <p class="mb-0">{% trans "Platformun durumunu seçiniz. Aktif platformlar oyun ekleyebilir. Bu alan zorunludur." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

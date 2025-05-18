@@ -1,0 +1,293 @@
+{% extends "ai_assistant/base.html" %}
+{% load i18n %}
+
+{% block ai_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{% trans "AI Önerileri" %}</h5>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRecommendationModal">
+            <i class="fas fa-plus"></i> {% trans "Yeni Öneri İste" %}
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">{% trans "Filtreler" %}</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">{% trans "Kategori" %}</label>
+                                <select name="category" id="category" class="form-select">
+                                    <option value="">{% trans "Tümü" %}</option>
+                                    <option value="financial" {% if request.GET.category == 'financial' %}selected{% endif %}>
+                                        {% trans "Finansal" %}
+                                    </option>
+                                    <option value="operational" {% if request.GET.category == 'operational' %}selected{% endif %}>
+                                        {% trans "Operasyonel" %}
+                                    </option>
+                                    <option value="strategic" {% if request.GET.category == 'strategic' %}selected{% endif %}>
+                                        {% trans "Stratejik" %}
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="priority" class="form-label">{% trans "Öncelik" %}</label>
+                                <select name="priority" id="priority" class="form-select">
+                                    <option value="">{% trans "Tümü" %}</option>
+                                    <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>
+                                        {% trans "Yüksek" %}
+                                    </option>
+                                    <option value="medium" {% if request.GET.priority == 'medium' %}selected{% endif %}>
+                                        {% trans "Orta" %}
+                                    </option>
+                                    <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>
+                                        {% trans "Düşük" %}
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="status" class="form-label">{% trans "Durum" %}</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">{% trans "Tümü" %}</option>
+                                    <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>
+                                        {% trans "Yeni" %}
+                                    </option>
+                                    <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>
+                                        {% trans "İşlemde" %}
+                                    </option>
+                                    <option value="implemented" {% if request.GET.status == 'implemented' %}selected{% endif %}>
+                                        {% trans "Uygulandı" %}
+                                    </option>
+                                    <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>
+                                        {% trans "Reddedildi" %}
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="list-group">
+                    {% for recommendation in recommendations %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {{ recommendation.title }}
+                                <span class="badge {% if recommendation.priority == 'high' %}bg-danger{% elif recommendation.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ recommendation.get_priority_display }}
+                                </span>
+                            </h6>
+                            <small class="text-muted">{{ recommendation.created_at|date:"d.m.Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ recommendation.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary">{{ recommendation.get_category_display }}</span>
+                                <span class="badge {% if recommendation.status == 'implemented' %}bg-success{% elif recommendation.status == 'rejected' %}bg-danger{% elif recommendation.status == 'in_progress' %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ recommendation.get_status_display }}
+                                </span>
+                            </div>
+                            <div>
+                                <small class="text-muted me-2">{{ recommendation.confidence }}% {% trans "güven oranı" %}</small>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#recommendationDetailModal{{ recommendation.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Öneri Detay Modal -->
+                    <div class="modal fade" id="recommendationDetailModal{{ recommendation.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ recommendation.title }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <dl class="row mb-0">
+                                                <dt class="col-sm-4">{% trans "Kategori" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.get_category_display }}</dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Öncelik" %}</dt>
+                                                <dd class="col-sm-8">
+                                                    <span class="badge {% if recommendation.priority == 'high' %}bg-danger{% elif recommendation.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">
+                                                        {{ recommendation.get_priority_display }}
+                                                    </span>
+                                                </dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Durum" %}</dt>
+                                                <dd class="col-sm-8">
+                                                    <span class="badge {% if recommendation.status == 'implemented' %}bg-success{% elif recommendation.status == 'rejected' %}bg-danger{% elif recommendation.status == 'in_progress' %}bg-warning{% else %}bg-info{% endif %}">
+                                                        {{ recommendation.get_status_display }}
+                                                    </span>
+                                                </dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Güven Oranı" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.confidence }}%</dd>
+                                            </dl>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <dl class="row mb-0">
+                                                <dt class="col-sm-4">{% trans "Oluşturulma" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.created_at|date:"d.m.Y H:i" }}</dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Güncellenme" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.updated_at|date:"d.m.Y H:i" }}</dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Etki" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.get_impact_display }}</dd>
+                                                
+                                                <dt class="col-sm-4">{% trans "Uygulama Süresi" %}</dt>
+                                                <dd class="col-sm-8">{{ recommendation.implementation_time }} {% trans "gün" %}</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6>{% trans "Detaylı Açıklama" %}</h6>
+                                        <p>{{ recommendation.detailed_description }}</p>
+                                    </div>
+                                    
+                                    {% if recommendation.benefits %}
+                                    <div class="mt-4">
+                                        <h6>{% trans "Beklenen Faydalar" %}</h6>
+                                        <ul>
+                                            {% for benefit in recommendation.benefits %}
+                                            <li>{{ benefit }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if recommendation.risks %}
+                                    <div class="mt-4">
+                                        <h6>{% trans "Riskler" %}</h6>
+                                        <ul>
+                                            {% for risk in recommendation.risks %}
+                                            <li>{{ risk }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+                                    <form method="post" action="{% url 'ai_assistant:update_recommendation_status' recommendation.id %}">
+                                        {% csrf_token %}
+                                        <div class="btn-group">
+                                            <button type="submit" name="status" value="implemented" class="btn btn-success">
+                                                <i class="fas fa-check"></i> {% trans "Uygulandı" %}
+                                            </button>
+                                            <button type="submit" name="status" value="in_progress" class="btn btn-warning">
+                                                <i class="fas fa-spinner"></i> {% trans "İşlemde" %}
+                                            </button>
+                                            <button type="submit" name="status" value="rejected" class="btn btn-danger">
+                                                <i class="fas fa-times"></i> {% trans "Reddet" %}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        {% trans "Henüz öneri bulunmuyor." %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if is_paginated %}
+                <nav aria-label="Sayfalama" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.priority %}&priority={{ request.GET.priority }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="İlk sayfa">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.priority %}&priority={{ request.GET.priority }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Önceki sayfa">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.priority %}&priority={{ request.GET.priority }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.priority %}&priority={{ request.GET.priority }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Sonraki sayfa">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.priority %}&priority={{ request.GET.priority }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" aria-label="Son sayfa">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Yeni Öneri İste Modal -->
+<div class="modal fade" id="newRecommendationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'ai_assistant:request_recommendation' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Yeni Öneri İste" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category" class="form-label">{% trans "Kategori" %}</label>
+                        <select name="category" id="category" class="form-select" required>
+                            <option value="financial">{% trans "Finansal" %}</option>
+                            <option value="operational">{% trans "Operasyonel" %}</option>
+                            <option value="strategic">{% trans "Stratejik" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea name="description" id="description" class="form-control" rows="4" required></textarea>
+                        <div class="form-text">{% trans "Öneri almak istediğiniz konuyu detaylı bir şekilde açıklayın." %}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Gönder" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

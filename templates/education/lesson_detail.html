@@ -1,0 +1,27 @@
+{% extends "education/base.html" %}
+{% load i18n %}
+
+{% block education_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{{ lesson.title }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <strong>{% trans "Kurs" %}:</strong> {{ lesson.course.title }}
+        </div>
+        <div class="mb-3">
+            <strong>{% trans "İçerik" %}:</strong>
+            <div>{{ lesson.content|linebreaks }}</div>
+        </div>
+        {% if lesson.video_url %}
+        <div class="mb-3">
+            <strong>{% trans "Video" %}:</strong>
+            <div class="ratio ratio-16x9">
+                <iframe src="{{ lesson.video_url }}" allowfullscreen></iframe>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

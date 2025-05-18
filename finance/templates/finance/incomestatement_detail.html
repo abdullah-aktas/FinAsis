@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Gelir Tablosu Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Gelir Tablosu Detayı</h2>
+            <div>
+                <a href="{% url 'finance:incomestatement_update' statement.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'finance:incomestatement_delete' statement.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Dönem</h5>
+                    <p>{{ statement.period_start|date:"d.m.Y" }} - {{ statement.period_end|date:"d.m.Y" }}</p>
+                    
+                    <h5>Gelir</h5>
+                    <p class="h4 text-success">{{ statement.revenue|floatformat:2 }} TL</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Gider</h5>
+                    <p class="h4 text-danger">{{ statement.expenses|floatformat:2 }} TL</p>
+                    
+                    <h5>Net Gelir</h5>
+                    <p class="h4 {% if statement.net_income >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ statement.net_income|floatformat:2 }} TL
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'finance:incomestatement_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

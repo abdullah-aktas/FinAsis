@@ -1,0 +1,17 @@
+{% extends "education/base.html" %}
+{% load i18n %}
+
+{% block education_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% trans "Kursu Sil" %}</h5>
+    </div>
+    <div class="card-body">
+        <p>{% trans "Bu kursu silmek istediğinizden emin misiniz?" %}</p>
+        <form method="post">{% csrf_token %}
+            <a href="{% url 'education:course_detail' object.pk %}" class="btn btn-secondary">{% trans "Vazgeç" %}</a>
+            <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

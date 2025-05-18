@@ -1,0 +1,60 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Anomali Tespitleri</h5>
+        <a href="{% url 'ai_assistant:anomalydetection_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Tespit
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>Tespit Türü</th>
+                        <th>Başlangıç Tarihi</th>
+                        <th>Bitiş Tarihi</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detection in detections %}
+                    <tr>
+                        <td>{{ detection.user }}</td>
+                        <td>{{ detection.get_detection_type_display }}</td>
+                        <td>{{ detection.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ detection.end_date|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if detection.is_completed %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                            {% else %}
+                            <span class="badge bg-warning">Devam Ediyor</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'ai_assistant:anomalydetection_detail' detection.pk %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:anomalydetection_update' detection.pk %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:anomalydetection_delete' detection.pk %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Henüz anomali tespiti kaydı bulunmamaktadır.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

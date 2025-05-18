@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sayfa İstemleri{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Sayfa İstemleri</h5>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" onclick="filterPrompts('all')">
+                            Tümü
+                        </button>
+                        <button class="btn btn-outline-success me-2" onclick="filterPrompts('active')">
+                            Aktif
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="filterPrompts('inactive')">
+                            Pasif
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if prompts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Başlık</th>
+                                        <th>Sayfa Yolu</th>
+                                        <th>Tür</th>
+                                        <th>Durum</th>
+                                        <th>Öncelik</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prompt in prompts %}
+                                        <tr>
+                                            <td>{{ prompt.title }}</td>
+                                            <td>{{ prompt.page_path }}</td>
+                                            <td>{{ prompt.get_page_type_display }}</td>
+                                            <td>
+                                                <span class="badge {% if prompt.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                                    {{ prompt.is_active|yesno:"Aktif,Pasif" }}
+                                                </span>
+                                            </td>
+                                            <td>{{ prompt.priority }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="viewPrompt('{{ prompt.id }}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-warning ms-2" onclick="editPrompt('{{ prompt.id }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger ms-2" onclick="deletePrompt('{{ prompt.id }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {% if is_paginated %}
+                            <nav aria-label="Sayfalama">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Önceki</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonraki</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            Henüz sayfa istemi bulunmamaktadır.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prompt Detay Modal -->
+<div class="modal fade" id="promptModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">İstem Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="promptDetails"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterPrompts(status) {
+    window.location.href = `?status=${status}`;
+}
+
+function viewPrompt(promptId) {
+    fetch(`/api/prompts/${promptId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const details = document.getElementById('promptDetails');
+            details.innerHTML = `
+                <div class="mb-3">
+                    <h6>Başlık</h6>
+                    <p>${data.title}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Sayfa Yolu</h6>
+                    <p>${data.page_path}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Tür</h6>
+                    <p>${data.page_type}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>İstem Şablonu</h6>
+                    <pre class="bg-light p-3">${data.prompt_template}</pre>
+                </div>
+                <div class="mb-3">
+                    <h6>Bağlam Değişkenleri</h6>
+                    <pre class="bg-light p-3">${JSON.stringify(data.context_variables, null, 2)}</pre>
+                </div>
+            `;
+            new bootstrap.Modal(document.getElementById('promptModal')).show();
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('İstem detayları alınırken bir hata oluştu.');
+        });
+}
+
+function editPrompt(promptId) {
+    window.location.href = `/assistant/prompts/${promptId}/edit/`;
+}
+
+function deletePrompt(promptId) {
+    if (confirm('Bu istemi silmek istediğinizden emin misiniz?')) {
+        fetch(`/api/prompts/${promptId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('İstem silinirken bir hata oluştu.');
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('Bir hata oluştu.');
+        });
+    }
+}
+</script>
+{% endblock %} 

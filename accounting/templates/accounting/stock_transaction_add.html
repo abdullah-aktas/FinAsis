@@ -1,0 +1,55 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Yeni Stok Hareketi</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="stock" class="form-label">Stok <span class="text-danger">*</span></label>
+                    <select name="stock" id="stock" class="form-select" required>
+                        <option value="">Stok Seçin</option>
+                        {% for stock in stocks %}
+                        <option value="{{ stock.id }}">{{ stock.code }} - {{ stock.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="type" class="form-label">Hareket Tipi <span class="text-danger">*</span></label>
+                    <select name="type" id="type" class="form-select" required>
+                        <option value="">Hareket Tipi Seçin</option>
+                        <option value="income">Giriş</option>
+                        <option value="expense">Çıkış</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="date" class="form-label">Tarih <span class="text-danger">*</span></label>
+                    <input type="date" name="date" id="date" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="quantity" class="form-label">Miktar <span class="text-danger">*</span></label>
+                    <input type="number" name="quantity" id="quantity" class="form-control" step="0.01" min="0" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Açıklama</label>
+                <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Kaydet
+                </button>
+                <a href="{% url 'accounting:stock_transaction_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

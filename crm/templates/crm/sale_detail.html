@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% translate "Satış Detayı" %} - {{ sale.number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% translate "Satış Detayı" %} - {{ sale.number }}</h1>
+        <div>
+            {% if sale.status == 'draft' %}
+            <a href="{% url 'crm:sale_update' sale.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-edit fa-sm text-white-50"></i> {% translate "Düzenle" %}
+            </a>
+            <a href="{% url 'crm:sale_confirm' sale.id %}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-check fa-sm text-white-50"></i> {% translate "Onayla" %}
+            </a>
+            {% endif %}
+            
+            {% if sale.status == 'confirmed' and not sale.e_document %}
+            <a href="{% url 'crm:create_invoice' sale.id %}" class="d-none d-sm-inline-block btn btn-sm btn-warning shadow-sm">
+                <i class="fas fa-file-invoice fa-sm text-white-50"></i> {% translate "E-Fatura Oluştur" %}
+            </a>
+            {% endif %}
+            
+            {% if sale.status == 'confirmed' and not sale.is_accounted %}
+            <a href="{% url 'crm:sync_accounting' sale.id %}" class="d-none d-sm-inline-block btn btn-sm btn-dark shadow-sm">
+                <i class="fas fa-sync fa-sm text-white-50"></i> {% translate "Muhasebeye Aktar" %}
+            </a>
+            {% endif %}
+            
+            <a href="{% url 'crm:sale_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> {% translate "Listeye Dön" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Satış Bilgileri -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {% translate "Durum" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if sale.status == 'draft' %}
+                                <span class="badge badge-warning">{% translate "Taslak" %}</span>
+                                {% elif sale.status == 'confirmed' %}
+                                <span class="badge badge-success">{% translate "Onaylandı" %}</span>
+                                {% elif sale.status == 'canceled' %}
+                                <span class="badge badge-danger">{% translate "İptal Edildi" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Satış Tarihi -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {% translate "Satış Tarihi" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sale.date|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toplam Tutar -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {% translate "Toplam Tutar" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sale.total_with_tax }} ₺</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Müşteri Bilgileri -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "Müşteri Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>{{ sale.customer.name }}</h5>
+                        <p class="mb-0"><strong>{% translate "Vergi No:" %}</strong> {{ sale.customer.tax_number }}</p>
+                        <p class="mb-0"><strong>{% translate "Vergi Dairesi:" %}</strong> {{ sale.customer.tax_office }}</p>
+                        <p class="mb-0"><strong>{% translate "Adres:" %}</strong> {{ sale.customer.address }}</p>
+                        <p class="mb-0"><strong>{% translate "Telefon:" %}</strong> {{ sale.customer.phone }}</p>
+                        <p class="mb-0"><strong>{% translate "E-posta:" %}</strong> {{ sale.customer.email }}</p>
+                    </div>
+                    <a href="{% url 'crm:customer_detail' sale.customer.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-user fa-sm text-white-50"></i> {% translate "Müşteri Kartını Görüntüle" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- E-Belge Bilgileri -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{% translate "E-Belge Bilgileri" %}</h6>
+                </div>
+                <div class="card-body">
+                    {% if sale.e_document %}
+                    <div class="mb-3">
+                        <p class="mb-0"><strong>{% translate "Belge Numarası:" %}</strong> {{ sale.e_document.document_number }}</p>
+                        <p class="mb-0"><strong>{% translate "Belge Türü:" %}</strong> 
+                            {% if sale.e_document.document_type == 'invoice' %}
+                                {% translate "E-Fatura" %}
+                            {% elif sale.e_document.document_type == 'archive_invoice' %}
+                                {% translate "E-Arşiv Fatura" %}
+                            {% elif sale.e_document.document_type == 'dispatch' %}
+                                {% translate "E-İrsaliye" %}
+                            {% endif %}
+                        </p>
+                        <p class="mb-0"><strong>{% translate "Durum:" %}</strong> 
+                            {% if sale.e_document.status == 'waiting' %}
+                                <span class="badge badge-info">{% translate "Bekliyor" %}</span>
+                            {% elif sale.e_document.status == 'success' %}
+                                <span class="badge badge-success">{% translate "Başarılı" %}</span>
+                            {% elif sale.e_document.status == 'error' %}
+                                <span class="badge badge-danger">{% translate "Hata" %}</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-0"><strong>{% translate "Oluşturma Tarihi:" %}</strong> {{ sale.e_document.created_at|date:"d.m.Y H:i" }}</p>
+                        {% if sale.e_document.error_message %}
+                        <p class="mb-0"><strong>{% translate "Hata Mesajı:" %}</strong> {{ sale.e_document.error_message }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="btn-group">
+                        <a href="{{ sale.e_document.document_url }}" target="_blank" class="btn btn-sm btn-info">
+                            <i class="fas fa-download fa-sm text-white-50"></i> {% translate "İndir" %}
+                        </a>
+                        {% if sale.e_document.status == 'error' %}
+                        <a href="{% url 'crm:create_invoice' sale.id %}?force=1" class="btn btn-sm btn-warning">
+                            <i class="fas fa-sync fa-sm text-white-50"></i> {% translate "Yeniden Oluştur" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p>{% translate "Bu satış için henüz e-belge oluşturulmamıştır." %}</p>
+                    {% if sale.status == 'confirmed' %}
+                    <a href="{% url 'crm:create_invoice' sale.id %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-file-invoice fa-sm text-white-50"></i> {% translate "E-Fatura Oluştur" %}
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satış Kalemleri -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Satış Kalemleri" %}</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Ürün/Hizmet" %}</th>
+                            <th>{% translate "Açıklama" %}</th>
+                            <th>{% translate "Miktar" %}</th>
+                            <th>{% translate "Birim" %}</th>
+                            <th>{% translate "Birim Fiyat" %}</th>
+                            <th>{% translate "KDV Oranı" %}</th>
+                            <th>{% translate "KDV Tutarı" %}</th>
+                            <th>{% translate "Toplam" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sale.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>{{ item.unit_price }} ₺</td>
+                            <td>%{{ item.tax_rate }}</td>
+                            <td>{{ item.tax_amount }} ₺</td>
+                            <td>{{ item.total_with_tax }} ₺</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="6" class="text-right">{% translate "Ara Toplam:" %}</th>
+                            <td colspan="2">{{ sale.total_without_tax }} ₺</td>
+                        </tr>
+                        <tr>
+                            <th colspan="6" class="text-right">{% translate "Toplam KDV:" %}</th>
+                            <td colspan="2">{{ sale.total_tax }} ₺</td>
+                        </tr>
+                        <tr>
+                            <th colspan="6" class="text-right">{% translate "Genel Toplam:" %}</th>
+                            <td colspan="2" class="font-weight-bold">{{ sale.total_with_tax }} ₺</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Muhasebe Bilgileri -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Muhasebe Bilgileri" %}</h6>
+        </div>
+        <div class="card-body">
+            {% if sale.is_accounted %}
+            <div class="mb-3">
+                <p class="mb-0"><strong>{% translate "Muhasebe Entegrasyonu:" %}</strong> 
+                    <span class="badge badge-success">{% translate "Tamamlandı" %}</span>
+                </p>
+                <p class="mb-0"><strong>{% translate "Fiş Numarası:" %}</strong> {{ sale.accounting_document.document_number }}</p>
+                <p class="mb-0"><strong>{% translate "Fiş Tarihi:" %}</strong> {{ sale.accounting_document.date|date:"d.m.Y" }}</p>
+                <p class="mb-0"><strong>{% translate "Oluşturma Tarihi:" %}</strong> {{ sale.accounting_document.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+            <a href="{% url 'accounting:document_detail' sale.accounting_document.id %}" target="_blank" class="btn btn-sm btn-info">
+                <i class="fas fa-external-link-alt fa-sm text-white-50"></i> {% translate "Muhasebe Fişini Görüntüle" %}
+            </a>
+            {% else %}
+            <p>{% translate "Bu satış için henüz muhasebe kaydı oluşturulmamıştır." %}</p>
+            {% if sale.status == 'confirmed' %}
+            <a href="{% url 'crm:sync_accounting' sale.id %}" class="btn btn-sm btn-dark">
+                <i class="fas fa-sync fa-sm text-white-50"></i> {% translate "Muhasebeye Aktar" %}
+            </a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notlar -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">{% translate "Notlar" %}</h6>
+            <a href="{% url 'crm:sale_note_create' sale.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus fa-sm"></i> {% translate "Not Ekle" %}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if sale.notes.all %}
+            <div class="timeline">
+                {% for note in sale.notes.all %}
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h5 class="timeline-title">{{ note.created_by.get_full_name }}</h5>
+                        <span class="timeline-date">{{ note.created_at|date:"d.m.Y H:i" }}</span>
+                        <p>{{ note.content }}</p>
+                        <div class="btn-group">
+                            <a href="{% url 'crm:sale_note_update' sale.id note.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'crm:sale_note_delete' sale.id note.id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>{% translate "Bu satış için henüz not eklenmemiştir." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // JavaScript işlevleri buraya eklenebilir
+    });
+</script>
+{% endblock %} 

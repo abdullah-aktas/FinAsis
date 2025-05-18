@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAsis - Hesap Aktivasyonu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeeba;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://finasis.com.tr/static/images/logo.png" alt="FinAsis Logo" class="logo">
+    </div>
+    
+    <div class="content">
+        <h2>Sayın {{ first_name }} {{ last_name }},</h2>
+        
+        <p>FinAsis hesabınızı aktifleştirmek için son bir adım kaldı. Aşağıdaki butona tıklayarak hesabınızı aktifleştirebilirsiniz.</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ activation_link }}" class="button">Hesabımı Aktifleştir</a>
+        </div>
+        
+        <div class="warning-box">
+            <h3>Önemli Bilgi</h3>
+            <p>Aktivasyon linki 24 saat boyunca geçerlidir. Bu süre içinde hesabınızı aktifleştirmezseniz, yeni bir aktivasyon linki talep etmeniz gerekecektir.</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>Hesap Bilgileriniz</h3>
+            <p><strong>Kullanıcı Adı:</strong> {{ username }}</p>
+            <p><strong>E-posta:</strong> {{ email }}</p>
+            <p><strong>Kayıt Tarihi:</strong> {{ registration_date }}</p>
+        </div>
+        
+        <h3>Güvenlik Önerileri</h3>
+        <ul>
+            <li>Şifrenizi kimseyle paylaşmayın</li>
+            <li>Güçlü ve benzersiz bir şifre kullanın</li>
+            <li>İki faktörlü doğrulamayı aktifleştirin</li>
+            <li>Şüpheli e-postalara dikkat edin</li>
+        </ul>
+        
+        <p>Herhangi bir sorunuz olursa, müşteri hizmetlerimizle iletişime geçebilirsiniz:</p>
+        <ul>
+            <li><strong>E-posta:</strong> support@finasis.com.tr</li>
+            <li><strong>Telefon:</strong> +90 212 123 45 67</li>
+        </ul>
+        
+        <p>Saygılarımızla,<br>FinAsis Ekibi</p>
+    </div>
+    
+    <div class="footer">
+        <p>Bu e-posta FinAsis tarafından otomatik olarak gönderilmiştir.</p>
+        <p>Eğer bu hesabı siz oluşturmadıysanız, lütfen bu e-postayı dikkate almayın.</p>
+        <p>© 2024 FinAsis. Tüm hakları saklıdır.</p>
+    </div>
+</body>
+</html> 

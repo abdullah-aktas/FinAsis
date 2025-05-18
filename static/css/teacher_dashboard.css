@@ -1,0 +1,132 @@
+/* Öğretmen Kontrol Paneli Stilleri */
+
+/* Kart Başlıkları */
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-title {
+    color: #343a40;
+    font-weight: 600;
+}
+
+/* Butonlar */
+.btn-block {
+    margin-bottom: 10px;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+/* Tablolar */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* İlerleme Çubuğu */
+.progress {
+    height: 20px;
+    margin-bottom: 0;
+}
+
+.progress-bar {
+    background-color: #28a745;
+    color: white;
+    font-size: 12px;
+    line-height: 20px;
+    padding: 0 10px;
+}
+
+/* Durum Rozetleri */
+.badge {
+    padding: 5px 10px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+    .btn-block {
+        margin-bottom: 15px;
+    }
+    
+    .table-responsive {
+        margin-bottom: 0;
+    }
+}
+
+/* Animasyonlar */
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Özel Stiller */
+.assignment-status {
+    font-weight: 500;
+}
+
+.student-name {
+    font-weight: 600;
+}
+
+.assignment-title {
+    color: #007bff;
+}
+
+.grade-value {
+    font-weight: 600;
+    color: #28a745;
+}
+
+/* İkon Renkleri */
+.fa-users {
+    color: #007bff;
+}
+
+.fa-plus {
+    color: #28a745;
+}
+
+.fa-book {
+    color: #17a2b8;
+}
+
+.fa-tasks {
+    color: #ffc107;
+}
+
+.fa-eye {
+    color: #17a2b8;
+}
+
+.fa-edit {
+    color: #ffc107;
+} 

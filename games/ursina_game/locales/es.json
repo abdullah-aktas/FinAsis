@@ -1,0 +1,51 @@
+{
+    "game": {
+        "title": "Simulación Financiera",
+        "menu": {
+            "continue": "Continuar",
+            "save": "Guardar",
+            "load": "Cargar",
+            "settings": "Ajustes",
+            "exit": "Salir"
+        },
+        "stats": {
+            "balance": "Saldo",
+            "score": "Puntuación",
+            "level": "Nivel",
+            "experience": "Experiencia"
+        },
+        "transactions": {
+            "buy": "Comprar",
+            "sell": "Vender",
+            "success": "¡Transacción exitosa!",
+            "fail": "¡Transacción fallida!",
+            "insufficient_balance": "¡Saldo insuficiente!"
+        },
+        "events": {
+            "stock_rise": "Subida de la Bolsa",
+            "stock_fall": "Caída de la Bolsa",
+            "inflation_rise": "Aumento de la Inflación",
+            "inflation_fall": "Disminución de la Inflación",
+            "interest_rise": "Aumento de la Tasa de Interés",
+            "interest_fall": "Disminución de la Tasa de Interés",
+            "currency_fluctuation": "Fluctuación de la Moneda",
+            "gold_price_change": "Cambio en el Precio del Oro"
+        },
+        "buildings": {
+            "bank": "Banco",
+            "stock_exchange": "Bolsa de Valores",
+            "investment": "Inversión",
+            "insurance": "Seguros"
+        },
+        "workplaces": {
+            "technology": "Tecnología",
+            "food": "Alimentación",
+            "automotive": "Automoción",
+            "energy": "Energía",
+            "health": "Salud",
+            "retail": "Minorista",
+            "construction": "Construcción",
+            "logistics": "Logística"
+        }
+    }
+} 

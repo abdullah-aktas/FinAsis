@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ürün: {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Ürün Detayı</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'stock_management:product_list' %}">Ürünler</a></li>
+        <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-box me-1"></i>
+                        Ürün Bilgileri
+                    </div>
+                    <div>
+                        <a href="{% url 'stock_management:product_update' product.pk %}" class="btn btn-warning btn-sm me-1">
+                            <i class="fas fa-edit me-1"></i> Düzenle
+                        </a>
+                        <a href="{% url 'stock_management:product_delete' product.pk %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i> Sil
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 150px;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th style="width: 30%">Ürün Kodu</th>
+                                    <td>{{ product.code }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Ürün Adı</th>
+                                    <td>{{ product.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Kategori</th>
+                                    <td>{{ product.category }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Barkod</th>
+                                    <td>{{ product.barcode }}</td>
+                                </tr>
+                                <tr>
+                                    <th>SKU</th>
+                                    <td>{{ product.sku }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Birim</th>
+                                    <td>{{ product.unit }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Detaylı Bilgiler</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 30%">Açıklama</th>
+                            <td>{{ product.description|linebreaks }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ağırlık</th>
+                            <td>{{ product.weight }}</td>
+                        </tr>
+                        <tr>
+                            <th>Boyutlar</th>
+                            <td>{{ product.dimensions }}</td>
+                        </tr>
+                        <tr>
+                            <th>Durum</th>
+                            <td>{{ product.get_status_display }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Stok Durumu
+                </div>
+                <div class="card-body">
+                    <h6>Toplam Stok: <span class="badge bg-primary">{{ product.stock_set.all|length }}</span></h6>
+                    <hr>
+                    <h6>Depolara Göre Stok Durumu:</h6>
+                    <ul class="list-group mt-2">
+                        {% for stock in product.stock_set.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ stock.warehouse.name }}
+                            <span class="badge bg-primary rounded-pill">{{ stock.quantity }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center">Henüz stok kaydı bulunmamaktadır.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-exchange-alt me-1"></i>
+                    Son Stok Hareketleri
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Depo</th>
+                                <th>Hareket Tipi</th>
+                                <th>Miktar</th>
+                                <th>Referans</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movement in product.stockmovement_set.all|slice:":10" %}
+                            <tr>
+                                <td>{{ movement.movement_date|date:"d.m.Y H:i" }}</td>
+                                <td>{{ movement.warehouse.name }}</td>
+                                <td>{{ movement.get_movement_type_display }}</td>
+                                <td>{{ movement.quantity }}</td>
+                                <td>{{ movement.reference|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Henüz stok hareketi bulunmamaktadır.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

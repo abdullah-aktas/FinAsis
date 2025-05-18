@@ -1,0 +1,166 @@
+{% extends 'crm/base.html' %}
+{% load static %}
+
+{% block title %}Yeni Fırsat{% endblock %}
+
+{% block main_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Yeni Fırsat Oluştur</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Müşteri Seçimi -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_customer" class="form-label">Müşteri <span class="text-danger">*</span></label>
+                    <select name="customer" id="id_customer" class="form-select {% if form.customer.errors %}is-invalid{% endif %}" required>
+                        <option value="">Müşteri Seçin</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.pk }}" {% if form.customer.value == customer.pk %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.customer.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.customer.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Fırsat Adı -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_name" class="form-label">Fırsat Adı <span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                           value="{{ form.name.value|default:'' }}" required>
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.name.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tutar -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_amount" class="form-label">Tutar <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="amount" id="id_amount" class="form-control {% if form.amount.errors %}is-invalid{% endif %}" 
+                               value="{{ form.amount.value|default:'' }}" step="0.01" min="0" required>
+                        <span class="input-group-text">TL</span>
+                    </div>
+                    {% if form.amount.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.amount.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Olasılık -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_probability" class="form-label">Olasılık <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="probability" id="id_probability" class="form-control {% if form.probability.errors %}is-invalid{% endif %}" 
+                               value="{{ form.probability.value|default:'' }}" min="0" max="100" required>
+                        <span class="input-group-text">%</span>
+                    </div>
+                    {% if form.probability.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.probability.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Durum -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_status" class="form-label">Durum <span class="text-danger">*</span></label>
+                    <select name="status" id="id_status" class="form-select {% if form.status.errors %}is-invalid{% endif %}" required>
+                        <option value="">Durum Seçin</option>
+                        <option value="new" {% if form.status.value == 'new' %}selected{% endif %}>Yeni</option>
+                        <option value="qualified" {% if form.status.value == 'qualified' %}selected{% endif %}>Nitelikli</option>
+                        <option value="proposal" {% if form.status.value == 'proposal' %}selected{% endif %}>Teklif</option>
+                        <option value="negotiation" {% if form.status.value == 'negotiation' %}selected{% endif %}>Görüşme</option>
+                        <option value="closed_won" {% if form.status.value == 'closed_won' %}selected{% endif %}>Kazanıldı</option>
+                        <option value="closed_lost" {% if form.status.value == 'closed_lost' %}selected{% endif %}>Kaybedildi</option>
+                    </select>
+                    {% if form.status.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.status.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Beklenen Kapanış Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_expected_close_date" class="form-label">Beklenen Kapanış Tarihi <span class="text-danger">*</span></label>
+                    <input type="date" name="expected_close_date" id="id_expected_close_date" 
+                           class="form-control {% if form.expected_close_date.errors %}is-invalid{% endif %}" 
+                           value="{{ form.expected_close_date.value|date:'Y-m-d'|default:'' }}" required>
+                    {% if form.expected_close_date.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.expected_close_date.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Açıklama -->
+                <div class="col-12 mb-3">
+                    <label for="id_description" class="form-label">Açıklama</label>
+                    <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                              rows="3">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.description.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Notlar -->
+                <div class="col-12 mb-3">
+                    <label for="id_notes" class="form-label">Notlar</label>
+                    <textarea name="notes" id="id_notes" class="form-control {% if form.notes.errors %}is-invalid{% endif %}" 
+                              rows="3">{{ form.notes.value|default:'' }}</textarea>
+                    {% if form.notes.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.notes.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="{% url 'crm:opportunity_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>İptal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form doğrulama
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Tarih alanı için minimum tarih kontrolü
+    document.getElementById('id_expected_close_date').min = new Date().toISOString().split('T')[0]
+</script>
+{% endblock %} 

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ object }} Detayı{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ object }}</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        {% for field in object._meta.fields %}
+                        <dt class="col-sm-3">{{ field.verbose_name }}</dt>
+                        <dd class="col-sm-9">{{ object|getattribute:field.name }}</dd>
+                        {% endfor %}
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url '{{ app_label }}:{{ model_name_lower }}_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Geri
+                    </a>
+                    <a href="{% url '{{ app_label }}:{{ model_name_lower }}_update' object.id %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </a>
+                    <a href="{% url '{{ app_label }}:{{ model_name_lower }}_delete' object.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,338 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Ayarlar" %}{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Genel Ayarlar" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="general">
+                    
+                    <div class="mb-3">
+                        <label for="default_currency" class="form-label">{% trans "Varsayılan Para Birimi" %}</label>
+                        <select class="form-select {% if form.default_currency.errors %}is-invalid{% endif %}" 
+                                id="default_currency" name="default_currency">
+                            <option value="TRY" {% if settings.default_currency == 'TRY' %}selected{% endif %}>TRY</option>
+                            <option value="USD" {% if settings.default_currency == 'USD' %}selected{% endif %}>USD</option>
+                            <option value="EUR" {% if settings.default_currency == 'EUR' %}selected{% endif %}>EUR</option>
+                        </select>
+                        {% if form.default_currency.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.default_currency.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="default_tax_rate" class="form-label">{% trans "Varsayılan KDV Oranı" %}</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control {% if form.default_tax_rate.errors %}is-invalid{% endif %}" 
+                                   id="default_tax_rate" name="default_tax_rate" value="{{ settings.default_tax_rate|default:'18' }}" 
+                                   min="0" max="100" step="0.01">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        {% if form.default_tax_rate.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.default_tax_rate.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="default_warehouse" class="form-label">{% trans "Varsayılan Depo" %}</label>
+                        <select class="form-select {% if form.default_warehouse.errors %}is-invalid{% endif %}" 
+                                id="default_warehouse" name="default_warehouse">
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}" {% if settings.default_warehouse_id == warehouse.id %}selected{% endif %}>
+                                {{ warehouse.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.default_warehouse.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.default_warehouse.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto_generate_code" name="auto_generate_code" 
+                                   {% if settings.auto_generate_code %}checked{% endif %}>
+                            <label class="form-check-label" for="auto_generate_code">
+                                {% trans "Otomatik Kod Üret" %}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            {% trans "Ürün, depo ve işlem kodlarının otomatik olarak üretilmesini sağlar." %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="low_stock_notification" name="low_stock_notification" 
+                                   {% if settings.low_stock_notification %}checked{% endif %}>
+                            <label class="form-check-label" for="low_stock_notification">
+                                {% trans "Düşük Stok Bildirimi" %}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            {% trans "Stok miktarı belirlenen seviyenin altına düştüğünde bildirim gönderir." %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="low_stock_threshold" class="form-label">{% trans "Düşük Stok Eşiği" %}</label>
+                        <input type="number" class="form-control {% if form.low_stock_threshold.errors %}is-invalid{% endif %}" 
+                               id="low_stock_threshold" name="low_stock_threshold" value="{{ settings.low_stock_threshold|default:'10' }}" 
+                               min="0" step="1">
+                        {% if form.low_stock_threshold.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.low_stock_threshold.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Bildirim Ayarları" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="notification">
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="email_notification" name="email_notification" 
+                                   {% if settings.email_notification %}checked{% endif %}>
+                            <label class="form-check-label" for="email_notification">
+                                {% trans "E-posta Bildirimleri" %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notification_email" class="form-label">{% trans "Bildirim E-posta Adresi" %}</label>
+                        <input type="email" class="form-control {% if form.notification_email.errors %}is-invalid{% endif %}" 
+                               id="notification_email" name="notification_email" value="{{ settings.notification_email|default:'' }}">
+                        {% if form.notification_email.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.notification_email.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notification_frequency" class="form-label">{% trans "Bildirim Sıklığı" %}</label>
+                        <select class="form-select {% if form.notification_frequency.errors %}is-invalid{% endif %}" 
+                                id="notification_frequency" name="notification_frequency">
+                            <option value="daily" {% if settings.notification_frequency == 'daily' %}selected{% endif %}>{% trans "Günlük" %}</option>
+                            <option value="weekly" {% if settings.notification_frequency == 'weekly' %}selected{% endif %}>{% trans "Haftalık" %}</option>
+                            <option value="monthly" {% if settings.notification_frequency == 'monthly' %}selected{% endif %}>{% trans "Aylık" %}</option>
+                        </select>
+                        {% if form.notification_frequency.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.notification_frequency.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Bildirim Türleri" %}</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="notify_low_stock" name="notify_low_stock" 
+                                   {% if settings.notify_low_stock %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_low_stock">
+                                {% trans "Düşük Stok" %}
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="notify_expired_products" name="notify_expired_products" 
+                                   {% if settings.notify_expired_products %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_expired_products">
+                                {% trans "Süresi Geçen Ürünler" %}
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="notify_transaction" name="notify_transaction" 
+                                   {% if settings.notify_transaction %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_transaction">
+                                {% trans "İşlem Bildirimleri" %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Yedekleme Ayarları" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="backup">
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto_backup" name="auto_backup" 
+                                   {% if settings.auto_backup %}checked{% endif %}>
+                            <label class="form-check-label" for="auto_backup">
+                                {% trans "Otomatik Yedekleme" %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="backup_frequency" class="form-label">{% trans "Yedekleme Sıklığı" %}</label>
+                        <select class="form-select {% if form.backup_frequency.errors %}is-invalid{% endif %}" 
+                                id="backup_frequency" name="backup_frequency">
+                            <option value="daily" {% if settings.backup_frequency == 'daily' %}selected{% endif %}>{% trans "Günlük" %}</option>
+                            <option value="weekly" {% if settings.backup_frequency == 'weekly' %}selected{% endif %}>{% trans "Haftalık" %}</option>
+                            <option value="monthly" {% if settings.backup_frequency == 'monthly' %}selected{% endif %}>{% trans "Aylık" %}</option>
+                        </select>
+                        {% if form.backup_frequency.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.backup_frequency.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="backup_retention" class="form-label">{% trans "Yedek Saklama Süresi" %}</label>
+                        <select class="form-select {% if form.backup_retention.errors %}is-invalid{% endif %}" 
+                                id="backup_retention" name="backup_retention">
+                            <option value="7" {% if settings.backup_retention == 7 %}selected{% endif %}>{% trans "1 Hafta" %}</option>
+                            <option value="30" {% if settings.backup_retention == 30 %}selected{% endif %}>{% trans "1 Ay" %}</option>
+                            <option value="90" {% if settings.backup_retention == 90 %}selected{% endif %}>{% trans "3 Ay" %}</option>
+                            <option value="180" {% if settings.backup_retention == 180 %}selected{% endif %}>{% trans "6 Ay" %}</option>
+                            <option value="365" {% if settings.backup_retention == 365 %}selected{% endif %}>{% trans "1 Yıl" %}</option>
+                        </select>
+                        {% if form.backup_retention.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.backup_retention.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="backup_location" class="form-label">{% trans "Yedek Konumu" %}</label>
+                        <input type="text" class="form-control {% if form.backup_location.errors %}is-invalid{% endif %}" 
+                               id="backup_location" name="backup_location" value="{{ settings.backup_location|default:'' }}">
+                        {% if form.backup_location.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.backup_location.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Yedeklerin saklanacağı dizin yolu." %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Güvenlik Ayarları" %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="security">
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="two_factor_auth" name="two_factor_auth" 
+                                   {% if settings.two_factor_auth %}checked{% endif %}>
+                            <label class="form-check-label" for="two_factor_auth">
+                                {% trans "İki Faktörlü Kimlik Doğrulama" %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="session_timeout" class="form-label">{% trans "Oturum Zaman Aşımı" %}</label>
+                        <select class="form-select {% if form.session_timeout.errors %}is-invalid{% endif %}" 
+                                id="session_timeout" name="session_timeout">
+                            <option value="15" {% if settings.session_timeout == 15 %}selected{% endif %}>{% trans "15 Dakika" %}</option>
+                            <option value="30" {% if settings.session_timeout == 30 %}selected{% endif %}>{% trans "30 Dakika" %}</option>
+                            <option value="60" {% if settings.session_timeout == 60 %}selected{% endif %}>{% trans "1 Saat" %}</option>
+                            <option value="120" {% if settings.session_timeout == 120 %}selected{% endif %}>{% trans "2 Saat" %}</option>
+                        </select>
+                        {% if form.session_timeout.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.session_timeout.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ip_restriction" name="ip_restriction" 
+                                   {% if settings.ip_restriction %}checked{% endif %}>
+                            <label class="form-check-label" for="ip_restriction">
+                                {% trans "IP Kısıtlaması" %}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            {% trans "Belirli IP adreslerinden erişimi kısıtlar." %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="allowed_ips" class="form-label">{% trans "İzin Verilen IP Adresleri" %}</label>
+                        <textarea class="form-control {% if form.allowed_ips.errors %}is-invalid{% endif %}" 
+                                  id="allowed_ips" name="allowed_ips" rows="3">{{ settings.allowed_ips|default:'' }}</textarea>
+                        {% if form.allowed_ips.errors %}
+                        <div class="invalid-feedback">
+                            {{ form.allowed_ips.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% trans "Her satıra bir IP adresi yazın." %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% trans "Kaydet" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

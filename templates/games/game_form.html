@@ -1,0 +1,318 @@
+{% extends "games/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}{% trans "Oyun form sayfası" %}{% endblock %}
+
+{% block meta_keywords %}oyun formu, oyun ekle, oyun düzenle, oyun yönetimi{% endblock %}
+
+{% block page_title %}
+{% if game %}
+{% trans "Oyun Düzenle" %}
+{% else %}
+{% trans "Yeni Oyun" %}
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'games:game_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Oyun listesine dön' %}">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block games_content %}
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Temel Bilgiler" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">{% trans "Oyun Adı" %} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control {% if form.title.errors %}is-invalid{% endif %}" id="title" name="title" value="{{ form.title.value|default:'' }}" required>
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subtitle" class="form-label">{% trans "Alt Başlık" %}</label>
+                        <input type="text" class="form-control {% if form.subtitle.errors %}is-invalid{% endif %}" id="subtitle" name="subtitle" value="{{ form.subtitle.value|default:'' }}">
+                        {% if form.subtitle.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.subtitle.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">{% trans "Kategori" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.category.errors %}is-invalid{% endif %}" id="category" name="category" required>
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if form.category.value|stringformat:"i" == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.category.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.category.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="developer" class="form-label">{% trans "Geliştirici" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.developer.errors %}is-invalid{% endif %}" id="developer" name="developer" required>
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for developer in developers %}
+                            <option value="{{ developer.id }}" {% if form.developer.value|stringformat:"i" == developer.id|stringformat:"i" %}selected{% endif %}>
+                                {{ developer.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.developer.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.developer.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="publisher" class="form-label">{% trans "Yayıncı" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.publisher.errors %}is-invalid{% endif %}" id="publisher" name="publisher" required>
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for publisher in publishers %}
+                            <option value="{{ publisher.id }}" {% if form.publisher.value|stringformat:"i" == publisher.id|stringformat:"i" %}selected{% endif %}>
+                                {{ publisher.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.publisher.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.publisher.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="platform" class="form-label">{% trans "Platform" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.platform.errors %}is-invalid{% endif %}" id="platform" name="platform" required>
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for platform in platforms %}
+                            <option value="{{ platform.id }}" {% if form.platform.value|stringformat:"i" == platform.id|stringformat:"i" %}selected{% endif %}>
+                                {{ platform.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.platform.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.platform.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="release_date" class="form-label">{% trans "Çıkış Tarihi" %} <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control {% if form.release_date.errors %}is-invalid{% endif %}" id="release_date" name="release_date" value="{{ form.release_date.value|date:'Y-m-d' }}" required>
+                        {% if form.release_date.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.release_date.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cover_image" class="form-label">{% trans "Kapak Resmi" %}</label>
+                        <input type="file" class="form-control {% if form.cover_image.errors %}is-invalid{% endif %}" id="cover_image" name="cover_image" accept="image/*">
+                        {% if form.cover_image.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.cover_image.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if game.cover_image %}
+                        <div class="mt-2">
+                            <img src="{{ game.cover_image.url }}" alt="{{ game.title }}" class="img-thumbnail" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">{% trans "Puan" %}</label>
+                        <input type="range" class="form-range" id="rating" name="rating" min="0" max="100" step="1" value="{{ form.rating.value|default:'0' }}">
+                        <div class="d-flex justify-content-between">
+                            <small>0</small>
+                            <small id="ratingValue">{{ form.rating.value|default:'0' }}</small>
+                            <small>100</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %} <span class="text-danger">*</span></label>
+                        <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" id="status" name="status" required>
+                            <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>{% trans "Aktif" %}</option>
+                            <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>{% trans "Pasif" %}</option>
+                        </select>
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.status.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Detaylı Bilgiler" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{% trans "Açıklama" %}</label>
+                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}" id="description" name="description" rows="5">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Özellikler" %}</label>
+                        <div class="row">
+                            {% for feature in features %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="features" value="{{ feature.id }}" id="feature{{ feature.id }}" {% if feature.id in form.features.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="feature{{ feature.id }}">
+                                        {{ feature.name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    {% if game %}
+                    {% trans "Güncelle" %}
+                    {% else %}
+                    {% trans "Oluştur" %}
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Yardım" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Oyun Adı" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun tam adını giriniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Alt Başlık" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun alt başlığını giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Kategori" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun kategorisini seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Geliştirici" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunu geliştiren şirketi seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Yayıncı" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunu yayınlayan şirketi seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Platform" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun çalıştığı platformu seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Çıkış Tarihi" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun çıkış tarihini seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Kapak Resmi" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun kapak resmini yükleyiniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Puan" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun puanını belirleyiniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Durum" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun durumunu seçiniz. Bu alan zorunludur." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Açıklama" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyun hakkında detaylı açıklama giriniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="fw-bold">{% trans "Özellikler" %}</h6>
+                    <p class="text-muted small mb-0">{% trans "Oyunun sahip olduğu özellikleri seçiniz. Bu alan isteğe bağlıdır." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingSlider = document.getElementById('rating');
+    const ratingValue = document.getElementById('ratingValue');
+    
+    ratingSlider.addEventListener('input', function() {
+        ratingValue.textContent = this.value;
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

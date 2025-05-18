@@ -1,0 +1,241 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block meta_description %}
+{% if performance %}
+{% trans "Performans değerlendirmesi düzenleme sayfası" %}
+{% else %}
+{% trans "Yeni performans değerlendirmesi oluşturma sayfası" %}
+{% endif %}
+{% endblock %}
+
+{% block meta_keywords %}performans değerlendirmesi, değerlendirme, çalışan performansı, kriterler, puanlama{% endblock %}
+
+{% block page_title %}
+{% if performance %}
+{% trans "Performans Değerlendirmesi Düzenle" %}
+{% else %}
+{% trans "Yeni Performans Değerlendirmesi" %}
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'hr:performance_list' %}" class="btn btn-sm btn-outline-secondary" aria-label="{% trans 'Performans değerlendirmeleri listesine dön' %}">
+    <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+</a>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" aria-label="{% if performance %}{% trans 'Performans değerlendirmesi düzenleme formu' %}{% else %}{% trans 'Yeni performans değerlendirmesi oluşturma formu' %}{% endif %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="employee" class="form-label">{% trans "Değerlendirilen Çalışan" %}</label>
+                        <select class="form-select {% if form.employee.errors %}is-invalid{% endif %}" id="employee" name="employee" required aria-required="true" aria-describedby="employeeHelp">
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}" {% if form.employee.value == employee.id|stringformat:"i" %}selected{% endif %}>
+                                {{ employee.full_name }} ({{ employee.position.name }} - {{ employee.department.name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.employee.errors %}
+                        <div class="invalid-feedback" id="employeeError">
+                            {{ form.employee.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="employeeHelp">{% trans "Performansı değerlendirilecek çalışanı seçin" %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="evaluator" class="form-label">{% trans "Değerlendiren" %}</label>
+                        <select class="form-select {% if form.evaluator.errors %}is-invalid{% endif %}" id="evaluator" name="evaluator" required aria-required="true" aria-describedby="evaluatorHelp">
+                            <option value="">{% trans "Seçiniz" %}</option>
+                            {% for evaluator in evaluators %}
+                            <option value="{{ evaluator.id }}" {% if form.evaluator.value == evaluator.id|stringformat:"i" %}selected{% endif %}>
+                                {{ evaluator.full_name }} ({{ evaluator.position.name }} - {{ evaluator.department.name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.evaluator.errors %}
+                        <div class="invalid-feedback" id="evaluatorError">
+                            {{ form.evaluator.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="evaluatorHelp">{% trans "Değerlendirmeyi yapacak kişiyi seçin" %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="period" class="form-label">{% trans "Dönem" %}</label>
+                        <input type="text" class="form-control {% if form.period.errors %}is-invalid{% endif %}" id="period" name="period" value="{{ form.period.value|default:'' }}" required aria-required="true" aria-describedby="periodHelp">
+                        {% if form.period.errors %}
+                        <div class="invalid-feedback" id="periodError">
+                            {{ form.period.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="periodHelp">{% trans "Değerlendirmenin hangi dönem için yapıldığını belirtin (örn: 2023 Q1)" %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="evaluation_date" class="form-label">{% trans "Değerlendirme Tarihi" %}</label>
+                        <input type="date" class="form-control {% if form.evaluation_date.errors %}is-invalid{% endif %}" id="evaluation_date" name="evaluation_date" value="{{ form.evaluation_date.value|date:'Y-m-d'|default:'' }}" required aria-required="true" aria-describedby="evaluationDateHelp">
+                        {% if form.evaluation_date.errors %}
+                        <div class="invalid-feedback" id="evaluationDateError">
+                            {{ form.evaluation_date.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="evaluationDateHelp">{% trans "Değerlendirmenin yapıldığı tarihi seçin" %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select {% if form.status.errors %}is-invalid{% endif %}" id="status" name="status" required aria-required="true" aria-describedby="statusHelp">
+                            {% for value, label in form.fields.status.choices %}
+                            <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback" id="statusError">
+                            {{ form.status.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="statusHelp">{% trans "Değerlendirmenin mevcut durumunu belirtin" %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{% trans "Notlar" %}</label>
+                        <textarea class="form-control {% if form.notes.errors %}is-invalid{% endif %}" id="notes" name="notes" rows="4" aria-describedby="notesHelp">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback" id="notesError">
+                            {{ form.notes.errors.0 }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text" id="notesHelp">{% trans "Değerlendirme hakkında ek notlar ekleyin" %}</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">{% trans "Değerlendirme Kriterleri" %}</label>
+                        <div id="criteria-container" role="list" aria-label="{% trans 'Değerlendirme kriterleri listesi' %}">
+                            {% for criterion_form in form.criteria %}
+                            <div class="card mb-3 criterion-item" role="listitem">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">{% trans "Kriter Adı" %}</label>
+                                                <input type="text" class="form-control" name="criteria-{{ forloop.counter0 }}-name" value="{{ criterion_form.name.value|default:'' }}" required aria-required="true">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">{% trans "Puan" %}</label>
+                                                <input type="number" class="form-control" name="criteria-{{ forloop.counter0 }}-score" value="{{ criterion_form.score.value|default:'' }}" min="0" max="100" required aria-required="true">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="mb-3">
+                                                <label class="form-label">{% trans "Açıklama" %}</label>
+                                                <textarea class="form-control" name="criteria-{{ forloop.counter0 }}-description" rows="1">{{ criterion_form.description.value|default:'' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-criterion" aria-label="{% trans 'Yeni değerlendirme kriteri ekle' %}">
+                            <i class="fas fa-plus"></i> {% trans "Kriter Ekle" %}
+                        </button>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" aria-label="{% if performance %}{% trans 'Performans değerlendirmesini güncelle' %}{% else %}{% trans 'Yeni performans değerlendirmesi oluştur' %}{% endif %}">
+                        {% if performance %}
+                        {% trans "Güncelle" %}
+                        {% else %}
+                        {% trans "Oluştur" %}
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">{% trans "Yardım" %}</h2>
+            </div>
+            <div class="card-body">
+                <h3 class="h6 text-muted">{% trans "Değerlendirilen Çalışan" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Performansı değerlendirilecek çalışanı seçin." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Değerlendiren" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Değerlendirmeyi yapacak kişiyi seçin." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Dönem" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Değerlendirmenin hangi dönem için yapıldığını belirtin (örn: 2023 Q1)." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Değerlendirme Tarihi" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Değerlendirmenin yapıldığı tarihi seçin." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Durum" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Değerlendirmenin mevcut durumunu belirtin." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Notlar" %}</h3>
+                <p class="small text-muted mb-3">{% trans "Değerlendirme hakkında ek notlar ekleyin." %}</p>
+                
+                <h3 class="h6 text-muted">{% trans "Değerlendirme Kriterleri" %}</h3>
+                <p class="small text-muted mb-0">{% trans "Performans değerlendirmesi için kriterler ekleyin. Her kriter için ad, puan (0-100) ve açıklama belirtin." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const criteriaContainer = document.getElementById('criteria-container');
+    const addCriterionButton = document.getElementById('add-criterion');
+    let criterionCount = {{ form.criteria|length }};
+    
+    addCriterionButton.addEventListener('click', function() {
+        const newCriterion = document.createElement('div');
+        newCriterion.className = 'card mb-3 criterion-item';
+        newCriterion.setAttribute('role', 'listitem');
+        newCriterion.innerHTML = `
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Kriter Adı" %}</label>
+                            <input type="text" class="form-control" name="criteria-${criterionCount}-name" required aria-required="true">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Puan" %}</label>
+                            <input type="number" class="form-control" name="criteria-${criterionCount}-score" min="0" max="100" required aria-required="true">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Açıklama" %}</label>
+                            <textarea class="form-control" name="criteria-${criterionCount}-description" rows="1"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        criteriaContainer.appendChild(newCriterion);
+        criterionCount++;
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

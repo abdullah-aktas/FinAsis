@@ -1,0 +1,251 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ supplier.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:supplier_edit' supplier.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSupplierModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+    <a href="{% url 'stock_management:supplier_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Tedarikçi Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Kod" %}</label>
+                            <p>{{ supplier.code }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Ad" %}</label>
+                            <div class="d-flex align-items-center">
+                                {% if supplier.logo %}
+                                <img src="{{ supplier.logo.url }}" alt="{{ supplier.name }}" class="rounded-circle me-2" style="width: 48px; height: 48px;">
+                                {% endif %}
+                                <div>
+                                    <p class="mb-0">{{ supplier.name }}</p>
+                                    <small class="text-muted">{{ supplier.tax_number }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "İletişim" %}</label>
+                            <div class="d-flex flex-column">
+                                <p class="mb-1"><i class="fas fa-phone me-2"></i> {{ supplier.phone }}</p>
+                                <p class="mb-1"><i class="fas fa-envelope me-2"></i> {{ supplier.email }}</p>
+                                <p class="mb-1"><i class="fas fa-globe me-2"></i> {{ supplier.website|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Durum" %}</label>
+                            <p>
+                                <span class="badge {% if supplier.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if supplier.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Oluşturulma Tarihi" %}</label>
+                            <p>{{ supplier.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Son Güncelleme" %}</label>
+                            <p>{{ supplier.updated_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{% trans "Adres" %}</label>
+                    <p>{{ supplier.address|linebreaks|default:"-" }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{% trans "Açıklama" %}</label>
+                    <p>{{ supplier.description|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Tedarikçiye Ait Ürünler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if supplier.products.exists %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Kod" %}</th>
+                                <th>{% trans "Ad" %}</th>
+                                <th>{% trans "Kategori" %}</th>
+                                <th>{% trans "Stok" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                                <th>{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in supplier.products.all %}
+                            <tr>
+                                <td>{{ product.code }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded me-2" style="width: 32px; height: 32px;">
+                                        {% endif %}
+                                        <a href="{% url 'stock_management:product_detail' product.id %}">
+                                            {{ product.name }}
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'stock_management:category_detail' product.category.id %}">
+                                        {{ product.category.name }}
+                                    </a>
+                                </td>
+                                <td>{{ product.stock_quantity }}</td>
+                                <td>
+                                    <span class="badge {% if product.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if product.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'stock_management:product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'stock_management:product_edit' product.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    {% trans "Bu tedarikçiye ait ürün bulunmuyor." %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Tedarikçi İstatistikleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">{% trans "Ürün Dağılımı" %}</h6>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ supplier.active_product_percentage }}%">
+                            {{ supplier.active_product_count }} {% trans "Aktif" %}
+                        </div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ supplier.inactive_product_percentage }}%">
+                            {{ supplier.inactive_product_count }} {% trans "Pasif" %}
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        {% trans "Toplam" %}: {{ supplier.product_count }} {% trans "ürün" %}
+                    </small>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">{% trans "Stok Durumu" %}</h6>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ supplier.low_stock_percentage }}%">
+                            {{ supplier.low_stock_count }} {% trans "Düşük" %}
+                        </div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ supplier.normal_stock_percentage }}%">
+                            {{ supplier.normal_stock_count }} {% trans "Normal" %}
+                        </div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ supplier.high_stock_percentage }}%">
+                            {{ supplier.high_stock_count }} {% trans "Yüksek" %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted mb-3">{% trans "Son İşlemler" %}</h6>
+                    {% if supplier.recent_transactions %}
+                    <div class="list-group">
+                        {% for transaction in supplier.recent_transactions %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ transaction.product.name }}</h6>
+                                <small class="text-muted">{{ transaction.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">
+                                <span class="badge {% if transaction.type == 'in' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if transaction.type == 'in' %}+{% else %}-{% endif %}{{ transaction.quantity }}
+                                </span>
+                                {{ transaction.description }}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        {% trans "Son 7 gün içinde işlem kaydı bulunmuyor." %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Tedarikçiyi Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu tedarikçiyi silmek istediğinizden emin misiniz?" %}</p>
+                {% if supplier.product_count > 0 %}
+                <div class="alert alert-warning">
+                    {% trans "Bu tedarikçiye ait" %} {{ supplier.product_count }} {% trans "ürün bulunmaktadır. Tedarikçi silindiğinde bu ürünler tedarikçisiz olarak işaretlenecektir." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'stock_management:supplier_delete' supplier.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

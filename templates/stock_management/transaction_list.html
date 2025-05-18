@@ -1,0 +1,232 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Stok İşlemleri" %}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> {% trans "Filtrele" %}
+    </button>
+    <a href="{% url 'stock_management:transaction_create' %}" class="btn btn-sm btn-outline-success">
+        <i class="fas fa-plus"></i> {% trans "Yeni İşlem" %}
+    </a>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="card">
+    <div class="card-body">
+        {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tarih" %}</th>
+                        <th>{% trans "İşlem No" %}</th>
+                        <th>{% trans "Ürün" %}</th>
+                        <th>{% trans "Depo" %}</th>
+                        <th>{% trans "İşlem Tipi" %}</th>
+                        <th>{% trans "Miktar" %}</th>
+                        <th>{% trans "Birim" %}</th>
+                        <th>{% trans "Durum" %}</th>
+                        <th>{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date|date:"d.m.Y H:i" }}</td>
+                        <td>{{ transaction.code }}</td>
+                        <td>
+                            <a href="{% url 'stock_management:product_detail' transaction.product.id %}">
+                                {{ transaction.product.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'stock_management:warehouse_detail' transaction.warehouse.id %}">
+                                {{ transaction.warehouse.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge {% if transaction.type == 'in' %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if transaction.type == 'in' %}{% trans "Giriş" %}{% else %}{% trans "Çıkış" %}{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ transaction.quantity }}</td>
+                        <td>{{ transaction.product.unit }}</td>
+                        <td>
+                            <span class="badge {% if transaction.status == 'completed' %}bg-success{% elif transaction.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {% if transaction.status == 'completed' %}{% trans "Tamamlandı" %}{% elif transaction.status == 'pending' %}{% trans "Beklemede" %}{% else %}{% trans "İptal" %}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'stock_management:transaction_detail' transaction.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'stock_management:transaction_edit' transaction.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#deleteTransactionModal{{ transaction.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Silme Modal -->
+                            <div class="modal fade" id="deleteTransactionModal{{ transaction.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{% trans "İşlemi Sil" %}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>{% trans "Bu işlemi silmek istediğinizden emin misiniz?" %}</p>
+                                            {% if transaction.status == 'completed' %}
+                                            <div class="alert alert-warning">
+                                                {% trans "Bu işlem tamamlanmış durumda. Silme işlemi stok miktarını etkileyecektir." %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                                            <form method="post" action="{% url 'stock_management:transaction_delete' transaction.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            {% trans "Henüz stok işlemi bulunmuyor." %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "İşlem Filtrele" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="code" class="form-label">{% trans "İşlem No" %}</label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ request.GET.code|default:'' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="product" class="form-label">{% trans "Ürün" %}</label>
+                        <select class="form-select" id="product" name="product">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}" {% if request.GET.product == product.id|stringformat:"i" %}selected{% endif %}>
+                                {{ product.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="warehouse" class="form-label">{% trans "Depo" %}</label>
+                        <select class="form-select" id="warehouse" name="warehouse">
+                            <option value="">{% trans "Tümü" %}</option>
+                            {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}" {% if request.GET.warehouse == warehouse.id|stringformat:"i" %}selected{% endif %}>
+                                {{ warehouse.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="type" class="form-label">{% trans "İşlem Tipi" %}</label>
+                        <select class="form-select" id="type" name="type">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="in" {% if request.GET.type == 'in' %}selected{% endif %}>{% trans "Giriş" %}</option>
+                            <option value="out" {% if request.GET.type == 'out' %}selected{% endif %}>{% trans "Çıkış" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{% trans "Durum" %}</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>{% trans "Tamamlandı" %}</option>
+                            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>{% trans "Beklemede" %}</option>
+                            <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>{% trans "İptal" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_range" class="form-label">{% trans "Tarih Aralığı" %}</label>
+                        <select class="form-select" id="date_range" name="date_range">
+                            <option value="">{% trans "Tümü" %}</option>
+                            <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>{% trans "Bugün" %}</option>
+                            <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>{% trans "Bu Hafta" %}</option>
+                            <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>{% trans "Bu Ay" %}</option>
+                            <option value="year" {% if request.GET.date_range == 'year' %}selected{% endif %}>{% trans "Bu Yıl" %}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

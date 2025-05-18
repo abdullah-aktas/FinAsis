@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ module.title }} - Eğitim Tamamlandı{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Başarı Mesajı -->
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="card-title">Tebrikler!</h2>
+                    <p class="card-text lead">
+                        {{ module.title }} eğitimini başarıyla tamamladınız.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{% url 'training:certificate_download' module.id %}" 
+                           class="btn btn-primary btn-lg">
+                            <i class="fas fa-download me-2"></i> Sertifikayı İndir
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg" 
+                                onclick="shareCertificate()">
+                            <i class="fas fa-share-alt me-2"></i> Paylaş
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İstatistikler -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Tamamlanma Süresi</h5>
+                            <p class="card-text display-6">{{ completion_time }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Ortalama Puan</h5>
+                            <p class="card-text display-6">{{ average_score }}/100</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Sıralama</h5>
+                            <p class="card-text display-6">#{{ rank }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geri Bildirim Formu -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Eğitim Hakkında Görüşleriniz</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="feedbackForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label">Eğitimi Nasıl Buldunuz?</label>
+                            <div class="rating">
+                                {% for i in "54321"|make_list %}
+                                <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}">
+                                <label for="star{{ i }}" class="star">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Görüşleriniz</label>
+                            <textarea class="form-control" name="comment" rows="4" 
+                                      placeholder="Eğitim hakkındaki düşüncelerinizi paylaşın..."></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Eğitimi Kimlere Önerirsiniz?</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="recommendations" 
+                                       value="beginner" id="beginner">
+                                <label class="form-check-label" for="beginner">
+                                    Yeni Başlayanlar
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="recommendations" 
+                                       value="intermediate" id="intermediate">
+                                <label class="form-check-label" for="intermediate">
+                                    Orta Seviye
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="recommendations" 
+                                       value="advanced" id="advanced">
+                                <label class="form-check-label" for="advanced">
+                                    İleri Seviye
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gönder</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Önerilen Eğitimler -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Önerilen Eğitimler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for recommended in recommended_modules %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ recommended.title }}</h6>
+                                    <p class="card-text small">{{ recommended.description|truncatechars:100 }}</p>
+                                    <a href="{% url 'training:module_detail' recommended.id %}" 
+                                       class="btn btn-sm btn-outline-primary">İncele</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    margin: 0 0.2rem;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+    color: #ffc107;
+}
+
+.success-icon {
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+}
+
+.display-6 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+.form-check {
+    margin-bottom: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: #2470dc;
+    border-color: #2470dc;
+}
+</style>
+
+<script>
+function shareCertificate() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ module.title }} Sertifikam',
+            text: '{{ module.title }} eğitimini başarıyla tamamladım!',
+            url: '{{ certificate_url }}'
+        })
+        .catch(error => console.log('Paylaşım hatası:', error));
+    } else {
+        alert('Tarayıcınız paylaşım özelliğini desteklemiyor.');
+    }
+}
+</script>
+{% endblock %} 

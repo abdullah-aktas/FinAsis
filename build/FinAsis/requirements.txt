@@ -1,0 +1,65 @@
+# Django ve Temel Bileşenler
+Django==5.0.4
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-filter==24.1
+drf-yasg==1.21.0
+python-dotenv==1.0.1
+
+# Veritabanı
+psycopg2-binary==2.9.9
+redis==5.0.1
+
+# Asenkron İşlemler
+celery==5.3.6
+django-celery-beat==2.5.0
+django-celery-results==2.5.1
+
+# Depolama
+boto3==1.34.34
+azure-storage-blob==12.0.0
+google-cloud-storage==2.0.0
+django-storages==1.14.2
+
+# Güvenlik
+cryptography==42.0.2
+python-jose==3.3.0
+
+# Dağıtım
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# İzleme
+sentry-sdk==1.40.6
+prometheus-client==0.20.0
+
+# Yardımcı Araçlar
+Pillow==10.2.0
+pandas==2.2.1
+numpy==1.26.4
+scikit-learn==1.4.1.post1
+tensorflow==2.12.0
+torch==2.0.0
+transformers==4.28.0
+
+# Ekstra Paketler
+django-crispy-forms==2.1
+crispy-bootstrap5==2024.2
+matplotlib==3.8.3
+seaborn==0.13.2
+plotly==5.18.0
+dash==2.14.2
+dash-bootstrap-components==1.5.0
+django-debug-toolbar==4.3.0
+black==24.3.0
+flake8==7.0.0
+isort==5.13.2
+mypy==1.8.0
+pytest==8.0.2
+pytest-django==4.7.0
+coverage==7.4.1
+pytest-cov==4.1.0
+
+# Ekstra Depolama
+requests==2.31.0
+django-prometheus==2.3.1 

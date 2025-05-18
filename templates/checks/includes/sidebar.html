@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Çek Menüsü</h5>
+    </div>
+    <div class="card-body">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:list' %}">
+                    <i class="fas fa-list"></i> Çek Listesi
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:add' %}">
+                    <i class="fas fa-plus"></i> Çek Ekle
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:portfolio' %}">
+                    <i class="fas fa-briefcase"></i> Portföy
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:reports' %}">
+                    <i class="fas fa-chart-bar"></i> Raporlar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'checks:settings' %}">
+                    <i class="fas fa-cog"></i> Ayarlar
+                </a>
+            </li>
+        </ul>
+    </div>
+</div> 

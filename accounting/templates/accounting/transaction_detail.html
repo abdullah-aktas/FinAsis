@@ -1,0 +1,113 @@
+{% extends 'accounting/base.html' %}
+
+{% block accounting_content %}
+<div class="row">
+    <!-- İşlem Bilgileri -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">İşlem Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">İşlem No</dt>
+                    <dd class="col-sm-8">{{ transaction.number }}</dd>
+
+                    <dt class="col-sm-4">Tarih</dt>
+                    <dd class="col-sm-8">{{ transaction.date|date:"d.m.Y" }}</dd>
+
+                    <dt class="col-sm-4">Hesap</dt>
+                    <dd class="col-sm-8">{{ transaction.account.name }}</dd>
+
+                    <dt class="col-sm-4">Tür</dt>
+                    <dd class="col-sm-8">
+                        {% if transaction.type == 'income' %}
+                        <span class="badge bg-success">Gelir</span>
+                        {% else %}
+                        <span class="badge bg-danger">Gider</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-4">Tutar</dt>
+                    <dd class="col-sm-8 {% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ transaction.amount|floatformat:2 }} ₺
+                    </dd>
+
+                    <dt class="col-sm-4">Durum</dt>
+                    <dd class="col-sm-8">
+                        {% if transaction.is_active %}
+                        <span class="badge bg-success">Aktif</span>
+                        {% else %}
+                        <span class="badge bg-danger">Pasif</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-4">Açıklama</dt>
+                    <dd class="col-sm-8">{{ transaction.description|default:"-" }}</dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'accounting:transaction_edit' transaction.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'accounting:transaction_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- İşlem Detayları -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">İşlem Detayları</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Hesap</th>
+                                <th>Borç</th>
+                                <th>Alacak</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in transaction.entries.all %}
+                            <tr>
+                                <td>{{ entry.account.name }}</td>
+                                <td class="text-success">
+                                    {% if entry.debit_amount %}
+                                    {{ entry.debit_amount|floatformat:2 }} ₺
+                                    {% endif %}
+                                </td>
+                                <td class="text-danger">
+                                    {% if entry.credit_amount %}
+                                    {{ entry.credit_amount|floatformat:2 }} ₺
+                                    {% endif %}
+                                </td>
+                                <td>{{ entry.description|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">Henüz işlem detayı bulunmuyor.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Toplam</th>
+                                <th class="text-success">{{ transaction.total_debit|floatformat:2 }} ₺</th>
+                                <th class="text-danger">{{ transaction.total_credit|floatformat:2 }} ₺</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

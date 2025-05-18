@@ -1,0 +1,125 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+    after_n_builds: 3
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        base: auto
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+    
+    patch:
+      default:
+        target: 85%
+        threshold: 2%
+        base: auto
+        if_ci_failed: error
+    
+    changes:
+      default:
+        branches:
+          - main
+          - develop
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: true
+      loop: true
+      method: true
+      macro: false
+
+comment:
+  layout: "header, diff, changes, tree"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  show_carryforward_flags: true
+
+github_checks:
+  annotations: true
+
+ignore:
+  - "tests/"
+  - "**/*.test.py"
+  - "**/*.spec.py"
+  - "**/migrations/"
+  - "setup.py"
+
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: 80%
+        threshold: 1%
+      - type: patch
+        target: 85%
+        threshold: 2%
+  
+  individual_flags:
+    - name: backend
+      paths:
+        - "backend/"
+      statuses:
+        - type: project
+          target: 85%
+    
+    - name: frontend
+      paths:
+        - "frontend/"
+      statuses:
+        - type: project
+          target: 75%
+    
+    - name: api
+      paths:
+        - "api/"
+      statuses:
+        - type: project
+          target: 90%
+    
+    - name: core
+      paths:
+        - "core/"
+      statuses:
+        - type: project
+          target: 95%
+
+component_management:
+  individual_components:
+    - component_id: "core"
+      name: "Core Components"
+      paths:
+        - "core/"
+      target: 95%
+      
+    - component_id: "api"
+      name: "API Components"
+      paths:
+        - "api/"
+      target: 90%
+      
+    - component_id: "frontend"
+      name: "Frontend Components"
+      paths:
+        - "frontend/"
+      target: 75%
+
+fixes:
+  - "/home/runner/work/FinAsis/FinAsis/::" 

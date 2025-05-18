@@ -1,0 +1,50 @@
+include LICENSE
+include README.md
+include requirements.txt
+include requirements-dev.txt
+
+recursive-include FinAsis/static *
+recursive-include FinAsis/templates *
+recursive-include FinAsis/locale *
+
+recursive-include docs *
+recursive-include tests *
+
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude *.so
+global-exclude *.dll
+global-exclude *.dylib
+global-exclude *.class
+global-exclude *.jar
+global-exclude *.war
+global-exclude *.ear
+global-exclude *.zip
+global-exclude *.tar.gz
+global-exclude *.tar
+global-exclude *.rar
+global-exclude *.7z
+global-exclude *.db
+global-exclude *.sqlite3
+global-exclude *.log
+global-exclude *.pid
+global-exclude *.DS_Store
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *.bak
+global-exclude *.tmp
+global-exclude *.temp
+global-exclude *.cache
+global-exclude *.coverage
+global-exclude *.egg-info
+global-exclude .git
+global-exclude .gitignore
+global-exclude .env
+global-exclude .env.*
+global-exclude .vscode
+global-exclude .idea
+global-exclude __pycache__
+global-exclude node_modules
+global-exclude dist
+global-exclude build 

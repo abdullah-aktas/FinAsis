@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        {{ _('Entegrasyon Şablonunu Düzenle') }}
+    {% else %}
+        {{ _('Yeni Entegrasyon Şablonu') }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if form.instance.pk %}
+                {{ _('Entegrasyon Şablonunu Düzenle') }}
+            {% else %}
+                {{ _('Yeni Entegrasyon Şablonu') }}
+            {% endif %}
+        </h1>
+        <a href="{% url 'external_integrations:template_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {{ _('Geri Dön') }}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">{{ _('Şablon Adı') }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.provider.id_for_label }}" class="form-label">{{ _('Sağlayıcı') }}</label>
+                        {{ form.provider }}
+                        {% if form.provider.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.provider.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">{{ _('Kategori') }}</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.category.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.api_version.id_for_label }}" class="form-label">{{ _('API Versiyonu') }}</label>
+                        {{ form.api_version }}
+                        {% if form.api_version.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.api_version.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">{{ _('Açıklama') }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.description.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.settings.id_for_label }}" class="form-label">{{ _('Entegrasyon Ayarları') }}</label>
+                    <div id="settings-editor" style="height: 300px;"></div>
+                    {{ form.settings }}
+                    {% if form.settings.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.settings.errors }}
+                        </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        {{ _('Ayarları JSON formatında giriniz. Örnek:') }}
+                        <pre class="mt-2">[
+    {
+        "name": "api_key",
+        "type": "string",
+        "required": true,
+        "default": null
+    },
+    {
+        "name": "webhook_url",
+        "type": "string",
+        "required": false,
+        "default": ""
+    }
+]</pre>
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            {{ _('Aktif') }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {{ _('Kaydet') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form elemanlarını Bootstrap stillerine uygun hale getir
+        const formElements = document.querySelectorAll('input, select, textarea');
+        formElements.forEach(element => {
+            element.classList.add('form-control');
+        });
+
+        // JSON editör ayarları
+        const editor = ace.edit("settings-editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/json");
+        editor.setValue(document.getElementById('{{ form.settings.id_for_label }}').value || '[]');
+        editor.setOptions({
+            fontSize: "14px",
+            showPrintMargin: false,
+            showGutter: true,
+            highlightActiveLine: true,
+            wrapBehavioursEnabled: true,
+            autoScrollEditorIntoView: true
+        });
+
+        // Form gönderilmeden önce JSON editördeki değeri gizli alana aktar
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('{{ form.settings.id_for_label }}').value = editor.getValue();
+        });
+    });
+</script>
+{% endblock %} 

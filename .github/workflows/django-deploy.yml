@@ -1,0 +1,262 @@
+name: FinAsis CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  # Varsayılan değerler ve environment değişkenleri
+  SLACK_CHANNEL: ${{ vars.SLACK_CHANNEL || 'genel' }}
+  DJANGO_SETTINGS_MODULE: config.settings.ci
+  PYTHON_VERSION: '3.11'
+  DOCKER_COMPOSE_VERSION: '2.20.0'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      POSTGRES_DB: ${{ secrets.DB_NAME }}
+      POSTGRES_USER: ${{ secrets.DB_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DJANGO_SETTINGS_MODULE: config.settings.ci
+      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      PYTHONUNBUFFERED: 1
+      DJANGO_TEST_RUNNER: django.test.runner.DiscoverRunner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black flake8 pytest pytest-django pytest-cov safety bandit
+
+      - name: Check for security vulnerabilities
+        run: |
+          safety check
+          bandit -r . -c pyproject.toml
+
+      - name: Run black
+        run: black . --check --diff
+
+      - name: Run flake8
+        run: |
+          flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run migrations check
+        run: |
+          python manage.py makemigrations --check --dry-run
+
+      - name: Derleme dil dosyalarını
+        run: |
+          python manage.py compilemessages --locale=tr --locale=en --locale=de --locale=fr --locale=ar --locale=ku
+
+      - name: Run tests
+        run: |
+          python manage.py migrate
+          pytest --cov=. --cov-report=xml --cov-fail-under=70 -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Test Sonuçlarını Slack'e Bildir
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_TITLE: "FinAsis Test Sonuçları"
+          SLACK_USERNAME: "FinAsis CI/CD Bot"
+          SLACK_MESSAGE: |
+            ${{ github.workflow }} iş akışı ${{ job.status }} durumunda tamamlandı.
+            Commit: ${{ github.event.head_commit.message }}
+            Kaynak Dalı: ${{ github.ref }}
+            Kaynak: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ${{ job.status == 'success' && '✅ Testler başarılı.' || '❌ Testler başarısız! Lütfen hataları düzeltin.' }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_FOOTER: "FinAsis CI/CD Sistemi | ${{ github.event.head_commit.timestamp }}"
+          SLACK_ICON: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/finasis:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/finasis:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/finasis:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/finasis:buildcache,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+            DJANGO_SETTINGS_MODULE=config.settings.prod
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+      - name: Build Sonuçlarını Slack'e Bildir
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_TITLE: "FinAsis Docker Build Sonuçları"
+          SLACK_USERNAME: "FinAsis CI/CD Bot"
+          SLACK_MESSAGE: |
+            Docker build işlemi ${{ job.status }} durumunda tamamlandı.
+            Image: ${{ secrets.DOCKERHUB_USERNAME }}/finasis:${{ github.sha }}
+            Kaynak: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_FOOTER: "FinAsis CI/CD Sistemi | ${{ github.event.head_commit.timestamp }}"
+          SLACK_ICON: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    timeout-minutes: 30
+
+    steps:
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_KEY }}
+          script: |
+            set -e
+            cd /var/www/finasis
+            
+            # Yedekleme
+            echo "Veritabanı yedekleniyor..."
+            BACKUP_DIR="/var/www/finasis/backups"
+            mkdir -p $BACKUP_DIR
+            BACKUP_FILE="$BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S).sql"
+            docker-compose -f docker-compose.prod.yml exec -T db pg_dump -U ${{ secrets.DB_USER }} ${{ secrets.DB_NAME }} > $BACKUP_FILE
+            gzip $BACKUP_FILE
+            
+            # Eski yedekleri temizle (30 günden eski)
+            find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +30 -delete
+            
+            # Mevcut container'ları durdur
+            echo "Mevcut container'lar durduruluyor..."
+            docker-compose -f docker-compose.prod.yml down
+            
+            # Yeni image'ları çek
+            echo "Yeni image'lar çekiliyor..."
+            docker-compose -f docker-compose.prod.yml pull
+            
+            # Yeni container'ları başlat
+            echo "Yeni container'lar başlatılıyor..."
+            docker-compose -f docker-compose.prod.yml up -d --build
+            
+            # Veritabanı migrasyonlarını çalıştır
+            echo "Veritabanı migrasyonları çalıştırılıyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+            
+            # Statik dosyaları topla
+            echo "Statik dosyalar toplanıyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
+            
+            # Dil dosyalarını derle
+            echo "Dil dosyaları derleniyor..."
+            docker-compose -f docker-compose.prod.yml exec -T web python manage.py compilemessages --locale=tr --locale=en --locale=de --locale=fr --locale=ar --locale=ku
+            
+            # Temizlik
+            echo "Temizlik yapılıyor..."
+            docker system prune -f
+            docker image prune -f
+            docker volume prune -f
+            
+            echo "Deployment tamamlandı!"
+
+      - name: Health check
+        run: |
+          echo "Health check başlıyor..."
+          for i in {1..6}; do
+            if curl -f ${{ secrets.PROD_URL }}/health/; then
+              echo "Health check başarılı!"
+              exit 0
+            fi
+            echo "Deneme $i başarısız, 10 saniye bekleniyor..."
+            sleep 10
+          done
+          echo "Health check başarısız!"
+          exit 1
+
+      - name: Deployment Sonuçlarını Slack'e Bildir
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_TITLE: "FinAsis Deployment Sonuçları"
+          SLACK_USERNAME: "FinAsis CI/CD Bot"
+          SLACK_MESSAGE: |
+            ${{ job.status == 'success' && '✅' || '❌' }} Deployment ${{ job.status }} durumunda tamamlandı.
+            Commit: ${{ github.event.head_commit.message }}
+            Branch: ${{ github.ref }}
+            Commit URL: ${{ github.event.head_commit.url }}
+            ${{ job.status == 'failure' && 'Lütfen hata loglarını kontrol edin!' || '' }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_FOOTER: "FinAsis CI/CD Sistemi | ${{ github.event.head_commit.timestamp }}"
+          SLACK_ICON: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" 

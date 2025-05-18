@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        {{ _('Entegrasyonu Düzenle') }}
+    {% else %}
+        {{ _('Yeni Entegrasyon') }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if form.instance.pk %}
+                {{ _('Entegrasyonu Düzenle') }}
+            {% else %}
+                {{ _('Yeni Entegrasyon') }}
+            {% endif %}
+        </h1>
+        <a href="{% url 'external_integrations:integration_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> {{ _('Geri') }}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.provider.id_for_label }}" class="form-label">{{ _('Sağlayıcı') }}</label>
+                            {{ form.provider }}
+                            {% if form.provider.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.provider.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ _('Entegrasyon Adı') }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.integration_type.id_for_label }}" class="form-label">{{ _('Entegrasyon Tipi') }}</label>
+                            {{ form.integration_type }}
+                            {% if form.integration_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.integration_type.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.api_key.id_for_label }}" class="form-label">{{ _('API Anahtarı') }}</label>
+                            {{ form.api_key }}
+                            {% if form.api_key.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.api_key.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.api_secret.id_for_label }}" class="form-label">{{ _('API Gizli Anahtarı') }}</label>
+                            {{ form.api_secret }}
+                            {% if form.api_secret.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.api_secret.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.webhook_url.id_for_label }}" class="form-label">{{ _('Webhook URL') }}</label>
+                            {{ form.webhook_url }}
+                            {% if form.webhook_url.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.webhook_url.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.settings.id_for_label }}" class="form-label">{{ _('Ayarlar') }}</label>
+                            {{ form.settings }}
+                            {% if form.settings.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.settings.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{{ _('JSON formatında ayarlar giriniz.') }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    {{ _('Aktif') }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {{ _('Kaydet') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // JSON editor for settings
+    document.addEventListener('DOMContentLoaded', function() {
+        const settingsField = document.getElementById('{{ form.settings.id_for_label }}');
+        if (settingsField) {
+            const editor = new JSONEditor(settingsField, {
+                mode: 'code',
+                modes: ['code', 'tree'],
+                onError: function(err) {
+                    console.error('JSON Editor Error:', err);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

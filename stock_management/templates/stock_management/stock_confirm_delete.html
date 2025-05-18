@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Stok Sil{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Stok Silme Onayı</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'stock_management:stock_list' %}">Stoklar</a></li>
+        <li class="breadcrumb-item active">Stok Sil</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Dikkat: Bu işlem geri alınamaz!
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i>Stok Kaydı Silinecek</h5>
+                        <p class="mb-0">
+                            <strong>{{ stock.product.name }}</strong> ürününün <strong>{{ stock.warehouse.name }}</strong> deposundaki stok kaydını silmek üzeresiniz. 
+                            Bu işlem geri alınamaz.
+                        </p>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">Ürün Bilgileri</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stock.product.name }}</h5>
+                                    <p class="card-text">Kod: {{ stock.product.code }}</p>
+                                    <p class="card-text">Kategori: {{ stock.product.category }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">Stok Bilgileri</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stock.quantity }} {{ stock.product.unit }}</h5>
+                                    <p class="card-text">Depo: {{ stock.warehouse.name }}</p>
+                                    <p class="card-text">Lokasyon: {{ stock.location|default:"-" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <p>Bu stok kaydını silmek istediğinizden emin misiniz?</p>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i> Evet, Sil
+                            </button>
+                            <a href="{% url 'stock_management:stock_detail' stock.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

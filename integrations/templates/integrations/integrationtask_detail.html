@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Entegrasyon Görev Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Entegrasyon Görev Detayı</h2>
+            <div>
+                <a href="{% url 'integrations:integrationtask_update' task.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Düzenle
+                </a>
+                <a href="{% url 'integrations:integrationtask_delete' task.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Sil
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Entegrasyon</h5>
+                    <p>{{ task.integration }}</p>
+                    
+                    <h5>Görev Tipi</h5>
+                    <p>{{ task.get_task_type_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Durum</h5>
+                    <p>
+                        {% if task.status == 'completed' %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                        {% elif task.status == 'failed' %}
+                            <span class="badge bg-danger">Başarısız</span>
+                        {% elif task.status == 'running' %}
+                            <span class="badge bg-warning">Çalışıyor</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ task.status }}</span>
+                        {% endif %}
+                    </p>
+                    
+                    <h5>Tarih</h5>
+                    <p>{{ task.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+            
+            {% if task.parameters %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>Parametreler</h5>
+                    <div class="border p-3 bg-light">
+                        <pre>{{ task.parameters }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if task.result %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h5>Sonuç</h5>
+                    <div class="border p-3 bg-light">
+                        <pre>{{ task.result }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'integrations:integrationtask_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

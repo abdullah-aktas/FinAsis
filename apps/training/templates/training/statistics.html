@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eğitim İstatistikleri{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sol Menü -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <h5 class="mb-3">Filtreler</h5>
+                
+                <!-- Zaman Aralığı -->
+                <div class="mb-4">
+                    <h6>Zaman Aralığı</h6>
+                    <div class="list-group">
+                        <a href="?period=week" class="list-group-item list-group-item-action {% if selected_period == 'week' %}active{% endif %}">
+                            <i class="fas fa-calendar-week me-2"></i> Son 7 Gün
+                        </a>
+                        <a href="?period=month" class="list-group-item list-group-item-action {% if selected_period == 'month' %}active{% endif %}">
+                            <i class="fas fa-calendar-alt me-2"></i> Son 30 Gün
+                        </a>
+                        <a href="?period=year" class="list-group-item list-group-item-action {% if selected_period == 'year' %}active{% endif %}">
+                            <i class="fas fa-calendar me-2"></i> Son 1 Yıl
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Eğitim Kategorisi -->
+                <div class="mb-4">
+                    <h6>Kategoriler</h6>
+                    <div class="list-group">
+                        {% for category in categories %}
+                        <a href="?category={{ category.id }}" 
+                           class="list-group-item list-group-item-action {% if selected_category == category.id %}active{% endif %}">
+                            <i class="fas fa-{{ category.icon }} me-2"></i>
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Özet Kartları -->
+            <div class="row mt-4">
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Toplam Eğitim</h6>
+                                    <h2 class="mt-2 mb-0">{{ total_trainings }}</h2>
+                                </div>
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Tamamlanan</h6>
+                                    <h2 class="mt-2 mb-0">{{ completed_trainings }}</h2>
+                                </div>
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Ortalama Puan</h6>
+                                    <h2 class="mt-2 mb-0">{{ average_score }}</h2>
+                                </div>
+                                <i class="fas fa-star fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0">Toplam Süre</h6>
+                                    <h2 class="mt-2 mb-0">{{ total_duration }}</h2>
+                                </div>
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafikler -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Eğitim Tamamlama Oranı</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="completionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Kategori Dağılımı</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detaylı İstatistikler -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Eğitim Detayları</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Eğitim</th>
+                                            <th>Kategori</th>
+                                            <th>Başlangıç</th>
+                                            <th>Tamamlanma</th>
+                                            <th>Puan</th>
+                                            <th>Süre</th>
+                                            <th>Durum</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for training in training_details %}
+                                        <tr>
+                                            <td>{{ training.title }}</td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-{{ training.category_icon }} me-1"></i>
+                                                    {{ training.category }}
+                                                </span>
+                                            </td>
+                                            <td>{{ training.start_date|date:"d.m.Y" }}</td>
+                                            <td>{{ training.completion_date|date:"d.m.Y" }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         role="progressbar" 
+                                                         style="width: {{ training.score }}%">
+                                                        {{ training.score }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ training.duration }}</td>
+                                            <td>
+                                                <span class="badge {% if training.status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                                    {{ training.status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .list-group-item {
+    border: none;
+    padding: 0.5rem 1rem;
+}
+
+.sidebar .list-group-item.active {
+    background-color: rgba(36, 112, 220, 0.1);
+    color: #2470dc;
+    border-left: 4px solid #2470dc;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.table th {
+    border-top: none;
+    color: #6c757d;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: normal;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Eğitim Tamamlama Oranı Grafiği
+const completionCtx = document.getElementById('completionChart').getContext('2d');
+new Chart(completionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Tamamlanan', 'Devam Eden', 'Başlanmayan'],
+        datasets: [{
+            data: [{{ completed_percentage }}, {{ in_progress_percentage }}, {{ not_started_percentage }}],
+            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Kategori Dağılımı Grafiği
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ category_labels|safe }},
+        datasets: [{
+            label: 'Eğitim Sayısı',
+            data: {{ category_data|safe }},
+            backgroundColor: '#2470dc'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

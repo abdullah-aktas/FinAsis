@@ -1,0 +1,26 @@
+<ul class="navbar-nav me-auto">
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.app_name == 'finance' %}active{% endif %}" 
+           href="{% url 'finance:dashboard' %}">
+            <i class="fas fa-chart-line"></i> {% trans "Finans" %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.app_name == 'accounting' %}active{% endif %}" 
+           href="{% url 'accounting:dashboard' %}">
+            <i class="fas fa-calculator"></i> {% trans "Muhasebe" %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.app_name == 'hr' %}active{% endif %}" 
+           href="{% url 'hr:dashboard' %}">
+            <i class="fas fa-users"></i> {% trans "İK" %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.app_name == 'stock' %}active{% endif %}" 
+           href="{% url 'stock:dashboard' %}">
+            <i class="fas fa-box"></i> {% trans "Stok" %}
+        </a>
+    </li>
+</ul>

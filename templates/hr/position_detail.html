@@ -1,0 +1,178 @@
+{% extends "hr/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ position.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'hr:position_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'hr:position_edit' position.id %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block hr_content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Pozisyon Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>{% trans "Kod:" %}</strong> {{ position.code }}</p>
+                <p><strong>{% trans "Ad:" %}</strong> {{ position.name }}</p>
+                <p><strong>{% trans "Departman:" %}</strong>
+                    {% if position.department %}
+                    <a href="{% url 'hr:department_detail' position.department.id %}">
+                        {{ position.department.name }}
+                    </a>
+                    {% else %}
+                    <span class="text-muted">{% trans "Atanmadı" %}</span>
+                    {% endif %}
+                </p>
+                <p><strong>{% trans "Durum:" %}</strong>
+                    <span class="badge {% if position.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                        {% if position.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                    </span>
+                </p>
+                <p><strong>{% trans "Oluşturulma:" %}</strong> {{ position.created_at|date:"d.m.Y H:i" }}</p>
+                <p><strong>{% trans "Güncellenme:" %}</strong> {{ position.updated_at|date:"d.m.Y H:i" }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Görev ve Sorumluluklar" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if position.responsibilities %}
+                {{ position.responsibilities|linebreaks }}
+                {% else %}
+                <p class="text-muted mb-0">{% trans "Görev ve sorumluluklar tanımlanmamış." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Çalışanlar" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if position.employees.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Fotoğraf" %}</th>
+                                <th>{% trans "Ad Soyad" %}</th>
+                                <th>{% trans "Departman" %}</th>
+                                <th>{% trans "İşe Başlama" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                                <th>{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in position.employees.all %}
+                            <tr>
+                                <td>
+                                    {% if employee.photo %}
+                                    <img src="{{ employee.photo.url }}" alt="{{ employee.full_name }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'hr:employee_detail' employee.id %}">
+                                        {{ employee.full_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if employee.department %}
+                                    <a href="{% url 'hr:department_detail' employee.department.id %}">
+                                        {{ employee.department.name }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">{% trans "Atanmadı" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ employee.hire_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="badge {% if employee.status == 'active' %}bg-success{% elif employee.status == 'on_leave' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ employee.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'hr:employee_detail' employee.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'hr:employee_edit' employee.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">{% trans "Bu pozisyonda çalışan bulunmamaktadır." %}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Açıklama" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if position.description %}
+                {{ position.description|linebreaks }}
+                {% else %}
+                <p class="text-muted mb-0">{% trans "Pozisyon açıklaması bulunmamaktadır." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Pozisyon Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu pozisyonu silmek istediğinizden emin misiniz?" %}</p>
+                {% if position.employee_count > 0 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% trans "Bu pozisyonda" %} {{ position.employee_count }} {% trans "çalışan bulunmaktadır. Pozisyonu silmek, bu çalışanların pozisyon bilgilerini silecektir." %}
+                </div>
+                {% endif %}
+                <p class="mb-0"><strong>{% trans "Pozisyon:" %}</strong> {{ position.name }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'hr:position_delete' position.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

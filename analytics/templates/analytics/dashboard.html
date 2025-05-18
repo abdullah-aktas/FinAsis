@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dashboard.name }} - Analitik Dashboard{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/gauge-chart@0.3.0/dist/bundle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{{ dashboard.name }}</h1>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" id="refreshDashboard">
+                        <i class="fas fa-sync-alt"></i> Yenile
+                    </button>
+                    <button class="btn btn-outline-secondary" id="exportDashboard">
+                        <i class="fas fa-download"></i> Dışa Aktar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="dashboardGrid">
+        {% for widget in widgets %}
+        <div class="col-md-{{ widget.size.width }} mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{{ widget.title }}</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-link" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-widget-id="{{ widget.id }}" data-action="refresh">
+                                <i class="fas fa-sync-alt"></i> Yenile
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-widget-id="{{ widget.id }}" data-action="export">
+                                <i class="fas fa-download"></i> Dışa Aktar
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-widget-id="{{ widget.id }}" data-action="settings">
+                                <i class="fas fa-cog"></i> Ayarlar
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="widget-content" id="widget-{{ widget.id }}" data-widget-type="{{ widget.widget_type }}">
+                        <div class="loading-spinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Yükleniyor...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Widget Ayarları Modal -->
+<div class="modal fade" id="widgetSettingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Widget Ayarları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="widgetSettingsForm">
+                    <input type="hidden" id="widgetId">
+                    <div class="mb-3">
+                        <label for="widgetTitle" class="form-label">Başlık</label>
+                        <input type="text" class="form-control" id="widgetTitle">
+                    </div>
+                    <div class="mb-3">
+                        <label for="widgetType" class="form-label">Tip</label>
+                        <select class="form-select" id="widgetType">
+                            <option value="line_chart">Çizgi Grafik</option>
+                            <option value="bar_chart">Sütun Grafik</option>
+                            <option value="pie_chart">Pasta Grafik</option>
+                            <option value="table">Tablo</option>
+                            <option value="metric">Metrik</option>
+                            <option value="gauge">Gösterge</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dataSource" class="form-label">Veri Kaynağı</label>
+                        <select class="form-select" id="dataSource"></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="saveWidgetSettings">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gauge-chart@0.3.0/dist/bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Widget verilerini yükle
+    function loadWidgetData(widgetId) {
+        const widgetElement = document.getElementById(`widget-${widgetId}`);
+        const widgetType = widgetElement.dataset.widgetType;
+        
+        fetch(`/analytics/api/widget/${widgetId}/data/`)
+            .then(response => response.json())
+            .then(data => {
+                renderWidget(widgetElement, widgetType, data);
+            })
+            .catch(error => {
+                console.error('Widget verisi yüklenemedi:', error);
+                widgetElement.innerHTML = '<div class="alert alert-danger">Veri yüklenemedi</div>';
+            });
+    }
+
+    // Widget'ı render et
+    function renderWidget(element, type, data) {
+        switch(type) {
+            case 'line_chart':
+                renderLineChart(element, data);
+                break;
+            case 'bar_chart':
+                renderBarChart(element, data);
+                break;
+            case 'pie_chart':
+                renderPieChart(element, data);
+                break;
+            case 'table':
+                renderTable(element, data);
+                break;
+            case 'metric':
+                renderMetric(element, data);
+                break;
+            case 'gauge':
+                renderGauge(element, data);
+                break;
+        }
+    }
+
+    // Tüm widget'ları yükle
+    document.querySelectorAll('.widget-content').forEach(widget => {
+        const widgetId = widget.id.split('-')[1];
+        loadWidgetData(widgetId);
+    });
+
+    // Dashboard yenileme
+    document.getElementById('refreshDashboard').addEventListener('click', function() {
+        document.querySelectorAll('.widget-content').forEach(widget => {
+            const widgetId = widget.id.split('-')[1];
+            loadWidgetData(widgetId);
+        });
+    });
+
+    // Widget ayarları
+    const settingsModal = new bootstrap.Modal(document.getElementById('widgetSettingsModal'));
+    
+    document.querySelectorAll('[data-action="settings"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const widgetId = this.dataset.widgetId;
+            document.getElementById('widgetId').value = widgetId;
+            settingsModal.show();
+        });
+    });
+
+    // Widget ayarlarını kaydet
+    document.getElementById('saveWidgetSettings').addEventListener('click', function() {
+        const widgetId = document.getElementById('widgetId').value;
+        const formData = new FormData(document.getElementById('widgetSettingsForm'));
+        
+        fetch(`/analytics/api/widget/${widgetId}/settings/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            settingsModal.hide();
+            loadWidgetData(widgetId);
+        })
+        .catch(error => {
+            console.error('Ayarlar kaydedilemedi:', error);
+        });
+    });
+
+    // Çizgi Grafik Render Fonksiyonu
+    function renderLineChart(element, data) {
+        const ctx = document.createElement('canvas');
+        element.innerHTML = '';
+        element.appendChild(ctx);
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: data.datasets.map(dataset => ({
+                    label: dataset.label,
+                    data: dataset.data,
+                    borderColor: dataset.color || '#2193B0',
+                    backgroundColor: dataset.color + '20',
+                    tension: 0.4,
+                    fill: true
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Sütun Grafik Render Fonksiyonu
+    function renderBarChart(element, data) {
+        const ctx = document.createElement('canvas');
+        element.innerHTML = '';
+        element.appendChild(ctx);
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: data.datasets.map(dataset => ({
+                    label: dataset.label,
+                    data: dataset.data,
+                    backgroundColor: dataset.color || '#2193B0',
+                    borderColor: dataset.color || '#2193B0',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Pasta Grafik Render Fonksiyonu
+    function renderPieChart(element, data) {
+        const ctx = document.createElement('canvas');
+        element.innerHTML = '';
+        element.appendChild(ctx);
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: data.colors || [
+                        '#2193B0', '#6DD5ED', '#FF6B6B', '#4ECDC4', 
+                        '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    }
+
+    // Tablo Render Fonksiyonu
+    function renderTable(element, data) {
+        const table = document.createElement('table');
+        table.className = 'table table-striped table-hover';
+        
+        // Tablo başlığı
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        data.headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        // Tablo gövdesi
+        const tbody = document.createElement('tbody');
+        data.rows.forEach(row => {
+            const tr = document.createElement('tr');
+            row.forEach(cell => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        
+        element.innerHTML = '';
+        element.appendChild(table);
+    }
+
+    // Metrik Render Fonksiyonu
+    function renderMetric(element, data) {
+        const metricDiv = document.createElement('div');
+        metricDiv.className = 'text-center';
+        
+        const value = document.createElement('h2');
+        value.className = 'mb-0';
+        value.textContent = data.value;
+        
+        const label = document.createElement('p');
+        label.className = 'text-muted mb-0';
+        label.textContent = data.label;
+        
+        if (data.trend) {
+            const trend = document.createElement('small');
+            trend.className = `text-${data.trend > 0 ? 'success' : 'danger'}`;
+            trend.innerHTML = `<i class="fas fa-${data.trend > 0 ? 'arrow-up' : 'arrow-down'}"></i> ${Math.abs(data.trend)}%`;
+            metricDiv.appendChild(trend);
+        }
+        
+        metricDiv.appendChild(value);
+        metricDiv.appendChild(label);
+        
+        element.innerHTML = '';
+        element.appendChild(metricDiv);
+    }
+
+    // Gösterge Render Fonksiyonu
+    function renderGauge(element, data) {
+        const gaugeDiv = document.createElement('div');
+        gaugeDiv.className = 'gauge-container';
+        
+        const gauge = document.createElement('canvas');
+        gauge.id = `gauge-${Date.now()}`;
+        gaugeDiv.appendChild(gauge);
+        
+        element.innerHTML = '';
+        element.appendChild(gaugeDiv);
+        
+        const opts = {
+            angle: 0.15,
+            lineWidth: 0.44,
+            radiusScale: 1,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.035,
+                color: '#000000'
+            },
+            limitMax: false,
+            limitMin: false,
+            colorStart: '#6F6EA0',
+            colorStop: '#C0C0DB',
+            strokeColor: '#E0E0E0',
+            generateGradient: true,
+            highDpiSupport: true,
+            staticZones: data.zones || [
+                {strokeStyle: "#F03E3E", min: 0, max: 20},
+                {strokeStyle: "#FFDD00", min: 20, max: 60},
+                {strokeStyle: "#30B32D", min: 60, max: 100}
+            ]
+        };
+        
+        const target = document.getElementById(gauge.id);
+        const gaugeChart = new Gauge(target).setOptions(opts);
+        gaugeChart.maxValue = data.max || 100;
+        gaugeChart.setMinValue(data.min || 0);
+        gaugeChart.set(data.value);
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Departmanlar" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">{% trans "Departmanlar" %}</h1>
+        <a href="{% url 'company_management:department_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {% trans "Yeni Departman" %}
+        </a>
+    </div>
+
+    <!-- Arama ve Filtreleme -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="{% trans 'Departman ara...' %}" value="{{ search_query }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Departman Listesi -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Departman Adı" %}</th>
+                            <th>{% trans "Şirket" %}</th>
+                            <th>{% trans "Yönetici" %}</th>
+                            <th>{% trans "Çalışan Sayısı" %}</th>
+                            <th>{% trans "Durum" %}</th>
+                            <th>{% trans "İşlemler" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for department in departments %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'company_management:department_detail' department.pk %}" class="text-decoration-none">
+                                    {{ department.name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'company_management:company_detail' department.company.pk %}" class="text-decoration-none">
+                                    {{ department.company.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if department.manager %}
+                                {{ department.manager.get_full_name }}
+                                {% else %}
+                                <span class="text-muted">{% trans "Belirtilmemiş" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ department.employees.count }}</span>
+                            </td>
+                            <td>
+                                {% if department.is_active %}
+                                <span class="badge bg-success">{% trans "Aktif" %}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{% trans "Pasif" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'company_management:department_detail' department.pk %}" class="btn btn-sm btn-info" title="{% trans 'Detay' %}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'company_management:department_edit' department.pk %}" class="btn btn-sm btn-warning" title="{% trans 'Düzenle' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'company_management:department_delete' department.pk %}" class="btn btn-sm btn-danger" title="{% trans 'Sil' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                {% trans "Henüz departman bulunmuyor." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sayfalama -->
+            {% if departments.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if departments.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ departments.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in departments.paginator.page_range %}
+                    <li class="page-item {% if departments.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if departments.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ departments.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

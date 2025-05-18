@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Profil" %} | FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if profile.user.profile_image %}
+                        <img src="{{ profile.user.profile_image.url }}" alt="{{ profile.user.get_full_name }}" 
+                             class="rounded-circle img-fluid" style="width: 150px;">
+                    {% else %}
+                        <img src="{% static 'images/default-profile.png' %}" alt="{{ profile.user.get_full_name }}" 
+                             class="rounded-circle img-fluid" style="width: 150px;">
+                    {% endif %}
+                    <h5 class="my-3">{{ profile.user.get_full_name }}</h5>
+                    <p class="text-muted mb-1">{{ profile.job_title }}</p>
+                    <p class="text-muted mb-4">{{ profile.company_name }}</p>
+                    <div class="d-flex justify-content-center mb-2">
+                        <a href="{% url 'users:profile_edit' %}" class="btn btn-primary me-2">
+                            {% trans "Profili Düzenle" %}
+                        </a>
+                        <a href="{% url 'users:account_edit' %}" class="btn btn-outline-primary">
+                            {% trans "Hesap Ayarları" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4 mb-lg-0">
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush rounded-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <i class="fas fa-globe fa-lg text-warning"></i>
+                            <p class="mb-0">{% trans "Profil Görünürlüğü:" %} {% trans "Herkese Açık" %}</p>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <i class="fab fa-github fa-lg" style="color: #333333;"></i>
+                            <p class="mb-0">{% trans "2 Faktörlü Doğrulama:" %} {% trans "Aktif" %}</p>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
+                            <p class="mb-0">{% trans "Son Giriş:" %} 10.05.2023</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Kişisel Bilgiler" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Ad Soyad" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.user.get_full_name }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "E-posta" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.user.email }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Telefon" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.user.phone_number|default:_("Belirtilmemiş") }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Doğum Tarihi" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.birth_date|date:"d F Y"|default:_("Belirtilmemiş") }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Adres" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.address|default:_("Belirtilmemiş") }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Biyografi" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ profile.bio|default:_("Henüz biyografi eklenmemiş.") }}</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "İş Bilgileri" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Şirket" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.company_name|default:_("Belirtilmemiş") }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">{% trans "Unvan" %}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ profile.job_title|default:_("Belirtilmemiş") }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

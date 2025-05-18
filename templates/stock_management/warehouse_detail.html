@@ -1,0 +1,257 @@
+{% extends "stock_management/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ warehouse.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group me-2">
+    <a href="{% url 'stock_management:warehouse_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> {% trans "Geri" %}
+    </a>
+    <a href="{% url 'stock_management:warehouse_edit' warehouse.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-edit"></i> {% trans "Düzenle" %}
+    </a>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> {% trans "Sil" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block stock_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Depo Bilgileri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "Kod" %}</dt>
+                            <dd class="col-sm-8">{{ warehouse.code }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Ad" %}</dt>
+                            <dd class="col-sm-8">{{ warehouse.name }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Kapasite" %}</dt>
+                            <dd class="col-sm-8">{{ warehouse.capacity }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Doluluk" %}</dt>
+                            <dd class="col-sm-8">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar {% if warehouse.occupancy_rate > 90 %}bg-danger{% elif warehouse.occupancy_rate > 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         role="progressbar" style="width: {{ warehouse.occupancy_rate }}%">
+                                        {{ warehouse.occupancy_rate }}%
+                                    </div>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "Durum" %}</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge {% if warehouse.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if warehouse.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                </span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">{% trans "Oluşturulma" %}</dt>
+                            <dd class="col-sm-8">{{ warehouse.created_at|date:"d.m.Y H:i" }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Güncellenme" %}</dt>
+                            <dd class="col-sm-8">{{ warehouse.updated_at|date:"d.m.Y H:i" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>{% trans "Adres" %}</h6>
+                    <p>{{ warehouse.address|linebreaks }}</p>
+                </div>
+                
+                {% if warehouse.description %}
+                <div class="mt-4">
+                    <h6>{% trans "Açıklama" %}</h6>
+                    <p>{{ warehouse.description|linebreaks }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Depodaki Ürünler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if warehouse.products.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Kod" %}</th>
+                                <th>{% trans "Ad" %}</th>
+                                <th>{% trans "Kategori" %}</th>
+                                <th>{% trans "Miktar" %}</th>
+                                <th>{% trans "Birim" %}</th>
+                                <th>{% trans "İşlemler" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in warehouse.products.all %}
+                            <tr>
+                                <td>{{ product.code }}</td>
+                                <td>
+                                    <a href="{% url 'stock_management:product_detail' product.id %}">
+                                        {{ product.name }}
+                                    </a>
+                                </td>
+                                <td>{{ product.category.name }}</td>
+                                <td>{{ product.quantity }}</td>
+                                <td>{{ product.unit }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'stock_management:product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'stock_management:product_edit' product.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    {% trans "Bu depoda henüz ürün bulunmuyor." %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% trans "Depo İstatistikleri" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-muted">{% trans "Ürün Dağılımı" %}</h6>
+                    <canvas id="productDistributionChart" height="200"></canvas>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted">{% trans "Kategori Dağılımı" %}</h6>
+                    <canvas id="categoryDistributionChart" height="200"></canvas>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted">{% trans "Genel Bilgiler" %}</h6>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-6">{% trans "Toplam Ürün" %}</dt>
+                        <dd class="col-sm-6">{{ warehouse.products.count }}</dd>
+                        
+                        <dt class="col-sm-6">{% trans "Toplam Kategori" %}</dt>
+                        <dd class="col-sm-6">{{ warehouse.categories.count }}</dd>
+                        
+                        <dt class="col-sm-6">{% trans "Ortalama Stok" %}</dt>
+                        <dd class="col-sm-6">{{ warehouse.average_stock }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Depoyu Sil" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "Bu depoyu silmek istediğinizden emin misiniz?" %}</p>
+                {% if warehouse.products.count > 0 %}
+                <div class="alert alert-warning">
+                    {% trans "Bu depoda" %} {{ warehouse.products.count }} {% trans "ürün bulunmaktadır. Depo silindiğinde bu ürünler başka bir depoya taşınmalıdır." %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+                <form method="post" action="{% url 'stock_management:warehouse_delete' warehouse.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sil" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ürün Dağılımı Grafiği
+    const productCtx = document.getElementById('productDistributionChart').getContext('2d');
+    new Chart(productCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ product_names|safe }},
+            datasets: [{
+                label: '{% trans "Miktar" %}',
+                data: {{ product_quantities|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Kategori Dağılımı Grafiği
+    const categoryCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ category_names|safe }},
+            datasets: [{
+                data: {{ category_counts|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 
