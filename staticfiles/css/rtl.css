@@ -1,0 +1,19 @@
+body[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+body[dir="rtl"] .dashboard-grid {
+  direction: rtl;
+}
+body[dir="rtl"] .card, body[dir="rtl"] .btn-primary, body[dir="rtl"] .btn-secondary {
+  text-align: right;
+}
+body[dir="rtl"] .asistan-tip {
+  border-radius: 24px 24px 8px 24px;
+}
+body[dir="rtl"] .navbar, body[dir="rtl"] nav {
+  flex-direction: row-reverse;
+}
+body[dir="rtl"] .swipe-cards {
+  flex-direction: row-reverse;
+} 
