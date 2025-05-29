@@ -1,0 +1,1 @@
+default_app_config = 'FinAsis.apps.management.apps.ManagementConfig' 

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Öğrenci Paneli{% endblock %}
+
+{% block content %}
+<main class="container py-5" aria-label="Öğrenci Paneli Ana İçerik">
+    <div class="row">
+        <!-- Profil Bilgileri -->
+        <section class="col-md-4 mb-4" aria-label="Profil Bilgileri">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Profil Bilgileri</h5>
+                    <p class="card-text">
+                        <strong>Ad Soyad:</strong> {{ student_profile.user.get_full_name }}<br>
+                        <strong>Öğrenci No:</strong> {{ student_profile.student_number }}<br>
+                        <strong>Bölüm:</strong> {{ student_profile.department }}<br>
+                        <strong>Sınıf:</strong> {{ student_profile.grade }}
+                    </p>
+                    <a href="{% url 'student:profile_update' %}" class="btn btn-primary" aria-label="Profili Güncelle">Profili Güncelle</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aktif Ödevler -->
+        <section class="col-md-8 mb-4" aria-label="Aktif Ödevler">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Aktif Ödevler</h5>
+                    {% if active_assignments %}
+                        <div class="list-group list-group-flush">
+                            {% for assignment in active_assignments %}
+                                <a href="{% url 'student:assignment_detail' assignment.pk %}" class="list-group-item list-group-item-action" aria-label="{{ assignment.assignment.title }} ödev detayı">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ assignment.assignment.title }}</h6>
+                                        <small>Son Teslim: {{ assignment.assignment.due_date|date:"d.m.Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ assignment.assignment.description|truncatewords:20 }}</p>
+                                    <small>Durum: {{ assignment.get_status_display }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aktif ödev bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="row">
+        <!-- Son Notlar -->
+        <section class="col-md-6 mb-4" aria-label="Son Notlar">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Son Notlar</h5>
+                    {% if recent_grades %}
+                        <div class="list-group list-group-flush">
+                            {% for grade in recent_grades %}
+                                <div class="list-group-item" aria-label="{{ grade.assignment.assignment.title }} not detayı">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ grade.assignment.assignment.title }}</h6>
+                                        <span class="badge bg-{{ grade.grade|grade_color }}" aria-label="Not: {{ grade.grade }}">{{ grade.grade }}</span>
+                                    </div>
+                                    <small>{{ grade.assignment.assignment.course.title }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Henüz not bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Ders İlerlemesi -->
+        <section class="col-md-6 mb-4" aria-label="Ders İlerlemesi">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ders İlerlemesi</h5>
+                    {% if course_progress %}
+                        <div class="list-group list-group-flush">
+                            {% for progress in course_progress %}
+                                <div class="list-group-item" aria-label="{{ progress.course.title }} ilerleme detayı">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ progress.course.title }}</h6>
+                                        <span class="badge bg-primary text-light" aria-label="İlerleme: {{ progress.progress }}%" style="background-color: #0d6efd;">{{ progress.progress }}%</span>
+                                    </div>
+                                    <div class="progress mt-2" role="progressbar" aria-valuenow="{{ progress.progress }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" style="width: {{ progress.progress }}%" aria-label="İlerleme Çubuğu"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Henüz ders kaydı bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Geri Bildirim Formu Başlangıç -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="card-title mb-3">{% trans 'Geri Bildirim Gönder' %}</h5>
+            <form id="feedbackForm" aria-label="Geri Bildirim Formu">
+              <div class="mb-3">
+                <label for="feedbackMessage" class="form-label">{% trans 'Mesajınız' %} <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="feedbackMessage" name="message" rows="3" required aria-required="true" maxlength="1000" placeholder="{% trans 'Görüş, öneri veya sorunuzu yazın...' %}"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="feedbackEmail" class="form-label">{% trans 'E-posta (isteğe bağlı)' %}</label>
+                <input type="email" class="form-control" id="feedbackEmail" name="email" maxlength="150" placeholder="ornek@eposta.com">
+              </div>
+              <input type="hidden" name="page_url" id="feedbackPageUrl" value="{{ request.path }}">
+              <button type="submit" class="btn btn-success">{% trans 'Gönder' %}</button>
+              <div id="feedbackSuccess" class="alert alert-success mt-3 d-none" role="alert">{% trans 'Geri bildiriminiz için teşekkürler!' %}</div>
+              <div id="feedbackError" class="alert alert-danger mt-3 d-none" role="alert">{% trans 'Bir hata oluştu, lütfen tekrar deneyin.' %}</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Geri Bildirim Formu Bitiş -->
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('feedbackForm');
+  if (!form) return;
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = document.getElementById('feedbackMessage').value.trim();
+    const email = document.getElementById('feedbackEmail').value.trim();
+    const page_url = document.getElementById('feedbackPageUrl').value;
+    if (!message) return;
+    fetch('/education/api/feedback/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]')||{}).value || ''
+      },
+      body: JSON.stringify({ message, page_url, email })
+    })
+    .then(r => r.ok ? r.json() : Promise.reject(r))
+    .then(() => {
+      document.getElementById('feedbackSuccess').classList.remove('d-none');
+      document.getElementById('feedbackError').classList.add('d-none');
+      form.reset();
+    })
+    .catch(() => {
+      document.getElementById('feedbackError').classList.remove('d-none');
+      document.getElementById('feedbackSuccess').classList.add('d-none');
+    });
+  });
+});
+</script>
+{% endblock %} 

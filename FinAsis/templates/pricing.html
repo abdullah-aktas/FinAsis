@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Fiyatlandırma - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis'in farklı işletme ihtiyaçlarına uygun abonelik paketleri. Standart, Profesyonel ve Kurumsal paketlerimiz arasından işletmenize en uygun olanı seçin.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-header-section {
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
+        padding: 100px 0 50px;
+        color: white;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pricing-header-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: radial-gradient(circle at 20% 150%, var(--primary) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 30%, var(--accent) 0%, transparent 50%);
+        opacity: 0.4;
+        z-index: 0;
+    }
+    
+    .pricing-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .pricing-tabs {
+        background-color: white;
+        border-radius: 50px;
+        padding: 0.5rem;
+        display: inline-flex;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pricing-tab {
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .pricing-tab.active {
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .monthly-price, .annual-price {
+        transition: all 0.3s ease;
+    }
+    
+    .save-badge {
+        background-color: rgba(76, 175, 80, 0.15);
+        color: #2e7d32;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+    
+    .guarantee-section {
+        background-color: rgba(0, 151, 167, 0.05);
+        border-radius: 16px;
+        padding: 3rem 0;
+        margin: 5rem 0;
+    }
+    
+    .guarantee-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .comparison-header {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: 1.5rem;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .comparison-table th {
+        font-weight: 600;
+        vertical-align: middle;
+    }
+    
+    .comparison-highlight {
+        background-color: rgba(0, 151, 167, 0.05);
+    }
+    
+    .feature-check {
+        color: var(--success);
+        font-size: 1.2rem;
+    }
+    
+    .feature-times {
+        color: var(--text-hint);
+        font-size: 1.2rem;
+    }
+    
+    .faq-section {
+        padding: 5rem 0;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(0, 151, 167, 0.05);
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 151, 167, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Fiyatlandırma</h2>
+<p>FinAsis hizmet paketleri ve fiyatlandırma seçenekleri burada.</p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const monthlyTab = document.getElementById('monthly-tab');
+        const annualTab = document.getElementById('annual-tab');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const annualPrices = document.querySelectorAll('.annual-price');
+        
+        // Aylık/Yıllık tab değişimi
+        monthlyTab.addEventListener('click', function() {
+            monthlyTab.classList.add('active');
+            annualTab.classList.remove('active');
+            
+            monthlyPrices.forEach(el => el.style.display = 'block');
+            annualPrices.forEach(el => el.style.display = 'none');
+        });
+        
+        annualTab.addEventListener('click', function() {
+            annualTab.classList.add('active');
+            monthlyTab.classList.remove('active');
+            
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            annualPrices.forEach(el => el.style.display = 'block');
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,103 @@
+{
+    "levels": [
+        {
+            "id": 1,
+            "name": "Köy Hayatı",
+            "background": "level1",
+            "missions": [
+                {
+                    "id": "start_company",
+                    "title": "Şirket Kurulumu",
+                    "description": "İlk şirketinizi kurun ve temel işlemleri öğrenin",
+                    "requirements": {
+                        "company_created": true,
+                        "initial_capital": 50000
+                    },
+                    "rewards": {
+                        "money": 10000,
+                        "experience": 500
+                    }
+                },
+                {
+                    "id": "first_production",
+                    "title": "İlk Üretim",
+                    "description": "İlk ürününüzü üretin ve stok oluşturun",
+                    "requirements": {
+                        "production_started": true,
+                        "inventory_count": 100
+                    },
+                    "rewards": {
+                        "money": 15000,
+                        "experience": 750
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Kasaba Ekonomisi",
+            "background": "level2",
+            "missions": [
+                {
+                    "id": "market_expansion",
+                    "title": "Pazar Genişletme",
+                    "description": "Yeni müşteri segmentlerine ulaşın",
+                    "requirements": {
+                        "customer_count": 50,
+                        "market_share": 0.1
+                    },
+                    "rewards": {
+                        "money": 25000,
+                        "experience": 1000
+                    }
+                },
+                {
+                    "id": "financial_management",
+                    "title": "Finansal Yönetim",
+                    "description": "İlk finansal raporunuzu hazırlayın",
+                    "requirements": {
+                        "report_generated": true,
+                        "profit_margin": 0.15
+                    },
+                    "rewards": {
+                        "money": 20000,
+                        "experience": 800
+                    }
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Sanayi Bölgesi",
+            "background": "level3",
+            "missions": [
+                {
+                    "id": "industrial_production",
+                    "title": "Endüstriyel Üretim",
+                    "description": "Büyük ölçekli üretime geçin",
+                    "requirements": {
+                        "production_capacity": 1000,
+                        "efficiency": 0.8
+                    },
+                    "rewards": {
+                        "money": 50000,
+                        "experience": 1500
+                    }
+                },
+                {
+                    "id": "market_domination",
+                    "title": "Pazar Hakimiyeti",
+                    "description": "Pazar lideri olun",
+                    "requirements": {
+                        "market_share": 0.3,
+                        "revenue": 1000000
+                    },
+                    "rewards": {
+                        "money": 75000,
+                        "experience": 2000
+                    }
+                }
+            ]
+        }
+    ]
+} 

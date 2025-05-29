@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Finansal Terimi Sil{% endblock %}
+{% block content %}
+<h1>Finansal Terimi Sil</h1>
+<p>"{{ object.term }}" terimini silmek istediğinize emin misiniz?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-danger">Evet, Sil</button>
+  <a href="{% url 'education:financialtermcard_list' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
+</form>
+{% endblock %} 

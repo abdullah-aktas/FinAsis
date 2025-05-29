@@ -1,0 +1,19 @@
+<!-- Dashboard tarzı login sayfası -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş Yap</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Giriş Yap</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Giriş</button>
+        </form>
+    </div>
+</body>
+</html> 

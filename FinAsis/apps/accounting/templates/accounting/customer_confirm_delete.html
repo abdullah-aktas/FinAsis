@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Müşteri Sil{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Müşteriyi Sil</h2>
+    <p><strong>{{ customer.first_name }} {{ customer.last_name }}</strong> adlı müşteriyi silmek istediğinize emin misiniz?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+        <a href="{% url 'accounting:customer_list' %}" class="btn btn-secondary">Vazgeç</a>
+    </form>
+</div>
+{% endblock %} 

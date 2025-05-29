@@ -1,0 +1,51 @@
+/* FinAsis Modern Tema */
+/* Renk değişkenleri ve ana stiller theme.css'e taşındı */
+body {
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+}
+.main-content, main.container {
+  min-height: 60vh;
+}
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+footer.footer {
+  font-size: 0.95rem;
+}
+.navbar {
+  border-radius: 0 0 1rem 1rem;
+}
+.navbar-brand img {
+  max-height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    gap: 0 !important;
+    align-items: flex-start !important;
+  }
+  .navbar-collapse {
+    background: #222;
+    padding: 1rem;
+    border-radius: 0 0 1rem 1rem;
+  }
+  .navbar-brand span {
+    font-size: 1.1rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .navbar-brand img {
+    max-height: 32px;
+  }
+  .navbar-brand span {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 768px) {
+  .main-content, main.container {
+    padding: 1rem 0.5rem;
+  }
+}
+/* Koyu Tema eski renkleri kaldırıldı, theme.css kullanılacak */ 

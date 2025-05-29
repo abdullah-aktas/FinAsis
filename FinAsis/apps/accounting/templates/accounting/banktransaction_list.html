@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Banka Hareketleri{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Banka Hareketleri</h2>
+    <a href="{% url 'accounting:banktransaction_create' %}" class="btn btn-success mb-3">Yeni Hareket Ekle</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Hesap</th>
+                <th>Tutar</th>
+                <th>Tür</th>
+                <th>Açıklama</th>
+                <th>Tarih</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.account.bank_name }} - {{ transaction.account.iban }}</td>
+                <td>{{ transaction.amount }}₺</td>
+                <td>{{ transaction.get_transaction_type_display }}</td>
+                <td>{{ transaction.description }}</td>
+                <td>{{ transaction.date|date:'d.m.Y H:i' }}</td>
+                <td>
+                    <a href="{% url 'accounting:banktransaction_detail' transaction.pk %}" class="btn btn-info btn-sm">Detay</a>
+                    <a href="{% url 'accounting:banktransaction_update' transaction.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+                    <a href="{% url 'accounting:banktransaction_delete' transaction.pk %}" class="btn btn-danger btn-sm">Sil</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Kayıtlı hareket yok.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

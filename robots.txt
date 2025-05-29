@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /static/
+Disallow: /media/
+Allow: /
+Sitemap: https://finasis.com/sitemap.xml 

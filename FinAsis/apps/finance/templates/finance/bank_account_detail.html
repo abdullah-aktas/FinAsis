@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Banka Hesabı Detayı{% endblock %}
+{% block content %}
+<h1>Banka Hesabı Detayı</h1>
+<p><strong>Banka:</strong> {{ bankaccount.bank_name }}</p>
+<p><strong>Hesap Adı:</strong> {{ bankaccount.account_name }}</p>
+<p><strong>Hesap No:</strong> {{ bankaccount.account_number }}</p>
+<p><strong>Bakiye:</strong> {{ bankaccount.balance }} {{ bankaccount.currency }}</p>
+<a href="{% url 'finance:bank_account_update' bankaccount.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:bank_account_delete' bankaccount.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:bank_account_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

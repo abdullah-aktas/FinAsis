@@ -1,0 +1,52 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Kullanıcı Etkileşimleri</h5>
+        <a href="{% url 'ai_assistant:userinteraction_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Etkileşim
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>Sorgu</th>
+                        <th>Yanıt</th>
+                        <th>Tarih</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for interaction in interactions %}
+                    <tr>
+                        <td>{{ interaction.user }}</td>
+                        <td>{{ interaction.query|truncatechars:50 }}</td>
+                        <td>{{ interaction.response|truncatechars:50 }}</td>
+                        <td>{{ interaction.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'ai_assistant:userinteraction_detail' interaction.pk %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:userinteraction_update' interaction.pk %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:userinteraction_delete' interaction.pk %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Henüz etkileşim kaydı bulunmamaktadır.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

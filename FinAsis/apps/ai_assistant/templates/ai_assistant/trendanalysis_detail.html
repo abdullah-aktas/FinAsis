@@ -1,0 +1,73 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Trend Analizi Detayı</h5>
+        <div>
+            <a href="{% url 'ai_assistant:trendanalysis_update' object.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Düzenle
+            </a>
+            <a href="{% url 'ai_assistant:trendanalysis_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 200px;">Kullanıcı:</th>
+                        <td>{{ object.user }}</td>
+                    </tr>
+                    <tr>
+                        <th>Analiz Türü:</th>
+                        <td>{{ object.get_analysis_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Başlangıç Tarihi:</th>
+                        <td>{{ object.start_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Bitiş Tarihi:</th>
+                        <td>{{ object.end_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Durum:</th>
+                        <td>
+                            {% if object.is_completed %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                            {% else %}
+                            <span class="badge bg-warning">Devam Ediyor</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Oluşturulma Tarihi:</th>
+                        <td>{{ object.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Son Güncelleme:</th>
+                        <td>{{ object.updated_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Analiz Sonuçları</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.analysis_results %}
+                            <pre>{{ object.analysis_results|linebreaks }}</pre>
+                        {% else %}
+                            <p class="text-muted">Henüz analiz sonucu bulunmamaktadır.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,73 @@
+{% load static i18n %}
+<nav class="navbar navbar-expand-lg bg-white shadow-sm border-bottom py-2" aria-label="FinAsis Ana Menü">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+      <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" height="40" class="me-2">
+      <span class="fs-5 text-dark">FinAsis</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/"><i class="bi bi-house-door-fill me-1"></i>{% trans "Ana Sayfa" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/accounts/"><i class="bi bi-person-badge me-1"></i>{% trans "Hesaplar" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/games/"><i class="bi bi-controller me-1"></i>{% trans "Oyunlar" %}</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center">
+        <!-- Tema Değiştirici -->
+        <li class="nav-item me-2">
+          <button id="theme-toggle" class="btn btn-outline-secondary btn-sm" aria-label="Tema Değiştir">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+        </li>
+
+        <!-- Dil Seçici -->
+        <li class="nav-item me-2">
+          <form action="/i18n/setlang/" method="post" class="d-inline">
+            {% csrf_token %}
+            <select name="language" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Dil seçici">
+              <option value="tr" {% if LANGUAGE_CODE == 'tr' %}selected{% endif %}>Türkçe</option>
+              <option value="en" {% if LANGUAGE_CODE == 'en' or LANGUAGE_CODE == 'en-us' %}selected{% endif %}>English</option>
+            </select>
+            <input type="hidden" name="next" value="{{ request.path }}">
+          </form>
+        </li>
+
+        {% if user.is_authenticated %}
+        <!-- Giriş Yapılmış Kullanıcı -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/accounts/profile/"><i class="bi bi-person-lines-fill me-1"></i>{% trans "Profilim" %}</a></li>
+            <li>
+              <form action="{% url 'accounts:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-1"></i>{% trans "Çıkış Yap" %}</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <!-- Giriş Yapılmamış -->
+        <li class="nav-item me-2">
+          <a class="nav-link text-dark" href="/accounts/login/"><i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Giriş Yap" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/accounts/register/"><i class="bi bi-pencil-square me-1"></i>{% trans "Kayıt Ol" %}</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

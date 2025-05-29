@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Finansal Raporlar{% endblock %}
+{% block content %}
+<h1>Finansal Raporlar</h1>
+<a href="{% url 'finance:financial_report_create' %}" class="btn btn-success mb-3">Yeni Finansal Rapor Ekle</a>
+<ul>
+  {% for report in reports %}
+    <li>
+      <a href="{% url 'finance:financial_report_detail' report.pk %}">{{ report.name }} ({{ report.type }})</a>
+    </li>
+  {% empty %}
+    <li>Hiç finansal rapor yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

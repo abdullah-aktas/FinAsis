@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}İletişim - FinAsis{% endblock %}
+{% block content %}
+<h2>İletişim</h2>
+<form class="mt-4" method="post">
+    <div class="mb-3">
+        <label for="name" class="form-label">Adınız</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">E-posta</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+        <label for="message" class="form-label">Mesajınız</label>
+        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Gönder</button>
+</form>
+{% endblock %} 

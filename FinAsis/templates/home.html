@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FinAsis | Geleceğin Finansal Platformu{% endblock %}
+
+{% block meta_description %}FinAsis, yapay zeka destekli finansal yönetim, oyunlaştırılmış eğitim modülleri ve blockchain entegrasyonu ile yeni nesil bulut tabanlı muhasebe platformudur.{% endblock %}
+
+{% block meta_keywords %}FinAsis, muhasebe yazılımı, finansal analiz, yapay zeka muhasebe, oyunlaştırılmış eğitim, finansal simülasyon, e-fatura entegrasyonu, CRM yönetimi, SPK uyumlu yazılım, blockchain muhasebe, öğrenci muhasebe platformu{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary: #009873;
+    --primary-dark: #007a5e;
+    --accent: #f9a825;
+    --accent-dark: #c17900;
+    --text-secondary: #6c757d;
+    --divider: #dee2e6;
+    --brand-font: 'Poppins', sans-serif;
+  }
+  html, body {
+    font-family: var(--brand-font);
+  }
+  body.dark-mode {
+    background-color: #121212;
+    color: #f0f0f0;
+  }
+  .dark-mode .card,
+  .dark-mode .module-card,
+  .dark-mode .legal-card,
+  .dark-mode .feature-card {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+  }
+  .dark-mode .navbar,
+  .dark-mode footer {
+    background-color: #1f1f1f;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+<header class="navbar navbar-expand-lg shadow-sm sticky-top bg-white">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" height="40" width="120" loading="lazy">
+      <span class="fw-bold ms-2 text-dark">FinAsis</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item"><a class="nav-link text-dark" href="/dashboard/">Yönetim Paneli</a></li>
+        <li class="nav-item"><a class="nav-link text-dark" href="/education/">Eğitim Modülü</a></li>
+        <li class="nav-item"><a class="nav-link text-dark" href="/games/">Finansal Oyunlar</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Modüller</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/ai-assistant/">AI Finans Asistanı</a></li>
+            <li><a class="dropdown-item" href="/pricing/">Lisans Paketleri</a></li>
+            <li><a class="dropdown-item" href="/contact/">İletişim</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-outline-success ms-3" href="/login/">Giriş Yap</a>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-sm btn-outline-secondary ms-2" onclick="document.body.classList.toggle('dark-mode')">🌙</button>
+        </li>
+        <li class="nav-item">
+          <form class="d-flex ms-2" role="search" action="/search/">
+            <input class="form-control form-control-sm" type="search" name="q" placeholder="Ara..." aria-label="Ara">
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% endblock %}
+
+{% block footer %}
+<footer class="bg-dark text-white py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <h5>FinAsis</h5>
+        <p class="text-white-50 small">Geleceğin muhasebe ve finans yönetimi platformu.</p>
+        <div class="d-flex gap-3 mt-3">
+          <a href="https://www.instagram.com/finasisapp" class="text-white-50"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/finasis" class="text-white-50"><i class="bi bi-linkedin"></i></a>
+          <a href="mailto:destek@finasis.com.tr" class="text-white-50"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2">
+        <h6 class="text-uppercase">Kurumsal</h6>
+        <ul class="list-unstyled small">
+          <li><a href="/about/" class="text-white-50">Hakkımızda</a></li>
+          <li><a href="/contact/" class="text-white-50">İletişim</a></li>
+          <li><a href="/careers/" class="text-white-50">Kariyer</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2">
+        <h6 class="text-uppercase">Modüller</h6>
+        <ul class="list-unstyled small">
+          <li><a href="/crm/" class="text-white-50">CRM</a></li>
+          <li><a href="/stock/" class="text-white-50">Stok Yönetimi</a></li>
+          <li><a href="/reporting/" class="text-white-50">Raporlama</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-end">
+        <p class="text-white-50 small mb-0">© 2025 FinAsis Teknoloji A.Ş. Tüm hakları saklıdır.</p>
+        <p class="text-white-50 small">İzmir merkezli, global vizyonlu 💼🌍</p>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
+</script>
+{% endblock %}

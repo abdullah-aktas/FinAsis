@@ -1,0 +1,236 @@
+from django.shortcuts import render, redirect
+from django.http import HttpRequest, HttpResponse
+from ..models import Declaration, Company
+from ..services.reports import (
+    generate_kdv_report, generate_muhtasar_report, generate_babs_report,
+    export_report_to_excel, export_report_to_pdf,
+    generate_yevmiye_defteri, generate_kebir_defteri, generate_mizan_defteri,
+    generate_envanter_defteri, generate_kasa_defteri, generate_demirbas_defteri,
+    generate_bilanco, generate_gelir_tablosu, generate_nakit_akisi_tablosu,
+    calculate_financial_ratios, trend_analysis, ai_financial_advice
+)
+
+def report_redirect(request: HttpRequest) -> HttpResponse:
+    return redirect('accounting:summary_report')
+
+def summary_report(request: HttpRequest) -> HttpResponse:
+    return render(request, 'accounting/summary_report.html')
+
+def income_expense_chart_data(request: HttpRequest) -> HttpResponse:
+    # Örnek veri, gerçek veri ile değiştirilmeli
+    data = {
+        'income': [1000, 2000, 1500],
+        'expense': [800, 1200, 900],
+    }
+    return HttpResponse(data)
+
+def chart_dashboard(request: HttpRequest) -> HttpResponse:
+    return render(request, 'accounting/chart_dashboard.html')
+
+def summary_report_pdf(request: HttpRequest) -> HttpResponse:
+    # PDF rapor üretimi burada yapılacak
+    return HttpResponse('PDF raporu')
+
+def declaration_report_list(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    return render(request, 'accounting/declaration_report_list.html', {'companies': companies})
+
+def kdv_report_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    period = request.GET.get('period', '2024-06')
+    df = generate_kdv_report(company, period)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'kdv_{period}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'kdv_{period}.pdf')
+    return render(request, 'accounting/kdv_report.html', {'df': df, 'period': period, 'company': company, 'companies': companies})
+
+def muhtasar_report_view(request: HttpRequest) -> HttpResponse:
+    company = request.user.company
+    period = request.GET.get('period', '2024-06')
+    df = generate_muhtasar_report(company, period)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'muhtasar_{period}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'muhtasar_{period}.pdf')
+    return render(request, 'accounting/muhtasar_report.html', {'df': df, 'period': period})
+
+def babs_report_view(request: HttpRequest) -> HttpResponse:
+    company = request.user.company
+    period = request.GET.get('period', '2024-06')
+    df = generate_babs_report(company, period)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'babs_{period}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'babs_{period}.pdf')
+    return render(request, 'accounting/babs_report.html', {'df': df, 'period': period})
+
+def yevmiye_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_yevmiye_defteri(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'yevmiye_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'yevmiye_{year}_{month}.pdf')
+    return render(request, 'accounting/yevmiye_defteri.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def kebir_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_kebir_defteri(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'kebir_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'kebir_{year}_{month}.pdf')
+    return render(request, 'accounting/kebir_defteri.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def mizan_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_mizan_defteri(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'mizan_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'mizan_{year}_{month}.pdf')
+    return render(request, 'accounting/mizan_defteri.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def envanter_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_envanter_defteri(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'envanter_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'envanter_{year}_{month}.pdf')
+    return render(request, 'accounting/envanter_defteri.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def kasa_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_kasa_defteri(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'kasa_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'kasa_{year}_{month}.pdf')
+    return render(request, 'accounting/kasa_defteri.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def demirbas_defteri_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_demirbas_defteri(company, year)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'demirbas_{year}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'demirbas_{year}.pdf')
+    return render(request, 'accounting/demirbas_defteri.html', {'df': df, 'year': year, 'company': company, 'companies': companies})
+
+def bilanco_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_bilanco(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'bilanco_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'bilanco_{year}_{month}.pdf')
+    return render(request, 'accounting/bilanco.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def gelir_tablosu_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_gelir_tablosu(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'gelir_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'gelir_{year}_{month}.pdf')
+    return render(request, 'accounting/gelir_tablosu.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def nakit_akisi_tablosu_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    df = generate_nakit_akisi_tablosu(company, year, month)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, f'nakit_akisi_{year}_{month}.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, f'nakit_akisi_{year}_{month}.pdf')
+    return render(request, 'accounting/nakit_akisi_tablosu.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+
+def financial_analysis_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    year = int(request.GET.get('year', '2024'))
+    month = int(request.GET.get('month', '6'))
+    if company_id:
+        company = Company.objects.get(pk=company_id)
+    else:
+        company = companies.first()
+    ratios = calculate_financial_ratios(company, year, month)
+    trends = trend_analysis(company, year)
+    advice = ai_financial_advice(company, year, month)
+    return render(request, 'accounting/financial_analysis.html', {
+        'ratios': ratios,
+        'trends': trends,
+        'advice': advice,
+        'company': company,
+        'companies': companies,
+        'year': year,
+        'month': month
+    }) 

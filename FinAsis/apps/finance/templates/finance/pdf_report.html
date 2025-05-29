@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Finansal Gelişim Raporu</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 32px; }
+        h1, h2 { color: #009688; }
+        .section { margin-bottom: 32px; }
+        .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .summary-table th, .summary-table td { border: 1px solid #eee; padding: 8px; }
+        .summary-table th { background: #f8f9fa; }
+        .advice { background: #e8f5e9; color: #388e3c; padding: 16px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Finansal Gelişim Raporu</h1>
+    <p><strong>Kullanıcı:</strong> {{ user.get_full_name|default:user.username }}</p>
+    <p><strong>Tarih:</strong> {{ now|date:"d.m.Y H:i" }}</p>
+
+    <div class="section">
+        <h2>Gelir & Gider Özeti</h2>
+        <table class="summary-table">
+            <tr>
+                <th>Dönem</th>
+                {% for label in chart_labels %}<th>{{ label }}</th>{% endfor %}
+            </tr>
+            <tr>
+                <td>Gelir (₺)</td>
+                {% for val in chart_income %}<td>{{ val }}</td>{% endfor %}
+            </tr>
+            <tr>
+                <td>Gider (₺)</td>
+                {% for val in chart_expense %}<td>{{ val }}</td>{% endfor %}
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Yatırım Performansı</h2>
+        <table class="summary-table">
+            <tr>
+                <th>Varlık</th>
+                {% for label in investment_labels %}<th>{{ label }}</th>{% endfor %}
+            </tr>
+            <tr>
+                <td>Getiri (₺)</td>
+                {% for val in investment_returns %}<td>{{ val }}</td>{% endfor %}
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>AI Destekli Finansal Öneri</h2>
+        <div class="advice">
+            {{ ai_advice }}
+        </div>
+    </div>
+</body>
+</html> 

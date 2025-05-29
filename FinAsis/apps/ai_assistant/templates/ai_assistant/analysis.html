@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Finansal Analiz{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-4">
+        <h1 class="display-4 text-ai">Finansal Analiz</h1>
+        <p class="lead">Şirketinizin finansal durumunu analiz edin ve detaylı raporlar alın</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-ai mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-ai">Finansal Veri Girişi</h5>
+                <form id="analysis-form">
+                    <div class="mb-3">
+                        <label for="company-name" class="form-label">Şirket Adı</label>
+                        <input type="text" class="form-control" id="company-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="revenue" class="form-label">Gelir (TL)</label>
+                        <input type="number" class="form-control" id="revenue" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenses" class="form-label">Giderler (TL)</label>
+                        <input type="number" class="form-control" id="expenses" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assets" class="form-label">Varlıklar (TL)</label>
+                        <input type="number" class="form-control" id="assets" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="liabilities" class="form-label">Yükümlülükler (TL)</label>
+                        <input type="number" class="form-control" id="liabilities" required>
+                    </div>
+                    <button type="submit" class="btn btn-ai w-100">
+                        <i class="fas fa-chart-line"></i> Analiz Et
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-ai mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-ai">Analiz Sonuçları</h5>
+                <div id="analysis-results">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                        <p>Analiz sonuçları burada görüntülenecek</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-ai">
+            <div class="card-body">
+                <h5 class="card-title text-ai">Öneriler</h5>
+                <div id="recommendations">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-lightbulb fa-3x mb-3"></i>
+                        <p>Finansal öneriler burada görüntülenecek</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('analysis-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Form verilerini al
+    const formData = {
+        companyName: document.getElementById('company-name').value,
+        revenue: parseFloat(document.getElementById('revenue').value),
+        expenses: parseFloat(document.getElementById('expenses').value),
+        assets: parseFloat(document.getElementById('assets').value),
+        liabilities: parseFloat(document.getElementById('liabilities').value)
+    };
+    
+    // Burada backend'e veri gönderme işlemi yapılacak
+    // Şimdilik örnek bir analiz sonucu gösteriyoruz
+    const profit = formData.revenue - formData.expenses;
+    const equity = formData.assets - formData.liabilities;
+    
+    document.getElementById('analysis-results').innerHTML = `
+        <div class="mb-4">
+            <h6 class="text-ai">Temel Finansal Göstergeler</h6>
+            <div class="row">
+                <div class="col-6">
+                    <p class="mb-1">Net Kar:</p>
+                    <h4 class="${profit >= 0 ? 'text-success' : 'text-danger'}">${profit.toLocaleString('tr-TR')} TL</h4>
+                </div>
+                <div class="col-6">
+                    <p class="mb-1">Özsermaye:</p>
+                    <h4 class="${equity >= 0 ? 'text-success' : 'text-danger'}">${equity.toLocaleString('tr-TR')} TL</h4>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h6 class="text-ai">Finansal Oranlar</h6>
+            <div class="row">
+                <div class="col-6">
+                    <p class="mb-1">Kar Marjı:</p>
+                    <h4>${((profit / formData.revenue) * 100).toFixed(2)}%</h4>
+                </div>
+                <div class="col-6">
+                    <p class="mb-1">Borç/Özsermaye:</p>
+                    <h4>${(formData.liabilities / equity).toFixed(2)}</h4>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('recommendations').innerHTML = `
+        <div class="alert ${profit >= 0 ? 'alert-success' : 'alert-warning'}">
+            <h6 class="alert-heading">Genel Değerlendirme</h6>
+            <p>${profit >= 0 ? 'Şirketiniz karlı bir dönem geçiriyor.' : 'Şirketiniz zarar ediyor, giderleri azaltmayı düşünebilirsiniz.'}</p>
+        </div>
+        <div class="alert ${equity >= 0 ? 'alert-success' : 'alert-danger'}">
+            <h6 class="alert-heading">Finansal Yapı</h6>
+            <p>${equity >= 0 ? 'Finansal yapınız sağlıklı görünüyor.' : 'Yükümlülükleriniz varlıklarınızdan fazla, acil önlem alınmalı.'}</p>
+        </div>
+    `;
+});
+</script>
+{% endblock %}
+{% endblock %} 

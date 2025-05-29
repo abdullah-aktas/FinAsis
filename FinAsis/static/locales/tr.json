@@ -1,0 +1,23 @@
+{
+  "login_title": "Giriş Yap",
+  "login_button": "Giriş Yap",
+  "asistan_tip": "Günlük gelir gider tablon hazır! Giriş yaparak öğren.",
+  "dashboard_title": "Panel",
+  "ai_panel_title": "AI Asistan",
+  "ai_panel_message": "Bugünkü önerin hazır!",
+  "kpi_income": "Günlük Gelir",
+  "kpi_expense": "Günlük Gider",
+  "kpi_balance": "Bakiye",
+  "kpi_transactions": "İşlem Sayısı",
+  "timeline_title": "Bugünün Zaman Çizelgesi",
+  "edu_card_title": "Bugünün Finansal Terimi: Net Kar Marjı",
+  "quick_invoice": "Yeni Fatura",
+  "quick_expense": "Yeni Gider",
+  "quick_stock": "Stok Girişi",
+  "footer_copyright": "© 2025 FinAsis. Tüm hakları saklıdır.",
+  "lang_select": "Dil",
+  "cookie_message": "Bu site çerezleri kullanır. Devam ederek çerez kullanımını kabul etmiş olursunuz.",
+  "cookie_accept": "Kabul Et",
+  "cookie_decline": "Reddet",
+  "contrast_toggle": "Yüksek Kontrast"
+} 

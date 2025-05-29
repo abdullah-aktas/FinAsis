@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ game.name }}</h1>
+<p>{{ game.description }}</p>
+<a href="{% url 'games:games_index' %}">Tüm Oyunlara Dön</a>
+{% endblock %} 

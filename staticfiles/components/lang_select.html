@@ -1,0 +1,102 @@
+<!-- Dil Seçici (Select) -->
+<select id="lang-select" class="btn btn-secondary btn-sm" style="margin-left:1rem;" aria-label="Dil seçimi">
+  <option value="tr">🇹🇷 Türkçe</option>
+  <option value="en">🇬🇧 English</option>
+  <option value="de">🇩🇪 Deutsch</option>
+  <option value="fr">🇫🇷 Français</option>
+  <option value="ar">🇸🇦 العربية</option>
+  <option value="ku">🇹🇷 Kurdî</option>
+</select>
+
+<!-- HTML İçerikte Çeviri Etiketleri Kullanımı (Ornek) -->
+<h5 id="helpModalLabel"><i class="bi bi-question-circle me-2"></i> Yardım Merkezi</h5>
+<input id="helpSearch" class="form-control" data-i18n-placeholder="help_search_placeholder">
+<span data-i18n="help_close">Kapat</span>
+<a data-i18n="help_all_docs" href="/help/">Tüm Dökümantasyon</a>
+
+<!-- JS: Dil Değiştirici -->
+<script>
+const translations = {
+  tr: {
+    helpModalLabel: 'Yardım Merkezi',
+    help_search_placeholder: 'Sorunuzu veya anahtar kelimeyi yazın...',
+    help_close: 'Kapat',
+    help_all_docs: 'Tüm Dökümantasyon'
+  },
+  en: {
+    helpModalLabel: 'Help Center',
+    help_search_placeholder: 'Type your issue or keyword...',
+    help_close: 'Close',
+    help_all_docs: 'Full Documentation'
+  },
+  de: {
+    helpModalLabel: 'Hilfezentrum',
+    help_search_placeholder: 'Geben Sie ein Stichwort ein...',
+    help_close: 'Schließen',
+    help_all_docs: 'Alle Dokumente'
+  },
+  fr: {
+    helpModalLabel: 'Centre d’aide',
+    help_search_placeholder: 'Tapez votre question ou mot-clé...',
+    help_close: 'Fermer',
+    help_all_docs: 'Documentation complète'
+  },
+  ar: {
+    helpModalLabel: 'مركز المساعدة',
+    help_search_placeholder: 'اكتب مشكلتك أو كلمة مفتاحية...',
+    help_close: 'إغلاق',
+    help_all_docs: 'كل المستندات'
+  },
+  ku: {
+    helpModalLabel: 'Navenda Alîkariyê',
+    help_search_placeholder: 'Pirsê xwe an bişkojka bingehîn binivîse...',
+    help_close: 'Girtin',
+    help_all_docs: 'Hemî Belge'
+  }
+};
+
+function updateLanguage(lang) {
+  const dict = translations[lang];
+  if (!dict) return;
+
+  // ID ile birebir hedeflenen alanlar
+  const modalLabel = document.getElementById('helpModalLabel');
+  if (modalLabel) {
+    modalLabel.innerHTML = `<i class="bi bi-question-circle me-2"></i> ${dict.helpModalLabel}`;
+  }
+
+  const searchInput = document.getElementById('helpSearch');
+  if (searchInput) {
+    searchInput.placeholder = dict.help_search_placeholder;
+  }
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+}
+
+// Seçim olayı
+const langSelect = document.getElementById('lang-select');
+langSelect.addEventListener('change', (e) => {
+  const lang = e.target.value;
+  localStorage.setItem('finasis-lang', lang);
+  updateLanguage(lang);
+});
+
+// Sayfa yüklenince otomatik dil uygula
+document.addEventListener('DOMContentLoaded', () => {
+  const lang = localStorage.getItem('finasis-lang') || navigator.language.slice(0,2) || 'tr';
+  langSelect.value = translations[lang] ? lang : 'tr';
+  updateLanguage(langSelect.value);
+});
+</script>
+
+<!-- GELİŞTİRME ÖNERİLERİ -->
+<!--
+1. i18next kütüphanesi entegre edilerek tüm sayfa içeriği JSON dosyasından çevrilebilir
+2. /tr/help, /en/help gibi URL tabanlı çok dilli SEO uyumlu yapıya geçilebilir
+3. RTL diller (ar, ku) için <html dir="rtl"> uyarlaması otomatik eklenebilir
+4. Giriş yapan kullanıcının profiline kayıtlı dil ile otomatik açılış
+5. Sayfanın metinleri JSON tabanlı olarak veri tabanından veya CMS'ten çekilebilir
+-->

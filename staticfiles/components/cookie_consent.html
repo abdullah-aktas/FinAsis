@@ -1,0 +1,81 @@
+<!-- Başlangıç: Çerez Uyarısı -->
+<div id="cookie-consent" role="dialog" aria-live="polite" aria-label="Çerez bildirimi"
+     style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#263238;color:#fff;padding:1rem;display:none;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:0.95rem;">
+  <span data-i18n="cookie_message" style="flex:1;">
+    Bu site çerezleri kullanır. Devam ederek çerez kullanımını kabul etmiş olursunuz.
+  </span>
+  <div style="display:flex;gap:0.5rem;">
+    <button class="btn btn-success btn-sm" onclick="acceptCookies()" data-i18n="cookie_accept" aria-label="Çerezleri kabul et">Kabul Et</button>
+    <button class="btn btn-outline-light btn-sm" onclick="declineCookies()" data-i18n="cookie_decline" aria-label="Çerezleri reddet">Reddet</button>
+  </div>
+</div>
+
+<!-- JavaScript: Çerez Denetimi ve Takip -->
+<script>
+  function showCookieConsent() {
+    const consent = localStorage.getItem('finasis-cookie');
+    if (!consent) {
+      setTimeout(() => {
+        const el = document.getElementById('cookie-consent');
+        if (el) el.style.display = 'flex';
+      }, 1000); // 1 saniye sonra göster
+    } else if (consent === 'accepted') {
+      enableTrackingScripts();
+    }
+  }
+
+  function acceptCookies() {
+    localStorage.setItem('finasis-cookie', 'accepted');
+    document.getElementById('cookie-consent').style.display = 'none';
+    enableTrackingScripts(); // Takip scriptlerini aktif et
+  }
+
+  function declineCookies() {
+    localStorage.setItem('finasis-cookie', 'declined');
+    document.getElementById('cookie-consent').style.display = 'none';
+  }
+
+  // Sayfa yüklenince çerez uyarısını göster
+  window.addEventListener('DOMContentLoaded', showCookieConsent);
+
+  // Kullanıcı kabul ederse çalışacak izleme scriptleri
+  function enableTrackingScripts() {
+    // Google Analytics 4
+    if (!window.gtag) {
+      const gaScript = document.createElement('script');
+      gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX";
+      gaScript.async = true;
+      document.head.appendChild(gaScript);
+
+      gaScript.onload = () => {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
+      };
+    }
+
+    // Plausible Analytics (privacy-first)
+    if (!document.getElementById('plausible-script')) {
+      const plausible = document.createElement('script');
+      plausible.src = "https://plausible.io/js/script.js";
+      plausible.defer = true;
+      plausible.dataset.domain = "finasis.com";
+      plausible.id = "plausible-script";
+      document.head.appendChild(plausible);
+    }
+
+    // Hotjar
+    if (!window.hj) {
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:1234567,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    }
+  }
+</script>

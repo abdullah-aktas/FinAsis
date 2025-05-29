@@ -1,0 +1,1 @@
+# Blockchain ile ilgili servis fonksiyonları burada tanımlanacak. 

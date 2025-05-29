@@ -1,0 +1,26 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+<h2>Envanter Defteri ({{ year }}/{{ month }})</h2>
+<p><strong>Şirket:</strong> {{ company.name }}</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            {% for col in df.columns %}
+            <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in df.values.tolist %}
+        <tr>
+            {% for val in row %}
+            <td>{{ val }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="?year={{ year }}&month={{ month }}&company={{ company.id }}&excel=1" class="btn btn-success">Excel İndir</a>
+<a href="?year={{ year }}&month={{ month }}&company={{ company.id }}&pdf=1" class="btn btn-danger">PDF İndir</a>
+<a href="{% url 'accounting:declaration_report_list' %}?company={{ company.id }}" class="btn btn-secondary">Geri</a>
+{% endblock %} 

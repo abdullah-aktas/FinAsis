@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Yapay Zeka Asistanı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Yapay Zeka Asistanı</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'ai_assistant:userinteraction_list' %}" class="list-group-item list-group-item-action">Kullanıcı Etkileşimleri</a>
+                <a href="{% url 'ai_assistant:financialprediction_list' %}" class="list-group-item list-group-item-action">Finansal Tahminler</a>
+                <a href="{% url 'ai_assistant:financialreport_list' %}" class="list-group-item list-group-item-action">Finansal Raporlar</a>
+                <a href="{% url 'ai_assistant:anomalydetection_list' %}" class="list-group-item list-group-item-action">Anomali Tespiti</a>
+                <a href="{% url 'ai_assistant:trendanalysis_list' %}" class="list-group-item list-group-item-action">Trend Analizi</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% block ai_assistant_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

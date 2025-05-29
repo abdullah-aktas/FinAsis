@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gizlilik Politikası - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis gizlilik politikası ve kişisel verilerin korunması hakkında bilgilendirme. KVKK kapsamında veri işleme politikamız.{% endblock %}
+
+{% block content %}
+<h2>Gizlilik Politikası</h2>
+<p>FinAsis olarak gizliliğinize önem veriyoruz. Detaylı bilgi için bu sayfayı inceleyebilirsiniz.</p>
+<div class="card" style="margin-top:2rem;">
+    <h2 style="color:var(--main-green);">Gizlilik Politikası</h2>
+    <p>Kişisel verilerinizin korunması ve gizliliğiniz bizim için önemlidir. Detaylı bilgi için aşağıdaki metni inceleyebilirsiniz.</p>
+    <ul>
+        <li>Kişisel verileriniz, yasal yükümlülükler dışında üçüncü kişilerle paylaşılmaz.</li>
+        <li>Verileriniz güvenli sunucularda saklanır.</li>
+        <li>Çerezler ve benzeri teknolojiler kullanıcı deneyimini iyileştirmek için kullanılır.</li>
+        <li>Gizlilik politikamızda değişiklik yapılabilir, güncellemeleri takip ediniz.</li>
+    </ul>
+    <div class="mt-4">
+        <a href="/legal/" class="btn btn-sm">Yasal Bilgiler</a>
+        <a href="/dashboard/" class="btn">Panele Dön</a>
+        <a href="/" class="btn btn-light" style="color:var(--main-blue); background:#fff;">Ana Sayfa</a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,25 @@
+{% extends "common/base.html" %}
+{% block title %}Yönetim Paneli{% endblock %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/yonetim/">FinAsis Yönetim</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="adminNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="/yonetim/">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Kullanıcılar</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Şirketler</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Faturalar</a></li>
+        <!-- Diğer yönetim linkleri -->
+      </ul>
+      <span class="navbar-text">{{ request.user.username }}</span>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  {% block admin_content %}{% endblock %}
+</div>
+{% endblock %} 

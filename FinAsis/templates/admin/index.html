@@ -1,0 +1,94 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}FinAsis Yönetim Paneli{% endblock %}
+
+{% block content %}
+
+<div class="container my-4">
+
+  <!-- 👥 Kullanıcıya Hoş Geldin -->
+  <h2 class="mb-4">Merhaba {{ user.first_name|default:user.username }}, yönetim paneline hoş geldiniz.</h2>
+
+  <!-- ⚡ Hızlı İşlem Butonları -->
+  <div class="mb-4 d-flex flex-wrap gap-3">
+    <a href="/admin/accounts/customer/add/" class="btn btn-success">
+      <i class="bi bi-person-plus me-1"></i> Yeni Müşteri Ekle
+    </a>
+    <a href="/admin/finance/report/" class="btn btn-primary">
+      <i class="bi bi-bar-chart-line me-1"></i> Raporları Gör
+    </a>
+    <a href="/admin/games/game/" class="btn btn-warning">
+      <i class="bi bi-controller me-1"></i> Oyunlar
+    </a>
+  </div>
+
+  <!-- 📊 Grafik Paneli -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title"><i class="bi bi-graph-up-arrow me-2"></i> Aylık Aktif Kullanıcılar</h5>
+      <canvas id="userChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <!-- 📦 Kısa Özetler (Widget Alanı) -->
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="p-3 bg-light border rounded">
+        <h6>Toplam Müşteri</h6>
+        <p class="fs-4 fw-bold">{{ total_customers }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 bg-light border rounded">
+        <h6>Bugünkü Giriş</h6>
+        <p class="fs-4 fw-bold">{{ today_logins }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 bg-light border rounded">
+        <h6>Aktif Raporlar</h6>
+        <p class="fs-4 fw-bold">{{ total_reports }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('userChart').getContext('2d');
+  const userChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Kullanıcı Sayısı',
+        data: {{ chart_data|safe }},
+        fill: true,
+        tension: 0.4,
+        borderColor: '#009688',
+        backgroundColor: 'rgba(0,150,136,0.1)',
+        pointBackgroundColor: '#009688'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+</script>
+
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+.card-title i {
+  color: #009688;
+}
+</style>
+{% endblock %} 
