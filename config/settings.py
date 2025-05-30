@@ -41,19 +41,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'crispy_forms',
     'crispy_bootstrap5',
-    'FinAsis.apps.accounts',
-    'FinAsis.apps.accounting',
-    'FinAsis.apps.common',
-    'FinAsis.apps.games',
-    'FinAsis.apps.ai_assistant',
-    'FinAsis.apps.blockchain',
-    'FinAsis.apps.education',
-    'FinAsis.apps.education.teacher_dashboard',
-    'FinAsis.apps.finance',
-    'FinAsis.apps.locale',
-    'FinAsis.apps.management',
-    'FinAsis.apps.permissions',
-    'FinAsis.apps.virtual_company',
     'channels',
 ]
 
@@ -123,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 # Internationalization
