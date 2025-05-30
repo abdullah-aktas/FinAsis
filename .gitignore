@@ -1,6 +1,31 @@
+# Python derleme dosyaları
 *.pyc
 __pycache__/
-*.sqlite3
-.env
+
+# Sanal ortam klasörleri
+env/
 venv/
-node_modules
+
+# Django ortam dosyası
+.env
+
+# Veritabanı dosyaları (SQLite - varsa)
+*.sqlite3
+
+# Medya ve statik dosyalar
+/media/
+staticfiles/
+
+# Node.js bağımlılıkları (Varsa frontend içinde kullanıyorsan)
+node_modules/
+
+# VSCode ayar dosyaları
+.vscode/
+
+# Log dosyaları
+*.log
+
+# macOS ve Windows sistem dosyaları
+.DS_Store
+Thumbs.db
+
