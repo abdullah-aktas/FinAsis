@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AR Ürün Demo{% endblock %}
+
+{% block content %}
+<script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+
+<div class="container mt-5">
+    <h2>AR ile Ürünleri Marker'a Göre Görüntüle ve Satış/Gider Kaydı Yap</h2>
+    <p>Farklı markerları kameraya gösterin. Her marker için ilgili ürün bilgisi ve işlem butonları ekranda belirecek.</p>
+</div>
+
+<select id="company-select" style="position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9999;display:none;" class="form-select w-auto"></select>
+
+<a-scene embedded arjs>
+    <a-marker preset="hiro" id="marker-hiro">
+        <a-box position='0 0.5 0' material='color: blue;'></a-box>
+        <a-entity id="product-info-hiro" position="0 1 0" text="value: Yükleniyor..."></a-entity>
+    </a-marker>
+    <a-marker preset="kanji" id="marker-kanji">
+        <a-sphere position='0 0.5 0' material='color: red;'></a-sphere>
+        <a-entity id="product-info-kanji" position="0 1 0" text="value: Yükleniyor..."></a-entity>
+    </a-marker>
+    <a-entity camera></a-entity>
+</a-scene>
+
+<button id="ar-sale-btn" style="display:none; position: fixed; top: 120px; left: 50%; transform: translateX(-50%); z-index: 9999;" class="btn btn-success">Satış Yap</button>
+<button id="ar-expense-btn" style="display:none; position: fixed; top: 170px; left: 50%; transform: translateX(-50%); z-index: 9999;" class="btn btn-danger">Gider Kaydet</button>
+
+<script>
+let selectedCompany = null;
+let currentMarker = null;
+let currentProduct = null;
+
+// Şirketleri getir ve dropdown'a ekle
+fetch("{% url 'ar_company_list' %}")
+  .then(response => response.json())
+  .then(companies => {
+    if (companies.length > 0) {
+      const select = document.getElementById('company-select');
+      select.style.display = 'block';
+      companies.forEach(c => {
+        let opt = document.createElement('option');
+        opt.value = c.id;
+        opt.text = c.name;
+        select.appendChild(opt);
+      });
+      selectedCompany = companies[0].id;
+      select.onchange = function() {
+        selectedCompany = this.value;
+      };
+    }
+  });
+
+// Marker ve ürün eşleştirme fonksiyonu
+function updateProductInfo(markerId, infoId) {
+  fetch(`/ar/product/marker/${markerId}/`)
+    .then(response => response.json())
+    .then(product => {
+      if (!product.error) {
+        document.getElementById(infoId).setAttribute('text', 'value',
+          `Ad: ${product.name}\nFiyat: ${product.price}₺\nStok: ${product.stock}`);
+        currentProduct = product;
+        currentMarker = markerId;
+        document.getElementById('ar-sale-btn').style.display = 'block';
+        document.getElementById('ar-expense-btn').style.display = 'block';
+      } else {
+        document.getElementById(infoId).setAttribute('text', 'value', 'Ürün bulunamadı');
+        document.getElementById('ar-sale-btn').style.display = 'none';
+        document.getElementById('ar-expense-btn').style.display = 'none';
+        currentProduct = null;
+        currentMarker = null;
+      }
+    });
+}
+
+// Marker eventlerini dinle
+AFRAME.scenes[0].addEventListener('markerFound', function (e) {
+  const markerId = e.target.id.replace('marker-', '');
+  const infoId = `product-info-${markerId}`;
+  updateProductInfo(markerId, infoId);
+});
+AFRAME.scenes[0].addEventListener('markerLost', function (e) {
+  document.getElementById('ar-sale-btn').style.display = 'none';
+  document.getElementById('ar-expense-btn').style.display = 'none';
+  currentProduct = null;
+  currentMarker = null;
+});
+
+// Satış işlemi
+document.getElementById('ar-sale-btn').onclick = function() {
+  if (!currentProduct || !selectedCompany) return;
+  let miktar = prompt("Satış miktarı giriniz:");
+  if (miktar) {
+    fetch("{% url 'ar_accounting_entry_create' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        company: selectedCompany,
+        description: currentProduct.name + " satışı (AR)",
+        debit_account: "Kasa",
+        credit_account: "Satış Geliri",
+        amount: currentProduct.price * parseInt(miktar),
+        effect_on_balance: "POSITIVE"
+      })
+    }).then(r => r.json()).then(res => {
+      if (res.success) alert("Satış kaydedildi!");
+      else alert("Hata: " + JSON.stringify(res));
+    });
+  }
+};
+
+// Gider işlemi
+document.getElementById('ar-expense-btn').onclick = function() {
+  if (!currentProduct || !selectedCompany) return;
+  let miktar = prompt("Gider miktarı giriniz:");
+  if (miktar) {
+    fetch("{% url 'ar_accounting_entry_create' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        company: selectedCompany,
+        description: currentProduct.name + " gideri (AR)",
+        debit_account: "Gider",
+        credit_account: "Kasa",
+        amount: currentProduct.price * parseInt(miktar),
+        effect_on_balance: "NEGATIVE"
+      })
+    }).then(r => r.json()).then(res => {
+      if (res.success) alert("Gider kaydedildi!");
+      else alert("Hata: " + JSON.stringify(res));
+    });
+  }
+};
+</script>
+{% endblock %} 

@@ -4,11 +4,12 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import VirtualCompany, Product
-from .serializers import VirtualCompanySerializer, ProductSerializer
+from .serializers import VirtualCompanySerializer, ProductSerializer, ARAccountingEntrySerializer, ARCompanySerializer, ARProductSerializer
 from django.db.models import Sum
 from rest_framework.permissions import BasePermission
 from typing import Any
 from django.utils.translation import gettext_lazy as _
+from rest_framework.views import APIView
 
 class IsOwnerOrAdmin(BasePermission):
     """
@@ -138,3 +139,31 @@ class ProductViewSet(viewsets.ModelViewSet):
         if errors:
             return Response({'created': created, 'errors': errors}, status=400)
         return Response({'created': created}, status=201)
+
+class ARAccountingEntryCreateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ARAccountingEntrySerializer(data=request.data)
+        if serializer.is_valid():
+            entry = serializer.save(student=request.user)
+            entry.apply_effect()  # Bakiyeye etkiyi uygula
+            return Response({'success': True, 'entry_id': entry.id})
+        return Response(serializer.errors, status=400)
+
+class ARCompanyListAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        companies = VirtualCompany.objects.filter(owner=request.user)
+        serializer = ARCompanySerializer(companies, many=True)
+        return Response(serializer.data)
+
+class ARProductByMarkerAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def get(self, request, marker_id):
+        try:
+            product = Product.objects.get(marker_id=marker_id)
+            serializer = ARProductSerializer(product)
+            return Response(serializer.data)
+        except Product.DoesNotExist:
+            return Response({'error': 'Ürün bulunamadı'}, status=404)

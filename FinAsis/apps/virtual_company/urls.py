@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import VirtualCompanyViewSet, ProductViewSet
+from .views import VirtualCompanyViewSet, ProductViewSet, ARAccountingEntryCreateAPIView, ARCompanyListAPIView, ARProductByMarkerAPIView
 
 router = DefaultRouter()
 router.register(r'companies', VirtualCompanyViewSet, basename='company')
@@ -19,4 +19,8 @@ urlpatterns = [
     path('product/<int:pk>/', views.ProductDetailView.as_view(), name='product_detail'),
     path('product/create/', views.ProductCreateView.as_view(), name='product_create'),
     path('product/<int:pk>/update/', views.ProductUpdateView.as_view(), name='product_update'),
-    path('product/<int:pk>/delete/', views.ProductDeleteView.as_view(), name='product_delete'),] 
+    path('product/<int:pk>/delete/', views.ProductDeleteView.as_view(), name='product_delete'),
+    path('ar/accounting-entry/', ARAccountingEntryCreateAPIView.as_view(), name='ar_accounting_entry_create'),
+    path('ar/companies/', ARCompanyListAPIView.as_view(), name='ar_company_list'),
+    path('ar/product/marker/<str:marker_id>/', ARProductByMarkerAPIView.as_view(), name='ar_product_by_marker'),
+] 

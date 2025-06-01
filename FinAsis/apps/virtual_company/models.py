@@ -67,6 +67,7 @@ class Product(models.Model):
         related_name='products',
         verbose_name="Bağlı Olduğu Şirket"
     )
+    marker_id = models.CharField(max_length=50, verbose_name="Marker ID", default="hiro")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Eklenme Tarihi")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")
 
