@@ -4,10 +4,19 @@
   --finasis-primary: #263238;
   --finasis-accent: #00B894;
   --finasis-bg: #F7FDFB;
+  --finasis-dark-bg: #23272b;
+  --finasis-dark-primary: #121212;
+  --finasis-dark-accent: #4dd0e1;
+  --finasis-dark-text: #f8f9fa;
 }
 
 body, .dashboard #content {
   background: var(--finasis-bg) !important;
+}
+
+body.dark-mode, .dashboard #content.dark-mode {
+  background: var(--finasis-dark-bg) !important;
+  color: var(--finasis-dark-text) !important;
 }
 
 #header, .module caption {
@@ -15,13 +24,26 @@ body, .dashboard #content {
   color: #fff !important;
 }
 
+body.dark-mode #header, body.dark-mode .module caption {
+  background: var(--finasis-dark-primary) !important;
+  color: var(--finasis-dark-text) !important;
+}
+
 #header h1, #header a {
   color: #fff !important;
+}
+
+body.dark-mode #header h1, body.dark-mode #header a {
+  color: var(--finasis-dark-text) !important;
 }
 
 #branding h1 {
   font-weight: 700;
   letter-spacing: 1px;
+}
+
+body.dark-mode #branding h1 {
+  color: var(--finasis-dark-text) !important;
 }
 
 #branding img {
@@ -37,10 +59,19 @@ body, .dashboard #content {
   transition: background 0.2s;
 }
 
+body.dark-mode .button, body.dark-mode input[type=submit], body.dark-mode .submit-row input {
+  background: var(--finasis-dark-accent) !important;
+  color: var(--finasis-dark-primary) !important;
+}
+
 .button:hover, input[type=submit]:hover, .submit-row input:hover {
   background: #019875 !important;
 }
 
 #user-tools {
   color: var(--finasis-primary) !important;
+}
+
+body.dark-mode #user-tools {
+  color: var(--finasis-dark-accent) !important;
 } 

@@ -7,10 +7,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from FinAsis.apps.accounts.models import CustomUser
 from FinAsis.apps.accounting.models import Company, Invoice
-from FinAsis.apps.accounts.forms import UserCreationForm
+from FinAsis.apps.accounts.forms import RegisterForm
 from django.contrib import messages
 from django import forms
 from django.core.paginator import Paginator
+from FinAsis.apps.management.models import ActionLog, Notification, HelpContent
+from .filters import UserFilter
+from django.http import JsonResponse, HttpResponse
+import csv
+from django.views.decorators.cache import cache_page
 
 def is_admin(user):
     """Kullanıcının admin veya staff olup olmadığını kontrol eder."""
@@ -20,6 +25,7 @@ def is_superadmin(user):
     """Kullanıcının süper admin olup olmadığını kontrol eder."""
     return user.is_superuser
 
+@cache_page(60 * 10)  # 10 dakika cache
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def admin_dashboard(request):
     """
@@ -56,22 +62,34 @@ def user_list(request):
     if request.method == 'POST':
         ids = request.POST.getlist('selected_users')
         if ids:
+            deleted_users = list(CustomUser.objects.filter(id__in=ids).values_list('username', flat=True))
             CustomUser.objects.filter(id__in=ids).delete()
+            ActionLog.objects.create(
+                user=request.user,
+                action="Toplu Kullanıcı Silme",
+                detail=f"Silinen kullanıcılar: {', '.join(deleted_users)}"
+            )
             messages.success(request, f"{len(ids)} kullanıcı silindi.")
             return redirect('user_list')
-    query = request.GET.get('q', '')
-    role = request.GET.get('role', '')
     users = CustomUser.objects.all().order_by('-date_joined')
-    if query:
-        users = users.filter(username__icontains=query) | users.filter(email__icontains=query)
-    if role == 'admin':
-        users = users.filter(is_staff=True)
-    elif role == 'user':
-        users = users.filter(is_staff=False, is_superuser=False)
-    paginator = Paginator(users, 10)
+    f = UserFilter(request.GET, queryset=users)
+    paginator = Paginator(f.qs, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, "management/user_list.html", {"page_obj": page_obj, "query": query, "role": role})
+    return render(request, "management/user_list.html", {"page_obj": page_obj, "filter": f})
+
+@user_passes_test(is_admin, login_url='/accounts/login/')
+def user_list_export_csv(request):
+    users = CustomUser.objects.all().order_by('-date_joined')
+    f = UserFilter(request.GET, queryset=users)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="kullanicilar.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Kullanıcı Adı', 'E-posta', 'Yetki', 'Kayıt Tarihi'])
+    for user in f.qs:
+        yetki = 'Süper Admin' if user.is_superuser else ('Yönetici' if user.is_staff else 'Kullanıcı')
+        writer.writerow([user.id, user.username, user.email, yetki, user.date_joined.strftime('%d.%m.%Y %H:%M')])
+    return response
 
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def company_list(request):
@@ -125,33 +143,57 @@ def user_detail(request, user_id):
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def user_add(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.save()
+            form.save_m2m()  # groups gibi M2M alanlar için
+            ActionLog.objects.create(
+                user=request.user,
+                action="Kullanıcı Ekleme",
+                detail=f"Eklenen kullanıcı: {user.username}"
+            )
+            # Yeni kullanıcıya hoş geldin bildirimi
+            Notification.objects.create(
+                user=user,
+                message="Hoş geldiniz! Hesabınız başarıyla oluşturuldu.",
+                link="/accounts/profile/"
+            )
             messages.success(request, 'Kullanıcı başarıyla eklendi.')
             return redirect('user_list')
     else:
-        form = UserCreationForm()
+        form = RegisterForm()
     return render(request, "management/user_form.html", {"form": form})
 
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def user_edit(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
-        form = UserCreationForm(request.POST, instance=user)
+        form = RegisterForm(request.POST, instance=user)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            ActionLog.objects.create(
+                user=request.user,
+                action="Kullanıcı Güncelleme",
+                detail=f"Güncellenen kullanıcı: {user.username}"
+            )
             messages.success(request, 'Kullanıcı başarıyla güncellendi.')
             return redirect('user_list')
     else:
-        form = UserCreationForm(instance=user)
+        form = RegisterForm(instance=user)
     return render(request, "management/user_form.html", {"form": form, "edit": True})
 
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def user_delete(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
+        username = user.username
         user.delete()
+        ActionLog.objects.create(
+            user=request.user,
+            action="Kullanıcı Silme",
+            detail=f"Silinen kullanıcı: {username}"
+        )
         messages.success(request, 'Kullanıcı silindi.')
         return redirect('user_list')
     return render(request, "management/user_confirm_delete.html", {"user": user})
@@ -204,11 +246,22 @@ def invoice_delete(request, invoice_id):
 @user_passes_test(is_superadmin, login_url='/accounts/login/')
 def admin_logs(request):
     """
-    Sadece süper adminlerin görebileceği örnek bir log sayfası.
+    Sadece süper adminlerin görebileceği log sayfası.
     """
-    # Örnek log verisi
-    logs = [
-        {"tarih": "2024-06-01", "olay": "Kullanıcı silindi", "kullanici": "admin"},
-        {"tarih": "2024-06-02", "olay": "Fatura eklendi", "kullanici": "superuser"},
+    logs = ActionLog.objects.select_related('user').order_by('-timestamp')[:100]
+    return render(request, "management/admin_logs.html", {"logs": logs})
+
+def help_content_api(request):
+    role = request.GET.get('role', 'genel')
+    page_key = request.GET.get('page_key')
+    qs = HelpContent.objects.filter(role=role)
+    if page_key:
+        qs = qs.filter(page_key=page_key)
+    data = [
+        {
+            'title': h.title,
+            'content': h.content,
+            'updated_at': h.updated_at.strftime('%d.%m.%Y %H:%M'),
+        } for h in qs.order_by('-updated_at')
     ]
-    return render(request, "management/admin_logs.html", {"logs": logs}) 
+    return JsonResponse({'items': data}) 

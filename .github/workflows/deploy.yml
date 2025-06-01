@@ -28,3 +28,5 @@ jobs:
             python manage.py collectstatic --noinput
             python manage.py migrate --noinput
             sudo systemctl restart finasis_gunicorn
+            # Yedekleme
+            pg_dump -U ${{ secrets.SSH_USERNAME }} -h localhost test_db > backup_$(date +%F).sql

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Yatırım Simülatörü{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1>Yatırım Simülatörü</h1>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table table-striped" id="invest-table">
+                <thead><tr><th>Varlık</th><th>Fiyat</th><th>Yatırım Yap</th></tr></thead>
+                <tbody>
+                    <tr><td>Hisse</td><td id="stock-price">100</td><td><button onclick="invest('stock')">Yatırım</button></td></tr>
+                    <tr><td>Altın</td><td id="gold-price">500</td><td><button onclick="invest('gold')">Yatırım</button></td></tr>
+                    <tr><td>Döviz</td><td id="fx-price">30</td><td><button onclick="invest('fx')">Yatırım</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <h4>Portföy</h4>
+            <ul id="invest-portfolio"></ul>
+            <p>Bakiye: <span id="invest-balance">10000</span> TL</p>
+        </div>
+    </div>
+</div>
+<script>
+let investBalance = 10000;
+let investPortfolio = {stock:0, gold:0, fx:0};
+let investPrices = {stock:100, gold:500, fx:30};
+function updateInvestPortfolio() {
+    document.getElementById('invest-balance').textContent = investBalance;
+    let html = '';
+    for (let s in investPortfolio) html += `<li>${s}: ${investPortfolio[s]}</li>`;
+    document.getElementById('invest-portfolio').innerHTML = html;
+}
+function invest(type) {
+    if (investBalance >= investPrices[type]) {
+        investBalance -= investPrices[type];
+        investPortfolio[type]++;
+        updateInvestPortfolio();
+    }
+}
+function randomizePrices() {
+    investPrices.stock = Math.max(50, Math.round(100 + Math.random()*100));
+    investPrices.gold = Math.max(250, Math.round(500 + Math.random()*200));
+    investPrices.fx = Math.max(10, Math.round(30 + Math.random()*10));
+    document.getElementById('stock-price').textContent = investPrices.stock;
+    document.getElementById('gold-price').textContent = investPrices.gold;
+    document.getElementById('fx-price').textContent = investPrices.fx;
+}
+setInterval(randomizePrices, 3000);
+updateInvestPortfolio();
+randomizePrices();
+</script>
+{% endblock %} 

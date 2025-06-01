@@ -15,11 +15,54 @@
         <li class="nav-item"><a class="nav-link" href="#">Faturalar</a></li>
         <!-- Diğer yönetim linkleri -->
       </ul>
-      <span class="navbar-text">{{ request.user.username }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="navbar-text">{{ request.user.username }}</span>
+        <button id="darkModeToggle" class="btn btn-outline-light btn-sm" title="Karanlık Modu Aç/Kapat">
+          <i class="bi bi-moon"></i>
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm position-relative" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Bildirimler">
+            <i class="bi bi-bell"></i>
+            {% with unread_count=request.user.notifications.filter(is_read=False).count %}
+              {% if unread_count > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_count }}</span>
+              {% endif %}
+            {% endwith %}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown" style="min-width: 320px; max-height: 350px; overflow-y: auto;">
+            {% for notif in request.user.notifications.all|dictsortreversed:"created_at"|slice:":10" %}
+              <li class="mb-1">
+                <a href="{{ notif.link|default:'#' }}" class="dropdown-item d-flex align-items-center {% if not notif.is_read %}fw-bold{% endif %}">
+                  <i class="bi bi-dot me-2 text-{{ 'primary' if not notif.is_read else 'secondary' }}"></i>
+                  {{ notif.message }}
+                  <small class="ms-auto text-muted">{{ notif.created_at|date:'d.m.Y H:i' }}</small>
+                </a>
+              </li>
+            {% empty %}
+              <li><span class="dropdown-item text-muted">Hiç bildiriminiz yok.</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 <div class="container">
   {% block admin_content %}{% endblock %}
 </div>
+<script>
+  // Karanlık mod toggle
+  document.addEventListener("DOMContentLoaded", function() {
+    const toggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    // Tercihi localStorage'dan yükle
+    if(localStorage.getItem('finasis-dark-mode') === 'true') {
+      body.classList.add('dark-mode');
+    }
+    toggle.addEventListener('click', function() {
+      body.classList.toggle('dark-mode');
+      localStorage.setItem('finasis-dark-mode', body.classList.contains('dark-mode'));
+    });
+  });
+</script>
 {% endblock %} 

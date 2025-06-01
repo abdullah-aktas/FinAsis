@@ -8,17 +8,19 @@
       <th>Tarih</th>
       <th>Olay</th>
       <th>Kullanıcı</th>
+      <th>Detay</th>
     </tr>
   </thead>
   <tbody>
     {% for log in logs %}
     <tr>
-      <td>{{ log.tarih }}</td>
-      <td>{{ log.olay }}</td>
-      <td>{{ log.kullanici }}</td>
+      <td>{{ log.timestamp|date:'d.m.Y H:i' }}</td>
+      <td>{{ log.action }}</td>
+      <td>{{ log.user.username if log.user else 'Sistem' }}</td>
+      <td>{{ log.detail }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="3">Log kaydı yok.</td></tr>
+    <tr><td colspan="4">Log kaydı yok.</td></tr>
     {% endfor %}
   </tbody>
 </table>

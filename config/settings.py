@@ -42,6 +42,13 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'channels',
+    'FinAsis.apps.accounts',
+    'FinAsis.apps.accounting',
+    'FinAsis.apps.games',
+    'FinAsis.apps.finance',
+    'FinAsis.apps.education',
+    'FinAsis.apps.education.teacher_dashboard',
+    'FinAsis.apps.management',
 ]
 
 
@@ -101,6 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 10}
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -143,3 +151,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ASGI_APPLICATION = "config.asgi.application"
+
+SESSION_COOKIE_AGE = 60 * 30  # 30 dakika
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache'),
+    }
+}

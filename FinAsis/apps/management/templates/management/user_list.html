@@ -2,16 +2,14 @@
 {% block title %}Kullanıcılar{% endblock %}
 {% block admin_content %}
 <h2>Kullanıcı Listesi</h2>
+<div class="mb-3 text-end">
+  <a href="{% url 'user_list_export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm">
+    <i class="bi bi-file-earmark-spreadsheet"></i> CSV Dışa Aktar
+  </a>
+</div>
 <form method="get" class="row g-3 mb-3">
-  <div class="col-md-4">
-    <input type="text" name="q" class="form-control" placeholder="Kullanıcı adı veya e-posta" value="{{ query }}">
-  </div>
-  <div class="col-md-3">
-    <select name="role" class="form-select">
-      <option value="">Tüm Roller</option>
-      <option value="admin" {% if role == 'admin' %}selected{% endif %}>Yönetici/Admin</option>
-      <option value="user" {% if role == 'user' %}selected{% endif %}>Normal Kullanıcı</option>
-    </select>
+  <div class="col-md-12">
+    {{ filter.form.as_p }}
   </div>
   <div class="col-md-2">
     <button type="submit" class="btn btn-primary">Filtrele</button>
@@ -51,16 +49,16 @@
   <nav>
     <ul class="pagination">
       {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?q={{ query }}&role={{ role }}&page=1">İlk</a></li>
-        <li class="page-item"><a class="page-link" href="?q={{ query }}&role={{ role }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page=1">İlk</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
       {% else %}
         <li class="page-item disabled"><span class="page-link">İlk</span></li>
         <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
       {% endif %}
       <li class="page-item active"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
       {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?q={{ query }}&role={{ role }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
-        <li class="page-item"><a class="page-link" href="?q={{ query }}&role={{ role }}&page={{ page_obj.paginator.num_pages }}">Son</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son</a></li>
       {% else %}
         <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
         <li class="page-item disabled"><span class="page-link">Son</span></li>

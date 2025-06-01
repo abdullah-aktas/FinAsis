@@ -2,3 +2,5 @@
 """
 game_app modülü
 """
+
+# init

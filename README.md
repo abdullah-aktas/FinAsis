@@ -63,67 +63,56 @@ FinAsis, hem arayüzde hem de API/servislerde kapsamlı çoklu dil ve yerelleşt
 
 ## 🛠️ Kurulum
 
-1. Bağımlılıkları yükleyin:
+1. Depoyu klonlayın:
+   ```bash
+   git clone <repo-url>
+   cd FinAsis
+   ```
+2. Sanal ortamı oluşturun ve aktif edin:
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate  # Windows
+   source .venv/bin/activate  # Linux/Mac
+   ```
+3. Bağımlılıkları yükleyin:
    ```bash
    pip install -r requirements.txt
    ```
-2. Veritabanını oluşturun:
-   ```bash
-   python manage.py migrate
-   ```
-3. Yönetici hesabı oluşturun:
-   ```bash
-   python manage.py createsuperuser
-   ```
-4. Sunucuyu başlatın:
-   ```bash
-   python manage.py runserver
-   ```
-5. Testleri çalıştırın:
-   ```bash
-   pytest
-   ```
+4. Ortam değişkenlerini ayarlayın:
+   `.env` dosyasını oluşturun ve gerekli değişkenleri girin.
 
----
+## Veritabanı Kurulumu
+```bash
+python manage.py migrate
+```
 
-## 🔌 API & ML Entegrasyonu
+## Testler
+```bash
+pytest --cov=FinAsis --cov-report=term-missing
+```
 
-- Tüm ML API'leri JWT/session ile korumalıdır.
-- Swagger/OpenAPI dokümantasyonu: `/api/docs/`
-- Redoc: `/api/redoc/`
-- Örnek API'ler:
-  - Risk Skoru: `/ai-assistant/ml/risk-score/`
-  - Finansal Tahmin: `/ai-assistant/ml/financial-forecast/`
-  - Öneri Sistemi: `/ai-assistant/ml/recommendation/`
+## Kod Kalitesi
+```bash
+flake8 .
+black --check .
+```
 
----
+## Deploy
+- Otomatik deploy için `.github/workflows/deploy.yml` kullanılır.
+- Manuel deploy için:
+  ```bash
+  git pull origin main
+  source venv/bin/activate
+  pip install -r requirements.txt
+  python manage.py collectstatic --noinput
+  python manage.py migrate --noinput
+  sudo systemctl restart finasis_gunicorn
+  ```
 
-## 🧪 Test & Kalite
+## Katkı
+Pull request göndermeden önce testleri ve lint işlemlerini çalıştırın.
 
-- Her push/pull request'te GitHub Actions ile otomatik test ve kod kalite kontrolü (flake8, black) çalışır.
-- Kodlar PEP8 uyumlu ve testlerle güvence altındadır.
-
----
-
-## 📁 Statik Dosyalar
-
-- Ortak dosyalar: `FinAsis/static/`
-- Uygulama bazlı dosyalar: `FinAsis/apps/<uygulama>/static/<uygulama>/`
-- Deployment için: `python manage.py collectstatic`
-
----
-
-## 👥 Katkı Kuralları
-
-- Fork'layın, yeni branch açın, değişikliklerinizi yapın ve PR gönderin.
-- Kodda PEP8 ve Django en iyi uygulamalarına uyun.
-- Her yeni özellik için test ekleyin.
-- Açık ve anlaşılır commit mesajları kullanın.
-
----
-
-## 📜 Lisans
-
+## Lisans
 MIT
 
 ---

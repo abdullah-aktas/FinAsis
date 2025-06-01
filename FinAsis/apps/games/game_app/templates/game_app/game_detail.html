@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ game.title }} - Oyun Detayı{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ game.image }}" alt="{{ game.title }}" class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ game.title }}</h1>
+            <p class="lead">{{ game.description }}</p>
+            <h4>Nasıl Oynanır?</h4>
+            <p>{{ game.how_to_play }}</p>
+            <h5>Öne Çıkan Özellikler</h5>
+            <ul>
+                {% for feature in game.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+            <a href="{{ game.play_url }}" class="btn btn-primary btn-lg mt-3">Oyna</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
