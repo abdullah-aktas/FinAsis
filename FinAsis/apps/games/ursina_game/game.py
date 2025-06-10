@@ -1,5 +1,6768 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+
+# Python standart kütüphaneleri
+import os
+import time
+import json
+import random
+import platform
+import threading
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+
+# Üçüncü parti kütüphaneler
+from ursina import (
+    Ursina, Entity, Vec3, color, window, Text, Button, Func,
+    camera, destroy, application, WindowPanel, DirectionalLight,
+    held_keys, mouse
+)
+from ursina.prefabs.first_person_controller import FirstPersonController
+
+# Yerel modüller
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+from game_integration import GameIntegration
+
+
+# Django ayarlarını yükle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+
+# Oyun içindeki şirket modelleri yerine sınıflar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
+
+# Oyun ayarları
+game_settings = {
+    'difficulty': 'normal',  # easy, normal, hard
+    'market_update_interval': 5,  # saniye
+    'event_chance': 0.2,  # 0-1 arası
+    'starting_money': 100000,
+    'tutorial_enabled': True,
+    'sound_enabled': True,
+    'music_enabled': True,
+    'fullscreen': False,
+    'show_tooltips': True,
+    'auto_save': True,
+    'save_interval': 300  # saniye
+}
+
+# Piyasa durumu
+market_state = {
+    'trend': 'stable',  # bull, stable, bear
+    'volatility': 0.5,  # 0-1 arası
+    'last_update': datetime.now(),
+    'market_events': []
+}
+
+# UI bileşenleri
+ui = {
+    'main_panel': None,
+    'portfolio_panel': None,
+    'market_panel': None,
+    'stats_panel': None,
+    'quest_panel': None,
+    'notification_panel': None,
+    'tooltip_panel': None,
+    'menu_panel': None,
+    'text_elements': {},
+    'buttons': {},
+    'charts': {},
+    'notifications': []
+}
+
+# Oyuncu verileri
+player = {
+    'id': 1,
+    'name': 'John Doe',
+    'money': game_settings['starting_money'],
+    'portfolio': {
+        'AAPL': {'shares': 10, 'price': 150, 'sector': 'tech'},
+        'GOOGL': {'shares': 5, 'price': 2000, 'sector': 'tech'},
+        'TSLA': {'shares': 8, 'price': 700, 'sector': 'auto'},
+        'MSFT': {'shares': 0, 'price': 300, 'sector': 'tech'},
+        'AMZN': {'shares': 0, 'price': 3000, 'sector': 'retail'},
+        'META': {'shares': 0, 'price': 250, 'sector': 'tech'},
+        'NFLX': {'shares': 0, 'price': 400, 'sector': 'media'},
+        'NVDA': {'shares': 0, 'price': 500, 'sector': 'tech'},
+        'JPM': {'shares': 0, 'price': 150, 'sector': 'finance'},
+        'BAC': {'shares': 0, 'price': 40, 'sector': 'finance'}
+    },
+    'stats': {
+        'total_trades': 0,
+        'successful_trades': 0,
+        'failed_trades': 0,
+        'profit_trades': 0,
+        'loss_trades': 0,
+        'total_profit': 0,
+        'total_loss': 0,
+        'best_trade': 0,
+        'worst_trade': 0,
+        'longest_holding': 0,
+        'shortest_holding': 0,
+        'risk_tolerance': 0.7,
+        'trading_style': 'balanced',  # aggressive, balanced, conservative
+        'debt_to_income': 0.0,  # Borç/gelir oranı
+        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
+        'total_debt': 0,  # Toplam borç
+        'total_income': 0,  # Toplam gelir
+        'monthly_income': 0,  # Aylık gelir
+        'monthly_expenses': 0  # Aylık giderler
+    },
+    'skills': {
+        'analysis': 1,  # 1-10 arası
+        'risk_management': 1,
+        'market_knowledge': 1,
+        'technical_analysis': 1,
+        'fundamental_analysis': 1
+    },
+    'experience': {
+        'level': 1,
+        'current_xp': 0,
+        'next_level_xp': 1000,
+        'total_xp': 0
+    },
+    'achievements': [],
+    'active_quests': [],
+    'completed_quests': [],
+    'quest_progress': {},
+    'tutorial_progress': {
+        'basic_trading': False,
+        'market_analysis': False,
+        'risk_management': False,
+        'portfolio_management': False,
+        'technical_analysis': False
+    },
+    'settings': {
+        'notifications': True,
+        'sound': True,
+        'music': True,
+        'tooltips': True,
+        'auto_save': True
+    },
+    'trading_history': []
+}
+
+# Görev sistemi
+quest_system = {
+    'daily_quests': [],
+    'weekly_quests': [],
+    'achievement_quests': [],
+    'tutorial_quests': []
+}
+
+# Görev tanımlamaları
+quest_definitions = {
+    # Günlük görevler
+    'daily_trade': {
+        'id': 'daily_trade',
+        'title': 'Günlük İşlem',
+        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'reward': {'money': 500, 'experience': 100},
+        'type': 'daily',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
+    },
+    'daily_profit': {
+        'id': 'daily_profit',
+        'title': 'Günlük Kâr',
+        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'daily',
+        'check_completion': lambda: calculate_daily_profit() >= 1000
+    },
+    'daily_diversity': {
+        'id': 'daily_diversity',
+        'title': 'Çeşitlilik Ustası',
+        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'reward': {'money': 800, 'experience': 150},
+        'type': 'daily',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
+    },
+    
+    # Haftalık görevler
+    'weekly_growth': {
+        'id': 'weekly_growth',
+        'title': 'Haftalık Büyüme',
+        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'reward': {'money': 5000, 'experience': 500},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_weekly_growth() >= 0.1
+    },
+    'weekly_trades': {
+        'id': 'weekly_trades',
+        'title': 'Aktif Trader',
+        'description': 'Bu hafta en az 10 işlem yapın.',
+        'reward': {'money': 3000, 'experience': 400},
+        'type': 'weekly',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
+    },
+    'weekly_risk': {
+        'id': 'weekly_risk',
+        'title': 'Risk Yöneticisi',
+        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'reward': {'money': 4000, 'experience': 450},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_risk_score() < 0.5
+    },
+    
+    # Başarı görevleri
+    'achievement_portfolio': {
+        'id': 'achievement_portfolio',
+        'title': 'Portföy Ustası',
+        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
+        'type': 'achievement',
+        'check_completion': lambda: calculate_portfolio_value() >= 200000
+    },
+    'achievement_diversity': {
+        'id': 'achievement_diversity',
+        'title': 'Çeşitlilik Kralı',
+        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
+    },
+    'achievement_debt': {
+        'id': 'achievement_debt',
+        'title': 'Borçsuz Yaşam',
+        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
+    },
+    
+    # Eğitim görevleri
+    'tutorial_buy': {
+        'id': 'tutorial_buy',
+        'title': 'İlk Alım',
+        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
+    },
+    'tutorial_sell': {
+        'id': 'tutorial_sell',
+        'title': 'İlk Satım',
+        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
+    },
+    'tutorial_diversity': {
+        'id': 'tutorial_diversity',
+        'title': 'Çeşitlendirme',
+        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'reward': {'money': 2000, 'experience': 300},
+        'type': 'tutorial',
+        'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
+    }
+}
+
+# Görev UI elementleri
+quest_ui = {
+    'panel': None,
+    'quest_items': [],
+    'active_quests_text': None,
+    'completed_quests_text': None
+}
+
+class FinAsisGame(Ursina):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yöneticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolü
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yöneticisini başlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # Dünya oluşturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iş yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # Tuş durumları
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        
+        # İnitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayıt
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye göstergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan göstergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye göstergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # İşlem butonları
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # Menü butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seçimi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seçimini değiştir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'ı güncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """Menüyü aç/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # Menü panelini göster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # Menü butonları
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Yükle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Çıkış',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # Menü panelini kaldır
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolü
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun güncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR güncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay güncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay süresi doldu, yeni olay oluştur
+                olay['tip'] = random.choice([
+                    'Borsa Yükselişi', 'Borsa Düşüşü',
+                    'Enflasyon Artışı', 'Enflasyon Düşüşü',
+                    'Faiz Artışı', 'Faiz Düşüşü',
+                    'Döviz Dalgalanması', 'Altın Fiyatı Değişimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
+    """Oyunu başlat"""
+    app = Ursina()
+    dunya = FinAsisGame(online_mode=online_mode)
+    app.run()
+
+def create_ui():
+    """Ana UI'ı oluştur"""
+    # Ana panel
+    ui['main_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(1.8, 1),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.8)
+    )
+    
+    # Üst bilgi paneli
+    create_top_info_panel()
+    
+    # Portföy paneli
+    create_portfolio_panel()
+    
+    # Market paneli
+    create_market_panel()
+    
+    # İstatistik paneli
+    create_stats_panel()
+    
+    # Menü butonu
+    Button(
+        parent=camera.ui,
+        text='Menü',
+        color=color.azure,
+        position=(0.8, 0.45),
+        scale=(0.2, 0.05),
+        on_click=Func(toggle_menu)
+    )
+
+def create_top_info_panel():
+    """Üst bilgi panelini oluştur"""
+    # Para
+    ui['text_elements']['money'] = Text(
+        parent=camera.ui,
+        text=f"${player['money']:,.2f}",
+        position=(-0.8, 0.45),
+        scale=2,
+        color=color.green
+    )
+    
+    # Portföy değeri
+    ui['text_elements']['portfolio_value'] = Text(  
+        parent=camera.ui,
+        text=f"Portföy: ${calculate_portfolio_value():,.2f}",
+        position=(-0.4, 0.45),
+        scale=2,
+        color=color.white
+# Django ayarlarını yükle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+
+# Oyun içindeki şirket modelleri yerine sınıflar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
+
+# Oyun ayarları
+game_settings = {
+    'difficulty': 'normal',  # easy, normal, hard
+    'market_update_interval': 5,  # saniye
+    'event_chance': 0.2,  # 0-1 arası
+    'starting_money': 100000,
+    'tutorial_enabled': True,
+    'sound_enabled': True,
+    'music_enabled': True,
+    'fullscreen': False,
+    'show_tooltips': True,
+    'auto_save': True,
+    'save_interval': 300  # saniye
+}
+
+# Piyasa durumu
+market_state = {
+    'trend': 'stable',  # bull, stable, bear
+    'volatility': 0.5,  # 0-1 arası
+    'last_update': datetime.now(),
+    'market_events': []
+}
+
+# UI bileşenleri
+ui = {
+    'main_panel': None,
+    'portfolio_panel': None,
+    'market_panel': None,
+    'stats_panel': None,
+    'quest_panel': None,
+    'notification_panel': None,
+    'tooltip_panel': None,
+    'menu_panel': None,
+    'text_elements': {},
+    'buttons': {},
+    'charts': {},
+    'notifications': []
+}
+
+# Oyuncu verileri
+player = {
+    'id': 1,
+    'name': 'John Doe',
+    'money': game_settings['starting_money'],
+    'portfolio': {
+        'AAPL': {'shares': 10, 'price': 150, 'sector': 'tech'},
+        'GOOGL': {'shares': 5, 'price': 2000, 'sector': 'tech'},
+        'TSLA': {'shares': 8, 'price': 700, 'sector': 'auto'},
+        'MSFT': {'shares': 0, 'price': 300, 'sector': 'tech'},
+        'AMZN': {'shares': 0, 'price': 3000, 'sector': 'retail'},
+        'META': {'shares': 0, 'price': 250, 'sector': 'tech'},
+        'NFLX': {'shares': 0, 'price': 400, 'sector': 'media'},
+        'NVDA': {'shares': 0, 'price': 500, 'sector': 'tech'},
+        'JPM': {'shares': 0, 'price': 150, 'sector': 'finance'},
+        'BAC': {'shares': 0, 'price': 40, 'sector': 'finance'}
+    },
+    'stats': {
+        'total_trades': 0,
+        'successful_trades': 0,
+        'failed_trades': 0,
+        'profit_trades': 0,
+        'loss_trades': 0,
+        'total_profit': 0,
+        'total_loss': 0,
+        'best_trade': 0,
+        'worst_trade': 0,
+        'longest_holding': 0,
+        'shortest_holding': 0,
+        'risk_tolerance': 0.7,
+        'trading_style': 'balanced',  # aggressive, balanced, conservative
+        'debt_to_income': 0.0,  # Borç/gelir oranı
+        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
+        'total_debt': 0,  # Toplam borç
+        'total_income': 0,  # Toplam gelir
+        'monthly_income': 0,  # Aylık gelir
+        'monthly_expenses': 0  # Aylık giderler
+    },
+    'skills': {
+        'analysis': 1,  # 1-10 arası
+        'risk_management': 1,
+        'market_knowledge': 1,
+        'technical_analysis': 1,
+        'fundamental_analysis': 1
+    },
+    'experience': {
+        'level': 1,
+        'current_xp': 0,
+        'next_level_xp': 1000,
+        'total_xp': 0
+    },
+    'achievements': [],
+    'active_quests': [],
+    'completed_quests': [],
+    'quest_progress': {},
+    'tutorial_progress': {
+        'basic_trading': False,
+        'market_analysis': False,
+        'risk_management': False,
+        'portfolio_management': False,
+        'technical_analysis': False
+    },
+    'settings': {
+        'notifications': True,
+        'sound': True,
+        'music': True,
+        'tooltips': True,
+        'auto_save': True
+    },
+    'trading_history': []
+}
+
+# Görev sistemi
+quest_system = {
+    'daily_quests': [],
+    'weekly_quests': [],
+    'achievement_quests': [],
+    'tutorial_quests': []
+}
+
+# Görev tanımlamaları
+quest_definitions = {
+    # Günlük görevler
+    'daily_trade': {
+        'id': 'daily_trade',
+        'title': 'Günlük İşlem',
+        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'reward': {'money': 500, 'experience': 100},
+        'type': 'daily',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
+    },
+    'daily_profit': {
+        'id': 'daily_profit',
+        'title': 'Günlük Kâr',
+        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'daily',
+        'check_completion': lambda: calculate_daily_profit() >= 1000
+    },
+    'daily_diversity': {
+        'id': 'daily_diversity',
+        'title': 'Çeşitlilik Ustası',
+        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'reward': {'money': 800, 'experience': 150},
+        'type': 'daily',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
+    },
+    
+    # Haftalık görevler
+    'weekly_growth': {
+        'id': 'weekly_growth',
+        'title': 'Haftalık Büyüme',
+        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'reward': {'money': 5000, 'experience': 500},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_weekly_growth() >= 0.1
+    },
+    'weekly_trades': {
+        'id': 'weekly_trades',
+        'title': 'Aktif Trader',
+        'description': 'Bu hafta en az 10 işlem yapın.',
+        'reward': {'money': 3000, 'experience': 400},
+        'type': 'weekly',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
+    },
+    'weekly_risk': {
+        'id': 'weekly_risk',
+        'title': 'Risk Yöneticisi',
+        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'reward': {'money': 4000, 'experience': 450},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_risk_score() < 0.5
+    },
+    
+    # Başarı görevleri
+    'achievement_portfolio': {
+        'id': 'achievement_portfolio',
+        'title': 'Portföy Ustası',
+        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
+        'type': 'achievement',
+        'check_completion': lambda: calculate_portfolio_value() >= 200000
+    },
+    'achievement_diversity': {
+        'id': 'achievement_diversity',
+        'title': 'Çeşitlilik Kralı',
+        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
+    },
+    'achievement_debt': {
+        'id': 'achievement_debt',
+        'title': 'Borçsuz Yaşam',
+        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
+    },
+    
+    # Eğitim görevleri
+    'tutorial_buy': {
+        'id': 'tutorial_buy',
+        'title': 'İlk Alım',
+        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
+    },
+    'tutorial_sell': {
+        'id': 'tutorial_sell',
+        'title': 'İlk Satım',
+        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
+    },
+    'tutorial_diversity': {
+        'id': 'tutorial_diversity',
+        'title': 'Çeşitlendirme',
+        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'reward': {'money': 2000, 'experience': 300},
+        'type': 'tutorial',
+        'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
+    }
+}
+
+# Görev UI elementleri
+quest_ui = {
+    'panel': None,
+    'quest_items': [],
+    'active_quests_text': None,
+    'completed_quests_text': None
+}
+
+class FinAsisGame(Ursina):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yöneticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolü
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yöneticisini başlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # DÃ¼nya oluÅŸturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iÅŸ yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # TuÅŸ durumlarÄ±
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        
+        # Ä°nitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayÄ±t
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye gÃ¶stergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan gÃ¶stergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye gÃ¶stergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # Ä°ÅŸlem butonlarÄ±
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # MenÃ¼ butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seÃ§imi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seÃ§imini deÄŸiÅŸtir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'Ä± gÃ¼ncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # MenÃ¼ panelini gÃ¶ster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # MenÃ¼ butonlarÄ±
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='YÃ¼kle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Ã‡Ä±kÄ±ÅŸ',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # MenÃ¼ panelini kaldÄ±r
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolÃ¼
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
+                olay['tip'] = random.choice([
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
+    """Oyunu baÅŸlat"""
+    app = Ursina()
+    dunya = FinAsisGame(online_mode=online_mode)
+    app.run()
+
+def create_ui():
+    """Ana UI'Ä± oluÅŸtur"""
+    # Ana panel
+    ui['main_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(1.8, 1),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.8)
+    )
+    
+    # Ãœst bilgi paneli
+    create_top_info_panel()
+    
+    # PortfÃ¶y paneli
+    create_portfolio_panel()
+    
+    # Market paneli
+    create_market_panel()
+    
+    # Ä°statistik paneli
+    create_stats_panel()
+    
+    # MenÃ¼ butonu
+    Button(
+        parent=camera.ui,
+        text='MenÃ¼',
+        color=color.azure,
+        position=(0.8, 0.45),
+        scale=(0.2, 0.05),
+        on_click=Func(toggle_menu)
+    )
+
+def create_top_info_panel():
+    """Ãœst bilgi panelini oluÅŸtur"""
+    # Para
+    ui['text_elements']['money'] = Text(
+        parent=camera.ui,
+        text=f"${player['money']:,.2f}",
+        position=(-0.8, 0.45),
+        scale=2,
+        color=color.green
+    )
+    
+    # PortfÃ¶y deÄŸeri
+    ui['text_elements']['portfolio_value'] = Text(
+        parent=camera.ui,
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
+        position=(-0.4, 0.45),
+        scale=2,
+        color=color.white
+    )
+    
+    # Risk skoru
+    ui['text_elements']['risk_score'] = Text(
+        parent=camera.ui,
+        text=f"Risk: {calculate_risk_score():.2f}",
+        position=(0, 0.45),
+        scale=2,
+        color=color.yellow
+    )
+
+def create_portfolio_panel():
+    """PortfÃ¶y panelini oluÅŸtur"""
+    ui['portfolio_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(-0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['portfolio_panel'],
+        text='PortfÃ¶y',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.25
+    for symbol, data in player['portfolio'].items():
+        if data['shares'] > 0:
+            # Hisse adÄ± ve miktar
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"{symbol}: {data['shares']} adet",
+                position=(-0.2, y_pos),
+                scale=1.2,
+                color=color.white
+            )
+            
+            # Fiyat
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"${data['price']:,.2f}",
+                position=(0.15, y_pos),
+                scale=1.2,
+                color=color.green if data['price'] > 0 else color.red
+            )
+            
+            y_pos -= 0.08
+
+def create_market_panel():
+    """Market panelini oluÅŸtur"""
+    ui['market_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['market_panel'],
+        text='Market',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Market trendi
+    ui['text_elements']['market_trend'] = Text(
+        parent=ui['market_panel'],
+        text=f"Trend: {market_state['trend'].upper()}",
+        position=(0, 0.25),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # Volatilite
+    ui['text_elements']['volatility'] = Text(
+        parent=ui['market_panel'],
+        text=f"Volatilite: {market_state['volatility']:.2f}",
+        position=(0, 0.2),
+        scale=1.2,
+        color=color.azure
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.1
+    for symbol, data in player['portfolio'].items():
+        # Hisse adÄ± ve fiyat
+        Text(
+            parent=ui['market_panel'],
+            text=f"{symbol}: ${data['price']:,.2f}",
+            position=(-0.2, y_pos),
+            scale=1.2,
+            color=color.white
+        )
+        
+        # AlÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Al',
+            color=color.green,
+            position=(0.1, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: buy_stock(s))
+        )
+        
+        # SatÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Sat',
+            color=color.red,
+            position=(0.2, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: sell_stock(s))
+        )
+        
+        y_pos -= 0.08
+
+def create_stats_panel():
+    """Ä°statistik panelini oluÅŸtur"""
+    ui['stats_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['stats_panel'],
+        text='Ä°statistikler',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ä°statistikler
+    stats = player['stats']
+    y_pos = 0.25
+    
+    # Toplam iÅŸlem
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.white
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±lÄ± iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+    y_pos -= 0.08
+    
+    # Toplam kÃ¢r
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # Toplam zarar
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Zarar: ${stats['total_loss']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+
+def toggle_menu():
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
+    if not ui['menu_panel']:
+        create_menu()
+    else:
+        destroy(ui['menu_panel'])
+        ui['menu_panel'] = None
+
+def create_menu():
+    """MenÃ¼ panelini oluÅŸtur"""
+    ui['menu_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['menu_panel'],
+        text='MenÃ¼',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Kaydet butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Kaydet',
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(save_game)
+    )
+    
+    # YÃ¼kle butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='YÃ¼kle',
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(load_game)
+    )
+    
+    # Ayarlar butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ayarlar',
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(show_settings)
+    )
+    
+    # Ã‡Ä±kÄ±ÅŸ butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ã‡Ä±kÄ±ÅŸ',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(quit_game)
+    )
+
+def show_settings():
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
+    destroy(ui['menu_panel'])
+    ui['menu_panel'] = None
+    
+    # Ayarlar paneli
+    ui['settings_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['settings_panel'],
+        text='Ayarlar',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ses ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_sound)
+    )
+    
+    # MÃ¼zik ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_music)
+    )
+    
+    # Tam ekran ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_fullscreen)
+    )
+    
+    # Geri butonu
+    Button(
+        parent=ui['settings_panel'],
+        text='Geri',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
+    )
+
+def toggle_sound():
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['sound_enabled'] = not game_settings['sound_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_music():
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['music_enabled'] = not game_settings['music_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_fullscreen():
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['fullscreen'] = not game_settings['fullscreen']
+    window.fullscreen = game_settings['fullscreen']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def start_tutorial():
+    """EÄŸitim modunu baÅŸlat"""
+    tutorial_steps = [
+        {
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
+            'position': (-0.65, 0)
+        },
+        {
+            'title': 'Market Paneli',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
+            'position': (0.65, 0)
+        }
+    ]
+    
+    # Tutorial paneli
+    tutorial_panel = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.2),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    current_step = 0
+    
+    def show_step():
+        nonlocal current_step
+        step = tutorial_steps[current_step]
+        
+        # Panel pozisyonu
+        tutorial_panel.position = step['position']
+        
+        # BaÅŸlÄ±k
+        if hasattr(tutorial_panel, 'title'):
+            destroy(tutorial_panel.title)
+        tutorial_panel.title = Text(
+            parent=tutorial_panel,
+            text=step['title'],
+            position=(0, 0.05),
+            scale=1.5,
+            color=color.yellow
+        )
+        
+        # AÃ§Ä±klama
+        if hasattr(tutorial_panel, 'description'):
+            destroy(tutorial_panel.description)
+        tutorial_panel.description = Text(
+            parent=tutorial_panel,
+            text=step['description'],
+            position=(0, -0.02),
+            scale=1,
+            color=color.white
+        )
+        
+        # Ä°leri butonu
+        if hasattr(tutorial_panel, 'next_button'):
+            destroy(tutorial_panel.next_button)
+        tutorial_panel.next_button = Button(
+            parent=tutorial_panel,
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            position=(0.1, -0.07),
+            scale=(0.2, 0.05),
+            color=color.azure,
+            on_click=next_step
+        )
+    
+    def next_step():
+        nonlocal current_step
+        current_step += 1
+        if current_step < len(tutorial_steps):
+            show_step()
+        else:
+            # Tutorial'Ä± bitir
+            destroy(tutorial_panel)
+            player['tutorial_progress']['basic_trading'] = True
+            save_game()
+    
+    # Ä°lk adÄ±mÄ± gÃ¶ster
+    show_step()
+
+def save_game():
+    """Oyun durumunu kaydet"""
+    try:
+        # Kaydedilecek verileri hazÄ±rla
+        save_data = {
+            'player': player,
+            'market_state': market_state,
+            'quest_system': quest_system,
+            'game_settings': game_settings,
+            'save_time': datetime.now().isoformat()
+        }
+        
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
+        def convert_datetime(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return obj
+        
+        # Verileri JSON formatÄ±nda kaydet
+        with open('save_game.json', 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
+            
+        show_notification('Oyun kaydedildi!', color.green)
+    except Exception as e:
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
+
+def load_game():
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
+    try:
+        # JSON dosyasÄ±nÄ± oku
+        with open('save_game.json', 'r', encoding='utf-8') as f:
+            save_data = json.load(f)
+        
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
+        def parse_datetime(obj):
+            for key, value in obj.items():
+                if isinstance(value, str) and 'T' in value:
+                    try:
+                        obj[key] = datetime.fromisoformat(value)
+                    except ValueError:
+                        pass
+                elif isinstance(value, dict):
+                    parse_datetime(value)
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            parse_datetime(item)
+            return obj
+        
+        # Verileri yÃ¼kle
+        global player, market_state, quest_system, game_settings
+        player = parse_datetime(save_data['player'])
+        market_state = parse_datetime(save_data['market_state'])
+        quest_system = parse_datetime(save_data['quest_system'])
+        game_settings = save_data['game_settings']
+        
+        show_notification('Oyun yÃ¼klendi!', color.green)
+    except FileNotFoundError:
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
+    except Exception as e:
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
+
+def show_notification(message, color=color.white):
+    """Bildirim gÃ¶ster"""
+    notification = Text(
+        text=message,
+        position=(0, 0.4),
+        scale=2,
+        color=color
+    )
+    destroy(notification, delay=3)
+
+def auto_save():
+    """Otomatik kayÄ±t"""
+    current_time = datetime.now()
+    if not hasattr(auto_save, 'last_save'):
+        auto_save.last_save = current_time
+    
+    if (current_time - auto_save.last_save).seconds >= game_settings['save_interval']:
+        save_game()
+        auto_save.last_save = current_time
+
+def quit_game():
+    """Oyundan Ã§Ä±k"""
+    # Oyunu kaydet
+    save_game()
+    
+    # Pencereyi kapat
+    application.quit()
+
+def initialize_quest_system():
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
+    daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
+    for quest_id in daily_quests:
+        if quest_id in quest_definitions:
+            quest_system['daily_quests'].append(quest_definitions[quest_id])
+    
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
+    weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
+    for quest_id in weekly_quests:
+        if quest_id in quest_definitions:
+            quest_system['weekly_quests'].append(quest_definitions[quest_id])
+    
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
+    achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
+    for quest_id in achievement_quests:
+        if quest_id in quest_definitions:
+            quest_system['achievement_quests'].append(quest_definitions[quest_id])
+    
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
+    tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
+    for quest_id in tutorial_quests:
+        if quest_id in quest_definitions:
+            quest_system['tutorial_quests'].append(quest_definitions[quest_id])
+    
+    # Aktif gÃ¶revleri belirle
+    assign_daily_quests()
+    assign_weekly_quests()
+    
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['tutorial_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['achievement_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
+    create_quest_ui()
+
+def assign_daily_quests():
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
+    
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def assign_weekly_quests():
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
+    
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def check_quest_completion():
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
+    completed_quests = []
+    
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
+            if quest['check_completion']():
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
+                completed_quests.append(quest_id)
+                
+                # Ã–dÃ¼lleri ver
+                give_quest_rewards(quest)
+                
+                # Tamamlanan gÃ¶revi gÃ¶ster
+                show_quest_completion(quest)
+    
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
+    for quest_id in completed_quests:
+        player['active_quests'].remove(quest_id)
+        player['completed_quests'].append(quest_id)
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def give_quest_rewards(quest):
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
+    reward = quest['reward']
+    
+    # Para Ã¶dÃ¼lÃ¼
+    if 'money' in reward:
+        player['money'] += reward['money']
+    
+    # Deneyim Ã¶dÃ¼lÃ¼
+    if 'experience' in reward:
+        player['experience']['current_xp'] += reward['experience']
+        player['experience']['total_xp'] += reward['experience']
+        
+        # Seviye atlama kontrolÃ¼
+        while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+            player['experience']['current_xp'] -= player['experience']['next_level_xp']
+            player['experience']['level'] += 1
+            player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+            show_level_up()
+    
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
+    if 'achievement' in reward:
+        if reward['achievement'] not in player['achievements']:
+            player['achievements'].append(reward['achievement'])
+
+def show_quest_completion(quest):
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
+    # Ana bildirim metni
+    completion_text = Text(
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
+        position=(0, 0.6),
+        scale=2,
+        color=color.gold
+    )
+    
+    # Ã–dÃ¼l detaylarÄ±
+    reward_text = None
+    if 'money' in quest['reward']:
+        reward_text = Text(
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
+            position=(0, 0.5),
+            scale=1.5,
+            color=color.green
+        )
+    
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
+    destroy(completion_text, delay=4)
+    if reward_text:
+        destroy(reward_text, delay=4)
+
+def show_level_up():
+    """Seviye atlama bildirimini gÃ¶ster"""
+    level_text = Text(
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
+        position=(0, 0.4),
+        scale=2,
+        color=color.yellow
+    )
+    destroy(level_text, delay=4)
+
+def calculate_next_level_xp(current_level):
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
+    return int(1000 * (1.5 ** (current_level - 1)))
+
+def create_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
+    quest_ui['panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.8, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.7),
+        visible=False
+    )
+    
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+    Text(
+        parent=quest_ui['panel'],
+        text='GÃ¶revler',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['active_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Aktif GÃ¶revler:',
+        position=(-0.35, 0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['completed_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Tamamlanan GÃ¶revler:',
+        position=(-0.35, -0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # GÃ¶rev kapatma butonu
+    Button(
+        parent=quest_ui['panel'],
+        text='Kapat',
+        color=color.red,
+        position=(0, -0.25),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
+    )
+    
+    # GÃ¶rev butonu
+    Button(
+        parent=camera.ui,
+        text='GÃ¶revler',
+        color=color.azure,
+        position=(0.7, 0.4),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
+    )
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def update_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
+    for item in quest_ui['quest_items']:
+        destroy(item)
+    quest_ui['quest_items'] = []
+    
+    # Aktif gÃ¶revleri gÃ¶ster
+    y_position = 0.1
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.white
+                )
+            )
+            
+            # GÃ¶rev aÃ§Ä±klamasÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['description'],
+                    position=(-0.3, y_position - 0.05),
+                    scale=0.8,
+                    color=color.light_gray
+                )
+            )
+            
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=reward_text,
+                    position=(-0.3, y_position - 0.1),
+                    scale=0.8,
+                    color=color.gold
+                )
+            )
+            
+            y_position -= 0.15
+    
+    # Tamamlanan gÃ¶revleri gÃ¶ster
+    y_position = -0.2
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.light_gray
+                )
+            )
+            
+            # TamamlandÄ± iÅŸareti
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text="âœ“ TamamlandÄ±",
+                    position=(0.2, y_position),
+                    scale=0.8,
+                    color=color.green
+                )
+            )
+            
+            y_position -= 0.1
+
+def calculate_daily_profit():
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
+    today = datetime.now().date()
+    today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
+    
+    profit = 0
+    for trade in today_trades:
+        if trade['type'] == 'sell':
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
+            buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
+            if buy_trades:
+                # En eski alÄ±m fiyatÄ±nÄ± bul
+                oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
+                buy_price = oldest_buy['price']
+                sell_price = trade['price']
+                profit += (sell_price - buy_price) * trade['amount']
+    
+    return profit
+
+def calculate_weekly_growth():
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
+    week_ago = datetime.now() - timedelta(days=7)
+    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    
+    # Åžu anki portfÃ¶y deÄŸeri
+    current_value = calculate_portfolio_value()
+    
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
+    if current_value > 0:
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
+    return 0
+
+def update_market_state():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
+        trend_chance = random.random()
+        if trend_chance < 0.4:
+            market_state['trend'] = 'stable'
+        elif trend_chance < 0.7:
+            market_state['trend'] = 'bull'
+        else:
+            market_state['trend'] = 'bear'
+        
+        # Volatiliteyi gÃ¼ncelle
+        market_state['volatility'] = random.uniform(0.3, 0.8)
+        
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
+            event = generate_market_event()
+            market_state['market_events'].append(event)
+            show_market_event(event)
+            apply_market_event(event)
+        
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
+            player_event = generate_player_event()
+            if player_event:
+                show_player_event(player_event)
+                apply_player_event(player_event)
+        
+        # GÃ¶rev tamamlanma durumunu kontrol et
+        check_quest_completion()
+        
+        market_state['last_update'] = current_time
+
+def update():
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
+    update_market()
+    
+    # UI gÃ¼ncellemesi
+    update_ui()
+    
+    # GÃ¶rev kontrolÃ¼
+    check_quests()
+    
+    # Otomatik kayÄ±t
+    if game_settings['auto_save']:
+        auto_save()
+
+def update_market():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # Piyasa gÃ¼ncellemesi
+    if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
+        # Trend gÃ¼ncelleme
+        update_market_trend()
+        
+        # Fiyat gÃ¼ncelleme
+        update_stock_prices()
+        
+        # Olay kontrolÃ¼
+        check_market_events()
+        
+        market_state['last_update'] = current_time
+
+def update_market_trend():
+    """Piyasa trendini gÃ¼ncelle"""
+    trend_chance = random.random()
+    
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
+    if game_settings['difficulty'] == 'easy':
+        if trend_chance < 0.5:  # %50 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.8:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %20 ÅŸans
+            market_state['trend'] = 'bear'
+    elif game_settings['difficulty'] == 'normal':
+        if trend_chance < 0.4:  # %40 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.7:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %30 ÅŸans
+            market_state['trend'] = 'bear'
+    else:  # hard
+        if trend_chance < 0.3:  # %30 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.5:  # %20 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %50 ÅŸans
+            market_state['trend'] = 'bear'
+    
+    # Volatilite gÃ¼ncelleme
+    market_state['volatility'] = random.uniform(
+        0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
+        0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
+    )
+
+def update_stock_prices():
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        base_price = data['price']
+        
+        # Trend etkisi
+        trend_effect = {
+            'bull': random.uniform(0.001, 0.01),
+            'stable': random.uniform(-0.003, 0.003),
+            'bear': random.uniform(-0.01, -0.001)
+        }[market_state['trend']]
+        
+        # SektÃ¶r etkisi
+        sector_effect = calculate_sector_effect(data['sector'])
+        
+        # Volatilite etkisi
+        volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
+        
+        # Toplam deÄŸiÅŸim
+        total_change = trend_effect + sector_effect + volatility_effect
+        
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
+        if game_settings['difficulty'] == 'easy':
+            total_change = max(-0.05, min(0.05, total_change))
+        elif game_settings['difficulty'] == 'normal':
+            total_change = max(-0.1, min(0.1, total_change))
+        else:  # hard
+            total_change = max(-0.15, min(0.15, total_change))
+        
+        # Yeni fiyat
+        new_price = base_price * (1 + total_change)
+        player['portfolio'][symbol]['price'] = max(0.01, new_price)
+
+def calculate_sector_effect(sector):
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
+    sector_trends = {
+        'tech': random.uniform(-0.005, 0.008),
+        'auto': random.uniform(-0.004, 0.006),
+        'retail': random.uniform(-0.003, 0.005),
+        'media': random.uniform(-0.004, 0.007),
+        'finance': random.uniform(-0.003, 0.004)
+    }
+    return sector_trends.get(sector, 0)
+
+def check_market_events():
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
+    if random.random() < game_settings['event_chance']:
+        event = generate_market_event()
+        if event:
+            market_state['market_events'].append(event)
+            apply_market_event(event)
+            show_market_event(event)
+
+def generate_market_event():
+    """Piyasa olayÄ± oluÅŸtur"""
+    event_types = {
+        'global': [
+            {
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
+                'effect': {'market_trend': 'bull', 'volatility': -0.1},
+                'duration': 300,
+                'probability': 0.2
+            },
+            {
+                'title': 'Ekonomik Kriz',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
+                'effect': {'market_trend': 'bear', 'volatility': 0.2},
+                'duration': 300,
+                'probability': 0.1
+            }
+        ],
+        'sector': [
+            {
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
+                'effect': {'sector': 'tech', 'change': 0.05},
+                'duration': 180,
+                'probability': 0.15
+            },
+            {
+                'title': 'Otomotiv Krizi',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
+                'effect': {'sector': 'auto', 'change': -0.05},
+                'duration': 180,
+                'probability': 0.15
+            }
+        ],
+        'company': [
+            {
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
+                'effect': {'symbol': 'AAPL', 'change': 0.08},
+                'duration': 120,
+                'probability': 0.2
+            },
+            {
+                'title': 'CEO Ä°stifasÄ±',
+                'description': 'TSLA CEO\'su istifa etti!',
+                'effect': {'symbol': 'TSLA', 'change': -0.08},
+                'duration': 120,
+                'probability': 0.1
+            }
+        ]
+    }
+    
+    # Olay tÃ¼rÃ¼ seÃ§
+    event_type = random.choice(list(event_types.keys()))
+    events = event_types[event_type]
+    
+    # OlasÄ±lÄ±k kontrolÃ¼
+    for event in events:
+        if random.random() < event['probability']:
+            return event
+    
+    return None
+
+def apply_market_event(event):
+    """Piyasa olayÄ±nÄ± uygula"""
+    effect = event['effect']
+    
+    # Piyasa trendi etkisi
+    if 'market_trend' in effect:
+        market_state['trend'] = effect['market_trend']
+    
+    # Volatilite etkisi
+    if 'volatility' in effect:
+        market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
+    
+    # SektÃ¶r etkisi
+    if 'sector' in effect:
+        for symbol, data in player['portfolio'].items():
+            if data['sector'] == effect['sector']:
+                data['price'] *= (1 + effect['change'])
+    
+    # Åžirket etkisi
+    if 'symbol' in effect:
+        if effect['symbol'] in player['portfolio']:
+            player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
+
+def show_market_event(event):
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
+    # Bildirim paneli
+    notification = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.6, 0.2),
+        position=(0, 0.3),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    title_text = Text(
+        parent=notification,
+        text=event['title'],
+        position=(0, 0.05),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # AÃ§Ä±klama
+    desc_text = Text(
+        parent=notification,
+        text=event['description'],
+        position=(0, -0.02),
+        scale=1.2,
+        color=color.white
+    )
+    
+    # Efekt aÃ§Ä±klamasÄ±
+    effect = event['effect']
+    effect_text = ""
+    
+    if 'market_trend' in effect:
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
+    elif 'sector' in effect:
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
+    elif 'symbol' in effect:
+        effect_text = f"{effect['symbol']} hissesi etkilendi!"
+    
+    Text(
+        parent=notification,
+        text=effect_text,
+        position=(0, -0.08),
+        scale=1,
+        color=color.azure
+    )
+    
+    # Bildirimi kaydet
+    ui['notifications'].append({
+        'entity': notification,
+        'created_at': datetime.now(),
+        'duration': 5  # 5 saniye sonra kaybolacak
+    })
+
+def calculate_portfolio_value():
+    """PortfÃ¶y deÄŸerini hesapla"""
+    total_value = player['money']
+    for symbol, data in player['portfolio'].items():
+        total_value += data['shares'] * data['price']
+    return total_value
+
+def calculate_risk_score():
+    """Risk skorunu hesapla"""
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
+    portfolio_diversity = calculate_portfolio_diversity()
+    
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
+    debt_to_income = calculate_debt_to_income_ratio()
+    
+    # Toplam risk skoru (0-1 arasÄ±)
+    risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
+    return min(max(risk_score, 0), 1)
+
+def calculate_portfolio_diversity():
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
+    total_value = calculate_portfolio_value()
+    if total_value == 0:
+        return 0
+    
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
+    sector_weights = {}
+    for symbol, data in player['portfolio'].items():
+        sector = data['sector']
+        value = data['shares'] * data['price']
+        sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
+    
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
+    hhi = sum(weight * weight for weight in sector_weights.values())
+    diversity = 1 - hhi
+    return min(max(diversity, 0), 1)
+
+def calculate_debt_to_income_ratio():
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
+    total_income = sum(t['amount'] for t in player.get('trading_history', []) 
+                      if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
+    total_debt = sum(t['amount'] for t in player.get('trading_history', [])
+                    if t['type'] == 'loss' and (datetime.now() - t['timestamp']).days <= 30)
+    
+    if total_income == 0:
+        return 1 if total_debt > 0 else 0
+    
+    ratio = total_debt / total_income
+    return min(max(ratio, 0), 1)
+
+def update_ui():
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
+    ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
+    
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
+    for symbol, data in player['portfolio'].items():
+        if symbol in ui['text_elements']:
+            ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
+    
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
+    update_stock_buttons()
+    
+    # GÃ¶revleri gÃ¼ncelle
+    update_quest_ui()
+    
+    # Bildirimleri gÃ¼ncelle
+    update_notifications()
+
+def update_stock_buttons():
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        # AlÄ±m butonu
+        if symbol + '_buy' in ui['buttons']:
+            ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
+        
+        # SatÄ±m butonu
+        if symbol + '_sell' in ui['buttons']:
+            ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
+
+def update_notifications():
+    """Bildirimleri gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
+    ui['notifications'] = [n for n in ui['notifications'] 
+                         if (current_time - n['timestamp']).seconds < 5]
+    
+    # Bildirimleri gÃ¶ster
+    for i, notification in enumerate(ui['notifications']):
+        if 'text' in notification:
+            notification['text'].y = -0.3 - i * 0.1
+
+def buy_stock(symbol):
+    """Hisse senedi satÄ±n al"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli para var mÄ± kontrol et
+    if player['money'] < price:
+        show_notification('Yeterli paranÄ±z yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] -= price
+    stock['shares'] += 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'buy',
+        'symbol': symbol,
+        'price': price,
+        'timestamp': datetime.now()
+    }
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± gÃ¼ncelle
+    player['trading_history'].append(trade)
+    
+from __future__ import absolute_import, unicode_literals
+import os
+import random
+from datetime import datetime, timedelta
+import json
+from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
+from ursina.prefabs.first_person_controller import FirstPersonController
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+import time
+import platform
+from typing import Dict, List, Optional
+import threading
+from game_integration import GameIntegration
+
+# Django ayarlarÄ±nÄ± yÃ¼kle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
+
+# Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
+
+# Oyun ayarlarÄ±
+game_settings = {
+    'difficulty': 'normal',  # easy, normal, hard
+    'market_update_interval': 5,  # saniye
+    'event_chance': 0.2,  # 0-1 arasÄ±
+    'starting_money': 100000,
+    'tutorial_enabled': True,
+    'sound_enabled': True,
+    'music_enabled': True,
+    'fullscreen': False,
+    'show_tooltips': True,
+    'auto_save': True,
+    'save_interval': 300  # saniye
+}
+
+# Piyasa durumu
+market_state = {
+    'trend': 'stable',  # bull, stable, bear
+    'volatility': 0.5,  # 0-1 arasÄ±
+    'last_update': datetime.now(),
+    'market_events': []
+}
+
+# UI bileÅŸenleri
+ui = {
+    'main_panel': None,
+    'portfolio_panel': None,
+    'market_panel': None,
+    'stats_panel': None,
+    'quest_panel': None,
+    'notification_panel': None,
+    'tooltip_panel': None,
+    'menu_panel': None,
+    'text_elements': {},
+    'buttons': {},
+    'charts': {},
+    'notifications': []
+}
+
+# Oyuncu verileri
+player = {
+    'id': 1,
+    'name': 'John Doe',
+    'money': game_settings['starting_money'],
+    'portfolio': {
+        'AAPL': {'shares': 10, 'price': 150, 'sector': 'tech'},
+        'GOOGL': {'shares': 5, 'price': 2000, 'sector': 'tech'},
+        'TSLA': {'shares': 8, 'price': 700, 'sector': 'auto'},
+        'MSFT': {'shares': 0, 'price': 300, 'sector': 'tech'},
+        'AMZN': {'shares': 0, 'price': 3000, 'sector': 'retail'},
+        'META': {'shares': 0, 'price': 250, 'sector': 'tech'},
+        'NFLX': {'shares': 0, 'price': 400, 'sector': 'media'},
+        'NVDA': {'shares': 0, 'price': 500, 'sector': 'tech'},
+        'JPM': {'shares': 0, 'price': 150, 'sector': 'finance'},
+        'BAC': {'shares': 0, 'price': 40, 'sector': 'finance'}
+    },
+    'stats': {
+        'total_trades': 0,
+        'successful_trades': 0,
+        'failed_trades': 0,
+        'profit_trades': 0,
+        'loss_trades': 0,
+        'total_profit': 0,
+        'total_loss': 0,
+        'best_trade': 0,
+        'worst_trade': 0,
+        'longest_holding': 0,
+        'shortest_holding': 0,
+        'risk_tolerance': 0.7,
+        'trading_style': 'balanced',  # aggressive, balanced, conservative
+        'debt_to_income': 0.0,  # BorÃ§/gelir oranÄ±
+        'portfolio_diversity': 0.0,  # PortfÃ¶y Ã§eÅŸitliliÄŸi
+        'total_debt': 0,  # Toplam borÃ§
+        'total_income': 0,  # Toplam gelir
+        'monthly_income': 0,  # AylÄ±k gelir
+        'monthly_expenses': 0  # AylÄ±k giderler
+    },
+    'skills': {
+        'analysis': 1,  # 1-10 arasÄ±
+        'risk_management': 1,
+        'market_knowledge': 1,
+        'technical_analysis': 1,
+        'fundamental_analysis': 1
+    },
+    'experience': {
+        'level': 1,
+        'current_xp': 0,
+        'next_level_xp': 1000,
+        'total_xp': 0
+    },
+    'achievements': [],
+    'active_quests': [],
+    'completed_quests': [],
+    'quest_progress': {},
+    'tutorial_progress': {
+        'basic_trading': False,
+        'market_analysis': False,
+        'risk_management': False,
+        'portfolio_management': False,
+        'technical_analysis': False
+    },
+    'settings': {
+        'notifications': True,
+        'sound': True,
+        'music': True,
+        'tooltips': True,
+        'auto_save': True
+    },
+    'trading_history': []
+}
+
+# GÃ¶rev sistemi
+quest_system = {
+    'daily_quests': [],
+    'weekly_quests': [],
+    'achievement_quests': [],
+    'tutorial_quests': []
+}
+
+# GÃ¶rev tanÄ±mlamalarÄ±
+quest_definitions = {
+    # GÃ¼nlÃ¼k gÃ¶revler
+    'daily_trade': {
+        'id': 'daily_trade',
+        'title': 'GÃ¼nlÃ¼k Ä°ÅŸlem',
+        'description': 'BugÃ¼n en az 1 hisse senedi alÄ±m veya satÄ±m iÅŸlemi yapÄ±n.',
+        'reward': {'money': 500, 'experience': 100},
+        'type': 'daily',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
+    },
+    'daily_profit': {
+        'id': 'daily_profit',
+        'title': 'GÃ¼nlÃ¼k KÃ¢r',
+        'description': 'BugÃ¼n portfÃ¶yÃ¼nÃ¼zden 1000$ kÃ¢r elde edin.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'daily',
+        'check_completion': lambda: calculate_daily_profit() >= 1000
+    },
+    'daily_diversity': {
+        'id': 'daily_diversity',
+        'title': 'Ã‡eÅŸitlilik UstasÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.7\'nin Ã¼zerine Ã§Ä±karÄ±n.',
+        'reward': {'money': 800, 'experience': 150},
+        'type': 'daily',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
+    },
+    
+    # HaftalÄ±k gÃ¶revler
+    'weekly_growth': {
+        'id': 'weekly_growth',
+        'title': 'HaftalÄ±k BÃ¼yÃ¼me',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ bu hafta %10 bÃ¼yÃ¼tÃ¼n.',
+        'reward': {'money': 5000, 'experience': 500},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_weekly_growth() >= 0.1
+    },
+    'weekly_trades': {
+        'id': 'weekly_trades',
+        'title': 'Aktif Trader',
+        'description': 'Bu hafta en az 10 iÅŸlem yapÄ±n.',
+        'reward': {'money': 3000, 'experience': 400},
+        'type': 'weekly',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
+    },
+    'weekly_risk': {
+        'id': 'weekly_risk',
+        'title': 'Risk YÃ¶neticisi',
+        'description': 'Risk skorunuzu 0.5\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
+        'reward': {'money': 4000, 'experience': 450},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_risk_score() < 0.5
+    },
+    
+    # BaÅŸarÄ± gÃ¶revleri
+    'achievement_portfolio': {
+        'id': 'achievement_portfolio',
+        'title': 'PortfÃ¶y UstasÄ±',
+        'description': 'PortfÃ¶yÃ¼nÃ¼zÃ¼ 200.000$ deÄŸerine ulaÅŸtÄ±rÄ±n.',
+        'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
+        'type': 'achievement',
+        'check_completion': lambda: calculate_portfolio_value() >= 200000
+    },
+    'achievement_diversity': {
+        'id': 'achievement_diversity',
+        'title': 'Ã‡eÅŸitlilik KralÄ±',
+        'description': 'PortfÃ¶y Ã§eÅŸitliliÄŸinizi 0.9\'un Ã¼zerine Ã§Ä±karÄ±n.',
+        'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
+    },
+    'achievement_debt': {
+        'id': 'achievement_debt',
+        'title': 'BorÃ§suz YaÅŸam',
+        'description': 'BorÃ§/gelir oranÄ±nÄ±zÄ± 0.1\'in altÄ±na dÃ¼ÅŸÃ¼rÃ¼n.',
+        'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
+    },
+    
+    # EÄŸitim gÃ¶revleri
+    'tutorial_buy': {
+        'id': 'tutorial_buy',
+        'title': 'Ä°lk AlÄ±m',
+        'description': 'Ä°lk hisse senedi alÄ±m iÅŸleminizi yapÄ±n.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
+    },
+    'tutorial_sell': {
+        'id': 'tutorial_sell',
+        'title': 'Ä°lk SatÄ±m',
+        'description': 'Ä°lk hisse senedi satÄ±m iÅŸleminizi yapÄ±n.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
+    },
+    'tutorial_diversity': {
+        'id': 'tutorial_diversity',
+        'title': 'Ã‡eÅŸitlendirme',
+        'description': 'En az 3 farklÄ± hisse senedine yatÄ±rÄ±m yapÄ±n.',
+        'reward': {'money': 2000, 'experience': 300},
+        'type': 'tutorial',
+        'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
+    }
+}
+
+# GÃ¶rev UI elementleri
+quest_ui = {
+    'panel': None,
+    'quest_items': [],
+    'active_quests_text': None,
+    'completed_quests_text': None
+}
+
+from __future__ import absolute_import, unicode_literals
+import os
+import random
+from datetime import datetime, timedelta
+import json
+from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
+from ursina.prefabs.first_person_controller import FirstPersonController
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+import time
+import platform
+from typing import Dict, List, Optional
+import threading
+from game_integration import GameIntegration
+
+# Django ayarlarını yükle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+
+class FinAsisGame(Ursina):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yÃ¶neticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolÃ¼
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yÃ¶neticisini baÅŸlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # DÃ¼nya oluÅŸturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iÅŸ yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # TuÅŸ durumlarÄ±
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        
+        # Ä°nitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayÄ±t
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye gÃ¶stergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan gÃ¶stergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye gÃ¶stergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # Ä°ÅŸlem butonlarÄ±
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # MenÃ¼ butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seÃ§imi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seÃ§imini deÄŸiÅŸtir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'Ä± gÃ¼ncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # MenÃ¼ panelini gÃ¶ster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # MenÃ¼ butonlarÄ±
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='YÃ¼kle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Ã‡Ä±kÄ±ÅŸ',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # MenÃ¼ panelini kaldÄ±r
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolÃ¼
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
+                olay['tip'] = random.choice([
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
+    """Oyunu baÅŸlat"""
+    app = Ursina()
+    dunya = FinAsisGame(online_mode=online_mode)
+    app.run()
+
+def create_ui():
+    """Ana UI'Ä± oluÅŸtur"""
+    # Ana panel
+    ui['main_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(1.8, 1),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.8)
+    )
+    
+    # Ãœst bilgi paneli
+    create_top_info_panel()
+    
+    # PortfÃ¶y paneli
+    create_portfolio_panel()
+    
+    # Market paneli
+    create_market_panel()
+    
+    # Ä°statistik paneli
+    create_stats_panel()
+    
+    # MenÃ¼ butonu
+    Button(
+        parent=camera.ui,
+        text='MenÃ¼',
+        color=color.azure,
+        position=(0.8, 0.45),
+        scale=(0.2, 0.05),
+        on_click=Func(toggle_menu)
+    )
+
+def create_top_info_panel():
+    """Ãœst bilgi panelini oluÅŸtur"""
+    # Para
+    ui['text_elements']['money'] = Text(
+        parent=camera.ui,
+        text=f"${player['money']:,.2f}",
+        position=(-0.8, 0.45),
+        scale=2,
+        color=color.green
+    )
+    
+    # PortfÃ¶y deÄŸeri
+    ui['text_elements']['portfolio_value'] = Text(
+        parent=camera.ui,
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
+        position=(-0.4, 0.45),
+        scale=2,
+        color=color.white
+    )
+    
+    # Risk skoru
+    ui['text_elements']['risk_score'] = Text(
+        parent=camera.ui,
+        text=f"Risk: {calculate_risk_score():.2f}",
+        position=(0, 0.45),
+        scale=2,
+        color=color.yellow
+    )
+
+def create_portfolio_panel():
+    """PortfÃ¶y panelini oluÅŸtur"""
+    ui['portfolio_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(-0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['portfolio_panel'],
+        text='PortfÃ¶y',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.25
+    for symbol, data in player['portfolio'].items():
+        if data['shares'] > 0:
+            # Hisse adÄ± ve miktar
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"{symbol}: {data['shares']} adet",
+                position=(-0.2, y_pos),
+                scale=1.2,
+                color=color.white
+            )
+            
+            # Fiyat
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"${data['price']:,.2f}",
+                position=(0.15, y_pos),
+                scale=1.2,
+                color=color.green if data['price'] > 0 else color.red
+            )
+            
+            y_pos -= 0.08
+
+def create_market_panel():
+    """Market panelini oluÅŸtur"""
+    ui['market_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['market_panel'],
+        text='Market',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Market trendi
+    ui['text_elements']['market_trend'] = Text(
+        parent=ui['market_panel'],
+        text=f"Trend: {market_state['trend'].upper()}",
+        position=(0, 0.25),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # Volatilite
+    ui['text_elements']['volatility'] = Text(
+        parent=ui['market_panel'],
+        text=f"Volatilite: {market_state['volatility']:.2f}",
+        position=(0, 0.2),
+        scale=1.2,
+        color=color.azure
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.1
+    for symbol, data in player['portfolio'].items():
+        # Hisse adÄ± ve fiyat
+        Text(
+            parent=ui['market_panel'],
+            text=f"{symbol}: ${data['price']:,.2f}",
+            position=(-0.2, y_pos),
+            scale=1.2,
+            color=color.white
+        )
+        
+        # AlÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Al',
+            color=color.green,
+            position=(0.1, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: buy_stock(s))
+        )
+        
+        # SatÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Sat',
+            color=color.red,
+            position=(0.2, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: sell_stock(s))
+        )
+        
+        y_pos -= 0.08
+
+def create_stats_panel():
+    """Ä°statistik panelini oluÅŸtur"""
+    ui['stats_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['stats_panel'],
+        text='Ä°statistikler',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ä°statistikler
+    stats = player['stats']
+    y_pos = 0.25
+    
+    # Toplam iÅŸlem
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.white
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±lÄ± iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+    y_pos -= 0.08
+    
+    # Toplam kÃ¢r
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # Toplam zarar
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Zarar: ${stats['total_loss']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+
+def toggle_menu():
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
+    if not ui['menu_panel']:
+        create_menu()
+    else:
+        destroy(ui['menu_panel'])
+        ui['menu_panel'] = None
+
+def create_menu():
+    """MenÃ¼ panelini oluÅŸtur"""
+    ui['menu_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['menu_panel'],
+        text='MenÃ¼',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Kaydet butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Kaydet',
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(save_game)
+    )
+    
+    # YÃ¼kle butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='YÃ¼kle',
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(load_game)
+    )
+    
+    # Ayarlar butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ayarlar',
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(show_settings)
+    )
+    
+    # Ã‡Ä±kÄ±ÅŸ butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ã‡Ä±kÄ±ÅŸ',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(quit_game)
+    )
+
+def show_settings():
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
+    destroy(ui['menu_panel'])
+    ui['menu_panel'] = None
+    
+    # Ayarlar paneli
+    ui['settings_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['settings_panel'],
+        text='Ayarlar',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ses ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_sound)
+    )
+    
+    # MÃ¼zik ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_music)
+    )
+    
+    # Tam ekran ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_fullscreen)
+    )
+    
+    # Geri butonu
+    Button(
+        parent=ui['settings_panel'],
+        text='Geri',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
+    )
+
+def toggle_sound():
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['sound_enabled'] = not game_settings['sound_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_music():
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['music_enabled'] = not game_settings['music_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_fullscreen():
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['fullscreen'] = not game_settings['fullscreen']
+    window.fullscreen = game_settings['fullscreen']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def start_tutorial():
+    """EÄŸitim modunu baÅŸlat"""
+    tutorial_steps = [
+        {
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
+            'position': (-0.65, 0)
+        },
+        {
+            'title': 'Market Paneli',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
+            'position': (0.65, 0)
+        }
+    ]
+    
+    # Tutorial paneli
+    tutorial_panel = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.2),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    current_step = 0
+    
+    def show_step():
+        nonlocal current_step
+        step = tutorial_steps[current_step]
+        
+        # Panel pozisyonu
+        tutorial_panel.position = step['position']
+        
+        # BaÅŸlÄ±k
+        if hasattr(tutorial_panel, 'title'):
+            destroy(tutorial_panel.title)
+        tutorial_panel.title = Text(
+            parent=tutorial_panel,
+            text=step['title'],
+            position=(0, 0.05),
+            scale=1.5,
+            color=color.yellow
+        )
+        
+        # AÃ§Ä±klama
+        if hasattr(tutorial_panel, 'description'):
+            destroy(tutorial_panel.description)
+        tutorial_panel.description = Text(
+            parent=tutorial_panel,
+            text=step['description'],
+            position=(0, -0.02),
+            scale=1,
+            color=color.white
+        )
+        
+        # Ä°leri butonu
+        if hasattr(tutorial_panel, 'next_button'):
+            destroy(tutorial_panel.next_button)
+        tutorial_panel.next_button = Button(
+            parent=tutorial_panel,
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            position=(0.1, -0.07),
+            scale=(0.2, 0.05),
+            color=color.azure,
+            on_click=next_step
+        )
+    
+    def next_step():
+        nonlocal current_step
+        current_step += 1
+        if current_step < len(tutorial_steps):
+            show_step()
+        else:
+            # Tutorial'Ä± bitir
+            destroy(tutorial_panel)
+            player['tutorial_progress']['basic_trading'] = True
+            save_game()
+    
+    # Ä°lk adÄ±mÄ± gÃ¶ster
+    show_step()
+
+def save_game():
+    """Oyun durumunu kaydet"""
+    try:
+        # Kaydedilecek verileri hazÄ±rla
+        save_data = {
+            'player': player,
+            'market_state': market_state,
+            'quest_system': quest_system,
+            'game_settings': game_settings,
+            'save_time': datetime.now().isoformat()
+        }
+        
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
+        def convert_datetime(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return obj
+        
+        # Verileri JSON formatÄ±nda kaydet
+        with open('save_game.json', 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
+            
+        show_notification('Oyun kaydedildi!', color.green)
+    except Exception as e:
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
+
+def load_game():
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
+    try:
+        # JSON dosyasÄ±nÄ± oku
+        with open('save_game.json', 'r', encoding='utf-8') as f:
+            save_data = json.load(f)
+        
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
+        def parse_datetime(obj):
+            for key, value in obj.items():
+                if isinstance(value, str) and 'T' in value:
+                    try:
+                        obj[key] = datetime.fromisoformat(value)
+                    except ValueError:
+                        pass
+                elif isinstance(value, dict):
+                    parse_datetime(value)
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            parse_datetime(item)
+            return obj
+        
+        # Verileri yÃ¼kle
+        global player, market_state, quest_system, game_settings
+        player = parse_datetime(save_data['player'])
+        market_state = parse_datetime(save_data['market_state'])
+        quest_system = parse_datetime(save_data['quest_system'])
+        game_settings = save_data['game_settings']
+        
+        show_notification('Oyun yÃ¼klendi!', color.green)
+    except FileNotFoundError:
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
+    except Exception as e:
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
+
+def show_notification(message, color=color.white):
+    """Bildirim gÃ¶ster"""
+    notification = Text(
+        text=message,
+        position=(0, 0.4),
+        scale=2,
+        color=color
+    )
+    destroy(notification, delay=3)
+
+def auto_save():
+    """Otomatik kayÄ±t"""
+    current_time = datetime.now()
+    if not hasattr(auto_save, 'last_save'):
+        auto_save.last_save = current_time
+    
+    if (current_time - auto_save.last_save).seconds >= game_settings['save_interval']:
+        save_game()
+        auto_save.last_save = current_time
+
+def quit_game():
+    """Oyundan Ã§Ä±k"""
+    # Oyunu kaydet
+    save_game()
+    
+    # Pencereyi kapat
+    application.quit()
+
+def initialize_quest_system():
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
+    daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
+    for quest_id in daily_quests:
+        if quest_id in quest_definitions:
+            quest_system['daily_quests'].append(quest_definitions[quest_id])
+    
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
+    weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
+    for quest_id in weekly_quests:
+        if quest_id in quest_definitions:
+            quest_system['weekly_quests'].append(quest_definitions[quest_id])
+    
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
+    achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
+    for quest_id in achievement_quests:
+        if quest_id in quest_definitions:
+            quest_system['achievement_quests'].append(quest_definitions[quest_id])
+    
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
+    tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
+    for quest_id in tutorial_quests:
+        if quest_id in quest_definitions:
+            quest_system['tutorial_quests'].append(quest_definitions[quest_id])
+    
+    # Aktif gÃ¶revleri belirle
+    assign_daily_quests()
+    assign_weekly_quests()
+    
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['tutorial_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['achievement_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
+    create_quest_ui()
+
+def assign_daily_quests():
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
+    
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def assign_weekly_quests():
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
+    
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def check_quest_completion():
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
+    completed_quests = []
+    
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
+            if quest['check_completion']():
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
+                completed_quests.append(quest_id)
+                
+                # Ã–dÃ¼lleri ver
+                give_quest_rewards(quest)
+                
+                # Tamamlanan gÃ¶revi gÃ¶ster
+                show_quest_completion(quest)
+    
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
+    for quest_id in completed_quests:
+        player['active_quests'].remove(quest_id)
+        player['completed_quests'].append(quest_id)
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def give_quest_rewards(quest):
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
+    reward = quest['reward']
+    
+    # Para Ã¶dÃ¼lÃ¼
+    if 'money' in reward:
+        player['money'] += reward['money']
+    
+    # Deneyim Ã¶dÃ¼lÃ¼
+    if 'experience' in reward:
+        player['experience']['current_xp'] += reward['experience']
+        player['experience']['total_xp'] += reward['experience']
+        
+        # Seviye atlama kontrolÃ¼
+        while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+            player['experience']['current_xp'] -= player['experience']['next_level_xp']
+            player['experience']['level'] += 1
+            player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+            show_level_up()
+    
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
+    if 'achievement' in reward:
+        if reward['achievement'] not in player['achievements']:
+            player['achievements'].append(reward['achievement'])
+
+def show_quest_completion(quest):
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
+    # Ana bildirim metni
+    completion_text = Text(
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
+        position=(0, 0.6),
+        scale=2,
+        color=color.gold
+    )
+    
+    # Ã–dÃ¼l detaylarÄ±
+    reward_text = None
+    if 'money' in quest['reward']:
+        reward_text = Text(
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
+            position=(0, 0.5),
+            scale=1.5,
+            color=color.green
+        )
+    
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
+    destroy(completion_text, delay=4)
+    if reward_text:
+        destroy(reward_text, delay=4)
+
+def show_level_up():
+    """Seviye atlama bildirimini gÃ¶ster"""
+    level_text = Text(
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
+        position=(0, 0.4),
+        scale=2,
+        color=color.yellow
+    )
+    destroy(level_text, delay=4)
+
+def calculate_next_level_xp(current_level):
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
+    return int(1000 * (1.5 ** (current_level - 1)))
+
+def create_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
+    quest_ui['panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.8, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.7),
+        visible=False
+    )
+    
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+    Text(
+        parent=quest_ui['panel'],
+        text='GÃ¶revler',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['active_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Aktif GÃ¶revler:',
+        position=(-0.35, 0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['completed_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Tamamlanan GÃ¶revler:',
+        position=(-0.35, -0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # GÃ¶rev kapatma butonu
+    Button(
+        parent=quest_ui['panel'],
+        text='Kapat',
+        color=color.red,
+        position=(0, -0.25),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
+    )
+    
+    # GÃ¶rev butonu
+    Button(
+        parent=camera.ui,
+        text='GÃ¶revler',
+        color=color.azure,
+        position=(0.7, 0.4),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
+    )
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def update_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
+    for item in quest_ui['quest_items']:
+        destroy(item)
+    quest_ui['quest_items'] = []
+    
+    # Aktif gÃ¶revleri gÃ¶ster
+    y_position = 0.1
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.white
+                )
+            )
+            
+            # GÃ¶rev aÃ§Ä±klamasÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['description'],
+                    position=(-0.3, y_position - 0.05),
+                    scale=0.8,
+                    color=color.light_gray
+                )
+            )
+            
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=reward_text,
+                    position=(-0.3, y_position - 0.1),
+                    scale=0.8,
+                    color=color.gold
+                )
+            )
+            
+            y_position -= 0.15
+    
+    # Tamamlanan gÃ¶revleri gÃ¶ster
+    y_position = -0.2
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.light_gray
+                )
+            )
+            
+            # TamamlandÄ± iÅŸareti
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text="âœ“ TamamlandÄ±",
+                    position=(0.2, y_position),
+                    scale=0.8,
+                    color=color.green
+                )
+            )
+            
+            y_position -= 0.1
+
+def calculate_daily_profit():
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
+    today = datetime.now().date()
+    today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
+    
+    profit = 0
+    for trade in today_trades:
+        if trade['type'] == 'sell':
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
+            buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
+            if buy_trades:
+                # En eski alÄ±m fiyatÄ±nÄ± bul
+                oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
+                buy_price = oldest_buy['price']
+                sell_price = trade['price']
+                profit += (sell_price - buy_price) * trade['amount']
+    
+    return profit
+
+def calculate_weekly_growth():
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
+    week_ago = datetime.now() - timedelta(days=7)
+    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    
+    # Åžu anki portfÃ¶y deÄŸeri
+    current_value = calculate_portfolio_value()
+    
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
+    if current_value > 0:
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
+    return 0
+
+def update_market_state():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
+        trend_chance = random.random()
+        if trend_chance < 0.4:
+            market_state['trend'] = 'stable'
+        elif trend_chance < 0.7:
+            market_state['trend'] = 'bull'
+        else:
+            market_state['trend'] = 'bear'
+        
+        # Volatiliteyi gÃ¼ncelle
+        market_state['volatility'] = random.uniform(0.3, 0.8)
+        
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
+            event = generate_market_event()
+            market_state['market_events'].append(event)
+            show_market_event(event)
+            apply_market_event(event)
+        
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
+            player_event = generate_player_event()
+            if player_event:
+                show_player_event(player_event)
+                apply_player_event(player_event)
+        
+        # GÃ¶rev tamamlanma durumunu kontrol et
+        check_quest_completion()
+        
+        market_state['last_update'] = current_time
+
+def update():
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
+    update_market()
+    
+    # UI gÃ¼ncellemesi
+    update_ui()
+    
+    # GÃ¶rev kontrolÃ¼
+    check_quests()
+    
+    # Otomatik kayÄ±t
+    if game_settings['auto_save']:
+        auto_save()
+
+def update_market():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # Piyasa gÃ¼ncellemesi
+    if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
+        # Trend gÃ¼ncelleme
+        update_market_trend()
+        
+        # Fiyat gÃ¼ncelleme
+        update_stock_prices()
+        
+        # Olay kontrolÃ¼
+        check_market_events()
+        
+        market_state['last_update'] = current_time
+
+def update_market_trend():
+    """Piyasa trendini gÃ¼ncelle"""
+    trend_chance = random.random()
+    
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
+    if game_settings['difficulty'] == 'easy':
+        if trend_chance < 0.5:  # %50 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.8:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %20 ÅŸans
+            market_state['trend'] = 'bear'
+    elif game_settings['difficulty'] == 'normal':
+        if trend_chance < 0.4:  # %40 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.7:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %30 ÅŸans
+            market_state['trend'] = 'bear'
+    else:  # hard
+        if trend_chance < 0.3:  # %30 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.5:  # %20 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %50 ÅŸans
+            market_state['trend'] = 'bear'
+    
+    # Volatilite gÃ¼ncelleme
+    market_state['volatility'] = random.uniform(
+        0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
+        0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
+    )
+
+def update_stock_prices():
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        base_price = data['price']
+        
+        # Trend etkisi
+        trend_effect = {
+            'bull': random.uniform(0.001, 0.01),
+            'stable': random.uniform(-0.003, 0.003),
+            'bear': random.uniform(-0.01, -0.001)
+        }[market_state['trend']]
+        
+        # SektÃ¶r etkisi
+        sector_effect = calculate_sector_effect(data['sector'])
+        
+        # Volatilite etkisi
+        volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
+        
+        # Toplam deÄŸiÅŸim
+        total_change = trend_effect + sector_effect + volatility_effect
+        
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
+        if game_settings['difficulty'] == 'easy':
+            total_change = max(-0.05, min(0.05, total_change))
+        elif game_settings['difficulty'] == 'normal':
+            total_change = max(-0.1, min(0.1, total_change))
+        else:  # hard
+            total_change = max(-0.15, min(0.15, total_change))
+        
+        # Yeni fiyat
+        new_price = base_price * (1 + total_change)
+        player['portfolio'][symbol]['price'] = max(0.01, new_price)
+
+def calculate_sector_effect(sector):
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
+    sector_trends = {
+        'tech': random.uniform(-0.005, 0.008),
+        'auto': random.uniform(-0.004, 0.006),
+        'retail': random.uniform(-0.003, 0.005),
+        'media': random.uniform(-0.004, 0.007),
+        'finance': random.uniform(-0.003, 0.004)
+    }
+    return sector_trends.get(sector, 0)
+
+def check_market_events():
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
+    if random.random() < game_settings['event_chance']:
+        event = generate_market_event()
+        if event:
+            market_state['market_events'].append(event)
+            apply_market_event(event)
+            show_market_event(event)
+
+def generate_market_event():
+    """Piyasa olayÄ± oluÅŸtur"""
+    event_types = {
+        'global': [
+            {
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
+                'effect': {'market_trend': 'bull', 'volatility': -0.1},
+                'duration': 300,
+                'probability': 0.2
+            },
+            {
+                'title': 'Ekonomik Kriz',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
+                'effect': {'market_trend': 'bear', 'volatility': 0.2},
+                'duration': 300,
+                'probability': 0.1
+            }
+        ],
+        'sector': [
+            {
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
+                'effect': {'sector': 'tech', 'change': 0.05},
+                'duration': 180,
+                'probability': 0.15
+            },
+            {
+                'title': 'Otomotiv Krizi',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
+                'effect': {'sector': 'auto', 'change': -0.05},
+                'duration': 180,
+                'probability': 0.15
+            }
+        ],
+        'company': [
+            {
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
+                'effect': {'symbol': 'AAPL', 'change': 0.08},
+                'duration': 120,
+                'probability': 0.2
+            },
+            {
+                'title': 'CEO Ä°stifasÄ±',
+                'description': 'TSLA CEO\'su istifa etti!',
+                'effect': {'symbol': 'TSLA', 'change': -0.08},
+                'duration': 120,
+                'probability': 0.1
+            }
+        ]
+    }
+    
+    # Olay tÃ¼rÃ¼ seÃ§
+    event_type = random.choice(list(event_types.keys()))
+    events = event_types[event_type]
+    
+    # OlasÄ±lÄ±k kontrolÃ¼
+    for event in events:
+        if random.random() < event['probability']:
+            return event
+    
+    return None
+
+def apply_market_event(event):
+    """Piyasa olayÄ±nÄ± uygula"""
+    effect = event['effect']
+    
+    # Piyasa trendi etkisi
+    if 'market_trend' in effect:
+        market_state['trend'] = effect['market_trend']
+    
+    # Volatilite etkisi
+    if 'volatility' in effect:
+        market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
+    
+    # SektÃ¶r etkisi
+    if 'sector' in effect:
+        for symbol, data in player['portfolio'].items():
+            if data['sector'] == effect['sector']:
+                data['price'] *= (1 + effect['change'])
+    
+    # Åžirket etkisi
+    if 'symbol' in effect:
+        if effect['symbol'] in player['portfolio']:
+            player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
+
+def show_market_event(event):
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
+    # Bildirim paneli
+    notification = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.6, 0.2),
+        position=(0, 0.3),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    title_text = Text(
+        parent=notification,
+        text=event['title'],
+        position=(0, 0.05),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # AÃ§Ä±klama
+    desc_text = Text(
+        parent=notification,
+        text=event['description'],
+        position=(0, -0.02),
+        scale=1.2,
+        color=color.white
+    )
+    
+    # Efekt aÃ§Ä±klamasÄ±
+    effect = event['effect']
+    effect_text = ""
+    
+    if 'market_trend' in effect:
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
+    elif 'sector' in effect:
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
+    elif 'symbol' in effect:
+        effect_text = f"{effect['symbol']} hissesi etkilendi!"
+    
+    Text(
+        parent=notification,
+        text=effect_text,
+        position=(0, -0.08),
+        scale=1,
+        color=color.azure
+    )
+    
+    # Bildirimi kaydet
+    ui['notifications'].append({
+        'entity': notification,
+        'created_at': datetime.now(),
+        'duration': 5  # 5 saniye sonra kaybolacak
+    })
+
+def calculate_portfolio_value():
+    """PortfÃ¶y deÄŸerini hesapla"""
+    total_value = player['money']
+    for symbol, data in player['portfolio'].items():
+        total_value += data['shares'] * data['price']
+    return total_value
+
+def calculate_risk_score():
+    """Risk skorunu hesapla"""
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
+    portfolio_diversity = calculate_portfolio_diversity()
+    
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
+    debt_to_income = calculate_debt_to_income_ratio()
+    
+    # Toplam risk skoru (0-1 arasÄ±)
+    risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
+    return min(max(risk_score, 0), 1)
+
+def calculate_portfolio_diversity():
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
+    total_value = calculate_portfolio_value()
+    if total_value == 0:
+        return 0
+    
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
+    sector_weights = {}
+    for symbol, data in player['portfolio'].items():
+        sector = data['sector']
+        value = data['shares'] * data['price']
+        sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
+    
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
+    hhi = sum(weight * weight for weight in sector_weights.values())
+    diversity = 1 - hhi
+    return min(max(diversity, 0), 1)
+
+def calculate_debt_to_income_ratio():
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
+    total_income = sum(t['amount'] for t in player.get('trading_history', []) 
+                      if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
+    total_debt = sum(t['amount'] for t in player.get('trading_history', [])
+                    if t['type'] == 'loss' and (datetime.now() - t['timestamp']).days <= 30)
+    
+    if total_income == 0:
+        return 1 if total_debt > 0 else 0
+    
+    ratio = total_debt / total_income
+    return min(max(ratio, 0), 1)
+
+def update_ui():
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
+    ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
+    
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
+    for symbol, data in player['portfolio'].items():
+        if symbol in ui['text_elements']:
+            ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
+    
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
+    update_stock_buttons()
+    
+    # GÃ¶revleri gÃ¼ncelle
+    update_quest_ui()
+    
+    # Bildirimleri gÃ¼ncelle
+    update_notifications()
+
+def update_stock_buttons():
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        # AlÄ±m butonu
+        if symbol + '_buy' in ui['buttons']:
+            ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
+        
+        # SatÄ±m butonu
+        if symbol + '_sell' in ui['buttons']:
+            ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
+
+def update_notifications():
+    """Bildirimleri gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
+    ui['notifications'] = [n for n in ui['notifications'] 
+                         if (current_time - n['timestamp']).seconds < 5]
+    
+    # Bildirimleri gÃ¶ster
+    for i, notification in enumerate(ui['notifications']):
+        if 'text' in notification:
+            notification['text'].y = -0.3 - i * 0.1
+
+def buy_stock(symbol):
+    """Hisse senedi satÄ±n al"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli para var mÄ± kontrol et
+    if player['money'] < price:
+        show_notification('Yeterli paranÄ±z yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] -= price
+    stock['shares'] += 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'buy',
+        'symbol': symbol,
+        'price': price,
+        'shares': 1,
+        'total': price,
+        'timestamp': datetime.now()
+    }
+    player['trading_history'].append(trade)
+    
+    # Ä°statistikleri gÃ¼ncelle
+    player['stats']['total_trades'] += 1
+    
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±n alÄ±ndÄ±.', color.green)
+    
+    # UI'Ä± gÃ¼ncelle
+    update_ui()
+
+def sell_stock(symbol):
+    """Hisse senedi sat"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli hisse var mÄ± kontrol et
+    if stock['shares'] <= 0:
+        show_notification('Yeterli hisseniz yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] += price
+    stock['shares'] -= 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'sell',
+        'symbol': symbol,
+        'price': price,
+        'shares': 1,
+        'total': price,
+        'timestamp': datetime.now()
+    }
+    player['trading_history'].append(trade)
+    
+    # Ä°statistikleri gÃ¼ncelle
+    player['stats']['total_trades'] += 1
+    
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±ldÄ±.', color.green)
+    
+    # UI'Ä± gÃ¼ncelle
+    update_ui()
+
+def check_quests():
+    """GÃ¶revleri kontrol et"""
+    # GÃ¼nlÃ¼k gÃ¶revleri kontrol et
+    for quest in quest_system['daily_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+    
+    # HaftalÄ±k gÃ¶revleri kontrol et
+    for quest in quest_system['weekly_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+    
+    # BaÅŸarÄ± gÃ¶revlerini kontrol et
+    for quest in quest_system['achievement_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+            
+    # Ã–ÄŸretici gÃ¶revleri kontrol et
+    for quest in quest_system['tutorial_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+            
+    # Seviye atlamayÄ± kontrol et
+    check_level_up()
+
+def check_level_up():
+    """Seviye atlamayÄ± kontrol et"""
+    while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+        # Seviye atla
+        player['experience']['level'] += 1
+        player['experience']['current_xp'] -= player['experience']['next_level_xp']
+        player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+        
+        # Seviye atlama Ã¶dÃ¼llerini ver
+        rewards = {
+            'money': 1000 * player['experience']['level'],
+            'experience': 0
+        }
+        give_quest_rewards({'reward': rewards})
+        
+        # Seviye atlama bildirimini gÃ¶ster
+        show_level_up()
+
+class CharacterSelection:
+    def __init__(self):
+        self.characters = self.load_characters()
+        self.selected_character = None
+        self.ui_elements = {}
+        
+    def load_characters(self):
+        with open('characters.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['characters']
+            
+    def create_ui(self):
+        # Karakter seÃ§im paneli
+        self.ui_elements['panel'] = Entity(
+            model='quad',
+            scale=(1, 1),
+            color=color.black90,
+            position=(0, 0, -1)
+        )
+        
+        # Karakter kartlarÄ±
+        for i, char in enumerate(self.characters):
+            card = Entity(
+                model='quad',
+                scale=(0.3, 0.4),
+                color=color.white,
+                position=(-0.5 + i * 0.3, 0, -0.9),
+                parent=self.ui_elements['panel']
+            )
+            
+            # Karakter bilgileri
+            Text(
+                text=char['name'],
+                position=(-0.5 + i * 0.3, 0.1, -0.8),
+                scale=2,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=char['description'],
+                position=(-0.5 + i * 0.3, 0, -0.8),
+                scale=1,
+                parent=self.ui_elements['panel']
+            )
+            
+            # SeÃ§im butonu
+            Button(
+                text='SeÃ§',
+                position=(-0.5 + i * 0.3, -0.1, -0.8),
+                scale=(0.1, 0.05),
+                on_click=Func(self.select_character, char),
+                parent=self.ui_elements['panel']
+            )
+            
+    def select_character(self, character):
+        self.selected_character = character
+        # Oyuncu verilerini gÃ¼ncelle
+        player['money'] = character['starting_money']
+        player['stats']['risk_tolerance'] = character['advantages']['risk_tolerance']
+        # Karakter seÃ§im ekranÄ±nÄ± kapat
+        destroy(self.ui_elements['panel'])
+        # Oyunu baÅŸlat
+        start_game()
+
+class MissionSystem:
+    def __init__(self):
+        self.levels = self.load_missions()
+        self.current_level = 1
+        self.current_mission = None
+        self.ui_elements = {}
+        
+    def load_missions(self):
+        with open('missions.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['levels']
+            
+    def create_mission_ui(self):
+        # GÃ¶rev paneli
+        self.ui_elements['panel'] = Entity(
+            model='quad',
+            scale=(0.4, 0.3),
+            color=color.black90,
+            position=(0.7, 0.6, -1)
+        )
+        
+        # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+        self.ui_elements['title'] = Text(
+            text='GÃ¶revler',
+            position=(0.7, 0.7, -0.9),
+            scale=2,
+            parent=self.ui_elements['panel']
+        )
+        
+        # GÃ¶rev listesi
+        self.ui_elements['list'] = Entity(
+            model='quad',
+            scale=(0.35, 0.2),
+            color=color.black,
+            position=(0.7, 0.5, -0.9),
+            parent=self.ui_elements['panel']
+        )
+        
+    def update_mission_ui(self):
+        if self.current_mission:
+            level = self.levels[self.current_level - 1]
+            mission = level['missions'][0]  # Ä°lk gÃ¶revi gÃ¶ster
+            
+            # GÃ¶rev bilgilerini gÃ¼ncelle
+            Text(
+                text=f"Seviye: {level['name']}",
+                position=(0.7, 0.6, -0.8),
+                scale=1.5,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=f"GÃ¶rev: {mission['title']}",
+                position=(0.7, 0.5, -0.8),
+                scale=1.2,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=mission['description'],
+                position=(0.7, 0.4, -0.8),
+                scale=0.8,
+                parent=self.ui_elements['panel']
+            )
+            
+    def check_mission_completion(self):
+        if self.current_mission:
+            requirements = self.current_mission['requirements']
+            completed = True
+            
+            for req, value in requirements.items():
+                if req == 'company_created':
+                    completed &= player['company'] is not None
+                elif req == 'initial_capital':
+                    completed &= player['money'] >= value
+                # DiÄŸer gereksinimler iÃ§in kontroller...
+                
+            if completed:
+                self.complete_mission()
+                
+    def complete_mission(self):
+        if self.current_mission is None:
+            return
+            
+        if isinstance(self.current_mission, dict) and 'rewards' in self.current_mission:
+            rewards = self.current_mission['rewards']
+            player['money'] += rewards.get('money', 0)
+            player['experience']['current_xp'] += rewards.get('experience', 0)
+        
+        # GÃ¶rev tamamlandÄ± bildirimi
+        show_notification('ðŸ“ˆ GÃ¶rev BaÅŸarÄ±yla TamamlandÄ±!', color.green)
+        
+        # Yeni gÃ¶rev atama
+        self.assign_next_mission()
+        
+    def assign_next_mission(self):
+        level = self.levels[self.current_level - 1]
+        if len(level['missions']) > 1:
+            self.current_mission = level['missions'][1]
+        else:
+            # Seviye tamamlandÄ±
+            self.level_up()
+            
+    def level_up(self):
+        self.current_level += 1
+        if self.current_level <= len(self.levels):
+            # Yeni seviye arka planÄ±nÄ± yÃ¼kle
+            self.load_level_background()
+            # Ä°lk gÃ¶revi ata
+            self.current_mission = self.levels[self.current_level - 1]['missions'][0]
+            show_notification(f'ðŸŽ‰ Seviye {self.current_level} AÃ§Ä±ldÄ±!', color.yellow)
+            
+    def load_level_background(self):
+        level = self.levels[self.current_level - 1]
+        background = level['background']
+        # Arka plan deÄŸiÅŸtirme iÅŸlemi
+        # ...
+
+class BattleRoyaleMode:
+    def __init__(self):
+        self.players = []
+        self.events = []
+        self.loot_cards = []
+        self.active_cards = []
+        self.current_event = None
+        self.match_start_time = 0
+        self.match_duration = 900  # 15 dakika
+        self.event_interval = 180  # 3 dakika
+        self.card_spawn_interval = 60  # 1 dakika
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        self.invoke = application.base.sequence
+        self.player = None
+        
+        # Yeni Ã¶znitelikler
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        self.is_paused = False
+        self.is_mobile = platform.system().lower() in ['android', 'ios']
+        self.ar_manager = None  # AR yÃ¶neticisi mobil platformlarda baÅŸlatÄ±lacak
+        
+        # OlaylarÄ± ve kartlarÄ± yÃ¼kle
+        self.load_game_data()
+
+    def load_game_data(self):
+        """Oyun verilerini yÃ¼kle"""
+        self.events = self.load_events()
+        self.loot_cards = self.load_loot_cards()
+
+    def load_events(self):
+        """Olay verilerini yÃ¼kle"""
+        try:
+            with open('games/ursina_game/arena_events.json', 'r', encoding='utf-8') as f:
+                return json.load(f)['events']
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            return []
+
+    def load_loot_cards(self):
+        """Kart verilerini yÃ¼kle"""
+        try:
+            with open('games/ursina_game/loot_cards.json', 'r', encoding='utf-8') as f:
+                return json.load(f)['cards']
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            return []
+
+    def alis_yap(self):
+        """AlÄ±ÅŸ iÅŸlemi yap"""
+        if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
+            self.player.money -= 1000
+            return True
+        return False
+
+    def satis_yap(self):
+        """SatÄ±ÅŸ iÅŸlemi yap"""
+        if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
+            self.player.money += 1000
+            self.player.shares -= 1
+            return True
+        return False
+
+    def olay_guncelle(self):
+        """OlaylarÄ± gÃ¼ncelle"""
+        current_time = time.time()
+        for event in self.events:
+            if 'start_time' in event and current_time - event['start_time'] > event.get('duration', 0):
+                self.generate_new_event()
+
+    def generate_new_event(self):
+        """Yeni olay oluÅŸtur"""
+        event_types = ['market_change', 'resource_discovery', 'crisis']
+        new_event = {
+            'type': random.choice(event_types),
+            'start_time': time.time(),
+            'duration': random.randint(30, 180)
+        }
+        self.events.append(new_event)
+
+    def update(self):
+        """Oyun durumunu gÃ¼ncelle"""
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile and self.ar_manager:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+
+class FastFinanceTournament:
+    def __init__(self):
+        self.scenarios = self.load_scenarios()
+        self.current_scenario = None
+        self.player_score = 0
+        self.scenario_start_time = 0
+        self.scenario_duration = 300  # 5 dakika
+        
+    def load_scenarios(self):
+        with open('short_matches.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['scenarios']
+            
+    def start_scenario(self, scenario_id):
+        self.current_scenario = next(s for s in self.scenarios if s['id'] == scenario_id)
+        self.scenario_start_time = time.time()
+        
+    def submit_answer(self, option_id):
+        if self.current_scenario is None:
+            return False
+            
+        if isinstance(self.current_scenario, dict) and 'correct_answer' in self.current_scenario:
+            if self.current_scenario['correct_answer'] == option_id:
+                self.player_score += 100
+                return True
+        return False
+        
+    def check_time_up(self):
+        elapsed = time.time() - self.scenario_start_time
+        return elapsed >= self.scenario_duration
+
+def start_game():
+    app = Ursina()
+    
+    # Oyun modlarÄ±
+    battle_royale = BattleRoyaleMode()
+    tournament = FastFinanceTournament()
+    
+    # Ana menÃ¼
+    menu = Entity(parent=camera.ui)
+    Button(text='Battle Royale Modu', scale=(0.3, 0.1), position=(0, 0.2), parent=menu)
+    Button(text='HÄ±zlÄ± Finans TurnuvasÄ±', scale=(0.3, 0.1), position=(0, -0.2), parent=menu)
+    
+    app.run()
+
+def generate_player_event(player=None):
+    if player is None:
+        return None
+        
+    events = [
+        {
+            'type': 'market_opportunity',
+            'description': 'Yeni bir yatÄ±rÄ±m fÄ±rsatÄ±!',
+            'effect': lambda p: setattr(p, 'market_multiplier', p.market_multiplier * 1.2)
+        },
+        {
+            'type': 'resource_discovery',
+            'description': 'Yeni kaynaklar keÅŸfedildi!',
+            'effect': lambda p: setattr(p, 'resource_efficiency', p.resource_efficiency * 1.15)
+        }
+    ]
+    return random.choice(events)
+
+def show_player_event(event=None):
+    if event is None or not isinstance(event, dict):
+        return None
+        
+    popup = WindowPanel(
+        title='Yeni Olay!',
+        content=event.get('description', ''),
+        scale=(0.5, 0.3),
+        position=(0, 0)
+    )
+    return popup
+
+def apply_player_event(player=None, event=None):
+    if player is None or event is None or not isinstance(event, dict):
+        return
+        
+    effect = event.get('effect')
+    if effect and callable(effect):
+        effect(player)
+
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
+import os
+import random
+from datetime import datetime, timedelta
+import json
+from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
+from ursina.prefabs.first_person_controller import FirstPersonController
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+import time
+import platform
+from typing import Dict, List, Optional
+import threading
+from game_integration import GameIntegration
+
+# Django ayarlarını yükle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+
+# Oyun içindeki şirket modelleri yerine sınıflar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
+
+# Oyun ayarları
+game_settings = {
+    'difficulty': 'normal',  # easy, normal, hard
+    'market_update_interval': 5,  # saniye
+    'event_chance': 0.2,  # 0-1 arası
+    'starting_money': 100000,
+    'tutorial_enabled': True,
+    'sound_enabled': True,
+    'music_enabled': True,
+    'fullscreen': False,
+    'show_tooltips': True,
+    'auto_save': True,
+    'save_interval': 300  # saniye
+}
+
+# Piyasa durumu
+market_state = {
+    'trend': 'stable',  # bull, stable, bear
+    'volatility': 0.5,  # 0-1 arası
+    'last_update': datetime.now(),
+    'market_events': []
+}
+
+# UI bileşenleri
+ui = {
+    'main_panel': None,
+    'portfolio_panel': None,
+    'market_panel': None,
+    'stats_panel': None,
+    'quest_panel': None,
+    'notification_panel': None,
+    'tooltip_panel': None,
+    'menu_panel': None,
+    'text_elements': {},
+    'buttons': {},
+    'charts': {},
+    'notifications': []
+}
+
+# Oyuncu verileri
+player = {
+    'id': 1,
+    'name': 'John Doe',
+    'money': game_settings['starting_money'],
+    'portfolio': {
+        'AAPL': {'shares': 10, 'price': 150, 'sector': 'tech'},
+        'GOOGL': {'shares': 5, 'price': 2000, 'sector': 'tech'},
+        'TSLA': {'shares': 8, 'price': 700, 'sector': 'auto'},
+        'MSFT': {'shares': 0, 'price': 300, 'sector': 'tech'},
+        'AMZN': {'shares': 0, 'price': 3000, 'sector': 'retail'},
+        'META': {'shares': 0, 'price': 250, 'sector': 'tech'},
+        'NFLX': {'shares': 0, 'price': 400, 'sector': 'media'},
+        'NVDA': {'shares': 0, 'price': 500, 'sector': 'tech'},
+        'JPM': {'shares': 0, 'price': 150, 'sector': 'finance'},
+        'BAC': {'shares': 0, 'price': 40, 'sector': 'finance'}
+    },
+    'stats': {
+        'total_trades': 0,
+        'successful_trades': 0,
+        'failed_trades': 0,
+        'profit_trades': 0,
+        'loss_trades': 0,
+        'total_profit': 0,
+        'total_loss': 0,
+        'best_trade': 0,
+        'worst_trade': 0,
+        'longest_holding': 0,
+        'shortest_holding': 0,
+        'risk_tolerance': 0.7,
+        'trading_style': 'balanced',  # aggressive, balanced, conservative
+        'debt_to_income': 0.0,  # Borç/gelir oranı
+        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
+        'total_debt': 0,  # Toplam borç
+        'total_income': 0,  # Toplam gelir
+        'monthly_income': 0,  # Aylık gelir
+        'monthly_expenses': 0  # Aylık giderler
+    },
+    'skills': {
+        'analysis': 1,  # 1-10 arası
+        'risk_management': 1,
+        'market_knowledge': 1,
+        'technical_analysis': 1,
+        'fundamental_analysis': 1
+    },
+    'experience': {
+        'level': 1,
+        'current_xp': 0,
+        'next_level_xp': 1000,
+        'total_xp': 0
+    },
+    'achievements': [],
+    'active_quests': [],
+    'completed_quests': [],
+    'quest_progress': {},
+    'tutorial_progress': {
+        'basic_trading': False,
+        'market_analysis': False,
+        'risk_management': False,
+        'portfolio_management': False,
+        'technical_analysis': False
+    },
+    'settings': {
+        'notifications': True,
+        'sound': True,
+        'music': True,
+        'tooltips': True,
+        'auto_save': True
+    },
+    'trading_history': []
+}
+
+# Görev sistemi
+quest_system = {
+    'daily_quests': [],
+    'weekly_quests': [],
+    'achievement_quests': [],
+    'tutorial_quests': []
+}
+
+# Görev tanımlamaları
+quest_definitions = {
+    # Günlük görevler
+    'daily_trade': {
+        'id': 'daily_trade',
+        'title': 'Günlük İşlem',
+        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'reward': {'money': 500, 'experience': 100},
+        'type': 'daily',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
+    },
+    'daily_profit': {
+        'id': 'daily_profit',
+        'title': 'Günlük Kâr',
+        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'daily',
+        'check_completion': lambda: calculate_daily_profit() >= 1000
+    },
+    'daily_diversity': {
+        'id': 'daily_diversity',
+        'title': 'Çeşitlilik Ustası',
+        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'reward': {'money': 800, 'experience': 150},
+        'type': 'daily',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
+    },
+    
+    # Haftalık görevler
+    'weekly_growth': {
+        'id': 'weekly_growth',
+        'title': 'Haftalık Büyüme',
+        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'reward': {'money': 5000, 'experience': 500},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_weekly_growth() >= 0.1
+    },
+    'weekly_trades': {
+        'id': 'weekly_trades',
+        'title': 'Aktif Trader',
+        'description': 'Bu hafta en az 10 işlem yapın.',
+        'reward': {'money': 3000, 'experience': 400},
+        'type': 'weekly',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
+    },
+    'weekly_risk': {
+        'id': 'weekly_risk',
+        'title': 'Risk Yöneticisi',
+        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'reward': {'money': 4000, 'experience': 450},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_risk_score() < 0.5
+    },
+    
+    # Başarı görevleri
+    'achievement_portfolio': {
+        'id': 'achievement_portfolio',
+        'title': 'Portföy Ustası',
+        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
+        'type': 'achievement',
+        'check_completion': lambda: calculate_portfolio_value() >= 200000
+    },
+    'achievement_diversity': {
+        'id': 'achievement_diversity',
+        'title': 'Çeşitlilik Kralı',
+        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
+    },
+    'achievement_debt': {
+        'id': 'achievement_debt',
+        'title': 'Borçsuz Yaşam',
+        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
+    },
+    
+    # Eğitim görevleri
+    'tutorial_buy': {
+        'id': 'tutorial_buy',
+        'title': 'İlk Alım',
+        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
+    },
+    'tutorial_sell': {
+        'id': 'tutorial_sell',
+        'title': 'İlk Satım',
+        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
+    },
+    'tutorial_diversity': {
+        'id': 'tutorial_diversity',
+        'title': 'Çeşitlendirme',
+        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'reward': {'money': 2000, 'experience': 300},
+        'type': 'tutorial',
+        'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
+    }
+}
+
+# Görev UI elementleri
+quest_ui = {
+    'panel': None,
+    'quest_items': [],
+    'active_quests_text': None,
+    'completed_quests_text': None
+}
+
+class FinansalDunya(Entity):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yöneticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolü
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yöneticisini başlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # DÃ¼nya oluÅŸturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iÅŸ yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # TuÅŸ durumlarÄ±
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        
+        # Ä°nitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayÄ±t
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye gÃ¶stergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan gÃ¶stergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye gÃ¶stergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # Ä°ÅŸlem butonlarÄ±
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # MenÃ¼ butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seÃ§imi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seÃ§imini deÄŸiÅŸtir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'Ä± gÃ¼ncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # MenÃ¼ panelini gÃ¶ster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # MenÃ¼ butonlarÄ±
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='YÃ¼kle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Ã‡Ä±kÄ±ÅŸ',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # MenÃ¼ panelini kaldÄ±r
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolÃ¼
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
+                olay['tip'] = random.choice([
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
+    """Oyunu baÅŸlat"""
+    app = Ursina()
+    dunya = FinansalDunya(online_mode=online_mode)
+    app.run()
+
+def create_ui():
+    """Ana UI'Ä± oluÅŸtur"""
+    # Ana panel
+    ui['main_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(1.8, 1),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.8)
+    )
+    
+    # Ãœst bilgi paneli
+    create_top_info_panel()
+    
+    # PortfÃ¶y paneli
+    create_portfolio_panel()
+    
+    # Market paneli
+    create_market_panel()
+    
+    # Ä°statistik paneli
+    create_stats_panel()
+    
+    # MenÃ¼ butonu
+    Button(
+        parent=camera.ui,
+        text='MenÃ¼',
+        color=color.azure,
+        position=(0.8, 0.45),
+        scale=(0.2, 0.05),
+        on_click=Func(toggle_menu)
+    )
+
+def create_top_info_panel():
+    """Ãœst bilgi panelini oluÅŸtur"""
+    # Para
+    ui['text_elements']['money'] = Text(
+        parent=camera.ui,
+        text=f"${player['money']:,.2f}",
+        position=(-0.8, 0.45),
+        scale=2,
+        color=color.green
+    )
+    
+    # PortfÃ¶y deÄŸeri
+    ui['text_elements']['portfolio_value'] = Text(
+        parent=camera.ui,
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
+        position=(-0.4, 0.45),
+        scale=2,
+        color=color.white
+    )
+    
+    # Risk skoru
+    ui['text_elements']['risk_score'] = Text(
+        parent=camera.ui,
+        text=f"Risk: {calculate_risk_score():.2f}",
+        position=(0, 0.45),
+        scale=2,
+        color=color.yellow
+    )
+
+def create_portfolio_panel():
+    """PortfÃ¶y panelini oluÅŸtur"""
+    ui['portfolio_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(-0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['portfolio_panel'],
+        text='PortfÃ¶y',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.25
+    for symbol, data in player['portfolio'].items():
+        if data['shares'] > 0:
+            # Hisse adÄ± ve miktar
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"{symbol}: {data['shares']} adet",
+                position=(-0.2, y_pos),
+                scale=1.2,
+                color=color.white
+            )
+            
+            # Fiyat
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"${data['price']:,.2f}",
+                position=(0.15, y_pos),
+                scale=1.2,
+                color=color.green if data['price'] > 0 else color.red
+            )
+            
+            y_pos -= 0.08
+
+def create_market_panel():
+    """Market panelini oluÅŸtur"""
+    ui['market_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['market_panel'],
+        text='Market',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Market trendi
+    ui['text_elements']['market_trend'] = Text(
+        parent=ui['market_panel'],
+        text=f"Trend: {market_state['trend'].upper()}",
+        position=(0, 0.25),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # Volatilite
+    ui['text_elements']['volatility'] = Text(
+        parent=ui['market_panel'],
+        text=f"Volatilite: {market_state['volatility']:.2f}",
+        position=(0, 0.2),
+        scale=1.2,
+        color=color.azure
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.1
+    for symbol, data in player['portfolio'].items():
+        # Hisse adÄ± ve fiyat
+        Text(
+            parent=ui['market_panel'],
+            text=f"{symbol}: ${data['price']:,.2f}",
+            position=(-0.2, y_pos),
+            scale=1.2,
+            color=color.white
+        )
+        
+        # AlÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Al',
+            color=color.green,
+            position=(0.1, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: buy_stock(s))
+        )
+        
+        # SatÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Sat',
+            color=color.red,
+            position=(0.2, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: sell_stock(s))
+        )
+        
+        y_pos -= 0.08
+
+def create_stats_panel():
+    """Ä°statistik panelini oluÅŸtur"""
+    ui['stats_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['stats_panel'],
+        text='Ä°statistikler',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ä°statistikler
+    stats = player['stats']
+    y_pos = 0.25
+    
+    # Toplam iÅŸlem
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.white
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±lÄ± iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+    y_pos -= 0.08
+    
+    # Toplam kÃ¢r
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # Toplam zarar
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Zarar: ${stats['total_loss']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+
+def toggle_menu():
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
+    if not ui['menu_panel']:
+        create_menu()
+    else:
+        destroy(ui['menu_panel'])
+        ui['menu_panel'] = None
+
+def create_menu():
+    """MenÃ¼ panelini oluÅŸtur"""
+    ui['menu_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['menu_panel'],
+        text='MenÃ¼',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Kaydet butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Kaydet',
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(save_game)
+    )
+    
+    # YÃ¼kle butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='YÃ¼kle',
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(load_game)
+    )
+    
+    # Ayarlar butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ayarlar',
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(show_settings)
+    )
+    
+    # Ã‡Ä±kÄ±ÅŸ butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ã‡Ä±kÄ±ÅŸ',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(quit_game)
+    )
+
+def show_settings():
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
+    destroy(ui['menu_panel'])
+    ui['menu_panel'] = None
+    
+    # Ayarlar paneli
+    ui['settings_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['settings_panel'],
+        text='Ayarlar',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ses ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_sound)
+    )
+    
+    # MÃ¼zik ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_music)
+    )
+    
+    # Tam ekran ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_fullscreen)
+    )
+    
+    # Geri butonu
+    Button(
+        parent=ui['settings_panel'],
+        text='Geri',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
+    )
+
+def toggle_sound():
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['sound_enabled'] = not game_settings['sound_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_music():
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['music_enabled'] = not game_settings['music_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_fullscreen():
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['fullscreen'] = not game_settings['fullscreen']
+    window.fullscreen = game_settings['fullscreen']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def start_tutorial():
+    """EÄŸitim modunu baÅŸlat"""
+    tutorial_steps = [
+        {
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
+            'position': (-0.65, 0)
+        },
+        {
+            'title': 'Market Paneli',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
+            'position': (0.65, 0)
+        }
+    ]
+    
+    # Tutorial paneli
+    tutorial_panel = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.2),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    current_step = 0
+    
+    def show_step():
+        nonlocal current_step
+        step = tutorial_steps[current_step]
+        
+        # Panel pozisyonu
+        tutorial_panel.position = step['position']
+        
+        # BaÅŸlÄ±k
+        if hasattr(tutorial_panel, 'title'):
+            destroy(tutorial_panel.title)
+        tutorial_panel.title = Text(
+            parent=tutorial_panel,
+            text=step['title'],
+            position=(0, 0.05),
+            scale=1.5,
+            color=color.yellow
+        )
+        
+        # AÃ§Ä±klama
+        if hasattr(tutorial_panel, 'description'):
+            destroy(tutorial_panel.description)
+        tutorial_panel.description = Text(
+            parent=tutorial_panel,
+            text=step['description'],
+            position=(0, -0.02),
+            scale=1,
+            color=color.white
+        )
+        
+        # Ä°leri butonu
+        if hasattr(tutorial_panel, 'next_button'):
+            destroy(tutorial_panel.next_button)
+        tutorial_panel.next_button = Button(
+            parent=tutorial_panel,
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            position=(0.1, -0.07),
+            scale=(0.2, 0.05),
+            color=color.azure,
+            on_click=next_step
+        )
+    
+    def next_step():
+        nonlocal current_step
+        current_step += 1
+        if current_step < len(tutorial_steps):
+            show_step()
+        else:
+            # Tutorial'Ä± bitir
+            destroy(tutorial_panel)
+            player['tutorial_progress']['basic_trading'] = True
+            save_game()
+    
+    # Ä°lk adÄ±mÄ± gÃ¶ster
+    show_step()
+
+def save_game():
+    """Oyun durumunu kaydet"""
+    try:
+        # Kaydedilecek verileri hazÄ±rla
+        save_data = {
+            'player': player,
+            'market_state': market_state,
+            'quest_system': quest_system,
+            'game_settings': game_settings,
+            'save_time': datetime.now().isoformat()
+        }
+        
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
+        def convert_datetime(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return obj
+        
+        # Verileri JSON formatÄ±nda kaydet
+        with open('save_game.json', 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
+            
+        show_notification('Oyun kaydedildi!', color.green)
+    except Exception as e:
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
+
+def load_game():
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
+    try:
+        # JSON dosyasÄ±nÄ± oku
+        with open('save_game.json', 'r', encoding='utf-8') as f:
+            save_data = json.load(f)
+        
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
+        def parse_datetime(obj):
+            for key, value in obj.items():
+                if isinstance(value, str) and 'T' in value:
+                    try:
+                        obj[key] = datetime.fromisoformat(value)
+                    except ValueError:
+                        pass
+                elif isinstance(value, dict):
+                    parse_datetime(value)
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            parse_datetime(item)
+            return obj
+        
+        # Verileri yÃ¼kle
+        global player, market_state, quest_system, game_settings
+        player = parse_datetime(save_data['player'])
+        market_state = parse_datetime(save_data['market_state'])
+        quest_system = parse_datetime(save_data['quest_system'])
+        game_settings = save_data['game_settings']
+        
+        show_notification('Oyun yÃ¼klendi!', color.green)
+    except FileNotFoundError:
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
+    except Exception as e:
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
+
+def show_notification(message, color=color.white):
+    """Bildirim gÃ¶ster"""
+    notification = Text(
+        text=message,
+        position=(0, 0.4),
+        scale=2,
+        color=color
+    )
+    destroy(notification, delay=3)
+
+def auto_save():
+    """Otomatik kayÄ±t"""
+    current_time = datetime.now()
+    if not hasattr(auto_save, 'last_save'):
+        auto_save.last_save = current_time
+    
+    if (current_time - auto_save.last_save).seconds >= game_settings['save_interval']:
+        save_game()
+        auto_save.last_save = current_time
+
+def quit_game():
+    """Oyundan Ã§Ä±k"""
+    # Oyunu kaydet
+    save_game()
+    
+    # Pencereyi kapat
+    application.quit()
+
+def initialize_quest_system():
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
+    daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
+    for quest_id in daily_quests:
+        if quest_id in quest_definitions:
+            quest_system['daily_quests'].append(quest_definitions[quest_id])
+    
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
+    weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
+    for quest_id in weekly_quests:
+        if quest_id in quest_definitions:
+            quest_system['weekly_quests'].append(quest_definitions[quest_id])
+    
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
+    achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
+    for quest_id in achievement_quests:
+        if quest_id in quest_definitions:
+            quest_system['achievement_quests'].append(quest_definitions[quest_id])
+    
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
+    tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
+    for quest_id in tutorial_quests:
+        if quest_id in quest_definitions:
+            quest_system['tutorial_quests'].append(quest_definitions[quest_id])
+    
+    # Aktif gÃ¶revleri belirle
+    assign_daily_quests()
+    assign_weekly_quests()
+    
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['tutorial_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['achievement_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
+    create_quest_ui()
+
+def assign_daily_quests():
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
+    
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def assign_weekly_quests():
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
+    
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def check_quest_completion():
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
+    completed_quests = []
+    
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
+            if quest['check_completion']():
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
+                completed_quests.append(quest_id)
+                
+                # Ã–dÃ¼lleri ver
+                give_quest_rewards(quest)
+                
+                # Tamamlanan gÃ¶revi gÃ¶ster
+                show_quest_completion(quest)
+    
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
+    for quest_id in completed_quests:
+        player['active_quests'].remove(quest_id)
+        player['completed_quests'].append(quest_id)
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def give_quest_rewards(quest):
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
+    reward = quest['reward']
+    
+    # Para Ã¶dÃ¼lÃ¼
+    if 'money' in reward:
+        player['money'] += reward['money']
+    
+    # Deneyim Ã¶dÃ¼lÃ¼
+    if 'experience' in reward:
+        player['experience']['current_xp'] += reward['experience']
+        player['experience']['total_xp'] += reward['experience']
+        
+        # Seviye atlama kontrolÃ¼
+        while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+            player['experience']['current_xp'] -= player['experience']['next_level_xp']
+            player['experience']['level'] += 1
+            player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+            show_level_up()
+    
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
+    if 'achievement' in reward:
+        if reward['achievement'] not in player['achievements']:
+            player['achievements'].append(reward['achievement'])
+
+def show_quest_completion(quest):
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
+    # Ana bildirim metni
+    completion_text = Text(
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
+        position=(0, 0.6),
+        scale=2,
+        color=color.gold
+    )
+    
+    # Ã–dÃ¼l detaylarÄ±
+    reward_text = None
+    if 'money' in quest['reward']:
+        reward_text = Text(
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
+            position=(0, 0.5),
+            scale=1.5,
+            color=color.green
+        )
+    
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
+    destroy(completion_text, delay=4)
+    if reward_text:
+        destroy(reward_text, delay=4)
+
+def show_level_up():
+    """Seviye atlama bildirimini gÃ¶ster"""
+    level_text = Text(
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
+        position=(0, 0.4),
+        scale=2,
+        color=color.yellow
+    )
+    destroy(level_text, delay=4)
+
+def calculate_next_level_xp(current_level):
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
+    return int(1000 * (1.5 ** (current_level - 1)))
+
+def create_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
+    quest_ui['panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.8, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.7),
+        visible=False
+    )
+    
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+    Text(
+        parent=quest_ui['panel'],
+        text='GÃ¶revler',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['active_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Aktif GÃ¶revler:',
+        position=(-0.35, 0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['completed_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Tamamlanan GÃ¶revler:',
+        position=(-0.35, -0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # GÃ¶rev kapatma butonu
+    Button(
+        parent=quest_ui['panel'],
+        text='Kapat',
+        color=color.red,
+        position=(0, -0.25),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
+    )
+    
+    # GÃ¶rev butonu
+    Button(
+        parent=camera.ui,
+        text='GÃ¶revler',
+        color=color.azure,
+        position=(0.7, 0.4),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
+    )
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def update_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
+    for item in quest_ui['quest_items']:
+        destroy(item)
+    quest_ui['quest_items'] = []
+    
+    # Aktif gÃ¶revleri gÃ¶ster
+    y_position = 0.1
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.white
+                )
+            )
+            
+            # GÃ¶rev aÃ§Ä±klamasÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['description'],
+                    position=(-0.3, y_position - 0.05),
+                    scale=0.8,
+                    color=color.light_gray
+                )
+            )
+            
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=reward_text,
+                    position=(-0.3, y_position - 0.1),
+                    scale=0.8,
+                    color=color.gold
+                )
+            )
+            
+            y_position -= 0.15
+    
+    # Tamamlanan gÃ¶revleri gÃ¶ster
+    y_position = -0.2
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.light_gray
+                )
+            )
+            
+            # TamamlandÄ± iÅŸareti
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text="âœ“ TamamlandÄ±",
+                    position=(0.2, y_position),
+                    scale=0.8,
+                    color=color.green
+                )
+            )
+            
+            y_position -= 0.1
+
+def calculate_daily_profit():
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
+    today = datetime.now().date()
+    today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
+    
+    profit = 0
+    for trade in today_trades:
+        if trade['type'] == 'sell':
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
+            buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
+            if buy_trades:
+                # En eski alÄ±m fiyatÄ±nÄ± bul
+                oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
+                buy_price = oldest_buy['price']
+                sell_price = trade['price']
+                profit += (sell_price - buy_price) * trade['amount']
+    
+    return profit
+
+def calculate_weekly_growth():
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
+    week_ago = datetime.now() - timedelta(days=7)
+    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    
+    # Åžu anki portfÃ¶y deÄŸeri
+    current_value = calculate_portfolio_value()
+    
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
+    if current_value > 0:
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
+    return 0
+
+def update_market_state():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
+        trend_chance = random.random()
+        if trend_chance < 0.4:
+            market_state['trend'] = 'stable'
+        elif trend_chance < 0.7:
+            market_state['trend'] = 'bull'
+        else:
+            market_state['trend'] = 'bear'
+        
+        # Volatiliteyi gÃ¼ncelle
+        market_state['volatility'] = random.uniform(0.3, 0.8)
+        
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
+            event = generate_market_event()
+            market_state['market_events'].append(event)
+            show_market_event(event)
+            apply_market_event(event)
+        
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
+            player_event = generate_player_event()
+            if player_event:
+                show_player_event(player_event)
+                apply_player_event(player_event)
+        
+        # GÃ¶rev tamamlanma durumunu kontrol et
+        check_quest_completion()
+        
+        market_state['last_update'] = current_time
+
+def update():
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
+    update_market()
+    
+    # UI gÃ¼ncellemesi
+    update_ui()
+    
+    # GÃ¶rev kontrolÃ¼
+    check_quests()
+    
+    # Otomatik kayÄ±t
+    if game_settings['auto_save']:
+        auto_save()
+
+def update_market():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # Piyasa gÃ¼ncellemesi
+    if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
+        # Trend gÃ¼ncelleme
+        update_market_trend()
+        
+        # Fiyat gÃ¼ncelleme
+        update_stock_prices()
+        
+        # Olay kontrolÃ¼
+        check_market_events()
+        
+        market_state['last_update'] = current_time
+
+def update_market_trend():
+    """Piyasa trendini gÃ¼ncelle"""
+    trend_chance = random.random()
+    
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
+    if game_settings['difficulty'] == 'easy':
+        if trend_chance < 0.5:  # %50 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.8:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %20 ÅŸans
+            market_state['trend'] = 'bear'
+    elif game_settings['difficulty'] == 'normal':
+        if trend_chance < 0.4:  # %40 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.7:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %30 ÅŸans
+            market_state['trend'] = 'bear'
+    else:  # hard
+        if trend_chance < 0.3:  # %30 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.5:  # %20 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %50 ÅŸans
+            market_state['trend'] = 'bear'
+    
+    # Volatilite gÃ¼ncelleme
+    market_state['volatility'] = random.uniform(
+        0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
+        0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
+    )
+
+def update_stock_prices():
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        base_price = data['price']
+        
+        # Trend etkisi
+        trend_effect = {
+            'bull': random.uniform(0.001, 0.01),
+            'stable': random.uniform(-0.003, 0.003),
+            'bear': random.uniform(-0.01, -0.001)
+        }[market_state['trend']]
+        
+        # SektÃ¶r etkisi
+        sector_effect = calculate_sector_effect(data['sector'])
+        
+        # Volatilite etkisi
+        volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
+        
+        # Toplam deÄŸiÅŸim
+        total_change = trend_effect + sector_effect + volatility_effect
+        
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
+        if game_settings['difficulty'] == 'easy':
+            total_change = max(-0.05, min(0.05, total_change))
+        elif game_settings['difficulty'] == 'normal':
+            total_change = max(-0.1, min(0.1, total_change))
+        else:  # hard
+            total_change = max(-0.15, min(0.15, total_change))
+        
+        # Yeni fiyat
+        new_price = base_price * (1 + total_change)
+        player['portfolio'][symbol]['price'] = max(0.01, new_price)
+
+def calculate_sector_effect(sector):
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
+    sector_trends = {
+        'tech': random.uniform(-0.005, 0.008),
+        'auto': random.uniform(-0.004, 0.006),
+        'retail': random.uniform(-0.003, 0.005),
+        'media': random.uniform(-0.004, 0.007),
+        'finance': random.uniform(-0.003, 0.004)
+    }
+    return sector_trends.get(sector, 0)
+
+def check_market_events():
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
+    if random.random() < game_settings['event_chance']:
+        event = generate_market_event()
+        if event:
+            market_state['market_events'].append(event)
+            apply_market_event(event)
+            show_market_event(event)
+
+def generate_market_event():
+    """Piyasa olayÄ± oluÅŸtur"""
+    event_types = {
+        'global': [
+            {
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
+                'effect': {'market_trend': 'bull', 'volatility': -0.1},
+                'duration': 300,
+                'probability': 0.2
+            },
+            {
+                'title': 'Ekonomik Kriz',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
+                'effect': {'market_trend': 'bear', 'volatility': 0.2},
+                'duration': 300,
+                'probability': 0.1
+            }
+        ],
+        'sector': [
+            {
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
+                'effect': {'sector': 'tech', 'change': 0.05},
+                'duration': 180,
+                'probability': 0.15
+            },
+            {
+                'title': 'Otomotiv Krizi',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
+                'effect': {'sector': 'auto', 'change': -0.05},
+                'duration': 180,
+                'probability': 0.15
+            }
+        ],
+        'company': [
+            {
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
+                'effect': {'symbol': 'AAPL', 'change': 0.08},
+                'duration': 120,
+                'probability': 0.2
+            },
+            {
+                'title': 'CEO Ä°stifasÄ±',
+                'description': 'TSLA CEO\'su istifa etti!',
+                'effect': {'symbol': 'TSLA', 'change': -0.08},
+                'duration': 120,
+                'probability': 0.1
+            }
+        ]
+    }
+    
+    # Olay tÃ¼rÃ¼ seÃ§
+    event_type = random.choice(list(event_types.keys()))
+    events = event_types[event_type]
+    
+    # OlasÄ±lÄ±k kontrolÃ¼
+    for event in events:
+        if random.random() < event['probability']:
+            return event
+    
+    return None
+
+def apply_market_event(event):
+    """Piyasa olayÄ±nÄ± uygula"""
+    effect = event['effect']
+    
+    # Piyasa trendi etkisi
+    if 'market_trend' in effect:
+        market_state['trend'] = effect['market_trend']
+    
+    # Volatilite etkisi
+    if 'volatility' in effect:
+        market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
+    
+    # SektÃ¶r etkisi
+    if 'sector' in effect:
+        for symbol, data in player['portfolio'].items():
+            if data['sector'] == effect['sector']:
+                data['price'] *= (1 + effect['change'])
+    
+    # Åžirket etkisi
+    if 'symbol' in effect:
+        if effect['symbol'] in player['portfolio']:
+            player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
+
+def show_market_event(event):
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
+    # Bildirim paneli
+    notification = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.6, 0.2),
+        position=(0, 0.3),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    title_text = Text(
+        parent=notification,
+        text=event['title'],
+        position=(0, 0.05),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # AÃ§Ä±klama
+    desc_text = Text(
+        parent=notification,
+        text=event['description'],
+        position=(0, -0.02),
+        scale=1.2,
+        color=color.white
+    )
+    
+    # Efekt aÃ§Ä±klamasÄ±
+    effect = event['effect']
+    effect_text = ""
+    
+    if 'market_trend' in effect:
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
+    elif 'sector' in effect:
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
+    elif 'symbol' in effect:
+        effect_text = f"{effect['symbol']} hissesi etkilendi!"
+    
+    Text(
+        parent=notification,
+        text=effect_text,
+        position=(0, -0.08),
+        scale=1,
+        color=color.azure
+    )
+    
+    # Bildirimi kaydet
+    ui['notifications'].append({
+        'entity': notification,
+        'created_at': datetime.now(),
+        'duration': 5  # 5 saniye sonra kaybolacak
+    })
+
+def calculate_portfolio_value():
+    """PortfÃ¶y deÄŸerini hesapla"""
+    total_value = player['money']
+    for symbol, data in player['portfolio'].items():
+        total_value += data['shares'] * data['price']
+    return total_value
+
+def calculate_risk_score():
+    """Risk skorunu hesapla"""
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
+    portfolio_diversity = calculate_portfolio_diversity()
+    
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
+    debt_to_income = calculate_debt_to_income_ratio()
+    
+    # Toplam risk skoru (0-1 arasÄ±)
+    risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
+    return min(max(risk_score, 0), 1)
+
+def calculate_portfolio_diversity():
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
+    total_value = calculate_portfolio_value()
+    if total_value == 0:
+        return 0
+    
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
+    sector_weights = {}
+    for symbol, data in player['portfolio'].items():
+        sector = data['sector']
+        value = data['shares'] * data['price']
+        sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
+    
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
+    hhi = sum(weight * weight for weight in sector_weights.values())
+    diversity = 1 - hhi
+    return min(max(diversity, 0), 1)
+
+def calculate_debt_to_income_ratio():
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
+    total_income = sum(t['amount'] for t in player.get('trading_history', []) 
+                      if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
+    total_debt = sum(t['amount'] for t in player.get('trading_history', [])
+                    if t['type'] == 'loss' and (datetime.now() - t['timestamp']).days <= 30)
+    
+    if total_income == 0:
+        return 1 if total_debt > 0 else 0
+    
+    ratio = total_debt / total_income
+    return min(max(ratio, 0), 1)
+
+def update_ui():
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
+    ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
+    
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
+    for symbol, data in player['portfolio'].items():
+        if symbol in ui['text_elements']:
+            ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
+    
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
+    update_stock_buttons()
+    
+    # GÃ¶revleri gÃ¼ncelle
+    update_quest_ui()
+    
+    # Bildirimleri gÃ¼ncelle
+    update_notifications()
+
+def update_stock_buttons():
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        # AlÄ±m butonu
+        if symbol + '_buy' in ui['buttons']:
+            ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
+        
+        # SatÄ±m butonu
+        if symbol + '_sell' in ui['buttons']:
+            ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
+
+def update_notifications():
+    """Bildirimleri gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
+    ui['notifications'] = [n for n in ui['notifications'] 
+                         if (current_time - n['timestamp']).seconds < 5]
+    
+    # Bildirimleri gÃ¶ster
+    for i, notification in enumerate(ui['notifications']):
+        if 'text' in notification:
+            notification['text'].y = -0.3 - i * 0.1
+
+def buy_stock(symbol):
+    """Hisse senedi satÄ±n al"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli para var mÄ± kontrol et
+    if player['money'] < price:
+        show_notification('Yeterli paranÄ±z yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] -= price
+    stock['shares'] += 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'buy',
+        'symbol': symbol,
+        'price': price,
+        'timestamp': datetime.now()
+    }
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± gÃ¼ncelle
+    player['trading_history'].append(trade)
+    
+from __future__ import absolute_import, unicode_literals
 import os
 import random
 from datetime import datetime, timedelta
@@ -284,6 +7047,2357 @@ class FinansalDunya(Entity):
         self.is_mobile = self.platform in ['android', 'ios']
         
         # AR yÃ¶neticisini baÅŸlat (mobil platformlarda)
+        if self.is_mobile:
+            self.ar_manager = ARManager(use_aruco=True, show_camera=True)
+            self.ar_manager.start()
+            
+        # DÃ¼nya oluÅŸturma
+        self.dunya = Entity(
+            model='plane',
+            texture='white_cube',
+            scale=(100, 1, 100),
+            color=color.gray
+        )
+        
+        # Binalar ve iÅŸ yerleri
+        self.binalar = []
+        self.is_yerleri = []
+        self.olaylar = []
+        
+        # UI elementleri
+        self.ui_elements = {}
+        
+        # Performans optimizasyonu
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        
+        # Oyun durumu
+        self.is_paused = False
+        self.is_saving = False
+        
+        # TuÅŸ durumlarÄ±
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        
+        # Ä°nitialize
+        self.bina_olustur()
+        self.is_yeri_olustur()
+        self.olay_olustur()
+        self.ui_olustur()
+        
+        # Otomatik kayÄ±t
+        self.auto_save_thread = threading.Thread(target=self._auto_save_loop)
+        self.auto_save_thread.daemon = True
+        self.auto_save_thread.start()
+
+    def ui_olustur(self):
+        # Ana panel
+        self.ui_elements['ana_panel'] = Entity(
+            parent=camera.ui,
+            model='quad',
+            scale=(0.8, 0.6),
+            position=(0, 0),
+            color=color.rgba(0, 0, 0, 0.7)
+        )
+        
+        # Bakiye gÃ¶stergesi
+        self.ui_elements['bakiye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}",
+            position=(-0.4, 0.4),
+            scale=2,
+            color=color.green
+        )
+        
+        # Puan gÃ¶stergesi
+        self.ui_elements['puan'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}",
+            position=(0.4, 0.4),
+            scale=2,
+            color=color.yellow
+        )
+        
+        # Seviye gÃ¶stergesi
+        self.ui_elements['seviye'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text=f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}",
+            position=(0, 0.4),
+            scale=2,
+            color=color.azure
+        )
+        
+        # Ä°ÅŸlem butonlarÄ±
+        self.ui_elements['alis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.buy'),
+            color=color.green,
+            position=(-0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.alis_yap
+        )
+        
+        self.ui_elements['satis_buton'] = Button(
+            parent=self.ui_elements['ana_panel'],
+            text=self.locale_manager.get_text('game.transactions.sell'),
+            color=color.red,
+            position=(0.2, 0),
+            scale=(0.2, 0.1),
+            on_click=self.satis_yap
+        )
+        
+        # Bildirim paneli
+        self.ui_elements['bildirim'] = Text(
+            parent=self.ui_elements['ana_panel'],
+            text='',
+            position=(0, -0.4),
+            scale=1.5,
+            color=color.white
+        )
+        
+        # MenÃ¼ butonu
+        self.ui_elements['menu_buton'] = Button(
+            parent=camera.ui,
+            text=self.locale_manager.get_text('game.menu.settings'),
+            color=color.azure,
+            position=(0.8, 0.45),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_menu
+        )
+        
+        # Dil seÃ§imi butonu
+        self.ui_elements['dil_buton'] = Button(
+            parent=camera.ui,
+            text=f"Dil: {self.locale_manager.get_current_locale().upper()}",
+            color=color.azure,
+            position=(0.8, 0.35),
+            scale=(0.2, 0.05),
+            on_click=self.toggle_language
+        )
+        
+        # Mobil kontroller
+        if self.is_mobile:
+            self._create_mobile_controls()
+            
+    def toggle_language(self):
+        """Dil seÃ§imini deÄŸiÅŸtir"""
+        available_locales = self.locale_manager.get_available_locales()
+        current_index = available_locales.index(self.locale_manager.get_current_locale())
+        next_index = (current_index + 1) % len(available_locales)
+        self.locale_manager.set_locale(available_locales[next_index])
+        
+        # UI'Ä± gÃ¼ncelle
+        self.ui_guncelle()
+        
+    def alis_yap(self):
+        if self.oyun.oyuncu_bakiyesi >= 1000:
+            basari = self.oyun.islem_yap('alis', 1000, 0.5)
+            if basari:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+                self.ui_elements['bildirim'].color = color.green
+            else:
+                self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+                self.ui_elements['bildirim'].color = color.red
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.insufficient_balance')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def satis_yap(self):
+        basari = self.oyun.islem_yap('satis', 1000, 0.3)
+        if basari:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
+            self.ui_elements['bildirim'].color = color.green
+        else:
+            self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.fail')
+            self.ui_elements['bildirim'].color = color.red
+            
+        self.ui_guncelle()
+        
+    def ui_guncelle(self):
+        self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements['alis_buton'].text = self.locale_manager.get_text('game.transactions.buy')
+        self.ui_elements['satis_buton'].text = self.locale_manager.get_text('game.transactions.sell')
+        self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
+        self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        
+    def toggle_menu(self):
+        """MenÃ¼yÃ¼ aÃ§/kapat"""
+        self.is_paused = not self.is_paused
+        
+        if self.is_paused:
+            # MenÃ¼ panelini gÃ¶ster
+            self.ui_elements['menu_panel'] = Entity(
+                parent=camera.ui,
+                model='quad',
+                scale=(0.4, 0.6),
+                position=(0, 0),
+                color=color.rgba(0, 0, 0, 0.9)
+            )
+            
+            # MenÃ¼ butonlarÄ±
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text=self.locale_manager.get_text('game.menu.continue'),
+                color=color.green,
+                position=(0, 0.2),
+                scale=(0.3, 0.05),
+                on_click=self.toggle_menu
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Kaydet',
+                color=color.azure,
+                position=(0, 0.1),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.save_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='YÃ¼kle',
+                color=color.azure,
+                position=(0, 0),
+                scale=(0.3, 0.05),
+                on_click=self.oyun.load_game
+            )
+            
+            Button(
+                parent=self.ui_elements['menu_panel'],
+                text='Ã‡Ä±kÄ±ÅŸ',
+                color=color.red,
+                position=(0, -0.2),
+                scale=(0.3, 0.05),
+                on_click=application.quit
+            )
+        else:
+            # MenÃ¼ panelini kaldÄ±r
+            if 'menu_panel' in self.ui_elements:
+                destroy(self.ui_elements['menu_panel'])
+                del self.ui_elements['menu_panel']
+        
+    def update(self):
+        # Performans kontrolÃ¼
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+        
+    def olay_guncelle(self):
+        simdiki_zaman = time.time()
+        for olay in self.olaylar:
+            if simdiki_zaman - olay['baslangic'] > olay['sure']:
+                # Olay sÃ¼resi doldu, yeni olay oluÅŸtur
+                olay['tip'] = random.choice([
+                    'Borsa YÃ¼kseliÅŸi', 'Borsa DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Enflasyon ArtÄ±ÅŸÄ±', 'Enflasyon DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'Faiz ArtÄ±ÅŸÄ±', 'Faiz DÃ¼ÅŸÃ¼ÅŸÃ¼',
+                    'DÃ¶viz DalgalanmasÄ±', 'AltÄ±n FiyatÄ± DeÄŸiÅŸimi'
+                ])
+                olay['etki'] = random.uniform(-0.2, 0.2)
+                olay['baslangic'] = simdiki_zaman
+                
+                # Olay bildirimi
+                self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
+                self.ui_elements['bildirim'].color = color.yellow
+
+def run_game(online_mode: bool = False):
+    """Oyunu baÅŸlat"""
+    app = Ursina()
+    dunya = FinansalDunya(online_mode=online_mode)
+    app.run()
+
+def create_ui():
+    """Ana UI'Ä± oluÅŸtur"""
+    # Ana panel
+    ui['main_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(1.8, 1),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.8)
+    )
+    
+    # Ãœst bilgi paneli
+    create_top_info_panel()
+    
+    # PortfÃ¶y paneli
+    create_portfolio_panel()
+    
+    # Market paneli
+    create_market_panel()
+    
+    # Ä°statistik paneli
+    create_stats_panel()
+    
+    # MenÃ¼ butonu
+    Button(
+        parent=camera.ui,
+        text='MenÃ¼',
+        color=color.azure,
+        position=(0.8, 0.45),
+        scale=(0.2, 0.05),
+        on_click=Func(toggle_menu)
+    )
+
+def create_top_info_panel():
+    """Ãœst bilgi panelini oluÅŸtur"""
+    # Para
+    ui['text_elements']['money'] = Text(
+        parent=camera.ui,
+        text=f"${player['money']:,.2f}",
+        position=(-0.8, 0.45),
+        scale=2,
+        color=color.green
+    )
+    
+    # PortfÃ¶y deÄŸeri
+    ui['text_elements']['portfolio_value'] = Text(
+        parent=camera.ui,
+        text=f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}",
+        position=(-0.4, 0.45),
+        scale=2,
+        color=color.white
+    )
+    
+    # Risk skoru
+    ui['text_elements']['risk_score'] = Text(
+        parent=camera.ui,
+        text=f"Risk: {calculate_risk_score():.2f}",
+        position=(0, 0.45),
+        scale=2,
+        color=color.yellow
+    )
+
+def create_portfolio_panel():
+    """PortfÃ¶y panelini oluÅŸtur"""
+    ui['portfolio_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(-0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['portfolio_panel'],
+        text='PortfÃ¶y',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.25
+    for symbol, data in player['portfolio'].items():
+        if data['shares'] > 0:
+            # Hisse adÄ± ve miktar
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"{symbol}: {data['shares']} adet",
+                position=(-0.2, y_pos),
+                scale=1.2,
+                color=color.white
+            )
+            
+            # Fiyat
+            Text(
+                parent=ui['portfolio_panel'],
+                text=f"${data['price']:,.2f}",
+                position=(0.15, y_pos),
+                scale=1.2,
+                color=color.green if data['price'] > 0 else color.red
+            )
+            
+            y_pos -= 0.08
+
+def create_market_panel():
+    """Market panelini oluÅŸtur"""
+    ui['market_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['market_panel'],
+        text='Market',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Market trendi
+    ui['text_elements']['market_trend'] = Text(
+        parent=ui['market_panel'],
+        text=f"Trend: {market_state['trend'].upper()}",
+        position=(0, 0.25),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # Volatilite
+    ui['text_elements']['volatility'] = Text(
+        parent=ui['market_panel'],
+        text=f"Volatilite: {market_state['volatility']:.2f}",
+        position=(0, 0.2),
+        scale=1.2,
+        color=color.azure
+    )
+    
+    # Hisse senetleri listesi
+    y_pos = 0.1
+    for symbol, data in player['portfolio'].items():
+        # Hisse adÄ± ve fiyat
+        Text(
+            parent=ui['market_panel'],
+            text=f"{symbol}: ${data['price']:,.2f}",
+            position=(-0.2, y_pos),
+            scale=1.2,
+            color=color.white
+        )
+        
+        # AlÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Al',
+            color=color.green,
+            position=(0.1, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: buy_stock(s))
+        )
+        
+        # SatÄ±m butonu
+        Button(
+            parent=ui['market_panel'],
+            text='Sat',
+            color=color.red,
+            position=(0.2, y_pos),
+            scale=(0.1, 0.04),
+            on_click=Func(lambda s=symbol: sell_stock(s))
+        )
+        
+        y_pos -= 0.08
+
+def create_stats_panel():
+    """Ä°statistik panelini oluÅŸtur"""
+    ui['stats_panel'] = Entity(
+        parent=ui['main_panel'],
+        model='quad',
+        scale=(0.5, 0.8),
+        position=(0.6, -0.05),
+        color=color.rgba(0, 0, 0, 0.5)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['stats_panel'],
+        text='Ä°statistikler',
+        position=(0, 0.35),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ä°statistikler
+    stats = player['stats']
+    y_pos = 0.25
+    
+    # Toplam iÅŸlem
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Ä°ÅŸlem: {stats['total_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.white
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±lÄ± iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±lÄ±: {stats['successful_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # BaÅŸarÄ±sÄ±z iÅŸlemler
+    Text(
+        parent=ui['stats_panel'],
+        text=f"BaÅŸarÄ±sÄ±z: {stats['failed_trades']}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+    y_pos -= 0.08
+    
+    # Toplam kÃ¢r
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam KÃ¢r: ${stats['total_profit']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.green
+    )
+    y_pos -= 0.08
+    
+    # Toplam zarar
+    Text(
+        parent=ui['stats_panel'],
+        text=f"Toplam Zarar: ${stats['total_loss']:,.2f}",
+        position=(0, y_pos),
+        scale=1.2,
+        color=color.red
+    )
+
+def toggle_menu():
+    """MenÃ¼yÃ¼ aÃ§/kapat"""
+    if not ui['menu_panel']:
+        create_menu()
+    else:
+        destroy(ui['menu_panel'])
+        ui['menu_panel'] = None
+
+def create_menu():
+    """MenÃ¼ panelini oluÅŸtur"""
+    ui['menu_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['menu_panel'],
+        text='MenÃ¼',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Kaydet butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Kaydet',
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(save_game)
+    )
+    
+    # YÃ¼kle butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='YÃ¼kle',
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(load_game)
+    )
+    
+    # Ayarlar butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ayarlar',
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(show_settings)
+    )
+    
+    # Ã‡Ä±kÄ±ÅŸ butonu
+    Button(
+        parent=ui['menu_panel'],
+        text='Ã‡Ä±kÄ±ÅŸ',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(quit_game)
+    )
+
+def show_settings():
+    """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
+    # Mevcut menÃ¼yÃ¼ kapat
+    destroy(ui['menu_panel'])
+    ui['menu_panel'] = None
+    
+    # Ayarlar paneli
+    ui['settings_panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    Text(
+        parent=ui['settings_panel'],
+        text='Ayarlar',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Ses ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Ses: {'AÃ§Ä±k' if game_settings['sound_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_sound)
+    )
+    
+    # MÃ¼zik ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"MÃ¼zik: {'AÃ§Ä±k' if game_settings['music_enabled'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, 0),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_music)
+    )
+    
+    # Tam ekran ayarÄ±
+    Button(
+        parent=ui['settings_panel'],
+        text=f"Tam Ekran: {'AÃ§Ä±k' if game_settings['fullscreen'] else 'KapalÄ±'}",
+        color=color.azure,
+        position=(0, -0.1),
+        scale=(0.3, 0.05),
+        on_click=Func(toggle_fullscreen)
+    )
+    
+    # Geri butonu
+    Button(
+        parent=ui['settings_panel'],
+        text='Geri',
+        color=color.red,
+        position=(0, -0.2),
+        scale=(0.3, 0.05),
+        on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
+    )
+
+def toggle_sound():
+    """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['sound_enabled'] = not game_settings['sound_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_music():
+    """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['music_enabled'] = not game_settings['music_enabled']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def toggle_fullscreen():
+    """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
+    game_settings['fullscreen'] = not game_settings['fullscreen']
+    window.fullscreen = game_settings['fullscreen']
+    show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
+
+def start_tutorial():
+    """EÄŸitim modunu baÅŸlat"""
+    tutorial_steps = [
+        {
+            'title': 'HoÅŸ Geldiniz!',
+            'description': 'FinAsis finansal eÄŸitim simÃ¼lasyonuna hoÅŸ geldiniz. Size temel Ã¶zellikleri tanÄ±tacaÄŸÄ±m.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'PortfÃ¶y Paneli',
+            'description': 'Bu panel sahip olduÄŸunuz hisse senetlerini gÃ¶sterir.',
+            'position': (-0.65, 0)
+        },
+        {
+            'title': 'Market Paneli',
+            'description': 'Bu panel piyasadaki hisse senetlerini ve fiyatlarÄ±nÄ± gÃ¶sterir.',
+            'position': (0, 0)
+        },
+        {
+            'title': 'Ä°statistik Paneli',
+            'description': 'Bu panel trading performansÄ±nÄ±zÄ± gÃ¶sterir.',
+            'position': (0.65, 0)
+        }
+    ]
+    
+    # Tutorial paneli
+    tutorial_panel = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.4, 0.2),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    current_step = 0
+    
+    def show_step():
+        nonlocal current_step
+        step = tutorial_steps[current_step]
+        
+        # Panel pozisyonu
+        tutorial_panel.position = step['position']
+        
+        # BaÅŸlÄ±k
+        if hasattr(tutorial_panel, 'title'):
+            destroy(tutorial_panel.title)
+        tutorial_panel.title = Text(
+            parent=tutorial_panel,
+            text=step['title'],
+            position=(0, 0.05),
+            scale=1.5,
+            color=color.yellow
+        )
+        
+        # AÃ§Ä±klama
+        if hasattr(tutorial_panel, 'description'):
+            destroy(tutorial_panel.description)
+        tutorial_panel.description = Text(
+            parent=tutorial_panel,
+            text=step['description'],
+            position=(0, -0.02),
+            scale=1,
+            color=color.white
+        )
+        
+        # Ä°leri butonu
+        if hasattr(tutorial_panel, 'next_button'):
+            destroy(tutorial_panel.next_button)
+        tutorial_panel.next_button = Button(
+            parent=tutorial_panel,
+            text='Ä°leri' if current_step < len(tutorial_steps) - 1 else 'Bitir',
+            position=(0.1, -0.07),
+            scale=(0.2, 0.05),
+            color=color.azure,
+            on_click=next_step
+        )
+    
+    def next_step():
+        nonlocal current_step
+        current_step += 1
+        if current_step < len(tutorial_steps):
+            show_step()
+        else:
+            # Tutorial'Ä± bitir
+            destroy(tutorial_panel)
+            player['tutorial_progress']['basic_trading'] = True
+            save_game()
+    
+    # Ä°lk adÄ±mÄ± gÃ¶ster
+    show_step()
+
+def save_game():
+    """Oyun durumunu kaydet"""
+    try:
+        # Kaydedilecek verileri hazÄ±rla
+        save_data = {
+            'player': player,
+            'market_state': market_state,
+            'quest_system': quest_system,
+            'game_settings': game_settings,
+            'save_time': datetime.now().isoformat()
+        }
+        
+        # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
+        def convert_datetime(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return obj
+        
+        # Verileri JSON formatÄ±nda kaydet
+        with open('save_game.json', 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, default=convert_datetime, ensure_ascii=False, indent=4)
+            
+        show_notification('Oyun kaydedildi!', color.green)
+    except Exception as e:
+        show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
+
+def load_game():
+    """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
+    try:
+        # JSON dosyasÄ±nÄ± oku
+        with open('save_game.json', 'r', encoding='utf-8') as f:
+            save_data = json.load(f)
+        
+        # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
+        def parse_datetime(obj):
+            for key, value in obj.items():
+                if isinstance(value, str) and 'T' in value:
+                    try:
+                        obj[key] = datetime.fromisoformat(value)
+                    except ValueError:
+                        pass
+                elif isinstance(value, dict):
+                    parse_datetime(value)
+                elif isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            parse_datetime(item)
+            return obj
+        
+        # Verileri yÃ¼kle
+        global player, market_state, quest_system, game_settings
+        player = parse_datetime(save_data['player'])
+        market_state = parse_datetime(save_data['market_state'])
+        quest_system = parse_datetime(save_data['quest_system'])
+        game_settings = save_data['game_settings']
+        
+        show_notification('Oyun yÃ¼klendi!', color.green)
+    except FileNotFoundError:
+        show_notification('KayÄ±tlÄ± oyun bulunamadÄ±.', color.yellow)
+    except Exception as e:
+        show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
+
+def show_notification(message, color=color.white):
+    """Bildirim gÃ¶ster"""
+    notification = Text(
+        text=message,
+        position=(0, 0.4),
+        scale=2,
+        color=color
+    )
+    destroy(notification, delay=3)
+
+def auto_save():
+    """Otomatik kayÄ±t"""
+    current_time = datetime.now()
+    if not hasattr(auto_save, 'last_save'):
+        auto_save.last_save = current_time
+    
+    if (current_time - auto_save.last_save).seconds >= game_settings['save_interval']:
+        save_game()
+        auto_save.last_save = current_time
+
+def quit_game():
+    """Oyundan Ã§Ä±k"""
+    # Oyunu kaydet
+    save_game()
+    
+    # Pencereyi kapat
+    application.quit()
+
+def initialize_quest_system():
+    """GÃ¶rev sistemini baÅŸlat"""
+    # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
+    daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
+    for quest_id in daily_quests:
+        if quest_id in quest_definitions:
+            quest_system['daily_quests'].append(quest_definitions[quest_id])
+    
+    # HaftalÄ±k gÃ¶revleri yÃ¼kle
+    weekly_quests = ['weekly_growth', 'weekly_trades', 'weekly_risk']
+    for quest_id in weekly_quests:
+        if quest_id in quest_definitions:
+            quest_system['weekly_quests'].append(quest_definitions[quest_id])
+    
+    # BaÅŸarÄ± gÃ¶revlerini yÃ¼kle
+    achievement_quests = ['achievement_portfolio', 'achievement_diversity', 'achievement_debt']
+    for quest_id in achievement_quests:
+        if quest_id in quest_definitions:
+            quest_system['achievement_quests'].append(quest_definitions[quest_id])
+    
+    # EÄŸitim gÃ¶revlerini yÃ¼kle
+    tutorial_quests = ['tutorial_buy', 'tutorial_sell', 'tutorial_diversity']
+    for quest_id in tutorial_quests:
+        if quest_id in quest_definitions:
+            quest_system['tutorial_quests'].append(quest_definitions[quest_id])
+    
+    # Aktif gÃ¶revleri belirle
+    assign_daily_quests()
+    assign_weekly_quests()
+    
+    # EÄŸitim gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['tutorial_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # BaÅŸarÄ± gÃ¶revlerini aktif gÃ¶revlere ekle
+    for quest in quest_system['achievement_quests']:
+        if quest['id'] not in player['completed_quests']:
+            player['active_quests'].append(quest['id'])
+            player['quest_progress'][quest['id']] = 0
+    
+    # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
+    create_quest_ui()
+
+def assign_daily_quests():
+    """GÃ¼nlÃ¼k gÃ¶revleri ata"""
+    # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
+    
+    # Rastgele 2 gÃ¼nlÃ¼k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['daily_quests'], min(2, len(quest_system['daily_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def assign_weekly_quests():
+    """HaftalÄ±k gÃ¶revleri ata"""
+    # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
+    player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
+    
+    # Rastgele 2 haftalÄ±k gÃ¶rev seÃ§
+    selected_quests = random.sample(quest_system['weekly_quests'], min(2, len(quest_system['weekly_quests'])))
+    
+    # SeÃ§ilen gÃ¶revleri aktif gÃ¶revlere ekle
+    for quest in selected_quests:
+        player['active_quests'].append(quest['id'])
+        player['quest_progress'][quest['id']] = 0
+
+def check_quest_completion():
+    """GÃ¶rev tamamlanma durumunu kontrol et"""
+    completed_quests = []
+    
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev tamamlandÄ± mÄ± kontrol et
+            if quest['check_completion']():
+                # GÃ¶revi tamamlandÄ± olarak iÅŸaretle
+                completed_quests.append(quest_id)
+                
+                # Ã–dÃ¼lleri ver
+                give_quest_rewards(quest)
+                
+                # Tamamlanan gÃ¶revi gÃ¶ster
+                show_quest_completion(quest)
+    
+    # Tamamlanan gÃ¶revleri aktif gÃ¶revlerden Ã§Ä±kar
+    for quest_id in completed_quests:
+        player['active_quests'].remove(quest_id)
+        player['completed_quests'].append(quest_id)
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def give_quest_rewards(quest):
+    """GÃ¶rev Ã¶dÃ¼llerini ver"""
+    reward = quest['reward']
+    
+    # Para Ã¶dÃ¼lÃ¼
+    if 'money' in reward:
+        player['money'] += reward['money']
+    
+    # Deneyim Ã¶dÃ¼lÃ¼
+    if 'experience' in reward:
+        player['experience']['current_xp'] += reward['experience']
+        player['experience']['total_xp'] += reward['experience']
+        
+        # Seviye atlama kontrolÃ¼
+        while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+            player['experience']['current_xp'] -= player['experience']['next_level_xp']
+            player['experience']['level'] += 1
+            player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+            show_level_up()
+    
+    # BaÅŸarÄ± Ã¶dÃ¼lÃ¼
+    if 'achievement' in reward:
+        if reward['achievement'] not in player['achievements']:
+            player['achievements'].append(reward['achievement'])
+
+def show_quest_completion(quest):
+    """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
+    # Ana bildirim metni
+    completion_text = Text(
+        text=f"GÃ¶rev TamamlandÄ±: {quest['title']}",
+        position=(0, 0.6),
+        scale=2,
+        color=color.gold
+    )
+    
+    # Ã–dÃ¼l detaylarÄ±
+    reward_text = None
+    if 'money' in quest['reward']:
+        reward_text = Text(
+            text=f"Ã–dÃ¼l: +${quest['reward']['money']:,.2f}",
+            position=(0, 0.5),
+            scale=1.5,
+            color=color.green
+        )
+    
+    # Metinleri belirli sÃ¼re sonra kaldÄ±r
+    destroy(completion_text, delay=4)
+    if reward_text:
+        destroy(reward_text, delay=4)
+
+def show_level_up():
+    """Seviye atlama bildirimini gÃ¶ster"""
+    level_text = Text(
+        text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
+        position=(0, 0.4),
+        scale=2,
+        color=color.yellow
+    )
+    destroy(level_text, delay=4)
+
+def calculate_next_level_xp(current_level):
+    """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
+    return int(1000 * (1.5 ** (current_level - 1)))
+
+def create_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
+    # GÃ¶rev paneli
+    quest_ui['panel'] = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.8, 0.6),
+        position=(0, 0),
+        color=color.rgba(0, 0, 0, 0.7),
+        visible=False
+    )
+    
+    # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+    Text(
+        parent=quest_ui['panel'],
+        text='GÃ¶revler',
+        position=(0, 0.25),
+        scale=2,
+        color=color.white
+    )
+    
+    # Aktif gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['active_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Aktif GÃ¶revler:',
+        position=(-0.35, 0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # Tamamlanan gÃ¶revler baÅŸlÄ±ÄŸÄ±
+    quest_ui['completed_quests_text'] = Text(
+        parent=quest_ui['panel'],
+        text='Tamamlanan GÃ¶revler:',
+        position=(-0.35, -0.15),
+        scale=1.5,
+        color=color.white
+    )
+    
+    # GÃ¶rev kapatma butonu
+    Button(
+        parent=quest_ui['panel'],
+        text='Kapat',
+        color=color.red,
+        position=(0, -0.25),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', False))
+    )
+    
+    # GÃ¶rev butonu
+    Button(
+        parent=camera.ui,
+        text='GÃ¶revler',
+        color=color.azure,
+        position=(0.7, 0.4),
+        scale=(0.2, 0.05),
+        on_click=Func(lambda: setattr(quest_ui['panel'], 'visible', True))
+    )
+    
+    # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
+    update_quest_ui()
+
+def update_quest_ui():
+    """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
+    # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
+    for item in quest_ui['quest_items']:
+        destroy(item)
+    quest_ui['quest_items'] = []
+    
+    # Aktif gÃ¶revleri gÃ¶ster
+    y_position = 0.1
+    for quest_id in player['active_quests']:
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.white
+                )
+            )
+            
+            # GÃ¶rev aÃ§Ä±klamasÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['description'],
+                    position=(-0.3, y_position - 0.05),
+                    scale=0.8,
+                    color=color.light_gray
+                )
+            )
+            
+            # GÃ¶rev Ã¶dÃ¼lÃ¼
+            reward_text = f"Ã–dÃ¼l: ${quest['reward']['money']:,.2f}"
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=reward_text,
+                    position=(-0.3, y_position - 0.1),
+                    scale=0.8,
+                    color=color.gold
+                )
+            )
+            
+            y_position -= 0.15
+    
+    # Tamamlanan gÃ¶revleri gÃ¶ster
+    y_position = -0.2
+    for quest_id in player['completed_quests'][-5:]:  # Son 5 tamamlanan gÃ¶revi gÃ¶ster
+        if quest_id in quest_definitions:
+            quest = quest_definitions[quest_id]
+            
+            # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text=quest['title'],
+                    position=(-0.3, y_position),
+                    scale=1.2,
+                    color=color.light_gray
+                )
+            )
+            
+            # TamamlandÄ± iÅŸareti
+            quest_ui['quest_items'].append(
+                Text(
+                    parent=quest_ui['panel'],
+                    text="âœ“ TamamlandÄ±",
+                    position=(0.2, y_position),
+                    scale=0.8,
+                    color=color.green
+                )
+            )
+            
+            y_position -= 0.1
+
+def calculate_daily_profit():
+    """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
+    today = datetime.now().date()
+    today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
+    
+    profit = 0
+    for trade in today_trades:
+        if trade['type'] == 'sell':
+            # SatÄ±ÅŸ iÅŸleminden kÃ¢r hesapla
+            buy_trades = [t for t in player['trading_history'] if t['stock'] == trade['stock'] and t['type'] == 'buy' and t['timestamp'].date() <= today]
+            if buy_trades:
+                # En eski alÄ±m fiyatÄ±nÄ± bul
+                oldest_buy = min(buy_trades, key=lambda t: t['timestamp'])
+                buy_price = oldest_buy['price']
+                sell_price = trade['price']
+                profit += (sell_price - buy_price) * trade['amount']
+    
+    return profit
+
+def calculate_weekly_growth():
+    """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
+    # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
+    week_ago = datetime.now() - timedelta(days=7)
+    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    
+    # Åžu anki portfÃ¶y deÄŸeri
+    current_value = calculate_portfolio_value()
+    
+    # HaftalÄ±k bÃ¼yÃ¼me oranÄ±
+    if current_value > 0:
+        return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
+    return 0
+
+def update_market_state():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
+        # Piyasa trendini gÃ¼ncelle
+        trend_chance = random.random()
+        if trend_chance < 0.4:
+            market_state['trend'] = 'stable'
+        elif trend_chance < 0.7:
+            market_state['trend'] = 'bull'
+        else:
+            market_state['trend'] = 'bear'
+        
+        # Volatiliteyi gÃ¼ncelle
+        market_state['volatility'] = random.uniform(0.3, 0.8)
+        
+        # Piyasa olaylarÄ± oluÅŸtur
+        if random.random() < 0.2:  # %20 ÅŸans
+            event = generate_market_event()
+            market_state['market_events'].append(event)
+            show_market_event(event)
+            apply_market_event(event)
+        
+        # Oyuncuya Ã¶zel olaylar oluÅŸtur
+        if random.random() < 0.15:  # %15 ÅŸans
+            player_event = generate_player_event()
+            if player_event:
+                show_player_event(player_event)
+                apply_player_event(player_event)
+        
+        # GÃ¶rev tamamlanma durumunu kontrol et
+        check_quest_completion()
+        
+        market_state['last_update'] = current_time
+
+def update():
+    """Ana oyun dÃ¶ngÃ¼sÃ¼"""
+    # Piyasa gÃ¼ncellemesi
+    update_market()
+    
+    # UI gÃ¼ncellemesi
+    update_ui()
+    
+    # GÃ¶rev kontrolÃ¼
+    check_quests()
+    
+    # Otomatik kayÄ±t
+    if game_settings['auto_save']:
+        auto_save()
+
+def update_market():
+    """Piyasa durumunu gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # Piyasa gÃ¼ncellemesi
+    if (current_time - market_state['last_update']).seconds >= game_settings['market_update_interval']:
+        # Trend gÃ¼ncelleme
+        update_market_trend()
+        
+        # Fiyat gÃ¼ncelleme
+        update_stock_prices()
+        
+        # Olay kontrolÃ¼
+        check_market_events()
+        
+        market_state['last_update'] = current_time
+
+def update_market_trend():
+    """Piyasa trendini gÃ¼ncelle"""
+    trend_chance = random.random()
+    
+    # Zorluk seviyesine gÃ¶re trend olasÄ±lÄ±klarÄ±
+    if game_settings['difficulty'] == 'easy':
+        if trend_chance < 0.5:  # %50 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.8:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %20 ÅŸans
+            market_state['trend'] = 'bear'
+    elif game_settings['difficulty'] == 'normal':
+        if trend_chance < 0.4:  # %40 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.7:  # %30 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %30 ÅŸans
+            market_state['trend'] = 'bear'
+    else:  # hard
+        if trend_chance < 0.3:  # %30 ÅŸans
+            market_state['trend'] = 'bull'
+        elif trend_chance < 0.5:  # %20 ÅŸans
+            market_state['trend'] = 'stable'
+        else:  # %50 ÅŸans
+            market_state['trend'] = 'bear'
+    
+    # Volatilite gÃ¼ncelleme
+    market_state['volatility'] = random.uniform(
+        0.2 if game_settings['difficulty'] == 'easy' else 0.3 if game_settings['difficulty'] == 'normal' else 0.4,
+        0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
+    )
+
+def update_stock_prices():
+    """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        base_price = data['price']
+        
+        # Trend etkisi
+        trend_effect = {
+            'bull': random.uniform(0.001, 0.01),
+            'stable': random.uniform(-0.003, 0.003),
+            'bear': random.uniform(-0.01, -0.001)
+        }[market_state['trend']]
+        
+        # SektÃ¶r etkisi
+        sector_effect = calculate_sector_effect(data['sector'])
+        
+        # Volatilite etkisi
+        volatility_effect = random.uniform(-market_state['volatility'], market_state['volatility'])
+        
+        # Toplam deÄŸiÅŸim
+        total_change = trend_effect + sector_effect + volatility_effect
+        
+        # Zorluk seviyesine gÃ¶re deÄŸiÅŸim sÄ±nÄ±rlamasÄ±
+        if game_settings['difficulty'] == 'easy':
+            total_change = max(-0.05, min(0.05, total_change))
+        elif game_settings['difficulty'] == 'normal':
+            total_change = max(-0.1, min(0.1, total_change))
+        else:  # hard
+            total_change = max(-0.15, min(0.15, total_change))
+        
+        # Yeni fiyat
+        new_price = base_price * (1 + total_change)
+        player['portfolio'][symbol]['price'] = max(0.01, new_price)
+
+def calculate_sector_effect(sector):
+    """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
+    sector_trends = {
+        'tech': random.uniform(-0.005, 0.008),
+        'auto': random.uniform(-0.004, 0.006),
+        'retail': random.uniform(-0.003, 0.005),
+        'media': random.uniform(-0.004, 0.007),
+        'finance': random.uniform(-0.003, 0.004)
+    }
+    return sector_trends.get(sector, 0)
+
+def check_market_events():
+    """Piyasa olaylarÄ±nÄ± kontrol et"""
+    if random.random() < game_settings['event_chance']:
+        event = generate_market_event()
+        if event:
+            market_state['market_events'].append(event)
+            apply_market_event(event)
+            show_market_event(event)
+
+def generate_market_event():
+    """Piyasa olayÄ± oluÅŸtur"""
+    event_types = {
+        'global': [
+            {
+                'title': 'KÃ¼resel Ekonomik BÃ¼yÃ¼me',
+                'description': 'KÃ¼resel ekonomik bÃ¼yÃ¼me beklentileri yÃ¼kseldi!',
+                'effect': {'market_trend': 'bull', 'volatility': -0.1},
+                'duration': 300,
+                'probability': 0.2
+            },
+            {
+                'title': 'Ekonomik Kriz',
+                'description': 'KÃ¼resel ekonomik kriz endiÅŸeleri artÄ±yor!',
+                'effect': {'market_trend': 'bear', 'volatility': 0.2},
+                'duration': 300,
+                'probability': 0.1
+            }
+        ],
+        'sector': [
+            {
+                'title': 'Teknoloji AtÄ±lÄ±mÄ±',
+                'description': 'Yeni teknolojik geliÅŸmeler sektÃ¶rÃ¼ hareketlendirdi!',
+                'effect': {'sector': 'tech', 'change': 0.05},
+                'duration': 180,
+                'probability': 0.15
+            },
+            {
+                'title': 'Otomotiv Krizi',
+                'description': 'Tedarik zinciri sorunlarÄ± otomotiv sektÃ¶rÃ¼nÃ¼ vuruyor!',
+                'effect': {'sector': 'auto', 'change': -0.05},
+                'duration': 180,
+                'probability': 0.15
+            }
+        ],
+        'company': [
+            {
+                'title': 'ÃœrÃ¼n LansmanÄ±',
+                'description': 'AAPL yeni Ã¼rÃ¼nlerini tanÄ±ttÄ±!',
+                'effect': {'symbol': 'AAPL', 'change': 0.08},
+                'duration': 120,
+                'probability': 0.2
+            },
+            {
+                'title': 'CEO Ä°stifasÄ±',
+                'description': 'TSLA CEO\'su istifa etti!',
+                'effect': {'symbol': 'TSLA', 'change': -0.08},
+                'duration': 120,
+                'probability': 0.1
+            }
+        ]
+    }
+    
+    # Olay tÃ¼rÃ¼ seÃ§
+    event_type = random.choice(list(event_types.keys()))
+    events = event_types[event_type]
+    
+    # OlasÄ±lÄ±k kontrolÃ¼
+    for event in events:
+        if random.random() < event['probability']:
+            return event
+    
+    return None
+
+def apply_market_event(event):
+    """Piyasa olayÄ±nÄ± uygula"""
+    effect = event['effect']
+    
+    # Piyasa trendi etkisi
+    if 'market_trend' in effect:
+        market_state['trend'] = effect['market_trend']
+    
+    # Volatilite etkisi
+    if 'volatility' in effect:
+        market_state['volatility'] = max(0.1, min(1.0, market_state['volatility'] + effect['volatility']))
+    
+    # SektÃ¶r etkisi
+    if 'sector' in effect:
+        for symbol, data in player['portfolio'].items():
+            if data['sector'] == effect['sector']:
+                data['price'] *= (1 + effect['change'])
+    
+    # Åžirket etkisi
+    if 'symbol' in effect:
+        if effect['symbol'] in player['portfolio']:
+            player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
+
+def show_market_event(event):
+    """Piyasa olayÄ±nÄ± gÃ¶ster"""
+    # Bildirim paneli
+    notification = Entity(
+        parent=camera.ui,
+        model='quad',
+        scale=(0.6, 0.2),
+        position=(0, 0.3),
+        color=color.rgba(0, 0, 0, 0.9)
+    )
+    
+    # BaÅŸlÄ±k
+    title_text = Text(
+        parent=notification,
+        text=event['title'],
+        position=(0, 0.05),
+        scale=1.5,
+        color=color.yellow
+    )
+    
+    # AÃ§Ä±klama
+    desc_text = Text(
+        parent=notification,
+        text=event['description'],
+        position=(0, -0.02),
+        scale=1.2,
+        color=color.white
+    )
+    
+    # Efekt aÃ§Ä±klamasÄ±
+    effect = event['effect']
+    effect_text = ""
+    
+    if 'market_trend' in effect:
+        effect_text = "Piyasa trendi deÄŸiÅŸti!"
+    elif 'sector' in effect:
+        effect_text = f"{effect['sector'].upper()} sektÃ¶rÃ¼ etkilendi!"
+    elif 'symbol' in effect:
+        effect_text = f"{effect['symbol']} hissesi etkilendi!"
+    
+    Text(
+        parent=notification,
+        text=effect_text,
+        position=(0, -0.08),
+        scale=1,
+        color=color.azure
+    )
+    
+    # Bildirimi kaydet
+    ui['notifications'].append({
+        'entity': notification,
+        'created_at': datetime.now(),
+        'duration': 5  # 5 saniye sonra kaybolacak
+    })
+
+def calculate_portfolio_value():
+    """PortfÃ¶y deÄŸerini hesapla"""
+    total_value = player['money']
+    for symbol, data in player['portfolio'].items():
+        total_value += data['shares'] * data['price']
+    return total_value
+
+def calculate_risk_score():
+    """Risk skorunu hesapla"""
+    # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
+    portfolio_diversity = calculate_portfolio_diversity()
+    
+    # BorÃ§/gelir oranÄ± (0-1 arasÄ±)
+    debt_to_income = calculate_debt_to_income_ratio()
+    
+    # Toplam risk skoru (0-1 arasÄ±)
+    risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
+    return min(max(risk_score, 0), 1)
+
+def calculate_portfolio_diversity():
+    """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
+    total_value = calculate_portfolio_value()
+    if total_value == 0:
+        return 0
+    
+    # Her sektÃ¶rdeki yatÄ±rÄ±m oranÄ±nÄ± hesapla
+    sector_weights = {}
+    for symbol, data in player['portfolio'].items():
+        sector = data['sector']
+        value = data['shares'] * data['price']
+        sector_weights[sector] = sector_weights.get(sector, 0) + value / total_value
+    
+    # Herfindahl-Hirschman Index'ini hesapla (ters Ã§evrilmiÅŸ)
+    hhi = sum(weight * weight for weight in sector_weights.values())
+    diversity = 1 - hhi
+    return min(max(diversity, 0), 1)
+
+def calculate_debt_to_income_ratio():
+    """BorÃ§/gelir oranÄ±nÄ± hesapla"""
+    total_income = sum(t['amount'] for t in player.get('trading_history', []) 
+                      if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
+    total_debt = sum(t['amount'] for t in player.get('trading_history', [])
+                    if t['type'] == 'loss' and (datetime.now() - t['timestamp']).days <= 30)
+    
+    if total_income == 0:
+        return 1 if total_debt > 0 else 0
+    
+    ratio = total_debt / total_income
+    return min(max(ratio, 0), 1)
+
+def update_ui():
+    """UI'Ä± gÃ¼ncelle"""
+    # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
+    ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
+    ui['text_elements']['portfolio_value'].text = f"PortfÃ¶y: ${calculate_portfolio_value():,.2f}"
+    ui['text_elements']['risk_score'].text = f"Risk: {calculate_risk_score():.2f}"
+    
+    # Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle
+    for symbol, data in player['portfolio'].items():
+        if symbol in ui['text_elements']:
+            ui['text_elements'][symbol].text = f"{symbol}: ${data['price']:,.2f}"
+    
+    # Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle
+    update_stock_buttons()
+    
+    # GÃ¶revleri gÃ¼ncelle
+    update_quest_ui()
+    
+    # Bildirimleri gÃ¼ncelle
+    update_notifications()
+
+def update_stock_buttons():
+    """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
+    for symbol, data in player['portfolio'].items():
+        # AlÄ±m butonu
+        if symbol + '_buy' in ui['buttons']:
+            ui['buttons'][symbol + '_buy'].enabled = player['money'] >= data['price']
+        
+        # SatÄ±m butonu
+        if symbol + '_sell' in ui['buttons']:
+            ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
+
+def update_notifications():
+    """Bildirimleri gÃ¼ncelle"""
+    current_time = datetime.now()
+    
+    # SÃ¼resi dolmuÅŸ bildirimleri kaldÄ±r
+    ui['notifications'] = [n for n in ui['notifications'] 
+                         if (current_time - n['timestamp']).seconds < 5]
+    
+    # Bildirimleri gÃ¶ster
+    for i, notification in enumerate(ui['notifications']):
+        if 'text' in notification:
+            notification['text'].y = -0.3 - i * 0.1
+
+def buy_stock(symbol):
+    """Hisse senedi satÄ±n al"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli para var mÄ± kontrol et
+    if player['money'] < price:
+        show_notification('Yeterli paranÄ±z yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] -= price
+    stock['shares'] += 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'buy',
+        'symbol': symbol,
+        'price': price,
+        'shares': 1,
+        'total': price,
+        'timestamp': datetime.now()
+    }
+    player['trading_history'].append(trade)
+    
+    # Ä°statistikleri gÃ¼ncelle
+    player['stats']['total_trades'] += 1
+    
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±n alÄ±ndÄ±.', color.green)
+    
+    # UI'Ä± gÃ¼ncelle
+    update_ui()
+
+def sell_stock(symbol):
+    """Hisse senedi sat"""
+    stock = player['portfolio'][symbol]
+    price = stock['price']
+    
+    # Yeterli hisse var mÄ± kontrol et
+    if stock['shares'] <= 0:
+        show_notification('Yeterli hisseniz yok!', color.red)
+        return
+    
+    # Ä°ÅŸlemi gerÃ§ekleÅŸtir
+    player['money'] += price
+    stock['shares'] -= 1
+    
+    # Ä°ÅŸlem kaydÄ±nÄ± tut
+    trade = {
+        'type': 'sell',
+        'symbol': symbol,
+        'price': price,
+        'shares': 1,
+        'total': price,
+        'timestamp': datetime.now()
+    }
+    player['trading_history'].append(trade)
+    
+    # Ä°statistikleri gÃ¼ncelle
+    player['stats']['total_trades'] += 1
+    
+    # Bildirimi gÃ¶ster
+    show_notification(f'{symbol} hissesinden 1 adet satÄ±ldÄ±.', color.green)
+    
+    # UI'Ä± gÃ¼ncelle
+    update_ui()
+
+def check_quests():
+    """GÃ¶revleri kontrol et"""
+    # GÃ¼nlÃ¼k gÃ¶revleri kontrol et
+    for quest in quest_system['daily_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+    
+    # HaftalÄ±k gÃ¶revleri kontrol et
+    for quest in quest_system['weekly_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+    
+    # BaÅŸarÄ± gÃ¶revlerini kontrol et
+    for quest in quest_system['achievement_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+            
+    # Ã–ÄŸretici gÃ¶revleri kontrol et
+    for quest in quest_system['tutorial_quests']:
+        if not quest.get('completed', False) and quest_definitions[quest['id']]['check_completion']():
+            quest['completed'] = True
+            give_quest_rewards(quest)
+            show_quest_completion(quest)
+            
+    # Seviye atlamayÄ± kontrol et
+    check_level_up()
+
+def check_level_up():
+    """Seviye atlamayÄ± kontrol et"""
+    while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
+        # Seviye atla
+        player['experience']['level'] += 1
+        player['experience']['current_xp'] -= player['experience']['next_level_xp']
+        player['experience']['next_level_xp'] = calculate_next_level_xp(player['experience']['level'])
+        
+        # Seviye atlama Ã¶dÃ¼llerini ver
+        rewards = {
+            'money': 1000 * player['experience']['level'],
+            'experience': 0
+        }
+        give_quest_rewards({'reward': rewards})
+        
+        # Seviye atlama bildirimini gÃ¶ster
+        show_level_up()
+
+class CharacterSelection:
+    def __init__(self):
+        self.characters = self.load_characters()
+        self.selected_character = None
+        self.ui_elements = {}
+        
+    def load_characters(self):
+        with open('characters.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['characters']
+            
+    def create_ui(self):
+        # Karakter seÃ§im paneli
+        self.ui_elements['panel'] = Entity(
+            model='quad',
+            scale=(1, 1),
+            color=color.black90,
+            position=(0, 0, -1)
+        )
+        
+        # Karakter kartlarÄ±
+        for i, char in enumerate(self.characters):
+            card = Entity(
+                model='quad',
+                scale=(0.3, 0.4),
+                color=color.white,
+                position=(-0.5 + i * 0.3, 0, -0.9),
+                parent=self.ui_elements['panel']
+            )
+            
+            # Karakter bilgileri
+            Text(
+                text=char['name'],
+                position=(-0.5 + i * 0.3, 0.1, -0.8),
+                scale=2,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=char['description'],
+                position=(-0.5 + i * 0.3, 0, -0.8),
+                scale=1,
+                parent=self.ui_elements['panel']
+            )
+            
+            # SeÃ§im butonu
+            Button(
+                text='SeÃ§',
+                position=(-0.5 + i * 0.3, -0.1, -0.8),
+                scale=(0.1, 0.05),
+                on_click=Func(self.select_character, char),
+                parent=self.ui_elements['panel']
+            )
+            
+    def select_character(self, character):
+        self.selected_character = character
+        # Oyuncu verilerini gÃ¼ncelle
+        player['money'] = character['starting_money']
+        player['stats']['risk_tolerance'] = character['advantages']['risk_tolerance']
+        # Karakter seÃ§im ekranÄ±nÄ± kapat
+        destroy(self.ui_elements['panel'])
+        # Oyunu baÅŸlat
+        start_game()
+
+class MissionSystem:
+    def __init__(self):
+        self.levels = self.load_missions()
+        self.current_level = 1
+        self.current_mission = None
+        self.ui_elements = {}
+        
+    def load_missions(self):
+        with open('missions.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['levels']
+            
+    def create_mission_ui(self):
+        # GÃ¶rev paneli
+        self.ui_elements['panel'] = Entity(
+            model='quad',
+            scale=(0.4, 0.3),
+            color=color.black90,
+            position=(0.7, 0.6, -1)
+        )
+        
+        # GÃ¶rev baÅŸlÄ±ÄŸÄ±
+        self.ui_elements['title'] = Text(
+            text='GÃ¶revler',
+            position=(0.7, 0.7, -0.9),
+            scale=2,
+            parent=self.ui_elements['panel']
+        )
+        
+        # GÃ¶rev listesi
+        self.ui_elements['list'] = Entity(
+            model='quad',
+            scale=(0.35, 0.2),
+            color=color.black,
+            position=(0.7, 0.5, -0.9),
+            parent=self.ui_elements['panel']
+        )
+        
+    def update_mission_ui(self):
+        if self.current_mission:
+            level = self.levels[self.current_level - 1]
+            mission = level['missions'][0]  # Ä°lk gÃ¶revi gÃ¶ster
+            
+            # GÃ¶rev bilgilerini gÃ¼ncelle
+            Text(
+                text=f"Seviye: {level['name']}",
+                position=(0.7, 0.6, -0.8),
+                scale=1.5,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=f"GÃ¶rev: {mission['title']}",
+                position=(0.7, 0.5, -0.8),
+                scale=1.2,
+                parent=self.ui_elements['panel']
+            )
+            
+            Text(
+                text=mission['description'],
+                position=(0.7, 0.4, -0.8),
+                scale=0.8,
+                parent=self.ui_elements['panel']
+            )
+            
+    def check_mission_completion(self):
+        if self.current_mission:
+            requirements = self.current_mission['requirements']
+            completed = True
+            
+            for req, value in requirements.items():
+                if req == 'company_created':
+                    completed &= player['company'] is not None
+                elif req == 'initial_capital':
+                    completed &= player['money'] >= value
+                # DiÄŸer gereksinimler iÃ§in kontroller...
+                
+            if completed:
+                self.complete_mission()
+                
+    def complete_mission(self):
+        if self.current_mission is None:
+            return
+            
+        if isinstance(self.current_mission, dict) and 'rewards' in self.current_mission:
+            rewards = self.current_mission['rewards']
+            player['money'] += rewards.get('money', 0)
+            player['experience']['current_xp'] += rewards.get('experience', 0)
+        
+        # GÃ¶rev tamamlandÄ± bildirimi
+        show_notification('ðŸ“ˆ GÃ¶rev BaÅŸarÄ±yla TamamlandÄ±!', color.green)
+        
+        # Yeni gÃ¶rev atama
+        self.assign_next_mission()
+        
+    def assign_next_mission(self):
+        level = self.levels[self.current_level - 1]
+        if len(level['missions']) > 1:
+            self.current_mission = level['missions'][1]
+        else:
+            # Seviye tamamlandÄ±
+            self.level_up()
+            
+    def level_up(self):
+        self.current_level += 1
+        if self.current_level <= len(self.levels):
+            # Yeni seviye arka planÄ±nÄ± yÃ¼kle
+            self.load_level_background()
+            # Ä°lk gÃ¶revi ata
+            self.current_mission = self.levels[self.current_level - 1]['missions'][0]
+            show_notification(f'ðŸŽ‰ Seviye {self.current_level} AÃ§Ä±ldÄ±!', color.yellow)
+            
+    def load_level_background(self):
+        level = self.levels[self.current_level - 1]
+        background = level['background']
+        # Arka plan deÄŸiÅŸtirme iÅŸlemi
+        # ...
+
+class BattleRoyaleMode:
+    def __init__(self):
+        self.players = []
+        self.events = []
+        self.loot_cards = []
+        self.active_cards = []
+        self.current_event = None
+        self.match_start_time = 0
+        self.match_duration = 900  # 15 dakika
+        self.event_interval = 180  # 3 dakika
+        self.card_spawn_interval = 60  # 1 dakika
+        self.held_keys = {'w': False, 'a': False, 's': False, 'd': False, 'left mouse': False, 'right mouse': False}
+        self.invoke = application.base.sequence
+        self.player = None
+        
+        # Yeni Ã¶znitelikler
+        self.last_update = time.time()
+        self.update_interval = 0.016  # ~60 FPS
+        self.is_paused = False
+        self.is_mobile = platform.system().lower() in ['android', 'ios']
+        self.ar_manager = None  # AR yÃ¶neticisi mobil platformlarda baÅŸlatÄ±lacak
+        
+        # OlaylarÄ± ve kartlarÄ± yÃ¼kle
+        self.load_game_data()
+
+    def load_game_data(self):
+        """Oyun verilerini yÃ¼kle"""
+        self.events = self.load_events()
+        self.loot_cards = self.load_loot_cards()
+
+    def load_events(self):
+        """Olay verilerini yÃ¼kle"""
+        try:
+            with open('games/ursina_game/arena_events.json', 'r', encoding='utf-8') as f:
+                return json.load(f)['events']
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            return []
+
+    def load_loot_cards(self):
+        """Kart verilerini yÃ¼kle"""
+        try:
+            with open('games/ursina_game/loot_cards.json', 'r', encoding='utf-8') as f:
+                return json.load(f)['cards']
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            return []
+
+    def alis_yap(self):
+        """AlÄ±ÅŸ iÅŸlemi yap"""
+        if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
+            self.player.money -= 1000
+            return True
+        return False
+
+    def satis_yap(self):
+        """SatÄ±ÅŸ iÅŸlemi yap"""
+        if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
+            self.player.money += 1000
+            self.player.shares -= 1
+            return True
+        return False
+
+    def olay_guncelle(self):
+        """OlaylarÄ± gÃ¼ncelle"""
+        current_time = time.time()
+        for event in self.events:
+            if 'start_time' in event and current_time - event['start_time'] > event.get('duration', 0):
+                self.generate_new_event()
+
+    def generate_new_event(self):
+        """Yeni olay oluÅŸtur"""
+        event_types = ['market_change', 'resource_discovery', 'crisis']
+        new_event = {
+            'type': random.choice(event_types),
+            'start_time': time.time(),
+            'duration': random.randint(30, 180)
+        }
+        self.events.append(new_event)
+
+    def update(self):
+        """Oyun durumunu gÃ¼ncelle"""
+        current_time = time.time()
+        if current_time - self.last_update < self.update_interval:
+            return
+        self.last_update = current_time
+        
+        if self.is_paused:
+            return
+            
+        # Oyun gÃ¼ncellemeleri
+        if self.held_keys['left mouse']:
+            self.alis_yap()
+            
+        if self.held_keys['right mouse']:
+            self.satis_yap()
+            
+        # AR gÃ¼ncellemeleri
+        if self.is_mobile and self.ar_manager:
+            self.ar_manager.ar_nesne_guncelle()
+            
+        # Olay gÃ¼ncellemeleri
+        self.olay_guncelle()
+
+class FastFinanceTournament:
+    def __init__(self):
+        self.scenarios = self.load_scenarios()
+        self.current_scenario = None
+        self.player_score = 0
+        self.scenario_start_time = 0
+        self.scenario_duration = 300  # 5 dakika
+        
+    def load_scenarios(self):
+        with open('short_matches.json', 'r', encoding='utf-8') as f:
+            return json.load(f)['scenarios']
+            
+    def start_scenario(self, scenario_id):
+        self.current_scenario = next(s for s in self.scenarios if s['id'] == scenario_id)
+        self.scenario_start_time = time.time()
+        
+    def submit_answer(self, option_id):
+        if self.current_scenario is None:
+            return False
+            
+        if isinstance(self.current_scenario, dict) and 'correct_answer' in self.current_scenario:
+            if self.current_scenario['correct_answer'] == option_id:
+                self.player_score += 100
+                return True
+        return False
+        
+    def check_time_up(self):
+        elapsed = time.time() - self.scenario_start_time
+        return elapsed >= self.scenario_duration
+
+def start_game():
+    app = Ursina()
+    
+    # Oyun modlarÄ±
+    battle_royale = BattleRoyaleMode()
+    tournament = FastFinanceTournament()
+    
+    # Ana menÃ¼
+    menu = Entity(parent=camera.ui)
+    Button(text='Battle Royale Modu', scale=(0.3, 0.1), position=(0, 0.2), parent=menu)
+    Button(text='HÄ±zlÄ± Finans TurnuvasÄ±', scale=(0.3, 0.1), position=(0, -0.2), parent=menu)
+    
+    app.run()
+
+def generate_player_event(player=None):
+    if player is None:
+        return None
+        
+    events = [
+        {
+            'type': 'market_opportunity',
+            'description': 'Yeni bir yatÄ±rÄ±m fÄ±rsatÄ±!',
+            'effect': lambda p: setattr(p, 'market_multiplier', p.market_multiplier * 1.2)
+        },
+        {
+            'type': 'resource_discovery',
+            'description': 'Yeni kaynaklar keÅŸfedildi!',
+            'effect': lambda p: setattr(p, 'resource_efficiency', p.resource_efficiency * 1.15)
+        }
+    ]
+    return random.choice(events)
+
+def show_player_event(event=None):
+    if event is None or not isinstance(event, dict):
+        return None
+        
+    popup = WindowPanel(
+        title='Yeni Olay!',
+        content=event.get('description', ''),
+        scale=(0.5, 0.3),
+        position=(0, 0)
+    )
+    return popup
+
+def apply_player_event(player=None, event=None):
+    if player is None or event is None or not isinstance(event, dict):
+        return
+        
+    effect = event.get('effect')
+    if effect and callable(effect):
+        effect(player)
+
+class FinAsisGame(Ursina):
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
+import os
+import random
+from datetime import datetime, timedelta
+import json
+from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
+from ursina.prefabs.first_person_controller import FirstPersonController
+from . import FinansalSimulasyonOyunu
+from .ar_module import ARManager
+from .locales.locale_manager import LocaleManager
+import time
+import platform
+from typing import Dict, List, Optional
+import threading
+from game_integration import GameIntegration
+
+# Django ayarlarını yükle
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
+
+# Oyun içindeki şirket modelleri yerine sınıflar kullan
+class GameCompany:
+    def __init__(self, name, sector):
+        self.name = name
+        self.sector = sector
+
+class GameDepartment:
+    def __init__(self, name, company):
+        self.name = name
+        self.company = company
+
+class GameEmployee:
+    def __init__(self, name, department):
+        self.name = name
+        self.department = department
+
+# Oyun ayarları
+game_settings = {
+    'difficulty': 'normal',  # easy, normal, hard
+    'market_update_interval': 5,  # saniye
+    'event_chance': 0.2,  # 0-1 arası
+    'starting_money': 100000,
+    'tutorial_enabled': True,
+    'sound_enabled': True,
+    'music_enabled': True,
+    'fullscreen': False,
+    'show_tooltips': True,
+    'auto_save': True,
+    'save_interval': 300  # saniye
+}
+
+# Piyasa durumu
+market_state = {
+    'trend': 'stable',  # bull, stable, bear
+    'volatility': 0.5,  # 0-1 arası
+    'last_update': datetime.now(),
+    'market_events': []
+}
+
+# UI bileşenleri
+ui = {
+    'main_panel': None,
+    'portfolio_panel': None,
+    'market_panel': None,
+    'stats_panel': None,
+    'quest_panel': None,
+    'notification_panel': None,
+    'tooltip_panel': None,
+    'menu_panel': None,
+    'text_elements': {},
+    'buttons': {},
+    'charts': {},
+    'notifications': []
+}
+
+# Oyuncu verileri
+player = {
+    'id': 1,
+    'name': 'John Doe',
+    'money': game_settings['starting_money'],
+    'portfolio': {
+        'AAPL': {'shares': 10, 'price': 150, 'sector': 'tech'},
+        'GOOGL': {'shares': 5, 'price': 2000, 'sector': 'tech'},
+        'TSLA': {'shares': 8, 'price': 700, 'sector': 'auto'},
+        'MSFT': {'shares': 0, 'price': 300, 'sector': 'tech'},
+        'AMZN': {'shares': 0, 'price': 3000, 'sector': 'retail'},
+        'META': {'shares': 0, 'price': 250, 'sector': 'tech'},
+        'NFLX': {'shares': 0, 'price': 400, 'sector': 'media'},
+        'NVDA': {'shares': 0, 'price': 500, 'sector': 'tech'},
+        'JPM': {'shares': 0, 'price': 150, 'sector': 'finance'},
+        'BAC': {'shares': 0, 'price': 40, 'sector': 'finance'}
+    },
+    'stats': {
+        'total_trades': 0,
+        'successful_trades': 0,
+        'failed_trades': 0,
+        'profit_trades': 0,
+        'loss_trades': 0,
+        'total_profit': 0,
+        'total_loss': 0,
+        'best_trade': 0,
+        'worst_trade': 0,
+        'longest_holding': 0,
+        'shortest_holding': 0,
+        'risk_tolerance': 0.7,
+        'trading_style': 'balanced',  # aggressive, balanced, conservative
+        'debt_to_income': 0.0,  # Borç/gelir oranı
+        'portfolio_diversity': 0.0,  # Portföy çeşitliliği
+        'total_debt': 0,  # Toplam borç
+        'total_income': 0,  # Toplam gelir
+        'monthly_income': 0,  # Aylık gelir
+        'monthly_expenses': 0  # Aylık giderler
+    },
+    'skills': {
+        'analysis': 1,  # 1-10 arası
+        'risk_management': 1,
+        'market_knowledge': 1,
+        'technical_analysis': 1,
+        'fundamental_analysis': 1
+    },
+    'experience': {
+        'level': 1,
+        'current_xp': 0,
+        'next_level_xp': 1000,
+        'total_xp': 0
+    },
+    'achievements': [],
+    'active_quests': [],
+    'completed_quests': [],
+    'quest_progress': {},
+    'tutorial_progress': {
+        'basic_trading': False,
+        'market_analysis': False,
+        'risk_management': False,
+        'portfolio_management': False,
+        'technical_analysis': False
+    },
+    'settings': {
+        'notifications': True,
+        'sound': True,
+        'music': True,
+        'tooltips': True,
+        'auto_save': True
+    },
+    'trading_history': []
+}
+
+# Görev sistemi
+quest_system = {
+    'daily_quests': [],
+    'weekly_quests': [],
+    'achievement_quests': [],
+    'tutorial_quests': []
+}
+
+# Görev tanımlamaları
+quest_definitions = {
+    # Günlük görevler
+    'daily_trade': {
+        'id': 'daily_trade',
+        'title': 'Günlük İşlem',
+        'description': 'Bugün en az 1 hisse senedi alım veya satım işlemi yapın.',
+        'reward': {'money': 500, 'experience': 100},
+        'type': 'daily',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 1]) > 0
+    },
+    'daily_profit': {
+        'id': 'daily_profit',
+        'title': 'Günlük Kâr',
+        'description': 'Bugün portföyünüzden 1000$ kâr elde edin.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'daily',
+        'check_completion': lambda: calculate_daily_profit() >= 1000
+    },
+    'daily_diversity': {
+        'id': 'daily_diversity',
+        'title': 'Çeşitlilik Ustası',
+        'description': 'Portföy çeşitliliğinizi 0.7\'nin üzerine çıkarın.',
+        'reward': {'money': 800, 'experience': 150},
+        'type': 'daily',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.7
+    },
+    
+    # Haftalık görevler
+    'weekly_growth': {
+        'id': 'weekly_growth',
+        'title': 'Haftalık Büyüme',
+        'description': 'Portföyünüzü bu hafta %10 büyütün.',
+        'reward': {'money': 5000, 'experience': 500},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_weekly_growth() >= 0.1
+    },
+    'weekly_trades': {
+        'id': 'weekly_trades',
+        'title': 'Aktif Trader',
+        'description': 'Bu hafta en az 10 işlem yapın.',
+        'reward': {'money': 3000, 'experience': 400},
+        'type': 'weekly',
+        'check_completion': lambda: len([t for t in player['trading_history'] if (datetime.now() - t['timestamp']).days < 7]) >= 10
+    },
+    'weekly_risk': {
+        'id': 'weekly_risk',
+        'title': 'Risk Yöneticisi',
+        'description': 'Risk skorunuzu 0.5\'in altına düşürün.',
+        'reward': {'money': 4000, 'experience': 450},
+        'type': 'weekly',
+        'check_completion': lambda: calculate_risk_score() < 0.5
+    },
+    
+    # Başarı görevleri
+    'achievement_portfolio': {
+        'id': 'achievement_portfolio',
+        'title': 'Portföy Ustası',
+        'description': 'Portföyünüzü 200.000$ değerine ulaştırın.',
+        'reward': {'money': 10000, 'experience': 1000, 'achievement': 'portfolio_master'},
+        'type': 'achievement',
+        'check_completion': lambda: calculate_portfolio_value() >= 200000
+    },
+    'achievement_diversity': {
+        'id': 'achievement_diversity',
+        'title': 'Çeşitlilik Kralı',
+        'description': 'Portföy çeşitliliğinizi 0.9\'un üzerine çıkarın.',
+        'reward': {'money': 8000, 'experience': 800, 'achievement': 'diversity_king'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['portfolio_diversity'] > 0.9
+    },
+    'achievement_debt': {
+        'id': 'achievement_debt',
+        'title': 'Borçsuz Yaşam',
+        'description': 'Borç/gelir oranınızı 0.1\'in altına düşürün.',
+        'reward': {'money': 6000, 'experience': 600, 'achievement': 'debt_free'},
+        'type': 'achievement',
+        'check_completion': lambda: player['stats']['debt_to_income'] < 0.1
+    },
+    
+    # Eğitim görevleri
+    'tutorial_buy': {
+        'id': 'tutorial_buy',
+        'title': 'İlk Alım',
+        'description': 'İlk hisse senedi alım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'buy']) > 0
+    },
+    'tutorial_sell': {
+        'id': 'tutorial_sell',
+        'title': 'İlk Satım',
+        'description': 'İlk hisse senedi satım işleminizi yapın.',
+        'reward': {'money': 1000, 'experience': 200},
+        'type': 'tutorial',
+        'check_completion': lambda: len([t for t in player['trading_history'] if t['type'] == 'sell']) > 0
+    },
+    'tutorial_diversity': {
+        'id': 'tutorial_diversity',
+        'title': 'Çeşitlendirme',
+        'description': 'En az 3 farklı hisse senedine yatırım yapın.',
+        'reward': {'money': 2000, 'experience': 300},
+        'type': 'tutorial',
+        'check_completion': lambda: len([s for s in player['portfolio'].values() if s['shares'] > 0]) >= 3
+    }
+}
+
+# Görev UI elementleri
+quest_ui = {
+    'panel': None,
+    'quest_items': [],
+    'active_quests_text': None,
+    'completed_quests_text': None
+}
+
+class FinansalDunya(Entity):
+    def __init__(self, online_mode: bool = False):
+        super().__init__()
+        self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
+        self.oyuncu = FirstPersonController()
+        self.oyuncu.position = (0, 2, 0)
+        
+        # Dil yöneticisi
+        self.locale_manager = LocaleManager()
+        
+        # Platform kontrolü
+        self.platform = self.oyun.platform
+        self.is_mobile = self.platform in ['android', 'ios']
+        
+        # AR yöneticisini başlat (mobil platformlarda)
         if self.is_mobile:
             self.ar_manager = ARManager(use_aruco=True, show_camera=True)
             self.ar_manager.start()
