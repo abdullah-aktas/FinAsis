@@ -43,11 +43,13 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'channels',
+    'FinAsis.apps.common.apps.CommonConfig',
     'FinAsis.apps.accounts',
     'FinAsis.apps.accounting',
     'FinAsis.apps.games',
     'FinAsis.apps.games.game_app',
     'FinAsis.apps.finance',
+    'FinAsis.apps.finance.banking.apps.BankingConfig',
     'FinAsis.apps.finance.accounting.apps.AccountingConfig',
     'FinAsis.apps.blockchain',
     'FinAsis.apps.education',
@@ -178,14 +180,14 @@ CACHES = {
     }
 }
 
-# GİB (e-Fatura / e-Defter) ayarları
+# GÄ°B (e-Fatura / e-Defter) ayarlarÄ±
 GIB_USERNAME = config('GIB_USERNAME', default='testuser')
 GIB_PASSWORD = config('GIB_PASSWORD', default='testpass')
 GIB_TEST_MODE = config('GIB_TEST_MODE', default=True, cast=bool)
 GIB_EFATURA_BASE_URL = config('GIB_EFATURA_BASE_URL', default='https://efatura-test.efatura.gov.tr/api')
 GIB_EDEFTER_BASE_URL = config('GIB_EDEFTER_BASE_URL', default='https://edefter-test.edefter.gov.tr/api')
 
-# OCR/AI yerel ayarları
+# OCR/AI yerel ayarlarÄ±
 USE_GOOGLE_VISION = config('USE_GOOGLE_VISION', default=False, cast=bool)
 STT_ENABLED = config('STT_ENABLED', default=False, cast=bool)
 VOSK_MODEL_PATH = config('VOSK_MODEL_PATH', default='')

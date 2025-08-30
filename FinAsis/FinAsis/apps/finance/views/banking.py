@@ -220,4 +220,51 @@ def bank_summary(request):
         'recent_transactions': recent_transactions,
     }
     
-    return render(request, 'finance/bank_summary.html', context) 
+    return render(request, 'finance/bank_summary.html', context)
+from django.contrib import messages
+from django.utils.dateparse import parse_date
+import csv, io
+
+from FinAsis.apps.finance.banking.models import BankTransaction, BankAccount as CoreBankAccount
+from FinAsis.apps.common.models import AuditLog
+from django.contrib.auth.decorators import login_required
+from FinAsis.apps.permissions.decorators import permission_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+@login_required
+@permission_required('finance.add_transaction')
+def bank_import(request):
+    company = getattr(getattr(request.user, 'employee', None), 'company', None)
+    if not company:
+        messages.error(request, _('Şirket bilgisi bulunamadı.'))
+        return redirect('finance:bank_summary')
+    accounts = CoreBankAccount.objects.filter(company=company, is_active=True).order_by('bank__name')
+    preview, created = None, 0
+    if request.method == 'POST' and request.FILES.get('file'):
+        f = request.FILES['file']
+        try: data = f.read().decode('utf-8')
+        except: data = f.read().decode('latin-1')
+        rows = list(csv.DictReader(io.StringIO(data)))
+        preview = rows[:20]
+        if request.POST.get('confirm') == '1':
+            acc = get_object_or_404(CoreBankAccount, pk=request.POST.get('account_id'), company=company)
+            for r in rows:
+                raw_date = r.get('date') or r.get('tarih') or r.get('Date') or r.get('Tarih')
+                raw_desc = r.get('description') or r.get('açıklama') or r.get('Description') or r.get('Açıklama')
+                raw_amount = r.get('amount') or r.get('tutar') or r.get('Amount') or r.get('Tutar')
+                if not (raw_date and raw_amount): continue
+                dt = parse_date(str(raw_date).split()[0])
+                try: signed = float(str(raw_amount).replace(',','.')); amt = abs(signed)
+                except: continue
+                tx = 'deposit' if signed >= 0 else 'withdrawal'
+                BankTransaction.objects.create(
+                    company=company, transaction_date=dt, description=raw_desc or '',
+                    transaction_type=tx,
+                    destination_account=acc if tx=='deposit' else None,
+                    source_account=acc if tx=='withdrawal' else None,
+                    amount=amt, is_reconciled=False
+                ); created += 1
+            AuditLog.log_action(obj=acc, action='bank_csv_import', user=request.user, ip=request.META.get('REMOTE_ADDR'), payload={'rows': len(rows), 'created': created})
+            messages.success(request, _('CSV içe aktarma tamamlandı. Oluşturulan işlem: {0}').format(created))
+            return redirect('finance:bank_summary')
+    return render(request, 'finance/bank_import.html', {'accounts': accounts, 'preview': preview, 'created': created})

@@ -9,13 +9,13 @@ from django.utils.translation import gettext_lazy as _
 class BankingConfig(AppConfig):
     """Bankacılık uygulaması yapılandırması"""
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'finance.banking'
+    name = 'FinAsis.apps.finance.banking'
     verbose_name = _('Bankacılık')
     label = 'finance_banking'  # Benzersiz etiket
     
     def ready(self):
         """Uygulama başlatıldığında yapılacak işlemler"""
         try:
-            import finance.banking.signals  # noqa
+            import FinAsis.apps.finance.banking.signals  # noqa
         except ImportError:
-            pass 
+            pass

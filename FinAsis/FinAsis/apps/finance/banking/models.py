@@ -47,7 +47,7 @@ class BankAccount(BaseModel, AuditableMixin):
     company = models.ForeignKey(
         Company, 
         on_delete=models.CASCADE,
-        related_name="bank_accounts",
+        related_name="banking_bank_accounts",
         verbose_name=_("Şirket")
     )
     bank = models.ForeignKey(

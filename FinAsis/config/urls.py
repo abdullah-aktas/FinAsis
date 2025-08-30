@@ -64,6 +64,7 @@ urlpatterns = [
     path('education/', education, name='education'),
     path('pricing/', pricing, name='pricing'),
     path('legal/', legal, name='legal'),
+    path('common/', include('FinAsis.apps.common.urls')),
     path('legal/kvkk/', kvkk_view, name='kvkk'),
     path('contact/', contact, name='contact'),
     # i18n dil değiştirme endpointleri

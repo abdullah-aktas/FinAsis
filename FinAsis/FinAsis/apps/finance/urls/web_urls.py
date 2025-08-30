@@ -57,3 +57,5 @@ urlpatterns = [
     path('invoices/<int:pk>/edit/', InvoiceUpdateView.as_view(), name='invoice_update'),
     path('invoices/<int:pk>/delete/', InvoiceDeleteView.as_view(), name='invoice_delete'),
 ] 
+urlpatterns += [ path('bank-import/', banking.bank_import, name='bank_import'), ]
+
