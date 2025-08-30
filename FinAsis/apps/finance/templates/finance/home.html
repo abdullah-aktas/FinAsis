@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Finans - FinAsis{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Finans Özeti</h2>
+  {% if perms.finance.manage_transactions or perms.finance.manage_financial_settings %}
+    <div class="mb-3">
+      <a href="{% url 'accounting:auto_book' %}" class="btn btn-primary me-2">Otomatik Fiş Önizleme</a>
+      <a href="{% url 'accounting:rule_manager' %}" class="btn btn-outline-secondary">Kural Yöneticisi</a>
+    </div>
+  {% endif %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card p-3 h-100">
+        <div class="text-secondary">Banka Hesabı</div>
+        <div class="fs-4 fw-bold">{{ bank_account_count|default:0 }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 h-100">
+        <div class="text-secondary">İşlem Sayısı</div>
+        <div class="fs-4 fw-bold">{{ txn_count|default:0 }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 h-100">
+        <div class="text-secondary">E-Fatura</div>
+        <div class="fs-4 fw-bold">{{ einvoice_count|default:0 }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 h-100">
+        <div class="text-secondary">Fatura Toplamı</div>
+        <div class="fs-5 fw-bold">{{ invoice_totals.total_amount_sum|default:0|intcomma }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header">Son Banka İşlemleri</div>
+        <div class="card-body p-0">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Tip</th>
+                <th class="text-end">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in last_transactions %}
+                <tr>
+                  <td>{{ t.date }}</td>
+                  <td>{{ t.get_transaction_type_display }}</td>
+                  <td class="text-end">{{ t.amount|intcomma }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="text-center text-secondary py-3">Kayıt yok</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header">Son E-Faturalar</div>
+        <div class="card-body p-0">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>No</th>
+                <th>Durum</th>
+                <th class="text-end">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inv in last_invoices %}
+                <tr>
+                  <td>{{ inv.issue_date }}</td>
+                  <td>{{ inv.invoice_number }}</td>
+                  <td>{{ inv.get_status_display }}</td>
+                  <td class="text-end">{{ inv.total|intcomma }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-center text-secondary py-3">Kayıt yok</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

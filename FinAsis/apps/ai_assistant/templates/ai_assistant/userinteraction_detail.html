@@ -1,0 +1,59 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Kullanıcı Etkileşimi Detayı</h5>
+        <div>
+            <a href="{% url 'ai_assistant:userinteraction_update' object.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Düzenle
+            </a>
+            <a href="{% url 'ai_assistant:userinteraction_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Listeye Dön
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 200px;">Kullanıcı:</th>
+                        <td>{{ object.user }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sorgu:</th>
+                        <td>{{ object.query }}</td>
+                    </tr>
+                    <tr>
+                        <th>Yanıt:</th>
+                        <td>{{ object.response }}</td>
+                    </tr>
+                    <tr>
+                        <th>Oluşturulma Tarihi:</th>
+                        <td>{{ object.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Son Güncelleme:</th>
+                        <td>{{ object.updated_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Ek Bilgiler</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.additional_info %}
+                            <pre>{{ object.additional_info|linebreaks }}</pre>
+                        {% else %}
+                            <p class="text-muted">Ek bilgi bulunmamaktadır.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

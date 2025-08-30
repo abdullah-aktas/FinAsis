@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ders İlerlemem{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Ders İlerlemem</h1>
+            
+            <!-- Ders İlerleme Kartları -->
+            <div class="row">
+                {% for progress in progress_records %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ progress.course.title }}</h5>
+                                <p class="card-text">
+                                    <strong>Devam Durumu:</strong> {{ progress.attendance }}%<br>
+                                    <strong>Vize Notu:</strong> {{ progress.midterm_grade|default:"-" }}<br>
+                                    <strong>Final Notu:</strong> {{ progress.final_grade|default:"-" }}<br>
+                                    <strong>Ortalama:</strong> {{ progress.average_grade|default:"-" }}<br>
+                                    <strong>Harf Notu:</strong> {{ progress.letter_grade|default:"-" }}
+                                </p>
+                                
+                                <!-- İlerleme Çubuğu -->
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-primary" 
+                                         role="progressbar" 
+                                         style="width: {{ progress.attendance }}%"
+                                         aria-valuenow="{{ progress.attendance }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ progress.attendance }}%
+                                    </div>
+                                </div>
+                                
+                                <!-- Durum Badge -->
+                                <span class="badge bg-{{ progress.status|status_color }}">
+                                    {{ progress.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">
+                                    Kayıt Tarihi: {{ progress.course.enrollment_date|date:"d.m.Y" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Henüz ders kaydınız bulunmamaktadır.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Genel İstatistikler -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Genel Not Ortalaması</h6>
+                            <h2 class="text-primary">{{ gpa|default:"-" }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Tamamlanan Krediler</h6>
+                            <h2 class="text-success">{{ completed_credits|default:"0" }}/{{ total_credits|default:"0" }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Aktif Ders Sayısı</h6>
+                            <h2 class="text-info">{{ active_courses_count|default:"0" }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

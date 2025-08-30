@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Kayıt Oluştur - FinAsis{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2>Yeni Blockchain Kaydı</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Referans</label>
+      <input name="reference" class="form-control" required />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">İçerik (Hash alınacak)</label>
+      <textarea name="payload" rows="6" class="form-control" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Durum</label>
+      <select name="status" class="form-select">
+        <option value="pending">pending</option>
+        <option value="anchored">anchored</option>
+        <option value="verified">verified</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a href="{% url 'blockchain:record_list' %}" class="btn btn-secondary">Listeye Dön</a>
+  </form>
+</div>
+{% endblock %}

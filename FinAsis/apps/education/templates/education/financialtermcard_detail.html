@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}{{ card.term }}{% endblock %}
+{% block content %}
+<h1>{{ card.term }}</h1>
+<p><strong>Açıklama:</strong> {{ card.description }}</p>
+{% if card.example %}<p><strong>Örnek:</strong> {{ card.example }}</p>{% endif %}
+<a href="{% url 'education:financialtermcard_edit' card.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'education:financialtermcard_delete' card.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'education:financialtermcard_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

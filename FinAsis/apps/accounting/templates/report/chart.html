@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gelir-Gider Grafiği</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>{{ company.name }} - Aylık Gelir / Gider Grafiği</h2>
+    <canvas id="reportChart" width="800" height="400"></canvas>
+
+    <script>
+        fetch("/accounting/report/chart/")
+        .then(response => response.json())
+        .then(data => {
+            const labels = Object.keys(data).reverse();
+            const income = labels.map(label => data[label].income);
+            const expense = labels.map(label => data[label].expense);
+
+            const ctx = document.getElementById('reportChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Gelir (₺)',
+                            data: income,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        },
+                        {
+                            label: 'Gider (₺)',
+                            data: expense,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+    "blocks": {
+        "office": {
+            "name": "Ofis",
+            "cost": 5000,
+            "efficiency": 1.2,
+            "size": [2, 2, 2],
+            "color": [0.8, 0.8, 1.0],
+            "description": "Yönetim ve idari işler için ofis binası",
+            "required_workers": ["accountant"],
+            "production": 0,
+            "maintenance_cost": 500
+        },
+        "factory": {
+            "name": "Fabrika",
+            "cost": 10000,
+            "efficiency": 1.5,
+            "size": [3, 3, 3],
+            "color": [0.7, 0.7, 0.7],
+            "description": "Üretim tesisi",
+            "required_workers": ["worker"],
+            "production": 100,
+            "maintenance_cost": 1000
+        },
+        "store": {
+            "name": "Mağaza",
+            "cost": 8000,
+            "efficiency": 1.3,
+            "size": [2, 2, 2],
+            "color": [1.0, 0.8, 0.8],
+            "description": "Satış merkezi",
+            "required_workers": ["sales"],
+            "production": 0,
+            "maintenance_cost": 800
+        },
+        "warehouse": {
+            "name": "Depo",
+            "cost": 6000,
+            "efficiency": 1.0,
+            "size": [3, 2, 3],
+            "color": [0.8, 0.8, 0.8],
+            "description": "Stok depolama alanı",
+            "required_workers": [],
+            "production": 0,
+            "maintenance_cost": 400
+        }
+    }
+} 

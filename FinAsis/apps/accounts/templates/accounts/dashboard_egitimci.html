@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Eğitimci Dashboard{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2>Eğitimci Dashboard</h2>
+    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada eğitimcilere özel içeriklere ulaşabilirsiniz.</p>
+    <!-- Eğitimciye özel içerikler buraya -->
+</div>
+{% endblock %} 

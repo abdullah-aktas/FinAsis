@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}FinAsis - Finansal Asistanınız{% endblock %}
+
+{% block content %}
+<div class="card text-center py-5 px-3 shadow-sm" style="margin-top:2rem; border-radius:1rem;">
+    <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" height="80" class="mb-3">
+    <h1 class="fw-bold" style="color:#007a5e; font-size:2.5rem;">Finansal Geleceğinizi Akıllı Asistanınızla Yönetin</h1>
+    <p style="font-size:1.2rem; color:#009873; margin-bottom:2rem;">Yatırım, analiz, eğitim ve daha fazlası tek platformda!</p>
+    <a href="/dashboard/" class="btn btn-success btn-lg px-4">Hemen Başla</a>
+</div>
+
+<div class="row mt-5 g-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
+            <i class="bi bi-bar-chart-line display-5 text-warning mb-3"></i>
+            <h3 class="fw-bold">Akıllı Analiz</h3>
+            <p class="text-secondary">Yapay zeka destekli analizlerle piyasaları anında takip edin.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
+            <i class="bi bi-mortarboard display-5 text-success mb-3"></i>
+            <h3 class="fw-bold">Eğitim Modülleri</h3>
+            <p class="text-secondary">Her seviyeye uygun finansal eğitim içerikleriyle kendinizi geliştirin.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm text-center p-4 rounded-4">
+            <i class="bi bi-chat-dots display-5 text-primary mb-3"></i>
+            <h3 class="fw-bold">Canlı Destek</h3>
+            <p class="text-secondary">7/24 destek ve danışmanlık hizmetiyle her zaman yanınızdayız.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

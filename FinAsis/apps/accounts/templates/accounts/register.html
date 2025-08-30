@@ -1,0 +1,20 @@
+<!-- Dashboard tarzı kayıt sayfası -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kayıt Ol</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Kayıt Ol</h2>
+        <form method="post">
+            {% csrf_token %}
+            <p>Lütfen kullanıcı tipinizi seçiniz:</p>
+            {{ form.as_p }}
+            <button type="submit">Kayıt Ol</button>
+        </form>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Ödeme Sil{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Ödemeyi Sil</h2>
+    <p><strong>{{ payment.customer.first_name }} {{ payment.customer.last_name }} - {{ payment.amount }}₺</strong> ödemesini silmek istediğinize emin misiniz?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+        <a href="{% url 'accounting:payment_list' %}" class="btn btn-secondary">Vazgeç</a>
+    </form>
+</div>
+{% endblock %} 

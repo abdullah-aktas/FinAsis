@@ -1,0 +1,12 @@
+{% extends "management/base_admin.html" %}
+{% block admin_content %}
+<div class="container my-5">
+    <h2>Faturayı Sil</h2>
+    <p><strong>{{ invoice.id }}</strong> numaralı faturayı silmek istediğinize emin misiniz?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+        <a href="/yonetim/faturalar/" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+{% endblock %} 

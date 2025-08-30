@@ -1,0 +1,15 @@
+{% load bootstrap5 %}
+{% if form.non_field_errors %}
+  <div class="alert alert-danger">
+    {% for error in form.non_field_errors %}
+      <div>{{ error }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+<form method="{{ method|default:'post' }}" {% if enctype %}enctype="{{ enctype }}"{% endif %} class="needs-validation" novalidate>
+  {% csrf_token %}
+  {% bootstrap_form form layout='vertical' show_label=True show_help=True %}
+  <div class="d-flex justify-content-end mt-3">
+    <button type="submit" class="btn btn-primary">{{ submit_label|default:_('Kaydet') }}</button>
+  </div>
+</form> 

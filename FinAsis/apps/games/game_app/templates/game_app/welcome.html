@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}FinAsis - Hoş Geldiniz{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">FinAsis'e Hoş Geldiniz</h1>
+            <p class="lead mb-5">Finansal eğitim ve eğlence platformuna hoş geldiniz. Lütfen kullanıcı tipinizi seçin.</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h3 class="card-title">Öğrenci</h3>
+                            <p class="card-text">Finansal eğitim oyunları ve simülasyonlar ile öğrenin.</p>
+                            <a href="{% url 'game_app:student_dashboard' %}" class="btn btn-primary">Öğrenci Olarak Giriş</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-success">
+                        <div class="card-body">
+                            <h3 class="card-title">Yatırımcı</h3>
+                            <p class="card-text">Yatırım simülasyonları ve portföy yönetimi araçları.</p>
+                            <a href="{% url 'game_app:investor_dashboard' %}" class="btn btn-success">Yatırımcı Olarak Giriş</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h3 class="card-title">Sanal Şirket</h3>
+                            <p class="card-text">Sanal şirket yönetimi ve finansal strateji oyunları.</p>
+                            <a href="{% url 'game_app:virtual_company_dashboard' %}" class="btn btn-info">Sanal Şirket Olarak Giriş</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <h4>Neden FinAsis?</h4>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <i class="fas fa-gamepad fa-3x mb-3 text-primary"></i>
+                            <h5>Eğlenceli Öğrenme</h5>
+                            <p>Oyunlar ve simülasyonlar ile finansı öğrenin.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line fa-3x mb-3 text-success"></i>
+                            <h5>Gerçek Veriler</h5>
+                            <p>Gerçek piyasa verileri ile çalışın.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <i class="fas fa-users fa-3x mb-3 text-info"></i>
+                            <h5>Topluluk</h5>
+                            <p>Diğer kullanıcılarla etkileşime geçin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

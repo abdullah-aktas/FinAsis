@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}İşlem Ekle/Düzenle{% endblock %}
+{% block content %}
+<h1>İşlem Ekle/Düzenle</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Kaydet</button>
+  <a href="{% url 'finance:transaction_list' %}" class="btn btn-secondary">Vazgeç</a>
+</form>
+{% endblock %} 

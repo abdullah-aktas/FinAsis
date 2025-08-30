@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --main-bg: #F7FDFB;
+  --main-btn: #00B894;
+  --main-text: #263238;
+  --main-dark: #121212;
+  --main-light: #EAEAEA;
+  --ui-accent: #6366F1;
+  --ui-turq: #00CEC9;
+}
+body { background: var(--main-bg); color: var(--main-text); }
+.dashboard-grid {
+  display: grid;
+  grid-template-areas:
+    "ai kpi quick"
+    "timeline kpi edu";
+  grid-template-columns: 2fr 3fr 2fr;
+  grid-template-rows: auto 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.ai-panel { grid-area: ai; }
+.kpi-panel { grid-area: kpi; display: flex; gap: 1rem; }
+.timeline-panel { grid-area: timeline; }
+.edu-panel { grid-area: edu; }
+.quick-actions { grid-area: quick; display: flex; gap: 1rem; justify-content: flex-end; align-items: flex-start; }
+.card { background: #fff; border-radius: 1.2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 2rem; }
+.kpi-box { background: var(--ui-accent); color: #fff; border-radius: 1rem; padding: 1.2rem; flex: 1; text-align: center; font-size: 1.3rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.kpi-box.gelir { background: var(--main-btn); }
+.kpi-box.gider { background: #e17055; }
+.kpi-box.bakiye { background: var(--ui-turq); }
+.kpi-box.islem { background: #6366F1; }
+.asistan-bubble { background: #e0f7fa; color: var(--main-text); border-radius: 1rem; padding: 1.2rem 1.5rem; margin-top: 1rem; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(0,184,148,0.08); animation: bounce 1.2s infinite alternate; }
+@keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
+.quick-actions .btn-primary { background: var(--main-btn); color: #fff; border: none; border-radius: 8px; padding: 0.7rem 1.5rem; font-weight: 600; }
+.timeline-panel ul { padding-left: 1.2rem; }
+.edu-term { font-weight: 700; color: var(--ui-accent); font-size: 1.2rem; }
+.edu-desc { color: #555; font-size: 1rem; margin-top: 0.5rem; }
+.chatbot-panel { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; }
+.chatbot-bubble { background: #fff; color: var(--main-text); border-radius: 1.2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 1.2rem 1.5rem; font-size: 1.1rem; border: 2px solid var(--main-btn); animation: bounce 1.2s infinite alternate; }
+@media (max-width: 991px) {
+  .dashboard-grid { grid-template-areas: "ai" "kpi" "quick" "timeline" "edu"; grid-template-columns: 1fr; }
+  .chatbot-panel { position: static; margin-top: 2rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+  <div class="ai-panel card">
+    <h4>🤖 AI Asistan</h4>
+    <div class="asistan-bubble">Bugünkü önerin hazır! <br> "Gelir-gider dengen iyi gidiyor, harcamalarını gözden geçir."</div>
+  </div>
+  <div class="kpi-panel card">
+    <div class="kpi-box gelir">₺12.500 <span>Gelir</span></div>
+    <div class="kpi-box gider">₺3.200 <span>Gider</span></div>
+    <div class="kpi-box bakiye">₺9.300 <span>Bakiye</span></div>
+    <div class="kpi-box islem">18 <span>İşlem</span></div>
+  </div>
+  <div class="timeline-panel card">
+    <h5>📅 Bugünkü İşlemler</h5>
+    <ul>
+      <li>09:00 - Fatura #123 tahsil edildi</li>
+      <li>11:30 - Yeni gider eklendi</li>
+      <li>15:00 - Stok güncellendi</li>
+    </ul>
+  </div>
+  <div class="edu-panel card">
+    <h5>📘 Bugünün Finansal Terimi</h5>
+    <div class="edu-term">Net Kar Marjı</div>
+    <div class="edu-desc">Şirketin net karının toplam gelire oranı.</div>
+  </div>
+  <div class="quick-actions">
+    <button class="btn-primary">Yeni Fatura</button>
+    <button class="btn-primary">Yeni Gider</button>
+    <button class="btn-primary">Stok Girişi</button>
+  </div>
+  <div class="chatbot-panel">
+    <div class="chatbot-bubble">
+      Merhaba Abdullah Bey 👋 Bugün tahsil edilecek 3 fatura var. Hatırlatayım mı?
+    </div>
+  </div>
+</div>
+{% endblock %} 

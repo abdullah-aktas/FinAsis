@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}AI Asistan Paneli - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}!</h1>
+            <p class="lead">Yapay zeka destekli finansal analiz, tahmin ve önerilere anında ulaşın.</p>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-chat-dots"></i></div>
+                    <h6 class="card-title">Finansal Sohbet</h6>
+                    <p class="card-text">AI asistan ile finansal sorularınızı sorun, anında yanıt alın.</p>
+                    <a href="/ai-assistant/chat/" class="btn btn-primary w-100">Sohbete Başla</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-graph-up"></i></div>
+                    <h6 class="card-title">Piyasa Analizi</h6>
+                    <p class="card-text">Güncel piyasa analizleri ve trendleri görüntüleyin.</p>
+                    <a href="/ai-assistant/market_analysis_list/" class="btn btn-primary w-100">Analizleri Gör</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-lightbulb"></i></div>
+                    <h6 class="card-title">AI Önerileri</h6>
+                    <p class="card-text">Yapay zekadan kişiselleştirilmiş finansal öneriler alın.</p>
+                    <a href="/ai-assistant/recommendation_list/" class="btn btn-primary w-100">Önerileri Gör</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-bar-chart"></i></div>
+                    <h5 class="card-title">Tahminler & Raporlar</h5>
+                    <a href="/ai-assistant/financial_report_list/" class="btn btn-outline-primary mt-2 w-100">Raporları Görüntüle</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-question-circle"></i></div>
+                    <h5 class="card-title">Yardım & Rehber</h5>
+                    <a href="/help/" class="btn btn-outline-primary mt-2 w-100">Yardım & SSS</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info mt-5" role="alert">
+        <strong>Yardıma mı ihtiyacınız var?</strong> AI Asistan modülünün kullanımıyla ilgili <a href="/help/" class="alert-link">yardım sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
+    </div>
+    <div class="text-center text-muted mt-4" style="font-size:1.1rem;">
+        <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
+        Henüz hiç analiz başlatmadınız mı? Hemen yukarıdan bir özellik seçin ve kullanmaya başlayın!
+    </div>
+</div>
+{% endblock %} 

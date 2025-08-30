@@ -1,0 +1,23 @@
+{
+  "login_title": "Têketin",
+  "login_button": "Têketin",
+  "asistan_tip": "Rapora hat û dercama rojane ya te amade ye! Ji bo hûrguliyê têkeve.",
+  "dashboard_title": "Pêşgeha Seranser",
+  "ai_panel_title": "Asîstana Zekayê Sûnî",
+  "ai_panel_message": "Pêşniyara te ya îro amade ye!",
+  "kpi_income": "Hatê Rojane",
+  "kpi_expense": "Dercama Rojane",
+  "kpi_balance": "Bilanço",
+  "kpi_transactions": "Hejmara Danûstandinê",
+  "timeline_title": "Xeta Demê ya Îro",
+  "edu_card_title": "Termê Aborî ya Îro: Marja Fêyda Net",
+  "quick_invoice": "Faturaya Nû",
+  "quick_expense": "Dercama Nû",
+  "quick_stock": "Tomara Stokê",
+  "footer_copyright": "© 2025 FinAsis. Hemû maf parastî ye.",
+  "lang_select": "Ziman",
+  "cookie_message": "Ev malper cookies di bikar tîne. Bi berdewamkirinê, tu qebûl dikî.",
+  "cookie_accept": "Qebûl bike",
+  "cookie_decline": "Red bike",
+  "contrast_toggle": "Kontrasta Bilind"
+} 

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Muhasebe Paneli - FinAsis{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}!</h1>
+            <p class="lead">Muhasebe modülünde tüm finansal kayıtlarınızı kolayca yönetin, özetleri görün ve hızlıca yeni işlem başlatın.</p>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-cash-stack"></i></div>
+                    <h6 class="card-title">Toplam Gelir</h6>
+                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ 0,00</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#e17055;"><i class="bi bi-credit-card-2-front"></i></div>
+                    <h6 class="card-title">Toplam Gider</h6>
+                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ 0,00</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-receipt"></i></div>
+                    <h6 class="card-title">Faturalar</h6>
+                    <p class="card-text">Faturalarınızı yönetin</p>
+                    <a href="/accounting/invoice_list/" class="btn btn-link btn-sm">Faturalara Git</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-bank"></i></div>
+                    <h6 class="card-title">Banka İşlemleri</h6>
+                    <p class="card-text">Banka hareketlerinizi takip edin</p>
+                    <a href="/accounting/banktransaction_list/" class="btn btn-link btn-sm">Banka İşlemlerine Git</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Fatura Oluştur</h5>
+                    <a href="/accounting/invoice_form/" class="btn btn-primary mt-2 w-100">Fatura Oluştur</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Banka İşlemi</h5>
+                    <a href="/accounting/banktransaction_form/" class="btn btn-primary mt-2 w-100">Banka İşlemi Ekle</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Müşteri Ekle</h5>
+                    <a href="/accounting/customer_form/" class="btn btn-primary mt-2 w-100">Müşteri Ekle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info mt-5" role="alert">
+        <strong>Yardıma mı ihtiyacınız var?</strong> Muhasebe modülünün kullanımıyla ilgili <a href="/help/" class="alert-link">yardım sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
+    </div>
+    <div class="text-center text-muted mt-4" style="font-size:1.1rem;">
+        <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
+        Henüz hiç kayıt eklemediniz mi? Hemen yukarıdan yeni bir işlem başlatın!
+    </div>
+</div>
+{% endblock %} 

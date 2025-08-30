@@ -1,0 +1,33 @@
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-question-circle me-2"></i>Yardım Merkezi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="helpRoleSelect" class="form-label">Rolünüzü seçin:</label>
+          <select id="helpRoleSelect" class="form-select" aria-label="Kullanıcı rolü">
+            <option value="genel">Genel Kullanıcı</option>
+            <option value="admin">Yönetici</option>
+            <option value="muhasebeci">Muhasebeci</option>
+            <option value="calisan">Çalışan</option>
+            <option value="ogrenci">Öğrenci</option>
+            <option value="ogretmen">Öğretmen</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <input type="text" id="helpSearch" class="form-control" placeholder="Sorunuzu veya anahtar kelimeyi yazın..." aria-label="Yardım arama">
+        </div>
+        <div id="helpContent" class="help-content" tabindex="0" style="max-height:350px;overflow:auto;">
+          <!-- Yardım içeriği buraya dinamik olarak gelecek -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="/help/" class="btn btn-link">Tüm Dökümantasyon</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div> 

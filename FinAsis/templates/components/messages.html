@@ -1,0 +1,35 @@
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert">
+        {% if message.tags == 'success' %}
+          <i class="bi bi-check-circle-fill text-success me-2 fs-4"></i>
+          <div>
+            <strong>Başarılı!</strong> {{ message }}
+          </div>
+        {% elif message.tags == 'error' or message.tags == 'danger' %}
+          <i class="bi bi-x-circle-fill text-danger me-2 fs-4"></i>
+          <div>
+            <strong>Hata!</strong> {{ message }}
+          </div>
+        {% else %}
+          <i class="bi bi-info-circle-fill text-primary me-2 fs-4"></i>
+          <div>{{ message }}</div>
+        {% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1080; min-width: 300px;">
+    {% for message in messages %}
+      <div class="toast align-items-center text-bg-{{ message.tags|default:'info' }} border-0 mb-2" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="4000">
+        <div class="d-flex">
+          <div class="toast-body">
+            {{ message }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %} 

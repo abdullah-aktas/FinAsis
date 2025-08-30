@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Risk Uyarısı - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis platformunda yatırım yaparken dikkat edilmesi gereken riskler ve uyarılar. SPK düzenlemelerine uygun risk bildirimi.{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-top:2rem;">
+    <h2 style="color:var(--main-orange);">Risk Uyarısı</h2>
+    <p>Finansal işlemler ve yatırımlar risk içerir. Lütfen aşağıdaki uyarıları dikkate alınız.</p>
+    <ul>
+        <li>Yatırım araçlarının değeri artabileceği gibi azalabilir.</li>
+        <li>Geçmiş performans, gelecekteki sonuçların garantisi değildir.</li>
+        <li>Yatırım kararlarınızı kendi araştırmalarınıza ve uzman görüşlerine göre veriniz.</li>
+    </ul>
+    <div class="mt-4">
+        <a href="/legal/" class="btn btn-sm">Yasal Bilgiler</a>
+        <a href="/dashboard/" class="btn">Panele Dön</a>
+        <a href="/" class="btn btn-light" style="color:var(--main-blue); background:#fff;">Ana Sayfa</a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+    {% if original and original.pk %}
+        <a href="{% url 'accounting:edefter_send_gib' original.pk %}" class="btn btn-success">GİB'e Gönder</a>
+        <a href="{% url 'accounting:edefter_get_berat' original.pk %}" class="btn btn-info">Berat Al</a>
+    {% endif %}
+{% endblock %} 
