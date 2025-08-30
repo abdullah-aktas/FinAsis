@@ -1,1 +1,0 @@
-# Beyanname ile ilgili servis fonksiyonları burada tanımlanacak. 

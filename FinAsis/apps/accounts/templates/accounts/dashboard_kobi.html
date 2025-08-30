@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block title %}KOBİ Dashboard{% endblock %}
-{% block content %}
-<div class="container my-5">
-    <h2>KOBİ Dashboard</h2>
-    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada KOBİ'lere özel modüllere ve raporlara ulaşabilirsiniz.</p>
-    <!-- KOBİ'ye özel içerikler buraya -->
-</div>
-{% endblock %} 

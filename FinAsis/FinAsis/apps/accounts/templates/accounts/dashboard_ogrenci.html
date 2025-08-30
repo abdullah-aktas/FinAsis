@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Öğrenci Dashboard{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2>Öğrenci Dashboard</h2>
+    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada öğrencilere özel içeriklere ulaşabilirsiniz.</p>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <div class="text-secondary">Son Ödevler</div>
+          <div class="fs-4 fw-bold">{{ son_faturalar|length|default:0 }}</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <div class="text-secondary">Tamamlanan Quiz</div>
+          <div class="fs-4 fw-bold">{{ trend_gelirler|length|default:0 }}</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <div class="text-secondary">Rozetler</div>
+          <div class="fs-4 fw-bold">{{ son_basari|length|default:0 }}</div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %} 
