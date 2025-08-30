@@ -1,5 +1,0 @@
-[33me85e9ba[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Accounting: e-Fatura/e-Arşiv, e-Defter, beyanname ve rapor servisleri; model, admin, URL ve view güncellemeleri; e-Archive alanı ve migration eklendi
-[33m619ae67[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Text fonksiyonunda parantez hatası düzeltildi
-[33m030d888[m AR ile marker'a göre ürün, anlık stok güncelleme ve işlem sonrası stok gösterimi eklendi
-[33m38f7c78[m Güncel gönderim
-[33m184299a[m  FinAsis MVP dosyaları yüklendi

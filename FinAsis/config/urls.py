@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse, JsonResponse
@@ -54,6 +55,7 @@ urlpatterns = [
     # Uygulama URL'leri
     path('accounting/', include('FinAsis.apps.accounting.urls')),
     path('accounts/', include('FinAsis.apps.accounts.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('games/', include('FinAsis.apps.games.urls')),
     path('finance/', include('FinAsis.apps.finance.urls')),
     path('ai-assistant/', include('FinAsis.apps.ai_assistant.urls')),
@@ -64,9 +66,13 @@ urlpatterns = [
     path('legal/', legal, name='legal'),
     path('legal/kvkk/', kvkk_view, name='kvkk'),
     path('contact/', contact, name='contact'),
+    # i18n dil değiştirme endpointleri
+    path('i18n/', include('django.conf.urls.i18n')),
     # Basit yardım içeriği API'si (dev placeholder)
     path('yonetim/api/help-content/', help_content_api, name='help_content'),
     path('favicon.ico', RedirectView.as_view(url='/static/common/favicon.ico', permanent=True)),
+    # Yardım sayfası
+    path('help/', TemplateView.as_view(template_name='help/index.html'), name='help'),
 
     # Sağlık ve dokümantasyon
     path('health/', health_check),

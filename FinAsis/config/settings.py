@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'FinAsis.apps.accounts',
     'FinAsis.apps.accounting',
     'FinAsis.apps.games',
+    'FinAsis.apps.games.game_app',
     'FinAsis.apps.finance',
     'FinAsis.apps.finance.accounting.apps.AccountingConfig',
     'FinAsis.apps.blockchain',
