@@ -74,6 +74,7 @@
           </div>
           <a class="list-group-item list-group-item-action" id="lnk_muhtasar" href="/accounting/declarations/muhtasar/">Muhtasar</a>
           <a class="list-group-item list-group-item-action" id="lnk_babs" href="/accounting/declarations/babs/">BA/BS</a>
+          <a class="list-group-item list-group-item-action" id="lnk_aging" href="/accounting/reports/ar-aging/">Alacak Yaşlandırma</a>
         </div>
       </div>
       <div class="col-md-6">
@@ -133,6 +134,7 @@ function applyFilters(){
   document.getElementById('lnk_kdv_pdf').href = kdvBase + qs({period, company, pdf:1});
   document.getElementById('lnk_muhtasar').href = '/accounting/declarations/muhtasar/' + qs({period, company});
   document.getElementById('lnk_babs').href = '/accounting/declarations/babs/' + qs({period, company});
+  document.getElementById('lnk_aging').href = '/accounting/reports/ar-aging/' + qs({company});
 }
 document.addEventListener('DOMContentLoaded', loadCompanies);
 </script>

@@ -10,6 +10,7 @@ from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils import timezone
+from decimal import Decimal
 # from crm.models.customer import Customer  # Doğru import yolu
 # from .models import Customer  # Aynı dosyada tanımlıysa
 
@@ -195,6 +196,9 @@ class Voucher(models.Model):
         return (totals['debit_sum'] or Decimal('0')) == (totals['credit_sum'] or Decimal('0'))
 
     def post(self):
+        # Çift onay (örnek kontrol): toplam tutar 100k üstüyse referansta 'APPROVED2' anahtarı aransın
+        if self.total_amount > Decimal('100000') and (not self.reference or 'APPROVED2' not in self.reference):
+            raise ValidationError(_("Çift onay gereklidir (APPROVED2)."))
         if not self.is_balanced():
             raise ValidationError(_("Fiş borç ve alacak toplamları eşit değil."))
         self.state = 'posted'
@@ -276,6 +280,31 @@ class FinancialReport(models.Model):
         return f"{self.name} ({self.start_date.strftime('%d.%m.%Y')} - {self.end_date.strftime('%d.%m.%Y')})"
 
 
+class GLBalance(models.Model):
+    """Genel muhasebe özet bakiyeleri (aylık) tutar.
+
+    Not: İlk sürüm için başlangıç bakiyesi 0 varsayılır ve dönem içi borç/alacak ve dönem sonu bakiye hesaplanır.
+    """
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='gl_balances', verbose_name=_("Şirket"))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.PROTECT, related_name='gl_balances', verbose_name=_("Mali Yıl"))
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='gl_balances', verbose_name=_("Hesap"))
+    currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
+    year = models.PositiveIntegerField(verbose_name=_('Yıl'))
+    month = models.PositiveIntegerField(verbose_name=_('Ay'))
+    begin_balance = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Açılış Bakiyesi'))
+    debit_total = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Borç Toplam'))
+    credit_total = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Alacak Toplam'))
+    end_balance = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Kapanış Bakiyesi'))
+
+    class Meta:
+        verbose_name = _('GL Bakiye')
+        verbose_name_plural = _('GL Bakiyeleri')
+        unique_together = [('company', 'account', 'currency', 'year', 'month')]
+        ordering = ['company', 'year', 'month', 'account__code']
+
+    def __str__(self):
+        return f"{self.company} {self.year}-{self.month:02d} {self.account.code}"
+
 class Invoice(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name=_('Müşteri'))
     invoice_number = models.CharField(max_length=50, unique=True, verbose_name=_('Fatura Numarası'))
@@ -323,6 +352,28 @@ class AutoBookingRule(models.Model):
     class Meta:
         verbose_name = _('Otomatik Fişleme Kuralı')
         verbose_name_plural = _('Otomatik Fişleme Kuralları')
+        ordering = ['company', 'priority', 'name']
+        unique_together = [('company', 'name')]
+
+    def __str__(self):
+        return f"{self.company} - {self.name}"
+
+
+class PostingRule(models.Model):
+    """JSON tabanlı kural tanımı (belge → fiş şablonu)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='posting_rules', verbose_name=_('Şirket'))
+    name = models.CharField(max_length=100, verbose_name=_('Kural Adı'))
+    document_type = models.CharField(max_length=50, verbose_name=_('Belge Tipi'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Aktif'))
+    # Koşul ve satır formülleri
+    definition = models.JSONField(default=dict, verbose_name=_('Kural Tanımı'))
+    priority = models.PositiveIntegerField(default=100, verbose_name=_('Öncelik'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Muhasebe Kuralı')
+        verbose_name_plural = _('Muhasebe Kuralları')
         ordering = ['company', 'priority', 'name']
         unique_together = [('company', 'name')]
 
