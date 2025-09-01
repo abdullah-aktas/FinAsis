@@ -6,9 +6,13 @@ from .views_extra.expense_views import *
 from .views_extra.product_views import *
 from .views_extra.sale_views import *
 from .views_extra.payment_views import *
+from .views_extra.vendor_views import *
+from .views_extra.purchase_invoice_views import *
+from .views_extra.vendor_payment_views import *
 from .views_extra.bankaccount_views import *
 from .views_extra.banktransaction_views import *
 from .views_extra.report_views import *
+from .views_extra.scenario_views import *
 from .services.edefter_service import send_edefter_to_gib, get_edefter_berat
 from .models import EDefter
 from django.shortcuts import get_object_or_404, redirect

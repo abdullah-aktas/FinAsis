@@ -150,6 +150,30 @@ class Currency(models.Model):
         return f"{self.code} - {self.name}"
 
 
+class AccountingPeriod(models.Model):
+    """Mali dönem (ay bazında) ve kapanış kontrolü."""
+    STATUS_CHOICES = (
+        ('open', _('Açık')),
+        ('closed', _('Kapalı')),
+    )
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='accounting_periods', verbose_name=_('Şirket'))
+    fiscal_year = models.ForeignKey(FiscalYear, on_delete=models.PROTECT, related_name='accounting_periods', verbose_name=_('Mali Yıl'))
+    year = models.PositiveIntegerField(verbose_name=_('Yıl'))
+    month = models.PositiveIntegerField(verbose_name=_('Ay'))
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open', verbose_name=_('Durum'))
+    closed_at = models.DateTimeField(blank=True, null=True, verbose_name=_('Kapanış Zamanı'))
+    closed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_('Kapatılan Kullanıcı'))
+
+    class Meta:
+        verbose_name = _('Muhasebe Dönemi')
+        verbose_name_plural = _('Muhasebe Dönemleri')
+        unique_together = [('company', 'year', 'month')]
+        ordering = ['company', '-year', '-month']
+
+    def __str__(self):
+        return f"{self.company} {self.year}-{self.month:02d} ({self.get_status_display()})"
+
+
 class Voucher(models.Model):
     STATE_CHOICES = (
         ('draft', _('Taslak')),
@@ -201,6 +225,10 @@ class Voucher(models.Model):
             raise ValidationError(_("Çift onay gereklidir (APPROVED2)."))
         if not self.is_balanced():
             raise ValidationError(_("Fiş borç ve alacak toplamları eşit değil."))
+        # Dönem kapanış kontrolü
+        period = AccountingPeriod.objects.filter(company=self.company, year=self.date.year, month=self.date.month).first()
+        if period and period.status == 'closed':
+            raise ValidationError(_("Seçili fiş tarihi kapalı bir döneme ait. Önce dönemi açın."))
         self.state = 'posted'
         self.save()
 

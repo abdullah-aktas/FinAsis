@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount, InvoiceItem, BankTransaction, CompanyDeleteLog, EDefter
+from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount, InvoiceItem, BankTransaction, CompanyDeleteLog, EDefter, Vendor, PurchaseInvoice, VendorPayment, BankStatement, BankStatementLine
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
@@ -134,6 +134,15 @@ class FinAsisAdminSite(admin.AdminSite):
 # Eğer tam özelleştirilmiş bir panel isterseniz yukarıdaki satırı aktif edin ve urls.py'da admin.site yerine bu nesneyi kullanın.
 
 admin.site.register(BankTransaction)
+@admin.register(BankStatement)
+class BankStatementAdmin(admin.ModelAdmin):
+    list_display = ("bank_account", "period_start", "period_end", "opening_balance", "closing_balance")
+    list_filter = ("bank_account",)
+
+@admin.register(BankStatementLine)
+class BankStatementLineAdmin(admin.ModelAdmin):
+    list_display = ("statement", "date", "description", "amount", "matched_transaction")
+    list_filter = ("statement",)
 
 @admin.register(CompanyDeleteLog)
 class CompanyDeleteLogAdmin(admin.ModelAdmin):
@@ -146,3 +155,22 @@ class EDefterAdmin(admin.ModelAdmin):
     list_display = ("year", "month", "type", "status", "created_at")
     list_filter = ("year", "month", "type", "status")
     search_fields = ("year", "month", "type")
+
+# --- AP Admin ---
+@admin.register(Vendor)
+class VendorAdmin(admin.ModelAdmin):
+    list_display = ("name", "tax_number", "phone", "email", "company", "is_active")
+    search_fields = ("name", "tax_number", "email")
+    list_filter = ("company", "is_active")
+
+@admin.register(PurchaseInvoice)
+class PurchaseInvoiceAdmin(admin.ModelAdmin):
+    list_display = ("invoice_number", "company", "vendor", "issue_date", "total_amount", "currency", "status")
+    search_fields = ("invoice_number", "vendor__name")
+    list_filter = ("company", "currency", "issue_date", "status")
+
+@admin.register(VendorPayment)
+class VendorPaymentAdmin(admin.ModelAdmin):
+    list_display = ("vendor", "amount", "payment_method", "payment_date", "related_invoice")
+    list_filter = ("company", "payment_method", "payment_date")
+    search_fields = ("vendor__name", "related_invoice__invoice_number")

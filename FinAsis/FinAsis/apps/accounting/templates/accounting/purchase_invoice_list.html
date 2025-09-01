@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h3>Alış Faturaları</h3>
+  <a class="btn btn-primary btn-sm mb-2" href="{% url 'accounting:purchase_invoice_create' %}">Yeni Alış Faturası</a>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th>Fatura No</th>
+        <th>Tedarikçi</th>
+        <th>Tarih</th>
+        <th>Vade</th>
+        <th>Tutar</th>
+        <th>Durum</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in invoices %}
+        <tr>
+          <td><a href="{% url 'accounting:purchase_invoice_detail' inv.id %}">{{ inv.invoice_number }}</a></td>
+          <td>{{ inv.vendor.name }}</td>
+          <td>{{ inv.issue_date }}</td>
+          <td>{{ inv.due_date }}</td>
+          <td>{{ inv.total_amount }} {{ inv.currency }}</td>
+          <td>{{ inv.status }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">Kayıt bulunamadı</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+

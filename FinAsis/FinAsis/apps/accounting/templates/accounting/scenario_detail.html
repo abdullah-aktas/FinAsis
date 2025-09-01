@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h3>{{ scenario.name }}</h3>
+  <p><strong>Dönem:</strong> {{ scenario.start_date }} - {{ scenario.end_date }}</p>
+  <p><strong>Gelir Çarpanı:</strong> {{ scenario.revenue_multiplier }}</p>
+  <p><strong>Gider Çarpanı:</strong> {{ scenario.expense_multiplier }}</p>
+  <p><strong>Notlar:</strong> {{ scenario.notes }}</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:scenario_update' scenario.id %}">Düzenle</a>
+  <form class="d-inline" method="post" action="{% url 'accounting:scenario_delete' scenario.id %}">{% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+  </form>
+  <a class="btn btn-link btn-sm" href="{% url 'accounting:scenario_list' %}">Geri</a>
+</div>
+{% endblock %}
+
+

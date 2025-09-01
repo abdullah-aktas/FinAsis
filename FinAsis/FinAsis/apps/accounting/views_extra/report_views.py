@@ -7,7 +7,7 @@ from ..services.reports import (
     generate_yevmiye_defteri, generate_kebir_defteri, generate_mizan_defteri,
     generate_envanter_defteri, generate_kasa_defteri, generate_demirbas_defteri,
     generate_bilanco, generate_gelir_tablosu, generate_nakit_akisi_tablosu,
-    generate_ar_aging,
+    generate_ar_aging, generate_ap_aging,
     calculate_financial_ratios, trend_analysis, ai_financial_advice
 )
 from django.contrib.auth.decorators import login_required
@@ -85,6 +85,17 @@ def ar_aging_view(request: HttpRequest) -> HttpResponse:
     if 'pdf' in request.GET:
         return export_report_to_pdf(df, 'aging.pdf')
     return render(request, 'accounting/ar_aging.html', {'df': df, 'company': company, 'companies': companies})
+
+def ap_aging_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    company = Company.objects.get(pk=company_id) if company_id else companies.first()
+    df = generate_ap_aging(company)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, 'ap_aging.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, 'ap_aging.pdf')
+    return render(request, 'accounting/ap_aging.html', {'df': df, 'company': company, 'companies': companies})
 
 def kdv_xml_download(request: HttpRequest) -> HttpResponse:
     companies = Company.objects.filter(created_by=request.user)
@@ -280,6 +291,34 @@ def financial_analysis_view(request: HttpRequest) -> HttpResponse:
         'year': year,
         'month': month
     }) 
+
+def variance_analysis_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    company = Company.objects.get(pk=company_id) if company_id else companies.first()
+    period = request.GET.get('period', '2024-06')
+    # Basit sapma: gerçekleşen (Invoice+Expense) vs senaryo çarpanları
+    from ..models import PlanningScenario, Invoice, Expense
+    scenario_id = request.GET.get('scenario')
+    scenario = PlanningScenario.objects.filter(company=company, id=scenario_id).first() if scenario_id else PlanningScenario.objects.filter(company=company).first()
+    year, month = period.split('-')
+    inv_total = Invoice.objects.filter(company=company, issue_date__year=int(year), issue_date__month=int(month)).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    exp_total = Expense.objects.filter(company=company, expense_date__year=int(year), expense_date__month=int(month)).aggregate(Sum('amount'))['amount__sum'] or 0
+    actual_profit = float(inv_total) - float(exp_total)
+    if scenario:
+        plan_revenue = float(inv_total) * float(scenario.revenue_multiplier)
+        plan_expense = float(exp_total) * float(scenario.expense_multiplier)
+        plan_profit = plan_revenue - plan_expense
+    else:
+        plan_revenue = float(inv_total)
+        plan_expense = float(exp_total)
+        plan_profit = plan_revenue - plan_expense
+    df = pd.DataFrame([
+        {"Kalem": "Gelir", "Gerçek": float(inv_total), "Plan": plan_revenue, "Sapma": float(inv_total) - plan_revenue},
+        {"Kalem": "Gider", "Gerçek": float(exp_total), "Plan": plan_expense, "Sapma": float(exp_total) - plan_expense},
+        {"Kalem": "Kar", "Gerçek": actual_profit, "Plan": plan_profit, "Sapma": actual_profit - plan_profit},
+    ])
+    return render(request, 'accounting/variance_analysis.html', {'df': df, 'company': company, 'companies': companies, 'scenario': scenario, 'period': period})
 
 @login_required
 def auto_book_view(request: HttpRequest) -> HttpResponse:

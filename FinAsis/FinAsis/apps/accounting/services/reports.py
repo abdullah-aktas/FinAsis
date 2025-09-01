@@ -10,7 +10,7 @@ import pandas as pd
 from django.http import HttpResponse
 from ..models import Declaration
 from reportlab.pdfgen import canvas
-from ..models import Customer, Payment
+from ..models import Customer, Payment, Vendor, PurchaseInvoice, VendorPayment
 import json
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
@@ -180,6 +180,38 @@ def generate_ar_aging(company, as_of=None, buckets=(30, 60, 90)):
         else:
             bucket_vals[3] = outstanding
         row = {"Müşteri": str(c), "Toplam": outstanding}
+        row.update({bucket_names[i]: bucket_vals[i] for i in range(4)})
+        data.append(row)
+    return pd.DataFrame(data)
+
+def generate_ap_aging(company, as_of=None, buckets=(30, 60, 90)):
+    """Tedarikçi (AP) yaşlandırma raporu üretir."""
+    from django.utils.timezone import now
+    as_of = as_of or now().date()
+    data = []
+    vendors = Vendor.objects.filter(company=company)
+    for v in vendors:
+        inv_qs = PurchaseInvoice.objects.filter(company=company, vendor=v, issue_date__lte=as_of)
+        total_inv = inv_qs.aggregate(t=Sum('total_amount'))['t'] or 0
+        paid = VendorPayment.objects.filter(company=company, vendor=v, payment_date__lte=as_of).aggregate(t=Sum('amount'))['t'] or 0
+        outstanding = float(total_inv - paid)
+        if outstanding <= 0:
+            continue
+        oldest_due = inv_qs.order_by('due_date').first()
+        days_past = 0
+        if oldest_due and oldest_due.due_date:
+            days_past = max(0, (as_of - oldest_due.due_date).days)
+        bucket_names = [f"0-{buckets[0]}", f"{buckets[0]+1}-{buckets[1]}", f"{buckets[1]+1}-{buckets[2]}", f">{buckets[2]}"]
+        bucket_vals = [0.0, 0.0, 0.0, 0.0]
+        if days_past <= buckets[0]:
+            bucket_vals[0] = outstanding
+        elif days_past <= buckets[1]:
+            bucket_vals[1] = outstanding
+        elif days_past <= buckets[2]:
+            bucket_vals[2] = outstanding
+        else:
+            bucket_vals[3] = outstanding
+        row = {"Tedarikçi": str(v), "Toplam": outstanding}
         row.update({bucket_names[i]: bucket_vals[i] for i in range(4)})
         data.append(row)
     return pd.DataFrame(data)

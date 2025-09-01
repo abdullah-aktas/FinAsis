@@ -98,6 +98,27 @@ urlpatterns = [
     path('payments/<int:pk>/update/', views.payment_update, name='payment_update'),
     path('payments/<int:pk>/delete/', views.payment_delete, name='payment_delete'),
 
+    # AP (Vendors)
+    path('vendors/', views.vendor_list, name='vendor_list'),
+    path('vendors/create/', views.vendor_create, name='vendor_create'),
+    path('vendors/<int:pk>/', views.vendor_detail, name='vendor_detail'),
+    path('vendors/<int:pk>/update/', views.vendor_update, name='vendor_update'),
+    path('vendors/<int:pk>/delete/', views.vendor_delete, name='vendor_delete'),
+
+    # Purchase Invoices
+    path('purchase-invoices/', views.purchase_invoice_list, name='purchase_invoice_list'),
+    path('purchase-invoices/create/', views.purchase_invoice_create, name='purchase_invoice_create'),
+    path('purchase-invoices/<int:pk>/', views.purchase_invoice_detail, name='purchase_invoice_detail'),
+    path('purchase-invoices/<int:pk>/update/', views.purchase_invoice_update, name='purchase_invoice_update'),
+    path('purchase-invoices/<int:pk>/delete/', views.purchase_invoice_delete, name='purchase_invoice_delete'),
+
+    # Vendor Payments
+    path('vendor-payments/', views.vendor_payment_list, name='vendor_payment_list'),
+    path('vendor-payments/create/', views.vendor_payment_create, name='vendor_payment_create'),
+    path('vendor-payments/<int:pk>/', views.vendor_payment_detail, name='vendor_payment_detail'),
+    path('vendor-payments/<int:pk>/update/', views.vendor_payment_update, name='vendor_payment_update'),
+    path('vendor-payments/<int:pk>/delete/', views.vendor_payment_delete, name='vendor_payment_delete'),
+
     # BankAccount CRUD
     path('bankaccounts/', views.bankaccount_list, name='bankaccount_list'),
     path('bankaccounts/create/', views.bankaccount_create, name='bankaccount_create'),
@@ -151,6 +172,15 @@ urlpatterns = [
     path('declarations/muhtasar/', report_views.muhtasar_report_view, name='muhtasar_report'),
     path('declarations/babs/', report_views.babs_report_view, name='babs_report'),
     path('reports/ar-aging/', report_views.ar_aging_view, name='ar_aging'),
+    path('reports/ap-aging/', report_views.ap_aging_view, name='ap_aging'),
+    path('reports/variance/', report_views.variance_analysis_view, name='variance_analysis'),
+
+    # FP&A Scenarios
+    path('scenarios/', views.scenario_list, name='scenario_list'),
+    path('scenarios/create/', views.scenario_create, name='scenario_create'),
+    path('scenarios/<int:pk>/', views.scenario_detail, name='scenario_detail'),
+    path('scenarios/<int:pk>/update/', views.scenario_update, name='scenario_update'),
+    path('scenarios/<int:pk>/delete/', views.scenario_delete, name='scenario_delete'),
     path('declarations/kdv/xml/', report_views.kdv_xml_download, name='kdv_xml_download'),
     path('declarations/muhtasar/xml/', report_views.muhtasar_xml_download, name='muhtasar_xml_download'),
     path('declarations/babs/xml/', report_views.babs_xml_download, name='babs_xml_download'),

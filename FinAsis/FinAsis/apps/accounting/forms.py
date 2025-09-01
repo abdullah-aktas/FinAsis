@@ -1,5 +1,5 @@
 from django import forms
-from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount, BankTransaction
+from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount, BankTransaction, Vendor, PurchaseInvoice, VendorPayment, PlanningScenario
 
 """
 Tüm ana modeller için ModelForm tanımlarını içerir.
@@ -139,3 +139,63 @@ class BankTransactionForm(forms.ModelForm):
             'date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         } 
+
+class VendorForm(forms.ModelForm):
+    class Meta:
+        model = Vendor
+        exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
+        widgets = {
+            'company': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'tax_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class PlanningScenarioForm(forms.ModelForm):
+    class Meta:
+        model = PlanningScenario
+        exclude = ('created_at', 'updated_at')
+        widgets = {
+            'company': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'revenue_multiplier': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'expense_multiplier': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+class PurchaseInvoiceForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseInvoice
+        exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
+        widgets = {
+            'company': forms.Select(attrs={'class': 'form-control'}),
+            'vendor': forms.Select(attrs={'class': 'form-control'}),
+            'invoice_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'issue_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'total_amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'currency': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class VendorPaymentForm(forms.ModelForm):
+    class Meta:
+        model = VendorPayment
+        exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
+        widgets = {
+            'company': forms.Select(attrs={'class': 'form-control'}),
+            'vendor': forms.Select(attrs={'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
+            'related_invoice': forms.Select(attrs={'class': 'form-control'}),
+            'payment_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
