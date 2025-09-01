@@ -7,6 +7,7 @@ from ..services.reports import (
     generate_yevmiye_defteri, generate_kebir_defteri, generate_mizan_defteri,
     generate_envanter_defteri, generate_kasa_defteri, generate_demirbas_defteri,
     generate_bilanco, generate_gelir_tablosu, generate_nakit_akisi_tablosu,
+    generate_ar_aging,
     calculate_financial_ratios, trend_analysis, ai_financial_advice
 )
 from django.contrib.auth.decorators import login_required
@@ -73,6 +74,17 @@ def babs_report_view(request: HttpRequest) -> HttpResponse:
     if 'pdf' in request.GET:
         return export_report_to_pdf(df, f'babs_{period}.pdf')
     return render(request, 'accounting/babs_report.html', {'df': df, 'period': period})
+
+def ar_aging_view(request: HttpRequest) -> HttpResponse:
+    companies = Company.objects.filter(created_by=request.user)
+    company_id = request.GET.get('company')
+    company = Company.objects.get(pk=company_id) if company_id else companies.first()
+    df = generate_ar_aging(company)
+    if 'excel' in request.GET:
+        return export_report_to_excel(df, 'aging.xlsx')
+    if 'pdf' in request.GET:
+        return export_report_to_pdf(df, 'aging.pdf')
+    return render(request, 'accounting/ar_aging.html', {'df': df, 'company': company, 'companies': companies})
 
 def kdv_xml_download(request: HttpRequest) -> HttpResponse:
     companies = Company.objects.filter(created_by=request.user)

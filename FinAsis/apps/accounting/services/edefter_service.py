@@ -6,8 +6,14 @@ import logging
 defter_logger = logging.getLogger("edefter")
 
 def generate_yevmiye_defter(company, year, month):
-    # Yevmiye defteri için UBL-TR XML üretimi (örnek/mock)
+    # Basit UBL-TR benzeri XML stub
     return f"<YevmiyeDefteri><Yil>{year}</Yil><Ay>{month}</Ay></YevmiyeDefteri>"
+
+def package_edefter(company, year, month):
+    """e-Defter paketleme stub: XML ve berat içeriklerini birleştirir."""
+    yevmiye_xml = generate_yevmiye_defter(company, year, month)
+    berat_xml = f"<Berat><Yil>{year}</Yil><Ay>{month}</Ay></Berat>"
+    return (yevmiye_xml.encode('utf-8'), berat_xml.encode('utf-8'))
 
 def send_edefter_to_gib(edefter: EDefter):
     xml_data = edefter.xml_file.read()

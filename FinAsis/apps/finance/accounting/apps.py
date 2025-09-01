@@ -17,6 +17,6 @@ class AccountingConfig(AppConfig):
         """Uygulama başlatıldığında yapılacak işlemler"""
         # Signal handlers'ları import et
         try:
-            import finance.accounting.signals  # noqa
+            import FinAsis.apps.finance.accounting.signals  # noqa
         except ImportError:
             pass 

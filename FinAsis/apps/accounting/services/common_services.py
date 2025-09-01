@@ -4,16 +4,31 @@ Gerçek entegrasyonlar için ilgili modüllere taşınabilir.
 """
 
 def fetch_exchange_rates(base_currency="TRY"):
-    """Güncel döviz kurlarını çeker (şablon)."""
-    pass
+    """Güncel döviz kurlarını çeker (stub). Yerel cache/ayar üzerinden döner."""
+    # Basit sabit oranlar; gerçek entegrasyonda TCMB veya banka API'leri kullanılır
+    rates = {
+        "TRY": 1.0,
+        "USD": 32.0,
+        "EUR": 34.5,
+        "GBP": 40.0,
+    }
+    return {k: v / rates.get(base_currency, 1.0) for k, v in rates.items()}
 
 def calculate_financial_score(company):
     """Şirketin finansal skorunu hesaplar (şablon)."""
     pass
 
 def suggest_accounting_entry(company, context):
-    """Şirkete ve bağlama göre muhasebe kaydı önerir (şablon)."""
-    pass
+    """Basit kural: açıklamada 'satış' geçerse 600/391 alacak ve 100/102 borç önerir."""
+    text = (context or {}).get('description', '').lower()
+    amount = (context or {}).get('amount', 0)
+    if 'satış' in text or 'satis' in text:
+        return [
+            {"side": "D", "account_code": "100", "amount": amount},
+            {"side": "C", "account_code": "600", "amount": amount / 1.2},
+            {"side": "C", "account_code": "391", "amount": amount - (amount / 1.2)},
+        ]
+    return []
 
 def analyze_financial_data(company, data):
     """Finansal verileri analiz eder ve öneriler sunar (şablon)."""

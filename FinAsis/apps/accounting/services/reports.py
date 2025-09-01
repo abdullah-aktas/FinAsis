@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from datetime import date
 from ..models import Invoice, Expense
+from FinAsis.apps.finance.accounting.models import Voucher, VoucherLine, GLBalance, Account
 from django.db.models.functions import TruncMonth
 from collections import OrderedDict
 from django.db.models import Count
@@ -140,30 +141,101 @@ def generate_muhtasar_report(company, period):
     return pd.DataFrame(data)
 
 def generate_babs_report(company, period):
-    data = [{"Alışlar": 20000, "Satışlar": 15000}]
+    year, month = period.split('-')
+    invoices = Invoice.objects.filter(company=company, issue_date__year=int(year), issue_date__month=int(month))
+    grp = invoices.values('customer__id', 'customer__first_name', 'customer__last_name').annotate(total=Sum('total_amount')).order_by('-total')
+    rows = []
+    for g in grp:
+        rows.append({
+            "Müşteri": f"{g['customer__first_name']} {g['customer__last_name']}",
+            "Tutar": float(g['total'] or 0)
+        })
+    return pd.DataFrame(rows)
+
+
+def generate_ar_aging(company, as_of=None, buckets=(30, 60, 90)):
+    from django.utils.timezone import now
+    as_of = as_of or now().date()
+    data = []
+    customers = Customer.objects.filter(company=company)
+    for c in customers:
+        inv_qs = Invoice.objects.filter(company=company, customer=c, issue_date__lte=as_of)
+        total_inv = inv_qs.aggregate(t=Sum('total_amount'))['t'] or 0
+        paid = Payment.objects.filter(company=company, customer=c, payment_date__lte=as_of).aggregate(t=Sum('amount'))['t'] or 0
+        outstanding = float(total_inv - paid)
+        if outstanding <= 0:
+            continue
+        oldest_due = inv_qs.order_by('due_date').first()
+        days_past = 0
+        if oldest_due and oldest_due.due_date:
+            days_past = max(0, (as_of - oldest_due.due_date).days)
+        bucket_names = [f"0-{buckets[0]}", f"{buckets[0]+1}-{buckets[1]}", f"{buckets[1]+1}-{buckets[2]}", f">{buckets[2]}"]
+        bucket_vals = [0.0, 0.0, 0.0, 0.0]
+        if days_past <= buckets[0]:
+            bucket_vals[0] = outstanding
+        elif days_past <= buckets[1]:
+            bucket_vals[1] = outstanding
+        elif days_past <= buckets[2]:
+            bucket_vals[2] = outstanding
+        else:
+            bucket_vals[3] = outstanding
+        row = {"Müşteri": str(c), "Toplam": outstanding}
+        row.update({bucket_names[i]: bucket_vals[i] for i in range(4)})
+        data.append(row)
     return pd.DataFrame(data)
 
 def generate_yevmiye_defteri(company, year, month):
-    # Örnek/mock veri: Gerçek uygulamada muhasebe fişlerinden alınmalı
-    data = [
-        {"Tarih": f"{year}-{month:02d}-01", "Fiş No": "1", "Açıklama": "Açılış Fişi", "Borç": 10000, "Alacak": 10000},
-        {"Tarih": f"{year}-{month:02d}-05", "Fiş No": "2", "Açıklama": "Satış", "Borç": 5000, "Alacak": 5000},
-    ]
-    return pd.DataFrame(data)
+    qs = Voucher.objects.filter(company=company, date__year=year, date__month=month, state='posted').order_by('date', 'number')
+    rows = []
+    for v in qs:
+        for l in v.lines.all().order_by('line_no'):
+            rows.append({
+                "Tarih": v.date,
+                "Fiş No": v.number,
+                "Açıklama": v.description,
+                "Hesap Kodu": l.account.code,
+                "Hesap Adı": l.account.name,
+                "Borç": float(l.debit_amount or 0),
+                "Alacak": float(l.credit_amount or 0),
+            })
+    return pd.DataFrame(rows)
 
 def generate_kebir_defteri(company, year, month):
-    data = [
-        {"Hesap Kodu": "100", "Hesap Adı": "Kasa", "Borç Toplamı": 15000, "Alacak Toplamı": 12000, "Bakiye": 3000},
-        {"Hesap Kodu": "120", "Hesap Adı": "Alıcılar", "Borç Toplamı": 5000, "Alacak Toplamı": 2000, "Bakiye": 3000},
-    ]
-    return pd.DataFrame(data)
+    accounts = Account.objects.filter(company=company).order_by('code')
+    rows = []
+    for acc in accounts:
+        lines = VoucherLine.objects.filter(
+            voucher__company=company,
+            voucher__state='posted',
+            voucher__date__year=year,
+            voucher__date__month=month,
+            account=acc
+        )
+        debit = lines.aggregate(total=Sum('debit_amount'))['total'] or 0
+        credit = lines.aggregate(total=Sum('credit_amount'))['total'] or 0
+        balance = debit - credit
+        if debit or credit:
+            rows.append({
+                "Hesap Kodu": acc.code,
+                "Hesap Adı": acc.name,
+                "Borç Toplamı": float(debit),
+                "Alacak Toplamı": float(credit),
+                "Bakiye": float(balance),
+            })
+    return pd.DataFrame(rows)
 
 def generate_mizan_defteri(company, year, month):
-    data = [
-        {"Hesap Kodu": "100", "Hesap Adı": "Kasa", "Borç": 15000, "Alacak": 12000, "Bakiye": 3000},
-        {"Hesap Kodu": "120", "Hesap Adı": "Alıcılar", "Borç": 5000, "Alacak": 2000, "Bakiye": 3000},
-    ]
-    return pd.DataFrame(data)
+    balances = GLBalance.objects.filter(company=company, year=year, month=month).select_related('account').order_by('account__code')
+    rows = []
+    for b in balances:
+        rows.append({
+            "Hesap Kodu": b.account.code,
+            "Hesap Adı": b.account.name,
+            "Borç": float(b.debit_total or 0),
+            "Alacak": float(b.credit_total or 0),
+            "Bakiye": float((b.begin_balance or 0) + (b.debit_total or 0) - (b.credit_total or 0)),
+        })
+    return pd.DataFrame(rows)
 
 def generate_envanter_defteri(company, year, month):
     data = [

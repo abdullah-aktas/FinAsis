@@ -150,6 +150,7 @@ urlpatterns = [
     path('declarations/kdv/', report_views.kdv_report_view, name='kdv_report'),
     path('declarations/muhtasar/', report_views.muhtasar_report_view, name='muhtasar_report'),
     path('declarations/babs/', report_views.babs_report_view, name='babs_report'),
+    path('reports/ar-aging/', report_views.ar_aging_view, name='ar_aging'),
     path('declarations/kdv/xml/', report_views.kdv_xml_download, name='kdv_xml_download'),
     path('declarations/muhtasar/xml/', report_views.muhtasar_xml_download, name='muhtasar_xml_download'),
     path('declarations/babs/xml/', report_views.babs_xml_download, name='babs_xml_download'),

@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import (
     AccountType, Account, VoucherType, Voucher, VoucherLine,
-    Currency, FinancialReport, AutoBookingRule
+    Currency, FinancialReport, AutoBookingRule, GLBalance, PostingRule
 )
 
 
@@ -241,3 +241,17 @@ class AutoBookingRuleAdmin(admin.ModelAdmin):
     list_filter = ('company', 'nature', 'is_active')
     search_fields = ('name', 'keyword_pattern')
     ordering = ('company', 'priority', 'name')
+
+
+@admin.register(GLBalance)
+class GLBalanceAdmin(admin.ModelAdmin):
+    list_display = ("company", "year", "month", "account", "currency", "begin_balance", "debit_total", "credit_total", "end_balance")
+    list_filter = ("company", "year", "month", "currency")
+    search_fields = ("account__code", "account__name")
+
+
+@admin.register(PostingRule)
+class PostingRuleAdmin(admin.ModelAdmin):
+    list_display = ("company", "name", "document_type", "priority", "is_active")
+    list_filter = ("company", "document_type", "is_active")
+    search_fields = ("name",)
