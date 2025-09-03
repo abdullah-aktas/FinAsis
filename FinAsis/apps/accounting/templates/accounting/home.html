@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% block title %}Muhasebe Paneli - FinAsis{% endblock %}
 {% block content %}
@@ -5,7 +6,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="mb-2">Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}!</h1>
-            <p class="lead">Muhasebe modülünde tüm finansal kayıtlarınızı kolayca yönetin, özetleri görün ve hızlıca yeni işlem başlatın.</p>
+            <p class="lead">Muhasebe modülünde finansal durumunuzu kolayca takip edin, yeni işlem başlatın ve son hareketleri görün.</p>
         </div>
     </div>
     <div class="row g-4 mb-4">
@@ -14,7 +15,7 @@
                 <div class="card-body">
                     <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-cash-stack"></i></div>
                     <h6 class="card-title">Toplam Gelir</h6>
-                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ 0,00</p>
+                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ {{ total_income|floatformat:2 }}</p>
                 </div>
             </div>
         </div>
@@ -23,7 +24,7 @@
                 <div class="card-body">
                     <div class="mb-2" style="font-size:2rem; color:#e17055;"><i class="bi bi-credit-card-2-front"></i></div>
                     <h6 class="card-title">Toplam Gider</h6>
-                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ 0,00</p>
+                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ {{ total_expense|floatformat:2 }}</p>
                 </div>
             </div>
         </div>
@@ -77,6 +78,34 @@
             </div>
         </div>
     </div>
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4>Son Faturalar</h4>
+            <ul class="list-group mb-3">
+                {% for invoice in last_invoices %}
+                <li class="list-group-item">{{ invoice.invoice_number }} - {{ invoice.customer }} - ₺ {{ invoice.total_amount|floatformat:2 }} - {{ invoice.issue_date }}</li>
+                {% empty %}
+                <li class="list-group-item">Fatura bulunamadı.</li>
+                {% endfor %}
+            </ul>
+            <h4>Son Giderler</h4>
+            <ul class="list-group mb-3">
+                {% for expense in last_expenses %}
+                <li class="list-group-item">{{ expense.get_category_display }} - ₺ {{ expense.amount|floatformat:2 }} - {{ expense.expense_date }}</li>
+                {% empty %}
+                <li class="list-group-item">Gider bulunamadı.</li>
+                {% endfor %}
+            </ul>
+            <h4>Son Banka İşlemleri</h4>
+            <ul class="list-group">
+                {% for bt in last_banktransactions %}
+                <li class="list-group-item">{{ bt.description }} - ₺ {{ bt.amount|floatformat:2 }} - {{ bt.created_at|date:"d.m.Y H:i" }}</li>
+                {% empty %}
+                <li class="list-group-item">Banka işlemi bulunamadı.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
     <div class="alert alert-info mt-5" role="alert">
         <strong>Yardıma mı ihtiyacınız var?</strong> Muhasebe modülünün kullanımıyla ilgili <a href="/help/" class="alert-link">yardım sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
     </div>
@@ -85,4 +114,4 @@
         Henüz hiç kayıt eklemediniz mi? Hemen yukarıdan yeni bir işlem başlatın!
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

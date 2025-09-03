@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-primary animate__animated animate__fadeInDown">Blog</h1>
+    <p class="lead mb-4 animate__animated animate__fadeInUp">Finans, teknoloji ve girişimcilik alanında güncel içerikler ve uzman görüşleri.</p>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-bold">Güncel Haberler <span class="badge bg-success ms-2">Yeni</span></h5>
+          <p>Finans ve teknoloji dünyasından son gelişmeler.</p>
+          <a href="/blog/news/" class="btn btn-outline-success mt-2">Haberler</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-1s">
+          <h5 class="fw-bold">Uzman Görüşleri <span class="badge bg-warning text-dark ms-2">Analiz</span></h5>
+          <p>Uzmanlardan finansal analiz ve tavsiyeler.</p>
+          <a href="/blog/expert/" class="btn btn-outline-warning mt-2">Uzman Görüşleri</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-2s">
+          <h5 class="fw-bold">Girişimcilik <span class="badge bg-info ms-2">İlham</span></h5>
+          <p>Başarı hikayeleri ve girişimcilik ipuçları.</p>
+          <a href="/blog/startup/" class="btn btn-outline-info mt-2">Girişimcilik</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5">
+      <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">Yeni</span>
+      <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">İlham</span>
+      <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Analiz</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

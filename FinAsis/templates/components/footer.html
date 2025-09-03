@@ -1,38 +1,49 @@
 {% load i18n %}
-<!-- Bootstrap Icons CDN -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-<footer class="footer mt-auto py-3 bg-white border-top shadow-sm">
-  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-    <span class="text-muted">&copy; {{ now|date:'Y' }} FinAsis. {% trans "Tüm hakları saklıdır." %}</span>
-    <div class="d-flex align-items-center">
-      <a href="/pricing/" class="text-muted me-3">Fiyatlandırma</a>
-      <a href="/legal/" class="text-muted me-3">Yasal Bilgiler</a>
-      <a href="/legal/kvkk/" class="text-muted me-3">KVKK</a>
-      <a href="/terms/" class="text-muted me-3">Kullanım Şartları</a>
-      <span class="mx-2 text-muted">|</span>
-      <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="text-muted me-3" aria-label="LinkedIn">
-        <i class="bi bi-linkedin fs-5"></i>
-      </a>
-      <a href="https://www.instagram.com/finasisapp/" target="_blank" class="text-muted me-3" aria-label="Instagram">
-        <i class="bi bi-instagram fs-5"></i>
-      </a>
-      <a href="https://x.com/finasis" target="_blank" class="text-muted me-3" aria-label="X (Twitter)">
-        <i class="bi bi-twitter-x fs-5"></i>
-      </a>
-      <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="text-muted" aria-label="YouTube">
-        <i class="bi bi-youtube fs-5"></i>
-      </a>
+<footer class="footer bg-dark text-light pt-5 pb-3 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <h5 class="fw-bold mb-3">FinAsis</h5>
+        <p class="small">Yapay zeka destekli finansal yönetim ve eğitim platformu.</p>
+        <a href="/" class="d-block mb-2 text-light">Anasayfa</a>
+        <a href="/corporate/" class="d-block mb-2 text-light">Kurumsal</a>
+        <a href="/contact/" class="d-block mb-2 text-light">İletişim</a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <h6 class="fw-bold mb-3">Ürünler</h6>
+        <a href="/products/finans/" class="d-block text-light">Finansal Yönetim</a>
+        <a href="/products/egitim/" class="d-block text-light">Eğitim Modülü</a>
+        <a href="/products/blockchain/" class="d-block text-light">Blockchain</a>
+        <a href="/products/oyunlar/" class="d-block text-light">Oyunlaştırma</a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <h6 class="fw-bold mb-3">Çözümler</h6>
+        <a href="/solutions/entegrasyon/" class="d-block text-light">Entegrasyon</a>
+        <a href="/solutions/raporlama/" class="d-block text-light">Raporlama</a>
+        <a href="/solutions/analitik/" class="d-block text-light">Analitik</a>
+      </div>
+      <div class="col-md-3 mb-3">
+        <h6 class="fw-bold mb-3">Takip Edin</h6>
+        <div class="d-flex mb-2">
+          <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="text-light me-3" aria-label="LinkedIn"><i class="bi bi-linkedin fs-4"></i></a>
+          <a href="https://www.instagram.com/finasisapp/" target="_blank" class="text-light me-3" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+          <a href="https://x.com/finasis" target="_blank" class="text-light me-3" aria-label="X (Twitter)"><i class="bi bi-twitter-x fs-4"></i></a>
+          <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="text-light" aria-label="YouTube"><i class="bi bi-youtube fs-4"></i></a>
+        </div>
+        <a href="mailto:destek@finasis.com.tr" class="d-block text-light">destek@finasis.com.tr</a>
+      </div>
+    </div>
+    <hr class="border-secondary my-4">
+    <div class="row">
+      <div class="col-md-6 small">
+        &copy; {{ now|date:'Y' }} FinAsis. Tüm hakları saklıdır.
+      </div>
+      <div class="col-md-6 text-md-end small">
+        <a href="/legal/" class="text-light me-3">Yasal Bilgiler</a>
+        <a href="/legal/kvkk/" class="text-light me-3">KVKK</a>
+        <a href="/terms/" class="text-light me-3">Kullanım Şartları</a>
+        <a href="/privacy-policy/" class="text-light">Gizlilik Politikası</a>
+      </div>
     </div>
   </div>
-  <script>
-    // Tema toggle: basit örnek
-    (function(){
-      var btn = document.getElementById('theme-toggle');
-      if(!btn) return;
-      function setTheme(t){ document.documentElement.dataset.theme=t; localStorage.setItem('theme',t); btn.innerHTML = t==='dark'?'<i class="bi bi-brightness-high"></i>':'<i class="bi bi-moon-fill"></i>'; }
-      var saved = localStorage.getItem('theme')||'light'; setTheme(saved);
-      btn.addEventListener('click', function(){ setTheme((document.documentElement.dataset.theme||'light')==='dark'?'light':'dark'); });
-    })();
-  </script>
 </footer>

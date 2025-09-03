@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="display-4">AI Assistant</h1>
+  <p class="lead">Welcome to your AI-powered assistant dashboard.</p>
+  <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" class="mb-4" style="max-width:200px;">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">How can I help you today?</h5>
+      <p class="card-text">Start a chat, get recommendations, or analyze the market with AI tools.</p>
+      <a href="/ai-assistant/chat/" class="btn btn-primary">Start Chat</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

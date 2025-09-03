@@ -128,10 +128,64 @@
     }
 </style>
 {% endblock %}
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4 text-primary animate__animated animate__fadeInDown">FinAsis Satın Al & Kullanıma Başla</h2>
+                <p class="lead mb-4">FinAsis'i hemen satın alabilir ve kullanmaya başlayabilirsiniz. Aşağıdaki adımları takip edin:</p>
+                <ol class="list-group list-group-numbered mb-4 text-start">
+                    <li class="list-group-item">Kayıt olun veya giriş yapın: <a href="/accounts/register/" class="text-info">Kayıt Ol</a></li>
+                    <li class="list-group-item">Fiyatlandırma paketlerinden birini seçin ve ödeme yapın.</li>
+                    <li class="list-group-item">Ödeme sonrası lisansınız otomatik olarak aktive edilir.</li>
+                    <li class="list-group-item">Yönetim panelinden veya ana sayfadan FinAsis'i kullanmaya başlayın.</li>
+                    <li class="list-group-item">Her aşamada <a href="/support/" class="text-success">destek</a> ve <a href="/resources/" class="text-warning">rehber</a> alabilirsiniz.</li>
+                </ol>
+                <a href="/accounts/register/" class="btn btn-lg btn-primary me-2">Kullanıma Başla</a>
+                <a href="/contact/" class="btn btn-lg btn-outline-info">Kurumsal Teklif Al</a>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% block content %}
-<h2>Fiyatlandırma</h2>
-<p>FinAsis hizmet paketleri ve fiyatlandırma seçenekleri burada.</p>
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+    <div class="container">
+        <h1 class="display-5 fw-bold text-primary text-center animate__animated animate__fadeInDown">Fiyatlandırma</h1>
+        <p class="lead mb-4 text-center animate__animated animate__fadeInUp">İhtiyacınıza uygun paketler, şeffaf fiyatlar ve avantajlı çözümler.</p>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-success animate__animated animate__fadeInUp">
+                    <h5 class="fw-bold text-success">Başlangıç</h5>
+                    <p>Temel finansal yönetim araçları, ücretsiz destek.</p>
+                    <div class="fs-2 fw-bold text-success">Ücretsiz</div>
+                    <a href="/accounts/register/" class="btn btn-outline-success mt-2 w-100">Hemen Başla</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-info animate__animated animate__fadeInUp animate__delay-1s">
+                    <h5 class="fw-bold text-info">Profesyonel</h5>
+                    <p>Gelişmiş raporlama, AI analiz, e-dönüşüm modülleri.</p>
+                    <div class="fs-2 fw-bold text-info">₺299/ay</div>
+                    <a href="/accounts/register/" class="btn btn-outline-info mt-2 w-100">Ücretsiz Deneyin</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-warning animate__animated animate__fadeInUp animate__delay-2s">
+                    <h5 class="fw-bold text-warning">Kurumsal</h5>
+                    <p>Özel entegrasyonlar, öncelikli destek, eğitim ve danışmanlık.</p>
+                    <div class="fs-2 fw-bold text-warning">₺999/ay</div>
+                    <a href="/contact/" class="btn btn-outline-warning mt-2 w-100">Teklif Al</a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5 text-center">
+            <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">%100 Yerli</span>
+            <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">AI Destekli</span>
+            <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Güvenli</span>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}

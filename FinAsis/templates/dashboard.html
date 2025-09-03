@@ -53,37 +53,47 @@ body { background: var(--main-bg); color: var(--main-text); }
 
 {% block content %}
 <div class="dashboard-grid">
-  <div class="ai-panel card">
-    <h4>🤖 AI Asistan</h4>
-    <div class="asistan-bubble">Bugünkü önerin hazır! <br> "Gelir-gider dengen iyi gidiyor, harcamalarını gözden geçir."</div>
+  <div class="ai-panel card animate__animated animate__fadeInDown">
+    <h4>🤖 AI Asistan <span class="badge bg-success ms-2">Yeni</span></h4>
+    <div class="asistan-bubble animate__animated animate__pulse animate__infinite">Bugünkü önerin hazır! <br> "Gelir-gider dengen iyi gidiyor, harcamalarını gözden geçir."</div>
+    <div class="mt-3">
+      <span class="badge bg-info me-2">Kişiselleştirilmiş</span>
+      <span class="badge bg-warning text-dark">AI Destekli</span>
+    </div>
   </div>
-  <div class="kpi-panel card">
-    <div class="kpi-box gelir">₺12.500 <span>Gelir</span></div>
-    <div class="kpi-box gider">₺3.200 <span>Gider</span></div>
-    <div class="kpi-box bakiye">₺9.300 <span>Bakiye</span></div>
-    <div class="kpi-box islem">18 <span>İşlem</span></div>
+  <div class="kpi-panel card animate__animated animate__fadeInUp">
+    <div class="kpi-box gelir animate__animated animate__bounceIn">₺12.500 <span>Gelir</span></div>
+    <div class="kpi-box gider animate__animated animate__bounceIn animate__delay-1s">₺3.200 <span>Gider</span></div>
+    <div class="kpi-box bakiye animate__animated animate__bounceIn animate__delay-2s">₺9.300 <span>Bakiye</span></div>
+    <div class="kpi-box islem animate__animated animate__bounceIn animate__delay-3s">18 <span>İşlem</span></div>
+    <div class="mt-3">
+      <span class="badge bg-success me-2">Başarı Rozeti</span>
+      <span class="badge bg-primary">Aktif Kullanıcı</span>
+    </div>
   </div>
-  <div class="timeline-panel card">
+  <div class="timeline-panel card animate__animated animate__fadeInLeft">
     <h5>📅 Bugünkü İşlemler</h5>
     <ul>
-      <li>09:00 - Fatura #123 tahsil edildi</li>
-      <li>11:30 - Yeni gider eklendi</li>
-      <li>15:00 - Stok güncellendi</li>
+      <li>09:00 - Fatura #123 tahsil edildi <span class="badge bg-success ms-2">Tamamlandı</span></li>
+      <li>11:30 - Yeni gider eklendi <span class="badge bg-warning text-dark ms-2">Beklemede</span></li>
+      <li>15:00 - Stok güncellendi <span class="badge bg-info ms-2">Otomatik</span></li>
     </ul>
   </div>
-  <div class="edu-panel card">
-    <h5>📘 Bugünün Finansal Terimi</h5>
-    <div class="edu-term">Net Kar Marjı</div>
+  <div class="edu-panel card animate__animated animate__fadeInRight">
+    <h5>📘 Bugünün Finansal Terimi <span class="badge bg-info ms-2">Öğren &amp; Kazan</span></h5>
+    <div class="edu-term">Net Kar Marjı <span class="badge bg-success ms-2">Rozet Kazan</span></div>
     <div class="edu-desc">Şirketin net karının toplam gelire oranı.</div>
   </div>
-  <div class="quick-actions">
-    <button class="btn-primary">Yeni Fatura</button>
-    <button class="btn-primary">Yeni Gider</button>
-    <button class="btn-primary">Stok Girişi</button>
+  <div class="quick-actions animate__animated animate__fadeInUp animate__delay-2s">
+    <button class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Fatura</button>
+    <button class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Gider</button>
+    <button class="btn-primary animate__animated animate__pulse animate__infinite">Stok Girişi</button>
+    <a href="/ai-assistant/" class="btn btn-outline-info ms-2 animate__animated animate__bounce">AI Asistanı Kullan</a>
   </div>
-  <div class="chatbot-panel">
-    <div class="chatbot-bubble">
-      Merhaba Abdullah Bey 👋 Bugün tahsil edilecek 3 fatura var. Hatırlatayım mı?
+  <div class="chatbot-panel animate__animated animate__fadeIn animate__delay-3s">
+    <div class="chatbot-bubble animate__animated animate__pulse animate__infinite">
+      Merhaba Abdullah Bey 👋 Bugün tahsil edilecek <b>3 fatura</b> var. Hatırlatayım mı?<br>
+      <span class="badge bg-success mt-2">AI Destekli Hatırlatma</span>
     </div>
   </div>
 </div>

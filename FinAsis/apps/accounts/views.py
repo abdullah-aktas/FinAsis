@@ -153,8 +153,6 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user_type = form.cleaned_data['user_type']
-            user.user_type = user_type
             company = form.cleaned_data.get('company')
             new_company_name = form.cleaned_data.get('new_company_name')
             if not company and new_company_name:
@@ -163,8 +161,6 @@ def register(request):
             user.save()
             UserSettings.objects.create(user=user)
             # Kullanıcı tipine göre varsayılan abonelik ata
-            if user_type.default_subscription:
-                Subscription.objects.create(user=user, subscription_type=user_type.default_subscription)
             login(request, user)
             return redirect('/accounts/profile/')
     else:

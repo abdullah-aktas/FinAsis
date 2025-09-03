@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-success animate__animated animate__fadeInDown">Kılavuzlar</h1>
+    <p class="lead mb-4 animate__animated animate__fadeInUp">Adım adım rehberler ile kolay kullanım!</p>
+    <div class="card p-4 animate__animated animate__fadeInUp">
+      <h5 class="fw-bold">Başlangıç Kılavuzu</h5>
+      <ul class="list-group mb-3 text-start">
+        <li class="list-group-item">1. Kayıt ve giriş işlemleri <a href="/accounts/register/" class="text-info">Kayıt Ol</a></li>
+        <li class="list-group-item">2. Profil ve ayarların tamamlanması</li>
+        <li class="list-group-item">3. Finansal modüllerin kullanımı <a href="/finance/" class="text-success">Finans</a></li>
+        <li class="list-group-item">4. Muhasebe entegrasyonu <a href="/accounting/" class="text-warning">Muhasebe</a></li>
+        <li class="list-group-item">5. Destek ve yardım <a href="/help/" class="text-primary">Yardım</a></li>
+      </ul>
+      <h5 class="fw-bold mt-4">Sıkça Sorulan Sorular</h5>
+      <a href="/help/" class="btn btn-outline-primary">Yardım & SSS</a>
+    </div>
+    <div class="mt-5">
+      <span class="badge bg-success fs-6 animate__animated animate__bounce">Yardımcı</span>
+      <span class="badge bg-info fs-6 animate__animated animate__bounce">Kolay</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

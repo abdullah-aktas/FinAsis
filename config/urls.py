@@ -10,7 +10,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 # View'ları import et
-from .views import home, privacy_policy, terms_view, help_content_api, kvkk_view
+from .views import home, privacy_policy, terms_view, help_content_api, kvkk_view, finance_home, finance_reports, education_index, games_all, tradesim_play, tradesim_detail, blockchain, profile, investor_info_form
 from FinAsis.views import dashboard, education, pricing, legal, contact
 
 from FinAsis.apps.accounting.admin import FinAsisAdminSite
@@ -54,12 +54,21 @@ urlpatterns = [
 
     # Uygulama URL'leri
     path('accounting/', include('FinAsis.apps.accounting.urls')),
+        path('virtual_company/', include('FinAsis.apps.virtual_company.urls')),
     path('accounts/', include('FinAsis.apps.accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('games/', include('FinAsis.apps.games.urls')),
     path('finance/', include('FinAsis.apps.finance.urls')),
     path('ai-assistant/', include('FinAsis.apps.ai_assistant.urls')),
-    path('blockchain/', include('FinAsis.apps.blockchain.urls')),
+    path('blockchain/', blockchain, name='blockchain'),
+    path('finance/home/', finance_home, name='finance-home'),
+    path('finance/reports/', finance_reports, name='finance-reports'),
+    path('education/index/', education_index, name='education-index'),
+    path('games/all/', games_all, name='games-all'),
+    path('games/tradesim/play/', tradesim_play, name='tradesim-play'),
+    path('games/tradesim/detail/', tradesim_detail, name='tradesim-detail'),
+    path('accounts/profile/', profile, name='profile'),
+    path('investor_info_form/', investor_info_form, name='investor_info_form'),
     path('dashboard/', dashboard, name='dashboard'),
     path('education/', education, name='education'),
     path('pricing/', pricing, name='pricing'),
@@ -70,6 +79,35 @@ urlpatterns = [
     # i18n dil değiştirme endpointleri
     path('i18n/', include('django.conf.urls.i18n')),
     # Basit yardım içeriği API'si (dev placeholder)
+    # Ürünler
+    path('products/finans/', TemplateView.as_view(template_name='products/finans.html'), name='products-finans'),
+    path('products/egitim/', TemplateView.as_view(template_name='products/egitim.html'), name='products-egitim'),
+    path('products/blockchain/', TemplateView.as_view(template_name='products/blockchain.html'), name='products-blockchain'),
+    path('products/oyunlar/', TemplateView.as_view(template_name='products/oyunlar.html'), name='products-oyunlar'),
+    # Kurumsal
+    path('corporate/', TemplateView.as_view(template_name='corporate.html'), name='corporate'),
+        path('corporate/about/', TemplateView.as_view(template_name='corporate/about.html'), name='corporate-about'),
+        path('corporate/team/', TemplateView.as_view(template_name='corporate/team.html'), name='corporate-team'),
+        path('corporate/sustainability/', TemplateView.as_view(template_name='corporate/sustainability.html'), name='corporate-sustainability'),
+    # Çözümler
+    path('solutions/entegrasyon/', TemplateView.as_view(template_name='solutions/entegrasyon.html'), name='solutions-entegrasyon'),
+    path('solutions/raporlama/', TemplateView.as_view(template_name='solutions/raporlama.html'), name='solutions-raporlama'),
+    path('solutions/analitik/', TemplateView.as_view(template_name='solutions/analitik.html'), name='solutions-analitik'),
+    # Kaynaklar
+    path('resources/', TemplateView.as_view(template_name='resources.html'), name='resources'),
+        path('resources/guides/', TemplateView.as_view(template_name='resources/guides.html'), name='resources-guides'),
+        path('resources/docs/', TemplateView.as_view(template_name='resources/docs.html'), name='resources-docs'),
+        path('resources/training/', TemplateView.as_view(template_name='resources/training.html'), name='resources-training'),
+    # Destek
+    path('support/', TemplateView.as_view(template_name='support.html'), name='support'),
+        path('support/live/', TemplateView.as_view(template_name='support/live.html'), name='support-live'),
+        path('support/faq/', TemplateView.as_view(template_name='support/faq.html'), name='support-faq'),
+        path('support/tech/', TemplateView.as_view(template_name='support/tech.html'), name='support-tech'),
+    # Blog
+    path('blog/', TemplateView.as_view(template_name='blog.html'), name='blog'),
+        path('blog/news/', TemplateView.as_view(template_name='blog/news.html'), name='blog-news'),
+        path('blog/expert/', TemplateView.as_view(template_name='blog/expert.html'), name='blog-expert'),
+        path('blog/startup/', TemplateView.as_view(template_name='blog/startup.html'), name='blog-startup'),
     path('yonetim/api/help-content/', help_content_api, name='help_content'),
     path('favicon.ico', RedirectView.as_view(url='/static/common/favicon.ico', permanent=True)),
     # Yardım sayfası

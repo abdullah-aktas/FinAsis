@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-info animate__animated animate__fadeInDown">Blockchain Ürünleri</h1>
+    <p class="lead mb-4 animate__animated animate__fadeInUp">Finansal işlemlerde bütünlük, doğrulama ve güvenlik için blockchain teknolojisi.</p>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-bold">SHA-256 Kanıtlama <span class="badge bg-success ms-2">Güvenli</span></h5>
+          <p>Fatura, fiş ve e-defter için bütünlük kontrolleri.</p>
+          <a href="/blockchain/" class="btn btn-outline-success mt-2">Blockchain Paneli</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-1s">
+          <h5 class="fw-bold">Doğrulama Akışları <span class="badge bg-warning text-dark ms-2">Yeni</span></h5>
+          <p>İşlemlerinizin değişmezliğini ve doğruluğunu garanti edin.</p>
+          <a href="/finance/" class="btn btn-outline-warning mt-2">Finans Paneli</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-2s">
+          <h5 class="fw-bold">AI Destekli Blockchain <span class="badge bg-info ms-2">Akıllı</span></h5>
+          <p>Yapay zeka ile blockchain analizleri.</p>
+          <a href="/ai-assistant/" class="btn btn-outline-info mt-2">AI Asistanı</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5">
+      <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">Güvenli</span>
+      <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">AI Destekli</span>
+      <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Değişmezlik</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

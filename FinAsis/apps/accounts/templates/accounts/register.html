@@ -11,10 +11,44 @@
         <h2>Kayıt Ol</h2>
         <form method="post">
             {% csrf_token %}
-            <p>Lütfen kullanıcı tipinizi seçiniz:</p>
-            {{ form.as_p }}
+            {% if form.errors %}
+                <div class="form-errors">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ field.label }}: {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <label for="id_username">Kullanıcı Adı:</label>
+            {{ form.username }}
+            <label for="id_email">E-posta:</label>
+            {{ form.email }}
+            <label for="id_password1">Şifre:</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+                {{ form.password1 }}
+                <button type="button" onclick="togglePassword('id_password1')">Göster/Gizle</button>
+            </div>
+            <label for="id_password2">Şifre (Tekrar):</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+                {{ form.password2 }}
+                <button type="button" onclick="togglePassword('id_password2')">Göster/Gizle</button>
+            </div>
             <button type="submit">Kayıt Ol</button>
         </form>
     </div>
+    <script>
+    function togglePassword(id) {
+        var input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+        } else {
+            input.type = "password";
+        }
+    }
+    </script>
 </body>
 </html> 

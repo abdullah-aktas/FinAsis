@@ -238,6 +238,11 @@ class Payment(models.Model):
         verbose_name_plural = "Ödemeler"
         ordering = ['-payment_date']
 
+    # Basit onay alanları
+    approved = models.BooleanField(default=False, verbose_name="Onaylandı mı?")
+    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_payments', verbose_name="Onaylayan")
+    approved_at = models.DateTimeField(blank=True, null=True, verbose_name="Onay Zamanı")
+
 #Banka Hesabı modeli
 class BankAccount(models.Model):
     ACCOUNT_TYPES = [
@@ -317,6 +322,41 @@ class BankTransaction(models.Model):
         verbose_name_plural = "Banka Hareketleri"
         ordering = ['-date']
 
+class BankStatement(models.Model):
+    """Banka ekstresi başlığı."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='bank_statements', verbose_name="Şirket")
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='statements', verbose_name="Banka Hesabı")
+    period_start = models.DateField(verbose_name="Dönem Başlangıç")
+    period_end = models.DateField(verbose_name="Dönem Bitiş")
+    opening_balance = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Açılış Bakiyesi")
+    closing_balance = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Kapanış Bakiyesi")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Banka Ekstresi"
+        verbose_name_plural = "Banka Ekstreleri"
+        ordering = ['-period_start']
+
+    def __str__(self):
+        return f"{self.bank_account} [{self.period_start} - {self.period_end}]"
+
+class BankStatementLine(models.Model):
+    """Banka ekstresi satırı (mutabakat için)."""
+    statement = models.ForeignKey(BankStatement, on_delete=models.CASCADE, related_name='lines', verbose_name="Ekstre")
+    date = models.DateField(verbose_name="Tarih")
+    description = models.CharField(max_length=255, verbose_name="Açıklama", blank=True, null=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Tutar")
+    matched_transaction = models.ForeignKey(BankTransaction, on_delete=models.SET_NULL, null=True, blank=True, related_name='matched_statement_lines', verbose_name="Eşleşen Hareket")
+
+    class Meta:
+        verbose_name = "Banka Ekstresi Satırı"
+        verbose_name_plural = "Banka Ekstresi Satırları"
+        ordering = ['date', 'id']
+
+    def __str__(self):
+        return f"{self.date} - {self.amount}"
+
 class CompanyDeleteLog(models.Model):
     company = models.ForeignKey('Company', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
@@ -357,3 +397,141 @@ class Declaration(models.Model):
 
     def __str__(self):
         return f"{self.company} - {self.declaration_type} - {self.period}"
+
+# --- Accounts Payable (AP) Modelleri ---
+class Vendor(models.Model):
+    """Tedarikçi modeli (AP)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='vendors', verbose_name="Şirket")
+    name = models.CharField(max_length=255, verbose_name="Tedarikçi Adı")
+    tax_number = models.CharField(max_length=20, verbose_name="Vergi Numarası", blank=True, null=True)
+    email = models.EmailField(verbose_name="E-posta", blank=True, null=True)
+    phone = models.CharField(max_length=20, verbose_name="Telefon", blank=True, null=True)
+    address = models.TextField(verbose_name="Adres", blank=True, null=True)
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Güncellenme")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_vendors', verbose_name="Oluşturan Kullanıcı"
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_vendors', verbose_name="Güncelleyen Kullanıcı"
+    )
+
+    class Meta:
+        verbose_name = "Tedarikçi"
+        verbose_name_plural = "Tedarikçiler"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class PurchaseInvoice(models.Model):
+    """Tedarikçi faturası (AP faturası)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='purchase_invoices', verbose_name="Şirket")
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='purchase_invoices', verbose_name="Tedarikçi")
+    invoice_number = models.CharField(max_length=50, unique=True, verbose_name="Fatura Numarası")
+    issue_date = models.DateField(verbose_name="Fatura Tarihi")
+    due_date = models.DateField(verbose_name="Vade Tarihi", blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Toplam Tutar")
+    currency = models.CharField(max_length=10, default="TRY", verbose_name="Para Birimi")
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    status = models.CharField(max_length=20, choices=[
+        ('DRAFT', 'Taslak'),
+        ('APPROVED', 'Onaylandı'),
+        ('PAID', 'Ödendi'),
+        ('CANCELED', 'İptal Edildi'),
+    ], default='DRAFT', verbose_name="Durum")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Güncellenme")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_purchase_invoices', verbose_name="Oluşturan Kullanıcı"
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_purchase_invoices', verbose_name="Güncelleyen Kullanıcı"
+    )
+
+    class Meta:
+        verbose_name = "Alış Faturası"
+        verbose_name_plural = "Alış Faturaları"
+        ordering = ["-issue_date"]
+
+    def __str__(self):
+        return f"Alış Faturası {self.invoice_number} - {self.vendor}"
+
+
+class VendorPayment(models.Model):
+    """Tedarikçi ödemesi (AP ödeme)."""
+    PAYMENT_METHODS = [
+        ('NAKIT', 'Nakit'),
+        ('KREDIKARTI', 'Kredi Kartı'),
+        ('BANKA', 'Banka Transferi'),
+        ('CEK', 'Çek'),
+        ('DIGER', 'Diğer'),
+    ]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vendor_payments", verbose_name="Şirket")
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="payments", verbose_name="Tedarikçi")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Ödeme Tutarı")
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, verbose_name="Ödeme Yöntemi")
+    related_invoice = models.ForeignKey('PurchaseInvoice', on_delete=models.SET_NULL, blank=True, null=True, related_name="payments", verbose_name="İlgili Fatura")
+    payment_date = models.DateField(verbose_name="Ödeme Tarihi", auto_now_add=True)
+    description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_vendor_payments', verbose_name="Oluşturan Kullanıcı"
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_vendor_payments', verbose_name="Güncelleyen Kullanıcı"
+    )
+
+    class Meta:
+        verbose_name = "Tedarikçi Ödemesi"
+        verbose_name_plural = "Tedarikçi Ödemeleri"
+        ordering = ['-payment_date']
+
+    def __str__(self):
+        return f"{self.vendor} - {self.amount}₺"
+
+
+class AuditLog(models.Model):
+    """Basit denetim kaydı (GRC temel)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='audit_logs', verbose_name="Şirket")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Kullanıcı", related_name='accounting_audit_logs')
+    action = models.CharField(max_length=100, verbose_name="Aksiyon")
+    entity = models.CharField(max_length=100, verbose_name="Nesne")
+    entity_id = models.CharField(max_length=100, verbose_name="Nesne ID")
+    metadata = models.JSONField(default=dict, verbose_name="Ek Veri")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")
+
+    class Meta:
+        verbose_name = "Denetim Kaydı"
+        verbose_name_plural = "Denetim Kayıtları"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.company} {self.action} {self.entity}:{self.entity_id}"
+
+
+class PlanningScenario(models.Model):
+    """Basit FP&A senaryo modeli (gelir/gider çarpanları ile)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='planning_scenarios', verbose_name="Şirket")
+    name = models.CharField(max_length=100, verbose_name="Senaryo Adı")
+    start_date = models.DateField(verbose_name="Başlangıç Tarihi")
+    end_date = models.DateField(verbose_name="Bitiş Tarihi")
+    revenue_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=1.00, verbose_name="Gelir Çarpanı")
+    expense_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=1.00, verbose_name="Gider Çarpanı")
+    notes = models.TextField(blank=True, null=True, verbose_name="Notlar")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Planlama Senaryosu"
+        verbose_name_plural = "Planlama Senaryoları"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.company} - {self.name} ({self.start_date} - {self.end_date})"

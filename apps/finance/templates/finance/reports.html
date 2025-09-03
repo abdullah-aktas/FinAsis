@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="display-4">Finance Reports</h1>
+  <p class="lead">Access your financial reports and analytics here.</p>
+  <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" class="mb-4" style="max-width:200px;">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Report Center</h5>
+      <p class="card-text">Download, view, and analyze your financial data.</p>
+      <a href="#" class="btn btn-success">Download Latest Report</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

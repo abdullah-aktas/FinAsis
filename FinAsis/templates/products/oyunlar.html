@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-warning animate__animated animate__fadeInDown">Oyunlaştırma Ürünleri</h1>
+    <p class="lead mb-4 animate__animated animate__fadeInUp">Finansal okuryazarlık, ticaret simülasyonu ve rozetli başarılar ile eğlenerek öğrenin.</p>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-bold">Simülasyonlar <span class="badge bg-info ms-2">Popüler</span></h5>
+          <p>Gerçek piyasa koşullarında pratik yapın.</p>
+          <a href="/games/" class="btn btn-outline-info mt-2">Oyun Paneli</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-1s">
+          <h5 class="fw-bold">Rozetli Başarı <span class="badge bg-success ms-2">Motivasyon</span></h5>
+          <p>Başarılarınızı rozetlerle taçlandırın.</p>
+          <a href="/accounts/profile/" class="btn btn-outline-success mt-2">Profilim</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-2s">
+          <h5 class="fw-bold">AI Destekli Oyunlar <span class="badge bg-primary ms-2">Akıllı</span></h5>
+          <p>Yapay zeka ile kişiselleştirilmiş oyun deneyimi.</p>
+          <a href="/ai-assistant/" class="btn btn-outline-primary mt-2">AI Asistanı</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5">
+      <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">Simülasyon</span>
+      <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">Rozet Kazan</span>
+      <span class="badge bg-primary fs-6 animate__animated animate__bounce">AI Destekli Oyun</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

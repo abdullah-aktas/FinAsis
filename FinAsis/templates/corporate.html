@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-primary animate__animated animate__fadeInDown">Kurumsal Bilgiler</h1>
+    <p class="lead mb-4 animate__animated animate__fadeInUp">Şeffaflık, güven ve sürdürülebilirlik ilkeleriyle kurumsal yapımızı keşfedin.</p>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp">
+          <h5 class="fw-bold">Hakkımızda <span class="badge bg-success ms-2">Güvenilir</span></h5>
+          <p>FinAsis'in vizyonu, misyonu ve değerleri.</p>
+          <a href="/corporate/about/" class="btn btn-outline-success mt-2">Hakkımızda</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-1s">
+          <h5 class="fw-bold">Ekibimiz <span class="badge bg-warning text-dark ms-2">Uzman</span></h5>
+          <p>Alanında uzman kadromuzla tanışın.</p>
+          <a href="/corporate/team/" class="btn btn-outline-warning mt-2">Ekibimiz</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 animate__animated animate__fadeInUp animate__delay-2s">
+          <h5 class="fw-bold">Sürdürülebilirlik <span class="badge bg-info ms-2">Gelecek</span></h5>
+          <p>Çevre ve topluma duyarlı projelerimiz.</p>
+          <a href="/corporate/sustainability/" class="btn btn-outline-info mt-2">Sürdürülebilirlik</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5">
+      <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">Güvenilir</span>
+      <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">Sürdürülebilir</span>
+      <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Uzman Kadro</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

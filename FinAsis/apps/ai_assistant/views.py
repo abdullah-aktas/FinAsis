@@ -1,3 +1,7 @@
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'ai_assistant/home.html')
 # DİKKAT: Bu dizinde hem 'views.py' dosyası hem de 'views/' klasörü var!
 # Python import sırasında çakışma yaşanabilir. Eğer 'from . import views' gibi bir import varsa,
 # Python hangisini seçeceğini şaşırabilir. Bu durumda, ya 'views.py' dosyasını ya da 'views/' klasörünü yeniden adlandırın.

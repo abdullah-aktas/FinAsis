@@ -1,20 +1,23 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Kayıt Ol{% endblock %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Kayıt Ol</h2>
-    {% if form.errors %}
-      <div class="alert alert-danger">{{ form.errors }}</div>
-    {% endif %}
-    <form method="post">
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+  <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height:60vh;">
+    <div class="card shadow-lg p-4" style="max-width:400px;width:100%;">
+      <div class="text-center mb-3">
+        <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis" style="height:48px;">
+        <h2 class="fw-bold mt-2 text-success">Kayıt Ol</h2>
+      </div>
+      <form method="post">
         {% csrf_token %}
-        <div class="mb-3">{{ form.username.label_tag }}{{ form.username }}</div>
-        <div class="mb-3">{{ form.email.label_tag }}{{ form.email }}</div>
-        <div class="mb-3">{{ form.company.label_tag }}{{ form.company }}</div>
-        <div class="mb-3">{{ form.new_company_name.label_tag }}{{ form.new_company_name }}</div>
-        <div class="mb-3">{{ form.password1.label_tag }}{{ form.password1 }}</div>
-        <div class="mb-3">{{ form.password2.label_tag }}{{ form.password2 }}</div>
-        <button type="submit" class="btn btn-success">Kayıt Ol</button>
-    </form>
-</div>
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-info w-100 mt-2">Kayıt Ol</button>
+      </form>
+      <div class="mt-3 text-center">
+        <a href="{% url 'login' %}" class="text-primary">Zaten hesabınız var mı? Giriş yapın</a>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %} 

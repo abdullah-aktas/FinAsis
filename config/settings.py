@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'django.contrib.humanize',
     'rest_framework',
     'crispy_forms',
@@ -55,6 +56,8 @@ INSTALLED_APPS = [
     'FinAsis.apps.education',
     'FinAsis.apps.education.teacher_dashboard',
     'FinAsis.apps.management',
+    'FinAsis.apps.ai_assistant',
+    'FinAsis.apps.virtual_company',
 ]
 
 

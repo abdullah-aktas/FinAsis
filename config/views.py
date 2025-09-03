@@ -1,3 +1,29 @@
+def finance_home(request):
+    return render(request, 'finance/home.html', {'year': datetime.now().year})
+
+def finance_reports(request):
+    return render(request, 'finance/reports.html', {'year': datetime.now().year})
+
+def education_index(request):
+    return render(request, 'education/index.html', {'year': datetime.now().year})
+
+def games_all(request):
+    return render(request, 'games/all.html', {'year': datetime.now().year})
+
+def tradesim_play(request):
+    return render(request, 'games/tradesim_play.html', {'year': datetime.now().year})
+
+def tradesim_detail(request):
+    return render(request, 'games/tradesim_detail.html', {'year': datetime.now().year})
+
+def blockchain(request):
+    return render(request, 'blockchain/home.html', {'year': datetime.now().year})
+
+def profile(request):
+    return render(request, 'accounts/profile.html', {'year': datetime.now().year})
+
+def investor_info_form(request):
+    return render(request, 'investor_info_form.html', {'year': datetime.now().year})
 from django.http import HttpResponse
 from django.shortcuts import render
 from datetime import datetime

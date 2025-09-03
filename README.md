@@ -117,6 +117,94 @@ MIT
 
 ---
 
+## 📘 Muhasebe – Yeni Özellikler ve Komutlar
+
+### Çekirdek
+- GL özet tablosu: `GLBalance` (aylık begin/debit/credit/end) – fiş onayında otomatik güncellenir
+- JSON kural tabanlı “Muhasebe Motoru”: `PostingRule` → belge satırlarından denklikli `Voucher` üretimi
+- Raporlar gerçek veriden: Yevmiye, Kebir, Mizan – `Voucher/VoucherLine/GLBalance` üzerinden
+
+### KDV / Tevkifat / Kur Farkı / Stok
+- KDV: `FinAsis/apps/finance/accounting/tax_utils.py`
+- Tevkifatlı KDV bölüşümü (satıcı/alıcı payı)
+- Kur farkı: `FinAsis/apps/finance/accounting/fx_utils.py`
+- FIFO maliyet: `FinAsis/apps/finance/accounting/inventory_fifo.py`
+
+### e‑Belge ve Dönem Sonu
+- e‑Fatura outbox ve retry komutları (GİB gönderim akışı şablonu)
+- e‑Defter paketleme (stub) komutu
+- Dönem sonu stub komutu (amortisman/reeskont/kur değerleme fişi)
+
+### Çift Onay
+- `Voucher.post` üzerinde basit çift onay örneği: toplam > 100.000 ise `reference` içinde `APPROVED2` anahtarı aranır
+
+---
+
+## 🔧 Hızlı Kurulum – Muhasebe Motoru
+
+### 1) Migration ve superuser
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+### 2) Örnek kural seed et
+```bash
+python manage.py seed_posting_rules
+```
+
+Örnek kural JSON (satış %20):
+```json
+{
+  "condition": { "tax_rate_eq": 0.20 },
+  "lines": [
+    { "side": "D", "account": "100", "formula": "gross" },
+    { "side": "C", "account": "600", "formula": "net" },
+    { "side": "C", "account": "391", "formula": "net*tax_rate" }
+  ]
+}
+```
+
+### 3) Belgeyi fişe dönüştürme (programatik)
+`FinAsis/apps/finance/accounting/services.py` içindeki `post_document(...)` fonksiyonunu kullanın.
+
+---
+
+## 🧾 Yönetim Komutları (Management Commands)
+
+- e‑Fatura Outbox (ilk göndermeler):
+```bash
+python manage.py einvoice_outbox
+```
+
+- e‑Fatura Retry (hatalıları yeniden dene):
+```bash
+python manage.py einvoice_retry
+```
+
+- Dönem Sonu Stub (amortisman/reeskont/kur değerleme fişi):
+```bash
+python manage.py run_period_end
+```
+
+- e‑Defter Paketleme (stub):
+```bash
+python manage.py package_edefter --year 2025 --month 6
+```
+
+---
+
+## 📊 Rapor ve Ekran Linkleri
+
+- Raporlar ana sayfası: `/finance/reports/`
+- Yevmiye: `/accounting/defter/yevmiye/?year=2025&month=6&company=<id>`
+- Kebir: `/accounting/defter/kebir/?year=2025&month=6&company=<id>`
+- Mizan: `/accounting/defter/mizan/?year=2025&month=6&company=<id>`
+- KDV: `/accounting/declarations/kdv/?period=2025-06&company=<id>`
+- BA/BS: `/accounting/declarations/babs/?period=2025-06&company=<id>`
+- Alacak Yaşlandırma: `/accounting/reports/ar-aging/?company=<id>`
+
+
 Daha fazla bilgi için kodu inceleyin veya [Yardım ve Dökümantasyon](./FinAsis/templates/help/index.html) sayfasına bakın!
 
 # FinAsis – Geleceğin Finansal Asistanı
