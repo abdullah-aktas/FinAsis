@@ -1,0 +1,43 @@
+{% extends "management/base_admin.html" %}
+{% block admin_content %}
+<div class="container my-5">
+    <h2>Kullanıcılar</h2>
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Kullanıcı adı veya email ara..." value="{{ query }}">
+            <button class="btn btn-outline-secondary" type="submit">Ara</button>
+        </div>
+    </form>
+    <a href="/yonetim/kullanicilar/ekle/" class="btn btn-success mb-3">+ Yeni Kullanıcı</a>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Kullanıcı Adı</th>
+                <th>Email</th>
+                <th>Yetki</th>
+                <th>Kayıt Tarihi</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{% if user.is_superuser %}Süper Admin{% elif user.is_staff %}Admin{% else %}Kullanıcı{% endif %}</td>
+                <td>{{ user.date_joined|date:'d.m.Y H:i' }}</td>
+                <td>
+                    <a href="/yonetim/kullanicilar/{{ user.id }}/" class="btn btn-sm btn-info">Detay</a>
+                    <a href="/yonetim/kullanicilar/{{ user.id }}/duzenle/" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a href="/yonetim/kullanicilar/{{ user.id }}/sil/" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Kullanıcı bulunamadı.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

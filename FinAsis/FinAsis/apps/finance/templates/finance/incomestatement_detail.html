@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Gelir Tablosu Detayı{% endblock %}
+
+{% block content %}
+<h1>Gelir Tablosu Detayı</h1>
+<p><strong>Dönem:</strong> {{ statement.period }}</p>
+<p><strong>Başlangıç:</strong> {{ statement.start_date }}</p>
+<p><strong>Bitiş:</strong> {{ statement.end_date }}</p>
+<p><strong>Gelir:</strong> {{ statement.revenue }}</p>
+<p><strong>Satılan Malın Maliyeti:</strong> {{ statement.cost_of_goods_sold }}</p>
+<p><strong>Brüt Kar:</strong> {{ statement.gross_profit }}</p>
+<p><strong>İşletme Karı:</strong> {{ statement.operating_income }}</p>
+<p><strong>Diğer Gelirler:</strong> {{ statement.other_income }}</p>
+<p><strong>Diğer Giderler:</strong> {{ statement.other_expenses }}</p>
+<p><strong>Net Kar:</strong> {{ statement.net_income }}</p>
+<a href="{% url 'finance:income_statement_update' statement.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:income_statement_delete' statement.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:income_statement_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

@@ -1,0 +1,51 @@
+{% extends "common/base.html" %}
+{% block title %}Eğitim Paneli{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}!</h1>
+            <p class="lead">Eğitim modülünde interaktif dersler, sınavlar ve gelişim raporlarını kolayca takip edin.</p>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-book"></i></div>
+                    <h6 class="card-title">Derslerim</h6>
+                    <p class="card-text">Katıldığınız dersleri görüntüleyin.</p>
+                    <a href="/education/student/" class="btn btn-link btn-sm">Derslere Git</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-bar-chart"></i></div>
+                    <h6 class="card-title">Gelişim Raporu</h6>
+                    <p class="card-text">Başarı ve ilerlemenizi takip edin.</p>
+                    <a href="/education/reports/" class="btn btn-link btn-sm">Raporlara Git</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-lightbulb"></i></div>
+                    <h6 class="card-title">Interaktif Egzersizler</h6>
+                    <p class="card-text">Kendinizi test edin ve gelişin.</p>
+                    <a href="/education/interactive_exercises/" class="btn btn-link btn-sm">Egzersizlere Git</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info mt-5" role="alert">
+        <strong>Yardıma mı ihtiyacınız var?</strong> Eğitim modülünün kullanımıyla ilgili <a href="/help/" class="alert-link">yardım sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
+    </div>
+    <div class="text-center text-muted mt-4" style="font-size:1.1rem;">
+        <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
+        Henüz hiç ders eklemediniz mi? Hemen yukarıdan yeni bir ders seçin!
+    </div>
+</div>
+{% endblock %} 

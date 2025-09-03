@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Bütçe Mücadelesi{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1>Bütçe Mücadelesi</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Gelir Ekle</h4>
+            <input type="number" id="income" placeholder="Gelir (TL)">
+            <button onclick="addIncome()">Ekle</button>
+            <h4 class="mt-4">Gider Ekle</h4>
+            <input type="number" id="expense" placeholder="Gider (TL)">
+            <button onclick="addExpense()">Ekle</button>
+        </div>
+        <div class="col-md-6">
+            <h4>Bütçe Durumu</h4>
+            <p>Kalan Bütçe: <span id="budget">0</span> TL</p>
+            <div id="warning" class="text-danger"></div>
+        </div>
+    </div>
+</div>
+<script>
+let budget = 0;
+function addIncome() {
+    let val = parseInt(document.getElementById('income').value) || 0;
+    budget += val;
+    updateBudget();
+}
+function addExpense() {
+    let val = parseInt(document.getElementById('expense').value) || 0;
+    budget -= val;
+    updateBudget();
+}
+function updateBudget() {
+    document.getElementById('budget').textContent = budget;
+    document.getElementById('warning').textContent = budget < 0 ? 'Bütçeniz eksiye düştü! Tasarruf etmelisiniz.' : '';
+}
+updateBudget();
+</script>
+{% endblock %} 

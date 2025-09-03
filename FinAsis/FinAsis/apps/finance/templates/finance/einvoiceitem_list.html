@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}E-Fatura Kalemleri{% endblock %}
+{% block content %}
+<h1>E-Fatura Kalemleri</h1>
+<a href="{% url 'finance:e_invoice_item_create' %}" class="btn btn-success mb-3">Yeni Kalem Ekle</a>
+<ul>
+  {% for einvoiceitem in einvoiceitems %}
+    <li>
+      <a href="{% url 'finance:e_invoice_item_detail' einvoiceitem.pk %}">{{ einvoiceitem.invoice.invoice_number }} - {{ einvoiceitem.description }} ({{ einvoiceitem.line_total }})</a>
+    </li>
+  {% empty %}
+    <li>Hiç e-fatura kalemi yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

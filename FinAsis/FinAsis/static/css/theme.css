@@ -1,0 +1,134 @@
+:root {
+  /* Ana Renkler */
+  --primary: #00B894;
+  --secondary: #263238;
+  --cta: #FFA726;             /* Turuncu */
+
+  /* Yardımcı Renkler */
+  --bg: #F9FAFB;              /* Açık Beyaz */
+  --alt-grey: #ECEFF1;        /* Alternatif Gri */
+  --dark-grey: #37474F;       /* Koyu Gri (Yazı) */
+  --hover-border: #B0BEC5;    /* Hover/Border */
+
+  /* Yazı Renkleri */
+  --text-main: var(--dark-grey);
+  --text-invert: #fff;
+
+  --main-bg: #F7FDFB;
+  --main-btn: #00B894;
+  --main-text: #263238;
+  --main-dark: #121212;
+  --main-light: #EAEAEA;
+  --ui-accent: #6366F1;
+  --ui-turq: #00CEC9;
+  --danger: #e17055;
+  --success: #00B894;
+  --warning: #FFA726;
+
+  --bg-light: #F7FDFB;
+  --accent-yellow: #FFC107;
+  --accent-purple: #6366F1;
+  --dark-bg: #121212;
+  --dark-text: #EAEAEA;
+  --white: #fff;
+  --black: #000;
+
+  --font-heading: 'Inter', 'Roboto', 'Poppins', Arial, sans-serif;
+  --font-body: 'Open Sans', 'Roboto', Arial, sans-serif;
+  --font-code: 'Fira Code', 'Courier New', monospace;
+}
+
+/* Karanlık Mod */
+[data-theme="dark"] {
+  --bg: #121212;
+  --alt-grey: #23272a;
+  --dark-grey: #E0E0E0;
+  --text-main: #E0E0E0;
+  --hover-border: #37474F;
+  --primary: #00897B; /* Zümrüt Yeşili (doygunluğu azaltılmış) */
+  --cta: #FF9800;    /* Turuncu (doygunluğu azaltılmış) */
+  --main-bg: #121212;
+  --main-text: #EAEAEA;
+  --main-light: #23272a;
+  --main-btn: #00B894;
+  --ui-accent: #6366F1;
+  --ui-turq: #00CEC9;
+  --bg-light: #121212;
+  --secondary: #EAEAEA;
+  --white: #EAEAEA;
+  --black: #121212;
+}
+
+body {
+  background: var(--bg-light);
+  color: var(--secondary);
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+h1 {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+p, span, li, label, input, textarea {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+small {
+  font-size: 14px;
+}
+
+code, pre {
+  font-family: var(--font-code);
+  font-size: 15px;
+}
+
+.btn-primary {
+  background: var(--main-btn);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: var(--ui-accent);
+}
+
+.card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 2rem;
+  margin-bottom: 1.5em;
+}
+[data-theme="dark"] .card {
+  background: var(--main-light);
+}
+
+a, .link {
+  color: var(--ui-accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, .link:hover {
+  color: var(--main-btn);
+}
+
+hr, .divider {
+  border-color: var(--main-light);
+}
+
+/* Karanlık mod geçişi için örnek JS fonksiyonu ile body'ye data-theme="dark" eklenebilir */ 

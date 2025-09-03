@@ -1,0 +1,48 @@
+{
+    "characters": [
+        {
+            "id": "entrepreneur",
+            "name": "Girişimci",
+            "description": "Yeni iş fikirleri geliştirmede uzman",
+            "advantages": {
+                "startup_cost": -0.2,
+                "market_analysis": 0.3,
+                "risk_tolerance": 0.8
+            },
+            "starting_money": 120000
+        },
+        {
+            "id": "investor",
+            "name": "Yatırımcı",
+            "description": "Finansal piyasalarda deneyimli",
+            "advantages": {
+                "stock_returns": 0.15,
+                "market_analysis": 0.4,
+                "risk_tolerance": 0.6
+            },
+            "starting_money": 150000
+        },
+        {
+            "id": "merchant",
+            "name": "Tüccar",
+            "description": "Ticaret ve pazarlama uzmanı",
+            "advantages": {
+                "sales_margin": 0.2,
+                "market_analysis": 0.25,
+                "risk_tolerance": 0.5
+            },
+            "starting_money": 100000
+        },
+        {
+            "id": "industrialist",
+            "name": "Sanayici",
+            "description": "Üretim ve lojistik uzmanı",
+            "advantages": {
+                "production_efficiency": 0.25,
+                "market_analysis": 0.2,
+                "risk_tolerance": 0.4
+            },
+            "starting_money": 90000
+        }
+    ]
+} 

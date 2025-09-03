@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python derleme dosyaları
 *.pyc
 __pycache__/
@@ -29,3 +30,29 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+=======
+﻿# Python / Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+*.sqlite3
+*.log
+.env
+.venv/
+venv/
+media/
+staticfiles/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+>>>>>>> 49574730cf71aa7220e8b73f6183c085f398841c

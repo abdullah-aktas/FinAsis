@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Şirket Detayı</title>
+</head>
+<body>
+    <h1>Şirket Detayı</h1>
+    <p>Adı: {{ company.name|default:"-" }}</p>
+    <p>Oluşturulma Tarihi: {{ company.created_at|date:'d.m.Y H:i'|default:"-" }}</p>
+</body>
+</html> 

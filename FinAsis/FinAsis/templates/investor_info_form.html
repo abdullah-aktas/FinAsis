@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Yatırımcı Bilgilendirme Formu - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis platformunda yatırım yapmadan önce doldurmanız gereken yatırımcı bilgilendirme formu. SPK düzenlemelerine uygun risk profili belirleme.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4">Yatırımcı Bilgilendirme Formu</h1>
+            <p class="lead mb-4">Son Güncelleme: 15 Nisan 2024</p>
+            
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Önemli Not:</strong> Bu form, Sermaye Piyasası Kurulu (SPK) düzenlemelerine uygun olarak hazırlanmıştır. Lütfen tüm soruları eksiksiz ve doğru bir şekilde yanıtlayınız.
+            </div>
+            
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">1. Kişisel Bilgiler</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Ad</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                <div class="invalid-feedback">Lütfen adınızı giriniz.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Soyad</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                <div class="invalid-feedback">Lütfen soyadınızı giriniz.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-posta Adresi</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Lütfen geçerli bir e-posta adresi giriniz.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telefon Numarası</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                            <div class="invalid-feedback">Lütfen telefon numaranızı giriniz.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">2. Yatırım Deneyimi</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Daha önce yatırım yaptınız mı?</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="investmentExperience" id="experienceYes" value="yes" required>
+                                <label class="form-check-label" for="experienceYes">Evet</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="investmentExperience" id="experienceNo" value="no">
+                                <label class="form-check-label" for="experienceNo">Hayır</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hangi yatırım araçlarında deneyiminiz var?</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="instruments" id="stocks" value="stocks">
+                                <label class="form-check-label" for="stocks">Hisse Senetleri</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="instruments" id="bonds" value="bonds">
+                                <label class="form-check-label" for="bonds">Tahviller</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="instruments" id="crypto" value="crypto">
+                                <label class="form-check-label" for="crypto">Kripto Varlıklar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="instruments" id="forex" value="forex">
+                                <label class="form-check-label" for="forex">Döviz</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">3. Risk Profili</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Yatırım yapmayı düşündüğünüz süre nedir?</label>
+                            <select class="form-select" name="investmentPeriod" required>
+                                <option value="">Seçiniz</option>
+                                <option value="short">0-1 yıl</option>
+                                <option value="medium">1-3 yıl</option>
+                                <option value="long">3 yıldan fazla</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Yatırımlarınızda karşılaşabileceğiniz kayıplara karşı tutumunuz nedir?</label>
+                            <select class="form-select" name="riskTolerance" required>
+                                <option value="">Seçiniz</option>
+                                <option value="conservative">Düşük risk - Düşük getiri</option>
+                                <option value="moderate">Orta risk - Orta getiri</option>
+                                <option value="aggressive">Yüksek risk - Yüksek getiri</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Yatırım yapmayı düşündüğünüz tutar nedir?</label>
+                            <select class="form-select" name="investmentAmount" required>
+                                <option value="">Seçiniz</option>
+                                <option value="low">10.000 TL'den az</option>
+                                <option value="medium">10.000 TL - 50.000 TL</option>
+                                <option value="high">50.000 TL'den fazla</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">4. Onay ve Taahhüt</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="riskAcknowledgment" name="riskAcknowledgment" required>
+                                <label class="form-check-label" for="riskAcknowledgment">
+                                    Risk uyarısını okudum ve anladım. Yatırım yaparken karşılaşabileceğim risklerin farkındayım.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="infoAccuracy" name="infoAccuracy" required>
+                                <label class="form-check-label" for="infoAccuracy">
+                                    Bu formda verdiğim bilgilerin doğru ve eksiksiz olduğunu taahhüt ederim.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="termsAcceptance" name="termsAcceptance" required>
+                                <label class="form-check-label" for="termsAcceptance">
+                                    <a href="{% url 'terms' %}" target="_blank">Kullanım Koşulları</a>'nı ve 
+                                    <a href="{% url 'privacy_policy' %}" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Formu Gönder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form doğrulama için JavaScript
+(function () {
+    'use strict'
+    
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %} 

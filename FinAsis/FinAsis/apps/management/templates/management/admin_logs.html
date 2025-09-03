@@ -1,0 +1,28 @@
+{% extends "management/base_admin.html" %}
+{% block title %}Süper Admin Logları{% endblock %}
+{% block admin_content %}
+<h2>Süper Admin Logları</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Tarih</th>
+      <th>Olay</th>
+      <th>Kullanıcı</th>
+      <th>Detay</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.timestamp|date:'d.m.Y H:i' }}</td>
+      <td>{{ log.action }}</td>
+      <td>{{ log.user.username if log.user else 'Sistem' }}</td>
+      <td>{{ log.detail }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">Log kaydı yok.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="alert alert-info mt-3">Bu sayfa sadece süper adminler tarafından görüntülenebilir.</div>
+{% endblock %} 

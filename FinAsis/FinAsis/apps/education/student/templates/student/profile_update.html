@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profil Güncelle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Profil Güncelle</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Kişisel Bilgiler -->
+                        <h5 class="mb-3">Kişisel Bilgiler</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label">Ad</label>
+                                <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label">Soyad</label>
+                                <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}">
+                        </div>
+                        
+                        <!-- Öğrenci Bilgileri -->
+                        <h5 class="mb-3 mt-4">Öğrenci Bilgileri</h5>
+                        <div class="mb-3">
+                            <label for="id_student_number" class="form-label">Öğrenci Numarası</label>
+                            <input type="text" class="form-control" id="id_student_number" name="student_number" value="{{ student_profile.student_number }}" readonly>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_department" class="form-label">Bölüm</label>
+                                <input type="text" class="form-control" id="id_department" name="department" value="{{ student_profile.department }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_grade" class="form-label">Sınıf</label>
+                                <input type="text" class="form-control" id="id_grade" name="grade" value="{{ student_profile.grade }}">
+                            </div>
+                        </div>
+                        
+                        <!-- İletişim Bilgileri -->
+                        <h5 class="mb-3 mt-4">İletişim Bilgileri</h5>
+                        <div class="mb-3">
+                            <label for="id_phone" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="id_phone" name="phone" value="{{ student_profile.phone|default:'' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_address" class="form-label">Adres</label>
+                            <textarea class="form-control" id="id_address" name="address" rows="3">{{ student_profile.address|default:'' }}</textarea>
+                        </div>
+                        
+                        <!-- Profil Fotoğrafı -->
+                        <h5 class="mb-3 mt-4">Profil Fotoğrafı</h5>
+                        <div class="mb-3">
+                            {% if student_profile.profile_picture %}
+                                <img src="{{ student_profile.profile_picture.url }}" alt="Profil Fotoğrafı" class="img-thumbnail mb-2" style="max-width: 200px;">
+                            {% endif %}
+                            <input type="file" class="form-control" id="id_profile_picture" name="profile_picture">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+                            <a href="{% url 'student:dashboard' %}" class="btn btn-outline-secondary">İptal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

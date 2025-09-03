@@ -1,0 +1,64 @@
+{
+    "macro_events": [
+        {
+            "id": "kdv_artisi",
+            "title": "KDV Artışı",
+            "description": "KDV oranı %1 artırıldı!",
+            "effect": {
+                "type": "cost_increase",
+                "value": 0.01,
+                "duration": 180
+            },
+            "probability": 0.2
+        },
+        {
+            "id": "kur_soku",
+            "title": "Kur Şoku",
+            "description": "Döviz kurlarında ani yükseliş!",
+            "effect": {
+                "type": "import_cost_increase",
+                "value": 0.15,
+                "duration": 180
+            },
+            "probability": 0.15
+        },
+        {
+            "id": "teşvik",
+            "title": "Devlet Teşviği",
+            "description": "Yeni yatırımcılara özel teşvik paketi!",
+            "effect": {
+                "type": "investment_bonus",
+                "value": 0.2,
+                "duration": 180
+            },
+            "probability": 0.1
+        },
+        {
+            "id": "enflasyon",
+            "title": "Enflasyon Dalgası",
+            "description": "Fiyatlar genel seviyesinde artış!",
+            "effect": {
+                "type": "price_increase",
+                "value": 0.1,
+                "duration": 180
+            },
+            "probability": 0.25
+        },
+        {
+            "id": "faiz_indirimi",
+            "title": "Faiz İndirimi",
+            "description": "Merkez Bankası faizleri düşürdü!",
+            "effect": {
+                "type": "loan_cost_decrease",
+                "value": 0.2,
+                "duration": 180
+            },
+            "probability": 0.15
+        }
+    ],
+    "timing": {
+        "initial_delay": 180,
+        "interval": 180,
+        "duration": 900
+    }
+} 

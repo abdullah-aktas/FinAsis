@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h3>Planlama Senaryoları</h3>
+  <a class="btn btn-primary btn-sm mb-2" href="{% url 'accounting:scenario_create' %}">Yeni Senaryo</a>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th>Ad</th>
+        <th>Dönem</th>
+        <th>Gelir Çarpanı</th>
+        <th>Gider Çarpanı</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in scenarios %}
+        <tr>
+          <td><a href="{% url 'accounting:scenario_detail' s.id %}">{{ s.name }}</a></td>
+          <td>{{ s.start_date }} - {{ s.end_date }}</td>
+          <td>{{ s.revenue_multiplier }}</td>
+          <td>{{ s.expense_multiplier }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Kayıt bulunamadı</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+

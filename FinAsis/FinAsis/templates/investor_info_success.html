@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Başvurunuz Alındı - FinAsis{% endblock %}
+
+{% block meta_description %}FinAsis yatırımcı bilgilendirme formu başvurunuz başarıyla alındı. Sonraki adımlar ve hesap aktivasyon süreci.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="success-icon mb-4">
+                <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+            </div>
+            
+            <h1 class="display-4 mb-4">Başvurunuz Başarıyla Alındı</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="lead mb-4">Değerli yatırımcımız,</p>
+                    <p>Yatırımcı bilgilendirme formunuz başarıyla alınmıştır. Başvurunuz en kısa sürede değerlendirilecek ve size e-posta yoluyla bilgi verilecektir.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Sonraki Adımlar</h2>
+                </div>
+                <div class="card-body">
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Başvuru Değerlendirmesi</div>
+                                Başvurunuz SPK düzenlemeleri kapsamında değerlendirilecektir.
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">E-posta Onayı</div>
+                                E-posta adresinize gönderilen bağlantıyı kullanarak hesabınızı onaylayın.
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Kimlik Doğrulama</div>
+                                Kimlik doğrulama sürecini tamamlayın.
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Hesap Aktivasyonu</div>
+                                Hesabınız aktif hale getirilecektir.
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Önemli Bilgiler</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Dikkat:</strong> Başvuru süreciniz tamamlanana kadar platform üzerinden işlem yapamayacaksınız.
+                    </div>
+                    <p class="mb-0">Başvuru sürecinizle ilgili herhangi bir sorunuz olursa, müşteri hizmetlerimizle iletişime geçebilirsiniz.</p>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{% url 'home' %}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="fas fa-home me-2"></i>Ana Sayfaya Dön
+                </a>
+                <a href="{% url 'contact' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-envelope me-2"></i>İletişime Geç
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

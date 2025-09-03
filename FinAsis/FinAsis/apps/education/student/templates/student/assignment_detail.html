@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ assignment.assignment.title }} - Ödev Detayı{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ assignment.assignment.title }}</h2>
+                    <p class="text-muted">
+                        <small>
+                            Ders: {{ assignment.assignment.course.title }}<br>
+                            Son Teslim: {{ assignment.assignment.due_date|date:"d.m.Y" }}
+                        </small>
+                    </p>
+                    <hr>
+                    <h5>Açıklama</h5>
+                    <p>{{ assignment.assignment.description }}</p>
+                    
+                    {% if assignment.assignment.attachment %}
+                        <h5>Ek Dosya</h5>
+                        <a href="{{ assignment.assignment.attachment.url }}" class="btn btn-outline-primary">
+                            <i class="fas fa-download"></i> Dosyayı İndir
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Ödev Durumu -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Ödev Durumu</h5>
+                    <div class="alert alert-{{ assignment.status|status_color }}">
+                        <strong>Durum:</strong> {{ assignment.get_status_display }}
+                    </div>
+                    
+                    {% if assignment.submission %}
+                        <h5>Gönderilen Ödev</h5>
+                        <p>{{ assignment.submission.content }}</p>
+                        {% if assignment.submission.attachment %}
+                            <a href="{{ assignment.submission.attachment.url }}" class="btn btn-outline-primary">
+                                <i class="fas fa-download"></i> Gönderilen Dosyayı İndir
+                            </a>
+                        {% endif %}
+                        <p class="text-muted mt-2">
+                            <small>Gönderim Tarihi: {{ assignment.submission.submitted_at|date:"d.m.Y H:i" }}</small>
+                        </p>
+                    {% endif %}
+
+                    {% if assignment.grade %}
+                        <h5>Değerlendirme</h5>
+                        <div class="alert alert-{{ assignment.grade|grade_color }}">
+                            <strong>Not:</strong> {{ assignment.grade }}
+                        </div>
+                        {% if assignment.feedback %}
+                            <p><strong>Geri Bildirim:</strong> {{ assignment.feedback }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Ödev Gönderme Formu -->
+            {% if assignment.status == 'pending' or assignment.status == 'submitted' %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Ödev Gönder</h5>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="content" class="form-label">İçerik</label>
+                                <textarea class="form-control" id="content" name="content" rows="5" required>{{ assignment.submission.content|default:'' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="attachment" class="form-label">Dosya Ekle</label>
+                                <input type="file" class="form-control" id="attachment" name="attachment">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Gönder</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

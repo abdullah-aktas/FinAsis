@@ -1,0 +1,24 @@
+name: web-tests
+on: [push, pull_request]
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        working-directory: finasis-src
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-playwright playwright axe-core-python requests
+          python -m playwright install --with-deps
+      - name: Run tests
+        env:
+          BASE_URL: "http://127.0.0.1:8000"
+        working-directory: finasis-src
+        run: |
+          pytest -q --maxfail=1
+

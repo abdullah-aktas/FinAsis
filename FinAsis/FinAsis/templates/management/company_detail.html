@@ -1,0 +1,18 @@
+{% extends "management/base_admin.html" %}
+{% block admin_content %}
+<div class="container my-5">
+    <h2>Şirket Detayı</h2>
+    <table class="table table-bordered">
+        <tr><th>ID</th><td>{{ company.id }}</td></tr>
+        <tr><th>Adı</th><td>{{ company.name }}</td></tr>
+        <tr><th>Sektör</th><td>{{ company.sector }}</td></tr>
+        <tr><th>Vergi No</th><td>{{ company.tax_number }}</td></tr>
+        <tr><th>Adres</th><td>{{ company.address }}</td></tr>
+        <tr><th>Telefon</th><td>{{ company.phone }}</td></tr>
+        <tr><th>Email</th><td>{{ company.email }}</td></tr>
+    </table>
+    <a href="/yonetim/sirketler/{{ company.id }}/duzenle/" class="btn btn-warning">Düzenle</a>
+    <a href="/yonetim/sirketler/{{ company.id }}/sil/" class="btn btn-danger">Sil</a>
+    <a href="/yonetim/sirketler/" class="btn btn-secondary">Geri</a>
+</div>
+{% endblock %} 

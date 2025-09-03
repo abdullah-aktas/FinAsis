@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Oyuncu Dashboard{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2>Oyuncu Dashboard</h2>
+    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada oyunculara özel içeriklere ulaşabilirsiniz.</p>
+    <!-- Oyuncuya özel içerikler buraya -->
+</div>
+{% endblock %} 

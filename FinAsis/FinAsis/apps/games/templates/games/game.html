@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ game.name }}</h1>
+            <p class="lead">{{ game.description }}</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Şirket Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Şirket Adı:</strong> {{ player.company_name }}</p>
+                    <p><strong>Bakiye:</strong> {{ player.current_balance }} TL</p>
+                    <p><strong>Puan:</strong> {{ player.score }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Aktif Görevler</h5>
+                </div>
+                <div class="card-body">
+                    {% for challenge in player.player_challenges.all %}
+                        {% if not challenge.is_completed %}
+                            <div class="mb-3">
+                                <h6>{{ challenge.challenge.title }}</h6>
+                                <p>{{ challenge.challenge.description }}</p>
+                                <p class="text-muted">{{ challenge.challenge.points }} puan</p>
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <p>Henüz aktif görev yok.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Oyun Kontrolleri</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Blok Yerleştirme:</h6>
+                    <ul class="list-unstyled">
+                        <li>1 - Ofis</li>
+                        <li>2 - Fabrika</li>
+                        <li>3 - Mağaza</li>
+                        <li>4 - Depo</li>
+                    </ul>
+                    
+                    <h6>Çalışan İşe Alma:</h6>
+                    <ul class="list-unstyled">
+                        <li>W + Sağ Tık - İşçi</li>
+                        <li>M + Sağ Tık - Muhasebeci</li>
+                        <li>S + Sağ Tık - Satış Uzmanı</li>
+                    </ul>
+                    
+                    <div class="mt-3">
+                        <button id="startGame" class="btn btn-primary btn-lg w-100">
+                            Oyunu Başlat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('startGame').addEventListener('click', function() {
+    // Oyunu başlat
+    window.location.href = `/games/ursina_game/game.py?player_id={{ player.id }}`;
+});
+</script>
+{% endblock %} 
