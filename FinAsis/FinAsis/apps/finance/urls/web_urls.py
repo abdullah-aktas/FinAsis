@@ -5,7 +5,25 @@ Finance uygulaması WEB URL yapılandırmaları
 
 from django.urls import path
 from FinAsis.apps.finance.home import finance_home
-from ..views import banking, einvoice, accounting, checks, InvoiceListView, InvoiceDetailView, InvoiceCreateView, InvoiceUpdateView, InvoiceDeleteView
+from ..views import (
+    banking,
+    einvoice,
+    accounting,
+    checks,
+    InvoiceListView,
+    InvoiceDetailView,
+    InvoiceCreateView,
+    InvoiceUpdateView,
+    InvoiceDeleteView,
+)
+from ..main_views import (
+    # Cash Flow
+    CashFlowListView, CashFlowDetailView, CashFlowCreateView, CashFlowUpdateView, CashFlowDeleteView,
+    # Income Statement
+    IncomeStatementListView, IncomeStatementDetailView, IncomeStatementCreateView, IncomeStatementUpdateView, IncomeStatementDeleteView,
+    # E-Invoice Item
+    EInvoiceItemListView, EInvoiceItemDetailView, EInvoiceItemCreateView, EInvoiceItemUpdateView, EInvoiceItemDeleteView,
+)
 
 app_name = 'finance'
 
@@ -58,4 +76,33 @@ urlpatterns = [
     path('invoices/<int:pk>/delete/', InvoiceDeleteView.as_view(), name='invoice_delete'),
 ] 
 urlpatterns += [ path('bank-import/', banking.bank_import, name='bank_import'), ]
+
+# --- Added missing business object CRUD URL patterns ---
+# Cash Flow
+urlpatterns += [
+    path('cash-flows/', CashFlowListView.as_view(), name='cash_flow_list'),
+    path('cash-flows/<int:pk>/', CashFlowDetailView.as_view(), name='cash_flow_detail'),
+    path('cash-flows/create/', CashFlowCreateView.as_view(), name='cash_flow_create'),
+    path('cash-flows/<int:pk>/edit/', CashFlowUpdateView.as_view(), name='cash_flow_update'),
+    path('cash-flows/<int:pk>/delete/', CashFlowDeleteView.as_view(), name='cash_flow_delete'),
+]
+
+# Income Statement
+urlpatterns += [
+    path('income-statements/', IncomeStatementListView.as_view(), name='income_statement_list'),
+    path('income-statements/<int:pk>/', IncomeStatementDetailView.as_view(), name='income_statement_detail'),
+    path('income-statements/create/', IncomeStatementCreateView.as_view(), name='income_statement_create'),
+    path('income-statements/<int:pk>/edit/', IncomeStatementUpdateView.as_view(), name='income_statement_update'),
+    path('income-statements/<int:pk>/delete/', IncomeStatementDeleteView.as_view(), name='income_statement_delete'),
+]
+
+# E-Invoice Item (line items for electronic invoices)
+urlpatterns += [
+    path('einvoice-items/', EInvoiceItemListView.as_view(), name='e_invoice_item_list'),
+    path('einvoice-items/<int:pk>/', EInvoiceItemDetailView.as_view(), name='e_invoice_item_detail'),
+    path('einvoice-items/create/', EInvoiceItemCreateView.as_view(), name='e_invoice_item_create'),
+    path('einvoice-items/<int:pk>/edit/', EInvoiceItemUpdateView.as_view(), name='e_invoice_item_update'),
+    path('einvoice-items/<int:pk>/delete/', EInvoiceItemDeleteView.as_view(), name='e_invoice_item_delete'),
+]
+
 

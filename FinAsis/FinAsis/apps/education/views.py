@@ -3,15 +3,26 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import FinancialTermCard, StudentAnalytics, Badge, Level, StudentGamificationProgress, LearningContent, Forum, ForumTopic, ForumPost, GroupAssignment, Feedback
+from .models import (
+    FinancialTermCard,
+    Course, Lesson, LearningOutcome, LessonOutcome, Question, Exam,
+    ExamSubmission, ClassSession, AttendanceRecord, PortfolioItem, Tournament, CheatingIncident,
+)
 from .forms import FinancialTermCardForm
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, filters
-from .serializers import StudentAnalyticsSerializer, BadgeSerializer, LevelSerializer, StudentGamificationProgressSerializer, LearningContentSerializer, ForumSerializer, ForumTopicSerializer, ForumPostSerializer, GroupAssignmentSerializer, FeedbackSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from .services import AdaptiveLearningService
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.exceptions import PermissionDenied
+from django.db.models import Q
+from .serializers import (
+    CourseSerializer, LessonSerializer, LearningOutcomeSerializer,
+    LessonOutcomeSerializer, QuestionSerializer, ExamSerializer,
+    ExamSubmissionSerializer, ClassSessionSerializer,
+    AttendanceRecordSerializer, PortfolioItemSerializer,
+    TournamentSerializer, CheatingIncidentSerializer,
+)
+from . import services
+from .permissions import IsTeacherOfCourseOrReadOnly
+ 
 
 @login_required
 def kobi_tutorials(request):
@@ -23,36 +34,11 @@ def index(request):
 
 @login_required
 def education_home(request):
-    # Ana sayfada gösterilecek özet veriler
+    # Ana sayfada gösterilecek özet veriler (sadeleştirilmiş)
     context = {
-        'card_count': 0,
-        'latest_cards': [],
-        'content_count': 0,
-        'topic_count': 0,
-        'user_progress': None,
-        'user_analytics': [],
+        'card_count': FinancialTermCard.objects.count(),
+        'latest_cards': list(FinancialTermCard.objects.order_by('-id')[:5]),
     }
-    try:
-        context['card_count'] = FinancialTermCard.objects.count()
-        context['latest_cards'] = FinancialTermCard.objects.order_by('-updated_at' if hasattr(FinancialTermCard, 'updated_at') else '-id')[:5]
-    except Exception:
-        pass
-    try:
-        context['content_count'] = LearningContent.objects.count()
-    except Exception:
-        pass
-    try:
-        context['topic_count'] = ForumTopic.objects.count()
-    except Exception:
-        pass
-    try:
-        context['user_progress'] = StudentGamificationProgress.objects.filter(student=request.user).order_by('-updated_at' if hasattr(StudentGamificationProgress, 'updated_at') else '-id').first()
-    except Exception:
-        pass
-    try:
-        context['user_analytics'] = list(StudentAnalytics.objects.filter(student=request.user).order_by('-date')[:5])
-    except Exception:
-        pass
     return render(request, "education/education_home.html", context)
 
 @method_decorator(login_required, name='dispatch')
@@ -87,88 +73,194 @@ class FinancialTermCardDeleteView(DeleteView):
     template_name = 'education/financialtermcard_confirm_delete.html'
     success_url = reverse_lazy('education:financialtermcard_list')
 
-class StudentAnalyticsViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = StudentAnalyticsSerializer
+# Removed non-LMS API viewsets (analytics, badges, levels, gamification, content, forum, group, feedback)
+
+# ---- LMS viewsets ----
+class CourseViewSet(viewsets.ModelViewSet):
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        # Teachers see their courses; students see enrolled courses
+        return Course.objects.filter(Q(teacher=user) | Q(students=user)).distinct()
+
+    def perform_create(self, serializer):
+        # Teacher set to the creator
+        serializer.save(teacher=self.request.user)
+
+class LessonViewSet(viewsets.ModelViewSet):
+    serializer_class = LessonSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return Lesson.objects.filter(
+            Q(course__teacher=user) | Q(course__students=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        # Ensure creator is teacher of the course
+        course = serializer.validated_data.get('course')
+        if course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can add lessons.')
+        serializer.save()
+
+class LearningOutcomeViewSet(viewsets.ModelViewSet):
+    queryset = LearningOutcome.objects.all()
+    serializer_class = LearningOutcomeSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class LessonOutcomeViewSet(viewsets.ModelViewSet):
+    serializer_class = LessonOutcomeSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return LessonOutcome.objects.filter(
+            Q(lesson__course__teacher=user) | Q(lesson__course__students=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        lesson = serializer.validated_data.get('lesson')
+        if lesson.course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can map outcomes.')
+        serializer.save()
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    serializer_class = QuestionSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['date', 'completed_assignments', 'completed_quizzes', 'success_rate']
-    search_fields = ['weak_topics', 'strong_topics']
+    ordering_fields = ['points']
+    search_fields = ['text']
 
-    def get_queryset(self):
-        return StudentAnalytics.objects.filter(student=self.request.user)
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return Question.objects.filter(
+            Q(course__teacher=user) | Q(course__students=user)
+        ).distinct()
 
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
-def adaptive_recommendation_api(request):
-    """
-    Öğrencinin zayıf olduğu konulara göre kişiselleştirilmiş öneriler döner.
-    """
-    service = AdaptiveLearningService()
-    result = service.get_recommendations(request.user)
-    return Response(result)
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+        if course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can add questions.')
+        serializer.save(created_by=self.request.user)
 
-class BadgeViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Badge.objects.all()
-    serializer_class = BadgeSerializer
+class ExamViewSet(viewsets.ModelViewSet):
+    serializer_class = ExamSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return Exam.objects.filter(
+            Q(course__teacher=user) | Q(course__students=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+        if course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can create exams.')
+        serializer.save()
+
+class ExamSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = ExamSubmissionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        # Students: their own submissions. Teachers: submissions in their courses
+        return ExamSubmission.objects.filter(
+            Q(student=user) | Q(exam__course__teacher=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        instance = serializer.save(student=self.request.user)
+        total, flags = services.grade_submission(instance)
+        instance.auto_score = total
+        instance.flags = flags
+        instance.save(update_fields=["auto_score", "flags"])
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        total, flags = services.grade_submission(instance)
+        instance.auto_score = total
+        instance.flags = flags
+        instance.save(update_fields=["auto_score", "flags"])
+
+class ClassSessionViewSet(viewsets.ModelViewSet):
+    serializer_class = ClassSessionSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return ClassSession.objects.filter(
+            Q(course__teacher=user) | Q(course__students=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+        if course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can create sessions.')
+        serializer.save()
+
+class AttendanceRecordViewSet(viewsets.ModelViewSet):
+    serializer_class = AttendanceRecordSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
+
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return AttendanceRecord.objects.filter(
+            Q(session__course__teacher=user) | Q(student=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        session = serializer.validated_data.get('session')
+        if session.course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can record attendance.')
+        serializer.save()
+
+class PortfolioItemViewSet(viewsets.ModelViewSet):
+    serializer_class = PortfolioItemSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class LevelViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Level.objects.all()
-    serializer_class = LevelSerializer
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        # Students see their items; teachers see items in their course context
+        return PortfolioItem.objects.filter(
+            Q(student=user) | Q(course__teacher=user)
+        ).distinct()
+
+    def perform_create(self, serializer):
+        # Students can create for themselves only
+        serializer.save(student=self.request.user)
+
+class TournamentViewSet(viewsets.ModelViewSet):
+    serializer_class = TournamentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class StudentGamificationProgressViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = StudentGamificationProgressSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    def get_queryset(self):
-        return StudentGamificationProgress.objects.filter(student=self.request.user)
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return Tournament.objects.filter(
+            Q(course__teacher=user) | Q(course__students=user) | Q(course__isnull=True)
+        ).distinct()
 
-class LearningContentViewSet(viewsets.ModelViewSet):
-    queryset = LearningContent.objects.all()
-    serializer_class = LearningContentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['created_at', 'title', 'content_type']
-    search_fields = ['title', 'description', 'extra_note']
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+        if course and course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can create tournaments for a course.')
+        serializer.save()
 
-class ForumViewSet(viewsets.ModelViewSet):
-    queryset = Forum.objects.all()
-    serializer_class = ForumSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['created_at', 'title']
-    search_fields = ['title', 'description']
+class CheatingIncidentViewSet(viewsets.ModelViewSet):
+    serializer_class = CheatingIncidentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOfCourseOrReadOnly]
 
-class ForumTopicViewSet(viewsets.ModelViewSet):
-    queryset = ForumTopic.objects.all()
-    serializer_class = ForumTopicSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['created_at', 'title']
-    search_fields = ['title']
+    def get_queryset(self):  # type: ignore[override]
+        user = self.request.user
+        return CheatingIncident.objects.filter(
+            Q(submission__student=user) | Q(submission__exam__course__teacher=user)
+        ).distinct()
 
-class ForumPostViewSet(viewsets.ModelViewSet):
-    serializer_class = ForumPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['created_at']
-    search_fields = ['content']
-    def get_queryset(self):
-        return ForumPost.objects.filter(author=self.request.user)
-
-class GroupAssignmentViewSet(viewsets.ModelViewSet):
-    serializer_class = GroupAssignmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['created_at', 'title']
-    search_fields = ['title', 'description']
-    def get_queryset(self):
-        return GroupAssignment.objects.filter(members=self.request.user)
-
-class FeedbackViewSet(viewsets.ModelViewSet):
-    queryset = Feedback.objects.all()
-    serializer_class = FeedbackSerializer
-    def get_permissions(self):
-        if self.action == 'create':
-            return [AllowAny()]
-        return [IsAdminUser()] 
+    def perform_create(self, serializer):
+        submission = serializer.validated_data.get('submission')
+        if submission.exam.course.teacher_id != self.request.user.pk:
+            raise PermissionDenied('Only course teacher can log incidents for submissions in their course.')
+        serializer.save()

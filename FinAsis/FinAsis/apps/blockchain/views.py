@@ -41,3 +41,31 @@ def record_create(request):
         )
         return HttpResponseRedirect(reverse('blockchain:record_list'))
     return render(request, 'blockchain/record_create.html')
+
+# --- Simple UI pages referenced from blockchain home ---
+def transactions_list(request):
+    # Placeholder: later wire to real transaction models/services
+    example = [
+        {"txid": "0x1234abcd", "status": "confirmed", "amount": 1.25, "asset": "BTC"},
+        {"txid": "0x9876ef01", "status": "pending", "amount": 12.0, "asset": "ETH"},
+    ]
+    return render(request, 'blockchain/transactions_list.html', {"transactions": example})
+
+def contracts_list(request):
+    example = [
+        {"name": "Varlık Token Sözleşmesi", "address": "0xa1b2...", "network": "testnet"},
+        {"name": "Tedarik Zinciri", "address": "0xc3d4...", "network": "testnet"},
+    ]
+    return render(request, 'blockchain/contracts_list.html', {"contracts": example})
+
+def assets_list(request):
+    example = [
+        {"symbol": "BTC", "balance": 0.52},
+        {"symbol": "ETH", "balance": 14.7},
+        {"symbol": "USDT", "balance": 1200},
+    ]
+    return render(request, 'blockchain/assets_list.html', {"assets": example})
+
+def reports(request):
+    # High-level links or summaries; can be expanded later
+    return render(request, 'blockchain/reports.html')

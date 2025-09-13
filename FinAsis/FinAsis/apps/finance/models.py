@@ -371,6 +371,8 @@ class Voucher(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    # Multi-tenancy (nullable for backfill; later enforce not null)
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='finance_vouchers')
     
     def __str__(self):
         return f"{self.employee} - {self.amount}"
@@ -380,6 +382,7 @@ class InvoiceRecord(models.Model):
     month = models.CharField(max_length=20)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='finance_invoice_records')
 
     def __str__(self):
         return f"{self.user} - {self.month} - {self.amount}₺"

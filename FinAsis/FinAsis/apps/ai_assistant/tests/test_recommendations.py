@@ -3,7 +3,7 @@ import pytest
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from FinAsis.apps.ai_assistant.models import UserPreference, AIInsight, UserInteraction
-from ..services import RecommendationService
+from FinAsis.apps.ai_assistant.services import RecommendationService
 from unittest.mock import patch, MagicMock
 
 User = get_user_model()

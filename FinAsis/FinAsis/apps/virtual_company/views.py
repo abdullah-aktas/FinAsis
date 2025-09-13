@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import VirtualCompany, Product
+from django.db.models import Sum, F, DecimalField, ExpressionWrapper
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView
+)
+from django.urls import reverse_lazy
+from django import forms
 from .serializers import VirtualCompanySerializer, ProductSerializer, ARAccountingEntrySerializer, ARCompanySerializer, ARProductSerializer
 from django.db.models import Sum
 from rest_framework.permissions import BasePermission
@@ -167,3 +173,134 @@ class ARProductByMarkerAPIView(APIView):
             return Response(serializer.data)
         except Product.DoesNotExist:
             return Response({'error': 'Ürün bulunamadı'}, status=404)
+
+# -------------------- Web (HTML) Views --------------------
+
+class VirtualCompanyForm(forms.ModelForm):
+    class Meta:
+        model = VirtualCompany
+        fields = ['name', 'description', 'balance']
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['company', 'name', 'description', 'price', 'stock', 'marker_id']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            field = self.fields.get('company')
+            if field:  # type: ignore
+                # type: ignore below: django dynamic attribute
+                field.queryset = VirtualCompany.objects.filter(owner=user)  # type: ignore[attr-defined]
+
+class OwnerQuerysetMixin:
+    """Mixin: yalnızca giriş yapan kullanıcının sahip olduğu VirtualCompany kayıtlarını döndür."""
+    def get_queryset(self):  # type: ignore
+        try:
+            qs = super().get_queryset()  # type: ignore
+        except AttributeError:
+            qs = VirtualCompany.objects.all()
+        user = getattr(self.request, 'user', None)  # type: ignore
+        if user and user.is_authenticated:
+            return qs.filter(owner=user)
+        return qs.none()
+
+class VirtualCompanyListView(OwnerQuerysetMixin, ListView):
+    model = VirtualCompany
+    template_name = 'virtual_company/virtual_company_list.html'
+    context_object_name = 'object_list'
+    def get_queryset(self):  # type: ignore
+        base_qs = super().get_queryset()
+        value_expr = ExpressionWrapper(
+            F('products__price') * F('products__stock'),
+            output_field=DecimalField(max_digits=18, decimal_places=2)
+        )
+        return base_qs.prefetch_related('products').annotate(
+            total_inventory_annotated=Sum(value_expr)
+        )
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        companies = ctx.get('object_list', [])
+        total_balance = sum((c.balance for c in companies), start=0)
+        # Annotated alan varsa onu kullan, yoksa fallback hesapla
+        if companies and hasattr(companies[0], 'total_inventory_annotated'):
+            total_inventory = sum((c.total_inventory_annotated or 0 for c in companies), start=0)
+        else:
+            total_inventory = sum(
+                (sum(p.price * p.stock for p in c.products.all()) for c in companies),
+                start=0
+            )
+        ctx.update({
+            'title': 'Sanal Şirketler',
+            'company_count': len(companies),
+            'total_balance': total_balance,
+            'total_inventory_value': total_inventory,
+        })
+        return ctx
+
+class VirtualCompanyDetailView(OwnerQuerysetMixin, DetailView):
+    model = VirtualCompany
+    template_name = 'virtual_company/virtual_company_detail.html'
+
+class VirtualCompanyCreateView(CreateView):
+    model = VirtualCompany
+    form_class = VirtualCompanyForm
+    template_name = 'virtual_company/virtual_company_form.html'
+    success_url = reverse_lazy('virtual_company:virtual_company_list')
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+class VirtualCompanyUpdateView(OwnerQuerysetMixin, UpdateView):
+    model = VirtualCompany
+    form_class = VirtualCompanyForm
+    template_name = 'virtual_company/virtual_company_form.html'
+    success_url = reverse_lazy('virtual_company:virtual_company_list')
+
+class VirtualCompanyDeleteView(OwnerQuerysetMixin, DeleteView):
+    model = VirtualCompany
+    template_name = 'virtual_company/virtual_company_confirm_delete.html'
+    success_url = reverse_lazy('virtual_company:virtual_company_list')
+
+class ProductListView(ListView):
+    model = Product
+    template_name = 'virtual_company/product_list.html'
+    context_object_name = 'object_list'
+    def get_queryset(self):
+        return Product.objects.filter(company__owner=self.request.user)
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'virtual_company/product_form.html'
+    success_url = reverse_lazy('virtual_company:product_list')
+    def form_valid(self, form):
+        if not form.cleaned_data.get('company'):
+            form.add_error('company', 'Bir şirket seçmelisiniz.')
+            return self.form_invalid(form)
+        return super().form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'virtual_company/product_form.html'
+    success_url = reverse_lazy('virtual_company:product_list')
+    def get_queryset(self):
+        return Product.objects.filter(company__owner=self.request.user)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'virtual_company/product_confirm_delete.html'
+    success_url = reverse_lazy('virtual_company:product_list')
+    def get_queryset(self):
+        return Product.objects.filter(company__owner=self.request.user)

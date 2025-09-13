@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-import pygame
+try:
+    import pygame  # type: ignore
+except Exception:  # pragma: no cover
+    pygame = None
+
+try:
+    import ursina  # type: ignore
+except Exception:  # pragma: no cover
+    ursina = None
 import ursina
 import numpy as np
 from typing import Dict, List, Optional
@@ -53,6 +61,8 @@ class GameEngine:
         
     def initialize_game(self):
         """Oyun başlangıç ayarlarını yapılandırır"""
+        if pygame is None:
+            raise RuntimeError("pygame not installed; GameEngine graphics disabled")
         pygame.init()
         self.setup_networking()
         self.load_assets()

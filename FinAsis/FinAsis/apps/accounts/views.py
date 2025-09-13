@@ -80,16 +80,15 @@ def user_profile(request):
         "gider_kategori_labels": gider_kategori_labels,
         "gider_kategori_data": gider_kategori_data,
     }
-    if request.user.user_type and request.user.user_type.code == 'kobi':
-        dashboard_template = 'accounts/dashboard_kobi.html'
-    elif request.user.user_type and request.user.user_type.code == 'egitimci':
-        dashboard_template = 'accounts/dashboard_egitimci.html'
-    elif request.user.user_type and request.user.user_type.code == 'ogrenci':
-        dashboard_template = 'accounts/dashboard_ogrenci.html'
-    elif request.user.user_type and request.user.user_type.code == 'oyuncu':
-        dashboard_template = 'accounts/dashboard_oyuncu.html'
-    else:
-        dashboard_template = 'accounts/profile.html'
+    utype = getattr(request.user, 'user_type', None)
+    code = getattr(utype, 'code', None)
+    template_map = {
+        'kobi': 'accounts/dashboard_kobi.html',
+        'egitimci': 'accounts/dashboard_egitimci.html',
+        'ogrenci': 'accounts/dashboard_ogrenci.html',
+        'oyuncu': 'accounts/dashboard_oyuncu.html',
+    }
+    dashboard_template = template_map.get(code or '', 'accounts/profile.html')
     return render(request, dashboard_template, context)
 
 @login_required
@@ -149,27 +148,28 @@ def home(request):
     return render(request, 'accounting/home.html')
 
 def register(request):
+    """Kayıt view (basitleştirilmiş ve sağlam)."""
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user_type = form.cleaned_data['user_type']
-            user.user_type = user_type
-            company = form.cleaned_data.get('company')
-            new_company_name = form.cleaned_data.get('new_company_name')
-            if not company and new_company_name:
-                company = Company.objects.create(name=new_company_name)
-            user.company = company
-            user.save()
-            UserSettings.objects.create(user=user)
-            # Kullanıcı tipine göre varsayılan abonelik ata
-            if user_type.default_subscription:
-                Subscription.objects.create(user=user, subscription_type=user_type.default_subscription)
-            login(request, user)
-            return redirect('/accounts/profile/')
+            user = form.save()
+            # Kullanıcı ayar kaydı oluştur (idempotent)
+            UserSettings.objects.get_or_create(user=user)
+            # Login: backend parametresi ile
+            try:
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            except Exception:
+                # backend attribute yoksa fallback
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                login(request, user)
+            messages.success(request, 'Kayıt başarılı, hoş geldiniz!')
+            return redirect('accounts:user_profile')
+        else:
+            messages.error(request, 'Form hataları var, lütfen düzeltin.')
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
 
 def report_redirect(request):
     return redirect('accounting:summary_report')

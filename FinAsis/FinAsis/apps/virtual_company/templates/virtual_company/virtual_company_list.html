@@ -9,6 +9,32 @@
     <div class="row">
         <div class="col-md-12">
             <h1 class="mb-4">{% trans 'VirtualCompany Listesi' %}</h1>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">{% trans 'Toplam Şirket' %}</h6>
+                            <div class="h4 mb-0">{{ company_count }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">{% trans 'Toplam Bakiye' %}</h6>
+                            <div class="h4 mb-0">{{ total_balance }} ₺</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">{% trans 'Toplam Stok Değeri' %}</h6>
+                            <div class="h4 mb-0">{{ total_inventory_value }} ₺</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="mb-3">
                 <a href="{% url 'virtual_company:virtual_company_create' %}" class="btn btn-primary">

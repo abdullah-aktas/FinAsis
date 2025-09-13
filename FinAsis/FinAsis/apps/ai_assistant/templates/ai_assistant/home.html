@@ -17,7 +17,7 @@
                     <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-chat-dots"></i></div>
                     <h6 class="card-title">Finansal Sohbet</h6>
                     <p class="card-text">AI asistan ile finansal sorularınızı sorun, anında yanıt alın.</p>
-                    <a href="/ai-assistant/chat/" class="btn btn-primary w-100">Sohbete Başla</a>
+                    <a href="{% url 'ai_assistant:chat_alias' %}" class="btn btn-primary w-100">Sohbete Başla</a>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
                     <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-graph-up"></i></div>
                     <h6 class="card-title">Piyasa Analizi</h6>
                     <p class="card-text">Güncel piyasa analizleri ve trendleri görüntüleyin.</p>
-                    <a href="/ai-assistant/market_analysis_list/" class="btn btn-primary w-100">Analizleri Gör</a>
+                    <a href="{% url 'ai_assistant:market_analysis_list_alias' %}" class="btn btn-primary w-100">Analizleri Gör</a>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
                     <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-lightbulb"></i></div>
                     <h6 class="card-title">AI Önerileri</h6>
                     <p class="card-text">Yapay zekadan kişiselleştirilmiş finansal öneriler alın.</p>
-                    <a href="/ai-assistant/recommendation_list/" class="btn btn-primary w-100">Önerileri Gör</a>
+                    <a href="{% url 'ai_assistant:recommendation_list_alias' %}" class="btn btn-primary w-100">Önerileri Gör</a>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
                 <div class="card-body d-flex flex-column align-items-center justify-content-center">
                     <div class="mb-2" style="font-size:2rem;"><i class="bi bi-bar-chart"></i></div>
                     <h5 class="card-title">Tahminler & Raporlar</h5>
-                    <a href="/ai-assistant/financial_report_list/" class="btn btn-outline-primary mt-2 w-100">Raporları Görüntüle</a>
+                    <a href="{% url 'ai_assistant:financial_report_list_alias' %}" class="btn btn-outline-primary mt-2 w-100">Raporları Görüntüle</a>
                 </div>
             </div>
         </div>
@@ -69,5 +69,10 @@
         <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
         Henüz hiç analiz başlatmadınız mı? Hemen yukarıdan bir özellik seçin ve kullanmaya başlayın!
     </div>
+                <div class="container py-5">
+                    <h1 class="mb-4">AI Finans Asistanı</h1>
+                    <p>Yapay zeka destekli finansal analiz, tahmin ve öneriler için bu modülü kullanabilirsiniz.</p>
+                    <a href="{% url 'ai_assistant:chat_alias' %}" class="btn btn-primary">Sohbete Başla</a>
+                </div>
 </div>
 {% endblock %} 

@@ -10,6 +10,7 @@ class VirtualCompany(models.Model):
     Öğrenci/katılımcı tarafından oluşturulan sanal şirket modeli.
     Finansal işlemlerin ve ürünlerin merkezi yapısıdır.
     """
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_companies')
     name = models.CharField(max_length=100, verbose_name="Şirket Adı")
     description = models.TextField(verbose_name="Şirket Açıklaması")
     balance = models.DecimalField(
@@ -67,6 +68,7 @@ class Product(models.Model):
         related_name='products',
         verbose_name="Bağlı Olduğu Şirket"
     )
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_products')
     marker_id = models.CharField(max_length=50, verbose_name="Marker ID", default="hiro")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Eklenme Tarihi")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")
@@ -96,6 +98,7 @@ class Transaction(models.Model):
     ]
 
     company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='transactions', verbose_name="Şirket")
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_transactions')
     transaction_type = models.CharField(max_length=7, choices=TRANSACTION_TYPES, verbose_name="İşlem Türü")
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Tutar (₺)")
     description = models.TextField(verbose_name="Açıklama")
@@ -115,6 +118,7 @@ class Invoice(models.Model):
     Fatura kaydı. Eğitim amaçlı uygulamalarda kullanılabilir.
     """
     company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='invoices', verbose_name="Şirket")
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_invoices')
     invoice_number = models.CharField(max_length=20, verbose_name="Fatura No")
     customer_name = models.CharField(max_length=100, verbose_name="Müşteri Adı")
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Toplam Tutar (₺)")
@@ -152,6 +156,7 @@ class FinanceReport(models.Model):
     Otomatik veya elle oluşturulmuş finansal analiz raporu.
     """
     company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='reports', verbose_name="Şirket")
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_reports')
     title = models.CharField(max_length=100, verbose_name="Rapor Başlığı")
     content = models.TextField(verbose_name="Rapor İçeriği")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")
@@ -200,6 +205,7 @@ class AccountingEntry(models.Model):
     Öğrencinin girdiği muhasebe kaydı. Şirketin finansal yapısına etkisi izlenir.
     """
     company = models.ForeignKey(VirtualCompany, on_delete=models.CASCADE, related_name='entries', verbose_name="Şirket")
+    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.PROTECT, related_name='virtual_entries')
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Öğrenci")
     date = models.DateField(auto_now_add=True, verbose_name="Kayıt Tarihi")
     description = models.CharField(max_length=255, verbose_name="İşlem Açıklaması")
