@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ object.name }} - {% trans 'Sanal Şirket' %}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1>{{ object.name }}</h1>
+  <p class="text-muted">{{ object.description }}</p>
+  <div class="mb-3">
+    <strong>{% trans 'Bakiye' %}:</strong> {{ object.balance }} ₺
+  </div>
+  <a href="{% url 'virtual_company:virtual_company_update' object.id %}" class="btn btn-sm btn-warning">{% trans 'Düzenle' %}</a>
+  <a href="{% url 'virtual_company:virtual_company_delete' object.id %}" class="btn btn-sm btn-danger">{% trans 'Sil' %}</a>
+  <a href="{% url 'virtual_company:virtual_company_list' %}" class="btn btn-secondary btn-sm">{% trans 'Geri Dön' %}</a>
+</div>
+{% endblock %}

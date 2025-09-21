@@ -1,7 +1,473 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Entegrasyonlar - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.int-card { border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.06); }
+.endpoint { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: .95rem; }
+.btn-copy { border: none; background: #eef2ff; color: #312e81; padding: .35rem .6rem; border-radius: 6px; }
+.result-box { background: #0b1020; color: #e2e8f0; border-radius: 10px; padding: 12px; font-size: .9rem; max-height: 280px; overflow: auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+.badge-soft { background: #ecfeff; color: #155e75; }
+.muted { color: #64748b; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5 text-center">
-  <h1>Entegrasyon Çözümleri</h1>
-  <p>Bu sayfa entegrasyon çözümleri için örnek içeriktir.</p>
+<div class="container py-4">
+  <h1 class="h3 mb-3">Entegrasyonlar</h1>
+  <p class="text-secondary">Aşağıdaki uç noktaları kullanarak FinAsis ile hızlı entegrasyonlar kurabilirsiniz. Canlı test butonlarıyla doğrulama yapın.</p>
+  <div id="statusBar" class="alert alert-light border d-flex flex-wrap gap-3 align-items-center" role="alert">
+    <span class="badge rounded-pill bg-secondary" id="stUser">Kullanıcı: -</span>
+    <span class="badge rounded-pill bg-secondary" id="stCompany">Şirket: -</span>
+    <span class="badge rounded-pill bg-secondary" id="stSTT">STT: -</span>
+    <span class="badge rounded-pill bg-secondary" id="stOCR">Google Vision: -</span>
+    <button class="btn btn-sm btn-outline-primary ms-auto" id="btnHealth">Sağlık testi çalıştır</button>
+  </div>
+
+  <div class="grid">
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">Webhook Alıcısı</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-webhook">/accounting/api/webhook/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-webhook">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST "${ORIGIN}/accounting/api/webhook/" -H "Content-Type: application/json" -d '{"event":"test","source":"curl"}'</pre>
+      </details>
+      <p class="muted">Dış sistemlerden gelen olayları kabul eder. İmza/doğrulama için proxy kullanın.</p>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary" id="btnWebhookTest">Örnek Gönder</button>
+      </div>
+      <pre class="result-box mt-2" id="resWebhook">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">Veri Senkronizasyonu</h5>
+        <span class="badge badge-soft">GET</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-sync">/accounting/api/sync/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-sync">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X GET -b "csrftoken=...; sessionid=..." "${ORIGIN}/accounting/api/sync/"</pre>
+      </details>
+      <p class="muted">Kullanıcıya ait verileri senkronize eder (örnek).</p>
+      <button class="btn btn-sm btn-primary" id="btnSync">Senkronize Et</button>
+      <pre class="result-box mt-2" id="resSync">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">AI Kayıt Önerisi</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-ai-suggest">/accounting/api/ai/suggest-entry/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-ai-suggest">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST -H "Content-Type: application/json" -H "X-CSRFToken: $CSRF" -b "sessionid=..." "${ORIGIN}/accounting/api/ai/suggest-entry/" -d '{"context":"Starbucks kahve 180 TL"}'</pre>
+      </details>
+      <textarea id="aiSuggestText" class="form-control" rows="3" placeholder="Örnek bağlam (JSON değil düz metin olabilir)"></textarea>
+      <button class="btn btn-sm btn-primary mt-2" id="btnAiSuggest">Öneri Al</button>
+      <pre class="result-box mt-2" id="resAiSuggest">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">AI Finans Analizi</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-ai-analyze">/accounting/api/ai/analyze-finance/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-ai-analyze">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST -H "Content-Type: application/json" -H "X-CSRFToken: $CSRF" -b "sessionid=..." "${ORIGIN}/accounting/api/ai/analyze-finance/" -d '{"data":"Ağustos özeti"}'</pre>
+      </details>
+      <textarea id="aiAnalyzeText" class="form-control" rows="3" placeholder="Örnek veri (JSON değil düz metin olabilir)"></textarea>
+      <button class="btn btn-sm btn-primary mt-2" id="btnAiAnalyze">Analiz Al</button>
+      <pre class="result-box mt-2" id="resAiAnalyze">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">OCR Fiş Önizleme</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-ocr">/accounting/api/ocr/preview-voucher/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-ocr">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST -H "X-CSRFToken: $CSRF" -b "sessionid=..." -F "file=@invoice.jpg" "${ORIGIN}/accounting/api/ocr/preview-voucher/"</pre>
+      </details>
+      <input type="file" id="ocrFile" accept="image/*,application/pdf" class="form-control" />
+      <button class="btn btn-sm btn-primary mt-2" id="btnOCR">Önizleme</button>
+      <pre class="result-box mt-2" id="resOCR">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">NLP Fiş Önizleme</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-nlp">/accounting/api/ai/nlp/preview-voucher/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-nlp">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST -H "Content-Type: application/json" -H "X-CSRFToken: $CSRF" -b "sessionid=..." "${ORIGIN}/accounting/api/ai/nlp/preview-voucher/" -d '{"text":"10.09.2024 Starbucks kahve 180 TL"}'</pre>
+      </details>
+      <textarea id="nlpText" class="form-control" rows="3" placeholder="Örnek: 10.09.2024 Starbucks kahve 180 TL KDV dahil"></textarea>
+      <button class="btn btn-sm btn-primary mt-2" id="btnNLP">Önizleme</button>
+      <pre class="result-box mt-2" id="resNLP">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">STT Fiş Önizleme</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-stt">/accounting/api/ai/stt/preview-voucher/</code>
+        <button class="btn-copy ms-2" data-copy="#ep-stt">Kopyala</button>
+      </div>
+      <details class="mt-2">
+        <summary>cURL örneği</summary>
+        <pre class="result-box mt-2">curl -X POST -H "X-CSRFToken: $CSRF" -b "sessionid=..." -F "file=@voice.wav" "${ORIGIN}/accounting/api/ai/stt/preview-voucher/"</pre>
+      </details>
+      <input type="file" id="sttFile" accept="audio/wav" class="form-control" />
+      <button class="btn btn-sm btn-primary mt-2" id="btnSTT">Önizleme</button>
+      <pre class="result-box mt-2" id="resSTT">Hazır</pre>
+      <div class="small text-secondary mt-2">Not: STT özelliği ortam ayarı gerektirir.</div>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">Dışa Aktarım</h5>
+        <span class="badge badge-soft">GET</span>
+      </div>
+      <div class="endpoint mb-2"><code>/accounting/api/export/summary/pdf/</code></div>
+      <div class="endpoint mb-1"><code>/accounting/api/export/summary/excel/</code></div>
+      <div class="endpoint mb-1"><code>/accounting/api/export/summary/json/</code></div>
+      <div class="endpoint mb-2"><code>/accounting/api/export/summary/xml/</code></div>
+      <div class="d-flex gap-2 flex-wrap">
+  {% if user.is_authenticated %}
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'accounting:api_export_summary_pdf' %}">PDF</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'accounting:api_export_summary_excel' %}">Excel</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'accounting:api_export_summary_json' %}" target="_blank">JSON</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'accounting:api_export_summary_xml' %}" target="_blank">XML</a>
+  {% else %}
+  <span class="text-muted small">Giriş yaptıktan sonra export uçları etkinleşir.</span>
+  {% endif %}
+      </div>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">Kurallar (AutoBook)</h5>
+        <span class="badge badge-soft">POST</span>
+      </div>
+      <div class="endpoint mb-1"><code>/accounting/api/ai/rules/suggest/</code></div>
+      <div class="endpoint mb-1"><code>/accounting/api/ai/rules/apply/</code></div>
+      <div class="endpoint mb-2"><code>/accounting/api/ai/rules/test/</code></div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-sm btn-primary" id="btnRuleSuggest">Öner</button>
+        <button class="btn btn-sm btn-secondary" id="btnRuleApply">Uygula</button>
+        <button class="btn btn-sm btn-outline-primary" id="btnRuleTest">Test Et</button>
+      </div>
+      <pre class="result-box mt-2" id="resRules">Hazır</pre>
+    </div>
+
+    <div class="card p-3 int-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="mb-2">Hesap Arama</h5>
+        <span class="badge badge-soft">GET</span>
+      </div>
+      <div class="endpoint mb-2">
+        <code id="ep-account-search">/accounting/api/accounts/search/?q=100</code>
+        <button class="btn-copy ms-2" data-copy="#ep-account-search">Kopyala</button>
+      </div>
+      <button class="btn btn-sm btn-primary" id="btnAccSearch">Ara</button>
+      <pre class="result-box mt-2" id="resAccSearch">Hazır</pre>
+    </div>
+  </div>
+
+  <div class="grid mt-3">
+    <div class="card p-3 int-card" style="grid-column: 1/-1;">
+      <h5 class="mb-2">API Anahtarları ve İmza Doğrulama</h5>
+      <p class="muted mb-2">En iyi uygulamalar:</p>
+      <ul class="mb-3">
+        <li>API anahtarlarını istemci tarafında asla tutmayın; sunucu→sunucu çağrılar yapın.</li>
+        <li>Her isteği HMAC-SHA256 ile imzalayın: <code>signature = HMAC(secret, method + "\n" + path + "\n" + timestamp + "\n" + body)</code></li>
+        <li>Başlıklarda <code>X-API-Key</code>, <code>X-Timestamp</code> (ISO8601/epoch), <code>X-Signature</code> gönderin.</li>
+        <li>Sunucu tarafında zaman kaymasını ±5 dk kontrol edin ve tek-kullanımlık <code>nonce</code> kabul edin.</li>
+      </ul>
+      <details class="mb-2">
+        <summary>Python (Django/Flask) doğrulama örneği</summary>
+<pre class="result-box mt-2">import hmac, hashlib, time
+
+def verify_signature(secret: str, method: str, path: str, timestamp: str, body: bytes, signature: str) -> bool:
+    msg = f"{method}\n{path}\n{timestamp}\n".encode() + body
+    calc = hmac.new(secret.encode(), msg, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(calc, signature)
+
+# Kullanım (örnek):
+# ts = request.headers.get('X-Timestamp')
+# ok = verify_signature(SECRET, request.method, request.path, ts, request.body or b'', request.headers.get('X-Signature',''))
+# if not ok: return HttpResponse(status=401)
+</pre>
+      </details>
+      <details>
+        <summary>Node.js (Express) doğrulama örneği</summary>
+<pre class="result-box mt-2">const crypto = require('crypto');
+
+function verifySignature(secret, method, path, timestamp, body, signature) {
+  const msg = Buffer.concat([
+    Buffer.from(`${method}\n${path}\n${timestamp}\n`),
+    Buffer.isBuffer(body) ? body : Buffer.from(body || '')
+  ]);
+  const h = crypto.createHmac('sha256', secret).update(msg).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(h), Buffer.from(signature || ''));
+}
+
+// app.post('/accounting/api/webhook', express.raw({type:'*/*'}), (req,res)=>{ ... })
+</pre>
+      </details>
+    </div>
+  </div>
+
+  <div class="grid mt-3">
+    <div class="card p-3 int-card"><h5 class="mb-1">Logo</h5><span class="badge bg-warning text-dark">Yakında</span><p class="mt-2 muted">Kurumsal ERP entegrasyonu planlandı.</p></div>
+    <div class="card p-3 int-card"><h5 class="mb-1">Mikro</h5><span class="badge bg-warning text-dark">Yakında</span><p class="mt-2 muted">Satış ve stok senkronizasyonu.</p></div>
+    <div class="card p-3 int-card"><h5 class="mb-1">Netsis</h5><span class="badge bg-warning text-dark">Yakında</span><p class="mt-2 muted">Muhasebe fiş aktarımı.</p></div>
+    <div class="card p-3 int-card"><h5 class="mb-1">Paraşüt</h5><span class="badge bg-warning text-dark">Yakında</span><p class="mt-2 muted">Fatura ve cari senkronizasyonu.</p></div>
+    <div class="card p-3 int-card" style="grid-column: 1/-1;">
+      <h5 class="mb-2">Kurumsal Entegrasyon Talep Formu</h5>
+      <div class="row g-2">
+        <div class="col-md-3"><input id="corpName" class="form-control" placeholder="Ad Soyad" /></div>
+        <div class="col-md-3"><input id="corpEmail" type="email" class="form-control" placeholder="E-posta" /></div>
+        <div class="col-md-3"><input id="corpCompany" class="form-control" placeholder="Şirket" /></div>
+        <div class="col-md-3">
+          <select id="corpType" class="form-select">
+            <option value="Logo">Logo</option>
+            <option value="Mikro">Mikro</option>
+            <option value="Netsis">Netsis</option>
+            <option value="Paraşüt">Paraşüt</option>
+          </select>
+        </div>
+        <div class="col-12"><textarea id="corpNote" rows="2" class="form-control" placeholder="Not / İhtiyaç"></textarea></div>
+      </div>
+      <div class="mt-2 d-flex gap-2">
+        <button class="btn btn-primary btn-sm" id="btnCorpReq">Talebi Gönder</button>
+        <div class="small text-secondary">Form, hızlı geri dönüş için webhook'a iletilir.</div>
+      </div>
+      <pre class="result-box mt-2" id="resCorpReq">Hazır</pre>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <h6>Sağlık Testi Sonuçları</h6>
+    <pre class="result-box" id="resHealth">Hazır</pre>
+  </div>
+
+  <div class="mt-4">
+  {% if user.is_authenticated %}
+  <a href="{% url 'accounting:api_docs' %}" target="_blank" class="btn btn-outline-secondary">API Dokümantasyonu (Swagger)</a>
+  {% endif %}
+  </div>
 </div>
+
+<script>
+function getCookie(name){
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+async function fetchJSON(url, options={}){
+  const res = await fetch(url, options);
+  let data = null;
+  try { data = await res.json(); } catch(e) { data = await res.text(); }
+  return { ok: res.ok, status: res.status, data };
+}
+function pretty(out){
+  if(typeof out === 'string') return out;
+  try { return JSON.stringify(out, null, 2); } catch(e){ return String(out); }
+}
+function wireCopy(){
+  document.querySelectorAll('[data-copy]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const sel = btn.getAttribute('data-copy');
+      const el = document.querySelector(sel);
+      if(el){
+        const text = el.textContent.trim();
+        navigator.clipboard.writeText(location.origin + text).then(()=>{
+          btn.textContent = 'Kopyalandı';
+          setTimeout(()=>btn.textContent='Kopyala', 1000);
+        });
+      }
+    });
+  });
+}
+
+  document.addEventListener('DOMContentLoaded', async ()=>{
+  wireCopy();
+  const csrf = getCookie('csrftoken') || '';
+    // Status badges
+    try{
+      const res = await fetchJSON('/accounting/api/integrations/status/', {credentials:'same-origin'});
+      const d = res.data || {};
+      document.getElementById('stUser').textContent = `Kullanıcı: ${d.user || '-'}`;
+      document.getElementById('stCompany').textContent = `Şirket: ${d.has_company ? 'Var' : 'Yok'}`;
+      document.getElementById('stSTT').textContent = `STT: ${d.stt_enabled ? 'Açık' : 'Kapalı'}`;
+      document.getElementById('stOCR').textContent = `Google Vision: ${d.use_google_vision ? 'Açık' : 'Kapalı'}`;
+    }catch(e){ /* sessiz */ }
+  // Webhook test (AllowAny)
+  document.getElementById('btnWebhookTest').onclick = async ()=>{
+    const res = await fetchJSON('/accounting/api/webhook/', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({event:'test', source:'integrations-page', time: Date.now()})
+    });
+    document.getElementById('resWebhook').textContent = pretty(res.data);
+  };
+  // Sync
+  document.getElementById('btnSync').onclick = async ()=>{
+    const res = await fetchJSON('/accounting/api/sync/', {credentials:'same-origin'});
+    document.getElementById('resSync').textContent = pretty(res.data);
+  };
+  // AI suggest
+  document.getElementById('btnAiSuggest').onclick = async ()=>{
+    const context = document.getElementById('aiSuggestText').value || 'Starbucks kahve 180 TL';
+    const res = await fetchJSON('/accounting/api/ai/suggest-entry/', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json','X-CSRFToken': csrf},
+      body: JSON.stringify({context})
+    });
+    document.getElementById('resAiSuggest').textContent = pretty(res.data);
+  };
+  // AI analyze
+  document.getElementById('btnAiAnalyze').onclick = async ()=>{
+    const dataTxt = document.getElementById('aiAnalyzeText').value || 'Ağustos özeti';
+    const res = await fetchJSON('/accounting/api/ai/analyze-finance/', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json','X-CSRFToken': csrf},
+      body: JSON.stringify({data: dataTxt})
+    });
+    document.getElementById('resAiAnalyze').textContent = pretty(res.data);
+  };
+  // OCR preview
+  document.getElementById('btnOCR').onclick = async ()=>{
+    const f = document.getElementById('ocrFile').files[0];
+    if(!f){ document.getElementById('resOCR').textContent = 'Dosya seçin.'; return; }
+    const fd = new FormData(); fd.append('file', f);
+    const res = await fetch('/accounting/api/ocr/preview-voucher/', {
+      method:'POST', credentials:'same-origin', headers:{'X-CSRFToken': csrf}, body: fd
+    });
+    let data; try{ data = await res.json(); }catch(e){ data = await res.text(); }
+    document.getElementById('resOCR').textContent = pretty(data);
+  };
+  // NLP preview
+  document.getElementById('btnNLP').onclick = async ()=>{
+    const text = document.getElementById('nlpText').value || '10.09.2024 Starbucks kahve 180 TL';
+    const res = await fetchJSON('/accounting/api/ai/nlp/preview-voucher/', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json','X-CSRFToken': csrf},
+      body: JSON.stringify({text})
+    });
+    document.getElementById('resNLP').textContent = pretty(res.data);
+  };
+  // STT preview
+  document.getElementById('btnSTT').onclick = async ()=>{
+    const f = document.getElementById('sttFile').files[0];
+    if(!f){ document.getElementById('resSTT').textContent = 'WAV dosyası seçin.'; return; }
+    const fd = new FormData(); fd.append('file', f);
+    const res = await fetch('/accounting/api/ai/stt/preview-voucher/', {
+      method:'POST', credentials:'same-origin', headers:{'X-CSRFToken': csrf}, body: fd
+    });
+    let data; try{ data = await res.json(); }catch(e){ data = await res.text(); }
+    document.getElementById('resSTT').textContent = pretty(data);
+  };
+  // Rules
+  document.getElementById('btnRuleSuggest').onclick = async ()=>{
+    const samples = { invoices:[{ reference:'INV-001', total: 120 }], expenses:[{ reference:'STRBX-001', total: 180 }] };
+    const res = await fetchJSON('/accounting/api/ai/rules/suggest/', {
+      method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-CSRFToken': csrf}, body: JSON.stringify(samples)
+    });
+    document.getElementById('resRules').textContent = pretty(res.data);
+  };
+  document.getElementById('btnRuleApply').onclick = async ()=>{
+    const res = await fetchJSON('/accounting/api/ai/rules/apply/', {
+      method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-CSRFToken': csrf}, body: JSON.stringify({ name:'Örnek Kural', keyword_pattern:'.*', nature:'expense', priority:95 })
+    });
+    document.getElementById('resRules').textContent = pretty(res.data);
+  };
+  document.getElementById('btnRuleTest').onclick = async ()=>{
+    const res = await fetchJSON('/accounting/api/ai/rules/test/', {
+      method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-CSRFToken': csrf}, body: JSON.stringify({ rule_id: 1, text:'STRBX-001 kahve' })
+    });
+    document.getElementById('resRules').textContent = pretty(res.data);
+  };
+  // Account search
+  document.getElementById('btnAccSearch').onclick = async ()=>{
+    const res = await fetchJSON('/accounting/api/accounts/search/?q=100', { credentials:'same-origin' });
+    document.getElementById('resAccSearch').textContent = pretty(res.data);
+  };
+
+  // Health check runner
+  async function runHealth(){
+    const out = [];
+    const tests = [
+      { name:'Status', fn:()=>fetchJSON('/accounting/api/integrations/status/', {credentials:'same-origin'}) },
+      { name:'Sync', fn:()=>fetchJSON('/accounting/api/sync/', {credentials:'same-origin'}) },
+      { name:'AI Suggest', fn:()=>fetchJSON('/accounting/api/ai/suggest-entry/', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-CSRFToken': csrf}, body: JSON.stringify({context:'Health check'}) }) },
+      { name:'Account Search', fn:()=>fetchJSON('/accounting/api/accounts/search/?q=100', {credentials:'same-origin'}) },
+      { name:'Webhook', fn:()=>fetchJSON('/accounting/api/webhook/', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({event:'health_check', source:'integrations-page', time: Date.now()}) }) },
+    ];
+    for(const t of tests){
+      const t0 = performance.now();
+      try{
+        const res = await t.fn();
+        const ms = Math.round(performance.now()-t0);
+        out.push(`${res.ok ? '✔️' : '❌'} ${t.name} - ${res.status} (${ms} ms)`);
+      }catch(err){
+        const ms = Math.round(performance.now()-t0);
+        out.push(`❌ ${t.name} - error (${ms} ms)`);
+      }
+    }
+    document.getElementById('resHealth').textContent = out.join('\n');
+  }
+  document.getElementById('btnHealth').onclick = runHealth;
+
+  // Corporate request form
+  document.getElementById('btnCorpReq').onclick = async ()=>{
+    const payload = {
+      event: 'integration_request',
+      name: document.getElementById('corpName').value || '',
+      email: document.getElementById('corpEmail').value || '',
+      company: document.getElementById('corpCompany').value || '',
+      integration: document.getElementById('corpType').value || '',
+      note: document.getElementById('corpNote').value || '',
+      time: Date.now()
+    };
+    const res = await fetchJSON('/accounting/api/webhook/', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    document.getElementById('resCorpReq').textContent = pretty(res.data);
+  };
+});
+</script>
 {% endblock %}

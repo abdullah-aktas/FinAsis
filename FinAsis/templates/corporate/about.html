@@ -1,16 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
-  <div class="container text-center">
-    <h1 class="display-5 fw-bold text-primary animate__animated animate__fadeInDown">Hakkımızda</h1>
-    <p class="lead mb-4 animate__animated animate__fadeInUp">FinAsis'in vizyonu, misyonu ve değerleri.</p>
-    <div class="card p-4 animate__animated animate__fadeInUp">
-      <h5 class="fw-bold">Vizyon & Misyon</h5>
-      <p>Burada şirketin vizyonu ve misyonu anlatılacak.</p>
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-primary animate__animated animate__fadeInDown">Hakkımızda</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">FinAsis'in vizyonu, misyonu ve değerleri.</p>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-success fs-6 animate__animated animate__bounce">Güvenilir</span>
-      <span class="badge bg-info fs-6 animate__animated animate__bounce">Şeffaf</span>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100 p-4">
+          <h5 class="fw-bold">Vizyon</h5>
+          <p>KOBİ ve girişimlere veri odaklı finans asistanı olarak en güvenilir çözüm olmak.</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100 p-4">
+          <h5 class="fw-bold">Misyon</h5>
+          <p>Finansal kararları basitleştirmek, otomasyon ve içgörüyle işletmelerin büyümesini hızlandırmak.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="h5 fw-bold mt-5">Değerler</h2>
+    <div class="row g-3">
+      <div class="col-md-3"><div class="card p-3 text-center"><span class="badge bg-success mb-2">Güven</span><p class="mb-0">Veri güvenliği ve etik öncelik.</p></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><span class="badge bg-info mb-2">Yenilik</span><p class="mb-0">Sürekli geliştirme ve deney.</p></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><span class="badge bg-warning text-dark mb-2">Şeffaflık</span><p class="mb-0">Açık iletişim ve raporlama.</p></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><span class="badge bg-secondary mb-2">Erişilebilirlik</span><p class="mb-0">Basit ve anlaşılır ürünler.</p></div></div>
+    </div>
+
+    <h2 class="h5 fw-bold mt-5">Zaman Çizelgesi</h2>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between"><span>2023 - Kuruluş</span><span class="badge bg-light text-dark">Başlangıç</span></li>
+      <li class="list-group-item d-flex justify-content-between"><span>2024 - Beta Yayın</span><span class="badge bg-success">Büyüme</span></li>
+      <li class="list-group-item d-flex justify-content-between"><span>2025 - Kurumsal Paket</span><span class="badge bg-primary">Olgunluk</span></li>
+    </ul>
+
+    <div class="mt-5 text-center">
+      <a href="/corporate/offer/" class="btn btn-success me-2">Kurumsal Teklif Al</a>
+      <a href="/contact/" class="btn btn-outline-secondary">İletişim</a>
     </div>
   </div>
 </section>

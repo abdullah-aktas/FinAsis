@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Blockchain Raporları{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4">Blockchain Raporları</h1>
+  <div class="list-group">
+    <a href="{% url 'blockchain:record_list' %}" class="list-group-item list-group-item-action">Kayıtlar (Hash) Listesi</a>
+    <a href="{% url 'blockchain:transactions_list' %}" class="list-group-item list-group-item-action">İşlem Özeti</a>
+    <a href="{% url 'blockchain:assets_list' %}" class="list-group-item list-group-item-action">Varlık Özeti</a>
+    <a href="{% url 'blockchain:contracts_list' %}" class="list-group-item list-group-item-action">Kontrat Özeti</a>
+  </div>
+  <a href="{% url 'blockchain:home' %}" class="btn btn-secondary mt-4">Blockchain Anasayfa</a>
+</div>
+{% endblock %}

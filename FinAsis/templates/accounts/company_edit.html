@@ -1,0 +1,18 @@
+{% extends "common/base.html" %}
+{% block title %}Şirket Düzenle{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">Şirket Bilgileri</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-2"><label>Ad</label><input class="form-control" type="text" name="name" value="{{ company.name }}"></div>
+    <div class="mb-2"><label>Sektör</label><input class="form-control" type="text" name="sector" value="{{ company.sector }}"></div>
+    <div class="mb-2"><label>Vergi No</label><input class="form-control" type="text" name="tax_number" value="{{ company.tax_number }}"></div>
+    <div class="mb-2"><label>Adres</label><textarea class="form-control" name="address">{{ company.address }}</textarea></div>
+    <div class="mb-2"><label>Telefon</label><input class="form-control" type="text" name="phone" value="{{ company.phone }}"></div>
+    <div class="mb-2"><label>E-posta</label><input class="form-control" type="email" name="email" value="{{ company.email }}"></div>
+    <div class="mb-2"><label>Logo</label><input class="form-control" type="file" name="logo"></div>
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+  </form>
+</div>
+{% endblock %}

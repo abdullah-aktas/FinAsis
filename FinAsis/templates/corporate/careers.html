@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-success animate__animated animate__fadeInDown">Kariyer</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">Ekibimize katılmak ister misiniz? Açık pozisyonlarımızı inceleyin.</p>
+    </div>
+
+    <h2 class="h5 fw-bold">Neden FinAsis?</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><div class="card p-3 h-100"><span class="badge bg-success mb-2">Etki</span><p class="mb-0">KOBİ'lerin finansal kararlarına doğrudan katkı.</p></div></div>
+      <div class="col-md-4"><div class="card p-3 h-100"><span class="badge bg-info mb-2">Öğrenme</span><p class="mb-0">Mentorluk ve sürekli gelişim kültürü.</p></div></div>
+      <div class="col-md-4"><div class="card p-3 h-100"><span class="badge bg-warning text-dark mb-2">Esneklik</span><p class="mb-0">Hibrit çalışma ve esnek saatler.</p></div></div>
+    </div>
+
+    <h2 class="h5 fw-bold">Yan Haklar</h2>
+    <ul class="list-group mb-4">
+      <li class="list-group-item">Özel sağlık sigortası</li>
+      <li class="list-group-item">Ekipman desteği</li>
+      <li class="list-group-item">Eğitim ve konferans bütçesi</li>
+      <li class="list-group-item">Yemek ve ulaşım desteği</li>
+    </ul>
+
+    <h2 class="h5 fw-bold">Örnek Pozisyonlar</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Backend Mühendisi</h6><small>Django, REST, PostgreSQL</small><p class="mb-0 mt-2">Ölçeklenebilir API ve entegrasyonlar.</p></div></div>
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Frontend Mühendisi</h6><small>React, TypeScript, Tailwind</small><p class="mb-0 mt-2">Kullanıcı odaklı arayüzler.</p></div></div>
+    </div>
+
+    <div class="text-center mt-4">
+      <div class="p-4 bg-white shadow-sm rounded">
+        <h3 class="h6 fw-bold mb-2">Başvurun</h3>
+        <p class="mb-3">Özgeçmişinizi bizimle paylaşın, tanışalım.</p>
+        <a href="/contact/" class="btn btn-success me-2">İletişime Geç</a>
+        <a href="/corporate/offer/" class="btn btn-outline-secondary">Kurumsal Teklif</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

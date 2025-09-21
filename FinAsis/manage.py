@@ -25,7 +25,7 @@ def main():
         sys.path.insert(0, inner_project_dir)
 
     # Tam paket yolu: FinAsis.config.settings
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FinAsis.config.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

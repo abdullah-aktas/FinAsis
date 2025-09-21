@@ -1,0 +1,11 @@
+-r requirements.base.txt
+numpy==2.2.6
+pandas>=2.2.3
+scikit-learn==1.6.1
+scipy==1.15.3
+matplotlib==3.10.3
+plotly==6.1.1
+prophet==1.1.6
+opencv-python==4.11.0.86
+pytesseract==0.3.13
+openai==1.81.0

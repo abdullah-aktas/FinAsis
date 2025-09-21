@@ -53,7 +53,7 @@
           <div class="mb-3 fs-1 text-success"><i class="bi bi-book"></i></div>
           <h6 class="card-title fw-bold">Derslerim</h6>
           <p class="card-text">Katıldığınız tüm dersleri buradan takip edebilirsiniz.</p>
-          <a href="/education/student/" class="btn btn-outline-success btn-sm mt-auto">Derslere Git</a>
+          <a href="{% url 'education' %}" class="btn btn-outline-success btn-sm mt-auto">Derslere Git</a>
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@
           <div class="mb-3 fs-1 text-primary"><i class="bi bi-bar-chart-line"></i></div>
           <h6 class="card-title fw-bold">Gelişim Raporu</h6>
           <p class="card-text">Kendi başarılarınızı dönemsel olarak gözlemleyin.</p>
-          <a href="/education/reports/" class="btn btn-outline-primary btn-sm mt-auto">Raporlara Git</a>
+          <a href="{% url 'education' %}" class="btn btn-outline-primary btn-sm mt-auto">Raporlara Git</a>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@
           <div class="mb-3 fs-1 text-warning"><i class="bi bi-lightbulb-fill"></i></div>
           <h6 class="card-title fw-bold">Interaktif Egzersizler</h6>
           <p class="card-text">Bilginizi ölçün, eğlenerek öğrenin.</p>
-          <a href="/education/interactive_exercises/" class="btn btn-outline-warning btn-sm mt-auto">Egzersizlere Git</a>
+          <a href="{% url 'education' %}" class="btn btn-outline-warning btn-sm mt-auto">Egzersizlere Git</a>
         </div>
       </div>
     </div>
@@ -97,15 +97,31 @@
 
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if chart_labels %}{{ chart_labels|json_script:"examChart-labels" }}{% endif %}
+{% if chart_data %}{{ chart_data|json_script:"examChart-data" }}{% endif %}
 <script>
   const ctx = document.getElementById('examChart').getContext('2d');
+  let chartLabels = [];
+  let chartData = [];
+  try {
+    const lblEl = document.getElementById('examChart-labels');
+    const dataEl = document.getElementById('examChart-data');
+    chartLabels = lblEl ? JSON.parse(lblEl.textContent) : [];
+    chartData = dataEl ? JSON.parse(dataEl.textContent) : [];
+  } catch (e) {
+    chartLabels = [];
+    chartData = [];
+  }
+  if (!Array.isArray(chartLabels)) chartLabels = [];
+  if (!Array.isArray(chartData)) chartData = [];
+
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: {{ chart_labels|safe }},
+      labels: chartLabels,
       datasets: [{
         label: 'Puan',
-        data: {{ chart_data|safe }},
+        data: chartData,
         fill: true,
         borderColor: '#00B894',
         backgroundColor: 'rgba(0,184,148,0.1)',
@@ -115,9 +131,7 @@
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { display: false }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 </script>

@@ -1,0 +1,20 @@
+{% extends "common/base.html" %}
+{% block title %}Terimler{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">Finansal Terimler</h1>
+    <a class="btn btn-sm btn-success" href="{% url 'education:financialtermcard_add' %}">Yeni Ekle</a>
+  </div>
+  <ul class="list-group">
+    {% for card in cards %}
+      <li class="list-group-item d-flex justify-content-between">
+        <span>{{ card.term }}</span>
+        <a href="{% url 'education:financialtermcard_detail' card.pk %}" class="btn btn-link btn-sm">Görüntüle</a>
+      </li>
+    {% empty %}
+      <li class="list-group-item">Kayıt yok.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

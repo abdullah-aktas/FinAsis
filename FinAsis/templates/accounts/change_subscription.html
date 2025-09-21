@@ -1,0 +1,12 @@
+{% extends "common/base.html" %}
+{% block title %}Abonelik Değiştir{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">Abonelik Değiştir</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+  </form>
+</div>
+{% endblock %}

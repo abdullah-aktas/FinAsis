@@ -1,16 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
-  <div class="container text-center">
-    <h1 class="display-5 fw-bold text-info animate__animated animate__fadeInDown">Sürdürülebilirlik</h1>
-    <p class="lead mb-4 animate__animated animate__fadeInUp">Çevre ve topluma duyarlı projelerimiz.</p>
-    <div class="card p-4 animate__animated animate__fadeInUp">
-      <h5 class="fw-bold">Sürdürülebilir Projeler</h5>
-      <p>Burada sürdürülebilirlik projeleri ve hedefleri anlatılacak.</p>
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-info animate__animated animate__fadeInDown">Sürdürülebilirlik</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">Çevre ve topluma duyarlı projelerimiz.</p>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-info fs-6 animate__animated animate__bounce">Gelecek</span>
-      <span class="badge bg-success fs-6 animate__animated animate__bounce">Çevre Dostu</span>
+
+    <h2 class="h5 fw-bold">Odak Alanları</h2>
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card h-100 p-4">
+          <span class="badge bg-success mb-2">Enerji</span>
+          <p class="mb-0">Verimli altyapı ve bulutta ölçümleme.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4">
+          <span class="badge bg-info mb-2">Toplum</span>
+          <p class="mb-0">Erişilebilir ürün tasarımı ve eğitim.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4">
+          <span class="badge bg-warning text-dark mb-2">Yönetişim</span>
+          <p class="mb-0">Etik veri kullanımı ve şeffaflık.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="h5 fw-bold">Metrikler</h2>
+    <div class="row g-3 mb-4 text-center">
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="display-6 fw-bold text-success">-20%</div>
+          <small>Yıllık enerji tüketimi</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="display-6 fw-bold text-info">90%</div>
+          <small>Yenilenebilir enerji kullanımı</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="display-6 fw-bold text-warning text-dark">100%</div>
+          <small>Uygunluk denetimleri</small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <div class="display-6 fw-bold text-secondary">0</div>
+          <small>Veri ihlali</small>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="h5 fw-bold">Hedefler</h2>
+    <ul class="list-group mb-4">
+      <li class="list-group-item d-flex justify-content-between align-items-center">2025 - Karbon ayak izinde %25 azaltım
+        <span class="badge bg-light text-dark">Planlandı</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">2026 - Tedarik zinciri ESG uyumu
+        <span class="badge bg-success">Devam</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">2027 - Tamamen yeşil barındırma
+        <span class="badge bg-info">Hedef</span>
+      </li>
+    </ul>
+
+    <div class="text-center">
+      <a href="/contact/" class="btn btn-outline-info">Sürdürülebilirlik iletişim</a>
     </div>
   </div>
 </section>

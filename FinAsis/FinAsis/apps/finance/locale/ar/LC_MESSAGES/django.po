@@ -1,5 +1,0 @@
-# Arabic translation file for finance
-msgid ""
-msgstr ""
-"Language: ar\n"
-"Content-Type: text/plain; charset=UTF-8\n" 

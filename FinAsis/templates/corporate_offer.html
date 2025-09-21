@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Kurumsal Teklif Al{% endblock %}
+{% block content %}
+<div class="container py-5">
+  {% include "components/messages.html" %}
+  <h2 class="mb-4 fw-bold text-success">Kurumsal Teklif Al</h2>
+  <form method="post" action="">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="company" class="form-label">Şirket/Kurum Adı</label>
+      <input type="text" class="form-control" id="company" name="company" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">E-posta</label>
+      <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">Telefon</label>
+      <input type="text" class="form-control" id="phone" name="phone">
+    </div>
+    <div class="mb-3">
+      <label for="message" class="form-label">Talebiniz</label>
+      <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Teklif İste</button>
+  </form>
+</div>
+{% endblock %}

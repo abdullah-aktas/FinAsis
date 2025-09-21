@@ -1,0 +1,17 @@
+# Opsiyonel / düşük öncelik
+arabic-reshaper==3.0.0
+asn1crypto==1.5.1
+beautifulsoup4==4.13.4
+cssselect2==0.8.0
+fonttools==4.58.0
+kiwisolver==1.4.8
+lxml>=5.4.0
+pillow>=11.2.1
+pyHanko==0.27.1
+pyhanko-certvalidator==0.26.8
+pypdf==5.5.0
+qrcode==8.2
+reportlab>=4.4.1
+xhtml2pdf>=0.2.17
+svglib==1.5.1
+tinycss2==1.4.0

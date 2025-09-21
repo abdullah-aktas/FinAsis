@@ -1,0 +1,14 @@
+{% extends "common/base.html" %}
+{% block title %}Şirket Bilgileri{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">{{ company.name }}</h1>
+  <ul class="list-group">
+    <li class="list-group-item">Sektör: {{ company.sector }}</li>
+    <li class="list-group-item">Vergi No: {{ company.tax_number }}</li>
+    <li class="list-group-item">Adres: {{ company.address }}</li>
+    <li class="list-group-item">Telefon: {{ company.phone }}</li>
+    <li class="list-group-item">E-posta: {{ company.email }}</li>
+  </ul>
+</div>
+{% endblock %}

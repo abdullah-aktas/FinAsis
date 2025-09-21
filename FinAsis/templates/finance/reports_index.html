@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <h1 class="h3 fw-bold mb-3">Finansal Raporlar</h1>
+    <p class="text-muted">Bilanço, Gelir Tablosu ve Nakit Akış raporlarını yönetin.</p>
+
+    <div class="row g-3 mt-3">
+      <div class="col-md-4">
+        <div class="card h-100 p-3">
+          <h6 class="fw-bold">Bilanço</h6>
+          <p class="mb-2">Varlıklar, borçlar ve özkaynak dağılımı.</p>
+          <a href="/accounting/finansal/bilanco/" class="btn btn-outline-primary btn-sm">Raporları Gör</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-3">
+          <h6 class="fw-bold">Gelir Tablosu</h6>
+          <p class="mb-2">Gelirler, giderler ve karlılık.</p>
+          <a href="/accounting/finansal/gelir-tablosu/" class="btn btn-outline-primary btn-sm">Raporları Gör</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-3">
+          <h6 class="fw-bold">Nakit Akışı</h6>
+          <p class="mb-2">Operasyon, yatırım ve finansman akışları.</p>
+          <a href="/finance/cash-flows/" class="btn btn-outline-primary btn-sm">Raporları Gör</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+  {% if user.is_authenticated %}
+  <a href="/finance/report/pdf/" class="btn btn-success">PDF Rapor İndir</a>
+  {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

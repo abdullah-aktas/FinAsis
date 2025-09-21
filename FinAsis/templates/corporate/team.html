@@ -1,16 +1,70 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
-  <div class="container text-center">
-    <h1 class="display-5 fw-bold text-warning animate__animated animate__fadeInDown">Ekibimiz</h1>
-    <p class="lead mb-4 animate__animated animate__fadeInUp">Alanında uzman kadromuzla tanışın!</p>
-    <div class="card p-4 animate__animated animate__fadeInUp">
-      <h5 class="fw-bold">Uzman Kadro</h5>
-      <p>Burada ekip üyeleri ve uzmanlık alanları listelenecek.</p>
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-warning animate__animated animate__fadeInDown">Ekibimiz</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">Alanında uzman kadromuzla tanışın!</p>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Uzman</span>
-      <span class="badge bg-success fs-6 animate__animated animate__bounce">Deneyimli</span>
+
+    <h2 class="h5 fw-bold">Liderlik</h2>
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card h-100 p-4 text-center">
+          <h6 class="fw-bold mb-1">Abdullah AKTAŞ</h6>
+          <small>CEO</small>
+          <p class="mb-0 mt-2">Strateji ve büyüme.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 text-center">
+          <h6 class="fw-bold mb-1">B. Kurucu</h6>
+          <small>CTO</small>
+          <p class="mb-0 mt-2">Ürün ve teknoloji.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 p-4 text-center">
+          <h6 class="fw-bold mb-1">C. Kurucu</h6>
+          <small>COO</small>
+          <p class="mb-0 mt-2">Operasyon ve süreç.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="h5 fw-bold">Ekip</h2>
+    {% if members %}
+      <div class="row g-3">
+        {% for m in members %}
+          <div class="col-6 col-md-3">
+            <div class="card p-3 text-center">
+              <div class="rounded-circle bg-light mx-auto mb-2" style="width:60px;height:60px;"></div>
+              <div class="fw-bold">{{ m.name }}</div>
+              <small class="text-muted">{{ m.role }}</small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="row g-3">
+        {% for i in "123456" %}
+          <div class="col-6 col-md-3">
+            <div class="card p-3 text-center">
+              <div class="rounded-circle bg-light mx-auto mb-2" style="width:60px;height:60px;"></div>
+              <div class="fw-bold">Uzman {{ forloop.counter }}</div>
+              <small class="text-muted">Mühendislik</small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="mt-5 text-center">
+      <div class="p-4 bg-white shadow-sm rounded">
+        <h3 class="h6 fw-bold mb-2">Aramıza katılın</h3>
+        <p class="mb-3">Büyüyen ekibimiz için yeteneklerle tanışmayı seviyoruz.</p>
+        <a href="/corporate/careers/" class="btn btn-warning text-dark">Açık Pozisyonlar</a>
+      </div>
     </div>
   </div>
 </section>

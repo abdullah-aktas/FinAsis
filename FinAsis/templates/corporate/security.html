@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-danger animate__animated animate__fadeInDown">Güvenlik</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">Veri güvenliği, uyumluluk ve güvenlik uygulamalarımız.</p>
+    </div>
+
+    <h2 class="h5 fw-bold">Uyumluluk ve Standartlar</h2>
+    <div class="row g-3 mb-4 text-center">
+      <div class="col-md-3"><div class="card p-3"><span class="badge bg-dark">ISO 27001</span><p class="mb-0 mt-2">Bilgi güvenliği yönetimi</p></div></div>
+      <div class="col-md-3"><div class="card p-3"><span class="badge bg-secondary">SOC 2</span><p class="mb-0 mt-2">Güven ve gizlilik ilkeleri</p></div></div>
+      <div class="col-md-3"><div class="card p-3"><span class="badge bg-success">KVKK</span><p class="mb-0 mt-2">Kişisel veri koruma</p></div></div>
+      <div class="col-md-3"><div class="card p-3"><span class="badge bg-info">GDPR</span><p class="mb-0 mt-2">AB veri gizliliği</p></div></div>
+    </div>
+
+    <h2 class="h5 fw-bold">Teknik Önlemler</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Şifreleme</h6><small>Transit ve at-rest</small><p class="mb-0 mt-2">TLS 1.3, AES-256, anahtar yönetimi.</p></div></div>
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Erişim Kontrolü</h6><small>Rol tabanlı</small><p class="mb-0 mt-2">En az ayrıcalık, MFA, denetim izleri.</p></div></div>
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Uygulama Güvenliği</h6><small>SDLC</small><p class="mb-0 mt-2">Kod inceleme, SAST/DAST, bağımlılık tarama.</p></div></div>
+      <div class="col-md-6"><div class="card p-3 h-100"><h6 class="fw-bold mb-1">Altyapı Güvenliği</h6><small>Bulut</small><p class="mb-0 mt-2">Ağ segmentasyonu, WAF, yedekleme/DR.</p></div></div>
+    </div>
+
+    <h2 class="h5 fw-bold">Olay Bildirimi</h2>
+    <div class="card p-4 mb-4">
+      <p class="mb-2">Herhangi bir güvenlik bulgusu veya şüpheli etkinliği bize iletin.</p>
+      <a href="/contact/" class="btn btn-danger">Güvenlik Raporla</a>
+      <a href="/legal/" class="btn btn-outline-secondary ms-2">Politikalar</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Ürün Sil' %}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">{% trans 'Ürünü Sil' %}</h1>
+  <p>{% blocktrans with name=object.name %}“{{ name }}” adlı ürünü silmek istediğinize emin misiniz?{% endblocktrans %}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">{% trans 'Evet, Sil' %}</button>
+    <a href="{% url 'virtual_company:product_list' %}" class="btn btn-secondary">{% trans 'Vazgeç' %}</a>
+  </form>
+</div>
+{% endblock %}

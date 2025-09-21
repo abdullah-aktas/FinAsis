@@ -1,0 +1,10 @@
+{% extends 'common/base.html' %}
+{% block title %}Ödeme (PayTR){% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2>Ödeme</h2>
+  <p>Ödeme sayfası yükleniyor...</p>
+  <!-- PayTR iframe entegrasyonu: sandbox token ile örnek -->
+  <iframe src="https://www.paytr.com/odeme/guvenli/{{ iframe_token }}" width="100%" height="600" frameborder="0"></iframe>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+  <div class="container">
+    <div class="text-center">
+      <h1 class="display-5 fw-bold text-primary animate__animated animate__fadeInDown">Basın</h1>
+      <p class="lead mb-4 animate__animated animate__fadeInUp">Basın bültenleri, logo ve medya kitleri.</p>
+    </div>
+
+    <h2 class="h5 fw-bold">Basın Bültenleri</h2>
+    {% if press_releases %}
+      <ul class="list-group mb-4">
+        {% for pr in press_releases %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ pr.date }} - {{ pr.title }}
+            {% if pr.url %}<a href="{{ pr.url }}" class="btn btn-sm btn-outline-primary">Oku</a>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <ul class="list-group mb-4">
+        <li class="list-group-item d-flex justify-content-between align-items-center">2025/06 - FinAsis Kurumsal Paket Lansmanı<span class="badge bg-light text-dark">Bülten</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">2025/03 - Eğitim İş Birliği<span class="badge bg-light text-dark">Haber</span></li>
+      </ul>
+    {% endif %}
+
+    <h2 class="h5 fw-bold">Medya Kiti</h2>
+    <div class="card p-4 mb-4">
+      <p class="mb-2">Logo, marka renkleri ve kullanım rehberi.</p>
+      <a href="/static/common/logo.svg" class="btn btn-outline-primary btn-sm">Logoyu İndir</a>
+    </div>
+
+    <div class="text-center">
+      <a href="/contact/" class="btn btn-primary">Basın İletişimi</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,7 +1,50 @@
 {% extends "base.html" %}
+{% load static %}
+{% block title %}Analitik Çözümler - FinAsis{% endblock %}
+{% block extra_css %}
+<style>
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem; }
+.cardx { border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,.06); padding:1.2rem; }
+.muted{ color:#64748b; }
+</style>
+{% endblock %}
 {% block content %}
-<div class="container py-5 text-center">
-  <h1>Analitik Çözümler</h1>
-  <p>Bu sayfa analitik çözümler için örnek içeriktir.</p>
+<div class="container py-4">
+  <h1 class="h3 mb-3">Analitik Çözümler</h1>
+  <p class="text-secondary">Aşağıdaki araçlarla KPI’larınızı, tahminleri ve kullanıcı davranışlarını analiz edin.</p>
+  <div class="grid">
+    <div class="cardx">
+      <h5>Finans KPI Panosu</h5>
+      <p class="muted">Aylık gelir/gider ve bakiye trendlerini görüntüleyin.</p>
+      <a class="btn btn-primary btn-sm" href="/accounting/report/dashboard/">Aç</a>
+    </div>
+    <div class="cardx">
+      <h5>AI Tahmin Panosu</h5>
+      <p class="muted">AI destekli gelir, gider ve nakit akışı kestirimi.</p>
+  {% if user.is_authenticated %}
+  <a class="btn btn-primary btn-sm" href="/ai-assistant/forecast/">Aç</a>
+  {% endif %}
+    </div>
+    <div class="cardx">
+      <h5>Öğretmen Pano</h5>
+      <p class="muted">Eğitim modülü için sınıf ve ilerleme görünümü.</p>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'education' %}">Aç</a>
+    </div>
+    <div class="cardx">
+      <h5>Öğrenci Pano</h5>
+      <p class="muted">Öğrenci hedefleri ve test sonuçlarını takip edin.</p>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'education' %}">Aç</a>
+    </div>
+    <div class="cardx">
+      <h5>Yönetim Dashboard</h5>
+      <p class="muted">Kullanıcı/Şirket/Fatura metrikleri ve trend grafiği.</p>
+      <a class="btn btn-outline-secondary btn-sm" href="/yonetim/">Aç</a>
+    </div>
+  </div>
+  <h6 class="mt-4">API ile Analitik</h6>
+  <ul class="muted">
+    <li>AI Analiz: <code>/accounting/api/ai/analyze-finance/</code></li>
+    <li>Şirket Özet JSON: <code>/accounting/api/export/summary/json/</code></li>
+  </ul>
 </div>
 {% endblock %}

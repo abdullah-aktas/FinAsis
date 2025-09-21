@@ -85,9 +85,9 @@ body { background: var(--main-bg); color: var(--main-text); }
     <div class="edu-desc">Şirketin net karının toplam gelire oranı.</div>
   </div>
   <div class="quick-actions animate__animated animate__fadeInUp animate__delay-2s">
-    <button class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Fatura</button>
-    <button class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Gider</button>
-    <button class="btn-primary animate__animated animate__pulse animate__infinite">Stok Girişi</button>
+    <a href="{% url 'accounting:invoice_create' %}" class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Fatura</a>
+    <a href="{% url 'accounting:expense_create' %}" class="btn-primary animate__animated animate__pulse animate__infinite">Yeni Gider</a>
+    <a href="{% url 'accounting:purchase_invoice_create' %}" class="btn-primary animate__animated animate__pulse animate__infinite">Stok Girişi</a>
     <a href="/ai-assistant/" class="btn btn-outline-info ms-2 animate__animated animate__bounce">AI Asistanı Kullan</a>
   </div>
   <div class="chatbot-panel animate__animated animate__fadeIn animate__delay-3s">

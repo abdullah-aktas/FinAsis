@@ -1,0 +1,32 @@
+{% extends 'common/base.html' %}
+{% block title %}Planlar{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2>Planlar</h2>
+  <div class="row">
+    {% for plan in plans %}
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">{{ plan.name }}</h5>
+          <p class="card-text">{{ plan.description }}</p>
+          <ul class="list-unstyled">
+            {% for p in plan.prices.all %}
+              <li>
+                <strong>{{ p.amount }} {{ p.currency }}</strong> / {{ p.get_period_display }}
+                <div class="mt-2">
+                  <a href="{% url 'billing:checkout_paytr' p.id %}" class="btn btn-sm btn-primary">Kart ile Öde (PayTR)</a>
+                  {% if BANK_TRANSFER_ENABLED %}
+                  <a href="{% url 'billing:checkout_bank' p.id %}" class="btn btn-sm btn-outline-secondary">Havale/EFT</a>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'common/base.html' %}
+{% block title %}Havale/EFT Bilgileri{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2>Havale/EFT ile Ödeme</h2>
+  <p>Lütfen aşağıdaki bilgilere EFT/Havale yapınız. Açıklama kısmına referans kodunu yazmayı unutmayın.</p>
+  <ul>
+    <li>Banka: <strong>{{ bank_name }}</strong></li>
+    <li>Hesap Sahibi: <strong>{{ bank_holder }}</strong></li>
+    <li>IBAN: <strong>{{ bank_iban }}</strong></li>
+    <li>Referans Kodu: <strong>{{ ref }}</strong></li>
+    <li>Tutar: <strong>{{ price.amount }} {{ price.currency }}</strong> ({{ price.plan.name }} / {{ price.get_period_display }})</li>
+  </ul>
+  <p>Ödemeniz onaylandıktan sonra aboneliğiniz etkinleşecektir.</p>
+  <a class="btn btn-primary" href="{% url 'billing:portal' %}">Abonelik Portalı</a>
+</div>
+{% endblock %}

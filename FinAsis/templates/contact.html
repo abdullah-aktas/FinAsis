@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}İletişim - FinAsis{% endblock %}
 {% block content %}
+{% include "components/messages.html" %}
 <h2>İletişim</h2>
 <form class="mt-4" method="post">
+    {% csrf_token %}
     <div class="mb-3">
         <label for="name" class="form-label">Adınız</label>
         <input type="text" class="form-control" id="name" name="name" required>

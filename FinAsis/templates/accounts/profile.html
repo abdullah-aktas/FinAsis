@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Profilim - FinAsis{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{# Safely serialize context into JSON for JS consumption #}
+{{ trend_aylar|json_script:"trend-labels" }}
+{{ trend_gelirler|json_script:"trend-incomes" }}
+{{ trend_giderler|json_script:"trend-expenses" }}
+{{ gider_kategori_labels|json_script:"expense-cat-labels" }}
+{{ gider_kategori_data|json_script:"expense-cat-data" }}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const isDark = document.body.classList.contains('dark-theme');
+    const trendEl = document.getElementById('trendChart');
+    if (trendEl) {
+      const _labelsRaw = document.getElementById('trend-labels')?.textContent || '[]';
+      const _incomesRaw = document.getElementById('trend-incomes')?.textContent || '[]';
+      const _expensesRaw = document.getElementById('trend-expenses')?.textContent || '[]';
+      const labels = (() => { try { const v = JSON.parse(_labelsRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const incomes = (() => { try { const v = JSON.parse(_incomesRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const expenses = (() => { try { const v = JSON.parse(_expensesRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      new Chart(trendEl, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "{% trans 'Fatura (Gelir)' %}",
+              data: incomes,
+              borderColor: isDark ? '#0dcaf0' : '#0d6efd',
+              backgroundColor: 'rgba(13,110,253,0.1)',
+              tension: 0.3,
+              fill: true,
+            },
+            {
+              label: "{% trans 'Gider' %}",
+              data: expenses,
+              borderColor: isDark ? '#ffc107' : '#dc3545',
+              backgroundColor: 'rgba(220,53,69,0.1)',
+              tension: 0.3,
+              fill: true,
+            }
+          ]
+        },
+        options: { responsive: true }
+      });
+    }
+    const catEl = document.getElementById('giderKategoriChart');
+    if (catEl) {
+      const _catLabelsRaw = document.getElementById('expense-cat-labels')?.textContent || '[]';
+      const _catDataRaw = document.getElementById('expense-cat-data')?.textContent || '[]';
+      const catLabels = (() => { try { const v = JSON.parse(_catLabelsRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const catData = (() => { try { const v = JSON.parse(_catDataRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      new Chart(catEl, {
+        type: 'pie',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545','#6c757d','#0dcaf0','#fd7e14']
+          }]
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Merhaba, {{ request.user.first_name|default:request.user.username }}!</h1>
+      <div class="text-muted">Profil ve hesap özetiniz</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'accounts:user_settings' %}" class="btn btn-outline-primary btn-sm">Ayarlar</a>
+      <a href="{% url 'accounts:company_edit' %}" class="btn btn-outline-secondary btn-sm">Şirket</a>
+      <a href="{% url 'password_change' %}" class="btn btn-outline-dark btn-sm">Şifre</a>
+    </div>
+  </div>
+
+  {% if finans_ozet %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-uppercase text-muted small">Toplam Fatura</div>
+          <div class="fs-4 fw-semibold">{{ finans_ozet.toplam_fatura|floatformat:2 }} ₺</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-uppercase text-muted small">Toplam Gider</div>
+          <div class="fs-4 fw-semibold">{{ finans_ozet.toplam_gider|floatformat:2 }} ₺</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-uppercase text-muted small">Toplam Bakiye</div>
+          <div class="fs-4 fw-semibold">{{ finans_ozet.toplam_bakiye|floatformat:2 }} ₺</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-warning">Hesabınıza bağlı bir şirket bulunamadı. Şirket oluşturup verileri görselleştirebilirsiniz.</div>
+  {% endif %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">6 Aylık Gelir/Gider Trendi</div>
+        <div class="card-body"><canvas id="trendChart" height="120"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">Gider Kategorileri</div>
+        <div class="card-body"><canvas id="giderKategoriChart" height="220"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+          <span>Son Faturalar</span>
+          <a href="{% url 'accounting:invoice_list' %}" class="btn btn-sm btn-light">Tümü</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light"><tr><th>No</th><th>Tarih</th><th class="text-end">Tutar</th></tr></thead>
+            <tbody>
+              {% for inv in son_faturalar %}
+              <tr>
+                <td>{{ inv.invoice_number }}</td>
+                <td>{{ inv.issue_date|date:'d.m.Y' }}</td>
+                <td class="text-end">{{ inv.total_amount|floatformat:2 }} {{ inv.currency }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" class="text-center text-muted">Kayıt yok</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+          <span>Son Giderler</span>
+          <a href="{% url 'accounting:expense_list' %}" class="btn btn-sm btn-light">Tümü</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light"><tr><th>Tarih</th><th>Açıklama</th><th class="text-end">Tutar</th></tr></thead>
+            <tbody>
+              {% for ex in son_giderler %}
+              <tr>
+                <td>{{ ex.expense_date|date:'d.m.Y' }}</td>
+                <td>{{ ex.description|default:'-' }}</td>
+                <td class="text-end">{{ ex.amount|floatformat:2 }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" class="text-center text-muted">Kayıt yok</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">Başarımlar</div>
+        <ul class="list-group list-group-flush">
+          {% for a in son_basari %}
+          <li class="list-group-item d-flex align-items-center gap-2">
+            <i class="bi {{ a.icon }} text-warning"></i>
+            <div>
+              <div class="fw-semibold">{{ a.title }}</div>
+              <small class="text-muted">{{ a.date_earned|date:'d.m.Y' }}</small>
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-muted">Henüz başarı yok</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">Son Banka Hareketleri</div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light"><tr><th>Hesap</th><th>Tarih</th><th>Açıklama</th><th class="text-end">Tutar</th></tr></thead>
+            <tbody>
+              {% for t in son_banka %}
+              <tr>
+                <td>{{ t.account.bank_name }}</td>
+                <td>{{ t.date|date:'d.m.Y' }}</td>
+                <td>{{ t.description|default:'-' }}</td>
+                <td class="text-end">
+                  <span class="{% if t.transaction_type == 'in' %}text-success{% else %}text-danger{% endif %}">
+                    {{ t.amount|floatformat:2 }}
+                  </span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-center text-muted">Kayıt yok</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info" role="alert">
+    <strong>İpucu:</strong> Hızlı ayarlar için yukarıdaki butonları kullanabilir, detaylar için menüden ilgili sayfalara geçebilirsiniz.
+  </div>
+</div>
+{% endblock %}

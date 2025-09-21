@@ -1,69 +1,177 @@
-
 {% load static i18n %}
-<header class="navbar navbar-expand-lg" style="background: linear-gradient(90deg, #007a5e 0%, #009873 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-  <div class="container-fluid">
-    <!-- Logo ve marka -->
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-  <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" height="40" class="me-2" />
-  <span class="fw-bold" style="color:#fff;letter-spacing:1px;font-size:1.5rem;">FinAsis</span>
-    </a>
-
-    <!-- Mobil hamburger butonu -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-            aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarMain">
-      <!-- Ana menü -->
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-  <li class="nav-item"><a class="nav-link text-white" href="/corporate/">Kurumsal</a></li>
-  <li class="nav-item"><a class="nav-link text-white" href="/products/finans/">Finansal Yönetim</a></li>
-  <li class="nav-item"><a class="nav-link text-white" href="/products/egitim/">Eğitim Modülü</a></li>
-    <li class="nav-item"><a class="nav-link text-white" href="/solutions/entegrasyon/">Çözümler</a></li>
-    <li class="nav-item"><a class="nav-link text-white" href="/resources/">Kaynaklar</a></li>
-    <li class="nav-item"><a class="nav-link text-white" href="/support/">Destek</a></li>
-            <li class="nav-item">
-              <a class="nav-link btn text-white px-3 ms-2" style="background:#007a5e;font-weight:600;border-radius:2rem;" href="/pricing/">Hemen Başla</a>
-            </li>
-      </ul>
-
-      <!-- Sağ ikonlar -->
-      <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item me-2">
-          <form class="d-flex" role="search" action="/search/" method="get">
-            <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Arama" aria-label="Arama">
-            <button class="btn btn-success btn-sm" type="submit"><i class="bi bi-search"></i></button>
-          </form>
-        </li>
-        <li class="nav-item dropdown me-2">
-          <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-globe"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-            <li><a class="dropdown-item" href="/i18n/setlang/?lang=tr">Türkçe</a></li>
-            <li><a class="dropdown-item" href="/i18n/setlang/?lang=en">English</a></li>
-          </ul>
-        </li>
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle"></i> {{ user.username }}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/accounts/profile/">Profilim</a></li>
-            <li><a class="dropdown-item" href="/accounts/logout/">Çıkış Yap</a></li>
-          </ul>
-        </li>
-        {% else %}
-        <li class="nav-item">
-          <a class="nav-link text-white" href="/accounts/login/"><i class="bi bi-box-arrow-in-right"></i> Giriş Yap</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link btn text-white ms-2" style="background:#009873;border-radius:2rem;" href="/accounts/register/">Kayıt Ol</a>
-        </li>
-        {% endif %}
-      </ul>
+<header class="sticky-top">
+  <!-- Üst yardımcı çubuk -->
+  <div class="bg-dark text-light small py-1 d-none d-md-block">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-3">
+        <span><i class="bi bi-shield-check me-1"></i> Yerel AI & e‑Dönüşüm</span>
+        <span><i class="bi bi-phone me-1"></i> +90 212 000 00 00</span>
+        <span><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</span>
+      </div>
+      <div>
+  <a class="link-light me-3" href="{% url 'legal' %}">KVKK</a>
+  <a class="link-light" href="{% url 'privacy_policy' %}">Gizlilik</a>
+      </div>
     </div>
   </div>
+
+  <!-- Ana navigasyon -->
+  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, #007a5e 0%, #009873 100%);">
+    <div class="container">
+      <!-- Logo ve marka -->
+      <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+        <span class="brand-logo" aria-hidden="true"></span>
+        <span class="fw-bold text-white" style="font-size:1.35rem;letter-spacing:.5px;">FinAsis</span>
+      </a>
+
+      <!-- Mobil hamburger butonu -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+              aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
+        <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        {% with path=request.path %}
+        <!-- Sol: menü -->
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white {% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}active{% endif %}"
+               href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+               aria-current="{% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}page{% endif %}">Ürünler</a>
+            <div class="dropdown-menu p-3 border-0 shadow-lg" aria-labelledby="urunlerDropdown" style="min-width: 520px;">
+              <div class="row g-3">
+                <div class="col-6">
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_finans' %}">
+                    <i class="bi bi-bar-chart text-success"></i>
+                    <div>
+                      <div class="fw-semibold">Finans</div>
+                      <small class="text-muted">Banka, fatura, rapor, oranlar</small>
+                    </div>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_egitim' %}">
+                    <i class="bi bi-mortarboard text-success"></i>
+                    <div>
+                      <div class="fw-semibold">Eğitim</div>
+                      <small class="text-muted">Finans okuryazarlığı & LMS</small>
+                    </div>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_oyunlar' %}">
+                    <i class="bi bi-controller text-success"></i>
+                    <div>
+                      <div class="fw-semibold">Oyunlar</div>
+                      <small class="text-muted">Simülasyonlar ve mini oyunlar</small>
+                    </div>
+                  </a>
+                </div>
+                <div class="col-6">
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'accounting:home' %}">
+                    <i class="bi bi-wallet2 text-success"></i>
+                    <div>
+                      <div class="fw-semibold">Muhasebe</div>
+                      <small class="text-muted">e‑Fatura/e‑Defter destekli</small>
+                    </div>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'dashboard' %}">
+                    <i class="bi bi-speedometer2 text-success"></i>
+                    <div>
+                      <div class="fw-semibold">Yönetim</div>
+                      <small class="text-muted">Kullanıcı & şirket yönetimi</small>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white {% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}active{% endif %}"
+               href="#" id="cozumlerDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+               aria-current="{% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}page{% endif %}">Çözümler</a>
+            <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="cozumlerDropdown">
+              <li><a class="dropdown-item" href="{% url 'solutions_enteg' %}">Entegrasyon</a></li>
+              <li><a class="dropdown-item" href="{% url 'blockchain:home' %}">Blockchain Kanıt</a></li>
+              <li><a class="dropdown-item" href="{% url 'education' %}">Kurumsal Eğitim</a></li>
+            </ul>
+          </li>
+    <li class="nav-item"><a class="nav-link text-white {% if '/pricing/' in path %}active{% endif %}"
+      href="{% url 'pricing' %}" aria-current="{% if '/pricing/' in path %}page{% endif %}">Fiyatlandırma</a></li>
+    <li class="nav-item"><a class="nav-link text-white {% if '/resources/' in path %}active{% endif %}"
+      href="{% url 'resources' %}" aria-current="{% if '/resources/' in path %}page{% endif %}">Kaynaklar</a></li>
+    <li class="nav-item"><a class="nav-link text-white {% if '/blog/' in path %}active{% endif %}"
+      href="{% url 'blog' %}" aria-current="{% if '/blog/' in path %}page{% endif %}">Blog</a></li>
+    <li class="nav-item"><a class="nav-link text-white {% if '/corporate/' in path %}active{% endif %}"
+      href="{% url 'corporate' %}" aria-current="{% if '/corporate/' in path %}page{% endif %}">Hakkımızda</a></li>
+          <li class="nav-item d-lg-none mt-2">
+            <a class="btn btn-light text-success w-100" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
+          </li>
+          <!-- Mobil arama -->
+          <li class="nav-item d-xl-none mt-2">
+            <form class="d-flex" role="search" action="{% url 'search' %}" method="get">
+              <input class="form-control" type="search" name="q" placeholder="Arama" aria-label="Arama">
+              <button class="btn btn-success ms-2" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Ara</span></button>
+            </form>
+          </li>
+        </ul>
+
+        <!-- Sağ: eylemler -->
+        <ul class="navbar-nav ms-auto align-items-center gap-2">
+          <li class="nav-item d-none d-lg-block">
+            <a class="btn btn-outline-light" style="border-radius:2rem;" href="{% url 'contact' %}">Demo Al</a>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <a class="btn btn-light text-success px-4" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
+          </li>
+          <li class="nav-item">
+            <form class="d-none d-xl-flex" role="search" action="{% url 'search' %}" method="get">
+              <input class="form-control form-control-sm" type="search" name="q" placeholder="Arama" aria-label="Arama">
+              <button class="btn btn-success btn-sm ms-1" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Ara</span></button>
+            </form>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Dil Seçimi">
+              <i class="bi bi-globe"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+              <li>
+                <form method="post" action="{% url 'set_language_compat' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="language" value="tr" />
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <button type="submit" class="dropdown-item">Türkçe</button>
+                </form>
+              </li>
+              <li>
+                <form method="post" action="{% url 'set_language_compat' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="language" value="en" />
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <button type="submit" class="dropdown-item">English</button>
+                </form>
+              </li>
+            </ul>
+          </li>
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i> <span class="d-none d-sm-inline">{{ user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">Profilim</a></li>
+              <li><a class="dropdown-item" href="{% url 'billing:portal' %}">Aboneliklerim</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Çıkış Yap</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link text-white d-flex align-items-center" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1"></i> Giriş</a>
+          </li>
+          <li class="nav-item d-lg-none">
+            <a class="nav-link text-white" href="{% url 'accounts:register' %}">Kayıt Ol</a>
+          </li>
+          {% endif %}
+        </ul>
+        {% endwith %}
+      </div>
+    </div>
+  </nav>
 </header>

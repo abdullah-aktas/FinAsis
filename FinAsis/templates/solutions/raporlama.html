@@ -1,7 +1,55 @@
 {% extends "base.html" %}
+{% block title %}Raporlama Çözümleri - FinAsis{% endblock %}
+{% block extra_css %}
+<style>
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem; }
+.cardx { border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,.06); padding:1.2rem; }
+.muted{ color:#64748b; }
+</style>
+{% endblock %}
 {% block content %}
-<div class="container py-5 text-center">
-  <h1>Raporlama Çözümleri</h1>
-  <p>Bu sayfa raporlama çözümleri için örnek içeriktir.</p>
+<div class="container py-4">
+  <h1 class="h3 mb-3">Raporlama Çözümleri</h1>
+  <p class="text-secondary">Finansal tablolar, resmi defterler ve e-dönüşüm raporlarını tek ekranda indirin.</p>
+  <div class="grid">
+    <div class="cardx">
+      <h5>Özet Pano</h5>
+      <p class="muted">Gelir-gider ve nakit akışı grafikleri.</p>
+  <a class="btn btn-primary btn-sm" href="{% url 'accounting:dashboard' %}">Aç</a>
+    </div>
+    <div class="cardx">
+      <h5>KDV/Muhtasar/BABS</h5>
+      <p class="muted">Beyanname raporlarını görüntüle ve indir.</p>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'accounting:kdv_report' %}">KDV</a>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'accounting:muhtasar_report' %}">Muhtasar</a>
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'accounting:babs_report' %}">BABS</a>
+    </div>
+    <div class="cardx">
+      <h5>Resmi Defterler</h5>
+      <p class="muted">Yevmiye, Kebir, Mizan, Envanter, Kasa.</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:yevmiye_defteri' %}">Yevmiye</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:kebir_defteri' %}">Kebir</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:mizan_defteri' %}">Mizan</a>
+    </div>
+    <div class="cardx">
+      <h5>Finansal Tablolar</h5>
+      <p class="muted">Bilanço, Gelir Tablosu, Nakit Akışı.</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:bilanco' %}">Bilanço</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:gelir_tablosu' %}">Gelir</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:nakit_akisi_tablosu' %}">Nakit Akışı</a>
+    </div>
+    <div class="cardx">
+      <h5>Dışa Aktarım</h5>
+      <p class="muted">PDF, Excel, JSON ve XML olarak indir.</p>
+  {% if user.is_authenticated %}
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'accounting:api_export_summary_pdf' %}">PDF</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'accounting:api_export_summary_excel' %}">Excel</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'accounting:api_export_summary_json' %}" target="_blank">JSON</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'accounting:api_export_summary_xml' %}" target="_blank">XML</a>
+  {% else %}
+  <span class="text-muted small">Giriş yapınca dışa aktarma bağlantıları görünür.</span>
+  {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

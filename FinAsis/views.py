@@ -7,8 +7,7 @@ def home(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html', {'year': datetime.now().year})
 
-def terms_view(request):
-    return render(request, 'terms.html', {'year': datetime.now().year})
+
 
 def dashboard(request):
     return render(request, 'dashboard.html', {'year': datetime.now().year})
