@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -277,7 +279,7 @@ class MeetingListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        return Meeting.objects.filter(models.Q(organizer=user) | models.Q(participants=user)).distinct()
+        return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -285,6 +287,10 @@ class MeetingDetailView(DetailView):
     model = Meeting
     template_name = 'education/meetings_detail.html'
     context_object_name = 'meeting'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -306,6 +312,10 @@ class MeetingUpdateView(UpdateView):
     template_name = 'education/meetings_form.html'
     success_url = reverse_lazy('education:meetings_list')
 
+    def get_queryset(self):
+        # Only organizer can update
+        return Meeting.objects.filter(organizer=self.request.user)
+
 
 # DRF API for meetings
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -314,7 +324,38 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Meeting.objects.filter(models.Q(organizer=user) | models.Q(participants=user)).distinct()
+        return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 
     def perform_create(self, serializer):
         serializer.save(organizer=self.request.user)
+
+
+def meeting_ics(request, pk: int):
+    meeting = get_object_or_404(Meeting, pk=pk)
+    # Access control: organizer or participant
+    user = request.user
+    if not user.is_authenticated or not (user == meeting.organizer or meeting.participants.filter(pk=user.pk).exists()):
+        return HttpResponse(status=403)
+    dtstamp = timezone.now().strftime('%Y%m%dT%H%M%SZ')
+    dtstart = meeting.start_time.strftime('%Y%m%dT%H%M%SZ')
+    dtend = (meeting.end_time or (meeting.start_time)).strftime('%Y%m%dT%H%M%SZ')
+    uid = f"meeting-{meeting.pk}@finasis"
+    lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//FinAsis//Education Meetings//TR',
+        'BEGIN:VEVENT',
+        f'DTSTAMP:{dtstamp}',
+        f'UID:{uid}',
+        f'SUMMARY:{meeting.title}',
+        f'DESCRIPTION:{(meeting.description or '').replace('\n',' ')}',
+        f'DTSTART:{dtstart}',
+        f'DTEND:{dtend}',
+        f'URL:{meeting.join_url or ''}',
+        'END:VEVENT',
+        'END:VCALENDAR',
+    ]
+    content = "\r\n".join(lines)
+    resp = HttpResponse(content, content_type='text/calendar; charset=utf-8')
+    resp['Content-Disposition'] = f'attachment; filename="meeting-{meeting.pk}.ics"'
+    return resp

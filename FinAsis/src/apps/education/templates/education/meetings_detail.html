@@ -5,7 +5,11 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4">{{ meeting.title }}</h1>
-    <a class="btn btn-outline-secondary" href="{% url 'education:meetings_list' %}">{% trans 'Geri' %}</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'education:meetings_list' %}">{% trans 'Geri' %}</a>
+      <a class="btn btn-outline-primary" href="{% url 'education:meetings_ics' meeting.pk %}">ICS</a>
+      <a class="btn btn-outline-primary" href="{% url 'education:meetings_add' %}">{% trans 'Yeni' %}</a>
+    </div>
   </div>
   <dl class="row">
     <dt class="col-sm-3">{% trans 'Durum' %}</dt>
