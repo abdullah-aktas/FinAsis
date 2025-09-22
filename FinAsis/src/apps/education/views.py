@@ -14,6 +14,7 @@ from .forms import FinancialTermCardForm
 from .forms import MeetingForm
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, filters
+from typing import Any
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from .serializers import (
@@ -330,7 +331,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     serializer_class = MeetingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         user = self.request.user
         return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 

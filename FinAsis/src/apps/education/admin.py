@@ -7,6 +7,9 @@ from .models import Forum, ForumTopic, ForumPost, GroupAssignment
 from .models import Feedback, Meeting
 import openpyxl
 from django.http import HttpResponse
+from typing import cast
+from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 # Register your models here.
 admin.site.register(FinancialTermCard)
@@ -31,8 +34,8 @@ class StudentGamificationProgressAdmin(admin.ModelAdmin):
     list_filter = ('level',)
 
 def export_as_excel(modeladmin, request, queryset):
-    wb = openpyxl.Workbook()
-    ws = wb.active
+    wb: Workbook = openpyxl.Workbook()
+    ws = cast(Worksheet, wb.active)
     # Başlıklar
     if queryset.model == LearningContent:
         ws.append(['Başlık', 'Tip', 'Oluşturan', 'Tarih'])
@@ -49,7 +52,7 @@ def export_as_excel(modeladmin, request, queryset):
     response['Content-Disposition'] = 'attachment; filename=export.xlsx'
     wb.save(response)
     return response
-export_as_excel.short_description = 'Seçili kayıtları Excel olarak dışa aktar'
+setattr(export_as_excel, 'short_description', 'Seçili kayıtları Excel olarak dışa aktar')
 
 @admin.register(LearningContent)
 class LearningContentAdmin(admin.ModelAdmin):
