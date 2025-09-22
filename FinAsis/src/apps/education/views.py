@@ -9,6 +9,7 @@ from .models import (
     ExamSubmission, ClassSession, AttendanceRecord, PortfolioItem, Tournament, CheatingIncident,
 )
 from .forms import FinancialTermCardForm
+from .forms import MeetingForm
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, filters
 from rest_framework.exceptions import PermissionDenied
@@ -18,10 +19,11 @@ from .serializers import (
     LessonOutcomeSerializer, QuestionSerializer, ExamSerializer,
     ExamSubmissionSerializer, ClassSessionSerializer,
     AttendanceRecordSerializer, PortfolioItemSerializer,
-    TournamentSerializer, CheatingIncidentSerializer,
+    TournamentSerializer, CheatingIncidentSerializer, MeetingSerializer,
 )
 from . import services
 from .permissions import IsTeacherOfCourseOrReadOnly
+from .models import Meeting
  
 
 @login_required
@@ -264,3 +266,55 @@ class CheatingIncidentViewSet(viewsets.ModelViewSet):
         if submission.exam.course.teacher_id != self.request.user.pk:
             raise PermissionDenied('Only course teacher can log incidents for submissions in their course.')
         serializer.save()
+
+
+# ---- Meeting Views ----
+@method_decorator(login_required, name='dispatch')
+class MeetingListView(ListView):
+    model = Meeting
+    template_name = 'education/meetings_list.html'
+    context_object_name = 'meetings'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Meeting.objects.filter(models.Q(organizer=user) | models.Q(participants=user)).distinct()
+
+
+@method_decorator(login_required, name='dispatch')
+class MeetingDetailView(DetailView):
+    model = Meeting
+    template_name = 'education/meetings_detail.html'
+    context_object_name = 'meeting'
+
+
+@method_decorator(login_required, name='dispatch')
+class MeetingCreateView(CreateView):
+    model = Meeting
+    form_class = MeetingForm
+    template_name = 'education/meetings_form.html'
+    success_url = reverse_lazy('education:meetings_list')
+
+    def form_valid(self, form):
+        form.instance.organizer = self.request.user
+        return super().form_valid(form)
+
+
+@method_decorator(login_required, name='dispatch')
+class MeetingUpdateView(UpdateView):
+    model = Meeting
+    form_class = MeetingForm
+    template_name = 'education/meetings_form.html'
+    success_url = reverse_lazy('education:meetings_list')
+
+
+# DRF API for meetings
+class MeetingViewSet(viewsets.ModelViewSet):
+    serializer_class = MeetingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Meeting.objects.filter(models.Q(organizer=user) | models.Q(participants=user)).distinct()
+
+    def perform_create(self, serializer):
+        serializer.save(organizer=self.request.user)

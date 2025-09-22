@@ -4,7 +4,7 @@ from .models import StudentAnalytics
 from .models import Badge, Level, StudentGamificationProgress
 from .models import LearningContent
 from .models import Forum, ForumTopic, ForumPost, GroupAssignment
-from .models import Feedback
+from .models import Feedback, Meeting
 import openpyxl
 from django.http import HttpResponse
 
@@ -97,3 +97,10 @@ class FeedbackAdmin(admin.ModelAdmin):
 admin.site.unregister(LearningContent)
 admin.site.unregister(StudentAnalytics)
 admin.site.register(LearningContent, LearningContentAdmin)
+
+@admin.register(Meeting)
+class MeetingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'organizer', 'meeting_type', 'status', 'start_time')
+    search_fields = ('title', 'description', 'organizer__username')
+    list_filter = ('meeting_type', 'status', 'start_time', 'organizer')
+    date_hierarchy = 'start_time'

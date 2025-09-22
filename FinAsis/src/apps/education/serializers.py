@@ -5,7 +5,7 @@ from .models import Badge, Level, StudentGamificationProgress
 from .models import LearningContent
 from .models import Forum, ForumTopic, ForumPost, GroupAssignment
 from .models import Feedback
-from .models import Course, Lesson, LearningOutcome, LessonOutcome, Question, Exam, ExamSubmission, ClassSession, AttendanceRecord, PortfolioItem, Tournament, CheatingIncident
+from .models import Course, Lesson, LearningOutcome, LessonOutcome, Question, Exam, ExamSubmission, ClassSession, AttendanceRecord, PortfolioItem, Tournament, CheatingIncident, Meeting
 
 class StudentAnalyticsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -144,3 +144,12 @@ class CheatingIncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheatingIncident
         fields = '__all__'
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meeting
+        fields = '__all__'
+        extra_kwargs = {
+            'organizer': {'read_only': True},
+        }

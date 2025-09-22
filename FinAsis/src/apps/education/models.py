@@ -2,6 +2,7 @@ from django.db import models
 from decimal import Decimal
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -358,3 +359,53 @@ class CheatingIncident(models.Model):
     class Meta:
         verbose_name = _('Kopya/İş Birliği İhlali')
         verbose_name_plural = _('Kopya/İş Birliği İhlalleri')
+
+
+# ======================
+# Remote Meeting Models
+# ======================
+
+class Meeting(models.Model):
+    MEETING_TYPE_CHOICES = (
+        ('online', _('Çevrimiçi')),
+        ('in_person', _('Yüz Yüze')),
+    )
+    STATUS_CHOICES = (
+        ('scheduled', _('Planlandı')),
+        ('completed', _('Tamamlandı')),
+        ('canceled', _('İptal')),
+    )
+
+    title = models.CharField(max_length=200, verbose_name=_('Başlık'))
+    description = models.TextField(blank=True, verbose_name=_('Açıklama'))
+    organizer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='organized_meetings',
+        verbose_name=_('Düzenleyen'),
+    )
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='meetings',
+        blank=True,
+        verbose_name=_('Katılımcılar'),
+    )
+    meeting_type = models.CharField(max_length=20, choices=MEETING_TYPE_CHOICES, default='online', verbose_name=_('Toplantı Tipi'))
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled', verbose_name=_('Durum'))
+    start_time = models.DateTimeField(verbose_name=_('Başlangıç'))
+    end_time = models.DateTimeField(null=True, blank=True, verbose_name=_('Bitiş'))
+    join_url = models.URLField(blank=True, verbose_name=_('Toplantı Bağlantısı (Zoom/Meet vb.)'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Oluşturulma Tarihi'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Güncellenme Tarihi'))
+
+    class Meta:
+        ordering = ['-start_time']
+        verbose_name = _('Toplantı')
+        verbose_name_plural = _('Toplantılar')
+
+    def __str__(self) -> str:
+        return self.title
+
+    def clean(self):
+        if self.end_time and self.end_time < self.start_time:
+            raise ValidationError({'end_time': _('Bitiş tarihi başlangıçtan önce olamaz.')})

@@ -6,7 +6,7 @@ from .views import (
     LessonOutcomeViewSet, QuestionViewSet, ExamViewSet,
     ExamSubmissionViewSet, ClassSessionViewSet,
     AttendanceRecordViewSet, PortfolioItemViewSet,
-    TournamentViewSet, CheatingIncidentViewSet,
+    TournamentViewSet, CheatingIncidentViewSet, MeetingViewSet,
 )
 
 router = DefaultRouter()
@@ -24,6 +24,7 @@ router.register(r'attendance', AttendanceRecordViewSet, basename='attendance')
 router.register(r'portfolio', PortfolioItemViewSet, basename='portfolio-item')
 router.register(r'tournaments', TournamentViewSet, basename='tournament')
 router.register(r'cheating-incidents', CheatingIncidentViewSet, basename='cheating-incident')
+router.register(r'meetings', MeetingViewSet, basename='meeting')
 
 urlpatterns = [
     path('', include(router.urls)),
