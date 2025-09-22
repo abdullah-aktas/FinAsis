@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -281,6 +281,14 @@ class MeetingListView(ListView):
         user = self.request.user
         return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        now = timezone.now()
+        qs = self.get_queryset()
+        ctx['upcoming'] = qs.filter(start_time__gte=now).order_by('start_time')
+        ctx['past'] = qs.filter(start_time__lt=now).order_by('-start_time')
+        return ctx
+
 
 @method_decorator(login_required, name='dispatch')
 class MeetingDetailView(DetailView):
@@ -359,3 +367,15 @@ def meeting_ics(request, pk: int):
     resp = HttpResponse(content, content_type='text/calendar; charset=utf-8')
     resp['Content-Disposition'] = f'attachment; filename="meeting-{meeting.pk}.ics"'
     return resp
+
+
+@login_required
+def meeting_cancel(request, pk: int):
+    meeting = get_object_or_404(Meeting, pk=pk)
+    if request.user != meeting.organizer:
+        return HttpResponse(status=403)
+    if request.method == 'POST':
+        meeting.status = 'canceled'
+        meeting.save(update_fields=['status'])
+        return redirect('education:meetings_detail', pk=meeting.pk)
+    return redirect('education:meetings_detail', pk=meeting.pk)

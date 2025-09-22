@@ -37,5 +37,18 @@
     <dd class="col-sm-9"><a href="{{ meeting.join_url }}" target="_blank" rel="noopener noreferrer">{{ meeting.join_url }}</a></dd>
     {% endif %}
   </dl>
+  <div class="d-flex gap-2">
+    {% if meeting.join_url %}
+      <a class="btn btn-success" href="{{ meeting.join_url }}" target="_blank" rel="noopener noreferrer">{% trans 'Toplantıya Katıl' %}</a>
+    {% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'education:meetings_add' %}">{% trans 'Toplantı Oluştur' %}</a>
+    {% if request.user == meeting.organizer %}
+      <a class="btn btn-outline-warning" href="{% url 'education:meetings_detail' meeting.pk %}">{% trans 'Düzenle' %}</a>
+      <form method="post" action="{% url 'education:meetings_cancel' meeting.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger" type="submit">{% trans 'İptal Et' %}</button>
+      </form>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

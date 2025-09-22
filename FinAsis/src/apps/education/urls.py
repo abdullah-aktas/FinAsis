@@ -18,6 +18,7 @@ urlpatterns = [
     path('meetings/add/', views.MeetingCreateView.as_view(), name='meetings_add'),
     path('meetings/<int:pk>/', views.MeetingDetailView.as_view(), name='meetings_detail'),
     path('meetings/<int:pk>/ics/', views.meeting_ics, name='meetings_ics'),
+    path('meetings/<int:pk>/cancel/', views.meeting_cancel, name='meetings_cancel'),
     # FinancialTermCard CRUD
     path('financial-term-cards/', views.FinancialTermCardListView.as_view(), name='financialtermcard_list'),
     path('financial-term-cards/add/', views.FinancialTermCardCreateView.as_view(), name='financialtermcard_add'),

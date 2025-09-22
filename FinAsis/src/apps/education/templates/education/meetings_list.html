@@ -7,9 +7,10 @@
     <h1 class="h4">{% trans 'Toplantılar' %}</h1>
     <a href="{% url 'education:meetings_add' %}" class="btn btn-primary">{% trans 'Yeni Toplantı' %}</a>
   </div>
-  {% if meetings %}
-  <div class="list-group">
-    {% for m in meetings %}
+  <h2 class="h6 mt-3">{% trans 'Yaklaşan Toplantılar' %}</h2>
+  {% if upcoming %}
+  <div class="list-group mb-4">
+    {% for m in upcoming %}
     <a class="list-group-item list-group-item-action" href="{% url 'education:meetings_detail' m.pk %}">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">{{ m.title }}</h5>
@@ -21,7 +22,25 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="text-muted">{% trans 'Henüz toplantı yok.' %}</p>
+  <p class="text-muted">{% trans 'Yaklaşan toplantı yok.' %}</p>
+  {% endif %}
+
+  <h2 class="h6 mt-3">{% trans 'Geçmiş Toplantılar' %}</h2>
+  {% if past %}
+  <div class="list-group">
+    {% for m in past %}
+    <a class="list-group-item list-group-item-action" href="{% url 'education:meetings_detail' m.pk %}">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ m.title }}</h5>
+        <small>{{ m.start_time|date:'Y-m-d H:i' }}</small>
+      </div>
+      <p class="mb-1">{{ m.get_meeting_type_display }} • {{ m.get_status_display }}</p>
+      {% if m.join_url %}<small class="text-muted">{{ m.join_url }}</small>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">{% trans 'Geçmiş toplantı yok.' %}</p>
   {% endif %}
 </div>
 {% endblock %}
