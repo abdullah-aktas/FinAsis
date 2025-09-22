@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+import uuid
 
 # Create your models here.
 
@@ -409,3 +410,33 @@ class Meeting(models.Model):
     def clean(self):
         if self.end_time and self.end_time < self.start_time:
             raise ValidationError({'end_time': _('Bitiş tarihi başlangıçtan önce olamaz.')})
+
+
+def generate_invitation_token() -> str:
+    return uuid.uuid4().hex
+
+class MeetingInvitation(models.Model):
+    RSVP_STATUS = (
+        ('pending', _('Beklemede')),
+        ('accepted', _('Kabul')),
+        ('declined', _('Reddet')),
+        ('canceled', _('İptal')),
+    )
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name='invitations', verbose_name=_('Toplantı'))
+    invitee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='meeting_invitations', verbose_name=_('Davetli'))
+    email = models.EmailField(blank=True, verbose_name=_('E-posta'))
+    invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_meeting_invitations', verbose_name=_('Davet Eden'))
+    token = models.CharField(max_length=64, unique=True, default=generate_invitation_token)
+    status = models.CharField(max_length=20, choices=RSVP_STATUS, default='pending', verbose_name=_('Durum'))
+    sent_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Gönderim Tarihi'))
+    responded_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Yanıt Tarihi'))
+
+    class Meta:
+        verbose_name = _('Toplantı Daveti')
+        verbose_name_plural = _('Toplantı Davetleri')
+        indexes = [
+            models.Index(fields=['token']),
+        ]
+
+    def __str__(self):
+        return f"{self.meeting.title} -> {self.email or (self.invitee and self.invitee.email) or 'unknown'}"

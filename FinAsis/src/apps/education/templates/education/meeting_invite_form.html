@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Toplantıya Davet Et' %}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">{% trans 'Toplantıya Davet Et' %} — {{ meeting.title }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">{% trans 'Gönder' %}</button>
+    <a class="btn btn-secondary" href="{% url 'education:meetings_detail' meeting.pk %}">{% trans 'İptal' %}</a>
+  </form>
+</div>
+{% endblock %}

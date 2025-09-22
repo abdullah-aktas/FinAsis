@@ -44,6 +44,7 @@
     <a class="btn btn-outline-primary" href="{% url 'education:meetings_add' %}">{% trans 'Toplantı Oluştur' %}</a>
     {% if request.user == meeting.organizer %}
       <a class="btn btn-outline-warning" href="{% url 'education:meetings_edit' meeting.pk %}">{% trans 'Düzenle' %}</a>
+      <a class="btn btn-outline-primary" href="{% url 'education:meetings_invite' meeting.pk %}">{% trans 'Davet Et' %}</a>
       <form method="post" action="{% url 'education:meetings_cancel' meeting.pk %}">
         {% csrf_token %}
         <button class="btn btn-outline-danger" type="submit">{% trans 'İptal Et' %}</button>

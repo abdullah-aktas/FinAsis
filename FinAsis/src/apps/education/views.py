@@ -15,6 +15,7 @@ from .forms import MeetingForm
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, filters
 from typing import Any
+from django.core.mail import send_mail
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from .serializers import (
@@ -380,3 +381,52 @@ def meeting_cancel(request, pk: int):
         meeting.save(update_fields=['status'])
         return redirect('education:meetings_detail', pk=meeting.pk)
     return redirect('education:meetings_detail', pk=meeting.pk)
+
+
+@login_required
+def meeting_invite(request, pk: int):
+    meeting = get_object_or_404(Meeting, pk=pk)
+    if request.user != meeting.organizer:
+        return HttpResponse(status=403)
+    from .forms import MeetingInvitationForm
+    if request.method == 'POST':
+        form = MeetingInvitationForm(request.POST)
+        if form.is_valid():
+            inv = form.save(commit=False)
+            inv.meeting = meeting
+            inv.invited_by = request.user
+            inv.save()
+            # Send email if address provided (simple stub)
+            if inv.email:
+                try:
+                    send_mail(
+                        subject=f"Toplantı daveti: {meeting.title}",
+                        message=f"Toplantı linki: {meeting.join_url or ''}\nRSVP: /education/meetings/rsvp/{inv.token}/accept",
+                        from_email=None,
+                        recipient_list=[inv.email],
+                        fail_silently=True,
+                    )
+                except Exception:
+                    pass
+            return redirect('education:meetings_detail', pk=meeting.pk)
+    else:
+        form = MeetingInvitationForm()
+    return render(request, 'education/meeting_invite_form.html', {'form': form, 'meeting': meeting})
+
+
+def meeting_rsvp(request, token: str, action: str):
+    from .models import MeetingInvitation
+    inv = get_object_or_404(MeetingInvitation, token=token)
+    if action == 'accept':
+        inv.status = 'accepted'
+        if request.user.is_authenticated:
+            inv.invitee = request.user
+            # add to participants
+            inv.meeting.participants.add(request.user)
+        inv.responded_at = timezone.now()
+        inv.save(update_fields=['status', 'invitee', 'responded_at'])
+    elif action == 'decline':
+        inv.status = 'declined'
+        inv.responded_at = timezone.now()
+        inv.save(update_fields=['status', 'responded_at'])
+    return redirect('education:meetings_detail', pk=inv.meeting.pk)
