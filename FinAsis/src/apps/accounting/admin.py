@@ -11,16 +11,16 @@ class CompanyAdmin(admin.ModelAdmin):
     list_filter = ("sector", "created_at", "is_active")
     actions = ["restore_companies"]
 
+    @admin.display(description="Durum")
     def is_active_colored(self, obj):
         if not obj.is_active:
             return format_html('<span style="color: #888; background: #eee; padding:2px 8px; border-radius:4px;">Pasif</span>')
         return format_html('<span style="color: #388e3c;">Aktif</span>')
-    is_active_colored.short_description = "Durum"
 
+    @admin.action(description="Seçili şirketleri yeniden aktifleştir")
     def restore_companies(self, request, queryset):
         updated = queryset.update(is_active=True)
         self.message_user(request, f"{updated} şirket yeniden aktifleştirildi.")
-    restore_companies.short_description = "Seçili şirketleri yeniden aktifleştir"
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -28,11 +28,7 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ("first_name", "last_name", "email")
     list_filter = ("company",)
 
-@admin.register(Invoice)
-class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ("invoice_number", "company", "customer", "issue_date", "total_amount", "currency", "e_archive")
-    search_fields = ("invoice_number", "customer__first_name", "customer__last_name")
-    list_filter = ("company", "currency", "issue_date", "e_archive")
+# NOTE: Invoice admin is defined below with inline items.
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
@@ -78,7 +74,11 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_filter = ("company", "currency", "issue_date", "e_archive")
     inlines = [InvoiceItemInline]
 
-admin.site.unregister(Invoice)
+try:
+    admin.site.unregister(Invoice)
+except Exception:
+    # Not registered yet
+    pass
 admin.site.register(Invoice, InvoiceAdmin)
 
 # Admin paneli başlığı ve header'ı özelleştir
