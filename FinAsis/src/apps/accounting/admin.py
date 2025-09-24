@@ -3,13 +3,14 @@ from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment,
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.urls import reverse, NoReverseMatch
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ("name", "tax_number", "phone", "sector", "created_at", "is_active_colored")
     search_fields = ("name", "tax_number", "sector")
     list_filter = ("sector", "created_at", "is_active")
-    actions = ["restore_companies"]
+    actions = ["restore_companies", "archive_companies"]
 
     @admin.display(description="Durum")
     def is_active_colored(self, obj):
@@ -21,6 +22,57 @@ class CompanyAdmin(admin.ModelAdmin):
     def restore_companies(self, request, queryset):
         updated = queryset.update(is_active=True)
         self.message_user(request, f"{updated} şirket yeniden aktifleştirildi.")
+
+    @admin.action(description="Seçili şirketleri arşivle (soft delete)")
+    def archive_companies(self, request, queryset):
+        from .models import CompanyDeleteLog
+        count = 0
+        for obj in queryset:
+            # Soft delete: mark inactive and log
+            if obj.is_active:
+                CompanyDeleteLog.objects.create(company=obj, user=request.user, reason="Admin bulk soft delete")
+                obj.is_active = False
+                obj.save(update_fields=["is_active", "updated_at"])
+                count += 1
+        self.message_user(request, f"{count} şirket arşivlendi (soft delete).")
+
+    def has_delete_permission(self, request, obj=None):
+        # Sadece süper kullanıcılar için gerçek silme izni; aksi halde soft-delete önerilir
+        return bool(request.user and request.user.is_superuser)
+
+    def delete_model(self, request, obj):
+        # Tekil silme: gerçek silme yerine arşivle ve log kaydı oluştur
+        from .models import CompanyDeleteLog
+        try:
+            CompanyDeleteLog.objects.create(company=obj, user=request.user, reason="Admin soft delete")
+        except Exception:
+            pass
+        obj.is_active = False
+        obj.save(update_fields=["is_active", "updated_at"])
+
+    def delete_queryset(self, request, queryset):
+        # Toplu silme: gerçek silme yerine arşivle ve log kaydı oluştur
+        from .models import CompanyDeleteLog
+        for obj in queryset:
+            try:
+                CompanyDeleteLog.objects.create(company=obj, user=request.user, reason="Admin bulk soft delete")
+            except Exception:
+                pass
+        queryset.update(is_active=False)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        # Varsayılan "delete_selected" toplu silme aksiyonunu kaldır
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
+        return actions
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Kullanıcı açıkça is_active filtresi seçmemişse varsayılan olarak aktif şirketleri göster
+        if "is_active__exact" in request.GET:
+            return qs
+        return qs.filter(is_active=True)
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -94,7 +146,7 @@ class FinAsisAdminSite(admin.AdminSite):
     
     def each_context(self, request):
         context = super().each_context(request)
-        context['finasis_logo'] = '/static/common/finasis_logo.svg'  # Logo yolunu özelleştir
+        context['finasis_logo'] = '/static/common/FinAsis_logo.png'
         context['finasis_desc'] = _('Modern Finansal Yönetim Platformu')
         return context
 
@@ -109,13 +161,29 @@ class FinAsisAdminSite(admin.AdminSite):
         # Süper kullanıcılar için ekstra aksiyon kısa yolları
         quick_actions = []
         if request.user.is_superuser:
-            quick_actions = [
-                {"label": "Kullanıcılar", "url": "/admin/auth/user/"},
-                {"label": "Gruplar", "url": "/admin/auth/group/"},
-                {"label": "Şirketler", "url": "/admin/accounting/company/"},
-                {"label": "Faturalar", "url": "/admin/accounting/invoice/"},
-                {"label": "Kurallar", "url": "/admin/finance_accounting/autobookingrule/"},
-            ]
+            quick_actions = []
+            # Users (support custom AUTH_USER_MODEL)
+            UserModel = get_user_model()
+            user_url_name = f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_changelist"
+            try:
+                quick_actions.append({"label": "Kullanıcılar", "url": reverse(user_url_name)})
+            except NoReverseMatch:
+                pass
+            # Groups
+            try:
+                quick_actions.append({"label": "Gruplar", "url": reverse('admin:auth_group_changelist')})
+            except NoReverseMatch:
+                pass
+            # Companies, Invoices, Rules
+            for name, urlname in [
+                ("Şirketler", 'admin:accounting_company_changelist'),
+                ("Faturalar", 'admin:accounting_invoice_changelist'),
+                ("Kurallar", 'admin:finance_accounting_autobookingrule_changelist'),
+            ]:
+                try:
+                    quick_actions.append({"label": name, "url": reverse(urlname)})
+                except NoReverseMatch:
+                    continue
         context = {
             'user_count': user_count,
             'company_count': company_count,

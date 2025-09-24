@@ -28,19 +28,14 @@ class VoucherListView(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        
-        # Önce user.is_authenticated kontrolü yap
+        # Kullanıcı doğrulama
         if not user.is_authenticated:
             return Voucher.objects.none()
-            
-        # Sonra employee ve company ilişkisini kontrol et
-        try:
-            if hasattr(user, 'employee') and user.employee and user.employee.company:
-                return qs.filter(company=user.employee.company)
-        except AttributeError:
-            pass
-            
-        return Voucher.objects.none()
+        # İlgili çalışan kaydını bul ve ona ait fişleri göster
+        employee = Employee.objects.filter(user=user).first()
+        if not employee:
+            return Voucher.objects.none()
+        return qs.filter(employee=employee)
 
 class VoucherCreateView(CreateView):
     model = Voucher 
@@ -50,27 +45,20 @@ class VoucherCreateView(CreateView):
     
     def form_valid(self, form):
         user = self.request.user
-        
-        # Employee ve company kontrolü
-        try:
-            if hasattr(user, 'employee') and user.employee and user.employee.company:
-                form.instance.company = user.employee.company
-                return super().form_valid(form)
-        except AttributeError:
-            pass
-            
-        raise PermissionDenied("Bu işlem için yetkiniz bulunmamaktadır.")
+        # Kullanıcının bağlı çalışan kaydı üzerinden ilişkilendir
+        employee = Employee.objects.filter(user=user).first()
+        if not employee:
+            raise PermissionDenied("Bu işlem için yetkiniz bulunmamaktadır.")
+        form.instance.employee = employee
+        return super().form_valid(form)
 
 @login_required
 def dashboard(request):
-    # Kullanıcının çalışan profilini al
-    employee = Employee.objects.get(user=request.user)
-    
-    # Kullanıcıya ait voucher'ları getir 
-    vouchers = Voucher.objects.filter(employee=employee)
-
+    # Kullanıcının çalışan profilini güvenli şekilde al
+    employee = Employee.objects.filter(user=request.user).first()
+    vouchers = Voucher.objects.filter(employee=employee) if employee else []
     context = {
         'employee': employee,
-        'vouchers': vouchers
+        'vouchers': vouchers,
     }
     return render(request, 'finance/dashboard.html', context)

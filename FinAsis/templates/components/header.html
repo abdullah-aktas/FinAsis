@@ -5,12 +5,12 @@
     <div class="container d-flex justify-content-between align-items-center">
       <div class="d-flex gap-3">
         <span><i class="bi bi-shield-check me-1"></i> Yerel AI & e‑Dönüşüm</span>
-        <span><i class="bi bi-phone me-1"></i> +90 212 000 00 00</span>
-        <span><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</span>
+        <a class="link-light" href="tel:+902120000000"><i class="bi bi-phone me-1"></i> +90 212 000 00 00</a>
+        <a class="link-light" href="mailto:sales@finasis.com.tr"><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</a>
       </div>
       <div>
-  <a class="link-light me-3" href="{% url 'legal' %}">KVKK</a>
-  <a class="link-light" href="{% url 'privacy_policy' %}">Gizlilik</a>
+        <a class="link-light me-3" href="{% url 'kvkk' %}">KVKK</a>
+        <a class="link-light" href="{% url 'privacy_policy' %}">Gizlilik</a>
       </div>
     </div>
   </div>
@@ -33,7 +33,7 @@
       <div class="collapse navbar-collapse" id="navbarMain">
         {% with path=request.path %}
         <!-- Sol: menü -->
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
+  <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-white {% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}active{% endif %}"
                href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
@@ -60,6 +60,13 @@
                     <div>
                       <div class="fw-semibold">Oyunlar</div>
                       <small class="text-muted">Simülasyonlar ve mini oyunlar</small>
+                    </div>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'games:game_app:tradesim' %}">
+                    <i class="bi bi-joystick text-success"></i>
+                    <div>
+                      <div class="fw-semibold">TradeSim</div>
+                      <small class="text-muted">Herkes için demo erişim</small>
                     </div>
                   </a>
                 </div>
@@ -92,8 +99,18 @@
               <li><a class="dropdown-item" href="{% url 'education' %}">Kurumsal Eğitim</a></li>
             </ul>
           </li>
-    <li class="nav-item"><a class="nav-link text-white {% if '/pricing/' in path %}active{% endif %}"
-      href="{% url 'pricing' %}" aria-current="{% if '/pricing/' in path %}page{% endif %}">Fiyatlandırma</a></li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle text-white {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}"
+         href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+         aria-current="{% if '/billing/plans/' in path or '/pricing/' in path %}page{% endif %}">Fiyatlandırma</a>
+      <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="pricingDropdown">
+        <li><a class="dropdown-item" href="{% url 'billing:plans' %}">Tüm Planlar</a></li>
+        <li><a class="dropdown-item" href="{% url 'billing:plans' %}?audience=sme">KOBİ Planları</a></li>
+        <li><a class="dropdown-item" href="{% url 'billing:plans' %}?audience=edu">Eğitim Planları</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'games:game_app:tradesim' %}">TradeSim Oyna (Demo)</a></li>
+      </ul>
+    </li>
     <li class="nav-item"><a class="nav-link text-white {% if '/resources/' in path %}active{% endif %}"
       href="{% url 'resources' %}" aria-current="{% if '/resources/' in path %}page{% endif %}">Kaynaklar</a></li>
     <li class="nav-item"><a class="nav-link text-white {% if '/blog/' in path %}active{% endif %}"

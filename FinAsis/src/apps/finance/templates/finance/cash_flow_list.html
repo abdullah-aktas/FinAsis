@@ -1,18 +1,18 @@
-{%% extends "base.html" %%}
-{%% load i18n %%}
-{%% load static %%}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
 
-{%% block title %%}{{ title }}{%% endblock %%}
+{% block title %}{{ title|default:_('Nakit Akışları') }}{% endblock %}
 
-{%% block content %%}
+{% block content %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="mb-4">{%% trans 'CashFlow Listesi' %%}</h1>
+            <h1 class="mb-4">{% trans 'Nakit Akışları' %}</h1>
             
             <div class="mb-3">
-                <a href="{%% url 'finance:cash_flow_create' %%}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> {%% trans 'Yeni Ekle' %%}
+                <a href="{% url 'finance:cash_flow_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> {% trans 'Yeni Ekle' %}
                 </a>
             </div>
             
@@ -23,34 +23,34 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>{%% trans 'Ad' %%}</th>
-                                    <th>{%% trans 'Oluşturulma Tarihi' %%}</th>
-                                    <th>{%% trans 'İşlemler' %%}</th>
+                                    <th>{% trans 'Dönem' %}</th>
+                                    <th>{% trans 'Oluşturulma Tarihi' %}</th>
+                                    <th>{% trans 'İşlemler' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {%% for object in object_list %%}
+                                {% for object in object_list %}
                                 <tr>
                                     <td>{{ object.id }}</td>
-                                    <td>{{ object }}</td>
+                                    <td>{{ object.get_period_display }} ({{ object.start_date }} - {{ object.end_date }})</td>
                                     <td>{{ object.created_at|date:"d.m.Y H:i" }}</td>
                                     <td>
-                                        <a href="{%% url 'finance:cash_flow_detail' object.id %%}" class="btn btn-sm btn-info">
+                                        <a href="{% url 'finance:cash_flow_detail' object.id %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{%% url 'finance:cash_flow_update' object.id %%}" class="btn btn-sm btn-warning">
+                                        <a href="{% url 'finance:cash_flow_update' object.id %}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{%% url 'finance:cash_flow_delete' object.id %%}" class="btn btn-sm btn-danger">
+                                        <a href="{% url 'finance:cash_flow_delete' object.id %}" class="btn btn-sm btn-danger">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
-                                {%% empty %%}
+                                {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center">{%% trans 'Kayıt bulunamadı' %%}</td>
+                                    <td colspan="4" class="text-center">{% trans 'Kayıt bulunamadı' %}</td>
                                 </tr>
-                                {%% endfor %%}
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -59,4 +59,4 @@
         </div>
     </div>
 </div>
-{%% endblock %%}
+{% endblock %}

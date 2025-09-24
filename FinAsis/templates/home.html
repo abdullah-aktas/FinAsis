@@ -19,9 +19,9 @@
         <h1 class="fw-bold mb-3" style="font-size:2.6rem;letter-spacing:.5px;">Finansal Süreçlerinizi Yerel AI ile Hızlandırın</h1>
         <p class="lead mb-4" style="max-width:640px; color:#f1f3f5;">FinAsis, KOBİ’ler için uçtan uca finans yönetimi, e‑dönüşüm ve eğitim modüllerini tek çatı altında sunar. Güvenli, hızlı ve uygun maliyetli.</p>
         <div class="d-flex flex-wrap gap-2">
-          <a href="/accounts/register/" class="btn btn-light btn-lg px-4" style="color:#0f5132;font-weight:700;border-radius:2rem;">Ücretsiz Dene</a>
-          <a href="/contact/" class="btn btn-outline-light btn-lg px-4" style="border-radius:2rem;">Demo Talep Et</a>
-          <a href="/pricing/" class="btn btn-outline-light px-4" style="border-radius:2rem;">Paketleri İncele</a>
+          <a href="{% url 'billing:plans' %}" class="btn btn-light btn-lg px-4" style="color:#0f5132;font-weight:700;border-radius:2rem;">Paketleri Gör</a>
+          <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-light btn-lg px-4" style="border-radius:2rem;">TradeSim Oyna</a>
+          <a href="/contact/" class="btn btn-outline-light px-4" style="border-radius:2rem;">Demo Talep Et</a>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3">
           <span class="badge" style="background:#198754; color:#ffffff;">%100 Yerli</span>
@@ -38,7 +38,7 @@
               <li>Paket seç, ödeme yap</li>
               <li>Hemen kullanmaya başla</li>
             </ol>
-            <a href="/pricing/" class="btn btn-success w-100" style="border-radius:2rem; font-weight:600;">Kullanıma Başla</a>
+            <a href="{% url 'billing:plans' %}" class="btn btn-success w-100" style="border-radius:2rem; font-weight:600;">Paketleri İncele</a>
           </div>
         </div>
       </div>
@@ -121,8 +121,8 @@
       <p class="text-secondary mb-0">Yerel AI, e‑Dönüşüm ve blockchain ile güvenli ve verimli akış.</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="/accounts/register/" class="btn btn-success">Ücretsiz Dene</a>
-      <a href="/pricing/" class="btn btn-outline-success">Paketleri Gör</a>
+  <a href="{% url 'billing:plans' %}" class="btn btn-success">Paketleri Gör</a>
+  <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-success">TradeSim Oyna</a>
     </div>
   </div>
 </section>
@@ -299,8 +299,8 @@
       <p class="text-secondary mb-0">Yerel AI, e‑Dönüşüm ve blockchain ile güvenli ve verimli akış.</p>
     </div>
     <div class="d-flex gap-2">
-      <a href="/accounts/register/" class="btn btn-success">Hemen Başla</a>
-      <a href="/pricing/" class="btn btn-outline-success">Paketleri Gör</a>
+  <a href="{% url 'billing:plans' %}" class="btn btn-success">Paketleri Gör</a>
+  <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-success">TradeSim Oyna</a>
     </div>
   </div>
 </section>

@@ -1,10 +1,10 @@
 {% load i18n %}
-<footer class="footer bg-dark text-light pt-5 pb-3 mt-5">
+<footer class="footer bg-brand text-white pt-5 pb-3 mt-5" style="background: var(--primary);">
   <div class="container">
     <div class="row">
       <div class="col-md-3 mb-3">
         <h5 class="fw-bold mb-3">FinAsis</h5>
-        <p class="small">Yapay zeka destekli finansal yönetim ve eğitim platformu.</p>
+        <p class="small text-white-50">Yapay zeka destekli finansal yönetim ve eğitim platformu.</p>
   <a href="/" class="d-block mb-2 text-white">Anasayfa</a>
   <a href="/corporate/" class="d-block mb-2 text-white">Kurumsal</a>
   <a href="/contact/" class="d-block mb-2 text-white">İletişim</a>
@@ -15,6 +15,10 @@
   <a href="/products/egitim/" class="d-block text-white">Eğitim Modülü</a>
   <a href="/products/blockchain/" class="d-block text-white">Blockchain</a>
   <a href="/products/oyunlar/" class="d-block text-white">Oyunlaştırma</a>
+  <hr class="border-secondary">
+  <a href="{% url 'billing:plans' %}" class="d-block text-white">Fiyatlandırma</a>
+  <a href="{% url 'billing:plans' %}?audience=sme" class="d-block text-white">KOBİ Planları</a>
+  <a href="{% url 'billing:plans' %}?audience=edu" class="d-block text-white">Eğitim Planları</a>
       </div>
       <div class="col-md-3 mb-3">
         <h6 class="fw-bold mb-3">Çözümler</h6>
@@ -33,7 +37,7 @@
   <a href="mailto:destek@finasis.com.tr" class="d-block text-white">destek@finasis.com.tr</a>
       </div>
     </div>
-    <hr class="border-secondary my-4">
+    <hr class="border-light my-4" style="opacity:.35;">
     <div class="row">
       <div class="col-md-6 small">
         &copy; {{ now|date:'Y' }} FinAsis. Tüm hakları saklıdır.

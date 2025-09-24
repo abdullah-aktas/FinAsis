@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth import get_user_model
 
 class City(models.Model):
     name = models.CharField(max_length=100)
@@ -167,4 +168,21 @@ class UserQrReward(models.Model):
         unique_together = ('user', 'qr_reward')
 
     def __str__(self):
-        return f"{self.user.username} - {self.qr_reward.code}" 
+        return f"{self.user.username} - {self.qr_reward.code}"
+
+
+# Ensure every new user gets a default Character to start playing
+@receiver(post_save, sender=get_user_model())
+def create_default_character_for_user(sender, instance, created, **kwargs):
+    if not created:
+        return
+    # Pick first available city if exists
+    default_city = City.objects.order_by('id').first()
+    Character.objects.create(
+        user=instance,
+        name=f"{getattr(instance, 'username', 'Oyuncu')} Trader",
+        city=default_city,
+        skills={},
+        story_state={},
+        choices={},
+    )

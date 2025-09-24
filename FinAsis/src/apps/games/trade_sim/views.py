@@ -8,6 +8,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .services import update_city_market, process_city_trade, random_market_event
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
+from django.contrib.auth import get_user_model
+import uuid
 
 def start_game(request):
     return HttpResponse('TradeSim oyunu başlatıldı! (Demo endpoint)')
@@ -17,6 +21,99 @@ def leaderboard(request):
 
 def stats(request):
     return HttpResponse('TradeSim İstatistikler (Demo endpoint)')
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def guest_onboarding(request):
+    """Kimliği doğrulanmamış ziyaretçiyi hızlıca oyuna al: geçici kullanıcı + karakter + pazar kurulumu ve oturum açma.
+    Not: Geçici kullanıcılar 'guest-<id>' kullanıcı adı ile oluşturulur ve mevcut oturuma login edilir.
+    """
+    # Mevcut veri var mı kontrol et; yoksa minimum seed yap
+    if not City.objects.exists():
+        City.objects.create(name='Başlangıç', description='Yeni oyuncular için başlangıç şehri', sectors=['genel'], market_size=1000, coordinates={'x': 0, 'y': 0})
+    if not Product.objects.exists():
+        Product.objects.create(name='Buğday', description='Temel ürün', base_price=100, unit='adet', category='genel')
+    for city in City.objects.all():
+        for product in Product.objects.all():
+            CityMarket.objects.get_or_create(city=city, product=product, defaults={'price': product.base_price, 'supply': 100, 'demand': 100})
+
+    # Geçici kullanıcı oluştur ve oturuma al
+    User = get_user_model()
+    guest_suffix = uuid.uuid4().hex[:8]
+    username = f"guest-{guest_suffix}"
+    user = User.objects.create(username=username, email=f"{username}@example.invalid")
+    user.set_unusable_password()
+    user.save()
+
+    # Karakter oluştur (sinyal de oluşturabilir; biz garantiye alıyoruz)
+    default_city = City.objects.order_by('id').first()
+    character = user.characters.first()
+    if character is None:
+        character = Character.objects.create(user=user, name=f"{username} Trader", city=default_city)
+
+    # Başlangıç görevi ekle
+    starter_quest, _ = Quest.objects.get_or_create(
+        name='İlk Ticaret',
+        defaults={
+            'description': 'İlk şehir ticaretini tamamla.',
+            'quest_type': 'side',
+            'requirements': {'trade_count': 1},
+            'rewards': {'coins': 100, 'xp': 10},
+            'is_active': True,
+        },
+    )
+    CharacterQuest.objects.get_or_create(character=character, quest=starter_quest)
+
+    # Oturumu login et
+    try:
+        login(request._request if hasattr(request, '_request') else request, user, backend='django.contrib.auth.backends.ModelBackend')
+    except TypeError:
+        # Eski versiyonlarda backend parametresi zorunlu olmayabilir
+        login(request._request if hasattr(request, '_request') else request, user)
+
+    data = {
+        'status': 'ok',
+        'user': {'id': user.id, 'username': user.username},
+        'character': CharacterSerializer(character).data,
+    }
+    return Response(data, status=201)
+
+@api_view(['POST', 'GET'])
+@permission_classes([permissions.IsAuthenticated])
+def onboarding(request):
+    """Ensure the authenticated user has a playable setup: character, starter city/product markets, and a starter quest."""
+    user = request.user
+    character = user.characters.first()
+    # Create character if missing (safety in case signal didn't run)
+    if character is None:
+        default_city = City.objects.order_by('id').first()
+        character = Character.objects.create(user=user, name=f"{user.username} Trader", city=default_city)
+    # Seed a simple starter quest if none
+    starter_quest, _ = Quest.objects.get_or_create(
+        name='İlk Ticaret',
+        defaults={
+            'description': 'İlk şehir ticaretini tamamla.',
+            'quest_type': 'side',
+            'requirements': {'trade_count': 1},
+            'rewards': {'coins': 100, 'xp': 10},
+            'is_active': True,
+        },
+    )
+    CharacterQuest.objects.get_or_create(character=character, quest=starter_quest)
+    # Ensure at least one city, product and market entries exist so the game is playable
+    if not City.objects.exists():
+        City.objects.create(name='Başlangıç', description='Yeni oyuncular için başlangıç şehri', sectors=['genel'], market_size=1000, coordinates={'x': 0, 'y': 0})
+    if not Product.objects.exists():
+        Product.objects.create(name='Buğday', description='Temel ürün', base_price=100, unit='adet', category='genel')
+    # Create market rows for all city-product pairs if missing
+    for city in City.objects.all():
+        for product in Product.objects.all():
+            CityMarket.objects.get_or_create(city=city, product=product, defaults={'price': product.base_price, 'supply': 100, 'demand': 100})
+    # Response
+    char_data = CharacterSerializer(character).data
+    quests = CharacterQuest.objects.filter(character=character)
+    quest_data = CharacterQuestSerializer(quests, many=True).data
+    return Response({'status': 'ok', 'character': char_data, 'quests': quest_data})
 
 def city_list(request):
     cities = City.objects.all()

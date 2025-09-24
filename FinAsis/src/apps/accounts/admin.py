@@ -27,8 +27,9 @@ class UserTypeAdmin(admin.ModelAdmin):
 
 @admin.register(SubscriptionType)
 class SubscriptionTypeAdmin(admin.ModelAdmin):
-    list_display = ['code', 'name', 'description']
+    list_display = ['code', 'name', 'audience', 'period_options', 'monthly_price', 'yearly_price', 'user_limit']
     search_fields = ['code', 'name']
+    list_filter = ['audience', 'period_options']
 
 @admin.register(SubscriptionLog)
 class SubscriptionLogAdmin(admin.ModelAdmin):

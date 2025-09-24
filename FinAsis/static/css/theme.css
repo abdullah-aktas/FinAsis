@@ -131,4 +131,12 @@ hr, .divider {
   border-color: var(--main-light);
 }
 
+/* Yardımcı arka plan sınıfı */
+.bg-brand {
+  background: var(--primary) !important;
+}
+.text-brand {
+  color: var(--primary) !important;
+}
+
 /* Karanlık mod geçişi için örnek JS fonksiyonu ile body'ye data-theme="dark" eklenebilir */ 

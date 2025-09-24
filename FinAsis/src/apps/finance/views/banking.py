@@ -10,6 +10,8 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Sum, Q
+from typing import cast
+from django.forms import ModelChoiceField
 
 from ..models import BankAccount, Transaction, TransactionCategory
 from src.apps.permissions.decorators import permission_required
@@ -69,7 +71,7 @@ class BankAccountUpdateView(UpdateView):
         return BankAccount.objects.filter(user=self.request.user)
     
     def get_success_url(self):
-        return reverse_lazy('finance:bank_account_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('finance:bank_account_detail', kwargs={'pk': self.kwargs['pk']})
     
     def form_valid(self, form):
         messages.success(self.request, _('Banka hesabı başarıyla güncellendi.'))
@@ -91,7 +93,7 @@ class BankAccountDeleteView(DeleteView):
 class TransactionListView(ListView):
     """İşlemleri listeleyen görünüm"""
     model = Transaction
-    template_name = 'finance/transactions.html'
+    template_name = 'finance/transaction_list.html'
     context_object_name = 'transactions'
     paginate_by = 20
     
@@ -150,8 +152,20 @@ class TransactionCreateView(CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['source_account'].queryset = BankAccount.objects.filter(user=self.request.user)
-        form.fields['destination_account'].queryset = BankAccount.objects.filter(user=self.request.user)
+        src_field = form.fields.get('source_account')
+        dst_field = form.fields.get('destination_account')
+        if src_field is not None:
+            src_mc = cast(ModelChoiceField, src_field)
+            try:
+                src_mc.queryset = BankAccount.objects.filter(user=self.request.user)
+            except Exception:
+                pass
+        if dst_field is not None:
+            dst_mc = cast(ModelChoiceField, dst_field)
+            try:
+                dst_mc.queryset = BankAccount.objects.filter(user=self.request.user)
+            except Exception:
+                pass
         return form
     
     def form_valid(self, form):
@@ -173,12 +187,24 @@ class TransactionUpdateView(UpdateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['source_account'].queryset = BankAccount.objects.filter(user=self.request.user)
-        form.fields['destination_account'].queryset = BankAccount.objects.filter(user=self.request.user)
+        src_field = form.fields.get('source_account')
+        dst_field = form.fields.get('destination_account')
+        if src_field is not None:
+            src_mc = cast(ModelChoiceField, src_field)
+            try:
+                src_mc.queryset = BankAccount.objects.filter(user=self.request.user)
+            except Exception:
+                pass
+        if dst_field is not None:
+            dst_mc = cast(ModelChoiceField, dst_field)
+            try:
+                dst_mc.queryset = BankAccount.objects.filter(user=self.request.user)
+            except Exception:
+                pass
         return form
     
     def get_success_url(self):
-        return reverse_lazy('finance:transaction_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('finance:transaction_detail', kwargs={'pk': self.kwargs['pk']})
     
     def form_valid(self, form):
         messages.success(self.request, _('İşlem başarıyla güncellendi.'))

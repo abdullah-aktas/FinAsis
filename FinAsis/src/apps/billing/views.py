@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.conf import settings
-from .models import Plan, Price, SubscriptionProfile, Transaction, BankTransfer
+from .models import Plan, Price, SubscriptionProfile, Transaction, BankTransfer, EnterpriseInquiry
 from .services import PayTRClient, RefGenerator
 from decimal import Decimal
 from django.utils import timezone
@@ -12,14 +12,109 @@ from src.apps.accounts.models import SubscriptionType, Subscription, Subscriptio
 from django.contrib.auth.models import Group
 from .models import PlanGroup
 from src.apps.accounting.models import Invoice, Customer, Company
+from django.core.mail import send_mail
+import requests
+from django.db.models import Prefetch
 
-@login_required
 def plans(request: HttpRequest) -> HttpResponse:
-    plans = Plan.objects.filter(is_active=True).prefetch_related('prices')
+    audience = request.GET.get('audience')  # 'sme' | 'edu' | None
+    period = request.GET.get('period')  # 'month' | 'year' | None
+    price_qs = Price.objects.filter(is_active=True).order_by('period')
+    qs = (
+        Plan.objects.filter(is_active=True)
+        .prefetch_related(
+            Prefetch('prices', queryset=price_qs),
+            'plan_modules__module'
+        )
+    )
+    if audience in ('sme', 'edu'):
+        qs = qs.filter(audience=audience)
+    plans_list = list(qs)
+    module_to_plans = {}
+    for p in plans_list:
+        for pm in getattr(p, 'plan_modules').all():
+            mname = getattr(pm.module, 'name', None)
+            if not mname:
+                continue
+            module_to_plans.setdefault(mname, set()).add(p.code)
+    feature_rows = [
+        {
+            'name': name,
+            'included': sorted(list(codes)),
+        }
+        for name, codes in sorted(module_to_plans.items(), key=lambda x: x[0].lower())
+    ]
     return render(request, 'billing/plans.html', {
-        'plans': plans,
+        'plans': plans_list,
+        'audience': audience or 'sme',
+        'period': period or 'month',
+        'feature_rows': feature_rows,
         'BANK_TRANSFER_ENABLED': getattr(settings, 'BANK_TRANSFER_ENABLED', True),
     })
+
+@login_required
+def select_plan(request: HttpRequest, plan_code: str) -> HttpResponse:
+    plan = Plan.objects.filter(code=plan_code, is_active=True).first()
+    if not plan:
+        return redirect('billing:plans')
+    # Periyot tercihi: ?period=month|year, varsayılan: aylık (mevcut değilse yıllık)
+    preferred = request.GET.get('period')
+    qs = Price.objects.filter(plan=plan, is_active=True)
+    price = None
+    if preferred in ('month', 'year'):
+        price = qs.filter(period=preferred).first()
+    if not price:
+        price = qs.filter(period='month').first() or qs.filter(period='year').first()
+    if not price:
+        return redirect('billing:plans')
+    price_id = getattr(price, 'pk', getattr(price, 'id', None))
+    if not price_id:
+        return redirect('billing:plans')
+    return redirect('billing:checkout_paytr', price_id=price_id)
+
+@login_required
+def enterprise_inquiry(request: HttpRequest, plan_code: str) -> HttpResponse:
+    plan = Plan.objects.filter(code=plan_code).first()
+    if request.method == 'POST':
+        # request.user Anonymous olabilir; güvenli çek
+        user_full_name = getattr(request.user, 'get_full_name', None)
+        resolved_full_name = user_full_name() if callable(user_full_name) else ''
+        safe_username = getattr(request.user, 'username', '') or ''
+        name = request.POST.get('name') or (resolved_full_name or safe_username)
+        email = request.POST.get('email') or getattr(request.user, 'email', '') or ''
+        company = request.POST.get('company', '')
+        phone = request.POST.get('phone', '')
+        message = request.POST.get('message', '')
+        inquiry = EnterpriseInquiry.objects.create(
+            user=request.user,
+            plan=plan,
+            name=name,
+            email=email,
+            company=company,
+            phone=phone,
+            message=message,
+        )
+        # Email bildirimi
+        try:
+            send_mail(
+                subject=f"Enterprise Talebi: {plan.name if plan else ''}",
+                message=f"Ad: {name}\nEmail: {email}\nŞirket: {company}\nTelefon: {phone}\nMesaj: {message}",
+                from_email=None,
+                recipient_list=[getattr(settings, 'SALES_EMAIL', 'sales@finasis.local')],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+        # Slack bildirimi (opsiyonel)
+        try:
+            hook = getattr(settings, 'SLACK_WEBHOOK_URL', '')
+            if hook:
+                payload = {"text": f"Yeni Enterprise Talebi: {name} | {email} | {company} | {phone} | Plan: {plan.name if plan else ''}"}
+                requests.post(hook, json=payload, timeout=5)
+        except Exception:
+            pass
+        return render(request, 'billing/thanks.html', {'title': 'Teşekkürler', 'message': 'Talebinizi aldık. En kısa sürede iletişime geçeceğiz.'})
+    return render(request, 'billing/enterprise_inquiry.html', {'plan': plan})
 
 @login_required
 def checkout_paytr(request: HttpRequest, price_id: int) -> HttpResponse:

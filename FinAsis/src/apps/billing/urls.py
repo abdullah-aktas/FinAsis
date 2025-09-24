@@ -5,6 +5,8 @@ app_name = 'billing'
 
 urlpatterns = [
     path('plans/', views.plans, name='plans'),
+    path('plans/select/<str:plan_code>/', views.select_plan, name='select_plan'),
+    path('plans/enterprise-inquiry/<str:plan_code>/', views.enterprise_inquiry, name='enterprise_inquiry'),
     path('checkout/paytr/<int:price_id>/', views.checkout_paytr, name='checkout_paytr'),
     path('checkout/bank/<int:price_id>/', views.checkout_bank_transfer, name='checkout_bank'),
     path('callback/paytr/', views.paytr_callback, name='paytr_callback'),

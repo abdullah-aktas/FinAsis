@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from src.apps.accounting.models import Invoice, Expense, BankAccount, BankTransaction, Company
 from django.contrib.auth import get_user_model
@@ -163,7 +164,12 @@ def register(request):
                 user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
             messages.success(request, 'Kayıt başarılı, hoş geldiniz!')
-            return redirect('accounts:user_profile')
+            # Hedef kitle seçimini planlar sayfasına taşı
+            audience = request.POST.get('audience')
+            plans_url = reverse('billing:plans')
+            if audience in ('sme', 'edu'):
+                plans_url = f"{plans_url}?audience={audience}"
+            return redirect(plans_url)
         else:
             messages.error(request, 'Form hataları var, lütfen düzeltin.')
     else:

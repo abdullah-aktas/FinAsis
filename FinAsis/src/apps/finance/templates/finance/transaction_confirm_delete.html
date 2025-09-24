@@ -5,6 +5,6 @@
 <p>Bu işlemi silmek istediğinize emin misiniz?</p>
 <form method="post">{% csrf_token %}
   <button type="submit" class="btn btn-danger">Evet, Sil</button>
-  <a href="{% url 'finance:transaction_list' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
+  <a href="{% url 'finance:transactions' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
 </form>
 {% endblock %} 

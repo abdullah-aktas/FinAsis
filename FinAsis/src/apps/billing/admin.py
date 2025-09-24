@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import Plan, Price, Module, PlanModule, SubscriptionProfile, Transaction, BankTransfer
+from .models import Plan, Price, Module, PlanModule, SubscriptionProfile, Transaction, BankTransfer, EnterpriseInquiry
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ('code','name','is_active')
+    list_display = ('code','name','audience','is_active')
+    list_filter = ('audience','is_active')
 
 @admin.register(Price)
 class PriceAdmin(admin.ModelAdmin):
@@ -28,3 +29,8 @@ class TransactionAdmin(admin.ModelAdmin):
 @admin.register(BankTransfer)
 class BankTransferAdmin(admin.ModelAdmin):
     list_display = ('user','plan','amount','currency','reference_code','is_confirmed','created_at')
+
+@admin.register(EnterpriseInquiry)
+class EnterpriseInquiryAdmin(admin.ModelAdmin):
+    list_display = ('name','email','company','plan','created_at')
+    search_fields = ('name','email','company')

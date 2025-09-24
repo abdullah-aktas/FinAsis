@@ -7,11 +7,30 @@ class Plan(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    audience = models.CharField(
+        max_length=10,
+        choices=[('sme', 'KOBİ'), ('edu', 'Eğitim')],
+        default='sme'
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+class EnterpriseInquiry(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    company = models.CharField(max_length=150, blank=True, default='')
+    phone = models.CharField(max_length=30, blank=True, default='')
+    message = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        target = self.plan.name if self.plan else 'Plan belirtilmedi'
+        return f"Teklif Talebi: {self.name} → {target}"
 
 class Price(models.Model):
     PERIOD_CHOICES = [

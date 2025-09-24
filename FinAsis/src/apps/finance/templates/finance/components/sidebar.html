@@ -1,0 +1,9 @@
+{% load i18n %}
+<nav class="list-group">
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:finance_home' %}">🏠 {% trans 'Özet' %}</a>
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:bank_account_list' %}">🏦 {% trans 'Banka Hesapları' %}</a>
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:transactions' %}">💸 {% trans 'İşlemler' %}</a>
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:einvoice_list' %}">📄 {% trans 'E-Faturalar' %}</a>
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:reports_index' %}">📊 {% trans 'Raporlar' %}</a>
+  <a class="list-group-item list-group-item-action" href="{% url 'finance:bank_import' %}">⬆️ {% trans 'Banka CSV İçe Aktar' %}</a>
+</nav>

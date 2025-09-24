@@ -25,22 +25,16 @@ from .views import (
     blockchain,
     profile,
     investor_info_form,
-    corporate_offer,
 )
+from src.config.views import corporate_offer
 from src.views import dashboard, education, pricing, legal, contact
 
 from src.apps.accounting.admin import FinAsisAdminSite
 from django.contrib import admin as django_admin
 
+django_admin.autodiscover()
 finasis_admin_site = FinAsisAdminSite()
-finasis_admin_site._registry = django_admin.site._registry
-
-# Tüm admin kayıtlarını yeni admin site'ye taşı
-from src.apps.accounting import admin as accounting_admin
-from src.apps.accounts import admin as accounts_admin
-from src.apps.games import admin as games_admin
-from src.apps.ai_assistant import admin as ai_admin
-from src.apps.blockchain import admin as blockchain_admin
+finasis_admin_site._registry = django_admin.site._registry.copy()
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -69,13 +63,13 @@ urlpatterns = [
     path('terms/', terms_view, name='terms'),
 
     # Uygulama URL'leri
-    path('accounting/', include('FinAsis.apps.accounting.urls')),
-        path('virtual_company/', include('FinAsis.apps.virtual_company.urls')),
-    path('accounts/', include('FinAsis.apps.accounts.urls')),
+    path('accounting/', include('src.apps.accounting.urls')),
+        path('virtual_company/', include('src.apps.virtual_company.urls')),
+    path('accounts/', include('src.apps.accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('games/', include('FinAsis.apps.games.urls')),
-    path('finance/', include('FinAsis.apps.finance.urls')),
-    path('ai-assistant/', include('FinAsis.apps.ai_assistant.urls')),
+    path('games/', include('src.apps.games.urls')),
+    path('finance/', include('src.apps.finance.urls')),
+    path('ai-assistant/', include('src.apps.ai_assistant.urls')),
     path('blockchain/', blockchain, name='blockchain'),
     path('finance/home/', finance_home, name='finance-home'),
     path('finance/reports/', finance_reports, name='finance-reports'),
@@ -89,7 +83,7 @@ urlpatterns = [
     path('education/', education, name='education'),
     path('pricing/', pricing, name='pricing'),
     path('legal/', legal, name='legal'),
-    path('common/', include('FinAsis.apps.common.urls')),
+    path('common/', include('src.apps.common.urls')),
     path('legal/kvkk/', kvkk_view, name='kvkk'),
     path('contact/', contact, name='contact'),
     # i18n dil değiştirme endpointleri

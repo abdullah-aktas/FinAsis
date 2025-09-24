@@ -26,15 +26,12 @@ from src.views import dashboard, education, pricing, legal, contact
 from src.apps.accounting.admin import FinAsisAdminSite
 from django.contrib import admin as django_admin
 
-finasis_admin_site = FinAsisAdminSite()
-finasis_admin_site._registry = django_admin.site._registry
+# Load all admin modules so default admin.site registry is complete
+django_admin.autodiscover()
 
-# Tüm admin kayıtlarını yeni admin site'ye taşı
-from src.apps.accounting import admin as accounting_admin
-from src.apps.accounts import admin as accounts_admin
-from src.apps.games import admin as games_admin
-from src.apps.ai_assistant import admin as ai_admin
-from src.apps.blockchain import admin as blockchain_admin
+# Clone complete registry to custom AdminSite
+finasis_admin_site = FinAsisAdminSite()
+finasis_admin_site._registry = django_admin.site._registry.copy()
 
 schema_view = get_schema_view(
     openapi.Info(

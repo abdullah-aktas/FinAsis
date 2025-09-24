@@ -13,8 +13,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
+import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Ensure that the project root (parent of the 'src' package)
+# is available on sys.path so imports like 'src.apps.*' work in all contexts
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 
 # Quick-start development settings - unsuitable for production
@@ -49,6 +56,7 @@ INSTALLED_APPS = [
     'src.apps.accounts',
     'src.apps.accounting',
     'src.apps.games',
+    'src.apps.games.trade_sim',
     'src.apps.games.game_app',
     'src.apps.finance',
     'src.apps.finance.banking.apps.BankingConfig',
@@ -77,6 +85,7 @@ MIDDLEWARE = [
     # Tenant & audit middlewares (order: tenant first so others can rely on request.tenant)
     'src.apps.tenancy.middleware.CurrentTenantMiddleware',
     'src.apps.audit.middleware.AuditRequestMetaMiddleware',
+    'src.apps.games.trade_sim.middleware.AutoOnboardingMiddleware',
 ]
 
 ROOT_URLCONF = 'src.config.urls'

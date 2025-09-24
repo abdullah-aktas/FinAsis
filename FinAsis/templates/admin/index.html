@@ -12,9 +12,9 @@
         <h2 class="fw-bold mb-2">FinAsis Yönetim Merkezi</h2>
         <p class="mb-3">AI • Blockchain • e‑Dönüşüm • Finansal Raporlama</p>
         <div class="d-flex flex-wrap gap-2">
-          <a href="/finance/reports/" class="btn btn-light btn-sm"><i class="bi bi-bar-chart me-1"></i>Raporlar</a>
-          <a href="/ai-assistant/" class="btn btn-outline-light btn-sm"><i class="bi bi-robot me-1"></i>AI Asistan</a>
-          <a href="/blockchain/" class="btn btn-outline-light btn-sm"><i class="bi bi-link-45deg me-1"></i>Blockchain</a>
+          <a href="{% url 'finance:reports_index' %}" class="btn btn-light btn-sm"><i class="bi bi-bar-chart me-1"></i>Raporlar</a>
+          <a href="{% url 'ai_assistant:home' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-robot me-1"></i>AI Asistan</a>
+          <a href="{% url 'blockchain:home' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-link-45deg me-1"></i>Blockchain</a>
         </div>
       </div>
       <div class="card shadow-sm mt-3">
@@ -30,8 +30,8 @@
           <h5 class="card-title">Hızlı Aksiyonlar</h5>
           <div class="d-grid gap-2">
             <a href="{% url 'admin:accounting_customer_add' %}" class="btn btn-success btn-sm"><i class="bi bi-person-plus me-1"></i>Yeni Müşteri</a>
-            <a href="/admin/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear me-1"></i>Admin Modülleri</a>
-            <a href="/finance/" class="btn btn-outline-primary btn-sm"><i class="bi bi-cash-coin me-1"></i>Finans Paneli</a>
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear me-1"></i>Admin Modülleri</a>
+            <a href="{% url 'finance:finance_home' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-cash-coin me-1"></i>Finans Paneli</a>
           </div>
         </div>
       </div>
@@ -39,25 +39,80 @@
   </div>
 
   <div class="row g-3 mt-3">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="p-3 bg-light border rounded">
-        <h6>Toplam Müşteri</h6>
-        <p class="fs-4 fw-bold">{{ total_customers }}</p>
+        <h6>Kullanıcılar</h6>
+        <p class="fs-4 fw-bold">{{ user_count|default:0 }}</p>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="p-3 bg-light border rounded">
-        <h6>Bugünkü Giriş</h6>
-        <p class="fs-4 fw-bold">{{ today_logins }}</p>
+        <h6>Şirketler</h6>
+        <p class="fs-4 fw-bold">{{ company_count|default:0 }}</p>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="p-3 bg-light border rounded">
-        <h6>Aktif Raporlar</h6>
-        <p class="fs-4 fw-bold">{{ total_reports }}</p>
+        <h6>Faturalar</h6>
+        <p class="fs-4 fw-bold">{{ invoice_count|default:0 }}</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-light border rounded">
+        <h6>Giderler</h6>
+        <p class="fs-4 fw-bold">{{ expense_count|default:0 }}</p>
       </div>
     </div>
   </div>
+
+  {% if quick_actions %}
+  <div class="row g-3 mt-3">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Hızlı Erişim</h5>
+          <div class="d-flex flex-wrap gap-2">
+            {% for item in quick_actions %}
+              <a href="{{ item.url }}" class="btn btn-outline-secondary btn-sm">{{ item.label }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title mb-2">Son Faturalar</h6>
+              <ul class="list-unstyled small mb-0">
+                {% for inv in last_invoices %}
+                  <li>#{{ inv.invoice_number }} — {{ inv.total_amount }} {{ inv.currency }}</li>
+                {% empty %}
+                  <li>Kayıt yok</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title mb-2">Son Giderler</h6>
+              <ul class="list-unstyled small mb-0">
+                {% for ex in last_expenses %}
+                  <li>{{ ex.category }} — {{ ex.amount }}</li>
+                {% empty %}
+                  <li>Kayıt yok</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
 </div>
 
@@ -66,13 +121,15 @@
 <script>
   const ctx = document.getElementById('userChart')?.getContext('2d');
   if(ctx){
+    const labels = JSON.parse('{{ chart_labels|default:"[]"|escapejs }}');
+    const series = JSON.parse('{{ chart_data|default:"[]"|escapejs }}');
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: {{ chart_labels|safe }},
+        labels,
         datasets: [{
           label: 'Kullanıcı Sayısı',
-          data: {{ chart_data|safe }},
+          data: series,
           fill: true,
           tension: 0.4,
           borderColor: '#009688',

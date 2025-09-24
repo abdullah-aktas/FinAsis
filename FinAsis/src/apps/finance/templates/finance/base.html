@@ -1,4 +1,4 @@
-{% extends "components/base.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 
 {% block body_class %}finance-module{% endblock %}
@@ -7,25 +7,18 @@
 <link href="{% static 'css/modules/finance.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block pre_content %}
-<div class="module-header">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1>{% trans "Finans YÃ¶netimi" %}</h1>
-            </div>
-            <div class="col-md-6">
-                <div class="quick-stats">
-                    {% include "finance/components/quick_stats.html" %}
-                </div>
+{% block content %}
+<div class="container">
+    <div class="row align-items-center mb-3">
+        <div class="col-md-6">
+            <h1 class="h3 mb-0">{% trans "Finans Yönetimi" %}</h1>
+        </div>
+        <div class="col-md-6">
+            <div class="quick-stats float-md-end">
+                {% include "finance/components/quick_stats.html" %}
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-
-{% block content %}
-<div class="container">
     <div class="row">
         <div class="col-md-3">
             {% include "finance/components/sidebar.html" %}

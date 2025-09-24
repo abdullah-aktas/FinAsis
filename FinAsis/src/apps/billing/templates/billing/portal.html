@@ -4,16 +4,22 @@
 <div class="container py-5">
   <h2>Abonelik Durumu</h2>
   <p>Plan: {{ profile.plan }} | Durum: {{ profile.status }} | Dönem Sonu: {{ profile.current_period_end }}</p>
-  <a class="btn btn-outline-primary" href="{% url 'billing:plans' %}">Plan Seç</a>
+  <a class="btn btn-outline-primary" href="{% url 'billing:plans' %}">Planı Değiştir</a>
 
   <h3 class="mt-4">İşlemler</h3>
   <table class="table table-sm">
-    <thead><tr><th>Tarih</th><th>Yöntem</th><th>Tutar</th><th>Durum</th></tr></thead>
+    <thead><tr><th>Tarih</th><th>Yöntem</th><th>Tutar</th><th>Periyot</th><th>Durum</th></tr></thead>
     <tbody>
       {% for t in transactions %}
-      <tr><td>{{ t.created_at }}</td><td>{{ t.get_method_display }}</td><td>{{ t.amount }} {{ t.currency }}</td><td>{{ t.status }}</td></tr>
+      <tr>
+        <td>{{ t.created_at }}</td>
+        <td>{{ t.get_method_display }}</td>
+        <td>{{ t.amount }} {{ t.currency }}</td>
+        <td>{% if t.price %}{{ t.price.get_period_display }}{% else %}-{% endif %}</td>
+        <td>{{ t.status }}</td>
+      </tr>
       {% empty %}
-      <tr><td colspan="4">Kayıt yok</td></tr>
+      <tr><td colspan="5">Kayıt yok</td></tr>
       {% endfor %}
     </tbody>
   </table>

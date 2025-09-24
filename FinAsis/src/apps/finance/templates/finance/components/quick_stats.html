@@ -1,0 +1,8 @@
+{% load i18n %}
+<div class="d-flex gap-3 text-nowrap small">
+  <div><span class="text-muted">{% trans 'Toplam Bakiye' %}:</span> <strong>{{ total_balance|default:"-" }}</strong></div>
+  <div class="vr"></div>
+  <div><span class="text-muted">{% trans 'Hesap Sayısı' %}:</span> <strong>{{ bank_accounts|length|default:0 }}</strong></div>
+  <div class="vr d-none d-md-block"></div>
+  <div class="d-none d-md-inline"><span class="text-muted">{% trans 'Son İşlemler' %}:</span> <strong>{{ recent_transactions|length|default:0 }}</strong></div>
+</div>

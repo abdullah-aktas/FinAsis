@@ -20,7 +20,18 @@ def education(request):
     return render(request, 'education.html', {'year': datetime.now().year})
 
 def pricing(request):
-    return render(request, 'pricing.html', {'year': datetime.now().year})
+    # Eski fiyatlandırma sayfasını yeni planlar sayfasına yönlendir
+    audience = request.GET.get('audience')
+    period = request.GET.get('period')
+    url = '/billing/plans/'
+    params = []
+    if audience in ('sme', 'edu'):
+        params.append(f'audience={audience}')
+    if period in ('month', 'year'):
+        params.append(f'period={period}')
+    if params:
+        url = url + '?' + '&'.join(params)
+    return redirect(url)
 
 def legal(request):
     return render(request, 'legal.html', {'year': datetime.now().year})

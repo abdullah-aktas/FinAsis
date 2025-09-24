@@ -6,7 +6,7 @@
 <p><strong>Tutar:</strong> {{ transaction.amount }} TL</p>
 <p><strong>Açıklama:</strong> {{ transaction.description }}</p>
 <p><strong>Tarih:</strong> {{ transaction.transaction_date }}</p>
-<a href="{% url 'finance:transaction_update' transaction.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:transaction_edit' transaction.pk %}" class="btn btn-primary">Düzenle</a>
 <a href="{% url 'finance:transaction_delete' transaction.pk %}" class="btn btn-danger">Sil</a>
-<a href="{% url 'finance:transaction_list' %}" class="btn btn-secondary">Listeye Dön</a>
+<a href="{% url 'finance:transactions' %}" class="btn btn-secondary">Listeye Dön</a>
 {% endblock %} 
