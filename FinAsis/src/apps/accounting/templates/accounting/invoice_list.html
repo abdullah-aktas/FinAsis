@@ -1,38 +1,149 @@
-{% extends 'base.html' %}
-{% block title %}Fatura Listesi{% endblock %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Fatura Listesi</h2>
-    <a href="{% url 'accounting:invoice_create' %}" class="btn btn-success mb-3">Yeni Fatura Ekle</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Fatura No</th>
-                <th>Şirket</th>
-                <th>Müşteri</th>
-                <th>Tarih</th>
-                <th>Tutar</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for invoice in invoices %}
-            <tr>
-                <td>{{ invoice.invoice_number }}</td>
-                <td>{{ invoice.company.name }}</td>
-                <td>{{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</td>
-                <td>{{ invoice.issue_date|date:'d.m.Y' }}</td>
-                <td>{{ invoice.total_amount }} {{ invoice.currency }}</td>
-                <td>
-                    <a href="{% url 'accounting:invoice_detail' invoice.pk %}" class="btn btn-info btn-sm">Detay</a>
-                    <a href="{% url 'accounting:invoice_update' invoice.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
-                    <a href="{% url 'accounting:invoice_delete' invoice.pk %}" class="btn btn-danger btn-sm">Sil</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6">Kayıtlı fatura yok.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+
+{% block acc_title %}Faturalar{% endblock %}
+{% block acc_subtitle %}Fatura kayıtları ve işlemler{% endblock %}
+{% block acc_actions %}
+    <a href="{% url 'accounting:invoice_create' %}" class="btn btn-success btn-sm">
+        <i class="bi bi-receipt me-1"></i>Yeni Fatura
+    </a>
+{% endblock %}
+
+{% block acc_content %}
+<div class="invoice-list-view">
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body pb-2">
+            <form method="get" class="row gy-2 gx-3 align-items-end" role="search" aria-label="Fatura arama formu">
+                <div class="col-md-3">
+                    <label for="q" class="form-label small text-muted">Ara (No / Müşteri)</label>
+                    <input type="text" name="q" id="q" value="{{ request.GET.q }}" class="form-control form-control-sm" placeholder="Örn: INV-2024 / Ali Veli" />
+                </div>
+                <div class="col-md-2">
+                    <label for="company" class="form-label small text-muted">Şirket</label>
+                    <select name="company" id="company" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for c in companies %}
+                            <option value="{{ c.id }}" {% if request.GET.company == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="customer" class="form-label small text-muted">Müşteri</label>
+                    <select name="customer" id="customer" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for cust in customers %}
+                            <option value="{{ cust.id }}" {% if request.GET.customer == cust.id|stringformat:'s' %}selected{% endif %}>{{ cust.first_name }} {{ cust.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label small text-muted">Durum</label>
+                    <select name="status" id="status" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for key,label in status_choices %}
+                            <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Ara</button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle me-1"></i>Sıfırla</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between bg-white">
+            <div>
+                <h5 class="mb-0">Fatura Listesi</h5>
+                <small class="text-muted">Toplam: {{ page_obj.paginator.count }} kayıt</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'accounting:invoice_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Fatura</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">Şirket</th>
+                        <th scope="col">Müşteri</th>
+                        <th scope="col">Tarih</th>
+                        <th scope="col" class="text-end">Tutar</th>
+                        <th scope="col" class="text-center">Durum</th>
+                        <th scope="col" class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td class="fw-medium"><a href="{% url 'accounting:invoice_detail' invoice.pk %}" class="text-decoration-none">{{ invoice.invoice_number }}</a></td>
+                        <td>{{ invoice.company.name }}</td>
+                        <td>{{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</td>
+                        <td>{{ invoice.issue_date|date:'d.m.Y' }}</td>
+                        <td class="text-end">{{ invoice.total_amount|floatformat:2 }} {{ invoice.currency }}</td>
+                        <td class="text-center">
+                            {% if invoice.status == 'paid' %}
+                                <span class="badge bg-success">Ödendi</span>
+                            {% elif invoice.status == 'draft' %}
+                                <span class="badge bg-secondary">Taslak</span>
+                            {% elif invoice.status == 'cancelled' %}
+                                <span class="badge bg-danger">İptal</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Bekliyor</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Fatura işlemleri">
+                                <a href="{% url 'accounting:invoice_detail' invoice.pk %}" class="btn btn-outline-primary" title="Detay"><i class="bi bi-eye"></i></a>
+                                <a href="{% url 'accounting:invoice_update' invoice.pk %}" class="btn btn-outline-warning" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'accounting:invoice_delete' invoice.pk %}" class="btn btn-outline-danger" title="Sil"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-muted">
+                                <div style="font-size:2.2rem;" class="mb-2"><i class="bi bi-receipt"></i></div>
+                                <p class="mb-2">Kayıtlı fatura bulunamadı.</p>
+                                <a href="{% url 'accounting:invoice_create' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle me-1"></i>İlk Faturanı Oluştur</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="small text-muted mb-0">Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</div>
+            <nav aria-label="Sayfalama" class="ms-auto">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1{{ request.GET.q|yesno:'&q='|add:request.GET.q }}">« İlk</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">«</span></li>
+                    <li class="page-item disabled"><span class="page-link">‹</span></li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son »</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">›</span></li>
+                    <li class="page-item disabled"><span class="page-link">»</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}

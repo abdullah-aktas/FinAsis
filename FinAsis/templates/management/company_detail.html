@@ -11,8 +11,8 @@
         <tr><th>Telefon</th><td>{{ company.phone }}</td></tr>
         <tr><th>Email</th><td>{{ company.email }}</td></tr>
     </table>
-    <a href="/yonetim/sirketler/{{ company.id }}/duzenle/" class="btn btn-warning">Düzenle</a>
-    <a href="/yonetim/sirketler/{{ company.id }}/sil/" class="btn btn-danger">Sil</a>
-    <a href="/yonetim/sirketler/" class="btn btn-secondary">Geri</a>
+    <a href="{% url 'management:company_edit' company.id %}" class="btn btn-warning">Düzenle</a>
+    <a href="{% url 'management:company_delete' company.id %}" class="btn btn-danger">Sil</a>
+    <a href="{% url 'management:company_list' %}" class="btn btn-secondary">Geri</a>
 </div>
 {% endblock %} 

@@ -1,0 +1,915 @@
+{% extends "core_ui/base.html" %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %}{% trans "Finansal Analiz Raporu" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.analysis-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.analysis-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.analysis-header {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 25px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 5px solid;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card.excellent { border-left-color: #27ae60; }
+.metric-card.good { border-left-color: #2ecc71; }
+.metric-card.average { border-left-color: #f39c12; }
+.metric-card.poor { border-left-color: #e74c3c; }
+.metric-card.critical { border-left-color: #8e44ad; }
+
+.metric-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.metric-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+.metric-label {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.metric-description {
+    color: #95a5a6;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-excellent {
+    background-color: #d5f4e6;
+    color: #27ae60;
+}
+
+.status-good {
+    background-color: #d4f6db;
+    color: #2ecc71;
+}
+
+.status-average {
+    background-color: #fef9e7;
+    color: #f39c12;
+}
+
+.status-poor {
+    background-color: #fdf2f2;
+    color: #e74c3c;
+}
+
+.status-critical {
+    background-color: #f4f1f8;
+    color: #8e44ad;
+}
+
+.chart-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-top: 20px;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.trend-arrow {
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+.trend-up { color: #27ae60; }
+.trend-down { color: #e74c3c; }
+.trend-stable { color: #95a5a6; }
+
+.analysis-summary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+.recommendation-card {
+    background: #f8f9fa;
+    border-left: 4px solid #3498db;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+}
+
+.risk-level {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.risk-low {
+    background-color: #d5f4e6;
+    color: #27ae60;
+}
+
+.risk-medium {
+    background-color: #fef9e7;
+    color: #f39c12;
+}
+
+.risk-high {
+    background-color: #fdf2f2;
+    color: #e74c3c;
+}
+
+.benchmark-comparison {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.benchmark-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.benchmark-item:last-child {
+    border-bottom: none;
+}
+
+.performance-gauge {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.gauge-circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+}
+
+.gauge-bg {
+    stroke: #e9ecef;
+}
+
+.gauge-fill {
+    stroke: #3498db;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 1s ease-in-out;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+.gauge-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.comparison-table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.comparison-table th {
+    background-color: #34495e;
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+}
+
+.comparison-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.export-buttons {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.export-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    margin: 0 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .metric-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .analysis-header {
+        padding: 20px 15px;
+    }
+    
+    .chart-section {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-container">
+    <div class="container-fluid">
+        <!-- Ana Başlık -->
+        <div class="analysis-card">
+            <div class="analysis-header">
+                <h1 class="h2 mb-3">
+                    <i class="fas fa-chart-line me-3"></i>
+                    {% trans "Finansal Analiz Raporu" %}
+                </h1>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">{{ company.name }}</div>
+                        <small class="opacity-75">{% trans "Şirket" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">{{ analysis_period }}</div>
+                        <small class="opacity-75">{% trans "Analiz Dönemi" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">{{ report_date|date:"d M Y" }}</div>
+                        <small class="opacity-75">{% trans "Rapor Tarihi" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">
+                            <span class="risk-level risk-{{ overall_risk_level }}">
+                                {{ overall_risk_level|upper }}
+                            </span>
+                        </div>
+                        <small class="opacity-75">{% trans "Risk Seviyesi" %}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finansal Sağlık Skoru -->
+        {% if financial_health_score %}
+        <div class="analysis-card">
+            <div class="analysis-summary text-center">
+                <h3 class="mb-4">
+                    <i class="fas fa-heartbeat me-2"></i>
+                    {% trans "Finansal Sağlık Skoru" %}
+                </h3>
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="performance-gauge">
+                            <svg width="120" height="120">
+                                <circle class="gauge-circle gauge-bg" cx="60" cy="60" r="45"></circle>
+                                <circle class="gauge-circle gauge-fill" cx="60" cy="60" r="45" 
+                                        style="stroke-dashoffset: {{ financial_health_score.gauge_offset }}"></circle>
+                            </svg>
+                            <div class="gauge-text">{{ financial_health_score.score|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-start">
+                        <h4 class="mb-3">{{ financial_health_score.status_text }}</h4>
+                        <p class="mb-3 opacity-75">{{ financial_health_score.description }}</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div>
+                                <strong>{% trans "Likidite:" %}</strong>
+                                <span class="ms-2">{{ financial_health_score.liquidity_score|floatformat:0 }}/100</span>
+                            </div>
+                            <div>
+                                <strong>{% trans "Karlılık:" %}</strong>
+                                <span class="ms-2">{{ financial_health_score.profitability_score|floatformat:0 }}/100</span>
+                            </div>
+                            <div>
+                                <strong>{% trans "Borç Yönetimi:" %}</strong>
+                                <span class="ms-2">{{ financial_health_score.debt_score|floatformat:0 }}/100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ana Finansal Oranlar -->
+        <div class="analysis-card">
+            <div class="metric-grid">
+                <!-- Likidite Oranları -->
+                <div class="metric-card {{ ratios.current_ratio.status }}">
+                    <div class="metric-icon text-primary">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Cari Oran" %}</div>
+                    <div class="metric-value">{{ ratios.current_ratio.value|floatformat:2 }}</div>
+                    <span class="status-badge status-{{ ratios.current_ratio.status }}">
+                        {{ ratios.current_ratio.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Kısa vadeli borçları karşılama yeteneği" %}
+                    </div>
+                    <div class="benchmark-comparison">
+                        <div class="benchmark-item">
+                            <span>{% trans "Sektör Ortalaması:" %}</span>
+                            <span class="fw-bold">{{ ratios.current_ratio.industry_avg|default:"1.20" }}</span>
+                        </div>
+                        <div class="benchmark-item">
+                            <span>{% trans "Önerilen Minimum:" %}</span>
+                            <span class="fw-bold">1.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card {{ ratios.quick_ratio.status }}">
+                    <div class="metric-icon text-success">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Asit Test Oranı" %}</div>
+                    <div class="metric-value">{{ ratios.quick_ratio.value|floatformat:2 }}</div>
+                    <span class="status-badge status-{{ ratios.quick_ratio.status }}">
+                        {{ ratios.quick_ratio.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Stok hariç likidite durumu" %}
+                    </div>
+                    <div class="trend-indicator">
+                        <span class="trend-arrow trend-{{ ratios.quick_ratio.trend }}">
+                            <i class="fas fa-arrow-{{ ratios.quick_ratio.trend_icon }}"></i>
+                        </span>
+                        <span class="small">{{ ratios.quick_ratio.trend_text }}</span>
+                    </div>
+                </div>
+
+                <!-- Karlılık Oranları -->
+                <div class="metric-card {{ ratios.profit_margin.status }}">
+                    <div class="metric-icon text-warning">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Net Kar Marjı" %}</div>
+                    <div class="metric-value">%{{ ratios.profit_margin.value|floatformat:1 }}</div>
+                    <span class="status-badge status-{{ ratios.profit_margin.status }}">
+                        {{ ratios.profit_margin.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Satış gelirlerinden elde edilen kar oranı" %}
+                    </div>
+                </div>
+
+                <div class="metric-card {{ ratios.roa.status }}">
+                    <div class="metric-icon text-info">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Aktif Karlılığı (ROA)" %}</div>
+                    <div class="metric-value">%{{ ratios.roa.value|floatformat:1 }}</div>
+                    <span class="status-badge status-{{ ratios.roa.status }}">
+                        {{ ratios.roa.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Aktif varlıkların ne kadar verimli kullanıldığı" %}
+                    </div>
+                </div>
+
+                <!-- Borçluluk Oranları -->
+                <div class="metric-card {{ ratios.debt_to_equity.status }}">
+                    <div class="metric-icon text-danger">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Borç/Özkaynak Oranı" %}</div>
+                    <div class="metric-value">{{ ratios.debt_to_equity.value|floatformat:2 }}</div>
+                    <span class="status-badge status-{{ ratios.debt_to_equity.status }}">
+                        {{ ratios.debt_to_equity.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Finansal kaldıraç ve borç yükü" %}
+                    </div>
+                </div>
+
+                <div class="metric-card {{ ratios.debt_ratio.status }}">
+                    <div class="metric-icon text-secondary">
+                        <i class="fas fa-weight-hanging"></i>
+                    </div>
+                    <div class="metric-label">{% trans "Borçluluk Oranı" %}</div>
+                    <div class="metric-value">%{{ ratios.debt_ratio.value|floatformat:1 }}</div>
+                    <span class="status-badge status-{{ ratios.debt_ratio.status }}">
+                        {{ ratios.debt_ratio.status_text }}
+                    </span>
+                    <div class="metric-description">
+                        {% trans "Toplam varlıkların ne kadarının borçla finanse edildiği" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Analizi Grafikleri -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="chart-section">
+                    <h4 class="mb-3">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        {% trans "Gelir ve Karlılık Trendi" %}
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="profitabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-section">
+                    <h4 class="mb-3">
+                        <i class="fas fa-chart-area text-success me-2"></i>
+                        {% trans "Nakit Akış Analizi" %}
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="cashFlowChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-section">
+                    <h4 class="mb-3">
+                        <i class="fas fa-chart-bar text-info me-2"></i>
+                        {% trans "Finansal Oran Karşılaştırması" %}
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="ratioComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-section">
+                    <h4 class="mb-3">
+                        <i class="fas fa-chart-pie text-warning me-2"></i>
+                        {% trans "Varlık Dağılımı" %}
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="assetDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sektör Karşılaştırması -->
+        {% if sector_comparison %}
+        <div class="analysis-card">
+            <div class="p-4">
+                <h4 class="mb-4">
+                    <i class="fas fa-industry text-primary me-2"></i>
+                    {% trans "Sektör Karşılaştırması" %}
+                </h4>
+                <div class="table-responsive">
+                    <table class="comparison-table table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Finansal Oran" %}</th>
+                                <th class="text-center">{% trans "Şirketiniz" %}</th>
+                                <th class="text-center">{% trans "Sektör Ort." %}</th>
+                                <th class="text-center">{% trans "Sektör En İyi" %}</th>
+                                <th class="text-center">{% trans "Durum" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comparison in sector_comparison %}
+                            <tr>
+                                <td class="fw-bold">{{ comparison.ratio_name }}</td>
+                                <td class="text-center fw-bold text-primary">{{ comparison.company_value }}</td>
+                                <td class="text-center">{{ comparison.sector_average }}</td>
+                                <td class="text-center text-success">{{ comparison.sector_best }}</td>
+                                <td class="text-center">
+                                    <span class="status-badge status-{{ comparison.performance_level }}">
+                                        {{ comparison.performance_text }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Öneriler ve Eylem Planları -->
+        <div class="analysis-card">
+            <div class="p-4">
+                <h4 class="mb-4">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    {% trans "Finansal İyileştirme Önerileri" %}
+                </h4>
+                
+                {% if recommendations %}
+                <div class="row">
+                    {% for recommendation in recommendations %}
+                    <div class="col-lg-6 mb-3">
+                        <div class="recommendation-card">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="fas fa-{{ recommendation.icon }} fa-2x text-{{ recommendation.color }}"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-2">{{ recommendation.title }}</h6>
+                                    <p class="mb-2 text-muted">{{ recommendation.description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="risk-level risk-{{ recommendation.priority }}">
+                                            {{ recommendation.priority_text }}
+                                        </span>
+                                        <small class="text-muted">
+                                            {% trans "Potansiyel Etki:" %} {{ recommendation.impact }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-thumbs-up fa-3x text-success mb-3"></i>
+                    <h5 class="text-success">{% trans "Finansal durumunuz iyi görünüyor!" %}</h5>
+                    <p class="text-muted">{% trans "Şu an için kritik bir iyileştirme önerisi bulunmuyor." %}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Risk Analizi -->
+        <div class="analysis-card">
+            <div class="p-4">
+                <h4 class="mb-4">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    {% trans "Risk Analizi ve Uyarılar" %}
+                </h4>
+                
+                {% if risk_factors %}
+                <div class="row">
+                    {% for risk in risk_factors %}
+                    <div class="col-lg-4 mb-3">
+                        <div class="metric-card {{ risk.severity }}">
+                            <div class="metric-icon text-{{ risk.color }}">
+                                <i class="fas fa-{{ risk.icon }}"></i>
+                            </div>
+                            <div class="metric-label">{{ risk.category }}</div>
+                            <div class="metric-value">{{ risk.score|floatformat:0 }}/100</div>
+                            <span class="status-badge status-{{ risk.severity }}">
+                                {{ risk.severity_text }}
+                            </span>
+                            <div class="metric-description">
+                                {{ risk.description }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                    <h5 class="text-success">{% trans "Risk seviyesi düşük" %}</h5>
+                    <p class="text-muted">{% trans "Finansal risklerin çoğu kabul edilebilir seviyede." %}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Rapor Dışa Aktarım -->
+        <div class="export-buttons">
+            <a href="?export=pdf" class="export-btn">
+                <i class="fas fa-file-pdf me-2"></i>
+                {% trans "PDF Olarak İndir" %}
+            </a>
+            <a href="?export=excel" class="export-btn">
+                <i class="fas fa-file-excel me-2"></i>
+                {% trans "Excel Olarak İndir" %}
+            </a>
+            <a href="mailto:?subject={{ company.name }} Finansal Analiz Raporu" class="export-btn">
+                <i class="fas fa-envelope me-2"></i>
+                {% trans "E-posta Gönder" %}
+            </a>
+        </div>
+
+        <!-- Rapor Altbilgisi -->
+        <div class="analysis-card">
+            <div class="p-4 text-center">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">{% trans "Rapor Oluşturulma Tarihi" %}</h6>
+                        <p class="fw-bold">{{ report_date|date:"d F Y, l H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">{% trans "Sonraki Analiz Tarihi" %}</h6>
+                        <p class="fw-bold text-primary">{{ next_analysis_date|date:"d F Y" }}</p>
+                    </div>
+                </div>
+                <hr>
+                <small class="text-muted">
+                    {% trans "Bu rapor FinAsis KOBİ Mali Müşavirlik Sistemi tarafından otomatik olarak oluşturulmuştur. Rapordaki bilgiler yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi niteliği taşımaz." %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Renkler ve temalar
+    const colors = {
+        primary: '#3498db',
+        success: '#27ae60',
+        warning: '#f39c12',
+        danger: '#e74c3c',
+        info: '#17a2b8',
+        secondary: '#6c757d'
+    };
+
+    // Karlılık Trend Grafiği
+    const profitabilityCtx = document.getElementById('profitabilityChart');
+    // Raw data injected by Django; ensure they are arrays or fallback to []
+    const profitTrendLabels = JSON.parse('{{ profit_trend_labels|default:"[]"|escapejs }}');
+    const revenueData = JSON.parse('{{ revenue_data|default:"[]"|escapejs }}');
+    const profitData = JSON.parse('{{ profit_data|default:"[]"|escapejs }}');
+
+    if (profitabilityCtx && profitTrendLabels.length) {
+        new Chart(profitabilityCtx, {
+            type: 'line',
+            data: {
+                labels: profitTrendLabels,
+                datasets: [{
+                    label: '{% trans "Gelir" %}',
+                    data: revenueData,
+                    borderColor: colors.primary,
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '{% trans "Net Kar" %}',
+                    data: profitData,
+                    borderColor: colors.success,
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₺' + value.toLocaleString('tr-TR');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Nakit Akış Grafiği
+    const cashFlowCtx = document.getElementById('cashFlowChart');
+    const cashflowLabels = JSON.parse('{{ cashflow_labels|default:"[]"|escapejs }}');
+    const cashInflowData = JSON.parse('{{ cash_inflow|default:"[]"|escapejs }}');
+    const cashOutflowData = JSON.parse('{{ cash_outflow|default:"[]"|escapejs }}');
+
+    if (cashFlowCtx && cashflowLabels.length) {
+        new Chart(cashFlowCtx, {
+            type: 'bar',
+            data: {
+                labels: cashflowLabels,
+                datasets: [{
+                    label: '{% trans "Nakit Giriş" %}',
+                    data: cashInflowData,
+                    backgroundColor: 'rgba(39, 174, 96, 0.8)'
+                }, {
+                    label: '{% trans "Nakit Çıkış" %}',
+                    data: cashOutflowData,
+                    backgroundColor: 'rgba(231, 76, 60, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₺' + value.toLocaleString('tr-TR');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Oran Karşılaştırma Grafiği
+    const ratioCtx = document.getElementById('ratioComparisonChart');
+    const companyRatios = JSON.parse('{{ company_ratios|default:"[]"|escapejs }}');
+    const sectorRatios = JSON.parse('{{ sector_ratios|default:"[]"|escapejs }}');
+    if (ratioCtx && companyRatios.length) {
+        new Chart(ratioCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    '{% trans "Cari Oran" %}',
+                    '{% trans "Asit Test" %}',
+                    '{% trans "Kar Marjı" %}',
+                    '{% trans "ROA" %}',
+                    '{% trans "Borç Oranı" %}'
+                ],
+                datasets: [{
+                    label: '{% trans "Şirketiniz" %}',
+                    data: companyRatios,
+                    borderColor: colors.primary,
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    pointBackgroundColor: colors.primary
+                }, {
+                    label: '{% trans "Sektör Ortalaması" %}',
+                    data: sectorRatios,
+                    borderColor: colors.secondary,
+                    backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                    pointBackgroundColor: colors.secondary
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Varlık Dağılımı Pasta Grafiği
+    const assetCtx = document.getElementById('assetDistributionChart');
+    const assetLabels = JSON.parse('{{ asset_labels|default:"[]"|escapejs }}');
+    const assetValues = JSON.parse('{{ asset_values|default:"[]"|escapejs }}');
+    if (assetCtx && assetLabels.length) {
+        new Chart(assetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: assetLabels,
+                datasets: [{
+                    data: assetValues,
+                    backgroundColor: [
+                        colors.primary,
+                        colors.success,
+                        colors.warning,
+                        colors.danger,
+                        colors.info
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Performans Gauge animasyonu
+    const gauges = document.querySelectorAll('.gauge-fill');
+    gauges.forEach(gauge => {
+        const scoreElement = gauge.parentElement.parentElement.querySelector('.gauge-text');
+        const score = parseInt(scoreElement.textContent);
+        const circumference = 283; // 2 * PI * 45
+        const offset = circumference - (score / 100) * circumference;
+        
+        setTimeout(() => {
+            gauge.style.strokeDashoffset = offset;
+        }, 500);
+    });
+
+    // Smooth scroll için
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+});
+
+// PDF ve Excel export fonksiyonları
+function exportReport(format) {
+    const url = window.location.href + (window.location.href.includes('?') ? '&' : '?') + `export=${format}`;
+    window.open(url, '_blank');
+}
+
+// Print fonksiyonu
+function printReport() {
+    window.print();
+}
+</script>
+{% endblock %}

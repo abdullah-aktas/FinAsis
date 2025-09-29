@@ -16,6 +16,7 @@ from .filters import UserFilter
 from django.http import JsonResponse, HttpResponse
 import csv
 from django.views.decorators.cache import cache_page
+from src.apps.accounting.forms import CompanyForm as AccountingCompanyForm
 
 def is_admin(user):
     """Kullanıcının admin veya staff olup olmadığını kontrol eder."""
@@ -106,7 +107,74 @@ def company_list(request):
     paginator = Paginator(companies, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, "management/company_list.html", {"page_obj": page_obj, "query": query, "sector": sector})
+    return render(request, "management/company_list.html", {"page_obj": page_obj, "companies": page_obj.object_list, "query": query, "sector": sector})
+
+@user_passes_test(is_admin, login_url='/accounts/login/')
+def company_detail(request, company_id):
+    """Şirket detay sayfası."""
+    company = get_object_or_404(Company, id=company_id)
+    return render(request, "management/company_detail.html", {"company": company})
+
+@user_passes_test(is_admin, login_url='/accounts/login/')
+def company_add(request):
+    """Yeni şirket ekleme formu."""
+    if request.method == 'POST':
+        form = AccountingCompanyForm(request.POST, request.FILES)
+        if form.is_valid():
+            company = form.save(commit=False)
+            if hasattr(company, 'created_by_id'):
+                company.created_by = request.user
+            company.save()
+            form.save_m2m()
+            ActionLog.objects.create(
+                user=request.user,
+                action="Şirket Ekleme",
+                detail=f"Eklenen şirket: {company.name}"
+            )
+            messages.success(request, 'Şirket başarıyla eklendi.')
+            return redirect('company_list')
+    else:
+        form = AccountingCompanyForm()
+    return render(request, "management/company_form.html", {"form": form})
+
+@user_passes_test(is_admin, login_url='/accounts/login/')
+def company_edit(request, company_id):
+    """Şirket düzenleme formu."""
+    company = get_object_or_404(Company, id=company_id)
+    if request.method == 'POST':
+        form = AccountingCompanyForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            company = form.save(commit=False)
+            if hasattr(company, 'updated_by_id'):
+                company.updated_by = request.user
+            company.save()
+            form.save_m2m()
+            ActionLog.objects.create(
+                user=request.user,
+                action="Şirket Güncelleme",
+                detail=f"Güncellenen şirket: {company.name}"
+            )
+            messages.success(request, 'Şirket başarıyla güncellendi.')
+            return redirect('company_list')
+    else:
+        form = AccountingCompanyForm(instance=company)
+    return render(request, "management/company_form.html", {"form": form, "edit": True, "company": company})
+
+@user_passes_test(is_admin, login_url='/accounts/login/')
+def company_delete(request, company_id):
+    """Şirket silme onayı."""
+    company = get_object_or_404(Company, id=company_id)
+    if request.method == 'POST':
+        name = company.name
+        company.delete()
+        ActionLog.objects.create(
+            user=request.user,
+            action="Şirket Silme",
+            detail=f"Silinen şirket: {name}"
+        )
+        messages.success(request, 'Şirket silindi.')
+        return redirect('company_list')
+    return render(request, "management/company_confirm_delete.html", {"company": company})
 
 @user_passes_test(is_admin, login_url='/accounts/login/')
 def invoice_list(request):

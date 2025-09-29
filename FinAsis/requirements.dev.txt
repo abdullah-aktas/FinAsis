@@ -5,6 +5,6 @@ django-extensions
 drf-yasg>=1.21.5
 pygame>=2.5.2
 ursina>=5.0.0
-axe-core-python>=1.4.0
+axe-core-python==0.1.0  # PyPI'de mevcut tek sürüm, test erişilebilirliği için
 playwright>=1.48.0
 pytest-playwright>=0.5.2

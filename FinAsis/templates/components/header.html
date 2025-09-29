@@ -131,6 +131,12 @@
 
         <!-- Sağ: eylemler -->
         <ul class="navbar-nav ms-auto align-items-center gap-2">
+          <li class="nav-item d-none d-lg-flex">
+            <button class="theme-toggle-btn nav-link px-2" type="button" onclick="toggleTheme()" id="themeToggle" aria-label="Tema değiştir" title="Tema değiştir (Ctrl+D)">
+              <i class="bi bi-moon-stars" data-theme-icon="dark"></i>
+              <i class="bi bi-sun d-none" data-theme-icon="light"></i>
+            </button>
+          </li>
           <li class="nav-item d-none d-lg-block">
             <a class="btn btn-outline-light" style="border-radius:2rem;" href="{% url 'contact' %}">Demo Al</a>
           </li>
@@ -192,3 +198,13 @@
     </div>
   </nav>
 </header>
+<script>
+  document.addEventListener('DOMContentLoaded',function(){
+    const btn=document.getElementById('themeToggle');if(!btn) return;
+    function sync(){const t=document.documentElement.dataset.theme||'light';
+      btn.querySelector('[data-theme-icon="dark"]').classList.toggle('d-none',t!=='light');
+      btn.querySelector('[data-theme-icon="light"]').classList.toggle('d-none',t==='light');
+    }
+    document.addEventListener('themechange',sync);sync();
+  });
+</script>

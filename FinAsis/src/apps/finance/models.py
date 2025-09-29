@@ -4,6 +4,7 @@ Finance app models module.
 Contains database models for financial operations.
 """
 from django.db import models
+from typing import TYPE_CHECKING
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
@@ -55,7 +56,7 @@ class Transaction(BaseModel):
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
     transaction_date = models.DateTimeField(verbose_name=_('İşlem Tarihi'))
     
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Finansal İşlem')
         verbose_name_plural = _('Finansal İşlemler')
         ordering = ['-transaction_date']
@@ -68,7 +69,7 @@ class Invoice(BaseModel):
     due_date = models.DateField(verbose_name=_('Vade Tarihi'))
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Toplam Tutar'))
     
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Fatura') 
         verbose_name_plural = _('Faturalar')
         ordering = ['-issue_date']
@@ -81,7 +82,7 @@ class TransactionCategory(BaseModel):
                              related_name='children', verbose_name=_('Üst Kategori'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('İşlem Kategorisi')
         verbose_name_plural = _('İşlem Kategorileri')
         ordering = ['code']
@@ -100,11 +101,11 @@ class Account(BaseModel):
         ('REVENUE', _('Gelir')),
         ('EXPENSE', _('Gider')),
     ], verbose_name=_('Hesap Tipi'))
-    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Bakiye'))
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Bakiye'))
     currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Hesap')
         verbose_name_plural = _('Hesaplar')
         ordering = ['code']
@@ -118,11 +119,11 @@ class Budget(BaseModel):
     start_date = models.DateField(verbose_name=_('Başlangıç Tarihi'))
     end_date = models.DateField(verbose_name=_('Bitiş Tarihi'))
     amount = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Bütçe Tutarı'))
-    actual_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Gerçekleşen Tutar'))
+    actual_amount = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Gerçekleşen Tutar'))
     category = models.CharField(max_length=50, verbose_name=_('Kategori'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Bütçe')
         verbose_name_plural = _('Bütçeler')
         ordering = ['-start_date']
@@ -150,7 +151,7 @@ class FinancialReport(BaseModel):
     parameters = models.JSONField(default=dict, verbose_name=_('Parametreler'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT', verbose_name=_('Durum'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Finansal Rapor')
         verbose_name_plural = _('Finansal Raporlar')
         ordering = ['-created_at']
@@ -175,7 +176,7 @@ class Tax(BaseModel):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, verbose_name=_('Vergi Tipi'))
     description = models.TextField(blank=True, verbose_name=_('Açıklama'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Vergi')
         verbose_name_plural = _('Vergiler')
         ordering = ['code']
@@ -202,14 +203,14 @@ class CashFlow(BaseModel):
     total_expense = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Toplam Gider'))
     net_cash_flow = models.DecimalField(max_digits=12, decimal_places=2, verbose_name=_('Net Nakit Akışı'))
     
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Nakit Akışı')
         verbose_name_plural = _('Nakit Akışları')
         ordering = ['-start_date']
         app_label = 'finance'
 
     def __str__(self):
-        return f"{self.get_period_display()} - {self.start_date} - {self.end_date}"
+        return f"{self.period} - {self.start_date} - {self.end_date}"
 
 class IncomeStatement(BaseModel):
     """Gelir tablosu modeli"""
@@ -231,13 +232,13 @@ class IncomeStatement(BaseModel):
     other_expenses = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Diğer Giderler')
     net_income = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Net Kar')
     
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = 'Gelir Tablosu'
         verbose_name_plural = 'Gelir Tabloları'
         ordering = ['-start_date']
         
     def __str__(self):
-        return f"{self.get_period_display()} - {self.start_date} - {self.end_date}"
+        return f"{self.period} - {self.start_date} - {self.end_date}"
 
     def save(self, *args, **kwargs):
         # Brüt kar hesaplama
@@ -256,10 +257,10 @@ class BankAccount(BaseModel):
     account_name = models.CharField(max_length=100, verbose_name=_('Hesap Adı'))
     account_number = models.CharField(max_length=50, verbose_name=_('Hesap Numarası'))
     bank_name = models.CharField(max_length=100, verbose_name=_('Banka Adı'))
-    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0, verbose_name=_('Bakiye'))
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name=_('Bakiye'))
     currency = models.CharField(max_length=3, default='TRY', verbose_name=_('Para Birimi'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('Banka Hesabı')
         verbose_name_plural = _('Banka Hesapları')
         ordering = ['bank_name', 'account_name']
@@ -308,17 +309,20 @@ class EInvoice(BaseModel):
     sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Gönderim Zamanı'))
     accepted_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Kabul Zamanı'))
     
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('E-Fatura')
         verbose_name_plural = _('E-Faturalar')
         ordering = ['-issue_date', '-created_at']
+
+    if TYPE_CHECKING:  # pragma: no cover
+        items: 'models.Manager["EInvoiceItem"]'
 
     def __str__(self):
         return f"{self.invoice_number} - {getattr(self.customer, 'name', '')}"
         
     def calculate_totals(self):
         """Fatura toplamlarını hesaplar"""
-        items = self.items.all()
+        items = self.items.all()  # related_name='items' ile erişim
         self.subtotal = sum(item.line_total for item in items)
         self.tax_total = sum(item.tax_amount for item in items)
         self.total = self.subtotal + self.tax_total
@@ -346,7 +350,7 @@ class EInvoiceItem(BaseModel):
     line_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name=_('Satır Toplamı'))
     description = models.CharField(max_length=255, blank=True, verbose_name=_('Açıklama'))
 
-    class Meta:
+    class Meta:  # type: ignore[override]
         verbose_name = _('E-Fatura Kalemi')
         verbose_name_plural = _('E-Fatura Kalemleri')
         ordering = ['invoice', 'id']
@@ -423,3 +427,6 @@ class AIConfig(models.Model):
 
     def __str__(self):
         return f"AIConfig ({'Aktif' if self.active else 'Pasif'})"
+
+
+# Yeni modeller için ayrı uygulamalar oluşturulacak

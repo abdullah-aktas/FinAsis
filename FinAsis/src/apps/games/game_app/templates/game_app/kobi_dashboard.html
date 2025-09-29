@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "core_ui/base.html" %}
 
 {% block title %}{{ title }} - FinAsis{% endblock %}
 
@@ -137,5 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         card.addEventListener('mouseleave', function() {
             this.classList.remove('shadow');
+        });
+    });
+});
 </script>
 {% endblock %} 

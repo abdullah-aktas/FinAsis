@@ -1,212 +1,142 @@
 <<<<<<< HEAD
-# FinAsis - Geleceğin Finansal Asistanı 🧠📊
-
-**FinAsis**, küçük ve orta ölçekli işletmeler (KOBİ'ler) için kapsamlı finansal yönetim çözümleri sunarken, aynı zamanda **muhasebe ve finansal okuryazarlık alanında kendini geliştirmek isteyen öğrenciler ve bireyler** için eğitim, simülasyon ve oyunlaştırma modülleri içeren çok yönlü bir platformdur.
-
-
-## 🌍 Hakkında
-
-**FinAsis**, muhasebe ve finansal yönetimi sadece işletmelere değil, bireylere de öğreten; **artırılmış gerçeklik (AR)**, **oyunlaştırma** ve **yapay zeka destekli rehberlik** ile zenginleştirilmiş **dünyanın ilk bütünleşik İşletme Yönetimi ve Eğitim Programıdır**.
-
-Aynı zamanda, **blockchain teknolojisi** kullanarak işletmelerin finansal kayıtlarını **şeffaf**, **güvenli** ve **değiştirilemez** hale getirir. Bu sayede her adımın doğruluğu ve güvenliği garanti edilir, veriler şeffaf bir şekilde takip edilebilir.
+<div align="center">
+  <h1>FinAsis – Geleceğin Finansal Asistanı 🧠📊</h1>
+  <p><strong>KOBİ'ler, bireyler ve öğrenciler için finansal yönetim, muhasebe, eğitim (FinEd), oyunlaştırma (FinGame), yapay zeka destekli analizler ve blockchain tabanlı şeffaf kayıt altyapısı.</strong></p>
+  <p>
+    <em>All key sections below • English summary at the end</em>
+  </p>
+</div>
 
 ---
 
-## 🚀 Özellikler
-
-* ✅ **KOBİ Finans Yönetimi**
-
-  * Gelir & gider takibi
-  * Fatura yönetimi
-  * Stok & cari hesaplar
-
-* 🧠 **Yapay Zeka Destekli Finansal Danışman**
-
-  * Otomatik analiz ve öneriler
-  * Risk & kârlılık değerlendirmesi
-
-* 🎓 **FinEd Eğitim Modülü**
-
-  * Finansal okuryazarlık eğitimi
-  * Muhasebe konularını kapsayan testler ve oyunlaştırılmış öğrenme
-
-* 🕹️ **FinGame**
-
-  * 3D muhasebe oyunu
-  * Şirket kur, yönet, yatırım yap ve büyüt
-
-* 🔗 **Blockchain Entegrasyonu**
-
-  * **Şeffaf ve doğrulanabilir finansal kayıtlar**
-  * **NFT destekli rozet ve sertifika sistemi**
-  * **Güvenli ve değiştirilemez veritabanı** sayesinde finansal işlemler izlenebilir
-=======
-# FinAsis – Geleceğin Finansal Asistanı 🧠📊
-
-**FinAsis**, KOBİ'ler ve bireyler için finansal yönetim, eğitim, oyunlaştırma ve yapay zeka destekli analizler sunan modern bir platformdur. Muhasebe, finansal okuryazarlık, simülasyon, oyun ve blockchain tabanlı şeffaf kayıt sistemleriyle öne çıkar.
+## 📑 İçindekiler
+1. [Genel Bakış](#-genel-bakış)
+2. [Öne Çıkan Özellikler](#-öne-çıkan-özellikler)
+3. [Mimari ve Modüller](#-mimari-ve-modüller)
+4. [Kurulum (Hızlı)](#-kurulum-hızlı)
+5. [Ortam Değişkenleri (.env Örneği)](#-ortam-değişkenleri-env-örneği)
+6. [Hızlı Başlangıç Adımları](#-hızlı-başlangıç-adımları)
+7. [Test & Kod Kalitesi](#-test--kod-kalitesi)
+8. [Muhasebe Motoru (Çekirdek)](#-muhasebe-motoru-çekirdek)
+9. [Yönetim Komutları](#-yönetim-komutları)
+10. [Rapor URL'leri](#-rapor-urlleri)
+11. [Makine Öğrenmesi (ML) API'leri](#-makine-öğrenmesi-ml-apileri)
+12. [RBAC / Permissions Modülü](#-rbac--permissions-modülü)
+13. [Virtual Company Modülü](#-virtual-company-modülü)
+14. [Çoklu Dil • i18n • SEO • A11y](#-çoklu-dil--i18n--seo--a11y)
+15. [Blockchain & Güvenlik](#-blockchain--güvenlik)
+16. [Deploy](#-deploy)
+17. [Katkı Rehberi](#-katkı-rehberi)
+18. [Lisans](#-lisans)
+19. [English Summary](#english-summary)
 
 ---
 
-## 🚀 Temel Özellikler
+## 🌍 Genel Bakış
+**FinAsis**, muhasebe & finansal okuryazarlığı hem işletmelere hem bireylere öğreten; **oyunlaştırma**, **AR/3D**, **yapay zeka destekli öneri & risk analizi**, **blockchain ile değiştirilemez kayıt**, **çoklu dil**, **PWA + SEO + erişilebilirlik** yetenekleriyle bütünleşik bir platformdur.
 
-- **KOBİ Finans Yönetimi:** Gelir/gider takibi, fatura, stok, cari hesaplar
-- **Yapay Zeka Destekli Danışman:** Otomatik analiz, risk ve kârlılık değerlendirmesi, öneri sistemleri
-- **FinEd Eğitim Modülü:** Finansal okuryazarlık eğitimi, testler, oyunlaştırılmış öğrenme
-- **FinGame:** 3D muhasebe oyunu, şirket kurma ve yönetme simülasyonu
-- **Blockchain Entegrasyonu:** Şeffaf, güvenli ve değiştirilemez finansal kayıtlar, NFT destekli rozet/sertifika sistemi
-- **Çoklu Dil Desteği:** Türkçe, İngilizce, Almanca, Fransızca, Arapça, Kürtçe ve daha fazlası
-- **Modern Arayüz:** Responsive, koyu/açık tema, erişilebilirlik (A11y), gelişmiş grafikler
+> Hedef: Finansal karar alma kalitesini artırmak, eğitimle beceri geliştirmek ve operasyonel finans/muhasebe süreçlerini otomatikleştirmek.
 
 ---
 
-## 🏗️ Ana Modüller
-
-- **accounting:** Temel muhasebe işlemleri (fatura, gider, banka, ürün, satış, ödeme)
-- **accounts:** Kullanıcı, şirket, başarımlar, ayarlar
-- **games:** Oyunlar ve simülasyonlar (3D oyun, görevler, skorlar)
-- **ai_assistant:** Akıllı asistan, ML API'leri, öneri ve analizler
-- **blockchain:** Blokzincir entegrasyonları
-- **finance:** Banka, e-fatura, çek/senet, finansal raporlama
-- **education:** Finansal eğitim, interaktif senaryolar
-- **virtual_company:** Sanal şirket yönetimi
-- **common:** Ortak izinler, mixinler, templatetag'ler
-
----
-
-## 🌐 Çoklu Dil (i18n) ve Yerelleştirme Desteği
-
-FinAsis, hem arayüzde hem de API/servislerde kapsamlı çoklu dil ve yerelleştirme (i18n) desteği sunar.
-
-- **Desteklenen Diller:** Türkçe (tr), İngilizce (en), Almanca (de), Fransızca (fr), Arapça (ar), Kürtçe (ku)
-- **Backend (Django):**
-  - Tüm metinler .po/.mo dosyaları ile çevrilebilir.
-  - Django'nun klasik i18n altyapısı kullanılır.
-  - Yeni dil eklemek için:
-    ```bash
-    django-admin makemessages -l yeni_dil
-    django-admin compilemessages
-    ```
-- **Frontend (JS):**
-  - Tüm arayüz metinleri `static/locales/` altında JSON dosyalarında yönetilir.
-  - Dinamik dil seçici ile kullanıcı arayüzü anında değişir.
-  - RTL (sağdan sola) diller (Arapça, Kürtçe-Sorani) için tam destek.
-  - Tarih, saat, para birimi ve sayı formatları otomatik olarak yerelleştirilir.
-- **Oyun ve Simülasyonlar:**
-  - 3D oyun modüllerinde de çoklu dil desteği ve anlık dil değişimi mevcuttur.
-- **Dil Seçici:**
-  - Tüm sayfalarda erişilebilir bir dil seçici bulunur.
-  - Kullanıcı tercihi localStorage'da saklanır ve sonraki ziyaretlerde otomatik olarak uygulanır.
-- **Çeviri Güncelleme:**
-  - Backend ve frontend çevirileri arasında tutarlılık sağlanır.
-  - JSON veya .po dosyalarını güncelledikten sonra ilgili servisi yeniden başlatmak yeterlidir.
-
-**Not:** Yeni bir dil eklemek veya mevcut çevirileri güncellemek için `FinAsis/apps/locale/README.md` dosyasındaki adımları takip edebilirsiniz.
->>>>>>> 49574730cf71aa7220e8b73f6183c085f398841c
+## 🚀 Öne Çıkan Özellikler
+- 💼 KOBİ Finans & Muhasebe (fatura, cari, stok, banka, vergi, raporlar)
+- 🧠 Yapay Zeka Destekli Analiz & Öneri (risk skoru, tahmin, tavsiye)
+- 🎓 FinEd Eğitim Modülü (senaryo, quiz, seviye, rozet)
+- 🕹️ FinGame (3D şirket simülasyonu, görevler, skorlar)
+- 🔗 Blockchain Entegrasyonu (şeffaflık, denetlenebilirlik, NFT rozet/sertifika)
+- 🌐 Çoklu Dil & RTL Desteği (tr, en, de, fr, ar, ku ...)
+- 🧩 Modüler Yapı & Genişletilebilir API (DRF + JWT)
+- 📊 Gerçek Zamanlı Raporlama (yevmiye, kebir, mizan, KDV, BA/BS, yaşlandırma)
+- 📦 Muhasebe Motoru (JSON kural tabanlı otomatik fiş üretimi)
+- ♻️ Çift Onay / Workflow Kancaları
+- 🔐 RBAC (Rol & Yetki Hiyerarşisi)
+- 🪪 PWA, SEO, A11y, Performans & Güvenlik optimizasyonları
 
 ---
 
-## 🛠️ Kurulum
+## 🏗️ Mimari ve Modüller
+| Modül | Amaç | Örnek İçerik |
+|-------|------|--------------|
+| `accounting` | Fişler, hesap planı, vergi, envanter | Voucher, GLBalance, PostingRule |
+| `finance` | Banka, e-fatura, çek/senet, raporlar | Entegrasyon & mutabakat |
+| `ai_assistant` | ML/AI endpointleri, risk, tahmin, öneri | `/ai-assistant/ml/*` |
+| `education` | Eğitim içerikleri & quizler | Senaryo, quiz API |
+| `games` | 3D / simülasyon | Görevler, skorlar |
+| `virtual_company` | Sanal şirket & ürün yönetimi | CRUD + bulk işlemler |
+| `accounts` | Kullanıcı, şirket, başarımlar | Profil, ayarlar |
+| `blockchain` | Kayıt doğrulama & NFT | Hashing, işaretleme |
+| `common` | Ortak util, templatetag, mixin | Base sınıflar |
+| `rbac/permissions` | Rol & yetki sistemi | Role, Permission, UserRole |
 
-<<<<<<< HEAD
-### 1. Gerekli ortamı oluşturun:
+---
 
+## 🛠️ Kurulum (Hızlı)
 ```bash
-python -m venv venv
-source venv/Scripts/activate      # Windows
+git clone <repo-url>
+cd FinAsis
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# veya (Linux/Mac)  source .venv/bin/activate
 pip install -r requirements.txt
-```
-=======
-1. Depoyu klonlayın:
-   ```bash
-   git clone <repo-url>
-   cd FinAsis
-   ```
-2. Sanal ortamı oluşturun ve aktif edin:
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # Windows
-   source .venv/bin/activate  # Linux/Mac
-   ```
-3. Bağımlılıkları yükleyin:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Ortam değişkenlerini ayarlayın:
-   `.env` dosyasını oluşturun ve gerekli değişkenleri girin.
-
-## Veritabanı Kurulumu
-```bash
-python manage.py migrate
-```
-
-## Testler
-```bash
-pytest --cov=FinAsis --cov-report=term-missing
-```
-
-## Kod Kalitesi
-```bash
-flake8 .
-black --check .
-```
-
-## Deploy
-- Otomatik deploy için `.github/workflows/deploy.yml` kullanılır.
-- Manuel deploy için:
-  ```bash
-  git pull origin main
-  source venv/bin/activate
-  pip install -r requirements.txt
-  python manage.py collectstatic --noinput
-  python manage.py migrate --noinput
-  sudo systemctl restart finasis_gunicorn
-  ```
-
-## Katkı
-Pull request göndermeden önce testleri ve lint işlemlerini çalıştırın.
-
-## Lisans
-MIT
-
----
-
-## 📘 Muhasebe – Yeni Özellikler ve Komutlar
-
-### Çekirdek
-- GL özet tablosu: `GLBalance` (aylık begin/debit/credit/end) – fiş onayında otomatik güncellenir
-- JSON kural tabanlı “Muhasebe Motoru”: `PostingRule` → belge satırlarından denklikli `Voucher` üretimi
-- Raporlar gerçek veriden: Yevmiye, Kebir, Mizan – `Voucher/VoucherLine/GLBalance` üzerinden
-
-### KDV / Tevkifat / Kur Farkı / Stok
-- KDV: `FinAsis/apps/finance/accounting/tax_utils.py`
-- Tevkifatlı KDV bölüşümü (satıcı/alıcı payı)
-- Kur farkı: `FinAsis/apps/finance/accounting/fx_utils.py`
-- FIFO maliyet: `FinAsis/apps/finance/accounting/inventory_fifo.py`
-
-### e‑Belge ve Dönem Sonu
-- e‑Fatura outbox ve retry komutları (GİB gönderim akışı şablonu)
-- e‑Defter paketleme (stub) komutu
-- Dönem sonu stub komutu (amortisman/reeskont/kur değerleme fişi)
-
-### Çift Onay
-- `Voucher.post` üzerinde basit çift onay örneği: toplam > 100.000 ise `reference` içinde `APPROVED2` anahtarı aranır
-
----
-
-## 🔧 Hızlı Kurulum – Muhasebe Motoru
-
-### 1) Migration ve superuser
-```bash
 python manage.py migrate
 python manage.py createsuperuser
+python manage.py runserver
 ```
 
-### 2) Örnek kural seed et
+### Alternatif (Make / Task Runner varsa)
 ```bash
-python manage.py seed_posting_rules
+invoke setup   # örnek: bağımlılık + migrate + collectstatic
 ```
 
-Örnek kural JSON (satış %20):
+---
+
+## 🔐 Ortam Değişkenleri (.env Örneği)
+```dotenv
+DJANGO_DEBUG=True
+DJANGO_SECRET_KEY=change_me
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=sqlite:///db.sqlite3
+REDIS_URL=redis://localhost:6379/0
+DEFAULT_LANGUAGE=tr
+ENABLE_BLOCKCHAIN=true
+AI_RISK_MODEL_VERSION=20240610120000
+```
+Ek değişkenler için `settings.py` içinde yorumlara bakın.
+
+---
+
+## ⚡ Hızlı Başlangıç Adımları
+1. Bağımlılıkları kur (yukarıdaki adımlar)
+2. `python manage.py migrate`
+3. `python manage.py createsuperuser`
+4. (Opsiyonel) Örnek kural & test verisi: `python manage.py seed_posting_rules`
+5. Sunucu: `python manage.py runserver`
+6. Swagger: `http://127.0.0.1:8000/api/docs/`
+
+---
+
+## ✅ Test & Kod Kalitesi
+```bash
+pytest -q --maxfail=1
+pytest --cov=FinAsis --cov-report=term-missing
+flake8 .
+black --check .
+isort --check-only .
+```
+CI (GitHub Actions) push/PR üzerinde otomatik çalıştırır.
+
+---
+
+## 🧾 Muhasebe Motoru (Çekirdek)
+Özellikler:
+- `PostingRule` → Belge satırlarından dinamik `Voucher` üretimi (JSON kural)
+- `GLBalance` → Aylık begin/debit/credit/end otomatik güncelleme (fiş post)
+- Raporlar: Yevmiye, Kebir, Mizan gerçek veri tablosundan
+- FIFO stok maliyet, kur farkı, KDV & tevkifat yardımcıları
+- Çift Onay: Toplam > eşik ise `reference` içinde `APPROVED2` aranır
+
+Örnek kural (satış %20 KDV):
 ```json
 {
   "condition": { "tax_rate_eq": 0.20 },
@@ -217,358 +147,161 @@ python manage.py seed_posting_rules
   ]
 }
 ```
-
-### 3) Belgeyi fişe dönüştürme (programatik)
-`FinAsis/apps/finance/accounting/services.py` içindeki `post_document(...)` fonksiyonunu kullanın.
+Programatik kullanım: `post_document(...)` (bkz. `finance/accounting/services.py`).
 
 ---
 
-## 🧾 Yönetim Komutları (Management Commands)
-
-- e‑Fatura Outbox (ilk göndermeler):
-```bash
-python manage.py einvoice_outbox
-```
-
-- e‑Fatura Retry (hatalıları yeniden dene):
-```bash
-python manage.py einvoice_retry
-```
-
-- Dönem Sonu Stub (amortisman/reeskont/kur değerleme fişi):
-```bash
-python manage.py run_period_end
-```
-
-- e‑Defter Paketleme (stub):
-```bash
-python manage.py package_edefter --year 2025 --month 6
-```
+## 🛎️ Yönetim Komutları
+| Komut | Amaç |
+|-------|------|
+| `einvoice_outbox` | e‑Fatura ilk gönderimler |
+| `einvoice_retry` | Hatalı e‑fatura tekrar denemesi |
+| `run_period_end` | Dönem sonu (amortisman / reeskont / kur değerleme stub) |
+| `package_edefter --year Y --month M` | e‑Defter paket stub |
+| `seed_posting_rules` | Örnek muhasebe kuralı yükler |
 
 ---
 
-## 📊 Rapor ve Ekran Linkleri
+## 📊 Rapor URL'leri
+| Rapor | Örnek URL |
+|-------|-----------|
+| Ana sayfa | `/finance/reports/` |
+| Yevmiye | `/accounting/defter/yevmiye/?year=2025&month=6&company=<id>` |
+| Kebir | `/accounting/defter/kebir/?year=2025&month=6&company=<id>` |
+| Mizan | `/accounting/defter/mizan/?year=2025&month=6&company=<id>` |
+| KDV | `/accounting/declarations/kdv/?period=2025-06&company=<id>` |
+| BA/BS | `/accounting/declarations/babs/?period=2025-06&company=<id>` |
+| Alacak Yaşlandırma | `/accounting/reports/ar-aging/?company=<id>` |
 
-- Raporlar ana sayfası: `/finance/reports/`
-- Yevmiye: `/accounting/defter/yevmiye/?year=2025&month=6&company=<id>`
-- Kebir: `/accounting/defter/kebir/?year=2025&month=6&company=<id>`
-- Mizan: `/accounting/defter/mizan/?year=2025&month=6&company=<id>`
-- KDV: `/accounting/declarations/kdv/?period=2025-06&company=<id>`
-- BA/BS: `/accounting/declarations/babs/?period=2025-06&company=<id>`
-- Alacak Yaşlandırma: `/accounting/reports/ar-aging/?company=<id>`
+---
 
+## 🤖 Makine Öğrenmesi (ML) API'leri
+Swagger: `/api/docs/` • Redoc: `/api/redoc/`
 
-Daha fazla bilgi için kodu inceleyin veya [Yardım ve Dökümantasyon](./FinAsis/templates/help/index.html) sayfasına bakın!
-
-# FinAsis – Geleceğin Finansal Asistanı
-
-## 🚀 Makine Öğrenmesi (ML) API'leri
-FinAsis, dünya standartlarında makine öğrenmesi tabanlı API'ler sunar. Tüm ML endpoint'leri JWT/session ile korumalıdır ve Swagger/Redoc ile dokümante edilmiştir.
-
-- **Swagger UI:** `/api/docs/`
-- **Redoc:** `/api/redoc/`
-
-### 1. Risk Skoru API
-Kullanıcıdan alınan finansal özelliklerle risk skoru hesaplar.
-
-**Endpoint:**
-```
+1. Risk Skoru
+```http
 POST /ai-assistant/ml/risk-score/
-{
-  "features": [5.0, 2, 2500.0, 10, 15, 0.3]
-}
+{ "features": [5.0, 2, 2500.0, 10, 15, 0.3] }
 ```
-Yanıt:
-```
-{
-  "risk_score": 0.72,
-  "model_version": "20240610120000",
-  "model_parameters": {"C": 1.0, "max_iter": 1000, ...}
-}
-```
+Yanıt: `{ "risk_score": 0.72, "model_version": "20240610120000" }`
 
-### 2. Finansal Tahmin API (Prophet)
-Geçmiş veriyle ileriye dönük finansal tahmin yapar.
-
-**Endpoint:**
-```
+2. Finansal Tahmin (Prophet)
+```http
 POST /ai-assistant/ml/financial-forecast/
-{
-  "data": [
-    {"ds": "2024-01-01", "y": 1000},
-    {"ds": "2024-01-02", "y": 1200}
-  ],
-  "periods": 10
-}
-```
-Yanıt:
-```
-{
-  "dates": [...],
-  "predictions": [...],
-  "lower_bound": [...],
-  "upper_bound": [...],
-  "model_version": "20240610120000",
-  "model_parameters": {"yearly_seasonality": true, ...}
-}
+{ "data": [{"ds": "2024-01-01", "y": 1000}], "periods": 10 }
 ```
 
-### 3. Öneri Sistemi API
-Kullanıcı finansal verilerine göre kişiselleştirilmiş öneri üretir.
-
-**Endpoint:**
-```
+3. Öneri Sistemi
+```http
 POST /ai-assistant/ml/recommendation/
-{
-  "income": 10000,
-  "expenses": 5000,
-  "savings": 2000,
-  "goals": "investment"
-}
-```
-Yanıt:
-```
-{
-  "recommendation": "Birikiminizin bir kısmını düşük riskli yatırım araçlarında değerlendirebilirsiniz.",
-  "model_version": "v1.0.0",
-  "model_parameters": {"type": "rule-based", "rules": 5}
-}
+{ "income": 10000, "expenses": 5000, "savings": 2000, "goals": "investment" }
 ```
 
-### Frontend Entegrasyonu
-Tüm ML API'leri, ilgili template dosyalarında AJAX ile entegre edilmiştir. Sonuçlar kullanıcıya anında ve kullanıcı dostu şekilde gösterilir.
-
-### Test ve Kalite
-- Tüm ML API'leri için pytest tabanlı otomatik testler hazırdır.
-- Kodlar PEP8 ve modern Python standartlarına uygundur.
+Tüm endpointler JWT veya session auth ile korunur. Pytest senaryoları hazırdır.
 
 ---
 
-## Proje Amacı
-FinAsis, şirketler ve bireyler için finansal işlemleri kolaylaştıran, raporlama, oyunlaştırma ve yapay zeka destekli analizler sunan modern bir finansal asistan ve yönetim platformudur.
+## 🛡️ RBAC / Permissions Modülü
+Özellikler: Soft delete, hiyerarşik rol, direkt kullanıcı yetkisi, DRF filtering/search/ordering.
 
-## Hızlı Başlangıç
-1. Bağımlılıkları yükleyin:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Veritabanını oluşturun:
-   ```bash
-   python manage.py migrate
-   ```
-3. Süper admin (yönetici) hesabı oluşturun:
-   ```bash
-   python manage.py createsuperuser
-   ```
-   Komut satırında sizden kullanıcı adı, e-posta ve şifre istenecektir. Bu kullanıcı ile yönetim paneline giriş yapabilirsiniz.
-4. Sunucuyu başlatın:
-   ```bash
-   python manage.py runserver
-   ```
-5. Testleri çalıştırın:
-   ```bash
-   python manage.py test
-   ```
-
-## Otomatik Test & Kalite
-- Her push/pull request'te **GitHub Actions** ile otomatik test ve kod kalite kontrolü (flake8, black) çalışır.
-- Tüm kodlar PEP8 uyumlu ve testlerle güvence altındadır.
-
-## API Dokümantasyonu
-- Tüm API endpointleri için **Swagger/OpenAPI** dokümantasyonu `/api/docs/` adresindedir.
-- DRF ve Redoc desteğiyle kolay entegrasyon.
-
-## Çoklu Dil & Globalizasyon
-- Türkçe, İngilizce, Almanca, Fransızca, Arapça, Kürtçe desteği
-- Tüm arayüz metinleri `static/locales/` altında JSON dosyalarında yönetilir.
-- RTL (sağdan sola) diller için tam destek
-
-## Ana Modüller
-- **accounting:** Fatura, gider, banka işlemleri, raporlar
-- **accounts:** Kullanıcı, şirket, başarımlar, ayarlar
-- **games:** Oyunlar ve simülasyonlar
-- **ai_assistant:** Akıllı asistan modülü
-- **blockchain:** Blokzincir entegrasyonları
-- **finance:** Finansal işlemler, entegrasyonlar ve raporlar
-- **education:** Finansal eğitim ve interaktif senaryolar
-- **virtual_company:** Sanal şirket yönetimi
-
-## Katkı Kuralları
-- Fork'layın, yeni bir branch açın, değişikliklerinizi yapın ve PR gönderin.
-- Kodda PEP8 ve Django en iyi uygulamalarına uyun.
-- Her yeni özellik için test eklemeye özen gösterin.
-- Açık ve anlaşılır commit mesajları kullanın.
-
-## Özellikler
-- Modern ve responsive arayüz (Bootstrap 5, koyu/açık tema)
-- Çoklu dil desteği ve erişilebilirlik (A11y)
-- Gelişmiş grafikler ve raporlar (Chart.js)
-- API, webhook, AI öneri ve analiz fonksiyonları
-- SEO, PWA, güvenlik ve performans optimizasyonları
-
-## Lisans
-MIT
-
----
-Daha fazla bilgi için: [Brand Guide](./config/brand_guide.md) ve [i18n Guide](./config/i18n_guide.md)
-
-## 🌍 Globalization, SEO & Accessibility
-
-### SEO & Social Meta Tags
-- All pages include dynamic `<title>`, `<meta name="description">`, Open Graph and Twitter Card tags for multilingual SEO.
-- Favicon and manifest are provided for PWA and browser support.
-- Language and direction (LTR/RTL) are set automatically based on user selection.
-
-### Internationalization (i18n)
-- All UI texts are managed via JSON files under `static/locales/` (tr, en, de, fr, ar, ku).
-- Language selector dropdown is available on all pages.
-- RTL support for Arabic and other right-to-left languages.
-- Date, time, currency and number formats are localized using Intl API helpers.
-
-### Accessibility (A11y)
-- High contrast mode, focus styles, color-blind friendly palette.
-- Screen reader support with `.sr-only` and skip links.
-- All cookie and contrast toggles are translatable and accessible.
-
-### Legal
-- GDPR/KVKK/Cookie Policy banners are multilingual and accessible.
-
-### SEO Automation
-- `sitemap.xml` covers all main pages and languages for search engines.
-- `robots.txt` allows only public pages, blocks API/static/admin, and references sitemap.
-- Advanced analytics: Google Analytics 4 and privacy-first Plausible integration (see `static/components/analytics.html`).
-
-### Advanced SEO
-- Hreflang tags for all supported languages (tr, en, de, fr, ar, ku) for proper international indexing.
-- schema.org microdata (Organization, WebSite, WebPage) in all languages for rich search results.
-- Google Tag Manager integration for advanced tracking and marketing tools.
-
-### Extra (Optional)
-- **Advanced Analytics:** Hotjar, Matomo (self-hosted) and event tracking infrastructure included. See `static/components/analytics.html`.
-- **PWA:** Manifest, service worker, offline support and add-to-home-screen ready. See `static/manifest.json` and `static/js/service-worker.js`.
-- **Performance:** Lazy load for images, minified assets, CDN usage for Bootstrap, Icons and Fonts.
-- **Security:** Content Security Policy (CSP), XSS protection, HTTPS redirect fallback.
-
----
-
-For more details, see the [Brand Guide](./config/brand_guide.md) and [i18n Guide](./config/i18n_guide.md).
-
----
-
-**English**
-
-FinAsis is a modern, user-friendly financial assistant and management platform for companies and individuals. It offers financial transactions, reports, gamified modules, and much more.
-
-See above for installation and usage instructions.
-
-# Permissions (RBAC) Modülü
-
-Bu modül, FinAsis projesinde rol tabanlı erişim ve yetkilendirme işlemlerini yönetir. Modern, genişletilebilir ve kullanıcı dostu bir yapıya sahiptir.
-
-## Özellikler
-- Soft delete (is_active) desteği
-- Django native permission ile tam entegrasyon
-- Hiyerarşik rol desteği
-- Kullanıcıya doğrudan yetki atama
-- Modern DRF API endpoint'leri (filter, search, ordering)
-- Kullanıcı dostu admin ve template arayüzü
-
-## Modeller
-- **Permission**: Özel yetki modeli, Django Permission ile eşleşir.
-- **Role**: Roller, hiyerarşik yapı destekler.
-- **UserRole**: Kullanıcı-rol ilişkisi.
-- **UserPermission**: Kullanıcıya doğrudan yetki atama.
-
-## API Kullanımı
-Tüm endpointler JWT veya session ile kimlik doğrulama gerektirir.
-
-| Endpoint | Açıklama |
-|---|---|
-| `/api/permissions/` | Yetki CRUD |
+API (örn.):
+| Endpoint | İşlev |
+|----------|-------|
+| `/api/permissions/` | Permission CRUD |
 | `/api/roles/` | Rol CRUD |
-| `/api/user-roles/` | Kullanıcı-rol CRUD |
-| `/api/user-permissions/` | Kullanıcıya doğrudan yetki CRUD |
+| `/api/user-roles/` | Kullanıcı-rol |
+| `/api/user-permissions/` | Kullanıcıya doğrudan yetki |
 
-### Örnek: Yetki Oluşturma
+Örnek Yetki:
 ```http
 POST /api/permissions/
-{
-  "name": "Rapor Görüntüle",
-  "codename": "view_report",
-  "content_type": 1,
-  "description": "Raporları görüntüleme yetkisi"
-}
+{ "name": "Rapor Görüntüle", "codename": "view_report", "content_type": 1 }
 ```
-
-### Örnek: Kullanıcıya Yetki Atama
-```http
-POST /api/user-permissions/
-{
-  "user": 5,
-  "permission": 12
-}
-```
-
-## Admin Paneli
-- Tüm modellerde soft delete uygulanır (is_active=False olanlar gizlenir).
-- Arama, filtreleme ve ilişkili alanlar kolayca yönetilebilir.
-
-## Geliştirici Notları
-- Yeni bir Permission oluşturulduğunda, Django native Permission otomatik oluşur.
-- API endpoint'lerinde filtering, search ve ordering desteği vardır.
-- Tüm template'ler responsive ve kullanıcı dostudur.
 
 ---
-Daha fazla bilgi için kodu inceleyin veya sorularınızı iletin!
 
-# Virtual Company Modülü
+## 🏢 Virtual Company Modülü
+Özellikler: Şirket & ürün CRUD, bulk create, sahiplik kontrolü, arama & filtre.
 
-Bu modül, öğrenciler veya kullanıcılar tarafından sanal şirketler oluşturulmasını, ürün ve finansal işlemler yönetilmesini sağlar.
-
-## Özellikler
-- Şirket ve ürün yönetimi (CRUD)
-- Sadece şirket sahibi kendi şirketini ve ürünlerini görebilir
-- API üzerinden toplu ürün ekleme (bulk create)
-- Filtering, search, ordering desteği
-- Admin panelinde inline ürün yönetimi
-- Kullanıcı dostu ve çok dilli hata mesajları
-
-## API Kullanımı
-Tüm endpointler JWT veya session ile kimlik doğrulama gerektirir.
-
-| Endpoint | Açıklama |
-|---|---|
-| `/companies/` | Şirket CRUD |
-| `/products/` | Ürün CRUD |
-| `/products/bulk_create/` | Toplu ürün ekleme |
-
-### Örnek: Şirket Oluşturma
-```http
-POST /companies/
-{
-  "name": "Test Şirket",
-  "description": "Açıklama"
-}
-```
-
-### Örnek: Toplu Ürün Ekleme
+Bulk Örnek:
 ```http
 POST /products/bulk_create/
 {
   "items": [
-    {"name": "Ürün 1", "description": "Açıklama", "price": 10, "stock": 5},
-    {"name": "Ürün 2", "description": "Açıklama", "price": 20, "stock": 2}
+    {"name": "Ürün 1", "price": 10, "stock": 5},
+    {"name": "Ürün 2", "price": 20, "stock": 2}
   ]
 }
 ```
 
-## Admin Paneli
-- Şirket detayında inline ürün yönetimi
-- Gelişmiş arama ve filtreleme
+---
 
-## Test
-- pytest ile API endpoint testleri hazırdır.
+## 🌐 Çoklu Dil • i18n • SEO • A11y
+- Diller: tr, en, de, fr, ar (RTL), ku
+- Backend: `django-admin makemessages -l <lang> && django-admin compilemessages`
+- Frontend: `static/locales/<lang>/*.json`
+- Hreflang, schema.org microdata, Open Graph & Twitter Card otomatik
+- Erişilebilirlik: Kontrast modu, screen reader etiketleri, skip linkler
+- PWA: Manifest + service worker + offline stratejisi
+- Analytics: GA4 / Plausible / (opsiyonel) Hotjar / Matomo
 
 ---
-Daha fazla bilgi için kodu inceleyin veya sorularınızı iletin! 
+
+## 🔗 Blockchain & Güvenlik
+- Hash tabanlı doğrulanabilir finansal kayıt
+- NFT rozet / sertifika konsepti (genişletilebilir)
+- CSP, XSS korumaları, HTTPS yönlendirme fallback
+- Yetki katmanları + audit log (geliştirilebilir)
+
+---
+
+## 🚀 Deploy
+Örnek manuel süreç:
+```bash
+git pull origin main
+.venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py collectstatic --noinput
+python manage.py migrate --noinput
+python manage.py check --deploy
+sudo systemctl restart finasis_gunicorn   # (Linux örneği)
+```
+CI/CD: `.github/workflows/` altında (varsa) otomasyon.
+
+---
+
+## 🤝 Katkı Rehberi
+1. Fork + branch: `feature/<özellik-adı>`
+2. Test ekle/güncelle
+3. Lint & format: black, isort, flake8
+4. Anlamlı commit mesajları (Conventional önerilir)
+5. PR açıklamasında: Amaç + Özet + Test kapsamı
+
+Geliştirme sırasında ek öneriler:
+- Yeni model → sinyal + admin kaydı + test
+- Yeni API → swagger şeması + izin kontrolü + negatif test
+
+---
+
+## 📄 Lisans
+MIT – Ayrıntılar için `LICENSE` dosyasına bakın.
+
+---
+
+## English Summary
+FinAsis is a modular financial management, education, gamification and AI analytics platform for SMEs and individuals. It includes: accounting engine (rule-based voucher posting), finance & reports, AI risk/forecast/recommendation APIs, RBAC, virtual company simulation, multilingual & RTL support, SEO & accessibility optimizations, PWA, and optional blockchain-backed record integrity.
+
+Key Highlights:
+- Modular Django + DRF backend
+- JSON rule-based accounting posting engine
+- ML endpoints (risk score, forecasting, recommendation)
+- RBAC with hierarchical roles and direct user permissions
+- Virtual company simulation & gamified learning
+- Multilingual (tr/en/de/fr/ar/ku) with hreflang & schema.org
+- PWA, SEO, Accessibility, Security hardening
+
+See sections above for installation, commands, and API usage.
+
+---
+<sub>FinAsis © 2025 – Geliştiriciler ve katkıda bulunanlara teşekkürler.</sub>
 >>>>>>> 49574730cf71aa7220e8b73f6183c085f398841c

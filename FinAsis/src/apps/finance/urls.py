@@ -6,6 +6,7 @@ Finance uygulaması URL yapılandırmaları
 from django.urls import path, include
 from src.apps.finance.home import finance_home, companies_api
 from .views import banking, einvoice, accounting, checks
+# from .views import kobi_views, enhanced_views, control_views  # Geçici olarak kapatıldı
 from .main_views import CashFlowListView, IncomeStatementListView, download_financial_report
 from django.views.generic import TemplateView
 from .api.urls import urlpatterns as api_urlpatterns
@@ -18,6 +19,9 @@ urlpatterns = api_urlpatterns + web_urlpatterns
 urlpatterns += [
     path('', finance_home, name='finance_home'),
     path('reports/', TemplateView.as_view(template_name='finance/reports_index.html'), name='reports_index'),
+    
+    # Data Security & Compliance URLs
+    path('security/', include('src.apps.security.urls', namespace='security')),
     path('api/companies/', companies_api, name='companies_api'),
     # Banka hesapları ve işlemler
     path('bank-accounts/', banking.BankAccountListView.as_view(), name='bank_accounts'),

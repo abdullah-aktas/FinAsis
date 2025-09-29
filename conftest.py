@@ -2,12 +2,23 @@ import sys
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, BASE_DIR)
 
-# Add inner project directory so `src` package is importable
-INNER_DIR = os.path.join(BASE_DIR, 'FinAsis')
-if os.path.isdir(INNER_DIR) and INNER_DIR not in sys.path:
-	sys.path.insert(0, INNER_DIR)
-SRC_DIR = os.path.join(INNER_DIR, 'src')
-if os.path.isdir(SRC_DIR) and SRC_DIR not in sys.path:
-	sys.path.insert(0, SRC_DIR)
+def _add(p: str):
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
+_add(BASE_DIR)
+
+# Support both current nested layout FinAsis/FinAsis/src and future flattened src/
+outer = os.path.join(BASE_DIR, 'FinAsis')  # first level
+inner = os.path.join(outer, 'FinAsis')     # second level (actual python package root)
+candidate_srcs = [
+    os.path.join(outer, 'src'),
+    os.path.join(inner, 'src'),
+    os.path.join(BASE_DIR, 'src'),
+]
+for p in [outer, inner] + candidate_srcs:
+    _add(p)
+
+# Normalize DJANGO_SETTINGS_MODULE early so tests need not redefine
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FinAsis.config.settings')

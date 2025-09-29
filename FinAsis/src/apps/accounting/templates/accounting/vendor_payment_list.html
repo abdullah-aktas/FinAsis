@@ -1,32 +1,98 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="container py-4">
-  <h3>Tedarikçi Ödemeleri</h3>
-  <a class="btn btn-primary btn-sm mb-2" href="{% url 'accounting:vendor_payment_create' %}">Yeni Ödeme</a>
-  <table class="table table-sm table-striped">
-    <thead>
-      <tr>
-        <th>Tedarikçi</th>
-        <th>Tutar</th>
-        <th>Yöntem</th>
-        <th>Tarih</th>
-        <th>Fatura</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for p in payments %}
-        <tr>
-          <td><a href="{% url 'accounting:vendor_payment_detail' p.id %}">{{ p.vendor.name }}</a></td>
-          <td>{{ p.amount }}</td>
-          <td>{{ p.payment_method }}</td>
-          <td>{{ p.payment_date }}</td>
-          <td>{{ p.related_invoice.invoice_number }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="5">Kayıt bulunamadı</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+{% block acc_title %}Tedarikçi Ödemeleri{% endblock %}
+{% block acc_subtitle %}Tedarikçilere yapılan ödeme kayıtları{% endblock %}
+{% block acc_actions %}
+  <a href="{% url 'accounting:vendor_payment_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ödeme</a>
+{% endblock %}
+{% block acc_content %}
+<div class="vendor-payment-list-view">
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body pb-2">
+      <form method="get" class="row gy-2 gx-3 align-items-end" aria-label="Tedarikçi ödeme filtre formu">
+        <div class="col-md-3">
+          <label for="vendor" class="form-label small text-muted">Tedarikçi</label>
+          <select name="vendor" id="vendor" class="form-select form-select-sm">
+            <option value="">Hepsi</option>
+            {% for v in vendors %}
+              <option value="{{ v.id }}" {% if request.GET.vendor == v.id|stringformat:'s' %}selected{% endif %}>{{ v.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="method" class="form-label small text-muted">Yöntem</label>
+          <select name="method" id="method" class="form-select form-select-sm">
+            <option value="">Hepsi</option>
+            {% for key,label in method_choices %}
+              <option value="{{ key }}" {% if request.GET.method == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="start" class="form-label small text-muted">Başlangıç</label>
+          <input type="date" name="start" id="start" class="form-control form-control-sm" value="{{ request.GET.start }}">
+        </div>
+        <div class="col-md-2">
+          <label for="end" class="form-label small text-muted">Bitiş</label>
+          <input type="date" name="end" id="end" class="form-control form-control-sm" value="{{ request.GET.end }}">
+        </div>
+        <div class="col-md-2 text-md-end">
+          <div class="d-flex gap-2 justify-content-md-end">
+            <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Ara</button>
+            <a href="?" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle me-1"></i>Sıfırla</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between bg-white">
+      <div>
+        <h5 class="mb-0">Tedarikçi Ödemeleri</h5>
+        <small class="text-muted">Toplam: {{ page_obj.paginator.count|default:payments|length }} kayıt</small>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'accounting:vendor_payment_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ödeme</a>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Tedarikçi</th>
+            <th class="text-end">Tutar</th>
+            <th>Yöntem</th>
+            <th>Tarih</th>
+            <th>Fatura</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+            <tr>
+              <td><a href="{% url 'accounting:vendor_payment_detail' p.id %}" class="text-decoration-none">{{ p.vendor.name }}</a></td>
+              <td class="text-end">{{ p.amount|floatformat:2 }} ₺</td>
+              <td>{{ p.get_payment_method_display|default:p.payment_method }}</td>
+              <td>{{ p.payment_date|date:'d.m.Y' }}</td>
+              <td>{{ p.related_invoice.invoice_number|default:'-' }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5">
+                <div class="text-muted">
+                  <div style="font-size:2.2rem;" class="mb-2"><i class="bi bi-wallet2"></i></div>
+                  <p class="mb-2">Kayıtlı tedarikçi ödemesi yok.</p>
+                  <a href="{% url 'accounting:vendor_payment_create' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle me-1"></i>İlk Ödemeyi Ekle</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer bg-white">
+      {% include 'accounting/partials/_pagination.html' with page_obj=page_obj %}
+    </div>
+  </div>
 </div>
 {% endblock %}
 

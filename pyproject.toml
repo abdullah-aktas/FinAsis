@@ -3,3 +3,16 @@ line-length = 120
 exclude = '''
 /(\.|venv|__pycache__|migrations|build|dist)/
 ''' 
+
+[tool.pyright]
+# Help Pylance/Pyright resolve the inner project source paths so imports like
+# `from src.apps.accounting.models import Company` work when editing tests
+# located at the repository root. Runtime already handles this via
+# sitecustomize.py and conftest path injections, but static analysis needs
+# explicit extraPaths entries.
+extraPaths = [
+	"FinAsis/src",  # main src package containing apps
+	"FinAsis"       # allow resolving FinAsis.src.* style if used
+]
+reportMissingImports = true
+typeCheckingMode = "basic"

@@ -8,7 +8,7 @@
             <button class="btn btn-outline-secondary" type="submit">Ara</button>
         </div>
     </form>
-    <a href="/yonetim/sirketler/ekle/" class="btn btn-success mb-3">+ Yeni Şirket</a>
+    <a href="{% url 'management:company_add' %}" class="btn btn-success mb-3">+ Yeni Şirket</a>
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -29,9 +29,9 @@
                 <td>{{ company.tax_number }}</td>
                 <td>{% if company.created_at %}{{ company.created_at|date:'d.m.Y H:i' }}{% endif %}</td>
                 <td>
-                    <a href="/yonetim/sirketler/{{ company.id }}/" class="btn btn-sm btn-info">Detay</a>
-                    <a href="/yonetim/sirketler/{{ company.id }}/duzenle/" class="btn btn-sm btn-warning">Düzenle</a>
-                    <a href="/yonetim/sirketler/{{ company.id }}/sil/" class="btn btn-sm btn-danger">Sil</a>
+                    <a href="{% url 'management:company_detail' company.id %}" class="btn btn-sm btn-info">Detay</a>
+                    <a href="{% url 'management:company_edit' company.id %}" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a href="{% url 'management:company_delete' company.id %}" class="btn btn-sm btn-danger">Sil</a>
                 </td>
             </tr>
             {% empty %}

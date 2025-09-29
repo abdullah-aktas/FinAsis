@@ -1,0 +1,11 @@
+{% if user_shortcuts %}
+<nav class="bg-white border-bottom py-2 small" aria-label="User shortcuts">
+  <div class="container d-flex flex-wrap gap-3">
+    {% for sc in user_shortcuts %}
+      <a class="text-decoration-none d-flex align-items-center gap-1" href="{{ sc.url }}">
+        <i class="bi {{ sc.icon }} text-success"></i><span>{{ sc.label }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</nav>
+{% endif %}

@@ -1,54 +1,56 @@
-<!-- Dashboard tarzı kayıt sayfası -->
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Kayıt Ol</title>
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <h2>Kayıt Ol</h2>
-        <form method="post">
-            {% csrf_token %}
-            {% if form.errors %}
-                <div class="form-errors">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <p>{{ field.label }}: {{ error }}</p>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
+{% extends 'core_ui/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Kayıt Ol' %} - FinAsis{% endblock %}
+{% block content %}
+<div class="container py-5 my-5" style="max-width:560px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-3 text-center">{% trans 'Kayıt Ol' %}</h1>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">
+                        {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+                    </div>
+                {% endif %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                        <div class="position-relative">
+                            {% if field.name in 'password1 password2' %}
+                                <div class="input-group">
+                                    {{ field }}
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-password="id_{{ field.name }}">{% trans 'Göster' %}</button>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </div>
+                        {% if field.help_text %}<div class="form-text small">{{ field.help_text|safe }}</div>{% endif %}
+                        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between align-items-center mb-3 small">
+                    <a href="{% url 'accounts:login' %}">{% trans 'Zaten hesabım var' %}</a>
                 </div>
-            {% endif %}
-            <label for="id_username">Kullanıcı Adı:</label>
-            {{ form.username }}
-            <label for="id_email">E-posta:</label>
-            {{ form.email }}
-            <label for="id_password1">Şifre:</label>
-            <div style="display:flex;align-items:center;gap:8px;">
-                {{ form.password1 }}
-                <button type="button" onclick="togglePassword('id_password1')">Göster/Gizle</button>
-            </div>
-            <label for="id_password2">Şifre (Tekrar):</label>
-            <div style="display:flex;align-items:center;gap:8px;">
-                {{ form.password2 }}
-                <button type="button" onclick="togglePassword('id_password2')">Göster/Gizle</button>
-            </div>
-            <button type="submit">Kayıt Ol</button>
-        </form>
+                <button type="submit" class="btn btn-primary w-100">{% trans 'Kayıt Ol' %}</button>
+            </form>
+        </div>
     </div>
-    <script>
-    function togglePassword(id) {
-        var input = document.getElementById(id);
-        if (input.type === "password") {
-            input.type = "text";
-        } else {
-            input.type = "password";
-        }
-    }
-    </script>
-</body>
-</html> 
+</div>
+<script>
+// Password visibility toggle with i18n-safe labels
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-toggle-password]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-toggle-password');
+    const input = document.getElementById(id);
+    if (!input) return;
+    const SHOW_LABEL = "{% trans 'Göster' %}";
+    const HIDE_LABEL = "{% trans 'Gizle' %}";
+    const makePasswordVisible = input.type === 'password';
+    input.type = makePasswordVisible ? 'text' : 'password';
+    btn.textContent = makePasswordVisible ? HIDE_LABEL : SHOW_LABEL;
+});
+</script>
+{% endblock %}

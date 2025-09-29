@@ -37,6 +37,9 @@ def legal(request):
     return render(request, 'legal.html', {'year': datetime.now().year})
 
 def contact(request):
+    # DEBUG instrumentation: helpful to trace duplicate extends issue
+    # Add a marker variable to ensure we see which view executed
+    marker = 'contact_view_marker'
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
@@ -59,7 +62,7 @@ def contact(request):
         else:
             messages.error(request, 'Lütfen tüm gerekli alanları doldurun.')
 
-    return render(request, 'contact.html', {'year': datetime.now().year})
+    return render(request, 'contact.html', {'year': datetime.now().year, 'marker': marker})
 
 def help_view(request):
     return render(request, 'help/index.html') 

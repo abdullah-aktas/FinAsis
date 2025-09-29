@@ -11,30 +11,18 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from django.urls import path
+from django.urls import re_path
 
 # WebSocket için basit bir consumer (örnek)
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer  # placeholder for future consumers
 import json
 
-class MyWebSocketConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.accept()
-        await self.send(text_data=json.dumps({"message": "Bağlandın!"}))
+# Normalized settings module path
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings')
 
-    async def disconnect(self, close_code):
-        pass
-
-    async def receive(self, text_data):
-        await self.send(text_data=json.dumps({"message": "Mesaj aldım!"}))
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+websocket_urlpatterns: list = []  # Add websocket patterns here, e.g., re_path(r"^ws/test/$", Consumer.as_asgi())
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            path("ws/test/", MyWebSocketConsumer.as_asgi()),
-        ])
-    ),
+    "websocket": AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
 })

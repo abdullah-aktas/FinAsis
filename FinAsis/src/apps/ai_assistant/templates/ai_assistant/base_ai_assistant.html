@@ -1,0 +1,11 @@
+{% extends 'core_ui/base_dashboard.html' %}
+{% load i18n %}
+{# AI Assistant Base: maps semantic ai_* blocks to dashboard_* #}
+{% block dashboard_title %}{% block ai_title %}{% trans 'AI Asistan Paneli' %}{% endblock %}{% endblock %}
+{% block dashboard_subtitle %}{% block ai_subtitle %}{% trans 'Yapay zeka destekli finans araçları' %}{% endblock %}{% endblock %}
+{% block dashboard_actions %}{% block ai_actions %}{% endblock %}{% endblock %}
+{% block dashboard_content %}{% block ai_content %}{% endblock %}{% endblock %}
+
+{% block sidebar %}
+  {% include 'ai_assistant/partials/_sidebar.html' %}
+{% endblock %}

@@ -1,0 +1,19 @@
+<div id="cookieConsent" class="position-fixed bottom-0 start-0 end-0 p-3" style="z-index:1090;display:none;">
+  <div class="alert alert-dark d-flex align-items-center gap-3 shadow-lg mb-0" role="alert">
+    <div><i class="bi bi-shield-lock-fill text-success me-2"></i> Deneyiminizi iyileştirmek ve anonim analizler için çerezleri kullanıyoruz. <a href="/privacy-policy/" class="alert-link">Detaylar</a></div>
+    <div class="ms-auto d-flex gap-2">
+      <button class="btn btn-sm btn-outline-light" id="cookieDecline">Reddet</button>
+      <button class="btn btn-sm btn-success" id="cookieAccept">Kabul Et</button>
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    const KEY='finasis_cookie_consent_v1';
+    const existing=localStorage.getItem(KEY);
+    if(!existing){document.getElementById('cookieConsent').style.display='block';}
+    function set(v){try{localStorage.setItem(KEY,v);document.getElementById('cookieConsent').remove();}catch(e){}}
+    document.getElementById('cookieAccept').addEventListener('click',()=>set('accepted'));
+    document.getElementById('cookieDecline').addEventListener('click',()=>set('declined'));
+  })();
+</script>

@@ -1,44 +1,36 @@
-
-{% extends "base.html" %}
+{% extends "core_ui/base.html" %}
 {% load static i18n %}
 
-{% block title %}FinAsis — Yerel AI ile e‑Fatura, Finans ve Eğitim Platformu{% endblock %}
-{% block meta_description %}FinAsis, KOBİ’ler için yerel AI destekli finans yönetimi, e‑Fatura/e‑Defter ve eğitim modüllerini tek platformda sunar. Hızlı kurulum, uygun fiyat, güvenli altyapı.{% endblock %}
-{% block meta_keywords %}Finans, e-Fatura, e-Defter, KOBİ, AI, Yapay Zeka, Blockchain, Finansal Raporlama, Muhasebe Yazılımı, Türkiye{% endblock %}
+{% block title %}FinAsis · Yerel AI Finans Platformu{% endblock %}
+{% block meta_description %}AI destekli finans, e‑dönüşüm ve eğitim süreçlerini sade, hızlı ve güvenli biçimde yönetin.{% endblock %}
+{% block meta_keywords %}finans yazılımı, e-fatura, ai, kobİ, eğitim, blockchain{% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<section class="py-5 py-lg-6 px-3" style="background: linear-gradient(90deg, #00664e 0%, #009873 100%); border-radius:1rem; margin-top:1.25rem; color:#ffffff;">
+
+<section class="pt-4 pb-5">
   <div class="container">
-    <div class="row align-items-center g-4">
-      <div class="col-lg-7 text-center text-lg-start">
-        <div class="d-inline-flex align-items-center gap-2 small mb-3">
-          <span class="badge bg-light text-success">Yeni</span>
-          <span>AI Otomasyon · e‑Fatura · Blockchain Kanıt</span>
-        </div>
-        <h1 class="fw-bold mb-3" style="font-size:2.6rem;letter-spacing:.5px;">Finansal Süreçlerinizi Yerel AI ile Hızlandırın</h1>
-        <p class="lead mb-4" style="max-width:640px; color:#f1f3f5;">FinAsis, KOBİ’ler için uçtan uca finans yönetimi, e‑dönüşüm ve eğitim modüllerini tek çatı altında sunar. Güvenli, hızlı ve uygun maliyetli.</p>
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="badge rounded-pill text-bg-success mb-3">Yeni · v1</span>
+        <h1 class="fw-bold display-6 mb-3" style="letter-spacing:.5px;">Finans & e‑Dönüşüm için <span class="text-success">yerel AI</span> platformu</h1>
+        <p class="lead text-secondary mb-4" style="max-width:560px">FinAsis; e‑Fatura, finansal analiz, eğitim (LMS), blockchain doğrulama ve oyunlaştırmayı tek panelde birleştirir.</p>
         <div class="d-flex flex-wrap gap-2">
-          <a href="{% url 'billing:plans' %}" class="btn btn-light btn-lg px-4" style="color:#0f5132;font-weight:700;border-radius:2rem;">Paketleri Gör</a>
-          <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-light btn-lg px-4" style="border-radius:2rem;">TradeSim Oyna</a>
-          <a href="/contact/" class="btn btn-outline-light px-4" style="border-radius:2rem;">Demo Talep Et</a>
+          <a href="{% url 'billing:plans' %}" class="btn btn-success px-4" style="border-radius:2rem;font-weight:600">{% trans 'Paketleri Gör' %}</a>
+          <a href="/contact/" class="btn btn-outline-success px-4" style="border-radius:2rem">{% trans 'Demo Talep Et' %}</a>
+          <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-secondary px-4" style="border-radius:2rem">TradeSim</a>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3">
-          <span class="badge" style="background:#198754; color:#ffffff;">%100 Yerli</span>
-          <span class="badge" style="background:#0dcaf0; color:#052c65;">AI Destekli</span>
-          <span class="badge" style="background:#ffc107; color:#4a3b00;">Blockchain Güvencesi</span>
-        </div>
+        <ul class="list-inline small text-secondary mt-4 mb-0">
+          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-shield-check text-success"></i> KVKK Uyumlu</li>
+          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-cpu text-success"></i> Yerel İşleme</li>
+          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-lightning-charge text-warning"></i> Hızlı Kurulum</li>
+        </ul>
       </div>
-      <div class="col-lg-5 d-none d-lg-block">
-        <div class="card border-0 shadow-sm" style="border-radius:1rem;">
-          <div class="card-body p-4">
-            <h5 class="fw-semibold mb-2 text-success">Hızlı Başlangıç</h5>
-            <ol class="mb-3">
-              <li>Kayıt ol veya giriş yap</li>
-              <li>Paket seç, ödeme yap</li>
-              <li>Hemen kullanmaya başla</li>
-            </ol>
-            <a href="{% url 'billing:plans' %}" class="btn btn-success w-100" style="border-radius:2rem; font-weight:600;">Paketleri İncele</a>
+      <div class="col-lg-6">
+        <div class="ratio ratio-16x9 rounded-4 shadow-sm bg-white border position-relative overflow-hidden">
+          <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4 text-center">
+            <i class="bi bi-bar-chart-line text-success display-5 mb-3"></i>
+            <p class="fw-medium mb-2">Gerçek zamanlı gelir / gider grafikleri</p>
+            <p class="small text-secondary mb-0">Demo placeholder — ekran görüntüsü / video alanı</p>
           </div>
         </div>
       </div>
@@ -46,66 +38,69 @@
   </div>
 </section>
 
-<!-- Sosyal kanıt barı -->
-<section class="py-3 bg-white border rounded mt-4">
-  <div class="container d-flex flex-wrap justify-content-center align-items-center gap-4">
-    <span class="text-muted">Bize güvenenler:</span>
-    <span class="badge bg-light text-dark">KOBİ A.Ş.</span>
-    <span class="badge bg-light text-dark">Anadolu Ticaret</span>
-    <span class="badge bg-light text-dark">Ege Yazılım</span>
-    <span class="badge bg-light text-dark">Marmara Lojistik</span>
-    <span class="badge bg-light text-dark">İzmir Gıda</span>
-  </div>
-</section>
-
-<!-- Faydalar 4’lü grid -->
-<section class="py-5">
+<section class="py-5 border-top border-bottom bg-white">
   <div class="container">
     <div class="row text-center g-4">
       <div class="col-6 col-md-3">
-        <i class="bi bi-bar-chart-line display-6 text-success mb-2"></i>
-        <h6 class="fw-semibold">Finansal Analiz</h6>
-        <p class="small text-secondary">Gelir‑gider, bütçe ve raporlar tek yerde.</p>
+        <i class="bi bi-bar-chart display-6 text-success mb-2"></i>
+        <p class="fw-semibold mb-1">Finansal Analiz</p>
+        <p class="small text-secondary mb-0">Bütçe, nakit akışı, KPI</p>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-receipt display-6 text-success mb-2"></i>
+        <p class="fw-semibold mb-1">e‑Fatura & e‑Defter</p>
+        <p class="small text-secondary mb-0">UBL‑TR & mevzuat</p>
       </div>
       <div class="col-6 col-md-3">
         <i class="bi bi-mortarboard display-6 text-success mb-2"></i>
-        <h6 class="fw-semibold">Eğitim Modülü</h6>
-        <p class="small text-secondary">Finans okuryazarlığı ve LMS entegrasyonu.</p>
+        <p class="fw-semibold mb-1">Eğitim / LMS</p>
+        <p class="small text-secondary mb-0">İçerik + sınav</p>
       </div>
       <div class="col-6 col-md-3">
         <i class="bi bi-link-45deg display-6 text-success mb-2"></i>
-        <h6 class="fw-semibold">Blockchain</h6>
-        <p class="small text-secondary">İzlenebilirlik ve bütünlük kanıtı.</p>
-      </div>
-      <div class="col-6 col-md-3">
-        <i class="bi bi-joystick display-6 text-success mb-2"></i>
-        <h6 class="fw-semibold">Oyunlaştırma</h6>
-        <p class="small text-secondary">Ekip motivasyonunu artıran deneyim.</p>
+        <p class="fw-semibold mb-1">Blockchain</p>
+        <p class="small text-secondary mb-0">Kayıt kanıtı</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Alternatif açıklama blokları -->
-<section class="py-5 bg-light rounded-3">
+<section class="py-5">
   <div class="container">
     <div class="row g-4 align-items-center">
-      <div class="col-md-6">
-        <h3 class="fw-bold">e‑Dönüşüm ile uyumlu finans akışı</h3>
-        <p class="text-secondary">UBL‑TR, e‑Fatura/e‑Arşiv ve e‑Defter süreçlerini tek panelden yönetin. Yerel saklama, veri güvenliği ve mevzuat uyumu bir arada.</p>
+      <div class="col-md-5">
+        <h2 class="h3 fw-bold mb-3">Tüm e‑Dönüşüm akışı tek panel</h2>
+        <p class="text-secondary">e‑Fatura, e‑Arşiv, e‑Defter ve saklama süreçlerini merkezileştirin. İzlenebilir, raporlanabilir ve mevzuata uyumlu.</p>
         <div class="d-flex gap-2">
           <a class="btn btn-success" href="/finance/">Finans Paneli</a>
           <a class="btn btn-outline-success" href="/finance/reports/">Raporlar</a>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <i class="bi bi-robot fs-5 text-success"></i>
-              <h6 class="mb-0">AI Otomasyon</h6>
+      <div class="col-md-7">
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="p-3 bg-white border rounded-3 h-100 shadow-sm">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-robot text-success"></i><span class="small fw-medium">AI Otomasyon</span></div>
+              <p class="small text-secondary mb-0">OCR + kural motoru ile fiş sınıflandırma.</p>
             </div>
-            <p class="small text-secondary mb-0">OCR, metin ve ses girişiyle fiş önerileri; kural motoru ile otomatik muhasebe.</p>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-white border rounded-3 h-100 shadow-sm">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-shield-lock text-success"></i><span class="small fw-medium">Güvenli Arşiv</span></div>
+              <p class="small text-secondary mb-0">KVKK uyumlu, denetlenebilir veri saklama.</p>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-white border rounded-3 h-100 shadow-sm">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-joystick text-success"></i><span class="small fw-medium">Oyunlaştırma</span></div>
+              <p class="small text-secondary mb-0">Görev & rozetlerle ekip motivasyonu.</p>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-white border rounded-3 h-100 shadow-sm">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-link-45deg text-success"></i><span class="small fw-medium">Blockchain Kanıt</span></div>
+              <p class="small text-secondary mb-0">Hash doğrulama ile veri bütünlüğü.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -113,234 +108,52 @@
   </div>
 </section>
 
-<!-- CTA Banner -->
-<section class="py-5" style="background: linear-gradient(135deg,#f8fff9 0%, #f1fff6 100%);">
-  <div class="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
-    <div>
-      <h4 class="fw-semibold mb-1">FinAsis ile finansal süreçlerinizi hızlandırın</h4>
-      <p class="text-secondary mb-0">Yerel AI, e‑Dönüşüm ve blockchain ile güvenli ve verimli akış.</p>
-    </div>
-    <div class="d-flex gap-2">
-  <a href="{% url 'billing:plans' %}" class="btn btn-success">Paketleri Gör</a>
-  <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-success">TradeSim Oyna</a>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section class="py-5 bg-white">
-  <div class="container">
-    <h5 class="fw-semibold mb-3">Sık Sorulan Sorular</h5>
-    <div class="accordion" id="faq2">
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q1b">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1b" aria-expanded="true" aria-controls="a1b">
-            Verilerim nerede saklanıyor?
-          </button>
-        </h2>
-        <div id="a1b" class="accordion-collapse collapse show" aria-labelledby="q1b" data-bs-parent="#faq2">
-          <div class="accordion-body">Tüm AI işlemleri ve verileriniz yerel altyapıda işlenir; üçüncü parti API zorunluluğu yoktur.</div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q2b">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2b" aria-expanded="false" aria-controls="a2b">
-            e‑Fatura ve e‑Defter desteği var mı?
-          </button>
-        </h2>
-        <div id="a2b" class="accordion-collapse collapse" aria-labelledby="q2b" data-bs-parent="#faq2">
-          <div class="accordion-body">Evet, UBL‑TR XML üretimi, GİB test ortamı entegrasyonu ve e‑Defter beratı akışları mevcuttur.</div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q3b">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3b" aria-expanded="false" aria-controls="a3b">
-            Blockchain ne sağlar?
-          </button>
-        </h2>
-        <div id="a3b" class="accordion-collapse collapse" aria-labelledby="q3b" data-bs-parent="#faq2">
-          <div class="accordion-body">Kayıt bütünlüğü için SHA‑256 hash ve doğrulama ile değişmezlik kanıtı sunar; gerekirse dış ankraj eklenebilir.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-5">
+<section class="py-5 bg-light rounded-4">
   <div class="container">
     <div class="row g-4">
-      <div class="col-md-6">
-        <div class="module-card p-4 rounded border h-100">
-          <h4 class="fw-semibold">Finans</h4>
-          <p class="text-secondary">Banka, fatura, rapor ve daha fazlası.</p>
-          <a class="btn btn-outline-success" href="/finance/">Finans Paneli</a>
-          <a class="btn btn-outline-secondary ms-2" href="/finance/reports/">Raporlar</a>
+      <div class="col-lg-6">
+        <h3 class="h4 fw-bold mb-3">Sık Sorulan Sorular</h3>
+        <div class="accordion accordion-flush" id="faq">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f1"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="false" aria-controls="c1">Verilerim nerede saklanıyor?</button></h2>
+            <div id="c1" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Yerel altyapı; dış API zorunluluğu yok.</div></div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f2"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="false" aria-controls="c2">e‑Fatura desteği var mı?</button></h2>
+            <div id="c2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">UBL‑TR, test & canlı ortam entegrasyonu planlı.</div></div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f3"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="false" aria-controls="c3">Blockchain ne sağlar?</button></h2>
+            <div id="c3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Hash + doğrulama ile değişmezlik kanıtı.</div></div>
+          </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="module-card p-4 rounded border h-100">
-          <h4 class="fw-semibold">Yönetim</h4>
-          <p class="text-secondary">Şirket ve kullanıcı yönetimi.</p>
-          <a class="btn btn-outline-success" href="/dashboard/">Yönetim Paneli</a>
+      <div class="col-lg-6">
+        <div class="p-4 bg-white border rounded-4 h-100 shadow-sm">
+          <h4 class="h5 fw-semibold mb-3">Hızlı Başlangıç</h4>
+          <ol class="small text-secondary mb-4 ps-3">
+            <li>Kayıt ol / giriş yap</li>
+            <li>Paket seç ve aktive et</li>
+            <li>İlk faturayı düzenle</li>
+          </ol>
+          <a href="{% url 'billing:plans' %}" class="btn btn-success w-100" style="border-radius:2rem;font-weight:600">Başla</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Logos / Trust bar -->
-<section class="py-4 bg-white border-top border-bottom">
-  <div class="container d-flex flex-wrap justify-content-center align-items-center gap-4">
-    <span class="text-muted">Güvenenler:</span>
-    <span class="badge bg-light text-dark">KOBİ A.Ş.</span>
-    <span class="badge bg-light text-dark">Anadolu Ticaret</span>
-    <span class="badge bg-light text-dark">Ege Yazılım</span>
-    <span class="badge bg-light text-dark">Marmara Lojistik</span>
-    <span class="badge bg-light text-dark">İzmir Gıda</span>
-  </div>
-  <div class="container">
-    <hr class="mt-4 mb-0">
-  </div>
-  <div class="container">
-    <div class="row g-4 py-4">
-      <div class="col-md-3">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-shield-lock text-success fs-4"></i>
-          <div>
-            <div class="fw-semibold">Tamamen Yerel</div>
-            <small class="text-secondary">Veri gizliliği ve kontrol sizde</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-cpu text-success fs-4"></i>
-          <div>
-            <div class="fw-semibold">AI Destekli</div>
-            <small class="text-secondary">Otomatik fişleme ve analiz</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-file-earmark-text text-success fs-4"></i>
-          <div>
-            <div class="fw-semibold">e‑Dönüşüm</div>
-            <small class="text-secondary">e‑Fatura, e‑Arşiv, e‑Defter</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-check2-circle text-success fs-4"></i>
-          <div>
-            <div class="fw-semibold">Blockchain Kanıt</div>
-            <small class="text-secondary">Bütünlük ve doğrulama</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Expanded Features -->
-<section class="py-5 bg-light">
-  <div class="container">
-    <div class="row g-4">
-      <div class="col-md-3">
-        <div class="card h-100 feature-card p-3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-robot fs-4 text-success"></i>
-            <h6 class="mb-0">AI Otomasyon</h6>
-          </div>
-          <p class="text-secondary mb-2">Metin/Ses/OCR ile otomatik fiş önerileri ve kurala dayalı fişleme.</p>
-          <a class="small" href="/accounting/auto-book/">Önizleme →</a>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card h-100 feature-card p-3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-link-45deg fs-4 text-success"></i>
-            <h6 class="mb-0">Blockchain İzlenebilirlik</h6>
-          </div>
-          <p class="text-secondary mb-2">Fatura, fiş, e‑Defter için SHA‑256 hash ve doğrulama akışları.</p>
-          <a class="small" href="/blockchain/">İncele →</a>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card h-100 feature-card p-3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-file-earmark-arrow-down fs-4 text-success"></i>
-            <h6 class="mb-0">e‑Fatura/e‑Defter</h6>
-          </div>
-          <p class="text-secondary mb-2">UBL‑TR XML üretimi, GİB test uçları ve e‑Defter beratı.</p>
-          <a class="small" href="/finance/">Başla →</a>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card h-100 feature-card p-3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-bar-chart fs-4 text-success"></i>
-            <h6 class="mb-0">Raporlama ve Oranlar</h6>
-          </div>
-          <p class="text-secondary mb-2">Bilanço, Gelir Tablosu, Nakit Akışı, sektör benchmark karşılaştırmaları.</p>
-          <a class="small" href="/finance/reports/">Raporlar →</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA Banner -->
-<section class="py-5" style="background: linear-gradient(135deg,#f8fff9 0%, #f1fff6 100%);">
+<section class="py-5 mt-4" style="background:linear-gradient(90deg,#f6fff9 0,#ecfff4 100%)">
   <div class="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
     <div>
-      <h4 class="fw-semibold mb-1">FinAsis ile finansal süreçlerinizi hızlandırın</h4>
-      <p class="text-secondary mb-0">Yerel AI, e‑Dönüşüm ve blockchain ile güvenli ve verimli akış.</p>
+      <h4 class="fw-semibold mb-2">Şirketiniz için daha verimli bir finans akışı</h4>
+      <p class="text-secondary mb-0 small">FinAsis: Yerel AI + e‑Dönüşüm + Blockchain kanıt katmanı</p>
     </div>
     <div class="d-flex gap-2">
-  <a href="{% url 'billing:plans' %}" class="btn btn-success">Paketleri Gör</a>
-  <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-success">TradeSim Oyna</a>
+      <a href="{% url 'billing:plans' %}" class="btn btn-success">Planlar</a>
+      <a href="/contact/" class="btn btn-outline-success">İletişim</a>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="py-5 bg-white">
-  <div class="container">
-    <h5 class="fw-semibold mb-3">Sık Sorulan Sorular</h5>
-    <div class="accordion" id="faq">
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q1">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1" aria-expanded="true" aria-controls="a1">
-            Verilerim nerede saklanıyor?
-          </button>
-        </h2>
-        <div id="a1" class="accordion-collapse collapse show" aria-labelledby="q1" data-bs-parent="#faq">
-          <div class="accordion-body">Tüm AI işlemleri ve verileriniz yerel altyapıda işlenir; üçüncü parti API zorunluluğu yoktur.</div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q2">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2" aria-expanded="false" aria-controls="a2">
-            e‑Fatura ve e‑Defter desteği var mı?
-          </button>
-        </h2>
-        <div id="a2" class="accordion-collapse collapse" aria-labelledby="q2" data-bs-parent="#faq">
-          <div class="accordion-body">Evet, UBL‑TR XML üretimi, GİB test ortamı entegrasyonu ve e‑Defter beratı akışları mevcuttur.</div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q3">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3" aria-expanded="false" aria-controls="a3">
-            Blockchain ne sağlar?
-          </button>
-        </h2>
-        <div id="a3" class="accordion-collapse collapse" aria-labelledby="q3" data-bs-parent="#faq">
-          <div class="accordion-body">Kayıt bütünlüğü için SHA‑256 hash ve doğrulama ile değişmezlik kanıtı sunar; gerekirse dış ankraj eklenebilir.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 {% endblock %}

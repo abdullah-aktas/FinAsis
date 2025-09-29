@@ -37,3 +37,7 @@ Teknik Notlar:
 # Django yapılandırmasını basitleştirmek için paket 
 # yapısını auto-discovery mekanizmasıyla uyumlu hale getiriyoruz.
 default_app_config = 'src.apps.finance.apps.FinanceConfig'
+
+# Not: Önceden enhanced_accounting_models burada zorla import ediliyordu (ContentType kaydı
+# için). Artık ilgili modeller migration ile tanımlandığından bu hack'e gerek yok.
+# Eğer future dynamic registration gerekirse apps.FinanceConfig.ready içinde ele alınabilir.

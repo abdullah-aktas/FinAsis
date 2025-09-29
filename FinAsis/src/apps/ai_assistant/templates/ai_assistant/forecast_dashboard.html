@@ -1,253 +1,199 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'ai_assistant/base_ai_assistant.html' %}
+{% load i18n static %}
 
-{% block title %}Nakit Akışı Tahmini{% endblock %}
+{% block ai_title %}{% trans 'Nakit Akışı Tahmini' %}{% endblock %}
+{% block ai_subtitle %}{% trans 'Geçmiş nakit akış verilerine göre ileri dönem projeksiyonları' %}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-    .forecast-card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    
-    .forecast-chart {
-        height: 400px;
-        margin: 20px 0;
-    }
-    
-    .forecast-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-    
-    .forecast-table th,
-    .forecast-table td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
-    
-    .forecast-table th {
-        background-color: #f5f5f5;
-    }
-    
-    .confidence-interval {
-        fill: rgba(0,100,80,0.2);
-        stroke: none;
-    }
-    
-    .model-info {
-        background: #e9f7ef;
-        border-left: 5px solid #1abc9c;
-        padding: 12px 18px;
-        margin-bottom: 18px;
-        border-radius: 6px;
-        font-size: 15px;
-    }
+    .forecast-card {background: var(--bs-body-bg,#fff);border-radius: 12px;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 2px rgba(0,0,0,.04);padding:1.5rem;margin-bottom:1.5rem;}
+    .forecast-chart {height:420px;margin:1.25rem 0;}
+    .forecast-table {width:100%;border-collapse:collapse;margin-top:1rem;font-size:.9rem;}
+    .forecast-table th,.forecast-table td {padding:.5rem .75rem;border:1px solid var(--bs-border-color,#dee2e6);}
+    .forecast-table th {background:var(--bs-tertiary-bg,#f8f9fa);font-weight:600;}
+    .model-info {background:var(--bs-success-bg-subtle,#e9f7ef);border-left:4px solid var(--bs-success,#198754);padding:.75rem 1rem;margin:.75rem 0 1rem;border-radius:.5rem;font-size:.85rem;}
+    .history-row .remove-row{white-space:nowrap}
+    @media (prefers-color-scheme: dark) { .forecast-card {background:#1e1f22;border-color:#2a2d31;} .forecast-table th {background:#2a2d31;} }
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="forecast-card">
-                <h2>Nakit Akışı Tahmini</h2>
-                <form id="forecastForm">
-                    <div class="row align-items-end">
-                        <div class="col-md-8 mb-3">
-                            <label>Geçmiş Veriler (Tarih ve Değer)</label>
-                            <div id="historyInputs">
-                                <div class="input-group mb-2">
-                                    <input type="date" class="form-control" name="ds" required>
-                                    <input type="number" step="any" class="form-control" name="y" placeholder="Değer" required>
-                                    <button type="button" class="btn btn-danger remove-row" style="display:none;">Sil</button>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addHistoryRow">Satır Ekle</button>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <label>Tahmin Periyodu (Gün)</label>
-                            <input type="number" class="form-control" id="forecastPeriod" value="90" min="1" max="365">
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <button type="submit" class="btn btn-primary w-100">Tahmin Oluştur</button>
-                        </div>
-                    </div>
-                </form>
-                <div id="forecastError" class="alert alert-danger mt-3" style="display:none;"></div>
-                <div id="forecastChart" class="forecast-chart"></div>
-                <div class="table-responsive">
-                    <table class="forecast-table">
-                        <thead>
-                            <tr>
-                                <th>Tarih</th>
-                                <th>Tahmin</th>
-                                <th>Alt Sınır</th>
-                                <th>Üst Sınır</th>
-                            </tr>
-                        </thead>
-                        <tbody id="forecastTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="model-info" id="model-info"></div>
-                <div id="explanation-info"></div>
+{% block ai_content %}
+    <div class="forecast-card" id="forecastRoot">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+            <h2 class="h5 mb-0">{% trans 'Nakit Akışı Tahmini' %}</h2>
+            <div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="addHistoryRow">{% trans 'Satır Ekle' %}</button>
             </div>
         </div>
+        <form id="forecastForm" class="mb-3" novalidate>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-7">
+                    <label class="form-label fw-semibold small">{% trans 'Geçmiş Veriler (Tarih ve Değer)' %}</label>
+                    <div id="historyInputs" class="small" aria-live="polite">
+                        <div class="input-group mb-2 history-row">
+                            <input type="date" class="form-control form-control-sm" name="ds" required aria-label="{% trans 'Tarih' %}">
+                            <input type="number" step="any" class="form-control form-control-sm" name="y" placeholder="{% trans 'Değer' %}" required aria-label="{% trans 'Değer' %}">
+                            <button type="button" class="btn btn-outline-danger btn-sm remove-row" style="display:none;" aria-label="{% trans 'Satırı Sil' %}">×</button>
+                        </div>
+                    </div>
+                    <p class="form-text small text-muted mb-0">{% trans 'Geçmiş nakit akışı değerlerinizi tarih sırasıyla ekleyin.' %}</p>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label for="forecastPeriod" class="form-label fw-semibold small">{% trans 'Tahmin Periyodu (Gün)' %}</label>
+                    <input type="number" class="form-control form-control-sm" id="forecastPeriod" value="90" min="1" max="365" aria-describedby="periodHelp">
+                    <div id="periodHelp" class="form-text small text-muted">{% trans '1-365 gün arası' %}</div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <button type="submit" class="btn btn-primary w-100 btn-sm" id="btnGenerate">{% trans 'Tahmin Oluştur' %}</button>
+                </div>
+            </div>
+        </form>
+        <div id="forecastError" class="alert alert-danger py-2 px-3 small" style="display:none;" role="alert"></div>
+        <div id="forecastChart" class="forecast-chart" aria-label="{% trans 'Nakit akışı tahmin grafiği' %}" role="img"></div>
+        <div class="table-responsive mb-3">
+            <table class="forecast-table table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans 'Tarih' %}</th>
+                        <th scope="col">{% trans 'Tahmin' %}</th>
+                        <th scope="col">{% trans 'Alt Sınır' %}</th>
+                        <th scope="col">{% trans 'Üst Sınır' %}</th>
+                    </tr>
+                </thead>
+                <tbody id="forecastTableBody"></tbody>
+            </table>
+        </div>
+        <div class="model-info" id="model-info" aria-live="polite"></div>
+        <div id="explanation-info" aria-live="polite"></div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
-// Dinamik geçmiş veri satırı ekleme
+// ---- I18N STRINGS (avoid inline template tags inside expressions) ----
+const TXT_DELETE_ROW = "{% trans 'Satırı Sil' %}";
+const TXT_VALUE_PLACEHOLDER = "{% trans 'Değer' %}";
+const TXT_UNKNOWN_ERROR = "{% trans 'Bilinmeyen hata.' %}";
+const TXT_GENERIC_ERROR_PREFIX = "{% trans 'Bir hata oluştu:' %} ";
+const TXT_FORECAST = "{% trans 'Tahmin' %}";
+const TXT_CONFIDENCE_INTERVAL = "{% trans 'Güven Aralığı' %}";
+const TXT_DATE = "{% trans 'Tarih' %}";
+const TXT_LOWER = "{% trans 'Alt Sınır' %}";
+const TXT_UPPER = "{% trans 'Üst Sınır' %}";
+const TXT_MODEL_VERSION = "{% trans 'Model Versiyonu' %}";
+const TXT_MODEL_PARAMS = "{% trans 'Model Parametreleri' %}";
+const TXT_IMPACT = "{% trans 'Etki' %}";
+const TXT_SUMMARY = "{% trans 'Özet' %}";
+const TXT_EXPLANATION_TITLE = "{% trans 'Model Açıklaması (Explainability)' %}";
+const TXT_CASHFLOW_FORECAST = "{% trans 'Nakit Akışı Tahmini' %}";
+
+// ---- Dynamic row management ----
 const historyInputs = document.getElementById('historyInputs');
-document.getElementById('addHistoryRow').onclick = function() {
+document.getElementById('addHistoryRow').addEventListener('click', addHistoryRow);
+
+function addHistoryRow(){
     const row = document.createElement('div');
-    row.className = 'input-group mb-2';
-    row.innerHTML = `
-        <input type="date" class="form-control" name="ds" required>
-        <input type="number" step="any" class="form-control" name="y" placeholder="Değer" required>
-        <button type="button" class="btn btn-danger remove-row">Sil</button>
-    `;
+    row.className = 'input-group mb-2 history-row';
+    row.innerHTML = `\n    <input type="date" class="form-control form-control-sm" name="ds" required aria-label="${TXT_DATE}">\n    <input type="number" step="any" class="form-control form-control-sm" name="y" placeholder="${TXT_VALUE_PLACEHOLDER}" required aria-label="${TXT_VALUE_PLACEHOLDER}">\n    <button type="button" class="btn btn-outline-danger btn-sm remove-row" aria-label="${TXT_DELETE_ROW}">×</button>\n  `;
     historyInputs.appendChild(row);
     updateRemoveButtons();
-};
-function updateRemoveButtons() {
+}
+
+function updateRemoveButtons(){
     const buttons = historyInputs.querySelectorAll('.remove-row');
     buttons.forEach(btn => btn.style.display = (historyInputs.children.length > 1) ? '' : 'none');
-    buttons.forEach(btn => btn.onclick = function() {
-        if (historyInputs.children.length > 1) {
-            btn.parentElement.remove();
-            updateRemoveButtons();
-        }
+    buttons.forEach(btn => {
+        btn.onclick = () => { if(historyInputs.children.length > 1){ btn.parentElement.remove(); updateRemoveButtons(); }}
     });
 }
 updateRemoveButtons();
 
-document.getElementById('forecastForm').addEventListener('submit', function(e) {
+document.getElementById('forecastForm').addEventListener('submit', function(e){
     e.preventDefault();
-    const rows = historyInputs.querySelectorAll('.input-group');
+    const rows = historyInputs.querySelectorAll('.history-row');
     const history = [];
-    for (const row of rows) {
-        const ds = row.querySelector('input[name="ds"]').value;
-        const y = row.querySelector('input[name="y"]').value;
-        if (ds && y) {
-            history.push({ds: ds, y: parseFloat(y)});
-        }
-    }
-    const periods = parseInt(document.getElementById('forecastPeriod').value);
+    rows.forEach(r => {
+        const ds = r.querySelector('input[name="ds"]').value;
+        const y = r.querySelector('input[name="y"]').value;
+        if(ds && y){ history.push({ds: ds, y: parseFloat(y)}); }
+    });
+    const periods = parseInt(document.getElementById('forecastPeriod').value || '0');
     fetch('/ai-assistant/ml/financial-forecast/', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({history: history, periods: periods})
+        headers: {'Content-Type': 'application/json','X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({history, periods})
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        if (data.forecast) {
+        if(data.forecast){
             updateChart(data.forecast);
             updateTable(data.forecast);
-            document.getElementById('forecastError').style.display = 'none';
+            document.getElementById('forecastError').style.display='none';
             updateModelInfo(data.model_version, data.model_parameters, data.explanation);
-        } else {
-            document.getElementById('forecastError').textContent = data.error || 'Bilinmeyen hata.';
-            document.getElementById('forecastError').style.display = 'block';
+        }else{
+            showError(data.error || TXT_UNKNOWN_ERROR);
         }
     })
-    .catch(error => {
-        document.getElementById('forecastError').textContent = 'Bir hata oluştu: ' + error;
-        document.getElementById('forecastError').style.display = 'block';
-    });
+    .catch(err => showError(TXT_GENERIC_ERROR_PREFIX + err));
 });
 
-function updateChart(forecast) {
-    const trace = {
-        x: forecast.dates,
-        y: forecast.predictions,
-        mode: 'lines',
-        name: 'Tahmin',
-        line: {color: 'blue'}
-    };
-    const lower = forecast.lower_bound;
-    const upper = forecast.upper_bound;
-    const ci = {
-        x: forecast.dates.concat(forecast.dates.slice().reverse()),
-        y: upper.concat(lower.slice().reverse()),
-        fill: 'toself',
-        fillcolor: 'rgba(0,100,80,0.2)',
-        line: {color: 'rgba(255,255,255,0)'},
-        name: 'Güven Aralığı',
-        type: 'scatter'
-    };
-    Plotly.newPlot('forecastChart', [trace, ci], {
-        title: 'Nakit Akışı Tahmini',
-        xaxis: {title: 'Tarih'},
-        yaxis: {title: 'Tahmin'},
-        template: 'plotly_white'
-    });
+function showError(msg){
+    const el = document.getElementById('forecastError');
+    el.textContent = msg;
+    el.style.display = 'block';
 }
-function updateTable(forecast) {
+
+function updateChart(forecast){
+    const trace = {x: forecast.dates, y: forecast.predictions, mode: 'lines', name: TXT_FORECAST, line:{color:'var(--bs-primary,#0d6efd)'}};
+    const lower = forecast.lower_bound || [];
+    const upper = forecast.upper_bound || [];
+    const ci = {x: forecast.dates.concat(forecast.dates.slice().reverse()), y: upper.concat(lower.slice().reverse()), fill:'toself', fillcolor:'rgba(0,100,80,0.2)', line:{color:'rgba(255,255,255,0)'}, name: TXT_CONFIDENCE_INTERVAL, type:'scatter'};
+    Plotly.newPlot('forecastChart',[trace,ci],{title: TXT_CASHFLOW_FORECAST, xaxis:{title: TXT_DATE}, yaxis:{title: TXT_FORECAST}, template:'plotly_white'},{responsive:true});
+}
+
+function updateTable(forecast){
     const tbody = document.getElementById('forecastTableBody');
-    tbody.innerHTML = '';
-    for (let i = 0; i < forecast.dates.length; i++) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${forecast.dates[i]}</td>
-            <td>${forecast.predictions[i].toFixed(2)}</td>
-            <td>${forecast.lower_bound ? forecast.lower_bound[i].toFixed(2) : '-'}</td>
-            <td>${forecast.upper_bound ? forecast.upper_bound[i].toFixed(2) : '-'}</td>
-        `;
-        tbody.appendChild(row);
+    tbody.innerHTML='';
+    for(let i=0;i<forecast.dates.length;i++){
+        const tr=document.createElement('tr');
+        tr.innerHTML = `\n      <td>${forecast.dates[i]}</td>\n      <td>${num(forecast.predictions[i])}</td>\n      <td>${forecast.lower_bound? num(forecast.lower_bound[i]) : '-'}</td>\n      <td>${forecast.upper_bound? num(forecast.upper_bound[i]) : '-'}</td>\n    `;
+        tbody.appendChild(tr);
     }
 }
-function updateModelInfo(modelVersion, modelParameters, explanation) {
-    let modelInfo = '';
-    if (modelVersion) {
-        modelInfo += `<b>Model Versiyonu:</b> ${modelVersion}<br>`;
-    }
-    if (modelParameters) {
-        modelInfo += `<b>Model Parametreleri:</b> <pre style='font-size:12px;'>${JSON.stringify(modelParameters, null, 2)}</pre>`;
-    }
-    document.getElementById('model-info').innerHTML = modelInfo;
-    // Prophet explanation kutusu
-    let explanationHtml = '';
-    if (explanation && explanation.features) {
-        explanationHtml += `<div style='background:#f8f9fa;border-left:5px solid #1abc9c;border-radius:8px;padding:18px;margin:24px 0;max-width:600px;margin-left:auto;margin-right:auto;'>`;
-        explanationHtml += `<h4 style='margin-bottom:12px;'>Model Açıklaması (Explainability)</h4><ul style='list-style:none;padding:0;margin:0;'>`;
-        explanation.features.forEach(f => {
-            explanationHtml += `<li style='margin-bottom:6px;display:flex;align-items:center;'><span style='font-weight:bold;min-width:120px;'>${f.name}:</span><span style='margin-left:8px;'>${f.value}</span><span style='margin-left:16px;color:#36a2eb;font-weight:bold;'>Etki: ${Math.round(f.importance*100)}%</span></li>`;
+function num(v){return (typeof v==='number' && isFinite(v)) ? v.toFixed(2) : '-';}
+
+function updateModelInfo(modelVersion, modelParameters, explanation){
+    let html='';
+    if(modelVersion){ html += `<b>${TXT_MODEL_VERSION}:</b> ${modelVersion}<br>`; }
+    if(modelParameters){ html += `<b>${TXT_MODEL_PARAMS}:</b> <pre class="mb-0" style="font-size:12px;max-height:200px;overflow:auto;">${escapeHtml(JSON.stringify(modelParameters,null,2))}</pre>`; }
+    document.getElementById('model-info').innerHTML = html;
+    let expHtml='';
+    if(explanation && explanation.features){
+        expHtml += `<div class="p-3 rounded" style="background:var(--bs-tertiary-bg,#f8f9fa);border-left:4px solid var(--bs-primary,#0d6efd);">`;
+        expHtml += `<h4 class="h6 mb-3">${TXT_EXPLANATION_TITLE}</h4><ul class="list-unstyled mb-2">`;
+        explanation.features.forEach(f=>{
+            expHtml += `<li class="mb-1 d-flex flex-wrap align-items-center"><span class="fw-semibold me-1" style="min-width:120px;">${escapeHtml(f.name)}:</span><span class="me-2">${escapeHtml(f.value)}</span><span class="text-primary fw-semibold">${TXT_IMPACT}: ${Math.round(f.importance*100)}%</span></li>`;
         });
-        explanationHtml += `</ul>`;
-        if (explanation.summary) {
-            explanationHtml += `<div style='margin-top:12px;color:#333;'><b>Özet:</b> ${explanation.summary}</div>`;
-        }
-        explanationHtml += `</div>`;
+        expHtml += `</ul>`;
+        if(explanation.summary){ expHtml += `<div class="small text-body-secondary"><b>${TXT_SUMMARY}:</b> ${escapeHtml(explanation.summary)}</div>`; }
+        expHtml += `</div>`;
     }
-    document.getElementById('explanation-info').innerHTML = explanationHtml;
+    document.getElementById('explanation-info').innerHTML = expHtml;
 }
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+
+function escapeHtml(str){return String(str).replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));}
+
+function getCookie(name){
+    let cookieValue=null;
+    if(document.cookie && document.cookie!==''){
+        const cookies=document.cookie.split(';');
+        for(let c of cookies){
+            c=c.trim();
+            if(c.substring(0,name.length+1)===(name+'=')){cookieValue=decodeURIComponent(c.substring(name.length+1));break;}
         }
     }
     return cookieValue;
 }
 </script>
-{% endblock %} 
+{% endblock %}

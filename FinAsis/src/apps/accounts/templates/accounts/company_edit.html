@@ -1,14 +1,14 @@
-{% extends "base.html" %}
+{% extends "accounts/base_accounts.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Şirket Bilgilerini Düzenle" %} | FinAsis{% endblock %}
-
-{% block content %}
+{% block acct_title %}{% trans "Şirket Bilgilerini Düzenle" %}{% endblock %}
+{% block acct_subtitle %}{% trans "Şirket profil alanlarını güncelleyin" %}{% endblock %}
+{% block acct_content %}
 <div class="row justify-content-center">
   <div class="col-lg-7 col-xl-6">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h3 class="mb-4">{% trans "Şirket Bilgilerini Düzenle" %}</h3>
+        <h3 class="h5 mb-4">{% trans "Şirket Bilgilerini Düzenle" %}</h3>
         <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
           {% csrf_token %}
           <div class="mb-3">

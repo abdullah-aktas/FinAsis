@@ -1,0 +1,67 @@
+{% load i18n %}
+<nav class="nav flex-column small" aria-label="{% trans 'Hesap navigasyonu' %}">
+  {% with p=request.path %}
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Profil' %}</div>
+  {% with active='profile' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/profile/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-person-circle"></i> <span>{% trans 'Profilim' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='settings' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/settings/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-gear"></i> <span>{% trans 'Ayarlar' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Şirket' %}</div>
+  {% with active='company' in p and 'edit' not in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/company/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-building"></i> <span>{% trans 'Şirket Detayı' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='company' in p and 'edit' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/company/edit/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-pencil-square"></i> <span>{% trans 'Şirket Düzenle' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Abonelik' %}</div>
+  {% with active='change_subscription' in p or 'subscription' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/change-subscription/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-repeat"></i> <span>{% trans 'Aboneliği Değiştir' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='premium' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/premium/ozellik/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-star"></i> <span>{% trans 'Premium Özellik' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Rol Panelleri' %}</div>
+  {% with active='kobi' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/kobi/modul/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-briefcase"></i> <span>{% trans 'KOBİ Paneli' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='egitimci' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/egitimci/modul/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-mortarboard"></i> <span>{% trans 'Eğitimci Paneli' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='ogrenci' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/ogrenci/modul/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-journal-bookmark"></i> <span>{% trans 'Öğrenci Paneli' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='oyuncu' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounts/oyuncu/modul/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-controller"></i> <span>{% trans 'Oyuncu Paneli' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Oturum' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2" href="/accounts/logout/">
+    <i class="bi bi-box-arrow-right"></i> <span>{% trans 'Çıkış Yap' %}</span>
+  </a>
+  {% endwith %}
+</nav>

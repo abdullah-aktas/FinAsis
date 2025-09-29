@@ -1,3 +1,12 @@
+import pytest
+try:
+    import playwright  # type: ignore  # noqa: F401
+    import pytest_playwright  # type: ignore  # noqa: F401
+    _PW_READY = True
+except Exception:
+    _PW_READY = False
+
+@pytest.mark.skipif(not _PW_READY, reason="playwright not installed")
 def test_images_and_icons_load(playwright, base_url):
     browser = playwright.chromium.launch(headless=True)
     ctx = browser.new_context()

@@ -1,8 +1,14 @@
 
-{% extends "base.html" %}
-{% block title %}Muhasebe Paneli - FinAsis{% endblock %}
-{% block content %}
-<div class="container my-5">
+{% extends 'accounting/base_accounting.html' %}
+{% block acc_title %}Muhasebe Paneli{% endblock %}
+{% block acc_subtitle %}Özet göstergeler, son hareketler ve hızlı işlemler{% endblock %}
+{% block acc_actions %}
+  <a href="{% url 'accounting:invoice_create' %}" class="btn btn-success btn-sm"><i class="bi bi-receipt me-1"></i>Yeni Fatura</a>
+  <a href="{% url 'accounting:banktransaction_create' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bank me-1"></i>Banka İşlemi</a>
+  <a href="{% url 'accounting:customer_create' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-person-plus me-1"></i>Müşteri</a>
+{% endblock %}
+{% block acc_content %}
+<div class="my-2">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="mb-2">Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}!</h1>

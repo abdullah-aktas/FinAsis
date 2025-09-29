@@ -1,12 +1,21 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Şirket Detayı</title>
-</head>
-<body>
-    <h1>Şirket Detayı</h1>
-    <p>Adı: {{ company.name|default:"-" }}</p>
-    <p>Oluşturulma Tarihi: {{ company.created_at|date:'d.m.Y H:i'|default:"-" }}</p>
-</body>
-</html> 
+{% extends 'accounts/base_accounts.html' %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Şirket Detayı' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Şirket profil bilgileri ve meta veriler' %}{% endblock %}
+{% block acct_content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h5 mb-3">{% trans 'Şirket Bilgileri' %}</h2>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">{% trans 'Adı' %}</dt>
+            <dd class="col-sm-9">{{ company.name|default:"-" }}</dd>
+            <dt class="col-sm-3">{% trans 'Oluşturulma Tarihi' %}</dt>
+            <dd class="col-sm-9">{{ company.created_at|date:'d.m.Y H:i'|default:"-" }}</dd>
+        </dl>
+        <div class="mt-4">
+            <a href="{% url 'accounts:company_edit' %}" class="btn btn-primary btn-sm">{% trans 'Düzenle' %}</a>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary btn-sm">{% trans 'Geri Dön' %}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,9 +1,11 @@
-{% extends "base.html" %}
-{% block title %}KOBİ Dashboard{% endblock %}
-{% block content %}
-<div class="container my-5">
-    <h2>KOBİ Dashboard</h2>
-    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada KOBİ'lere özel modüllere ve raporlara ulaşabilirsiniz.</p>
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'KOBİ Dashboard' %}{% endblock %}
+{% block acct_subtitle %}{% trans "KOBİ'lere özel modüller ve finansal özet" %}{% endblock %}
+{% block acct_content %}
+<div class="mb-4">
+  <p class="lead mb-0">{% blocktrans with name=request.user.first_name|default:request.user.username %}Hoş geldiniz {{ name }}! Burada KOBİ'lere özel modüllere ve raporlara ulaşabilirsiniz.{% endblocktrans %}</p>
+</div>
     <div class="row g-3 mb-4">
       <div class="col-md-4">
         <div class="card p-3 h-100">
@@ -55,6 +57,5 @@
           </ul>
         </div>
       </div>
-    </div>
-</div>
+  </div>
 {% endblock %} 

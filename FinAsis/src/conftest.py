@@ -1,4 +1,4 @@
-import sys
-import os
+"""Deprecated local conftest: root-level conftest handles path setup.
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__))) 
+Left in place temporarily to avoid surprise during refactor; will be removed.
+"""

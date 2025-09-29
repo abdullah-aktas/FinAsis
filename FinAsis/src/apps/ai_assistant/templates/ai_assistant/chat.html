@@ -1,13 +1,10 @@
-{% extends 'base.html' %}
-
-{% block title %}FinAsis - Yapay Zeka Sohbet{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-12 text-center mb-4">
-        <h1 class="display-4 text-ai">FinAsis Yapay Zeka Sohbet</h1>
-        <p class="lead">Finansal konularda sorularınızı sorun, anında yanıtlar alın</p>
-    </div>
+{% extends "ai_assistant/base_ai_assistant.html" %}
+{% load i18n %}
+{% block ai_title %}{% trans 'Yapay Zeka Sohbet' %}{% endblock %}
+{% block ai_subtitle %}{% trans 'Finansal sorularınıza hızlı yanıtlar' %}{% endblock %}
+{% block ai_content %}
+<div class="mb-4">
+    <p class="text-muted small mb-0">{% trans 'Lütfen aşağıya sorularınızı yazın. Örnek sorulara tıklayabilirsiniz.' %}</p>
 </div>
 
 <div class="row">
@@ -35,21 +32,21 @@
     <div class="col-md-12">
         <div class="card border-ai">
             <div class="card-body">
-                <h5 class="card-title text-ai">Örnek Sorular</h5>
-                <div class="row">
+                <h5 class="card-title text-ai">{% trans 'Örnek Sorular' %}</h5>
+                <div class="row" id="example-questions">
                     <div class="col-md-4">
-                        <button class="btn btn-outline-ai mb-2 w-100" onclick="askQuestion('Finansal oranlar nelerdir?')">
-                            Finansal oranlar nelerdir?
+                        <button type="button" class="btn btn-outline-ai mb-2 w-100" data-ai-example data-question="{% trans 'Finansal oranlar nelerdir?' %}">
+                            {% trans 'Finansal oranlar nelerdir?' %}
                         </button>
                     </div>
                     <div class="col-md-4">
-                        <button class="btn btn-outline-ai mb-2 w-100" onclick="askQuestion('Yatırım portföyü nasıl oluşturulur?')">
-                            Yatırım portföyü nasıl oluşturulur?
+                        <button type="button" class="btn btn-outline-ai mb-2 w-100" data-ai-example data-question="{% trans 'Yatırım portföyü nasıl oluşturulur?' %}">
+                            {% trans 'Yatırım portföyü nasıl oluşturulur?' %}
                         </button>
                     </div>
                     <div class="col-md-4">
-                        <button class="btn btn-outline-ai mb-2 w-100" onclick="askQuestion('Borsa yatırımı hakkında bilgi verir misiniz?')">
-                            Borsa yatırımı hakkında bilgi verir misiniz?
+                        <button type="button" class="btn btn-outline-ai mb-2 w-100" data-ai-example data-question="{% trans 'Borsa yatırımı hakkında bilgi verir misiniz?' %}">
+                            {% trans 'Borsa yatırımı hakkında bilgi verir misiniz?' %}
                         </button>
                     </div>
                 </div>
@@ -57,43 +54,41 @@
         </div>
     </div>
 </div>
-
 {% block extra_js %}
 <script>
-document.getElementById('chat-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const input = document.getElementById('user-input');
-    const message = input.value.trim();
-    if (message) {
-        addMessage('user', message);
-        input.value = '';
-        // Burada backend'e mesaj gönderme işlemi yapılacak
-        // Şimdilik örnek bir yanıt ekliyoruz
-        setTimeout(() => {
-            addMessage('assistant', 'Bu sorunuz hakkında size yardımcı olmaktan memnuniyet duyarım. Lütfen biraz daha detay verebilir misiniz?');
-        }, 1000);
-    }
+document.getElementById('chat-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const input=document.getElementById('user-input');
+  const message=input.value.trim();
+  if(!message) return;
+  addMessage('user', message);
+  input.value='';
+  setTimeout(()=>{
+    addMessage('assistant', "{% trans 'Bu sorunuz hakkında size yardımcı olmaktan memnuniyet duyarım. Lütfen biraz daha detay verebilir misiniz?' %}");
+  }, 600);
 });
-
-function addMessage(type, text) {
-    const messagesDiv = document.getElementById('chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}-message mb-3`;
-    messageDiv.innerHTML = `
-        <div class="card ${type === 'user' ? 'border-primary' : 'border-ai'}">
-            <div class="card-body">
-                <p class="card-text">${text}</p>
-            </div>
-        </div>
-    `;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+function addMessage(type,text){
+  const messagesDiv=document.getElementById('chat-messages');
+  const wrap=document.createElement('div');
+  wrap.className=`message ${type}-message mb-3`;
+  const card=document.createElement('div');
+  card.className=`card ${type==='user'?'border-primary':'border-ai'}`;
+  const body=document.createElement('div');
+  body.className='card-body';
+  const p=document.createElement('p');
+  p.className='card-text mb-0';
+  p.textContent=text;
+  body.appendChild(p); card.appendChild(body); wrap.appendChild(card);
+  messagesDiv.appendChild(wrap); messagesDiv.scrollTop=messagesDiv.scrollHeight;
 }
-
-function askQuestion(question) {
-    document.getElementById('user-input').value = question;
+function askQuestion(q){
+    document.getElementById('user-input').value=q;
     document.getElementById('chat-form').dispatchEvent(new Event('submit'));
 }
+// Attach example question handlers (no inline JS issues)
+document.querySelectorAll('[data-ai-example]').forEach(btn=>{
+    btn.addEventListener('click',()=>askQuestion(btn.getAttribute('data-question')));
+});
 </script>
 {% endblock %}
 {% endblock %} 

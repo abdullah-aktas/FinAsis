@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "core_ui/base_min.html" %}
 {% load static %}
 {% load static %}
 {% block title %}404 - Sayfa Bulunamadı | FinAsis{% endblock %}
@@ -22,8 +22,10 @@
         font-size: 10rem;
         font-weight: bold;
         background: linear-gradient(90deg, #00bfa5, #ff9800);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background-clip: text; /* Standard property */
+        -webkit-background-clip: text; /* Safari/WebKit */
+        color: transparent;
+        -webkit-text-fill-color: transparent; /* Safari */
         text-shadow: 0 0 10px rgba(0, 191, 165, 0.5);
     }
 

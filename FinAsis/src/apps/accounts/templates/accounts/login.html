@@ -1,19 +1,33 @@
-<!-- Dashboard tarzı login sayfası -->
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Giriş Yap</title>
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <h2>Giriş Yap</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Giriş</button>
-        </form>
+{% extends 'core_ui/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Giriş Yap' %} - FinAsis{% endblock %}
+{% block content %}
+<div class="container py-5 my-5" style="max-width:480px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-3 text-center">{% trans 'Giriş Yap' %}</h1>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">
+                        {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+                    </div>
+                {% endif %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="id_{{ field.name }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+                        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between align-items-center mb-3 small">
+                    <a href="{% url 'password_reset' %}">{% trans 'Şifremi Unuttum' %}</a>
+                    <a href="{% url 'accounts:register' %}">{% trans 'Hesap Oluştur' %}</a>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{% trans 'Giriş Yap' %}</button>
+            </form>
+        </div>
     </div>
-</body>
-</html> 
+</div>
+{% endblock %}

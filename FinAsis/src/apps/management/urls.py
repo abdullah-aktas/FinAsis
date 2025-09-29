@@ -1,5 +1,25 @@
 from django.urls import path, include
-from .views import admin_dashboard, user_list, company_list, invoice_list, user_detail, user_add, user_edit, user_delete, invoice_detail, invoice_add, invoice_edit, invoice_delete, admin_logs, help_content_api, user_list_export_csv
+from .views import (
+    admin_dashboard,
+    user_list,
+    company_list,
+    company_add,
+    company_detail,
+    company_edit,
+    company_delete,
+    invoice_list,
+    user_detail,
+    user_add,
+    user_edit,
+    user_delete,
+    invoice_detail,
+    invoice_add,
+    invoice_edit,
+    invoice_delete,
+    admin_logs,
+    help_content_api,
+    user_list_export_csv,
+)
 
 urlpatterns = [
     path('', admin_dashboard, name='admin_dashboard'),
@@ -10,6 +30,10 @@ urlpatterns = [
     path('kullanicilar/<int:user_id>/sil/', user_delete, name='user_delete'),
     path('kullanicilar/export/csv/', user_list_export_csv, name='user_list_export_csv'),
     path('sirketler/', company_list, name='company_list'),
+    path('sirketler/ekle/', company_add, name='company_add'),
+    path('sirketler/<int:company_id>/', company_detail, name='company_detail'),
+    path('sirketler/<int:company_id>/duzenle/', company_edit, name='company_edit'),
+    path('sirketler/<int:company_id>/sil/', company_delete, name='company_delete'),
     path('faturalar/', invoice_list, name='invoice_list'),
     path('faturalar/ekle/', invoice_add, name='invoice_add'),
     path('faturalar/<int:invoice_id>/', invoice_detail, name='invoice_detail'),

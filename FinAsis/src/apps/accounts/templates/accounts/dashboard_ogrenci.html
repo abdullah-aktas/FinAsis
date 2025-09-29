@@ -1,9 +1,9 @@
-{% extends "base.html" %}
-{% block title %}Öğrenci Dashboard{% endblock %}
-{% block content %}
-<div class="container my-5">
-    <h2>Öğrenci Dashboard</h2>
-    <p>Hoş geldiniz, {{ request.user.first_name|default:request.user.username }}! Burada öğrencilere özel içeriklere ulaşabilirsiniz.</p>
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Öğrenci Dashboard' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Öğrencilere özel öğrenme ve ilerleme özeti' %}{% endblock %}
+{% block acct_content %}
+<p class="lead">{% blocktrans with name=request.user.first_name|default:request.user.username %}Hoş geldiniz {{ name }}! Burada öğrencilere özel içeriklere ulaşabilirsiniz.{% endblocktrans %}</p>
     <div class="row g-3 mb-4">
       <div class="col-md-4">
         <div class="card p-3 h-100">
@@ -23,6 +23,5 @@
           <div class="fs-4 fw-bold">{{ son_basari|length|default:0 }}</div>
         </div>
       </div>
-    </div>
-</div>
+  </div>
 {% endblock %} 

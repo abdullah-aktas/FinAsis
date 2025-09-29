@@ -1,0 +1,39 @@
+# Turkish translations for FinAsis
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-28 00:00+0000\n"
+"PO-Revision-Date: 2025-09-28 00:00+0000\n"
+"Last-Translator: AUTO-GENERATED <you@example.com>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: core_ui/templates/core_ui/components/navbar.html:20
+msgid "Finans"
+msgstr "Finans"
+
+#: core_ui/templates/core_ui/components/navbar.html:21
+msgid "Eğitim"
+msgstr "Eğitim"
+
+#: core_ui/templates/core_ui/components/navbar.html:22
+msgid "Oyunlar"
+msgstr "Oyunlar"
+
+#: core_ui/templates/core_ui/components/navbar.html:23
+msgid "Fiyatlandırma"
+msgstr "Fiyatlandırma"
+
+#: core_ui/templates/core_ui/components/navbar.html:24
+msgid "Kaynaklar"
+msgstr "Kaynaklar"
+
+#: core_ui/templates/core_ui/components/navbar.html:25
+msgid "Kurumsal"
+msgstr "Kurumsal"

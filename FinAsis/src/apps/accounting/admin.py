@@ -1,12 +1,50 @@
 from django.contrib import admin
-from .models import Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount, InvoiceItem, BankTransaction, CompanyDeleteLog, EDefter, Vendor, PurchaseInvoice, VendorPayment, BankStatement, BankStatementLine
+from .models import (
+    Company, Customer, Invoice, Expense, Product, Sale, Payment, BankAccount,
+    InvoiceItem, BankTransaction, CompanyDeleteLog, EDefter, Vendor, PurchaseInvoice,
+    VendorPayment, BankStatement, BankStatementLine, GLAccount, GLJournalEntry, GLJournalLine, ExchangeRate
+)
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.urls import reverse, NoReverseMatch
 
+class AuditFieldsMixin:
+    """created_by / updated_by alanlarını otomatik yöneten mixin.
+    Formdan bu alanları kaldırır; kayıtta request.user set eder.
+    IntegrityError (FK) ve kullanıcı manipülasyonlarını engeller.
+    """
+
+    audit_fields = ("created_by", "updated_by")
+
+    def get_exclude(self, request, obj=None):  # type: ignore[override]
+        base = []
+        # Üst sınıfta get_exclude varsa çağır
+        parent = getattr(super(), 'get_exclude', None)
+        if callable(parent):
+            existing = parent(request, obj)
+            if existing:
+                if isinstance(existing, (list, tuple)):
+                    base.extend(existing)
+                else:
+                    base.append(existing)
+        for f in self.audit_fields:
+            if f not in base:
+                base.append(f)
+        return base
+
+    def save_model(self, request, obj, form, change):  # type: ignore[override]
+        if not change and hasattr(obj, 'created_by') and not getattr(obj, 'created_by_id', None):
+            obj.created_by = request.user  # type: ignore[attr-defined]
+        if hasattr(obj, 'updated_by'):
+            obj.updated_by = request.user  # type: ignore[attr-defined]
+        parent = getattr(super(), 'save_model', None)
+        if callable(parent):
+            parent(request, obj, form, change)
+
+
 @admin.register(Company)
-class CompanyAdmin(admin.ModelAdmin):
+class CompanyAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("name", "tax_number", "phone", "sector", "created_at", "is_active_colored")
     search_fields = ("name", "tax_number", "sector")
     list_filter = ("sector", "created_at", "is_active")
@@ -75,7 +113,7 @@ class CompanyAdmin(admin.ModelAdmin):
         return qs.filter(is_active=True)
 
 @admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
+class CustomerAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("first_name", "last_name", "email", "phone", "company", "created_at")
     search_fields = ("first_name", "last_name", "email")
     list_filter = ("company",)
@@ -83,7 +121,7 @@ class CustomerAdmin(admin.ModelAdmin):
 # NOTE: Invoice admin is defined below with inline items.
 
 @admin.register(Expense)
-class ExpenseAdmin(admin.ModelAdmin):
+class ExpenseAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("company", "category", "amount", "expense_date", "paid")
     list_filter = ("company", "category", "paid", "expense_date")
     search_fields = ("description",)
@@ -91,19 +129,19 @@ class ExpenseAdmin(admin.ModelAdmin):
     list_per_page = 20
     
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("name", "company", "price", "stock", "created_at")
     search_fields = ("name", "description")
     list_filter = ("company",)
 
 @admin.register(Sale)
-class SaleAdmin(admin.ModelAdmin):
+class SaleAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("customer", "product", "quantity", "unit_price", "total_price", "sale_date")
     list_filter = ("company", "sale_date")
     search_fields = ("customer__first_name", "product__name")
 
 @admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(AuditFieldsMixin, admin.ModelAdmin):
     list_display = ("customer", "amount", "payment_method", "payment_date", "related_invoice")
     list_filter = ("company", "payment_method", "payment_date")
     search_fields = ("customer__first_name", "customer__last_name", "related_invoice__invoice_number")
@@ -197,6 +235,61 @@ class FinAsisAdminSite(admin.AdminSite):
             context.update(extra_context)
         return super().index(request, extra_context=context)
 
+    # --- Modules Overview Custom Page ---
+    def get_urls(self):  # type: ignore[override]
+        from django.urls import path
+        urls = super().get_urls()
+        custom = [
+            path('modules/', self.admin_view(self.modules_overview), name='modules_overview'),
+        ]
+        # Put custom urls at the beginning so they have priority
+        return custom + urls
+
+    def modules_overview(self, request):
+        """Basit modül yönetim paneli: Yüklü uygulamaları, model sayılarını ve linkleri listeler.
+        Gelecekte: etkin/pasif etme, izin özetleri, arama vb. eklenebilir.
+        """
+        from django.apps import apps as django_apps
+        app_configs = []
+        for app_config in django_apps.get_app_configs():
+            # Sadece proje içi uygulamalar (django.contrib.* hariç)
+            if app_config.name.startswith('django.'):
+                continue
+            models_info = []
+            for model in app_config.get_models():
+                model_name = model._meta.model_name
+                app_label = model._meta.app_label
+                change_url = None
+                try:
+                    change_url = reverse(f'admin:{app_label}_{model_name}_changelist')
+                except Exception:
+                    pass
+                count = None
+                try:
+                    count = model.objects.count()
+                except Exception:
+                    count = '—'
+                models_info.append({
+                    'verbose_name': model._meta.verbose_name,
+                    'model_name': model_name,
+                    'count': count,
+                    'change_url': change_url,
+                })
+            app_configs.append({
+                'label': app_config.label,
+                'name': app_config.name,
+                'verbose_name': getattr(app_config, 'verbose_name', app_config.label.title()),
+                'models': models_info,
+            })
+        app_configs.sort(key=lambda x: x['label'])
+        context = dict(
+            self.each_context(request),
+            title=_('Modül Yönetimi'),
+            app_list=app_configs,
+        )
+        from django.template.response import TemplateResponse
+        return TemplateResponse(request, 'admin/modules_overview.html', context)
+
 # Varsayılan admin site ile devam etmek için aşağıdaki satırı yorumda bırakıyoruz
 # admin.site = FinAsisAdminSite()
 # Eğer tam özelleştirilmiş bir panel isterseniz yukarıdaki satırı aktif edin ve urls.py'da admin.site yerine bu nesneyi kullanın.
@@ -242,3 +335,28 @@ class VendorPaymentAdmin(admin.ModelAdmin):
     list_display = ("vendor", "amount", "payment_method", "payment_date", "related_invoice")
     list_filter = ("company", "payment_method", "payment_date")
     search_fields = ("vendor__name", "related_invoice__invoice_number")
+
+# --- GL Admin ---
+@admin.register(GLAccount)
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ("code", "name", "company", "category", "currency", "is_active")
+    list_filter = ("company", "category", "currency", "is_active")
+    search_fields = ("code", "name")
+
+class JournalLineInline(admin.TabularInline):
+    model = GLJournalLine
+    extra = 0
+    readonly_fields = ("amount_base",)
+
+@admin.register(GLJournalEntry)
+class JournalEntryAdmin(admin.ModelAdmin):
+    list_display = ("number", "company", "date", "total_debit", "total_credit", "currency", "source_type")
+    list_filter = ("company", "date", "currency", "source_type")
+    search_fields = ("number", "description", "source_id")
+    inlines = [JournalLineInline]
+
+@admin.register(ExchangeRate)
+class ExchangeRateAdmin(admin.ModelAdmin):
+    list_display = ("date", "base_currency", "quote_currency", "rate", "source")
+    list_filter = ("base_currency", "quote_currency", "date")
+    search_fields = ("base_currency", "quote_currency")

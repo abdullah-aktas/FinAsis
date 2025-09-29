@@ -1,0 +1,95 @@
+{% load i18n %}
+{% load static %}
+<nav class="nav flex-column small" aria-label="{% trans 'Muhasebe navigasyon' %}">
+  {% with p=request.path %}
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Genel' %}</div>
+  {% with active=('accounting/' in p and ('home' in p or p.endswith('/accounting/'))) %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-grid"></i> <span>{% trans 'Ana Panel' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='financial_analysis' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/financial-analysis/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-graph-up"></i> <span>{% trans 'Finansal Analiz' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Kayıtlar' %}</div>
+  {% with active='bankaccount' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/bank-accounts/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-bank"></i> <span>{% trans 'Bankalar' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='banktransaction' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/bank-transactions/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-arrow-left-right"></i> <span>{% trans 'Banka Hareketleri' %}</span>
+  </a>
+  {% endwith %}
+  {% with active=('invoice' in p and 'purchase' not in p) %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/invoices/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-receipt"></i> <span>{% trans 'Satış Faturaları' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='purchase_invoice' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/purchase-invoices/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-bag-check"></i> <span>{% trans 'Alım Faturaları' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='expense' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/expenses/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-cash-coin"></i> <span>{% trans 'Giderler' %}</span>
+  </a>
+  {% endwith %}
+  {% with active=('vendor' in p and 'payment' not in p) %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/vendors/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-people"></i> <span>{% trans 'Tedarikçiler' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='customer' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/customers/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-person-badge"></i> <span>{% trans 'Müşteriler' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='product' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/products/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-box-seam"></i> <span>{% trans 'Ürünler' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Ödemeler' %}</div>
+  {% with active=('payment' in p and 'vendor' not in p) %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/payments/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-credit-card"></i> <span>{% trans 'Ödemeler' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='vendor_payment' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/vendor-payments/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-wallet2"></i> <span>{% trans 'Tedarikçi Ödemeleri' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Raporlama' %}</div>
+  {% with active=('reports' in p or 'report' in p) %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/reports/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-journal-text"></i> <span>{% trans 'Raporlar' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='scenario' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/scenarios/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-bezier"></i> <span>{% trans 'Senaryolar' %}</span>
+  </a>
+  {% endwith %}
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Araçlar' %}</div>
+  {% with active='voucher' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/voucher/new/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-plus-circle"></i> <span>{% trans 'Fiş Oluştur' %}</span>
+  </a>
+  {% endwith %}
+  {% with active='chart_dashboard' in p %}
+  <a class="nav-link d-flex align-items-center gap-2 {% if active %}active fw-semibold{% endif %}" href="/accounting/chart-dashboard/" {% if active %}aria-current="page"{% endif %}>
+    <i class="bi bi-bar-chart"></i> <span>{% trans 'Grafikler' %}</span>
+  </a>
+  {% endwith %}
+  {% endwith %}
+</nav>

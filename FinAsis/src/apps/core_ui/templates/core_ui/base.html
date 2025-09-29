@@ -1,0 +1,10 @@
+{% extends 'core_ui/base.html' %}
+{# Bridge wrapper: Old app-specific core_ui/base.html now delegates to unified global template.
+   Migrate templates to extend 'core_ui/base.html' directly and remove this file afterwards. #}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <meta name="theme-color" content="#009873">
+  <script src="{% static 'js/register-sw.js' %}" defer></script>
+{% endblock %}
+{% block content %}{{ block.super }}{% endblock %}

@@ -1,13 +1,35 @@
-{% extends "base.html" %}
-{% block title %}Abonelik Tipini Değiştir{% endblock %}
-{% block content %}
-<div class="container my-5">
-    <h2>Abonelik Tipini Değiştir</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Kaydet</button>
-        <a href="{% url 'accounts:user_profile' %}" class="btn btn-secondary">İptal</a>
-    </form>
-</div>
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Abonelik Tipini Değiştir' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Plan yükseltme veya düşürme işlemi' %}{% endblock %}
+{% block acct_content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-4">{% trans 'Abonelik Tipini Değiştir' %}</h2>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 mb-3">
+                                {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+                            </div>
+                        {% endif %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+                                {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                            </div>
+                        {% endfor %}
+                        <div class="d-flex justify-content-end gap-2 mt-2">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">{% trans 'İptal' %}</a>
+                            <button type="submit" class="btn btn-primary">{% trans 'Kaydet' %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %} 

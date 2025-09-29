@@ -1,5 +1,11 @@
 import urllib.parse
 import pytest
+try:
+    import playwright  # type: ignore  # noqa: F401
+    import pytest_playwright  # type: ignore  # noqa: F401
+    _PW_OK = True
+except Exception:
+    _PW_OK = False
 
 MAX_PAGES = 200
 
@@ -7,6 +13,7 @@ def normalize(base, href):
     return urllib.parse.urljoin(base, (href or '').split('#')[0])
 
 @pytest.mark.parametrize("start_path", ["/", "/sitemap.xml"])
+@pytest.mark.skipif(not _PW_OK, reason="playwright not installed")
 def test_crawl_no_404(playwright, base_url, start_path):
     browser = playwright.chromium.launch(headless=True)
     ctx = browser.new_context()

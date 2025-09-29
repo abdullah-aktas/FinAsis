@@ -23,6 +23,31 @@ PROJECT_ROOT = os.path.dirname(BASE_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+# --- TEST IMPORT UYUMLULUK ALIASLARI ---
+# Bazı testler modülleri 'FinAsis.src.apps.*' yolu ile import ediyor.
+# INSTALLED_APPS ise 'src.apps.*' kullanıyor. Django aynı model sınıfını
+# iki farklı modül yolu üzerinden gördüğünde "model app_label yok" hatası üretir.
+# Aşağıdaki alias eşlemesi, FinAsis.* modüllerini src.* modüllerine yönlendirerek
+# tekil modul yolu sağlar ve test importlarını kırmadan çalıştırır.
+import importlib
+try:  # Koruyucu blok: production'da gereksiz olabilir
+    src_pkg = importlib.import_module('src')
+    sys.modules.setdefault('FinAsis', src_pkg)
+    # 'FinAsis.src' aliası
+    sys.modules.setdefault('FinAsis.src', src_pkg)
+    # apps altındaki doğrudan paketler için dinamik alias (sadece ilk seferde)
+    apps_path = os.path.join(PROJECT_ROOT, 'src', 'apps')
+    if os.path.isdir(apps_path):
+        for entry in os.listdir(apps_path):
+            full = os.path.join(apps_path, entry)
+            if os.path.isdir(full) and os.path.isfile(os.path.join(full, '__init__.py')):
+                alias_name = f'FinAsis.src.apps.{entry}'
+                real_name = f'src.apps.{entry}'
+                if real_name in sys.modules and alias_name not in sys.modules:
+                    sys.modules[alias_name] = sys.modules[real_name]
+except Exception:  # Sessiz geç -> alias olmadan da sistem çalışabilir, sadece test importu etkiler
+    pass
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -33,7 +58,25 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "167.71.46.215", "finasis.com.tr", "www.finasis.com.tr"]
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable must be set and non-empty.")
+
+_ALLOWED_HOSTS_ENV = str(config('ALLOWED_HOSTS', default=''))
+if _ALLOWED_HOSTS_ENV.strip():
+    ALLOWED_HOSTS = [h.strip() for h in _ALLOWED_HOSTS_ENV.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "167.71.46.215", "finasis.com.tr", "www.finasis.com.tr"]
+
+_LOCAL_HOSTS = {"localhost", "127.0.0.1"}
+if DEBUG:
+    for h in ALLOWED_HOSTS:
+        domain = h.split(':')[0]
+        if domain not in _LOCAL_HOSTS:
+            import logging
+            logging.getLogger(__name__).warning(
+                "DEBUG mode is ON while host '%s' is allowed. Disable DEBUG in production!", h
+            )
+            break
 
 
 # Application definition
@@ -52,6 +95,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'channels',
     'django_filters',
+    # Core reusable corporate UI (base templates, components)
+    'src.apps.core_ui',
     'src.apps.common.apps.CommonConfig',
     'src.apps.accounts',
     'src.apps.accounting',
@@ -71,6 +116,8 @@ INSTALLED_APPS = [
     'src.apps.ai_assistant.apps.AIAssistantConfig',
     'src.apps.corporate.apps.CorporateConfig',
     'src.apps.billing.apps.BillingConfig',
+    'src.apps.kobi_analysis.apps.KobiAnalysisConfig',
+    'src.apps.security.apps.SecurityConfig',
 ]
 
 
@@ -85,29 +132,36 @@ MIDDLEWARE = [
     # Tenant & audit middlewares (order: tenant first so others can rely on request.tenant)
     'src.apps.tenancy.middleware.CurrentTenantMiddleware',
     'src.apps.audit.middleware.AuditRequestMetaMiddleware',
+    'src.apps.common.middleware.RequestContextLoggingMiddleware',
     'src.apps.games.trade_sim.middleware.AutoOnboardingMiddleware',
 ]
 
 ROOT_URLCONF = 'src.config.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            # Gerçek templates klasörü (dış FinAsis/FinAsis/templates)
-            os.path.join(os.path.dirname(BASE_DIR), 'templates'),
-        ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'src.apps.billing.context_processors.billing_settings',
-            ],
-        },
-    },
+_TEMPLATE_DIR = os.path.join(os.path.dirname(BASE_DIR), 'templates')
+_IN_PYTEST = bool(os.environ.get('PYTEST_CURRENT_TEST'))
+_BASE_LOADERS = [
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 ]
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [_TEMPLATE_DIR],
+    # Explicit loaders so we can drop cached loader in tests (stale template issue prevention)
+    'OPTIONS': {
+        'loaders': _BASE_LOADERS if _IN_PYTEST else [
+            ('django.template.loaders.cached.Loader', _BASE_LOADERS)
+        ],
+        'context_processors': [
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+            'src.apps.billing.context_processors.billing_settings',
+            'src.apps.core_ui.context_processors.marketing_features',
+            'src.apps.core_ui.context_processors.project_meta',
+        ],
+    },
+}]
 
 WSGI_APPLICATION = 'src.config.wsgi.application'
 
@@ -115,28 +169,40 @@ WSGI_APPLICATION = 'src.config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use SQLite for local development unless explicitly disabled.
-# Set USE_SQLITE=False in environment to use PostgreSQL settings below.
-USE_SQLITE = config('USE_SQLITE', default=True, cast=bool)
+"""
+Database Configuration Strategy
+Priority order (first True flag wins):
+1. USE_POSTGRES=True  -> Use Postgres settings (recommended for staging/prod)
+2. USE_SQLITE=True    -> Fallback lightweight dev DB (default True if nothing specified)
+Environment Variables (example):
+  USE_POSTGRES=1 POSTGRES_DB=finasis POSTGRES_USER=finasis POSTGRES_PASSWORD=secret POSTGRES_HOST=postgres POSTGRES_PORT=5432
+Security: Hard‑coded credentials removed; all sensitive values must come from env/secret store.
+"""
 
-if USE_SQLITE:
+USE_POSTGRES = config('USE_POSTGRES', default=False, cast=bool)
+USE_SQLITE = config('USE_SQLITE', default=not USE_POSTGRES, cast=bool)
+
+if USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_DB', default='finasis'),
+            'USER': config('POSTGRES_USER', default='postgres'),
+            'PASSWORD': config('POSTGRES_PASSWORD', default=''),
+            'HOST': config('POSTGRES_HOST', default='localhost'),
+            'PORT': config('POSTGRES_PORT', default='5432'),
+            'CONN_MAX_AGE': config('POSTGRES_CONN_MAX_AGE', default=60, cast=int),
+        }
+    }
+elif USE_SQLITE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'finasis_db',
-            'USER': 'postgres',
-            'PASSWORD': 'FinAsis35',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
+else:  # Safety fallback
+    raise RuntimeError("No database configured. Set USE_POSTGRES=1 or USE_SQLITE=1")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -247,6 +313,47 @@ SALES_EMAIL = config('SALES_EMAIL', default='sales@finasis.local')
 PAYTR_MERCHANT_ID = config('PAYTR_MERCHANT_ID', default='')
 PAYTR_MERCHANT_KEY = config('PAYTR_MERCHANT_KEY', default='')
 PAYTR_MERCHANT_SALT = config('PAYTR_MERCHANT_SALT', default='')
+
+# --- Logging (JSON structured) ---
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'src.apps.common.logging.JsonFormatter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'json',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'finasis.log'),
+            'formatter': 'json',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
+}
+
+# DRF throttling scaffolding (rate limit hazırlığı)
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'src.apps.common.throttling.BurstUserThrottle',
+        'src.apps.common.throttling.SustainedUserThrottle',
+        'src.apps.common.throttling.BurstAnonThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'burst': config('THROTTLE_BURST_USER', default='20/minute'),
+        'sustained': config('THROTTLE_SUSTAINED_USER', default='1000/hour'),
+        'burst_anon': config('THROTTLE_BURST_ANON', default='10/minute'),
+    }
+}
 PAYTR_SANDBOX = config('PAYTR_SANDBOX', default=True, cast=bool)
 _PAYTR_ALLOWED_IPS_RAW = config('PAYTR_ALLOWED_IPS', default='')
 try:
@@ -259,3 +366,8 @@ BANK_TRANSFER_ENABLED = config('BANK_TRANSFER_ENABLED', default=True, cast=bool)
 BANK_ACCOUNT_HOLDER = config('BANK_ACCOUNT_HOLDER', default='FinAsis Teknoloji A.Ş.')
 BANK_ACCOUNT_IBAN = config('BANK_ACCOUNT_IBAN', default='TR00 0000 0000 0000 0000 0000 00')
 BANK_ACCOUNT_BANK = config('BANK_ACCOUNT_BANK', default='Finasis Bankası')
+
+# --- Project Meta ---
+APP_VERSION = config('APP_VERSION', default='v1.0')
+BRAND_NAME = config('BRAND_NAME', default='FinAsis')
+

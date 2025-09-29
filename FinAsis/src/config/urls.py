@@ -61,6 +61,7 @@ urlpatterns = [
 
     # Uygulama URL'leri (namespaced)
     path('accounting/', include(('src.apps.accounting.urls', 'accounting'), namespace='accounting')),
+    path('audit/', include(('src.apps.audit.urls', 'audit'), namespace='audit')),
     path('accounts/', include(('src.apps.accounts.urls', 'accounts'), namespace='accounts')),
     path('accounts/', include('django.contrib.auth.urls')),  # auth views (namespacelenmiyor)
     path('games/', include(('src.apps.games.urls', 'games'), namespace='games')),

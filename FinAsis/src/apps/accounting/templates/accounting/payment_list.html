@@ -1,38 +1,110 @@
-{% extends 'base.html' %}
-{% block title %}Ödemeler{% endblock %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Ödemeler</h2>
-    <a href="{% url 'accounting:payment_create' %}" class="btn btn-success mb-3">Yeni Ödeme Ekle</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Şirket</th>
-                <th>Müşteri</th>
-                <th>Tutar</th>
-                <th>Yöntem</th>
-                <th>Tarih</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for payment in payments %}
-            <tr>
-                <td>{{ payment.company.name }}</td>
-                <td>{{ payment.customer.first_name }} {{ payment.customer.last_name }}</td>
-                <td>{{ payment.amount }}₺</td>
-                <td>{{ payment.get_payment_method_display }}</td>
-                <td>{{ payment.payment_date|date:'d.m.Y' }}</td>
-                <td>
-                    <a href="{% url 'accounting:payment_detail' payment.pk %}" class="btn btn-info btn-sm">Detay</a>
-                    <a href="{% url 'accounting:payment_update' payment.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
-                    <a href="{% url 'accounting:payment_delete' payment.pk %}" class="btn btn-danger btn-sm">Sil</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6">Kayıtlı ödeme yok.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+{% block acc_title %}Ödemeler{% endblock %}
+{% block acc_subtitle %}Müşteri tahsilatları ve ödeme detayları{% endblock %}
+{% block acc_actions %}
+    <a href="{% url 'accounting:payment_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ödeme</a>
+{% endblock %}
+{% block acc_content %}
+<div class="payment-list-view">
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body pb-2">
+            <form method="get" class="row gy-2 gx-3 align-items-end" aria-label="Ödeme filtre formu">
+                <div class="col-md-3">
+                    <label for="company" class="form-label small text-muted">Şirket</label>
+                    <select name="company" id="company" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for c in companies %}
+                            <option value="{{ c.id }}" {% if request.GET.company == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="customer" class="form-label small text-muted">Müşteri</label>
+                    <select name="customer" id="customer" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for cust in customers %}
+                            <option value="{{ cust.id }}" {% if request.GET.customer == cust.id|stringformat:'s' %}selected{% endif %}>{{ cust.first_name }} {{ cust.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="method" class="form-label small text-muted">Yöntem</label>
+                    <select name="method" id="method" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for key,label in method_choices %}
+                            <option value="{{ key }}" {% if request.GET.method == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="start" class="form-label small text-muted">Başlangıç</label>
+                    <input type="date" name="start" id="start" value="{{ request.GET.start }}" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2 text-md-end">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Ara</button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle me-1"></i>Sıfırla</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between bg-white">
+            <div>
+                <h5 class="mb-0">Ödemeler</h5>
+                <small class="text-muted">Toplam: {{ page_obj.paginator.count|default:payments|length }} kayıt</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'accounting:payment_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ödeme</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Şirket</th>
+                        <th>Müşteri</th>
+                        <th class="text-end">Tutar</th>
+                        <th>Yöntem</th>
+                        <th>Tarih</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.company.name }}</td>
+                            <td>{{ payment.customer.first_name }} {{ payment.customer.last_name }}</td>
+                            <td class="text-end">{{ payment.amount|floatformat:2 }} ₺</td>
+                            <td>{{ payment.get_payment_method_display }}</td>
+                            <td>{{ payment.payment_date|date:'d.m.Y' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'accounting:payment_detail' payment.pk %}" class="btn btn-outline-primary" title="Detay"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'accounting:payment_update' payment.pk %}" class="btn btn-outline-warning" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'accounting:payment_delete' payment.pk %}" class="btn btn-outline-danger" title="Sil"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <div style="font-size:2.2rem;" class="mb-2"><i class="bi bi-credit-card"></i></div>
+                                    <p class="mb-2">Kayıtlı ödeme bulunamadı.</p>
+                                    <a href="{% url 'accounting:payment_create' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle me-1"></i>İlk Ödemeyi Ekle</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            {% include 'accounting/partials/_pagination.html' with page_obj=page_obj %}
+        </div>
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -1,38 +1,98 @@
-{% extends 'base.html' %}
-{% block title %}Müşteriler{% endblock %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Müşteriler</h2>
-    <a href="{% url 'accounting:customer_create' %}" class="btn btn-success mb-3">Yeni Müşteri Ekle</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Adı</th>
-                <th>Soyadı</th>
-                <th>Şirket</th>
-                <th>E-posta</th>
-                <th>Telefon</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for customer in customers %}
-            <tr>
-                <td>{{ customer.first_name }}</td>
-                <td>{{ customer.last_name }}</td>
-                <td>{{ customer.company.name }}</td>
-                <td>{{ customer.email }}</td>
-                <td>{{ customer.phone }}</td>
-                <td>
-                    <a href="{% url 'accounting:customer_detail' customer.pk %}" class="btn btn-info btn-sm">Detay</a>
-                    <a href="{% url 'accounting:customer_update' customer.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
-                    <a href="{% url 'accounting:customer_delete' customer.pk %}" class="btn btn-danger btn-sm">Sil</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6">Kayıtlı müşteri yok.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+{% block acc_title %}Müşteriler{% endblock %}
+{% block acc_subtitle %}Müşteri kayıtları ve iletişim bilgileri{% endblock %}
+{% block acc_actions %}
+    <a href="{% url 'accounting:customer_create' %}" class="btn btn-success btn-sm"><i class="bi bi-person-plus me-1"></i>Yeni Müşteri</a>
+{% endblock %}
+{% block acc_content %}
+<div class="customer-list-view">
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body pb-2">
+            <form method="get" class="row gy-2 gx-3 align-items-end" aria-label="Müşteri filtre formu">
+                <div class="col-md-3">
+                    <label for="q" class="form-label small text-muted">Ara (Ad / E-posta)</label>
+                    <input type="text" name="q" id="q" class="form-control form-control-sm" value="{{ request.GET.q }}" placeholder="Örn: Ayşe / mail@...">
+                </div>
+                <div class="col-md-3">
+                    <label for="company" class="form-label small text-muted">Şirket</label>
+                    <select name="company" id="company" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for c in companies %}
+                            <option value="{{ c.id }}" {% if request.GET.company == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="has_email" class="form-label small text-muted">E-posta Durumu</label>
+                    <select name="has_email" id="has_email" class="form-select form-select-sm">
+                        <option value="">Farketmez</option>
+                        <option value="1" {% if request.GET.has_email == '1' %}selected{% endif %}>Var</option>
+                        <option value="0" {% if request.GET.has_email == '0' %}selected{% endif %}>Yok</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Ara</button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle me-1"></i>Sıfırla</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between bg-white">
+            <div>
+                <h5 class="mb-0">Müşteriler</h5>
+                <small class="text-muted">Toplam: {{ page_obj.paginator.count|default:customers|length }} kayıt</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'accounting:customer_create' %}" class="btn btn-success btn-sm"><i class="bi bi-person-plus me-1"></i>Yeni Müşteri</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>Şirket</th>
+                        <th>E-posta</th>
+                        <th>Telefon</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                        <tr>
+                            <td class="fw-medium"><a href="{% url 'accounting:customer_detail' customer.pk %}" class="text-decoration-none">{{ customer.first_name }} {{ customer.last_name }}</a></td>
+                            <td>{{ customer.company.name }}</td>
+                            <td>{{ customer.email|default:'-' }}</td>
+                            <td>{{ customer.phone|default:'-' }}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'accounting:customer_detail' customer.pk %}" class="btn btn-outline-primary" title="Detay"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'accounting:customer_update' customer.pk %}" class="btn btn-outline-warning" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'accounting:customer_delete' customer.pk %}" class="btn btn-outline-danger" title="Sil"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <div style="font-size:2.2rem;" class="mb-2"><i class="bi bi-person-badge"></i></div>
+                                    <p class="mb-2">Kayıtlı müşteri yok.</p>
+                                    <a href="{% url 'accounting:customer_create' %}" class="btn btn-sm btn-success"><i class="bi bi-person-plus me-1"></i>İlk Müşteriyi Ekle</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            {% include 'accounting/partials/_pagination.html' with page_obj=page_obj %}
+        </div>
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -535,3 +535,108 @@ class PlanningScenario(models.Model):
 
     def __str__(self):
         return f"{self.company} - {self.name} ({self.start_date} - {self.end_date})"
+
+# --- Genel Muhasebe (GL) ve Döviz ---
+class GLAccount(models.Model):
+    """Tek Düzen Hesap Planı (özet subset)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='gl_accounts', verbose_name="Şirket")
+    code = models.CharField(max_length=20, verbose_name="Hesap Kodu")
+    name = models.CharField(max_length=255, verbose_name="Hesap Adı")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name="Üst Hesap")
+    category = models.CharField(max_length=32, choices=[
+        ('ASSET', 'Varlık'),
+        ('LIAB', 'Yükümlülük'),
+        ('EQUITY', 'Özkaynak'),
+        ('INCOME', 'Gelir'),
+        ('EXPENSE', 'Gider'),
+        ('OFFBS', 'Nazım')
+    ], verbose_name="Kategori")
+    is_leaf = models.BooleanField(default=True, verbose_name="Alt Hesap Yok")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+    currency = models.CharField(max_length=3, default='TRY', verbose_name="Defter Para Birimi")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "GL Hesap"
+        verbose_name_plural = "GL Hesaplar"
+        unique_together = ('company', 'code')
+        ordering = ['code']
+
+    def __str__(self):
+        return f"{self.code} {self.name}"
+
+class ExchangeRate(models.Model):
+    """Günlük kur tablosu: base->quote oranı (1 base = rate quote)."""
+    base_currency = models.CharField(max_length=3, verbose_name="Baz PB")
+    quote_currency = models.CharField(max_length=3, verbose_name="Karşı PB")
+    date = models.DateField()
+    rate = models.DecimalField(max_digits=18, decimal_places=8, verbose_name="Kur")
+    source = models.CharField(max_length=50, blank=True, null=True, verbose_name="Kaynak")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Kur"
+        verbose_name_plural = "Kurlar"
+        unique_together = ('base_currency', 'quote_currency', 'date')
+        ordering = ['-date', 'base_currency', 'quote_currency']
+
+    def __str__(self):
+        return f"{self.date} {self.base_currency}/{self.quote_currency}={self.rate}"
+
+class GLJournalEntry(models.Model):
+    """Yevmiye fişi."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='journal_entries', verbose_name="Şirket")
+    number = models.CharField(max_length=30, verbose_name="Fiş No")
+    date = models.DateField(verbose_name="Tarih")
+    description = models.CharField(max_length=255, blank=True, null=True, verbose_name="Açıklama")
+    source_type = models.CharField(max_length=30, blank=True, null=True, verbose_name="Kaynak Türü")
+    source_id = models.CharField(max_length=50, blank=True, null=True, verbose_name="Kaynak ID")
+    currency = models.CharField(max_length=3, default='TRY', verbose_name="Fiş Para Birimi")
+    total_debit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Toplam Borç")
+    total_credit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Toplam Alacak")
+    created_at = models.DateTimeField(auto_now_add=True)
+    posted_at = models.DateTimeField(blank=True, null=True, verbose_name="Mizan Onay Zamanı")
+
+    class Meta:
+        verbose_name = "Yevmiye Fişi"
+        verbose_name_plural = "Yevmiye Fişleri"
+        unique_together = ('company', 'number')
+        ordering = ['-date', '-id']
+
+    def __str__(self):
+        return f"{self.number} - {self.date}"
+
+    def recalc_totals(self):
+        sums = self.lines.aggregate(d=models.Sum('debit'), c=models.Sum('credit'))
+        self.total_debit = sums.get('d') or 0
+        self.total_credit = sums.get('c') or 0
+        super().save(update_fields=['total_debit', 'total_credit'])
+
+class GLJournalLine(models.Model):
+    entry = models.ForeignKey(GLJournalEntry, on_delete=models.CASCADE, related_name='lines', verbose_name="Fiş")
+    account = models.ForeignKey(GLAccount, on_delete=models.PROTECT, related_name='journal_lines', verbose_name="Hesap")
+    description = models.CharField(max_length=255, blank=True, null=True, verbose_name="Açıklama")
+    debit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Borç")
+    credit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Alacak")
+    currency = models.CharField(max_length=3, default='TRY', verbose_name="Satır PB")
+    fx_rate = models.DecimalField(max_digits=18, decimal_places=8, default=1, verbose_name="Kur")
+    amount_base = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Tutar (Baz PB)")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Yevmiye Satırı"
+        verbose_name_plural = "Yevmiye Satırları"
+        ordering = ['id']
+
+    def __str__(self):
+        side = 'B' if self.debit else 'A'
+        return f"{self.entry.number} {self.account.code} {side} {self.debit or self.credit}"
+
+    def save(self, *args, **kwargs):
+        # Baz para birimi dönüşümü
+        raw = self.debit if self.debit else self.credit
+        self.amount_base = raw * self.fx_rate if raw else 0
+        super().save(*args, **kwargs)
+        # Fiş toplamlarını güncelle
+        self.entry.recalc_totals()

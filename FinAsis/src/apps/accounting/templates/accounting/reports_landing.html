@@ -1,0 +1,92 @@
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+{% block acc_title %}Rapor Merkezi{% endblock %}
+{% block acc_subtitle %}Finansal analiz ve operasyonel raporlara hızlı erişim{% endblock %}
+{% block acc_actions %}
+  <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true"><i class="bi bi-download me-1"></i>Toplu İndir (yakında)</a>
+{% endblock %}
+{% block acc_content %}
+<div class="reports-landing">
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#6366F1;"><i class="bi bi-graph-up"></i></div>
+          <h5 class="card-title mb-1">Gelir - Gider Özeti</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Seçilen tarih aralığına göre gelir / gider kırılımı ve net fark.</p>
+          <a href="/accounting/reports/income-expense/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#00B894;"><i class="bi bi-cash-stack"></i></div>
+          <h5 class="card-title mb-1">Nakit Akışı</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Dönemsel giriş-çıkış hareketleri ve kapanış bakiyeleri.</p>
+          <a href="/accounting/reports/cashflow/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#FFA500;"><i class="bi bi-receipt"></i></div>
+          <h5 class="card-title mb-1">Fatura Performansı</h5>
+            <p class="text-muted small mb-3 flex-grow-1">Tahsilat süresi, açık / ödenmiş fatura durumu ve toplam tutarlar.</p>
+          <a href="/accounting/reports/invoices/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#e17055;"><i class="bi bi-credit-card-2-front"></i></div>
+          <h5 class="card-title mb-1">Gider Analizi</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Kategori bazlı gider dağılımı ve dönemsel trendler.</p>
+          <a href="/accounting/reports/expenses/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#6366F1;"><i class="bi bi-people"></i></div>
+          <h5 class="card-title mb-1">Müşteri Geliri</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Müşteri başına gelir katkısı ve konsantrasyon oranları.</p>
+          <a href="/accounting/reports/customers/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2" style="font-size:1.8rem; color:#0EA5E9;"><i class="bi bi-bar-chart"></i></div>
+          <h5 class="card-title mb-1">Senaryo Karşılaştırma</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Farklı finansal varsayımlara göre senaryo sonuçları.</p>
+          <a href="/accounting/scenarios/" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white d-flex flex-wrap gap-2 align-items-center justify-content-between">
+      <h6 class="mb-0">Hızlı Dışa Aktarım</h6>
+      <div class="small text-muted">CSV / PDF (yakında)</div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3 col-sm-6"><button class="btn btn-outline-secondary w-100 btn-sm" disabled><i class="bi bi-filetype-csv me-1"></i>Gelir-Gider CSV</button></div>
+        <div class="col-md-3 col-sm-6"><button class="btn btn-outline-secondary w-100 btn-sm" disabled><i class="bi bi-filetype-pdf me-1"></i>Nakit Akışı PDF</button></div>
+        <div class="col-md-3 col-sm-6"><button class="btn btn-outline-secondary w-100 btn-sm" disabled><i class="bi bi-filetype-pdf me-1"></i>Fatura Özet PDF</button></div>
+        <div class="col-md-3 col-sm-6"><button class="btn btn-outline-secondary w-100 btn-sm" disabled><i class="bi bi-filetype-csv me-1"></i>Müşteri Geliri CSV</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info mt-4" role="alert">
+    <strong>İpucu:</strong> Rapor kartlarına tıklayarak detay sayfasına geçebilirsiniz. Export özelliği yakında aktif olacak.
+  </div>
+</div>
+{% endblock %}

@@ -2,6 +2,46 @@ from django.db.models import Sum
 from datetime import date
 from ..models import Invoice, Expense
 from src.apps.finance.accounting.models import Voucher, VoucherLine, GLBalance, Account
+from typing import TYPE_CHECKING
+from django.db import models
+
+if TYPE_CHECKING:  # Hints for static analyzers
+    class _Voucher(Voucher):  # type: ignore
+        lines: 'models.Manager[VoucherLine]'
+
+from ..models import GLJournalLine, GLJournalEntry, GLAccount  # for trial balance
+from decimal import Decimal
+
+def trial_balance(company, date_to=None):
+    """Genel mizan: her GL hesap için borç/alacak ve bakiye (GLJournalLine tablosu)."""
+    qs = GLJournalLine.objects.filter(entry__company=company)
+    if date_to:
+        qs = qs.filter(entry__date__lte=date_to)
+    aggregated = qs.values('account__code', 'account__name', 'account__category').annotate(
+        debit_sum=Sum('debit'), credit_sum=Sum('credit')
+    ).order_by('account__code')
+    rows = []
+    total_debit = Decimal('0')
+    total_credit = Decimal('0')
+    for r in aggregated:
+        d = r['debit_sum'] or Decimal('0')
+        c = r['credit_sum'] or Decimal('0')
+        total_debit += d
+        total_credit += c
+        rows.append({
+            'code': r['account__code'],
+            'name': r['account__name'],
+            'category': r['account__category'],
+            'debit': d,
+            'credit': c,
+            'balance': d - c,
+        })
+    return {
+        'rows': rows,
+        'total_debit': total_debit,
+        'total_credit': total_credit,
+        'balanced': total_debit == total_credit,
+    }
 from django.db.models.functions import TruncMonth
 from collections import OrderedDict
 from django.db.models import Count
@@ -220,15 +260,18 @@ def generate_yevmiye_defteri(company, year, month):
     qs = Voucher.objects.filter(company=company, date__year=year, date__month=month, state='posted').order_by('date', 'number')
     rows = []
     for v in qs:
-        for l in v.lines.all().order_by('line_no'):
+        line_manager = getattr(v, 'lines', None)  # some static analyzers can't see reverse rel
+        if not line_manager:
+            continue
+        for l in line_manager.all().order_by('line_no'):  # type: ignore[attr-defined]
             rows.append({
                 "Tarih": v.date,
                 "Fiş No": v.number,
                 "Açıklama": v.description,
-                "Hesap Kodu": l.account.code,
-                "Hesap Adı": l.account.name,
-                "Borç": float(l.debit_amount or 0),
-                "Alacak": float(l.credit_amount or 0),
+                "Hesap Kodu": getattr(l.account, 'code', ''),
+                "Hesap Adı": getattr(l.account, 'name', ''),
+                "Borç": float(getattr(l, 'debit_amount', 0) or 0),
+                "Alacak": float(getattr(l, 'credit_amount', 0) or 0),
             })
     return pd.DataFrame(rows)
 
@@ -349,6 +392,8 @@ def export_report_to_json(report_data):
         except Exception:
             pass
         return data
+
+    # Trial balance artık üst düzey fonksiyon olarak mevcut (trial_balance)
 
     normalized = normalize(report_data)
     response = HttpResponse(

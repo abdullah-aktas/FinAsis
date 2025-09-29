@@ -7,7 +7,7 @@
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="btn btn-primary">Kaydet</button>
-        <a href="/yonetim/sirketler/" class="btn btn-secondary">İptal</a>
+    <a href="{% url 'management:company_list' %}" class="btn btn-secondary">İptal</a>
     </form>
 </div>
 {% endblock %} 
