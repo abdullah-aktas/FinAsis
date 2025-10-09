@@ -1,0 +1,616 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Uyumluluk Raporu" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+<style>
+.compliance-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 30px 0;
+}
+
+.compliance-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+}
+
+.compliance-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 30px;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--kpi-color);
+}
+
+.kpi-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 15px;
+    color: white;
+    background: var(--kpi-color);
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 15px 0;
+}
+
+.kpi-label {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-trend {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.trend-up {
+    color: #27ae60;
+}
+
+.trend-down {
+    color: #e74c3c;
+}
+
+.chart-container {
+    padding: 30px;
+}
+
+.chart-wrapper {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.stats-table {
+    width: 100%;
+    background: white;
+}
+
+.stats-table th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    padding: 15px;
+}
+
+.stats-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.progress-bar-custom {
+    height: 8px;
+    border-radius: 4px;
+    background: #ecf0f1;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.summary-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compliance-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="compliance-card">
+            <div class="compliance-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-2">
+                            <i class="fas fa-chart-bar me-3"></i>
+                            {% trans "Uyumluluk Performans Raporu" %}
+                        </h1>
+                        <p class="mb-0 opacity-75">{{ company.name }} - {% trans "Detaylı Analiz ve Metrikler" %}</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-light" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>
+                            {% trans "Yazdır" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Dashboard -->
+        <div class="compliance-card">
+            <div class="kpi-grid">
+                <div class="kpi-card" style="--kpi-color: linear-gradient(135deg, #3498db, #2980b9);">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="kpi-value">{{ total_controls }}</div>
+                        <div class="kpi-label">{% trans "Toplam Kontrol" %}</div>
+                        <div class="kpi-trend trend-up">
+                            <i class="fas fa-arrow-up me-1"></i>
+                            {% trans "+12% bu ayda" %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--kpi-color: linear-gradient(135deg, #27ae60, #229954);">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #27ae60, #229954);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="kpi-value">{{ effective_count|default:0 }}</div>
+                        <div class="kpi-label">{% trans "Etkili Kontrol" %}</div>
+                        <div class="kpi-trend trend-{% if effective_percentage >= 80 %}up{% else %}down{% endif %}">
+                            <i class="fas fa-{% if effective_percentage >= 80 %}arrow-up{% else %}arrow-down{% endif %} me-1"></i>
+                            {{ effective_percentage }}% {% trans "uyumluluk" %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--kpi-color: linear-gradient(135deg, #e74c3c, #c0392b);">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="kpi-value">{{ high_risk_count|default:0 }}</div>
+                        <div class="kpi-label">{% trans "Yüksek Risk" %}</div>
+                        <div class="kpi-trend {% if high_risk_count > 0 %}trend-down{% else %}trend-up{% endif %}">
+                            <i class="fas fa-{% if high_risk_count > 0 %}exclamation-circle{% else %}check-circle{% endif %} me-1"></i>
+                            {{ total_risks }} {% trans "toplam risk" %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="--kpi-color: linear-gradient(135deg, #f39c12, #e67e22);">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="text-center">
+                        <div class="kpi-value">{{ total_audits }}</div>
+                        <div class="kpi-label">{% trans "Denetim Aktivitesi" %}</div>
+                        <div class="kpi-trend trend-up">
+                            <i class="fas fa-calendar me-1"></i>
+                            {% trans "Son 30 gün" %}
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Control Effectiveness Chart -->
+            <div class="col-lg-6">
+                <div class="compliance-card">
+                    <div class="chart-container">
+                        <div class="chart-wrapper">
+                            <h5 class="chart-title">
+                                <i class="fas fa-chart-pie text-primary me-2"></i>
+                                {% trans "Kontrol Etkinlik Dağılımı" %}
+                            </h5>
+                            <canvas id="effectivenessChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Level Distribution -->
+            <div class="col-lg-6">
+                <div class="compliance-card">
+                    <div class="chart-container">
+                        <div class="chart-wrapper">
+                            <h5 class="chart-title">
+                                <i class="fas fa-chart-bar text-danger me-2"></i>
+                                {% trans "Risk Seviyesi Dağılımı" %}
+                            </h5>
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Activity Trend -->
+        <div class="compliance-card">
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <h5 class="chart-title">
+                        <i class="fas fa-chart-line text-info me-2"></i>
+                        {% trans "Denetim Aktivite Trendi (Son 30 Gün)" %}
+                    </h5>
+                    <canvas id="auditTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Statistics -->
+        <div class="compliance-card">
+            <div class="p-4">
+                <h5 class="mb-4">
+                    <i class="fas fa-table text-success me-2"></i>
+                    {% trans "Detaylı İstatistikler" %}
+                </h5>
+
+                <div class="row">
+                    <!-- Control Effectiveness Stats -->
+                    <div class="col-lg-6 mb-4">
+                        <h6 class="mb-3">{% trans "Kontrol Etkinliği" %}</h6>
+                        <table class="stats-table table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Seviye" %}</th>
+                                    <th>{% trans "Sayı" %}</th>
+                                    <th>{% trans "Yüzde" %}</th>
+                                    <th>{% trans "Grafik" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in effectiveness_stats %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{{ stat.operating_effectiveness|lower }}">
+                                            {{ stat.operating_effectiveness|default:"N/A" }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ stat.count }}</strong></td>
+                                    <td>{{ stat.percentage|floatformat:1|default:"0" }}%</td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                    <div class="progress-fill bg-primary"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Risk Distribution Stats -->
+                    <div class="col-lg-6 mb-4">
+                        <h6 class="mb-3">{% trans "Risk Dağılımı" %}</h6>
+                        <table class="stats-table table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Risk Seviyesi" %}</th>
+                                    <th>{% trans "Sayı" %}</th>
+                                    <th>{% trans "Yüzde" %}</th>
+                                    <th>{% trans "Grafik" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in risk_stats %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{{ stat.overall_risk_level|lower }}">
+                                            {{ stat.overall_risk_level|default:"N/A" }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ stat.count }}</strong></td>
+                                    <td>{{ stat.percentage|floatformat:1|default:"0" }}%</td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                    <div class="progress-fill bg-danger"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Activity Stats -->
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="mb-3">{% trans "Denetim Aktiviteleri (Son 30 Gün)" %}</h6>
+                        <table class="stats-table table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Aktivite Tipi" %}</th>
+                                    <th>{% trans "Sayı" %}</th>
+                                    <th>{% trans "Grafik" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in audit_stats %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ stat.action_type|upper|default:"N/A" }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ stat.count }}</strong></td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                    <div class="progress-fill bg-info"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="compliance-card">
+            <div class="p-4">
+                <h5 class="mb-4">
+                    <i class="fas fa-clipboard-list text-warning me-2"></i>
+                    {% trans "Yönetici Özeti" %}
+                </h5>
+
+                <div class="summary-box">
+                    <div class="summary-item">
+                        <strong>{% trans "Genel Uyumluluk Durumu:" %}</strong>
+                        <span class="badge bg-success">{% trans "İyi" %}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>{% trans "Etkili Kontrol Oranı:" %}</strong>
+                        <span>{{ effective_control_rate|floatformat:1|default:"0" }}%</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>{% trans "Yüksek/Kritik Risk Sayısı:" %}</strong>
+                        <span class="text-danger">{{ high_risk_count|default:0 }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>{% trans "Toplam Denetim Aktivitesi:" %}</strong>
+                        <span>{{ total_audits }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>{% trans "Bekleyen Aksiyon:" %}</strong>
+                        <span class="text-warning">{{ pending_actions|default:0 }}</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <h6><i class="fas fa-lightbulb me-2"></i>{% trans "Öneriler" %}</h6>
+                    <ul class="mb-0">
+                        <li>{% trans "Etkili kontrol sayısını artırmak için mevcut prosedürleri gözden geçirin" %}</li>
+                        <li>{% trans "Yüksek riskli alanlar için acil aksiyon planları oluşturun" %}</li>
+                        <li>{% trans "Düzenli denetim faaliyetlerini sürdürün" %}</li>
+                        <li>{% trans "Kontrol etkinliğini artırmak için eğitim programları düzenleyin" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mb-4">
+            <a href="{% url 'audit:control_dashboard' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                {% trans "Kontrol Paneline Dön" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Chart data payloads (parsed by JS to avoid inline Django in JS context) -->
+<script id="effectiveness-data" type="application/json">{{ effectiveness_chart_data|safe }}</script>
+<script id="risk-data" type="application/json">{{ risk_chart_data|safe }}</script>
+<script id="audit-trend-data" type="application/json">{{ audit_trend_data|safe }}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Effectiveness Pie Chart
+    const effectivenessCtx = document.getElementById('effectivenessChart');
+    if (effectivenessCtx) {
+        const effData = JSON.parse(document.getElementById('effectiveness-data').textContent || '{"labels":[],"data":[]}');
+        new Chart(effectivenessCtx, {
+            type: 'doughnut',
+            data: {
+                labels: effData.labels,
+                datasets: [{
+                    data: effData.data,
+                    backgroundColor: [
+                        '#27ae60',
+                        '#f39c12',
+                        '#e74c3c',
+                        '#95a5a6',
+                        '#3498db'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Risk Bar Chart
+    const riskCtx = document.getElementById('riskChart');
+    if (riskCtx) {
+        const riskData = JSON.parse(document.getElementById('risk-data').textContent || '{"labels":[],"data":[]}');
+        new Chart(riskCtx, {
+            type: 'bar',
+            data: {
+                labels: riskData.labels,
+                datasets: [{
+                    label: '{% trans "Risk Sayısı" %}',
+                    data: riskData.data,
+                    backgroundColor: [
+                        '#e74c3c',
+                        '#e67e22',
+                        '#f39c12',
+                        '#3498db',
+                        '#27ae60'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Audit Trend Line Chart
+    const auditTrendCtx = document.getElementById('auditTrendChart');
+    if (auditTrendCtx) {
+        const trendData = JSON.parse(document.getElementById('audit-trend-data').textContent || '{"labels":[],"data":[]}');
+        new Chart(auditTrendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.labels,
+                datasets: [{
+                    label: '{% trans "Denetim Aktivitesi" %}',
+                    data: trendData.data,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '{% trans "Ay" %}'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Calculate percentages for progress bars
+    const calculatePercentages = () => {
+        document.querySelectorAll('.stats-table tbody').forEach(tbody => {
+            const rows = tbody.querySelectorAll('tr');
+            const total = Array.from(rows).reduce((sum, row) => {
+                const count = parseInt(row.cells[1].textContent);
+                return sum + count;
+            }, 0);
+            
+            rows.forEach(row => {
+                const count = parseInt(row.cells[1].textContent);
+                const percentage = total > 0 ? (count / total * 100) : 0;
+                row.cells[2].textContent = percentage.toFixed(1) + '%';
+                const progressBar = row.cells[3].querySelector('.progress-fill');
+                if (progressBar) {
+                    setTimeout(() => {
+                        progressBar.style.width = percentage + '%';
+                    }, 100);
+                }
+            });
+        });
+    };
+
+    calculatePercentages();
+});
+</script>
+{% endblock %}

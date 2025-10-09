@@ -1,0 +1,739 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Risk Değerlendirme" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.risk-assessment-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 30px 0;
+}
+
+.risk-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.risk-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 30px;
+}
+
+.risk-matrix {
+    display: grid;
+    grid-template-columns: 60px repeat(5, 1fr);
+    grid-template-rows: repeat(6, 60px);
+    gap: 2px;
+    padding: 20px;
+    background: #ecf0f1;
+}
+
+.matrix-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.matrix-cell:hover:not(.label-cell) {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.label-cell {
+    background: #34495e;
+    color: white;
+    font-size: 0.85rem;
+    cursor: default;
+}
+
+.risk-very-low {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.risk-low {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.risk-medium {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.risk-high {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    color: white;
+}
+
+.risk-very-high {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.risk-form {
+    padding: 30px;
+}
+
+.form-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.form-section h5 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #3498db;
+}
+
+.risk-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+}
+
+.risk-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #3498db;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.risk-slider::-webkit-slider-thumb:hover {
+    background: #2980b9;
+    transform: scale(1.2);
+}
+
+.risk-value-display {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #3498db;
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+}
+
+.risk-assessment-list {
+    padding: 30px;
+}
+
+.risk-item-card {
+    background: white;
+    border-left: 5px solid;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.risk-item-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.risk-item-card.very-low { border-left-color: #2ecc71; }
+.risk-item-card.low { border-left-color: #3498db; }
+.risk-item-card.medium { border-left-color: #f39c12; }
+.risk-item-card.high { border-left-color: #e67e22; }
+.risk-item-card.very-high { border-left-color: #e74c3c; }
+
+.risk-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.risk-badge.very-low { background: #d5f4e6; color: #27ae60; }
+.risk-badge.low { background: #d6eaf8; color: #2980b9; }
+.risk-badge.medium { background: #fef9e7; color: #f39c12; }
+.risk-badge.high { background: #fdecea; color: #e67e22; }
+.risk-badge.very-high { background: #fadbd8; color: #c0392b; }
+
+.mitigation-progress {
+    background: #ecf0f1;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.mitigation-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    transition: width 0.3s;
+}
+
+.risk-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 1.8rem;
+}
+
+.risk-chart-container {
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .risk-matrix {
+        grid-template-columns: 40px repeat(5, 1fr);
+        grid-template-rows: repeat(6, 50px);
+        gap: 1px;
+        padding: 10px;
+    }
+    
+    .matrix-cell {
+        font-size: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="risk-assessment-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="risk-card">
+            <div class="risk-header">
+                <h1 class="h2 mb-3">
+                    <i class="fas fa-exclamation-triangle me-3"></i>
+                    {% trans "Risk Değerlendirme ve Yönetim" %}
+                </h1>
+                <p class="mb-0 opacity-75">
+                    {% trans "Kurumsal riskleri değerlendirin, önceliklendirin ve yönetin" %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Risk Statistics -->
+        <div class="risk-card">
+            <div class="risk-stats">
+                <div class="stat-card">
+                    <div class="icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <h3 class="mb-2">{{ assessments|length }}</h3>
+                    <p class="text-muted mb-0">{% trans "Toplam Risk" %}</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon" style="background: linear-gradient(135deg, #e67e22, #d35400); color: white;">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="mb-2">{{ high_risks_count|default:0 }}</h3>
+                    <p class="text-muted mb-0">{% trans "Yüksek Risk" %}</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="mb-2">{{ medium_risks_count|default:0 }}</h3>
+                    <p class="text-muted mb-0">{% trans "Orta Risk" %}</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="icon" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="mb-2">{{ mitigated_count|default:0 }}</h3>
+                    <p class="text-muted mb-0">{% trans "Azaltılmış Risk" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Risk Assessment Form -->
+            <div class="col-lg-6">
+                <div class="risk-card">
+                    <div class="risk-form">
+                        <h4 class="mb-4">
+                            <i class="fas fa-plus-circle text-primary me-2"></i>
+                            {% trans "Yeni Risk Değerlendirmesi" %}
+                        </h4>
+                        
+                        <form method="post" id="riskAssessmentForm">
+                            {% csrf_token %}
+                            
+                            <div class="form-section">
+                                <h5>{% trans "Risk Bilgileri" %}</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Risk Başlığı" %}</label>
+                                    <input type="text" name="risk_title" class="form-control" required 
+                                           placeholder="{% trans 'Örn: Döviz kuru riski' %}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Risk Açıklaması" %}</label>
+                                    <textarea name="risk_description" class="form-control" rows="4" required
+                                              placeholder="{% trans 'Riskin detaylı açıklaması...' %}"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Risk Kategorisi" %}</label>
+                                    <select name="risk_category" class="form-select" required>
+                                        <option value="">{% trans "Kategori seçin" %}</option>
+                                        {% for code, name in risk_categories %}
+                                        <option value="{{ code }}">{{ name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h5>{% trans "Risk Değerlendirmesi" %}</h5>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label d-flex justify-content-between">
+                                        <span>{% trans "Olasılık (Likelihood)" %}</span>
+                                        <span class="risk-value-display" id="likelihoodValue">3</span>
+                                    </label>
+                                    <input type="range" name="likelihood" class="risk-slider" 
+                                           min="1" max="5" value="3" step="1" id="likelihoodSlider">
+                                    <div class="d-flex justify-content-between text-muted small mt-1">
+                                        <span>{% trans "Çok Düşük" %}</span>
+                                        <span>{% trans "Düşük" %}</span>
+                                        <span>{% trans "Orta" %}</span>
+                                        <span>{% trans "Yüksek" %}</span>
+                                        <span>{% trans "Çok Yüksek" %}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label d-flex justify-content-between">
+                                        <span>{% trans "Etki (Impact)" %}</span>
+                                        <span class="risk-value-display" id="impactValue">3</span>
+                                    </label>
+                                    <input type="range" name="impact" class="risk-slider" 
+                                           min="1" max="5" value="3" step="1" id="impactSlider">
+                                    <div class="d-flex justify-content-between text-muted small mt-1">
+                                        <span>{% trans "Çok Düşük" %}</span>
+                                        <span>{% trans "Düşük" %}</span>
+                                        <span>{% trans "Orta" %}</span>
+                                        <span>{% trans "Yüksek" %}</span>
+                                        <span>{% trans "Çok Yüksek" %}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <strong>{% trans "Risk Skoru:" %}</strong> 
+                                    <span id="calculatedRiskScore" class="fs-4">9</span>
+                                    <span class="ms-2 risk-badge medium" id="riskLevelBadge">{% trans "ORTA" %}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h5>{% trans "Mevcut Kontroller ve Azaltma Planı" %}</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Mevcut Kontroller" %}</label>
+                                    <textarea name="existing_controls" class="form-control" rows="3"
+                                              placeholder="{% trans 'Halihazırda uygulanan kontroller...' %}"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Azaltma Aksiyonları" %}</label>
+                                    <textarea name="mitigation_actions" class="form-control" rows="3"
+                                              placeholder="{% trans 'Riski azaltmak için planlar...' %}"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Potansiyel Mali Etki (₺)" %}</label>
+                                    <input type="number" name="potential_financial_impact" class="form-control" 
+                                           step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    {% trans "Risk Değerlendirmesini Kaydet" %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risk Matrix Visualization -->
+            <div class="col-lg-6">
+                <div class="risk-card">
+                    <div class="p-4">
+                        <h4 class="mb-4">
+                            <i class="fas fa-th text-warning me-2"></i>
+                            {% trans "Risk Matrisi" %}
+                        </h4>
+                        
+                        <div class="risk-matrix">
+                            <!-- Header Row -->
+                            <div class="matrix-cell label-cell"></div>
+                            <div class="matrix-cell label-cell">1</div>
+                            <div class="matrix-cell label-cell">2</div>
+                            <div class="matrix-cell label-cell">3</div>
+                            <div class="matrix-cell label-cell">4</div>
+                            <div class="matrix-cell label-cell">5</div>
+                            
+                            <!-- Row 5 (Very High Impact) -->
+                            <div class="matrix-cell label-cell">5</div>
+                            <div class="matrix-cell risk-medium" data-score="5">5</div>
+                            <div class="matrix-cell risk-high" data-score="10">10</div>
+                            <div class="matrix-cell risk-high" data-score="15">15</div>
+                            <div class="matrix-cell risk-very-high" data-score="20">20</div>
+                            <div class="matrix-cell risk-very-high" data-score="25">25</div>
+                            
+                            <!-- Row 4 (High Impact) -->
+                            <div class="matrix-cell label-cell">4</div>
+                            <div class="matrix-cell risk-low" data-score="4">4</div>
+                            <div class="matrix-cell risk-medium" data-score="8">8</div>
+                            <div class="matrix-cell risk-high" data-score="12">12</div>
+                            <div class="matrix-cell risk-high" data-score="16">16</div>
+                            <div class="matrix-cell risk-very-high" data-score="20">20</div>
+                            
+                            <!-- Row 3 (Medium Impact) -->
+                            <div class="matrix-cell label-cell">3</div>
+                            <div class="matrix-cell risk-low" data-score="3">3</div>
+                            <div class="matrix-cell risk-medium" data-score="6">6</div>
+                            <div class="matrix-cell risk-medium" data-score="9">9</div>
+                            <div class="matrix-cell risk-high" data-score="12">12</div>
+                            <div class="matrix-cell risk-high" data-score="15">15</div>
+                            
+                            <!-- Row 2 (Low Impact) -->
+                            <div class="matrix-cell label-cell">2</div>
+                            <div class="matrix-cell risk-very-low" data-score="2">2</div>
+                            <div class="matrix-cell risk-low" data-score="4">4</div>
+                            <div class="matrix-cell risk-medium" data-score="6">6</div>
+                            <div class="matrix-cell risk-medium" data-score="8">8</div>
+                            <div class="matrix-cell risk-high" data-score="10">10</div>
+                            
+                            <!-- Row 1 (Very Low Impact) -->
+                            <div class="matrix-cell label-cell">1</div>
+                            <div class="matrix-cell risk-very-low" data-score="1">1</div>
+                            <div class="matrix-cell risk-very-low" data-score="2">2</div>
+                            <div class="matrix-cell risk-low" data-score="3">3</div>
+                            <div class="matrix-cell risk-low" data-score="4">4</div>
+                            <div class="matrix-cell risk-medium" data-score="5">5</div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6>{% trans "Risk Seviyesi Açıklaması" %}</h6>
+                            <div class="row g-2 mt-2">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 4px;"></div>
+                                        <span class="ms-2 small">{% trans "1-2: Çok Düşük Risk" %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 4px;"></div>
+                                        <span class="ms-2 small">{% trans "3-5: Düşük Risk" %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #f39c12, #e67e22); border-radius: 4px;"></div>
+                                        <span class="ms-2 small">{% trans "6-11: Orta Risk" %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #e67e22, #d35400); border-radius: 4px;"></div>
+                                        <span class="ms-2 small">{% trans "12-19: Yüksek Risk" %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 4px;"></div>
+                                        <span class="ms-2 small">{% trans "20-25: Çok Yüksek Risk" %}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment List -->
+        <div class="risk-card">
+            <div class="risk-assessment-list">
+                <h4 class="mb-4">
+                    <i class="fas fa-list text-success me-2"></i>
+                    {% trans "Mevcut Risk Değerlendirmeleri" %}
+                </h4>
+                
+                {% if assessments %}
+                    {% for assessment in assessments %}
+                    <div class="risk-item-card {{ assessment.overall_risk_level|lower|default:'medium' }}">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-2">{{ assessment.risk_title }}</h5>
+                                <p class="text-muted mb-2">{{ assessment.risk_description|truncatechars:150 }}</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-tag me-1"></i>
+                                        {{ assessment.get_risk_category_display|default:assessment.risk_category }}
+                                    </span>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ assessment.assessment_date|date:"d M Y" }}
+                                    </span>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ assessment.assessor.get_full_name }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-end ms-3">
+                                <div class="risk-badge {{ assessment.overall_risk_level|lower|default:'medium' }}">
+                                    {{ assessment.get_overall_risk_level_display|default:assessment.overall_risk_level }}
+                                </div>
+                                <div class="mt-2">
+                                    <strong>{% trans "Skor:" %}</strong> {{ assessment.risk_score|default:0 }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row text-center mt-3 pt-3 border-top">
+                            <div class="col-4">
+                                <div class="text-muted small">{% trans "Olasılık" %}</div>
+                                <div class="h5 mb-0">{{ assessment.likelihood }}/5</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted small">{% trans "Etki" %}</div>
+                                <div class="h5 mb-0">{{ assessment.impact }}/5</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted small">{% trans "Mali Etki" %}</div>
+                                <div class="h5 mb-0">
+                                    {% if assessment.potential_financial_impact %}
+                                        ₺{{ assessment.potential_financial_impact|floatformat:0|intcomma }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if assessment.mitigation_actions %}
+                        <div class="mt-3 pt-3 border-top">
+                            <strong class="text-info">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                {% trans "Azaltma Planı:" %}
+                            </strong>
+                            <p class="mb-1 mt-1">{{ assessment.mitigation_actions|truncatechars:200 }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if assessment.existing_controls %}
+                        <div class="mt-2">
+                            <strong class="text-success">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {% trans "Mevcut Kontroller:" %}
+                            </strong>
+                            <p class="mb-0 mt-1 text-muted small">{{ assessment.existing_controls|truncatechars:150 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-check fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">{% trans "Henüz risk değerlendirmesi yapılmamış" %}</h5>
+                        <p class="text-muted">{% trans "Yeni bir risk değerlendirmesi eklemek için yukarıdaki formu kullanın" %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mb-4">
+            <a href="{% url 'audit:control_dashboard' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                {% trans "Kontrol Paneline Dön" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likelihoodSlider = document.getElementById('likelihoodSlider');
+    const impactSlider = document.getElementById('impactSlider');
+    const likelihoodValue = document.getElementById('likelihoodValue');
+    const impactValue = document.getElementById('impactValue');
+    const calculatedRiskScore = document.getElementById('calculatedRiskScore');
+    const riskLevelBadge = document.getElementById('riskLevelBadge');
+    
+    function updateRiskCalculation() {
+        const likelihood = parseInt(likelihoodSlider.value);
+        const impact = parseInt(impactSlider.value);
+        const score = likelihood * impact;
+        
+        likelihoodValue.textContent = likelihood;
+        impactValue.textContent = impact;
+        calculatedRiskScore.textContent = score;
+        
+        // Determine risk level and update badge
+        let level, levelText, levelClass;
+        if (score <= 2) {
+            level = 'very-low';
+            levelText = '{% trans "ÇOK DÜŞÜK" %}';
+        } else if (score <= 5) {
+            level = 'low';
+            levelText = '{% trans "DÜŞÜK" %}';
+        } else if (score <= 11) {
+            level = 'medium';
+            levelText = '{% trans "ORTA" %}';
+        } else if (score <= 19) {
+            level = 'high';
+            levelText = '{% trans "YÜKSEK" %}';
+        } else {
+            level = 'very-high';
+            levelText = '{% trans "ÇOK YÜKSEK" %}';
+        }
+        
+        riskLevelBadge.className = 'ms-2 risk-badge ' + level;
+        riskLevelBadge.textContent = levelText;
+        
+        // Highlight corresponding cell in matrix
+        highlightMatrixCell(likelihood, impact);
+    }
+    
+    function highlightMatrixCell(likelihood, impact) {
+        // Remove previous highlights
+        document.querySelectorAll('.matrix-cell').forEach(cell => {
+            cell.style.border = 'none';
+            cell.style.transform = '';
+        });
+        
+        // Calculate position in grid (accounting for labels)
+        // Grid is 6x6 with first row and column as labels
+        const score = likelihood * impact;
+        const matchingCells = document.querySelectorAll(`.matrix-cell[data-score="${score}"]`);
+        
+        matchingCells.forEach(cell => {
+            cell.style.border = '3px solid #fff';
+            cell.style.transform = 'scale(1.1)';
+            cell.style.zIndex = '100';
+        });
+    }
+    
+    likelihoodSlider.addEventListener('input', updateRiskCalculation);
+    impactSlider.addEventListener('input', updateRiskCalculation);
+    
+    // Initialize
+    updateRiskCalculation();
+    
+    // Matrix cell click interaction
+    document.querySelectorAll('.matrix-cell[data-score]').forEach(cell => {
+        cell.addEventListener('click', function() {
+            const score = parseInt(this.dataset.score);
+            
+            // Try to find likelihood and impact that produce this score
+            for (let l = 1; l <= 5; l++) {
+                for (let i = 1; i <= 5; i++) {
+                    if (l * i === score) {
+                        likelihoodSlider.value = l;
+                        impactSlider.value = i;
+                        updateRiskCalculation();
+                        return;
+                    }
+                }
+            }
+        });
+    });
+    
+    // Form validation
+    document.getElementById('riskAssessmentForm').addEventListener('submit', function(e) {
+        const title = document.querySelector('[name="risk_title"]').value;
+        const description = document.querySelector('[name="risk_description"]').value;
+        const category = document.querySelector('[name="risk_category"]').value;
+        
+        if (!title || !description || !category) {
+            e.preventDefault();
+            alert('{% trans "Lütfen tüm zorunlu alanları doldurun" %}');
+            return false;
+        }
+    });
+    
+    // Animate risk item cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '0';
+                entry.target.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    entry.target.style.transition = 'all 0.5s ease';
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.risk-item-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

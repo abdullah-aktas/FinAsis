@@ -1,0 +1,742 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Kontrol Testi" %} - {{ control.control_name }} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.control-test-container {
+    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+    min-height: 100vh;
+    padding: 30px 0;
+}
+
+.test-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.test-header {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    color: white;
+    padding: 30px;
+}
+
+.control-info-panel {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.info-value {
+    color: #212529;
+}
+
+.test-form-section {
+    padding: 30px;
+}
+
+.test-option {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.test-option:hover {
+    border-color: #3498db;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+}
+
+.test-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.test-option input[type="radio"]:checked + .option-content {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.test-option.effective:hover { border-color: #27ae60; }
+.test-option.needs-improvement:hover { border-color: #f39c12; }
+.test-option.ineffective:hover { border-color: #e74c3c; }
+.test-option.not-applicable:hover { border-color: #95a5a6; }
+
+.option-content {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.option-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.option-icon.effective {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.option-icon.needs-improvement {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.option-icon.ineffective {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.option-icon.not-applicable {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.option-text h5 {
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.option-text p {
+    margin-bottom: 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.evidence-upload {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    margin: 25px 0;
+    transition: all 0.3s;
+}
+
+.evidence-upload:hover {
+    border-color: #3498db;
+    background: #e3f2fd;
+}
+
+.evidence-upload.drag-over {
+    border-color: #2ecc71;
+    background: #d5f4e6;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.file-item {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.test-history {
+    padding: 30px;
+}
+
+.history-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.history-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #3498db, #2c3e50);
+}
+
+.history-item {
+    position: relative;
+    padding-bottom: 30px;
+}
+
+.history-item:last-child {
+    padding-bottom: 0;
+}
+
+.history-marker {
+    position: absolute;
+    left: -31px;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid;
+    background: white;
+}
+
+.history-marker.passed { border-color: #27ae60; }
+.history-marker.failed { border-color: #e74c3c; }
+.history-marker.not-applicable { border-color: #95a5a6; }
+
+.history-content {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.test-score-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    position: relative;
+}
+
+.score-circle.high {
+    background: conic-gradient(#27ae60 0deg, #27ae60 var(--score-deg), #ecf0f1 var(--score-deg), #ecf0f1 360deg);
+}
+
+.score-circle.medium {
+    background: conic-gradient(#f39c12 0deg, #f39c12 var(--score-deg), #ecf0f1 var(--score-deg), #ecf0f1 360deg);
+}
+
+.score-circle.low {
+    background: conic-gradient(#e74c3c 0deg, #e74c3c var(--score-deg), #ecf0f1 var(--score-deg), #ecf0f1 360deg);
+}
+
+.score-circle::before {
+    content: '';
+    width: 90px;
+    height: 90px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.score-circle .score-value {
+    position: relative;
+    z-index: 1;
+    color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+    .test-form-section, .test-history {
+        padding: 20px;
+    }
+    
+    .option-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .option-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="control-test-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="test-card">
+            <div class="test-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-2">
+                            <i class="fas fa-vial me-3"></i>
+                            {% trans "Kontrol Testi" %}
+                        </h1>
+                        <p class="mb-0 opacity-75">{{ control.control_name }}</p>
+                    </div>
+                    <a href="{% url 'audit:control_dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        {% trans "Geri Dön" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Test Form -->
+            <div class="col-lg-8">
+                <div class="test-card">
+                    <!-- Control Information -->
+                    <div class="test-form-section">
+                        <h4 class="mb-4">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            {% trans "Kontrol Bilgileri" %}
+                        </h4>
+                        
+                        <div class="control-info-panel">
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Kontrol ID:" %}</span>
+                                <span class="info-value">{{ control.control_id }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Kontrol Tipi:" %}</span>
+                                <span class="info-value">{{ control.get_control_type_display|default:control.control_type }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Kontrol Doğası:" %}</span>
+                                <span class="info-value">{{ control.get_control_nature_display|default:control.control_nature }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Test Sıklığı:" %}</span>
+                                <span class="info-value">{{ control.get_frequency_display|default:control.frequency }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Son Test Tarihi:" %}</span>
+                                <span class="info-value">
+                                    {% if control.last_performed_date %}
+                                        {{ control.last_performed_date|date:"d M Y" }}
+                                    {% else %}
+                                        {% trans "Henüz test edilmemiş" %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">{% trans "Mevcut Etkinlik:" %}</span>
+                                <span class="info-value">
+                                    {% if control.operating_effectiveness %}
+                                        <span class="badge bg-{{ control.operating_effectiveness|lower }}">
+                                            {{ control.get_operating_effectiveness_display|default:control.operating_effectiveness }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{% trans "Değerlendirilmemiş" %}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        {% if control.control_description %}
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fas fa-file-alt me-2"></i>{% trans "Açıklama" %}</h6>
+                            <p class="mb-0">{{ control.control_description }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if control.control_procedure %}
+                        <div class="alert alert-secondary mt-3">
+                            <h6><i class="fas fa-tasks me-2"></i>{% trans "Kontrol Prosedürü" %}</h6>
+                            <p class="mb-0">{{ control.control_procedure }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if control.control_objective %}
+                        <div class="alert alert-success mt-3">
+                            <h6><i class="fas fa-bullseye me-2"></i>{% trans "Kontrol Hedefi" %}</h6>
+                            <p class="mb-0">{{ control.control_objective }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Test Form -->
+                    <div class="test-form-section border-top">
+                        <h4 class="mb-4">
+                            <i class="fas fa-clipboard-check text-success me-2"></i>
+                            {% trans "Test Sonucu Kaydı" %}
+                        </h4>
+                        
+                        <form method="post" id="controlTestForm" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">{% trans "Test Sonucunu Seçin:" %}</label>
+                                
+                                {% for value, label in test_results %}
+                                <label class="test-option {{ value|lower }}">
+                                    <input type="radio" name="test_result" value="{{ value }}" 
+                                           {% if forloop.first %}checked{% endif %} required>
+                                    <div class="option-content">
+                                        <div class="option-icon {{ value|lower }}">
+                                            {% if value == 'EFFECTIVE' %}
+                                                <i class="fas fa-check-circle"></i>
+                                            {% elif value == 'NEEDS_IMPROVEMENT' %}
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            {% elif value == 'INEFFECTIVE' %}
+                                                <i class="fas fa-times-circle"></i>
+                                            {% else %}
+                                                <i class="fas fa-minus-circle"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="option-text">
+                                            <h5>{{ label }}</h5>
+                                            <p>
+                                                {% if value == 'EFFECTIVE' %}
+                                                    {% trans "Kontrol tasarlandığı gibi çalışıyor ve hedeflerine ulaşıyor" %}
+                                                {% elif value == 'NEEDS_IMPROVEMENT' %}
+                                                    {% trans "Kontrol çalışıyor ancak iyileştirme alanları mevcut" %}
+                                                {% elif value == 'INEFFECTIVE' %}
+                                                    {% trans "Kontrol hedeflerine ulaşamıyor, ciddi eksiklikler var" %}
+                                                {% else %}
+                                                    {% trans "Kontrol bu durumda uygulanamaz veya geçersiz" %}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">{% trans "Test Notları ve Bulgular:" %}</label>
+                                <textarea name="notes" class="form-control" rows="6" required
+                                          placeholder="{% trans 'Test sırasında yapılan gözlemler, bulgular, eksiklikler ve öneriler...' %}"></textarea>
+                                <div class="form-text">
+                                    {% trans "Detaylı test notları, bulguların izlenebilirliği için önemlidir." %}
+                                </div>
+                            </div>
+                            
+                            <!-- Evidence Upload -->
+                            <div class="evidence-upload" id="evidenceUpload">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h5>{% trans "Kanıt Belgeleri Yükleyin" %}</h5>
+                                <p class="text-muted">
+                                    {% trans "Test sonuçlarını destekleyecek belgeler, ekran görüntüleri veya raporlar ekleyin" %}
+                                </p>
+                                <input type="file" name="evidence_files" id="evidenceFiles" 
+                                       class="d-none" multiple 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('evidenceFiles').click()">
+                                    <i class="fas fa-folder-open me-2"></i>
+                                    {% trans "Dosya Seç" %}
+                                </button>
+                                <div class="mt-2 text-muted small">
+                                    {% trans "Desteklenen formatlar: PDF, Word, Excel, Resim" %}
+                                </div>
+                            </div>
+                            
+                            <ul class="file-list" id="fileList"></ul>
+                            
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>{% trans "Önemli:" %}</strong>
+                                {% trans "Bu test sonucu kontrol etkinlik değerlendirmesini güncelleyecektir." %}
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    {% trans "Test Sonucunu Kaydet" %}
+                                </button>
+                                <a href="{% url 'audit:control_dashboard' %}" class="btn btn-outline-secondary">
+                                    {% trans "İptal" %}
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Test Score Summary -->
+                <div class="test-card">
+                    <div class="p-4">
+                        <h5 class="mb-4">
+                            <i class="fas fa-chart-line text-success me-2"></i>
+                            {% trans "Test Geçmişi Özeti" %}
+                        </h5>
+                        
+                        <div class="test-score-card">
+                            {% if test_history_count > 0 %}
+                                <div class="score-circle {{ pass_rate_class }}" style="--score-deg: {{ pass_rate_degrees }}deg">
+                                    <div class="score-value">{{ pass_rate }}%</div>
+                                </div>
+                                <h6 class="mb-1">{% trans "Başarı Oranı" %}</h6>
+                                <p class="text-muted mb-3">{% trans "Son testlere göre" %}</p>
+                                
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="h4 text-success mb-1">{{ passed_count }}</div>
+                                        <small class="text-muted">{% trans "Başarılı" %}</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-danger mb-1">{{ failed_count }}</div>
+                                        <small class="text-muted">{% trans "Başarısız" %}</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-secondary mb-1">{{ total_tests }}</div>
+                                        <small class="text-muted">{% trans "Toplam" %}</small>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">{% trans "Henüz test kaydı bulunmuyor" %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Tips -->
+                <div class="test-card mt-3">
+                    <div class="p-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            {% trans "Test İpuçları" %}
+                        </h5>
+                        
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item border-0 px-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                {% trans "Kontrol prosedürünü dikkatlice uygulayın" %}
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                {% trans "Tüm bulguları detaylı not edin" %}
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                {% trans "Kanıt belgelerini muhafaza edin" %}
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                {% trans "Eksiklikleri hemen raporlayın" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test History -->
+        {% if test_history %}
+        <div class="test-card">
+            <div class="test-history">
+                <h4 class="mb-4">
+                    <i class="fas fa-history text-info me-2"></i>
+                    {% trans "Test Geçmişi" %}
+                </h4>
+                
+                <div class="history-timeline">
+                    {% for test in test_history %}
+                    <div class="history-item">
+                        <div class="history-marker {{ test.status|lower }}"></div>
+                        <div class="history-content">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">
+                                        {% if test.status == 'PASSED' %}
+                                            <i class="fas fa-check-circle text-success me-1"></i>
+                                            {% trans "Başarılı Test" %}
+                                        {% elif test.status == 'FAILED' %}
+                                            <i class="fas fa-times-circle text-danger me-1"></i>
+                                            {% trans "Başarısız Test" %}
+                                        {% else %}
+                                            <i class="fas fa-minus-circle text-secondary me-1"></i>
+                                            {% trans "Uygulanamaz" %}
+                                        {% endif %}
+                                    </h6>
+                                    <p class="text-muted small mb-1">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ test.performed_by.get_full_name }}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small">
+                                        {{ test.execution_date|date:"d M Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if test.results_description %}
+                            <div class="mt-2">
+                                <p class="mb-0 small">{{ test.results_description|truncatechars:200 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const evidenceUpload = document.getElementById('evidenceUpload');
+    const evidenceFiles = document.getElementById('evidenceFiles');
+    const fileList = document.getElementById('fileList');
+    
+    // File upload handling
+    evidenceFiles.addEventListener('change', function() {
+        displayFiles(this.files);
+    });
+    
+    // Drag and drop
+    evidenceUpload.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+    });
+    
+    evidenceUpload.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+    });
+    
+    evidenceUpload.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        evidenceFiles.files = e.dataTransfer.files;
+        displayFiles(e.dataTransfer.files);
+    });
+    
+    function displayFiles(files) {
+        fileList.innerHTML = '';
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            
+            const icon = getFileIcon(file.name);
+            const size = formatFileSize(file.size);
+            
+            li.innerHTML = `
+                <div>
+                    <i class="fas fa-${icon} me-2"></i>
+                    <strong>${file.name}</strong>
+                    <span class="text-muted ms-2">(${size})</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${i})">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            fileList.appendChild(li);
+        }
+    }
+    
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const iconMap = {
+            'pdf': 'file-pdf',
+            'doc': 'file-word',
+            'docx': 'file-word',
+            'xls': 'file-excel',
+            'xlsx': 'file-excel',
+            'jpg': 'file-image',
+            'jpeg': 'file-image',
+            'png': 'file-image'
+        };
+        return iconMap[ext] || 'file';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // Radio button styling
+    document.querySelectorAll('.test-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.test-option').forEach(opt => {
+                opt.style.transform = '';
+                opt.style.boxShadow = '';
+            });
+            
+            if (this.checked) {
+                this.closest('.test-option').style.transform = 'scale(1.02)';
+                this.closest('.test-option').style.boxShadow = '0 8px 25px rgba(52, 152, 219, 0.3)';
+            }
+        });
+    });
+    
+    // Form validation
+    document.getElementById('controlTestForm').addEventListener('submit', function(e) {
+        const notes = document.querySelector('[name="notes"]').value;
+        const testResult = document.querySelector('[name="test_result"]:checked');
+        
+        if (!testResult) {
+            e.preventDefault();
+            alert('{% trans "Lütfen bir test sonucu seçin" %}');
+            return false;
+        }
+        
+        if (!notes.trim()) {
+            e.preventDefault();
+            alert('{% trans "Lütfen test notlarını girin" %}');
+            return false;
+        }
+        
+        // Confirm before submit
+        const resultLabel = testResult.closest('label').querySelector('h5').textContent;
+        if (!confirm(`{% trans "Test sonucu" %}: ${resultLabel}\n{% trans "Kaydetmek istediğinizden emin misiniz?" %}`)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+
+function removeFile(index) {
+    const fileList = document.getElementById('fileList');
+    fileList.children[index].remove();
+}
+</script>
+{% endblock %}

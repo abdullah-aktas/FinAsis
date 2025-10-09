@@ -2,7 +2,8 @@
 from rest_framework.permissions import BasePermission
 from functools import wraps
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
+from django.conf import settings
 
 class SubscriptionActive(BasePermission):
     def has_permission(self, request, view):
@@ -22,7 +23,11 @@ def subscription_required(view_func):
     def _wrapped(request, *args, **kwargs):
         user = getattr(request, 'user', None)
         if not user or not user.is_authenticated:
-            return redirect(f"{reverse('login')}?next={request.path}")
+            try:
+                login_url = reverse('login')
+            except NoReverseMatch:
+                login_url = getattr(settings, 'LOGIN_URL', '/accounts/login/')
+            return redirect(f"{login_url}?next={request.path}")
         profile = getattr(user, 'billing_profile', None)
         if not (profile and profile.status == 'active'):
             return redirect('billing:plans')

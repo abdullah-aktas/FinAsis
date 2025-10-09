@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -15,6 +16,7 @@ from src.apps.accounting.models import Invoice, Customer, Company
 from django.core.mail import send_mail
 import requests
 from django.db.models import Prefetch
+from django.db import IntegrityError, transaction
 
 def plans(request: HttpRequest) -> HttpResponse:
     audience = request.GET.get('audience')  # 'sme' | 'edu' | None
@@ -127,7 +129,7 @@ def checkout_paytr(request: HttpRequest, price_id: int) -> HttpResponse:
 
     user_email = getattr(user, 'email', None) or 'user@example.com'
     payload = {
-        'merchant_id': settings.PAYTR_MERCHANT_ID,
+        'merchant_id': getattr(settings, 'PAYTR_MERCHANT_ID', ''),
         'user_ip': request.META.get('REMOTE_ADDR', '127.0.0.1'),
         'merchant_oid': f"OID{getattr(user, 'id', 0)}{int(timezone.now().timestamp())}",
         'email': user_email,
@@ -136,7 +138,7 @@ def checkout_paytr(request: HttpRequest, price_id: int) -> HttpResponse:
         'no_installment': 0,
         'max_installment': 12,
         'currency': 'TL',
-        'test_mode': 1 if settings.PAYTR_SANDBOX else 0,
+        'test_mode': 1 if getattr(settings, 'PAYTR_SANDBOX', True) else 0,
     }
     resp = PayTRClient.init_payment(payload)
     trx = Transaction.objects.create(
@@ -155,6 +157,7 @@ def checkout_paytr(request: HttpRequest, price_id: int) -> HttpResponse:
     return render(request, 'billing/error.html', {'message': 'Ödeme başlatılamadı.'})
 
 @csrf_exempt
+@require_POST
 def paytr_callback(request: HttpRequest) -> HttpResponse:
     # PayTR server-to-server callback (ödeme sonucu)
     merchant_oid = request.POST.get('merchant_oid') or ''
@@ -181,16 +184,32 @@ def paytr_callback(request: HttpRequest) -> HttpResponse:
 @login_required
 def checkout_bank_transfer(request: HttpRequest, price_id: int) -> HttpResponse:
     price = Price.objects.select_related('plan').get(id=price_id, is_active=True)
-    ref = RefGenerator.bank_reference()
-    BankTransfer.objects.create(
-        user=request.user, plan=price.plan, price=price, amount=price.amount, currency=price.currency, reference_code=ref
-    )
+    # Benzersiz referans üretimi (çakışma halinde yeniden dene)
+    ref = None
+    for _ in range(5):
+        try:
+            ref_candidate = RefGenerator.bank_reference()
+            with transaction.atomic():
+                BankTransfer.objects.create(
+                    user=request.user,
+                    plan=price.plan,
+                    price=price,
+                    amount=price.amount,
+                    currency=price.currency,
+                    reference_code=ref_candidate,
+                )
+            ref = ref_candidate
+            break
+        except IntegrityError:
+            continue
+    if not ref:
+        return render(request, 'billing/error.html', {'message': 'İşlem oluşturulamadı. Lütfen tekrar deneyin.'}, status=500)
     ctx = {
         'price': price,
         'ref': ref,
-        'bank_holder': settings.BANK_ACCOUNT_HOLDER,
-        'bank_iban': settings.BANK_ACCOUNT_IBAN,
-        'bank_name': settings.BANK_ACCOUNT_BANK,
+        'bank_holder': getattr(settings, 'BANK_ACCOUNT_HOLDER', ''),
+        'bank_iban': getattr(settings, 'BANK_ACCOUNT_IBAN', ''),
+        'bank_name': getattr(settings, 'BANK_ACCOUNT_BANK', ''),
     }
     return render(request, 'billing/bank_transfer.html', ctx)
 

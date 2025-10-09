@@ -1,29 +1,122 @@
 {% load static i18n %}
 
-<section class="pt-4 pb-5">
+<section class="pt-5 pb-5 hero-wrap corporate-hero" data-section="hero">
   <div class="container">
     <div class="row align-items-center g-5">
       <div class="col-lg-6">
-        <span class="badge rounded-pill text-bg-success mb-3">Yeni · v1</span>
-        <h1 class="fw-bold display-6 mb-3" style="letter-spacing:.5px;">Büyüyen işletmeler için <span class="text-success">yerel AI</span> finans platformu</h1>
-        <p class="lead text-secondary mb-4" style="max-width:560px">e‑Fatura, finansal analiz, eğitim (LMS), blockchain doğrulama ve oyunlaştırma — hepsi tek panelde. Daha hızlı karar, daha az maliyet.</p>
-        <div class="d-flex flex-wrap gap-2">
-          <a href="{% url 'billing:plans' %}" class="btn btn-brand px-4" style="border-radius:2rem;font-weight:600">{% trans 'Paketleri Gör' %}</a>
-          <a href="/contact/" class="btn btn-accent px-4" style="border-radius:2rem">{% trans 'Satışla Görüş' %}</a>
-          <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-secondary px-4" style="border-radius:2rem">TradeSim</a>
+        <span class="badge rounded-pill text-bg-primary mb-3">
+          <i class="bi bi-stars me-1"></i>Yeni · v2.0
+        </span>
+        <h1 class="fw-bold display-5 mb-3 corporate-hero-title">
+          Finansı hızlandıran 
+          <span class="text-primary">yerel AI</span> platform
+        </h1>
+        <p class="lead corporate-hero-description mb-4">
+          e‑Fatura, finansal analiz, eğitim (LMS), blockchain kanıt ve oyunlaştırma — tek panelde birleşir. 
+          Maliyetleri düşürür, karar hızını artırır.
+        </p>
+        <div class="corporate-hero-actions d-flex flex-wrap gap-3">
+          <a href="{% url 'billing:plans' %}" class="btn corporate-btn-primary px-4" data-cta="view-plans">
+            <i class="bi bi-rocket-takeoff me-2"></i>{% trans 'Paketleri Gör' %}
+          </a>
+          <a href="/contact/" class="btn corporate-btn-secondary px-4" data-cta="talk-to-sales">
+            <i class="bi bi-chat-dots me-2"></i>{% trans 'Satışla Görüş' %}
+          </a>
+          <a href="{% url 'games:game_app:tradesim' %}" class="btn btn-outline-secondary px-4" data-cta="demo-tradesim">
+            <i class="bi bi-controller me-2"></i>TradeSim Demo
+          </a>
         </div>
-        <ul class="list-inline small text-secondary mt-4 mb-0">
-          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-shield-check text-success"></i> KVKK Uyumlu</li>
-          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-cpu text-success"></i> Yerel İşleme</li>
-          <li class="list-inline-item d-flex align-items-center gap-1"><i class="bi bi-lightning-charge text-warning"></i> Hızlı Kurulum</li>
+        <ul class="corporate-hero-features list-inline mt-4 mb-0" aria-label="Öne çıkan özellikler">
+          <li class="list-inline-item d-flex align-items-center gap-2">
+            <i class="bi bi-shield-check text-primary" aria-hidden="true"></i> 
+            <span>KVKK Uyumlu</span>
+          </li>
+          <li class="list-inline-item d-flex align-items-center gap-2">
+            <i class="bi bi-cpu text-primary" aria-hidden="true"></i> 
+            <span>Yerel İşleme</span>
+          </li>
+          <li class="list-inline-item d-flex align-items-center gap-2">
+            <i class="bi bi-lightning-charge text-warning" aria-hidden="true"></i> 
+            <span>5 Dakikada Kurulum</span>
+          </li>
         </ul>
       </div>
       <div class="col-lg-6">
-        <div class="ratio ratio-16x9 rounded-4 shadow-sm bg-white border position-relative overflow-hidden">
-          <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4 text-center">
-            <i class="bi bi-bar-chart-line text-success display-5 mb-3" aria-hidden="true"></i>
-            <p class="fw-medium mb-2">Gerçek zamanlı gelir / gider grafikleri</p>
-            <p class="small text-secondary mb-0">Demo placeholder — ekran görüntüsü / video alanı</p>
+        <div class="corporate-roi-calculator card card-primary p-4 shadow-lg">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="corporate-calculator-icon">
+              <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+            </div>
+            <span class="fw-bold">Hızlı ROI Hesaplayıcı</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Hızlı ROI hazır ayarları">
+            <button type="button" class="btn btn-accent btn-sm" data-roi-preset data-cost="2500" data-hours="20" data-rate="350">
+              <i class="bi bi-star me-1"></i>Starter
+            </button>
+            <button type="button" class="btn btn-accent btn-sm" data-roi-preset data-cost="5000" data-hours="40" data-rate="400">
+              <i class="bi bi-lightning me-1"></i>Pro
+            </button>
+            <button type="button" class="btn btn-accent btn-sm" data-roi-preset data-cost="12000" data-hours="90" data-rate="600">
+              <i class="bi bi-gem me-1"></i>Enterprise
+            </button>
+          </div>
+          <form class="row g-3 align-items-end" id="roiForm" onsubmit="return false" aria-label="Hızlı ROI Formu">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Aylık Lisans (₺)</label>
+              <input type="number" min="0" step="1" class="form-control corporate-input" id="roiCost" placeholder="5000" value="5000">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Aylık Zaman Tasarrufu (saat)</label>
+              <input type="number" min="0" step="1" class="form-control corporate-input" id="roiHours" placeholder="40" value="40">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Saatlik İşçilik Maliyeti (₺)</label>
+              <input type="number" min="0" step="1" class="form-control corporate-input" id="roiRate" placeholder="400" value="400">
+            </div>
+            <div class="col-6 d-grid">
+              <button class="btn btn-primary" id="roiCalc" type="button">
+                <i class="bi bi-calculator me-1"></i>Hesapla
+              </button>
+            </div>
+          </form>
+          <div class="corporate-roi-result mt-3 p-3 rounded" id="roiResult">
+            <i class="bi bi-info-circle me-2"></i>Aylık tasarruf ve geri dönüş hesaplanacaktır.
+          </div>
+          <script>
+            (function(){
+              var cost = document.getElementById('roiCost');
+              var hours = document.getElementById('roiHours');
+              var rate = document.getElementById('roiRate');
+              var btn = document.getElementById('roiCalc');
+              var res = document.getElementById('roiResult');
+              if(!cost||!hours||!rate||!btn||!res) return;
+              btn.addEventListener('click', function(){
+                var c = parseFloat(cost.value||0);
+                var h = parseFloat(hours.value||0);
+                var r = parseFloat(rate.value||0);
+                var saving = h*r; // aylık işçilik tasarrufu
+                var net = saving - c;
+                var roi = c>0 ? (net/c*100) : 0;
+                res.innerHTML = 'Aylık tasarruf: <strong>₺'+saving.toLocaleString('tr-TR')+'</strong> · Net: <strong>₺'+net.toLocaleString('tr-TR')+'</strong> · ROI: <strong>'+roi.toFixed(0)+'%</strong>';
+              });
+              // Preset buttons
+              document.querySelectorAll('[data-roi-preset]').forEach(function(p){
+                p.addEventListener('click', function(){
+                  cost.value = this.getAttribute('data-cost') || cost.value;
+                  hours.value = this.getAttribute('data-hours') || hours.value;
+                  rate.value = this.getAttribute('data-rate') || rate.value;
+                  btn.click();
+                });
+              });
+            })();
+          </script>
+          <div class="corporate-roi-actions mt-4 d-flex gap-2">
+            <a href="{% url 'billing:plans' %}" class="btn corporate-btn-primary flex-fill" data-cta="roi-try">
+              <i class="bi bi-play-circle me-1"></i>Denemeye Başla
+            </a>
+            <a href="/contact/" class="btn btn-outline-secondary flex-fill" data-cta="roi-contact">
+              <i class="bi bi-person-workspace me-1"></i>Uzmanla Konuş
+            </a>
           </div>
         </div>
       </div>
@@ -31,53 +124,169 @@
   </div>
   </section>
 
-  <section class="py-4 border-top bg-white">
+  <!-- Campaign banner -->
+  <section class="py-3 corporate-campaign-section" data-section="campaign" id="campaign-section">
+    <div class="container">
+      <div class="corporate-campaign-banner card card-secondary d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 p-4 mb-0 border-0 shadow-lg position-relative" role="region" aria-label="Kampanya">
+        <div class="d-flex align-items-center gap-3">
+          <div class="corporate-campaign-icon">
+            <i class="bi bi-stars" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1 text-white">Sonbahar Kampanyası</h6>
+            <p class="mb-0 text-white">Pro plan ilk 3 ay <span class="text-accent fw-bold">%20 indirim</span>. Kodu kullanın: <code class="corporate-promo-code">PRO20</code></p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a href="{% url 'billing:plans' %}?campaign=pro20" class="btn corporate-btn-primary" data-cta="campaign-pro20">
+            <i class="bi bi-tags me-1"></i>Planları Gör
+          </a>
+          <a href="/contact/" class="btn btn-outline-light" data-cta="campaign-contact">
+            <i class="bi bi-question-circle me-1"></i>Soruların mı var?
+          </a>
+        </div>
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" aria-label="Kapat" id="campaign-close"></button>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function(){
+      try {
+        var section = document.getElementById('campaign-section');
+        var closeBtn = document.getElementById('campaign-close');
+        var KEY = 'fa_campaign_dismissed_v1';
+        if (localStorage.getItem(KEY) === '1') {
+          section && (section.style.display = 'none');
+        }
+        closeBtn && closeBtn.addEventListener('click', function(){
+          localStorage.setItem(KEY, '1');
+          section && section.remove();
+        });
+
+        // Propagate ?campaign=... to plan CTAs if present
+        var params = new URLSearchParams(window.location.search);
+        var camp = params.get('campaign');
+        if (camp) {
+          var links = document.querySelectorAll('a[href*="/billing/plans"]');
+          links.forEach(function(a){
+            try {
+              var url = new URL(a.href, window.location.origin);
+              url.searchParams.set('campaign', camp);
+              a.href = url.toString();
+            } catch(e){}
+          });
+        }
+      } catch(e) { /* no-op */ }
+    })();
+  </script>
+
+  <section class="py-4 border-top bg-white" data-section="logos">
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center gap-4 opacity-75">
-        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 1" height="28">
-        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 2" height="28">
-        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 3" height="28">
-        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 4" height="28">
+        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 1" width="140" height="28" loading="lazy" decoding="async">
+        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 2" width="140" height="28" loading="lazy" decoding="async">
+        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 3" width="140" height="28" loading="lazy" decoding="async">
+        <img src="{% static 'brand/logo-placeholder.svg' %}" alt="Müşteri 4" width="140" height="28" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
 
-  <section class="py-5 border-top border-bottom bg-white">
+  <!-- Modules & Services -->
+  <section class="py-5 border-top bg-white" data-section="modules">
     <div class="container">
-      <div class="row text-center g-4">
-        <div class="col-6 col-md-3">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="h4 fw-bold mb-0">Modüller & Hizmetler</h2>
+        <a href="{% url 'billing:plans' %}" class="btn btn-outline-success btn-sm" data-cta="modules-view-plans">Paketlere Bak</a>
+      </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-bar-chart text-success" aria-hidden="true"></i><span class="fw-semibold">Finansal Analiz</span></div>
+            <p class="small text-secondary mb-0">Bütçe, nakit akışı, KPI ve yönetim raporları.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-receipt text-success" aria-hidden="true"></i><span class="fw-semibold">e‑Dönüşüm</span></div>
+            <p class="small text-secondary mb-0">e‑Fatura, e‑Arşiv, e‑Defter ve saklama süreçleri.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-mortarboard text-success" aria-hidden="true"></i><span class="fw-semibold">Eğitim / LMS</span></div>
+            <p class="small text-secondary mb-0">Eğitim içerikleri, sınavlar ve sertifikasyon.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-search text-success" aria-hidden="true"></i><span class="fw-semibold">Denetim</span></div>
+            <p class="small text-secondary mb-2">İzlenebilirlik, kayıt inceleme ve iç kontrol.</p>
+            <div><a href="{% url 'audit:landing' %}" class="small" data-cta="module-audit">Detaylar</a></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-link-45deg text-success" aria-hidden="true"></i><span class="fw-semibold">Blockchain</span></div>
+            <p class="small text-secondary mb-0">Hash doğrulama ile veri bütünlüğü kanıtı.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 bg-white border rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-controller text-success" aria-hidden="true"></i><span class="fw-semibold">Oyunlar</span></div>
+            <p class="small text-secondary mb-2">Finans simülasyonları ile öğren & değerlendir.</p>
+            <div><a href="{% url 'games:game_app:tradesim' %}" class="small" data-cta="module-tradesim">TradeSim’i Aç</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 border-top border-bottom bg-white" data-section="benefits">
+    <div class="container">
+      <div class="row text-center g-4 row-cols-2 row-cols-md-3 row-cols-lg-6">
+        <div class="col">
           <i class="bi bi-bar-chart display-6 text-success mb-2" aria-hidden="true"></i>
           <p class="fw-semibold mb-1">Finansal Analiz</p>
           <p class="small text-secondary mb-0">Bütçe, nakit akışı, KPI</p>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col">
           <i class="bi bi-receipt display-6 text-success mb-2" aria-hidden="true"></i>
           <p class="fw-semibold mb-1">e‑Fatura & e‑Defter</p>
           <p class="small text-secondary mb-0">UBL‑TR & mevzuat</p>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col">
           <i class="bi bi-mortarboard display-6 text-success mb-2" aria-hidden="true"></i>
           <p class="fw-semibold mb-1">Eğitim / LMS</p>
           <p class="small text-secondary mb-0">İçerik + sınav</p>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col">
           <i class="bi bi-link-45deg display-6 text-success mb-2" aria-hidden="true"></i>
           <p class="fw-semibold mb-1">Blockchain</p>
           <p class="small text-secondary mb-0">Kayıt kanıtı</p>
+        </div>
+        <div class="col">
+          <i class="bi bi-search display-6 text-success mb-2" aria-hidden="true"></i>
+          <p class="fw-semibold mb-1">Denetim</p>
+          <p class="small text-secondary mb-0">İç kontrol & izlenebilirlik</p>
+        </div>
+        <div class="col">
+          <i class="bi bi-controller display-6 text-success mb-2" aria-hidden="true"></i>
+          <p class="fw-semibold mb-1">Oyunlar</p>
+          <p class="small text-secondary mb-0">TradeSim ile öğren</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="py-5">
+  <section class="py-5" data-section="edonusum">
     <div class="container">
       <div class="row g-4 align-items-center">
         <div class="col-md-5">
           <h2 class="h3 fw-bold mb-3">Tüm e‑Dönüşüm akışı tek panel</h2>
           <p class="text-secondary">e‑Fatura, e‑Arşiv, e‑Defter ve saklama süreçlerini merkezileştirin. İzlenebilir, raporlanabilir ve mevzuata uyumlu.</p>
           <div class="d-flex gap-2">
-            <a class="btn btn-success" href="/finance/">Finans Paneli</a>
-            <a class="btn btn-outline-success" href="/finance/reports/">Raporlar</a>
+            <a class="btn btn-success" href="/finance/" data-cta="finance-panel">Finans Paneli</a>
+            <a class="btn btn-outline-success" href="/finance/reports/" data-cta="reports">Raporlar</a>
           </div>
         </div>
         <div class="col-md-7">
@@ -112,7 +321,7 @@
     </div>
   </section>
 
-  <section class="py-5 bg-light rounded-4">
+  <section class="py-5 bg-light rounded-4" data-section="faq-quickstart">
     <div class="container">
       <div class="row g-4">
         <div class="col-lg-6">
@@ -140,27 +349,51 @@
               <li>Paket seç ve aktive et</li>
               <li>İlk faturayı düzenle</li>
             </ol>
-            <a href="{% url 'billing:plans' %}" class="btn btn-success w-100" style="border-radius:2rem;font-weight:600">Başla</a>
+            <a href="{% url 'billing:plans' %}" class="btn btn-success w-100" style="border-radius:2rem;font-weight:600" data-cta="quickstart-begin">Başla</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="py-5 mt-4" style="background:linear-gradient(90deg,#f6fff9 0,#ecfff4 100%)">
+  <section class="py-5 mt-4" style="background:linear-gradient(90deg,#f6fff9 0,#ecfff4 100%)" data-section="cta-band">
     <div class="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-3">
       <div>
         <h4 class="fw-semibold mb-2">Şirketiniz için daha verimli bir finans akışı</h4>
         <p class="text-secondary mb-0 small">FinAsis: Yerel AI + e‑Dönüşüm + Blockchain kanıt katmanı</p>
       </div>
       <div class="d-flex gap-2">
-        <a href="{% url 'billing:plans' %}" class="btn btn-success">Planlar</a>
-        <a href="/contact/" class="btn btn-outline-success">İletişim</a>
+  <a href="{% url 'billing:plans' %}" class="btn btn-success" data-cta="cta-band-plans">Planlar</a>
+  <a href="/contact/" class="btn btn-outline-success" data-cta="cta-band-contact">İletişim</a>
       </div>
     </div>
   </section>
 
-  <section class="py-5">
+  <!-- Plan matrix kaldırıldı -->
+
+  <section class="py-5" data-section="testimonials">
+</section>
+
+<!-- Lead capture (remarketing friendly) -->
+<section class="py-5 border-top" data-section="lead-capture">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <h3 class="h4 fw-bold mb-2">Sizin için doğru paketi önerebiliriz</h3>
+        <p class="text-secondary mb-0">İletişim bilgilerinizi bırakın, kullanım senaryonuza göre 15 dakikalık bir demo planlayalım.</p>
+      </div>
+      <div class="col-lg-6">
+        <form method="post" action="/contact/" class="row g-2" data-form="lead">
+          {% csrf_token %}
+          <div class="col-md-4"><input class="form-control" name="name" placeholder="Ad Soyad" required></div>
+          <div class="col-md-5"><input class="form-control" name="email" type="email" placeholder="E-posta" required></div>
+          <div class="col-md-3 d-grid"><button class="btn btn-success" type="submit" data-cta="lead-submit">Gönder</button></div>
+          <input type="hidden" name="message" value="Anasayfa lead formu — demo talebi">
+        </form>
+        <div class="form-text">KVKK kapsamında bilgileriniz yalnızca iletişim amacıyla kullanılacaktır.</div>
+      </div>
+    </div>
+  </div>
     <div class="container">
       <div id="refCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">

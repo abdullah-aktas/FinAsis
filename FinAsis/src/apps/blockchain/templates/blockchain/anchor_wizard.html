@@ -1,0 +1,79 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Hızlı Kanıt (KOBİ) · Blockchain{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-3">Hızlı Kanıt (KOBİ)</h1>
+  <p class="text-secondary">Dosyanızın özeti (SHA‑256 hash) tarayıcınızda hesaplanır ve yalnızca özet sunucuya gönderilir. Bu sayede veriniz paylaşılmadan kanıt oluşturulur.</p>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form id="anchorForm" method="post" action="{% url 'blockchain:api_anchor' %}" data-form="bc-anchor">
+        {% csrf_token %}
+        <div class="row gy-3 gx-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label">Referans (Fatura No / Evrak Kodu)</label>
+            <input name="reference" class="form-control" placeholder="Örn: FAT-2025-00123" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Dosya</label>
+            <input id="fileInput" type="file" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <button id="hashBtn" class="btn btn-success w-100" type="button" data-cta="bc-hash">Hash Hesapla</button>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-8">
+            <label class="form-label">SHA‑256</label>
+            <input name="hash_hex" id="hashHex" class="form-control" readonly required>
+          </div>
+          <div class="col-md-4 d-grid">
+            <button id="anchorBtn" class="btn btn-brand" type="submit" disabled data-cta="bc-anchor-submit">Kanıtı Oluştur</button>
+          </div>
+        </div>
+      </form>
+      <pre id="anchorResult" class="mt-3 bg-light p-3 rounded-3 border small" aria-live="polite"></pre>
+      <div class="form-text mt-2">Not: KVKK kapsamında kişisel verilerinizi yüklemeyin; yalnızca özet ile kanıt oluşturulur.</div>
+    </div>
+  </div>
+  <div class="mt-3">
+    <a href="{% url 'blockchain:record_list' %}" class="btn btn-outline-success">Kayıtları Gör</a>
+  </div>
+</div>
+<script>
+async function sha256Hex(file){
+  const buf = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  const bytes = new Uint8Array(digest);
+  return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+(function(){
+  const fileInput = document.getElementById('fileInput');
+  const hashBtn = document.getElementById('hashBtn');
+  const hashHex = document.getElementById('hashHex');
+  const anchorBtn = document.getElementById('anchorBtn');
+  const form = document.getElementById('anchorForm');
+  const out = document.getElementById('anchorResult');
+  hashBtn.addEventListener('click', async function(){
+    if(!fileInput.files.length){ out.textContent = 'Lütfen bir dosya seçin.'; return; }
+    out.textContent = 'Hesaplanıyor...';
+    try{
+      const hex = await sha256Hex(fileInput.files[0]);
+      hashHex.value = hex;
+      anchorBtn.disabled = !hex;
+      out.textContent = 'Hash hazır. İsterseniz Kanıtı Oluştur’a basabilirsiniz.';
+    }catch(err){ out.textContent = 'Hata: '+ err; }
+  });
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    out.textContent = 'Gönderiliyor...';
+    const fd = new FormData(form);
+    const res = await fetch(form.action, { method:'POST', body: fd });
+    const ct = res.headers.get('content-type')||'';
+    const data = ct.includes('application/json') ? await res.json() : await res.text();
+    out.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  });
+})();
+</script>
+{% endblock %}

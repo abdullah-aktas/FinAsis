@@ -1,28 +1,171 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
 class AuditEvent(models.Model):
+    """
+    Enhanced Audit Event Model for GRC system
+    Tracks all system changes with detailed metadata, severity levels, and retention policies
+    """
     ACTION_CHOICES = [
-        ('create', 'Create'),
-        ('update', 'Update'),
-        ('delete', 'Delete'),
+        ('create', _('Create')),
+        ('update', _('Update')),
+        ('delete', _('Delete')),
+        ('view', _('View')),
+        ('export', _('Export')),
+        ('login', _('Login')),
+        ('logout', _('Logout')),
+        ('approve', _('Approve')),
+        ('reject', _('Reject')),
     ]
-    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.CharField(max_length=100)
+    
+    SEVERITY_CHOICES = [
+        ('info', _('Information')),
+        ('low', _('Low')),
+        ('medium', _('Medium')),
+        ('high', _('High')),
+        ('critical', _('Critical')),
+    ]
+    
+    CATEGORY_CHOICES = [
+        ('security', _('Security')),
+        ('compliance', _('Compliance')),
+        ('financial', _('Financial')),
+        ('operational', _('Operational')),
+        ('data_access', _('Data Access')),
+        ('configuration', _('Configuration')),
+        ('user_management', _('User Management')),
+        ('workflow', _('Workflow')),
+    ]
+    
+    # Core fields
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, db_index=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_index=True)
+    object_id = models.CharField(max_length=100, db_index=True)
+    object_repr = models.CharField(max_length=255, blank=True, help_text=_('String representation of the object'))
+    
+    # Actor information
     actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='audit_events')
+    actor_username = models.CharField(max_length=150, blank=True, help_text=_('Cached username'))
+    
+    # Tenant/Company
     tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.SET_NULL, related_name='audit_events')
-    ip = models.GenericIPAddressField(null=True, blank=True)
+    
+    # Request metadata
+    ip = models.GenericIPAddressField(null=True, blank=True, db_index=True)
     user_agent = models.CharField(max_length=255, blank=True)
-    data = models.JSONField(default=dict, blank=True)
-    diff = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
+    request_path = models.CharField(max_length=500, blank=True, help_text=_('URL path of the request'))
+    request_method = models.CharField(max_length=10, blank=True, help_text=_('HTTP method (GET, POST, etc.)'))
+    
+    # Event categorization
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='info', db_index=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='operational', db_index=True)
+    
+    # Change details
+    data = models.JSONField(default=dict, blank=True, help_text=_('Current state or event data'))
+    diff = models.JSONField(default=dict, blank=True, help_text=_('Changes made (before/after)'))
+    description = models.TextField(blank=True, help_text=_('Human-readable description of the event'))
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    
+    # Compliance & Retention
+    retention_date = models.DateTimeField(null=True, blank=True, db_index=True, 
+                                         help_text=_('Date when this record can be deleted'))
+    is_archived = models.BooleanField(default=False, db_index=True)
+    requires_review = models.BooleanField(default=False, help_text=_('Requires security/compliance review'))
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, 
+                                   related_name='reviewed_audit_events')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Impact tracking
+    affected_users_count = models.IntegerField(default=0, help_text=_('Number of users affected by this event'))
+    financial_impact = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True,
+                                          help_text=_('Financial impact if applicable'))
+    
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at', 'severity']),
+            models.Index(fields=['category', '-created_at']),
+            models.Index(fields=['actor', '-created_at']),
+            models.Index(fields=['content_type', 'object_id']),
+        ]
+        verbose_name = _('Audit Event')
+        verbose_name_plural = _('Audit Events')
 
     def __str__(self):
-        return f"{self.action}:{self.content_type_id}:{self.object_id}"
+        # get_action_display() is auto-generated by Django for fields with choices
+        return f"{self.get_action_display()}: {self.object_repr or self.object_id} by {self.actor_username}"  # type: ignore[attr-defined]
+    
+    def save(self, *args, **kwargs):
+        # Auto-populate cached fields
+        if self.actor and not self.actor_username:
+            self.actor_username = self.actor.username
+        
+        # Set retention date based on severity (example policy)
+        if not self.retention_date:
+            retention_days = {
+                'info': 90,
+                'low': 180,
+                'medium': 365,
+                'high': 730,  # 2 years
+                'critical': 2555,  # 7 years
+            }
+            days = retention_days.get(self.severity, 365)
+            self.retention_date = timezone.now() + timedelta(days=days)
+        
+        # Flag critical events for review
+        if self.severity in ['high', 'critical'] and not self.reviewed_by:
+            self.requires_review = True
+        
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def log_event(cls, action, obj, actor=None, severity='info', category='operational', 
+                  description='', request=None, **extra_data):
+        """
+        Convenience method to create audit events
+        
+        Usage:
+            AuditEvent.log_event('update', invoice, actor=request.user, 
+                               severity='medium', category='financial',
+                               description='Invoice amount changed',
+                               request=request)
+        """
+        event_data = {
+            'action': action,
+            'content_type': ContentType.objects.get_for_model(obj),
+            'object_id': str(obj.pk),
+            'object_repr': str(obj)[:255],
+            'actor': actor,
+            'severity': severity,
+            'category': category,
+            'description': description,
+            'data': extra_data,
+        }
+        
+        if request:
+            event_data.update({
+                'ip': cls._get_client_ip(request),
+                'user_agent': request.META.get('HTTP_USER_AGENT', '')[:255],
+                'request_path': request.path[:500],
+                'request_method': request.method[:10],
+            })
+        
+        return cls.objects.create(**event_data)
+    
+    @staticmethod
+    def _get_client_ip(request):
+        """Extract client IP from request"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip

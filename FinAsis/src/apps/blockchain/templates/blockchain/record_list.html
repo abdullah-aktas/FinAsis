@@ -2,9 +2,16 @@
 {% block title %}Blockchain Kayıtları - FinAsis{% endblock %}
 {% block content %}
 <div class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Blockchain Kayıtları</h2>
-    <a href="{% url 'blockchain:record_create' %}" class="btn btn-primary">Yeni Kayıt</a>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+    <h2 class="mb-0">Blockchain Kayıtları</h2>
+    <div class="d-flex gap-2">
+      <form class="d-flex" method="get" action="">
+        <input name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Referans ara...">
+        <button class="btn btn-outline-success btn-sm ms-2" type="submit">Ara</button>
+      </form>
+      <a href="{% url 'blockchain:record_create' %}" class="btn btn-success btn-sm">Yeni Kayıt</a>
+      <a href="{% url 'blockchain:anchor_wizard' %}" class="btn btn-brand btn-sm">Hızlı Kanıt</a>
+    </div>
   </div>
   <div class="table-responsive">
     <table class="table table-striped align-middle">
@@ -20,8 +27,19 @@
         {% for r in records %}
         <tr>
           <td>{{ r.reference }}</td>
-          <td><code>{{ r.hash_hex }}</code></td>
-          <td>{{ r.status }}</td>
+          <td>
+            <code class="me-2">{{ r.hash_hex }}</code>
+            <button class="btn btn-sm btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText('{{ r.hash_hex }}')">Kopyala</button>
+          </td>
+          <td>
+            {% if r.status == 'verified' %}
+              <span class="badge text-bg-success">verified</span>
+            {% elif r.status == 'anchored' %}
+              <span class="badge text-bg-primary">anchored</span>
+            {% else %}
+              <span class="badge text-bg-secondary">{{ r.status }}</span>
+            {% endif %}
+          </td>
           <td>{{ r.created_at }}</td>
         </tr>
         {% empty %}
@@ -29,6 +47,9 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+  <div class="mt-3">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'blockchain:record_export_csv' %}{% if q %}?q={{ q|urlencode }}{% endif %}">CSV Dışa Aktar</a>
   </div>
 </div>
 {% endblock %}

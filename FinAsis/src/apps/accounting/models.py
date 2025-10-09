@@ -444,15 +444,30 @@ class CompanyDeleteLog(models.Model):
         return f"{self.company} - {self.user} - {self.deleted_at}"
 
 class EDefter(models.Model):
-    year = models.PositiveIntegerField()
-    month = models.PositiveIntegerField()
-    type = models.CharField(max_length=10, choices=[('yevmiye', 'Yevmiye'), ('kebir', 'Kebir')])
-    xml_file = models.FileField(upload_to='edefter/xml/')
-    berat_file = models.FileField(upload_to='edefter/berat/')
-    status = models.CharField(max_length=20, default='taslak')
-    created_at = models.DateTimeField(auto_now_add=True)
+    """e-Defter (Yevmiye/Kebir) kayıtları."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='edefters', verbose_name="Şirket")
+    year = models.PositiveIntegerField(verbose_name="Yıl")
+    month = models.PositiveIntegerField(verbose_name="Ay")
+    type = models.CharField(
+        max_length=10, 
+        choices=[('yevmiye', 'Yevmiye'), ('kebir', 'Kebir')],
+        verbose_name="Defter Türü"
+    )
+    xml_file = models.FileField(upload_to='edefter/xml/', blank=True, null=True, verbose_name="XML Dosyası")
+    berat_file = models.FileField(upload_to='edefter/berat/', blank=True, null=True, verbose_name="Berat Dosyası")
+    zip_file = models.FileField(upload_to='edefter/zip/', blank=True, null=True, verbose_name="ZIP Paketi")
+    status = models.CharField(max_length=20, default='taslak', verbose_name="Durum")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")
+
+    class Meta:
+        verbose_name = "e-Defter"
+        verbose_name_plural = "e-Defterler"
+        ordering = ['-year', '-month']
+        unique_together = [['company', 'year', 'month', 'type']]
+
     def __str__(self):
-        return f"{self.year}-{self.month} {self.type}"
+        return f"{self.company.name} - {self.year}-{self.month:02d} {self.type}"
 
 class Declaration(models.Model):
     DECLARATION_TYPES = [

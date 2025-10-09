@@ -1,181 +1,189 @@
 {% load static i18n %}
-<header class="sticky-top">
-  <!-- Üst yardımcı çubuk -->
-  <div class="bg-dark text-light small py-1 d-none d-md-block" role="navigation" aria-label="Yardımcı bağlantılar">
-    <div class="container d-flex justify-content-between align-items-center">
-      <div class="d-flex gap-3">
-        <span class="d-none d-lg-inline"><i class="bi bi-shield-check me-1"></i> KVKK Uyumlu</span>
-        <span><i class="bi bi-cpu me-1"></i> Yerel AI & e‑Dönüşüm</span>
-        <a class="link-light" href="tel:+902120000000"><i class="bi bi-phone me-1"></i> +90 212 000 00 00</a>
-  <a class="link-light" href="mailto:sales@finasis.com.tr"><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</a>
-      </div>
-      <div>
-        <a class="link-light me-3" href="{% url 'kvkk' %}">KVKK</a>
-        <a class="link-light me-3" href="{% url 'privacy_policy' %}">Gizlilik</a>
-        <a class="link-light" href="{% url 'contact' %}"><i class="bi bi-people me-1"></i> Satışla Görüş</a>
+<header class="sticky-top corporate-header">
+  <!-- Üst kurumsal çubuk -->
+  <div class="corporate-topbar py-2" role="navigation" aria-label="Kurumsal bilgiler">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="d-flex flex-wrap gap-4 align-items-center small">
+            <span class="d-flex align-items-center gap-1">
+              <i class="bi bi-shield-check text-accent" aria-hidden="true"></i>
+              <span class="text-white">KVKK Uyumlu Güvenli Platform</span>
+            </span>
+            <span class="d-flex align-items-center gap-1 d-none d-lg-flex">
+              <i class="bi bi-cpu text-accent" aria-hidden="true"></i>
+              <span class="text-white-75">Yerel AI & Blockchain Kanıt</span>
+            </span>
+            <span class="d-flex align-items-center gap-1 d-none d-xl-flex">
+              <i class="bi bi-lightning-charge text-accent" aria-hidden="true"></i>
+              <span class="text-white-75">15 Dakika Kurulum</span>
+            </span>
+          </div>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex justify-content-end align-items-center gap-3">
+            <a class="link-accent text-decoration-none small fw-medium" href="tel:+902120000000">
+              <i class="bi bi-telephone me-1" aria-hidden="true"></i>+90 212 000 00 00
+            </a>
+            <a class="btn btn-accent btn-sm px-3 py-1" href="{% url 'contact' %}" data-cta="talk-to-sales-topbar">
+              <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Hemen Konuş
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Ana navigasyon -->
-  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm brand-nav" role="navigation" aria-label="Ana navigasyon">
+  <!-- Ana kurumsal navigasyon -->
+  <nav class="navbar navbar-expand-lg corporate-navbar shadow-lg" role="navigation" aria-label="Ana navigasyon">
     <div class="container">
-      <!-- Logo ve marka -->
-      <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
-        <span class="brand-logo" aria-hidden="true"></span>
-        <span class="fw-bold text-white" style="font-size:1.35rem;letter-spacing:.5px;">FinAsis</span>
-      </a>
-
-      <!-- Mobil hamburger butonu -->
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+      <!-- Kurumsal logo ve marka -->
+      <a class="navbar-brand corporate-brand d-flex align-items-center gap-2 py-2" href="{% url 'home' %}" aria-label="FinAsis anasayfa">
+        <div class="brand-logo-circle d-flex align-items-center justify-content-center">
+          <i class="bi bi-graph-up text-white fs-4" aria-hidden="true"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">FinAsis</span>
+          <span class="brand-tagline d-none d-md-block">Finans & AI Platform</span>
+        </div>
+      </a>      <!-- Mobil hamburger menü -->
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
               aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
-        <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        <span class="corporate-hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarMain">
         {% with path=request.path %}
-        <!-- Sol: menü -->
-  <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
-          <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle text-white {% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}active{% endif %}"
-               href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-               aria-current="{% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}page{% endif %}">Ürünler</a>
-            <div class="dropdown-menu p-3 border-0 shadow-lg" aria-labelledby="urunlerDropdown" style="min-width: 520px;">
-              <div class="row g-3">
-                <div class="col-6">
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_finans' %}">
-                    <i class="bi bi-bar-chart text-success"></i>
-                    <div>
-                      <div class="fw-semibold">Finans</div>
-                      <small class="text-muted">Banka, fatura, rapor, oranlar</small>
-                    </div>
-                  </a>
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_egitim' %}">
-                    <i class="bi bi-mortarboard text-success"></i>
-                    <div>
-                      <div class="fw-semibold">Eğitim</div>
-                      <small class="text-muted">Finans okuryazarlığı & LMS</small>
-                    </div>
-                  </a>
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'products_oyunlar' %}">
-                    <i class="bi bi-controller text-success"></i>
-                    <div>
-                      <div class="fw-semibold">Oyunlar</div>
-                      <small class="text-muted">Simülasyonlar ve mini oyunlar</small>
-                    </div>
-                  </a>
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'games:game_app:tradesim' %}">
-                    <i class="bi bi-joystick text-success"></i>
-                    <div>
-                      <div class="fw-semibold">TradeSim</div>
-                      <small class="text-muted">Herkes için demo erişim</small>
-                    </div>
-                  </a>
-                </div>
-                <div class="col-6">
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'accounting:home' %}">
-                    <i class="bi bi-wallet2 text-success"></i>
-                    <div>
-                      <div class="fw-semibold">Muhasebe</div>
-                      <small class="text-muted">e‑Fatura/e‑Defter destekli</small>
-                    </div>
-                  </a>
-                  <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'dashboard' %}">
-                    <i class="bi bi-speedometer2 text-success"></i>
-                    <div>
-                      <div class="fw-semibold">Yönetim</div>
-                      <small class="text-muted">Kullanıcı & şirket yönetimi</small>
-                    </div>
-                  </a>
-                  <div class="border-top mt-2 pt-2">
-                    <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'billing:plans' %}">
-                      <i class="bi bi-lightning-charge text-warning"></i>
-                      <div>
-                        <div class="fw-semibold">Hemen Başla</div>
-                        <small class="text-muted">Ücretsiz dene — kredi kartsız</small>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle text-white {% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}active{% endif %}"
-               href="#" id="cozumlerDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-               aria-current="{% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}page{% endif %}">Çözümler</a>
-            <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="cozumlerDropdown">
-              <li><a class="dropdown-item" href="{% url 'solutions_enteg' %}">Entegrasyon</a></li>
-              <li><a class="dropdown-item" href="{% url 'blockchain:home' %}">Blockchain Kanıt</a></li>
-              <li><a class="dropdown-item" href="{% url 'education' %}">Kurumsal Eğitim</a></li>
+        <!-- Sol: kurumsal menü -->
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center corporate-nav-menu">
+          <li class="nav-item dropdown corporate-dropdown">
+            <a class="nav-link dropdown-toggle corporate-nav-link {% if '/products/' in path %}active{% endif %}" 
+               href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid-3x3-gap me-1 d-lg-none" aria-hidden="true"></i>Ürünler
+            </a>
+            <ul class="dropdown-menu corporate-dropdown-menu shadow-lg" aria-labelledby="urunlerDropdown">
+              <li><h6 class="dropdown-header">Finans Çözümleri</h6></li>
+              <li><a class="dropdown-item" href="{% url 'products_finans' %}" data-cta="nav-products-finans">
+                <i class="bi bi-bar-chart text-primary me-2" aria-hidden="true"></i>Finansal Analiz
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'products_egitim' %}" data-cta="nav-products-egitim">
+                <i class="bi bi-mortarboard text-primary me-2" aria-hidden="true"></i>Eğitim Modülü
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Teknoloji</h6></li>
+              <li><a class="dropdown-item" href="{% url 'audit:landing' %}" data-cta="nav-products-denetim">
+                <i class="bi bi-search text-primary me-2" aria-hidden="true"></i>Denetim & Uyum
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'products_blockchain' %}" data-cta="nav-products-blockchain">
+                <i class="bi bi-link-45deg text-primary me-2" aria-hidden="true"></i>Blockchain Kanıt
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'products_oyunlar' %}" data-cta="nav-products-oyunlar">
+                <i class="bi bi-controller text-primary me-2" aria-hidden="true"></i>TradeSim & Oyunlar
+              </a></li>
             </ul>
           </li>
-    <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle text-white {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}"
-         href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-         aria-current="{% if '/billing/plans/' in path or '/pricing/' in path %}page{% endif %}">Fiyatlandırma</a>
-      <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="pricingDropdown">
-        <li><a class="dropdown-item" href="{% url 'billing:plans' %}">Tüm Planlar</a></li>
-        <li><a class="dropdown-item" href="{% url 'billing:plans' %}?audience=sme">KOBİ Planları</a></li>
-        <li><a class="dropdown-item" href="{% url 'billing:plans' %}?audience=edu">Eğitim Planları</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="{% url 'games:game_app:tradesim' %}">TradeSim Oyna (Demo)</a></li>
-      </ul>
-    </li>
-    <li class="nav-item"><a class="nav-link text-white {% if '/resources/' in path %}active{% endif %}"
-      href="{% url 'resources' %}" aria-current="{% if '/resources/' in path %}page{% endif %}">Kaynaklar</a></li>
-    <li class="nav-item"><a class="nav-link text-white {% if '/blog/' in path %}active{% endif %}"
-      href="{% url 'blog' %}" aria-current="{% if '/blog/' in path %}page{% endif %}">Blog</a></li>
-    <li class="nav-item"><a class="nav-link text-white {% if '/corporate/' in path %}active{% endif %}"
-      href="{% url 'corporate' %}" aria-current="{% if '/corporate/' in path %}page{% endif %}">Hakkımızda</a></li>
-          <li class="nav-item d-lg-none mt-2">
-            <a class="btn btn-light text-success w-100" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
+          
+          <li class="nav-item dropdown corporate-dropdown">
+            <a class="nav-link dropdown-toggle corporate-nav-link {% if '/solutions/' in path %}active{% endif %}" 
+               href="#" id="cozumlerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-puzzle me-1 d-lg-none" aria-hidden="true"></i>Çözümler
+            </a>
+            <ul class="dropdown-menu corporate-dropdown-menu shadow-lg" aria-labelledby="cozumlerDropdown">
+              <li><a class="dropdown-item" href="{% url 'solutions_enteg' %}" data-cta="nav-solutions-entegrasyon">
+                <i class="bi bi-diagram-3 text-primary me-2" aria-hidden="true"></i>Sistem Entegrasyonu
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'solutions_raporlama' %}" data-cta="nav-solutions-raporlama">
+                <i class="bi bi-file-earmark-bar-graph text-primary me-2" aria-hidden="true"></i>Gelişmiş Raporlama
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'solutions_analitik' %}" data-cta="nav-solutions-analitik">
+                <i class="bi bi-graph-up-arrow text-primary me-2" aria-hidden="true"></i>İş Zekası & Analitik
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'audit:landing' %}" data-cta="nav-solutions-denetim">
+                <i class="bi bi-shield-check text-primary me-2" aria-hidden="true"></i>Risk & Uyum Yönetimi
+              </a></li>
+            </ul>
           </li>
-          <!-- Mobil arama -->
-          <li class="nav-item d-xl-none mt-2">
+          
+          <li class="nav-item d-flex align-items-center">
+            <a class="nav-link corporate-nav-link {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}" 
+               href="{% url 'billing:plans' %}" data-cta="nav-pricing">
+              <i class="bi bi-tags me-1 d-lg-none" aria-hidden="true"></i>Fiyatlandırma
+            </a>
+            <span id="pricingCampaignBadge" class="badge bg-accent text-dark ms-1 d-none">%20</span>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link corporate-nav-link {% if '/resources/' in path %}active{% endif %}" 
+               href="{% url 'resources' %}" data-cta="nav-resources">
+              <i class="bi bi-book me-1 d-lg-none" aria-hidden="true"></i>Kaynaklar
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link corporate-nav-link {% if '/corporate/' in path %}active{% endif %}" 
+               href="{% url 'corporate' %}" data-cta="nav-corporate">
+              <i class="bi bi-building me-1 d-lg-none" aria-hidden="true"></i>Kurumsal
+            </a>
+          </li>
+          
+          <!-- Mobil özel seçenekler -->
+          <li class="nav-item d-lg-none mt-3">
+            <hr class="corporate-divider my-2">
+          </li>
+          <li class="nav-item d-lg-none">
+            <a class="btn btn-accent corporate-btn-primary w-100 mb-2" href="{% url 'accounts:register' %}" data-cta="register-mobile">
+              <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Ücretsiz Başlayın
+            </a>
+          </li>
+          <li class="nav-item d-lg-none">
             <form class="d-flex" role="search" action="{% url 'search' %}" method="get">
-              <input class="form-control" type="search" name="q" placeholder="Arama" aria-label="Arama">
-              <button class="btn btn-success ms-2" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Ara</span></button>
+              <div class="input-group">
+                <input class="form-control corporate-input" type="search" name="q" placeholder="Ne arıyorsunuz?" aria-label="Arama">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                </button>
+              </div>
             </form>
+          </li>
+          <li class="nav-item d-lg-none mt-2">
+            <button class="btn btn-outline-light corporate-btn-outline w-100" type="button" onclick="toggleTheme()" aria-label="Tema değiştir" data-cta="toggle-theme-mobile">
+              <i class="bi bi-moon-stars me-1" aria-hidden="true"></i>Tema Değiştir
+            </button>
           </li>
         </ul>
 
-        <!-- Sağ: eylemler -->
-        <ul class="navbar-nav ms-auto align-items-center gap-2">
-          <li class="nav-item d-none d-lg-flex">
-            <button class="theme-toggle-btn nav-link px-2" type="button" onclick="toggleTheme()" id="themeToggle" aria-label="Tema değiştir" title="Tema değiştir (Ctrl+D)">
+        <!-- Sağ: kurumsal eylemler -->
+        <ul class="navbar-nav ms-auto align-items-center corporate-actions">
+          <!-- Tema toggle -->
+          <li class="nav-item">
+            <button class="corporate-toggle-btn nav-link border-0 bg-transparent p-2" type="button" onclick="toggleTheme()" 
+                    id="themeToggle" aria-label="Tema değiştir" title="Tema değiştir (Ctrl+D)" data-cta="toggle-theme">
               <i class="bi bi-moon-stars" data-theme-icon="dark"></i>
               <i class="bi bi-sun d-none" data-theme-icon="light"></i>
             </button>
           </li>
-          <li class="nav-item d-none d-lg-flex">
-            <button class="theme-toggle-btn nav-link px-2" type="button" onclick="toggleA11yContrast()" id="contrastToggle" aria-label="Yüksek kontrast modu" aria-pressed="false" title="Yüksek kontrast modu (Ctrl+K)">
-              <i class="bi bi-eyeglasses"></i>
-            </button>
-          </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-accent" style="border-radius:2rem;" href="{% url 'contact' %}">Satışla Görüş</a>
-          </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-brand px-4" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
-          </li>
-          <li class="nav-item">
-            <form class="d-none d-xl-flex" role="search" action="{% url 'search' %}" method="get">
-              <input class="form-control form-control-sm" type="search" name="q" placeholder="Arama" aria-label="Arama">
-              <button class="btn btn-success btn-sm ms-1" type="submit"><i class="bi bi-search" aria-hidden="true"></i><span class="visually-hidden">Ara</span></button>
-            </form>
-          </li>
+          
+          <!-- Dil seçimi -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Dil Seçimi">
-              <i class="bi bi-globe"></i>
+            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" 
+               id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Dil Seçimi">
+              <i class="bi bi-globe2" aria-hidden="true"></i>
+              <span class="small">{{ LANGUAGE_CODE|upper|default:'TR' }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+            <ul class="dropdown-menu dropdown-menu-end corporate-dropdown-menu" aria-labelledby="langDropdown">
               <li>
                 <form method="post" action="{% url 'set_language_compat' %}">
                   {% csrf_token %}
                   <input type="hidden" name="language" value="tr" />
                   <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                  <button type="submit" class="dropdown-item">Türkçe</button>
+                  <button type="submit" class="dropdown-item">
+                    <i class="bi bi-flag text-primary me-2" aria-hidden="true"></i>Türkçe
+                  </button>
                 </form>
               </li>
               <li>
@@ -183,31 +191,75 @@
                   {% csrf_token %}
                   <input type="hidden" name="language" value="en" />
                   <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                  <button type="submit" class="dropdown-item">English</button>
+                  <button type="submit" class="dropdown-item">
+                    <i class="bi bi-flag text-primary me-2" aria-hidden="true"></i>English
+                  </button>
                 </form>
               </li>
             </ul>
           </li>
+          
+          <!-- Arama -->
+          <li class="nav-item dropdown d-none d-lg-block">
+            <a class="nav-link corporate-nav-link" href="#" id="searchDropdown" role="button" data-bs-toggle="dropdown" 
+               aria-expanded="false" aria-label="Arama" data-cta="search-open">
+              <i class="bi bi-search" aria-hidden="true"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end corporate-dropdown-menu p-3 shadow-lg" style="min-width:320px" aria-labelledby="searchDropdown">
+              <form role="search" action="{% url 'search' %}" method="get">
+                <div class="input-group">
+                  <input class="form-control corporate-input" type="search" name="q" placeholder="Ne arıyorsunuz?" aria-label="Arama">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </li>
+          
+          <!-- Giriş/Üyelik -->
           {% if user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle me-1"></i> <span class="d-none d-sm-inline">{{ user.username }}</span>
+            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" 
+               id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="corporate-avatar">
+                <i class="bi bi-person-circle" aria-hidden="true"></i>
+              </div>
+              <span class="d-none d-md-inline">{{ user.username }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">Profilim</a></li>
-              <li><a class="dropdown-item" href="{% url 'billing:portal' %}">Aboneliklerim</a></li>
+            <ul class="dropdown-menu dropdown-menu-end corporate-dropdown-menu" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">
+                <i class="bi bi-person text-primary me-2" aria-hidden="true"></i>Profilim
+              </a></li>
+              <li><a class="dropdown-item" href="{% url 'billing:portal' %}">
+                <i class="bi bi-credit-card text-primary me-2" aria-hidden="true"></i>Aboneliklerim
+              </a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Çıkış Yap</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                <i class="bi bi-box-arrow-right text-danger me-2" aria-hidden="true"></i>Çıkış Yap
+              </a></li>
             </ul>
           </li>
           {% else %}
-          <li class="nav-item">
-            <a class="nav-link text-white d-flex align-items-center" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1"></i> Giriş</a>
-          </li>
-          <li class="nav-item d-lg-none">
-            <a class="nav-link text-white" href="{% url 'accounts:register' %}">Kayıt Ol</a>
+          <li class="nav-item d-none d-lg-block">
+            <a class="nav-link corporate-nav-link d-flex align-items-center gap-2" href="{% url 'accounts:login' %}" data-cta="login">
+              <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+              <span>Giriş</span>
+            </a>
           </li>
           {% endif %}
+          
+          <!-- CTA Butonları -->
+          <li class="nav-item d-none d-lg-block">
+            <a class="btn btn-outline-light corporate-btn-outline me-2" href="{% url 'contact' %}" data-cta="talk-to-sales">
+              <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>İletişim
+            </a>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <a class="btn btn-accent corporate-btn-primary" href="{% url 'accounts:register' %}" data-cta="register">
+              <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Başlayın
+            </a>
+          </li>
         </ul>
         {% endwith %}
       </div>
@@ -223,4 +275,45 @@
     }
     document.addEventListener('themechange',sync);sync();
   });
+</script>
+<script>
+  (function(){
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var camp = params.get('campaign');
+      var CAMP_KEY = 'fa_campaign_code';
+      if (camp) {
+        localStorage.setItem(CAMP_KEY, camp);
+      } else {
+        camp = localStorage.getItem(CAMP_KEY) || '';
+      }
+      if (camp) {
+        // Helper to apply campaign to link hrefs
+        function applyCampaign(selector) {
+          document.querySelectorAll(selector).forEach(function(a){
+            try {
+              var url = new URL(a.getAttribute('href'), window.location.origin);
+              url.searchParams.set('campaign', camp);
+              a.setAttribute('href', url.toString());
+            } catch(e){}
+          });
+        }
+
+        // Pricing links (existing)
+        applyCampaign('a[href*="/billing/plans"]');
+        // Key CTAs: Contact and Register (topbar + main + mobile)
+        applyCampaign('a[data-cta="talk-to-sales"], a[data-cta="talk-to-sales-topbar"], a[data-cta="register"], a[data-cta="register-mobile"]');
+
+        // Dynamic badge label from code (extract first number as % if present)
+        var badge = document.getElementById('pricingCampaignBadge');
+        if (badge) {
+          var m = String(camp).match(/(\d{1,2})/);
+          var label = m ? ('%' + m[1]) : 'Promo';
+          badge.textContent = label;
+          badge.title = 'Kampanya: ' + String(camp).toUpperCase();
+          badge.classList.remove('d-none');
+        }
+      }
+    } catch(e){}
+  })();
 </script>

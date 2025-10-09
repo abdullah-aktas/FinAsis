@@ -1,68 +1,156 @@
 {% load i18n static %}
-<footer class="footer bg-brand text-white pt-5 pb-3 mt-5" style="background: var(--brand-primary-900);" role="contentinfo">
+<footer class="corporate-footer text-white pt-5 pb-3 mt-5" role="contentinfo">
   <div class="container">
     <div class="row g-4">
+      <!-- Logo ve Açıklama -->
       <div class="col-md-4">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <span class="brand-logo" aria-hidden="true"></span>
-          <h5 class="fw-bold mb-0">FinAsis</h5>
+        <div class="corporate-footer-brand mb-3">
+          <div class="corporate-footer-logo-circle">
+            <i class="bi bi-graph-up-arrow fs-4" aria-hidden="true"></i>
+          </div>
+          <div class="corporate-footer-brand-text">
+            <h5 class="brand-name mb-1">FinAsis</h5>
+            <p class="brand-tagline mb-0">Finansal Mükemmellik Platformu</p>
+          </div>
         </div>
-        <p class="small text-white-50 mb-3">Yapay zeka destekli finansal yönetim ve eğitim platformu. e‑Dönüşüm ve blockchain kanıt katmanı ile entegre.</p>
-        <div class="d-flex align-items-center gap-3 small text-white-50">
-          <span><i class="bi bi-shield-check me-1"></i> KVKK</span>
-          <span><i class="bi bi-lock me-1"></i> Güvenli</span>
-          <span><i class="bi bi-rocket-takeoff me-1"></i> Hızlı Kurulum</span>
+        <p class="corporate-footer-description mb-3">
+          Yapay zeka destekli finansal yönetim ve eğitim platformu. e‑Dönüşüm ve blockchain kanıt katmanı ile entegre çözümler.
+        </p>
+        <div class="corporate-footer-features">
+          <div class="feature-item">
+            <i class="bi bi-shield-check text-accent me-2"></i>
+            <span>KVKK Uyumlu</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-lock text-accent me-2"></i>
+            <span>256-bit SSL Güvenlik</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-rocket-takeoff text-accent me-2"></i>
+            <span>5 Dakikada Kurulum</span>
+          </div>
         </div>
       </div>
+      
+      <!-- Ürünler -->
       <div class="col-6 col-md-2">
-        <h6 class="fw-bold mb-3">Ürünler</h6>
-        <a href="/products/finans/" class="d-block text-white-50">Finansal Yönetim</a>
-        <a href="/products/egitim/" class="d-block text-white-50">Eğitim Modülü</a>
-        <a href="/products/blockchain/" class="d-block text-white-50">Blockchain</a>
-        <a href="/products/oyunlar/" class="d-block text-white-50">Oyunlaştırma</a>
-        <hr class="border-secondary">
-        <a href="{% url 'billing:plans' %}" class="d-block text-white">Fiyatlandırma</a>
-        <a href="{% url 'billing:plans' %}?audience=sme" class="d-block text-white-50">KOBİ Planları</a>
-        <a href="{% url 'billing:plans' %}?audience=edu" class="d-block text-white-50">Eğitim Planları</a>
+        <div class="corporate-footer-section">
+          <h6 class="corporate-footer-title">
+            <i class="bi bi-box-seam text-accent me-2"></i>Ürünler
+          </h6>
+          <div class="corporate-footer-links">
+            <a href="/products/finans/" class="corporate-footer-link">
+              <i class="bi bi-calculator me-2"></i>Finansal Yönetim
+            </a>
+            <a href="/products/egitim/" class="corporate-footer-link">
+              <i class="bi bi-mortarboard me-2"></i>Eğitim Modülü
+            </a>
+            <a href="/products/blockchain/" class="corporate-footer-link">
+              <i class="bi bi-link-45deg me-2"></i>Blockchain Kanıt
+            </a>
+            <a href="/products/oyunlar/" class="corporate-footer-link">
+              <i class="bi bi-controller me-2"></i>TradeSim & Oyunlar
+            </a>
+          </div>
+          <hr class="corporate-divider">
+          <div class="corporate-footer-links">
+            <a href="{% url 'billing:plans' %}" class="corporate-footer-link featured">
+              <i class="bi bi-tags text-accent me-2"></i>Fiyatlandırma
+            </a>
+            <a href="{% url 'billing:plans' %}?audience=sme" class="corporate-footer-link-secondary">KOBİ Planları</a>
+            <a href="{% url 'billing:plans' %}?audience=edu" class="corporate-footer-link-secondary">Eğitim Planları</a>
+          </div>
+        </div>
       </div>
+      
+      <!-- Şirket -->
       <div class="col-6 col-md-2">
-        <h6 class="fw-bold mb-3">Şirket</h6>
-        <a href="/" class="d-block text-white-50">Anasayfa</a>
-        <a href="/corporate/" class="d-block text-white-50">Kurumsal</a>
-        <a href="/resources/" class="d-block text-white-50">Kaynaklar</a>
-        <a href="/blog/" class="d-block text-white-50">Blog</a>
-        <a href="/contact/" class="d-block text-white-50">İletişim</a>
+        <div class="corporate-footer-section">
+          <h6 class="corporate-footer-title">
+            <i class="bi bi-building text-accent me-2"></i>Şirket
+          </h6>
+          <div class="corporate-footer-links">
+            <a href="/" class="corporate-footer-link">
+              <i class="bi bi-house me-2"></i>Anasayfa
+            </a>
+            <a href="/corporate/" class="corporate-footer-link">
+              <i class="bi bi-briefcase me-2"></i>Kurumsal
+            </a>
+            <a href="/resources/" class="corporate-footer-link">
+              <i class="bi bi-book me-2"></i>Kaynaklar
+            </a>
+            <a href="/blog/" class="corporate-footer-link">
+              <i class="bi bi-journal-text me-2"></i>Blog
+            </a>
+            <a href="/contact/" class="corporate-footer-link">
+              <i class="bi bi-envelope me-2"></i>İletişim
+            </a>
+          </div>
+        </div>
       </div>
+      
+      <!-- İletişim ve Sosyal -->
       <div class="col-md-4">
-        <h6 class="fw-bold mb-3">Bültene Katıl</h6>
-        <form class="row g-2" action="{% url 'contact' %}" method="get" aria-label="Bülten kayıt formu">
-          <div class="col-8">
-            <label for="newsletterEmail" class="visually-hidden">E‑posta</label>
-            <input id="newsletterEmail" name="email" type="email" class="form-control form-control-sm" placeholder="ornek@firma.com" required>
+        <div class="corporate-footer-section">
+          <h6 class="corporate-footer-title">
+            <i class="bi bi-bell text-accent me-2"></i>Bültene Katıl
+          </h6>
+          <p class="corporate-footer-newsletter-desc">
+            En yeni özellikler ve finansal içgörüler için bültenimize abone olun.
+          </p>
+          <form class="corporate-newsletter-form" action="{% url 'contact' %}" method="get" aria-label="Bülten kayıt formu">
+            <div class="input-group">
+              <input id="newsletterEmail" name="email" type="email" class="form-control corporate-input" 
+                     placeholder="ornek@firma.com" required aria-label="E-posta adresi">
+              <button class="btn corporate-btn-secondary" type="submit">
+                <i class="bi bi-arrow-right me-1"></i>Kaydol
+              </button>
+            </div>
+          </form>
+          
+          <div class="corporate-social-section mt-4">
+            <h6 class="corporate-social-title">Bizi Takip Edin</h6>
+            <div class="corporate-social-links">
+              <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="corporate-social-link linkedin" aria-label="LinkedIn">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              <a href="https://www.instagram.com/finasisapp/" target="_blank" class="corporate-social-link instagram" aria-label="Instagram">
+                <i class="bi bi-instagram"></i>
+              </a>
+              <a href="https://x.com/finasis" target="_blank" class="corporate-social-link twitter" aria-label="X (Twitter)">
+                <i class="bi bi-twitter-x"></i>
+              </a>
+              <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="corporate-social-link youtube" aria-label="YouTube">
+                <i class="bi bi-youtube"></i>
+              </a>
+            </div>
+            <div class="corporate-contact-info mt-3">
+              <a href="mailto:destek@finasis.com.tr" class="corporate-contact-link">
+                <i class="bi bi-envelope-at me-2"></i>destek@finasis.com.tr
+              </a>
+            </div>
           </div>
-          <div class="col-4">
-            <button class="btn btn-light btn-sm w-100" type="submit">Kaydol</button>
-          </div>
-        </form>
-        <div class="d-flex mt-3 gap-3">
-          <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="text-white" aria-label="LinkedIn"><i class="bi bi-linkedin fs-5"></i></a>
-          <a href="https://www.instagram.com/finasisapp/" target="_blank" class="text-white" aria-label="Instagram"><i class="bi bi-instagram fs-5"></i></a>
-          <a href="https://x.com/finasis" target="_blank" class="text-white" aria-label="X (Twitter)"><i class="bi bi-twitter-x fs-5"></i></a>
-          <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="text-white" aria-label="YouTube"><i class="bi bi-youtube fs-5"></i></a>
         </div>
-        <div class="small mt-2"><a href="mailto:destek@finasis.com.tr" class="text-white-50">destek@finasis.com.tr</a></div>
       </div>
     </div>
-    <hr class="border-light my-4" style="opacity:.35;">
-    <div class="row">
-      <div class="col-md-6 small">
-        &copy; {{ now|date:'Y' }} FinAsis. Tüm hakları saklıdır.
+    
+    <hr class="corporate-footer-divider my-4">
+    
+    <!-- Alt Bilgiler -->
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="corporate-footer-copyright">
+          <i class="bi bi-c-circle me-1"></i>
+          {{ now|date:'Y' }} FinAsis. Tüm hakları saklıdır.
+        </div>
       </div>
-      <div class="col-md-6 text-md-end small">
-  <a href="/legal/" class="text-white me-3">Yasal Bilgiler</a>
-  <a href="/legal/kvkk/" class="text-white me-3">KVKK</a>
-  <a href="/terms/" class="text-white me-3">Kullanım Şartları</a>
-  <a href="/privacy-policy/" class="text-white">Gizlilik Politikası</a>
+      <div class="col-md-6">
+        <div class="corporate-footer-legal">
+          <a href="/legal/" class="corporate-legal-link">Yasal Bilgiler</a>
+          <a href="/legal/kvkv/" class="corporate-legal-link">KVKK</a>
+          <a href="/terms/" class="corporate-legal-link">Kullanım Şartları</a>
+          <a href="/privacy-policy/" class="corporate-legal-link">Gizlilik Politikası</a>
+        </div>
       </div>
     </div>
   </div>

@@ -313,9 +313,70 @@ class CompanyDeleteLogAdmin(admin.ModelAdmin):
 
 @admin.register(EDefter)
 class EDefterAdmin(admin.ModelAdmin):
-    list_display = ("year", "month", "type", "status", "created_at")
-    list_filter = ("year", "month", "type", "status")
-    search_fields = ("year", "month", "type")
+    list_display = ("company", "year", "month", "type", "status", "created_at")
+    list_filter = ("company", "year", "month", "type", "status")
+    search_fields = ("company__name", "year", "month")
+    readonly_fields = ("created_at", "updated_at")
+    actions = ("action_generate_attach", "action_zip_generate", "action_send_gib", "action_get_berat",)
+
+    def action_generate_attach(self, request, queryset):
+        from .services.edefter_service import generate_and_attach_edefter
+        ok = 0
+        for ed in queryset:
+            try:
+                company = getattr(ed, "company", None)
+                generate_and_attach_edefter(ed, company, ed.year, ed.month)
+                ok += 1
+            except Exception as e:
+                self.message_user(request, _(f"{ed.pk} üretim hatası: {e}"), level="ERROR")
+        if ok:
+            self.message_user(request, _(f"{ok} kayıt için Yevmiye ve Berat üretildi ve iliştirildi."), level="SUCCESS")
+    action_generate_attach.short_description = _("Yevmiye+Berat üret ve iliştir")
+
+    def action_zip_generate(self, request, queryset):
+        from .services.edefter_service import package_edefter_zip
+        from django.core.files.base import ContentFile
+        ok = 0
+        for ed in queryset:
+            try:
+                company = getattr(ed, "company", None)
+                zip_bytes = package_edefter_zip(company, ed.year, ed.month, include_signed=bool(getattr(request, 'include_signed', False)))
+                name = f"edefter_{getattr(company, 'id', 'company')}_{ed.year}{ed.month:02d}.zip"
+                if hasattr(ed, "zip_file") and ed.zip_file is not None:
+                    ed.zip_file.save(name, ContentFile(zip_bytes), save=False)
+                ed.save()
+                ok += 1
+            except Exception as e:
+                self.message_user(request, _(f"{ed.pk} ZIP üretim hatası: {e}"), level="ERROR")
+        if ok:
+            self.message_user(request, _(f"{ok} kayıt için ZIP üretildi."), level="SUCCESS")
+    action_zip_generate.short_description = _("ZIP oluştur (imzalı ayara göre)")
+
+    def action_send_gib(self, request, queryset):
+        from .services.edefter_service import send_edefter_to_gib
+        ok = 0
+        for ed in queryset:
+            try:
+                send_edefter_to_gib(ed)
+                ok += 1
+            except Exception as e:
+                self.message_user(request, _(f"{ed.pk} gönderim hatası: {e}"), level="ERROR")
+        if ok:
+            self.message_user(request, _(f"{ok} kayıt GİB'e gönderildi."), level="SUCCESS")
+    action_send_gib.short_description = _("GİB'e gönder")
+
+    def action_get_berat(self, request, queryset):
+        from .services.edefter_service import get_edefter_berat
+        ok = 0
+        for ed in queryset:
+            try:
+                get_edefter_berat(ed)
+                ok += 1
+            except Exception as e:
+                self.message_user(request, _(f"{ed.pk} berat alma hatası: {e}"), level="ERROR")
+        if ok:
+            self.message_user(request, _(f"{ok} kayıt için berat alındı."), level="SUCCESS")
+    action_get_berat.short_description = _("Beratı al")
 
 # --- AP Admin ---
 @admin.register(Vendor)

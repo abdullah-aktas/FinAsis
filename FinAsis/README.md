@@ -139,6 +139,16 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
+### EDOC / e-belge ayarları
+
+UBL / UBL-TR şema doğrulamasını yerelde etkinleştirmek için XSD paketinizin bulunduğu klasörü `.env` içerisine ekleyin:
+
+```
+EDOC_SCHEMAS_DIR=D:/schemas/UBL-TR-2.3
+```
+
+XSD bulunamazsa doğrulama zarifçe atlanır (test/ci ortamları için uygundur). Diğer yapılandırmalar `.env.example` dosyasında örneklenmiştir (GİB uç noktaları, retry politikası, imzalama/TSA vb.).
+
 ## Testler
 ```bash
 pytest --cov=FinAsis --cov-report=term-missing

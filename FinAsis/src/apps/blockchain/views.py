@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponse
 from django.views.decorators.http import require_POST
 from django.utils.crypto import salted_hmac
 from .models import ChainRecord
 import hashlib
 from django.urls import reverse
+import re
 
 # Create your views here.
 
@@ -22,8 +23,27 @@ def api_verify(request):
     return JsonResponse({'reference': reference, 'hash_hex': hash_hex, 'verified': exists})
 
 def record_list(request):
-    records = ChainRecord.objects.all()[:200]
-    return render(request, 'blockchain/record_list.html', {'records': records})
+    q = request.GET.get('q', '').strip()
+    qs = ChainRecord.objects.all()
+    if q:
+        qs = qs.filter(reference__icontains=q)
+    records = qs[:200]
+    return render(request, 'blockchain/record_list.html', {'records': records, 'q': q})
+
+def record_export_csv(request):
+    q = request.GET.get('q', '').strip()
+    qs = ChainRecord.objects.all()
+    if q:
+        qs = qs.filter(reference__icontains=q)
+    rows = [
+        ['reference','hash_hex','status','created_at']
+    ]
+    for r in qs.iterator():
+        rows.append([r.reference, r.hash_hex, r.status, r.created_at.isoformat()])
+    content = '\n'.join([','.join([str(c).replace('\n',' ').replace('\r',' ') for c in row]) for row in rows])
+    resp = HttpResponse(content, content_type='text/csv; charset=utf-8')
+    resp['Content-Disposition'] = 'attachment; filename="chain_records.csv"'
+    return resp
 
 def record_create(request):
     if request.method == 'POST':
@@ -69,3 +89,46 @@ def assets_list(request):
 def reports(request):
     # High-level links or summaries; can be expanded later
     return render(request, 'blockchain/reports.html')
+
+# --- KOBİ dostu hızlı kanıt ---
+def anchor_wizard(request):
+    return render(request, 'blockchain/anchor_wizard.html')
+
+@require_POST
+def api_anchor(request):
+    """Accept precomputed SHA-256 hex and reference; create anchored record.
+    Useful for client-side file hashing (privacy-friendly).
+    """
+    reference = (request.POST.get('reference') or '').strip()
+    hash_hex = (request.POST.get('hash_hex') or '').strip().lower()
+    status = (request.POST.get('status') or 'anchored').strip()
+    if not reference or not hash_hex:
+        return HttpResponseBadRequest('reference and hash_hex required')
+    if not re.fullmatch(r"[0-9a-f]{64}", hash_hex):
+        return HttpResponseBadRequest('hash_hex must be 64 hex chars')
+    rec = ChainRecord.objects.create(
+        reference=reference,
+        hash_hex=hash_hex,
+        payload_preview='',
+        status=status or 'anchored',
+    )
+    return JsonResponse({'created': True, 'reference': rec.reference, 'hash_hex': rec.hash_hex, 'status': rec.status})
+
+# --- KOBİ dostu doğrulama (hash ile) ---
+def verify_wizard(request):
+    return render(request, 'blockchain/verify_wizard.html')
+
+@require_POST
+def api_verify_hash(request):
+    """Verify by provided SHA-256 hex (and optional reference)."""
+    reference = (request.POST.get('reference') or '').strip()
+    hash_hex = (request.POST.get('hash_hex') or '').strip().lower()
+    if not hash_hex:
+        return HttpResponseBadRequest('hash_hex required')
+    if not re.fullmatch(r"[0-9a-f]{64}", hash_hex):
+        return HttpResponseBadRequest('hash_hex must be 64 hex chars')
+    qs = ChainRecord.objects.filter(hash_hex=hash_hex)
+    if reference:
+        qs = qs.filter(reference=reference)
+    exists = qs.exists()
+    return JsonResponse({'reference': reference, 'hash_hex': hash_hex, 'verified': exists, 'count': qs.count()})

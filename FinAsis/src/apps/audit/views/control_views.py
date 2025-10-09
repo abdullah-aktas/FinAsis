@@ -28,6 +28,15 @@ from src.apps.finance.internal_control_system import (
 )
 from src.apps.accounting.models import Company
 from ..decorators import require_roles
+from ..utils.exports import export_audit_trails_to_excel
+
+
+def audit_landing(request):
+    """
+    Public marketing/landing page for the Internal Audit module.
+    Keep this view open (no login) and link to dashboard/other features via CTAs.
+    """
+    return render(request, 'audit/landing.html', {})
 
 # Sık kullanılan ContentType objeleri için basit cache
 def get_ct(model_cls):
@@ -291,7 +300,7 @@ def control_dashboard(request):
 @require_roles('Admin','Accountant','Auditor')
 def risk_assessment_view(request):
     """
-    Risk değerlendirme sayfası
+    Risk değerlendirme sayfası - Geliştirilmiş istatistiklerle
     """
     company = getattr(request.user, 'company', None)
     if not company:
@@ -332,21 +341,90 @@ def risk_assessment_view(request):
             messages.error(request, f'Risk değerlendirmesi kaydedilirken hata oluştu: {str(e)}')
     
     # Mevcut risk değerlendirmeleri
-    assessments = RiskAssessment.objects.filter(company=company).order_by('-assessment_date')
+    assessments = RiskAssessment.objects.filter(company=company).select_related(
+        'assessor'
+    ).order_by('-assessment_date')
+    
+    # Risk istatistikleri
+    total_risks = assessments.count()
+    
+    # Risk seviyesi dağılımı
+    risk_level_distribution = assessments.values('overall_risk_level').annotate(
+        count=Count('id')
+    ).order_by('overall_risk_level')
+    
+    risk_level_breakdown = {}
+    for item in risk_level_distribution:
+        level = item['overall_risk_level'] or 'MEDIUM'
+        count = item['count']
+        percentage = (count / total_risks * 100) if total_risks > 0 else 0
+        risk_level_breakdown[level] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # Risk kategorisi dağılımı
+    risk_category_distribution = assessments.values('risk_category').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    category_breakdown = {}
+    for item in risk_category_distribution:
+        category = item['risk_category'] or 'OPERATIONAL'
+        count = item['count']
+        percentage = (count / total_risks * 100) if total_risks > 0 else 0
+        category_breakdown[category] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # Kritik riskler (HIGH ve VERY_HIGH)
+    critical_risks = assessments.filter(
+        overall_risk_level__in=['HIGH', 'VERY_HIGH']
+    ).count()
+    
+    critical_percentage = (critical_risks / total_risks * 100) if total_risks > 0 else 0
+    
+    # Risk matrisi için veri
+    risk_matrix_data = []
+    for assessment in assessments[:20]:  # Son 20 risk
+        try:
+            likelihood_val = int(assessment.likelihood) if assessment.likelihood else 3
+            impact_val = int(assessment.impact) if assessment.impact else 3
+        except (ValueError, TypeError):
+            likelihood_val = 3
+            impact_val = 3
+            
+        risk_matrix_data.append({
+            'id': getattr(assessment, 'id', None),
+            'title': assessment.risk_title,
+            'likelihood': likelihood_val,
+            'impact': impact_val,
+            'level': assessment.overall_risk_level or 'MEDIUM'
+        })
     
     # Risk kategorileri
     risk_categories = [
-    ('FINANCIAL', _('Mali Risk')),
-    ('OPERATIONAL', _('Operasyonel Risk')),
-    ('COMPLIANCE', _('Uyum Riski')),
-    ('STRATEGIC', _('Stratejik Risk')),
-    ('REPUTATION', _('İtibar Riski')),
-    ('TECHNOLOGY', _('Teknoloji Riski')),
+        ('FINANCIAL', _('Mali Risk')),
+        ('OPERATIONAL', _('Operasyonel Risk')),
+        ('COMPLIANCE', _('Uyum Riski')),
+        ('STRATEGIC', _('Stratejik Risk')),
+        ('REPUTATION', _('İtibar Riski')),
+        ('TECHNOLOGY', _('Teknoloji Riski')),
     ]
     
     context = {
         'assessments': assessments,
         'risk_categories': risk_categories,
+        # İstatistikler
+        'total_risks': total_risks,
+        'critical_risks': critical_risks,
+        'critical_percentage': round(critical_percentage, 1),
+        'risk_level_breakdown': risk_level_breakdown,
+        'category_breakdown': category_breakdown,
+        'risk_level_distribution': risk_level_distribution,
+        'risk_category_distribution': risk_category_distribution,
+        'risk_matrix_data': json.dumps(risk_matrix_data),
     }
     
     return render(request, 'audit/risk_assessment.html', context)
@@ -453,26 +531,69 @@ def control_test(request, control_id):
 @require_roles('Admin','Accountant','Auditor')
 def audit_trail_report(request):
     """
-    Denetim izi raporu
+    Denetim izi raporu - Geliştirilmiş filtreleme ve istatistiklerle
     """
     company = request.user.company
     
-    # Filtreleme
+    # Filtreleme parametreleri
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     action_type = request.GET.get('action_type')
     user_filter = request.GET.get('user')
     
-    trails = AuditTrail.objects.filter(company=company).order_by('-timestamp')
+    # Temel sorgu
+    trails = AuditTrail.objects.filter(company=company).select_related('user').order_by('-timestamp')
     
+    # Filtreleri uygula
     if date_from:
         trails = trails.filter(timestamp__gte=date_from)
     if date_to:
         trails = trails.filter(timestamp__lte=date_to)
     if action_type:
-        trails = trails.filter(action=action_type)
+        trails = trails.filter(action_type=action_type)
     if user_filter:
         trails = trails.filter(user_id=user_filter)
+    
+    # İstatistikler (filtrelenmiş veriye göre)
+    total_events = trails.count()
+    
+    # Eylem tipine göre dağılım
+    action_distribution = trails.values('action_type').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    action_percentages = {}
+    for item in action_distribution:
+        action = item['action_type'] or 'UNKNOWN'
+        count = item['count']
+        percentage = (count / total_events * 100) if total_events > 0 else 0
+        action_percentages[action] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # Kullanıcı aktivitesi
+    user_activity = trails.values(
+        'user__id', 'user__first_name', 'user__last_name', 'user__username'
+    ).annotate(
+        event_count=Count('id')
+    ).order_by('-event_count')[:10]  # Top 10 kullanıcı
+    
+    # Günlük trend (son 7 gün)
+    daily_stats = []
+    for i in range(7):
+        day_start = timezone.now() - timedelta(days=i)
+        day_end = day_start + timedelta(days=1)
+        count = AuditTrail.objects.filter(
+            company=company,
+            timestamp__gte=day_start.replace(hour=0, minute=0, second=0),
+            timestamp__lt=day_end.replace(hour=0, minute=0, second=0)
+        ).count()
+        daily_stats.append({
+            'date': day_start.strftime('%d %b'),
+            'count': count
+        })
+    daily_stats.reverse()  # Eskiden yeniye sırala
     
     # Sayfalama
     paginator = Paginator(trails, 50)
@@ -480,14 +601,14 @@ def audit_trail_report(request):
     page_obj = paginator.get_page(page_number)
     
     # Kullanıcı listesi (filtre için)
-    users = AuditTrail.objects.filter(company=company).values_list(
-        'user__id', 'user__first_name', 'user__last_name'
-    ).distinct()
+    users = AuditTrail.objects.filter(company=company).values(
+        'user__id', 'user__first_name', 'user__last_name', 'user__username'
+    ).distinct().order_by('user__first_name')
     
     # Aksiyon tipleri
     action_types = AuditTrail.objects.filter(company=company).values_list(
-        'action', flat=True
-    ).distinct()
+        'action_type', flat=True
+    ).distinct().order_by('action_type')
     
     context = {
         'page_obj': page_obj,
@@ -497,6 +618,16 @@ def audit_trail_report(request):
         'date_to': date_to,
         'action_type': action_type,
         'user_filter': user_filter,
+        # İstatistikler
+        'total_events': total_events,
+        'action_distribution': action_distribution,
+        'action_percentages': action_percentages,
+        'user_activity': user_activity,
+        'daily_stats': daily_stats,
+        'daily_stats_json': json.dumps({
+            'labels': [d['date'] for d in daily_stats],
+            'data': [d['count'] for d in daily_stats]
+        }),
     }
     
     return render(request, 'audit/audit_trail_report.html', context)
@@ -505,28 +636,179 @@ def audit_trail_report(request):
 @login_required
 @require_roles('Admin','Accountant','Auditor')
 def compliance_report(request):
-    """Uyumluluk raporu (model alanlarına uyarlanmış)."""
+    """Uyumluluk raporu (model alanlarına uyarlanmış) - Geliştirilmiş istatistiklerle."""
     company = getattr(request.user, 'company', None)
+    
+    # Kontrol aktiviteleri ve istatistikler
     controls = ControlActivity.objects.filter(company=company)
-    effectiveness_stats = controls.values('operating_effectiveness').annotate(count=Count('id')).order_by('operating_effectiveness')
+    total_controls = controls.count()
+    
+    # Etkinlik dağılımı
+    effectiveness_stats = controls.values('operating_effectiveness').annotate(
+        count=Count('id')
+    ).order_by('operating_effectiveness')
+    
+    # Etkinlik yüzdeleri hesapla
+    effectiveness_breakdown = {}
+    for stat in effectiveness_stats:
+        level = stat['operating_effectiveness'] or 'NOT_EVALUATED'
+        count = stat['count']
+        percentage = (count / total_controls * 100) if total_controls > 0 else 0
+        effectiveness_breakdown[level] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # Etkin kontrol sayısı ve yüzdesi
+    effective_count = effectiveness_breakdown.get('EFFECTIVE', {}).get('count', 0)
+    effective_percentage = effectiveness_breakdown.get('EFFECTIVE', {}).get('percentage', 0)
+    
+    # Risk değerlendirmeleri
     risks = RiskAssessment.objects.filter(company=company)
-    risk_stats = risks.values('overall_risk_level').annotate(count=Count('id')).order_by('overall_risk_level')
-    audits = AuditTrail.objects.filter(company=company, timestamp__gte=timezone.now() - timedelta(days=30))
-    audit_stats = audits.values('action_type').annotate(count=Count('id')).order_by('action_type')
+    total_risks = risks.count()
+    
+    risk_stats = risks.values('overall_risk_level').annotate(
+        count=Count('id')
+    ).order_by('overall_risk_level')
+    
+    # Risk yüzdeleri
+    risk_breakdown = {}
+    for stat in risk_stats:
+        level = stat['overall_risk_level'] or 'MEDIUM'
+        count = stat['count']
+        percentage = (count / total_risks * 100) if total_risks > 0 else 0
+        risk_breakdown[level] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # Yüksek risk sayısı
+    high_risk_count = (
+        risk_breakdown.get('HIGH', {}).get('count', 0) + 
+        risk_breakdown.get('VERY_HIGH', {}).get('count', 0)
+    )
+    
+    # Denetim izi (son 30 gün)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    audits = AuditTrail.objects.filter(company=company, timestamp__gte=thirty_days_ago)
+    total_audits = audits.count()
+    
+    audit_stats = audits.values('action_type').annotate(
+        count=Count('id')
+    ).order_by('-count')
+    
+    # Audit eylem yüzdeleri
+    audit_breakdown = {}
+    for stat in audit_stats:
+        action = stat['action_type'] or 'UNKNOWN'
+        count = stat['count']
+        percentage = (count / total_audits * 100) if total_audits > 0 else 0
+        audit_breakdown[action] = {
+            'count': count,
+            'percentage': round(percentage, 1)
+        }
+    
+    # İş akışları
     workflows = ApprovalWorkflow.objects.filter(company=company)
-    workflow_stats = workflows.values('is_active').annotate(count=Count('id')).order_by('-is_active')
+    total_workflows = workflows.count()
+    
+    workflow_stats = workflows.values('is_active').annotate(
+        count=Count('id')
+    ).order_by('-is_active')
+    
+    active_workflows = sum(stat['count'] for stat in workflow_stats if stat['is_active'])
+    inactive_workflows = total_workflows - active_workflows
+    
+    # Genel uyumluluk skoru
+    compliance_score = round(effective_percentage, 1) if total_controls > 0 else 0
+    
+    # Trend verileri (son 6 ay, aylık)
+    six_months_ago = timezone.now() - timedelta(days=180)
+    monthly_audits = []
+    for i in range(6):
+        month_start = timezone.now() - timedelta(days=(5-i)*30)
+        month_end = timezone.now() - timedelta(days=(4-i)*30)
+        count = AuditTrail.objects.filter(
+            company=company,
+            timestamp__gte=month_start,
+            timestamp__lt=month_end
+        ).count()
+        monthly_audits.append({
+            'month': month_start.strftime('%b'),
+            'count': count
+        })
+    
+    # Chart.js için veri hazırlama
+    effectiveness_chart_data = {
+        'labels': [k for k in effectiveness_breakdown.keys()],
+        'data': [v['count'] for v in effectiveness_breakdown.values()],
+    }
+    
+    risk_chart_data = {
+        'labels': [k for k in risk_breakdown.keys()],
+        'data': [v['count'] for v in risk_breakdown.values()],
+    }
+    
+    audit_trend_data = {
+        'labels': [m['month'] for m in monthly_audits],
+        'data': [m['count'] for m in monthly_audits],
+    }
+    
     context = {
         'company': company,
+        # Temel sayılar
+        'total_controls': total_controls,
+        'total_risks': total_risks,
+        'total_audits': total_audits,
+        'total_workflows': total_workflows,
+        # İstatistikler
         'effectiveness_stats': effectiveness_stats,
+        'effectiveness_breakdown': effectiveness_breakdown,
+        'effective_count': effective_count,
+        'effective_percentage': effective_percentage,
         'risk_stats': risk_stats,
+        'risk_breakdown': risk_breakdown,
+        'high_risk_count': high_risk_count,
         'audit_stats': audit_stats,
+        'audit_breakdown': audit_breakdown,
         'workflow_stats': workflow_stats,
-        'total_controls': controls.count(),
-        'total_risks': risks.count(),
-        'total_audits': audits.count(),
-        'total_workflows': workflows.count(),
+        'active_workflows': active_workflows,
+        'inactive_workflows': inactive_workflows,
+        # Genel metrikler
+        'compliance_score': compliance_score,
+        'compliance_status': get_compliance_status_text(compliance_score),
+        'compliance_description': get_compliance_description(compliance_score),
+        # Chart verileri
+        'effectiveness_chart_data': json.dumps(effectiveness_chart_data),
+        'risk_chart_data': json.dumps(risk_chart_data),
+        'audit_trend_data': json.dumps(audit_trend_data),
+        'monthly_audits': monthly_audits,
     }
     return render(request, 'audit/compliance_report.html', context)
+
+
+@login_required
+@require_roles('Admin','Accountant','Auditor')
+def audit_trail_export_xlsx(request):
+    company = getattr(request.user, 'company', None)
+    trails = AuditTrail.objects.filter(company=company).order_by('-timestamp')[:5000]
+    return export_audit_trails_to_excel(trails)
+
+
+@login_required
+@require_roles('Admin','Accountant','Auditor')
+def audit_trail_export_pdf(request):
+    # Placeholder: In production, integrate WeasyPrint or ReportLab
+    html = "<html><body><h1>Audit Trail PDF Export</h1><p>Export soon...</p></body></html>"
+    return HttpResponse(html, content_type='text/html')
+
+
+@login_required
+@require_roles('Admin','Accountant','Auditor')
+def compliance_export_pdf(request):
+    # Placeholder: In production, integrate WeasyPrint or ReportLab
+    html = "<html><body><h1>Compliance Report PDF Export</h1><p>Export soon...</p></body></html>"
+    return HttpResponse(html, content_type='text/html')
 
 
 # Ek placeholder / alias view'lar (template referansları için)

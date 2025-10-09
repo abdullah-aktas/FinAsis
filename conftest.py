@@ -20,5 +20,10 @@ candidate_srcs = [
 for p in [outer, inner] + candidate_srcs:
     _add(p)
 
+# Ensure minimal env so importing Django settings in tests doesn't crash
+os.environ.setdefault('SECRET_KEY', 'test-secret-key')
+os.environ.setdefault('USE_SQLITE', '1')
+os.environ.setdefault('DEBUG', '0')
+
 # Normalize DJANGO_SETTINGS_MODULE early so tests need not redefine
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FinAsis.config.settings')

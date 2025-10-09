@@ -18,11 +18,11 @@
   <meta property="og:title" content="{% block og_title %}FinAsis · Yerel AI Finans Platformu{% endblock %}">
   <meta property="og:description" content="{% block og_description %}AI destekli finans, e‑dönüşüm ve eğitim süreçlerini sade, hızlı ve güvenli biçimde yönetin.{% endblock %}">
   <meta property="og:url" content="{{ request.build_absolute_uri|default_if_none:'' }}">
-  <meta property="og:image" content="{% static 'common/favicon.ico' %}">
+  <meta property="og:image" content="{% static 'brand/logo-fa.svg' %}">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{% block tw_title %}FinAsis{% endblock %}">
   <meta name="twitter:description" content="{% block tw_desc %}Yapay zeka destekli finansal yönetim ve e‑dönüşüm.{% endblock %}">
-  <meta name="twitter:image" content="{% static 'common/favicon.ico' %}">
+  <meta name="twitter:image" content="{% static 'brand/logo-fa.svg' %}">
   {% endblock %}
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'common/favicon.ico' %}">
   <link rel="apple-touch-icon" href="{% static 'common/favicon.ico' %}">
@@ -34,18 +34,49 @@
   <link rel="stylesheet" href="{% static 'css/brand.css' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <link rel="stylesheet" href="{% static 'css/a11y.css' %}">
+  <meta name="theme-color" content="#0AAE94">
   {% block extra_head %}{% endblock %}
   {% block extra_css %}{% endblock %}
   <style>
     body{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;}
     .brand-gradient{background:linear-gradient(90deg,var(--brand-primary),var(--brand-accent));}
-    .brand-logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--brand-accent),var(--brand-primary));display:inline-block;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.25),0 4px 12px -2px rgba(0,0,0,.25)}
+  .brand-logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--brand-accent),var(--brand-primary));display:inline-block;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.25),0 4px 12px -2px rgba(0,0,0,.25)}
+  .brand-logo-img{display:inline-block;width:36px;height:36px}
     .theme-toggle-btn{cursor:pointer;border:0;background:none;color:var(--text-muted);}
     html[data-theme='dark'] img[alt*='logo']{filter:brightness(1.1) contrast(1.05);}
     .skip-link{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;}
     .skip-link:focus{left:0;top:0;width:auto;height:auto;padding:.75rem 1rem;background:var(--brand-primary);color:#fff;z-index:2000;}
   </style>
+  <script>
+    // Apply saved theme before paint to avoid flash
+    (function(){
+      try{
+        var t = localStorage.getItem('finasis_pref_theme');
+        if(t){ document.documentElement.dataset.theme = t; }
+      }catch(e){}
+    })();
+  </script>
   {% include 'core_ui/partials/_analytics.html' %}
+  <script>
+    (function(){
+      function pushEvent(evt){
+        var w=window; w.dataLayer = w.dataLayer || []; w.dataLayer.push(evt);
+        if(!w._dl_silent){ try{ console.debug('[event]', evt); }catch(e){} }
+      }
+      document.addEventListener('click', function(e){
+        var t=e.target; if(!t) return;
+        var ctaEl = t.closest('[data-cta]');
+        if(ctaEl){
+          pushEvent({event:'cta_click', cta: ctaEl.getAttribute('data-cta'), href: ctaEl.getAttribute('href')||'', path: location.pathname});
+        }
+      }, {passive:true});
+      document.addEventListener('submit', function(e){
+        var f=e.target; if(!f) return; if(f.matches('[data-form]')){
+          pushEvent({event:'form_submit', form: f.getAttribute('data-form'), path: location.pathname});
+        }
+      });
+    })();
+  </script>
   <!-- Organization JSON-LD -->
   <script type="application/ld+json">
   {
@@ -75,12 +106,19 @@
   </main>
   {% block footer %}{% include 'components/footer.html' %}{% endblock %}
   {% include 'core_ui/partials/_cookie_consent.html' %}
-  <script>const STORAGE_KEY_THEME='finasis_pref_theme';const STORAGE_KEY_A11Y='finasis_pref_a11y_contrast';(function(){try{const s=localStorage.getItem(STORAGE_KEY_THEME);if(s){document.documentElement.dataset.theme=s}}catch(e){};try{const a=localStorage.getItem(STORAGE_KEY_A11Y);if(a==='1'){document.body.classList.add('a11y-contrast');const btn=document.getElementById('contrastToggle');if(btn){btn.setAttribute('aria-pressed','true');}}}catch(e){}})();</script>
+  <script>const STORAGE_KEY_THEME='finasis_pref_theme';(function(){try{const s=localStorage.getItem(STORAGE_KEY_THEME);if(s){document.documentElement.dataset.theme=s}}catch(e){}})();</script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function toggleTheme(){const html=document.documentElement;const next=html.dataset.theme==='dark'?'light':'dark';html.dataset.theme=next;try{localStorage.setItem(STORAGE_KEY_THEME,next)}catch(e){};document.dispatchEvent(new CustomEvent('themechange',{detail:{theme:next}}));}
-    function toggleA11yContrast(){const b=document.body;const on=b.classList.toggle('a11y-contrast');try{localStorage.setItem(STORAGE_KEY_A11Y,on?'1':'0')}catch(e){};const btn=document.getElementById('contrastToggle');if(btn){btn.setAttribute('aria-pressed',on?'true':'false');}}
-    document.addEventListener('keydown',e=>{if(e.ctrlKey && e.key==='d'){toggleTheme();} if(e.ctrlKey && (e.key==='k' || e.key==='K')){toggleA11yContrast();}});
+  document.addEventListener('keydown',e=>{if(e.ctrlKey && e.key==='d'){toggleTheme();}});
+  // High contrast toggle (Ctrl+Shift+C)
+  document.addEventListener('keydown',e=>{
+    if(e.ctrlKey && e.shiftKey && (e.key==='C' || e.key==='c')){
+      document.body.classList.toggle('a11y-contrast');
+      try{ localStorage.setItem('fa_a11y_contrast', document.body.classList.contains('a11y-contrast')?'1':'0'); }catch(err){}
+    }
+  });
+  (function(){ try{ if(localStorage.getItem('fa_a11y_contrast')==='1'){ document.body.classList.add('a11y-contrast'); } }catch(e){} })();
   </script>
   {% block extra_js %}{% endblock %}
 </body>
