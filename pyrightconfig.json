@@ -1,0 +1,32 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.13",
+  "extraPaths": [
+    "FinAsis/src",
+    "FinAsis"
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "reportAttributeAccessIssue": "warning",
+  "reportOptionalMemberAccess": "warning",
+  "reportOptionalCall": "warning",
+  "reportOptionalIterable": "warning",
+  "reportOptionalContextManager": "warning",
+  "reportOptionalOperand": "warning",
+  "reportOptionalSubscript": "warning",
+  "reportGeneralTypeIssues": "warning",
+  "reportUnknownMemberType": false,
+  "reportUnknownArgumentType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownParameterType": false,
+  "stubPath": "typings",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "**/.venv",
+    "**/venv"
+  ]
+}

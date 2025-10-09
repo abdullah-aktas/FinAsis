@@ -1,5 +1,10 @@
 from rest_framework import serializers, viewsets, permissions
+from src.apps.permissions.company_scoped import IsCompanyScoped
 from .models import Invoice, Expense, BankTransaction, Company, Customer, Product, Sale, Payment, BankAccount, InvoiceItem
+from .selectors import (
+    invoices_for_company, expenses_for_company, banktransactions_for_company,
+    customers_for_company, payments_for_company
+)
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -39,11 +44,11 @@ class BankTransactionSerializer(serializers.ModelSerializer):
 
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InvoiceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Invoice.objects.all()
     def list(self, request, *args, **kwargs):
         company: Optional[Company] = getattr(request.user, 'company', None)
-        qs = Invoice.objects.filter(company=company) if company else Invoice.objects.none()
+        qs = invoices_for_company(company)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -53,11 +58,11 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ExpenseViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Expense.objects.all()
     def list(self, request, *args, **kwargs):
         company: Optional[Company] = getattr(request.user, 'company', None)
-        qs = Expense.objects.filter(company=company) if company else Expense.objects.none()
+        qs = expenses_for_company(company)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -67,11 +72,11 @@ class ExpenseViewSet(viewsets.ReadOnlyModelViewSet):
 
 class BankTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BankTransactionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = BankTransaction.objects.all()
     def list(self, request, *args, **kwargs):
         company: Optional[Company] = getattr(request.user, 'company', None)
-        qs = BankTransaction.objects.filter(account__company=company) if company else BankTransaction.objects.none()
+        qs = banktransactions_for_company(company)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -98,7 +103,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CustomerSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Customer.objects.filter(is_active=True)
 
 # Product
@@ -109,7 +114,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Product.objects.filter(is_active=True)
 
 # Sale
@@ -120,7 +125,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class SaleViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SaleSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Sale.objects.filter(is_active=True)
 
 # Payment
@@ -131,7 +136,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = Payment.objects.filter(is_active=True)
 
 # BankAccount
@@ -142,7 +147,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
 
 class BankAccountViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BankAccountSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = BankAccount.objects.filter(is_active=True)
 
 # InvoiceItem
@@ -153,7 +158,7 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
 
 class InvoiceItemViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InvoiceItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyScoped]
     queryset = InvoiceItem.objects.all()
 
 @api_view(['POST'])

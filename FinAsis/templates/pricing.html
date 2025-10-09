@@ -1,217 +1,115 @@
 {% extends "core_ui/base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}Fiyatlandırma - FinAsis{% endblock %}
-
-{% block meta_description %}FinAsis'in farklı işletme ihtiyaçlarına uygun abonelik paketleri. Standart, Profesyonel ve Kurumsal paketlerimiz arasından işletmenize en uygun olanı seçin.{% endblock %}
-
-{% block extra_css %}
-<style>
-    .pricing-header-section {
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent-dark));
-        padding: 100px 0 50px;
-        color: white;
-        margin-bottom: 4rem;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .pricing-header-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background: radial-gradient(circle at 20% 150%, var(--primary) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 30%, var(--accent) 0%, transparent 50%);
-        opacity: 0.4;
-        z-index: 0;
-    }
-    
-    .pricing-content {
-        position: relative;
-        z-index: 1;
-    }
-    
-    .pricing-tabs {
-        background-color: white;
-        border-radius: 50px;
-        padding: 0.5rem;
-        display: inline-flex;
-        margin-bottom: 2rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .pricing-tab {
-        padding: 0.75rem 2rem;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .pricing-tab.active {
-        background-color: var(--primary);
-        color: white;
-    }
-    
-    .monthly-price, .annual-price {
-        transition: all 0.3s ease;
-    }
-    
-    .save-badge {
-        background-color: rgba(76, 175, 80, 0.15);
-        color: #2e7d32;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: inline-block;
-        margin-left: 0.5rem;
-    }
-    
-    .guarantee-section {
-        background-color: rgba(0, 151, 167, 0.05);
-        border-radius: 16px;
-        padding: 3rem 0;
-        margin: 5rem 0;
-    }
-    
-    .guarantee-icon {
-        font-size: 3rem;
-        color: var(--primary);
-        margin-bottom: 1.5rem;
-    }
-    
-    .comparison-header {
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        color: white;
-        padding: 1.5rem;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        font-weight: 700;
-        text-align: center;
-    }
-    
-    .comparison-table th {
-        font-weight: 600;
-        vertical-align: middle;
-    }
-    
-    .comparison-highlight {
-        background-color: rgba(0, 151, 167, 0.05);
-    }
-    
-    .feature-check {
-        color: var(--success);
-        font-size: 1.2rem;
-    }
-    
-    .feature-times {
-        color: var(--text-hint);
-        font-size: 1.2rem;
-    }
-    
-    .faq-section {
-        padding: 5rem 0;
-    }
-    
-    .accordion-button:not(.collapsed) {
-        background-color: rgba(0, 151, 167, 0.05);
-        color: var(--primary);
-        font-weight: 600;
-    }
-    
-    .accordion-button:focus {
-        box-shadow: 0 0 0 0.25rem rgba(0, 151, 167, 0.25);
-    }
-</style>
-{% endblock %}
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="fw-bold mb-4 text-primary animate__animated animate__fadeInDown">FinAsis Satın Al & Kullanıma Başla</h2>
-                <p class="lead mb-4">FinAsis'i hemen satın alabilir ve kullanmaya başlayabilirsiniz. Aşağıdaki adımları takip edin:</p>
-                <ol class="list-group list-group-numbered mb-4 text-start">
-                    <li class="list-group-item">Kayıt olun veya giriş yapın: <a href="/accounts/register/" class="text-info">Kayıt Ol</a></li>
-                    <li class="list-group-item">Fiyatlandırma paketlerinden birini seçin ve ödeme yapın.</li>
-                    <li class="list-group-item">Ödeme sonrası lisansınız otomatik olarak aktive edilir.</li>
-                    <li class="list-group-item">Yönetim panelinden veya ana sayfadan FinAsis'i kullanmaya başlayın.</li>
-                    <li class="list-group-item">Her aşamada <a href="/support/" class="text-success">destek</a> ve <a href="/resources/" class="text-warning">rehber</a> alabilirsiniz.</li>
-                </ol>
-                <a href="/accounts/register/" class="btn btn-lg btn-primary me-2">Kullanıma Başla</a>
-                <a href="/contact/" class="btn btn-lg btn-outline-info">Kurumsal Teklif Al</a>
-            </div>
-        </div>
-    </div>
-</section>
+{% block meta_description %}FinAsis için esnek ve şeffaf fiyatlandırma. Bireysel, profesyonel ve kurumsal ihtiyaçlarınıza özel planları keşfedin.{% endblock %}
 
 {% block content %}
-<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
-    <div class="container">
-        <h1 class="display-5 fw-bold text-primary text-center animate__animated animate__fadeInDown">Fiyatlandırma</h1>
-        <p class="lead mb-4 text-center animate__animated animate__fadeInUp">İhtiyacınıza uygun paketler, şeffaf fiyatlar ve avantajlı çözümler.</p>
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-4">
-                <div class="card h-100 p-4 border-success animate__animated animate__fadeInUp">
-                    <h5 class="fw-bold text-success">Başlangıç</h5>
-                    <p>Temel finansal yönetim araçları, ücretsiz destek.</p>
-                    <div class="fs-2 fw-bold text-success">Ücretsiz</div>
-                    <a href="/accounts/register/" class="btn btn-outline-success mt-2 w-100">Hemen Başla</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 p-4 border-info animate__animated animate__fadeInUp animate__delay-1s">
-                    <h5 class="fw-bold text-info">Profesyonel</h5>
-                    <p>Gelişmiş raporlama, AI analiz, e-dönüşüm modülleri.</p>
-                    <div class="fs-2 fw-bold text-info">₺299/ay</div>
-                    <a href="/accounts/register/" class="btn btn-outline-info mt-2 w-100">Ücretsiz Deneyin</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 p-4 border-warning animate__animated animate__fadeInUp animate__delay-2s">
-                    <h5 class="fw-bold text-warning">Kurumsal</h5>
-                    <p>Özel entegrasyonlar, öncelikli destek, eğitim ve danışmanlık.</p>
-                    <div class="fs-2 fw-bold text-warning">₺999/ay</div>
-                    <a href="/contact/" class="btn btn-outline-warning mt-2 w-100">Teklif Al</a>
-                </div>
-            </div>
+<div class="text-center pt-4 pb-5">
+  <h1 class="fw-bold display-5 mb-3">İhtiyaçlarınıza Uygun Planlar</h1>
+  <p class="lead text-secondary mx-auto" style="max-width: 600px;">Finansal hedeflerinize ulaşmanız için tasarlanmış basit, şeffaf ve esnek fiyatlandırma seçenekleri.</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+  <!-- Ücretsiz Plan -->
+  <div class="col-lg-4 col-md-6">
+    <div class="card h-100 border-light shadow-sm text-center">
+      <div class="card-body p-4 d-flex flex-column">
+        <h5 class="fw-bold text-success">Başlangıç</h5>
+        <p class="text-secondary small">Temel finansal araçlar ve başlangıç için gereken her şey.</p>
+        <div class="my-4">
+          <span class="display-4 fw-bold">₺0</span>
+          <span class="text-secondary">/her zaman</span>
         </div>
-        <div class="mt-5 text-center">
-            <span class="badge bg-success fs-6 me-2 animate__animated animate__bounce">%100 Yerli</span>
-            <span class="badge bg-info fs-6 me-2 animate__animated animate__bounce">AI Destekli</span>
-            <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Güvenli</span>
+        <ul class="list-unstyled text-start mb-4">
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-success"></i> Temel Raporlama</li>
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-success"></i> Bütçe Takibi</li>
+          <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-success"></i> Topluluk Desteği</li>
+        </ul>
+        <div class="mt-auto">
+          <a href="{% url 'accounts:register' %}" class="btn btn-success w-100" style="border-radius:2rem;font-weight:600;">Ücretsiz Başla</a>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Profesyonel Plan -->
+  <div class="col-lg-4 col-md-6">
+    <div class="card h-100 border-primary shadow text-center">
+      <div class="card-header bg-primary text-white border-0 fw-semibold">Popüler Seçim</div>
+      <div class="card-body p-4 d-flex flex-column">
+        <h5 class="fw-bold text-primary">Profesyonel</h5>
+        <p class="text-secondary small">AI destekli analizler ve e-dönüşüm araçları ile büyüyen işletmeler için.</p>
+        <div class="my-4">
+          <span class="display-4 fw-bold">₺299</span>
+          <span class="text-secondary">/ay</span>
+        </div>
+        <ul class="list-unstyled text-start mb-4">
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-primary"></i> Gelişmiş Raporlama</li>
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-primary"></i> AI Destekli Analiz</li>
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-primary"></i> e-Fatura Entegrasyonu</li>
+          <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-primary"></i> Öncelikli Destek</li>
+        </ul>
+        <div class="mt-auto">
+          <a href="{% url 'billing:plans' %}" class="btn btn-primary w-100" style="border-radius:2rem;font-weight:600;">Planı Seç</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kurumsal Plan -->
+  <div class="col-lg-4 col-md-6">
+    <div class="card h-100 border-light shadow-sm text-center">
+      <div class="card-body p-4 d-flex flex-column">
+        <h5 class="fw-bold text-dark">Kurumsal</h5>
+        <p class="text-secondary small">Özelleştirilmiş çözümler ve büyük ölçekli takımlar için tam destek.</p>
+        <div class="my-4">
+          <span class="display-5 fw-bold">Özelleştirilmiş</span>
+        </div>
+        <ul class="list-unstyled text-start mb-4">
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-dark"></i> Tüm Profesyonel Özellikler</li>
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-dark"></i> Özel Entegrasyonlar</li>
+          <li class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-check-circle-fill text-dark"></i> Kurumsal Eğitim (LMS)</li>
+          <li class="d-flex align-items-center gap-2"><i class="bi bi-check-circle-fill text-dark"></i> 7/24 Özel Destek</li>
+        </ul>
+        <div class="mt-auto">
+          <a href="{% url 'contact' %}" class="btn btn-outline-dark w-100" style="border-radius:2rem;font-weight:600;">Teklif Al</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="py-5 mt-5 bg-light rounded-4">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <h3 class="h4 fw-bold mb-3">Sık Sorulan Sorular</h3>
+        <div class="accordion accordion-flush" id="faq">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f1"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="false" aria-controls="c1">Deneme sürümü var mı?</button></h2>
+            <div id="c1" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Evet, Profesyonel planımız için 14 günlük ücretsiz deneme sunuyoruz. Kredi kartı gerekmez.</div></div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f2"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="false" aria-controls="c2">Planımı istediğim zaman değiştirebilir miyim?</button></h2>
+            <div id="c2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Kesinlikle. Planınızı istediğiniz zaman yükseltebilir veya düşürebilirsiniz. Değişiklikler bir sonraki fatura döneminizde yansıtılır.</div></div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="f3"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="false" aria-controls="c3">Kurumsal plan neleri içeriyor?</button></h2>
+            <div id="c3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Kurumsal plan, işletmenizin özel ihtiyaçlarına göre şekillendirilir. Özel entegrasyonlar, yerinde eğitim ve size özel bir destek temsilcisi gibi avantajlar sunar. Detaylar için bizimle iletişime geçin.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="p-4 bg-white border rounded-4 h-100 shadow-sm d-flex flex-column justify-content-center">
+          <div class="text-center">
+            <i class="bi bi-shield-check-2 display-4 text-success mb-3"></i>
+            <h4 class="fw-semibold mb-3">Güvenlik ve Memnuniyet Garantisi</h4>
+            <p class="text-secondary small mb-0">Verileriniz KVKK uyumlu olarak güvenli bir şekilde saklanır. Memnun kalmazsanız, ilk 30 gün içinde sorgusuz sualsiz iade garantisi sunuyoruz.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const monthlyTab = document.getElementById('monthly-tab');
-        const annualTab = document.getElementById('annual-tab');
-        const monthlyPrices = document.querySelectorAll('.monthly-price');
-        const annualPrices = document.querySelectorAll('.annual-price');
-        
-        // Aylık/Yıllık tab değişimi
-        monthlyTab.addEventListener('click', function() {
-            monthlyTab.classList.add('active');
-            annualTab.classList.remove('active');
-            
-            monthlyPrices.forEach(el => el.style.display = 'block');
-            annualPrices.forEach(el => el.style.display = 'none');
-        });
-        
-        annualTab.addEventListener('click', function() {
-            annualTab.classList.add('active');
-            monthlyTab.classList.remove('active');
-            
-            monthlyPrices.forEach(el => el.style.display = 'none');
-            annualPrices.forEach(el => el.style.display = 'block');
-        });
-    });
-</script>
-{% endblock %} 

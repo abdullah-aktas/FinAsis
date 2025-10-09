@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# type: ignore[reportAttributeAccessIssue]
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -166,7 +167,11 @@ class FinancialReport(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.title} - {self.get_report_type_display()}"
+        try:
+            report_type_display = self.get_report_type_display()
+        except AttributeError:
+            report_type_display = self.report_type
+        return f"{self.title} - {report_type_display}"
 
 class AnomalyDetection(models.Model):
     """Anomali Tespiti"""
@@ -192,7 +197,11 @@ class AnomalyDetection(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.get_detection_type_display()} - {self.created_at}"
+        try:
+            detection_type_display = self.get_detection_type_display()
+        except AttributeError:
+            detection_type_display = self.detection_type
+        return f"{detection_type_display} - {self.created_at}"
 
 class TrendAnalysis(models.Model):
     """Trend Analizi"""
@@ -220,7 +229,11 @@ class TrendAnalysis(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.get_analysis_type_display()} ({self.start_date} - {self.end_date})"
+        try:
+            analysis_type_display = self.get_analysis_type_display()
+        except AttributeError:
+            analysis_type_display = self.analysis_type
+        return f"{analysis_type_display} ({self.start_date} - {self.end_date})"
 
 class UserPreference(models.Model):
     """Kullanıcı AI tercihleri"""
@@ -365,6 +378,8 @@ class CashFlowForecaster:
         Args:
             data (pd.DataFrame): Tarih, gelir ve gider verilerini içeren DataFrame
         """
+        if pd is None:
+            raise ImportError("pandas kütüphanesi yüklü değil")
         df = data.copy()
         df['date'] = pd.to_datetime(df['date'])
         df['net_cash'] = df['cash_in'] - df['cash_out']
@@ -377,9 +392,12 @@ class CashFlowForecaster:
         Args:
             data (pd.DataFrame): Eğitim verisi
         """
+        if Prophet is None:
+            raise ImportError("prophet kütüphanesi yüklü değil veya devre dışı")
         df = self.prepare_data(data)
         prophet_df = df[['date', 'net_cash']].rename(columns={'date': 'ds', 'net_cash': 'y'})
-        self.model = Prophet(yearly_seasonality=True, weekly_seasonality=True)
+        # Prophet parametreleri: 'auto', True veya False değerleri alabilir
+        self.model = Prophet(yearly_seasonality='auto', weekly_seasonality='auto')  # type: ignore
         self.model.fit(prophet_df)
             
     def forecast(self, periods=90):
@@ -392,6 +410,8 @@ class CashFlowForecaster:
         Returns:
             dict: Tahmin sonuçları
         """
+        if self.model is None:
+            raise ValueError("Model henüz eğitilmedi. Önce train() metodunu çağırın.")
         future = self.model.make_future_dataframe(periods=periods)
         forecast = self.model.predict(future)
         
@@ -414,6 +434,8 @@ class CashFlowForecaster:
         Returns:
             plotly.graph_objects.Figure: Grafik
         """
+        if go is None:
+            raise ImportError("plotly kütüphanesi yüklü değil")
         fig = go.Figure()
         
         # Tahmin çizgisi
@@ -453,6 +475,8 @@ class CustomerRiskScorer:
         """
         self.model_type = model_type
         self.model = None
+        if StandardScaler is None:
+            raise ImportError("sklearn kütüphanesi yüklü değil")
         self.scaler = StandardScaler()
         
     def prepare_features(self, data):
@@ -462,6 +486,8 @@ class CustomerRiskScorer:
         Args:
             data (dict): Müşteri verileri
         """
+        if pd is None:
+            raise ImportError("pandas kütüphanesi yüklü değil")
         features = {
             'payment_delay_avg': data.get('payment_delay_avg', 0),
             'payment_delay_count': data.get('payment_delay_count', 0),
@@ -479,6 +505,9 @@ class CustomerRiskScorer:
         Args:
             training_data (pd.DataFrame): Eğitim verisi
         """
+        if LogisticRegression is None or DecisionTreeClassifier is None:
+            raise ImportError("sklearn kütüphanesi yüklü değil")
+            
         X = training_data.drop('risk_label', axis=1)
         y = training_data['risk_label']
         
@@ -503,6 +532,9 @@ class CustomerRiskScorer:
         Returns:
             dict: Risk skoru ve açıklaması
         """
+        if self.model is None:
+            raise ValueError("Model henüz eğitilmedi. Önce train() metodunu çağırın.")
+            
         features = self.prepare_features(customer_data)
         features_scaled = self.scaler.transform(features)
         
@@ -570,6 +602,8 @@ class CustomerRiskScorer:
         Args:
             path (str): Kayıt yolu
         """
+        if joblib is None:
+            raise ImportError("joblib kütüphanesi yüklü değil")
         model_data = {
             'model': self.model,
             'scaler': self.scaler,
@@ -584,6 +618,8 @@ class CustomerRiskScorer:
         Args:
             path (str): Model dosyası yolu
         """
+        if joblib is None:
+            raise ImportError("joblib kütüphanesi yüklü değil")
         model_data = joblib.load(path)
         self.model = model_data['model']
         self.scaler = model_data['scaler']

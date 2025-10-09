@@ -31,7 +31,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 try:
     from weasyprint import HTML
-except ImportError:
+except (ImportError, OSError):
     HTML = None
 from rest_framework.permissions import IsAuthenticated
 
@@ -719,7 +719,8 @@ def finance_dashboard(request):
         chart_expense.append(float(expense))
 
     # Son 5 finansal uyarı/bildirim
-    finance_alerts = FinanceAlert.objects.filter(user=request.user).order_by('-date')[:5] if hasattr(request.user, 'financealert_set') else []
+    # FinanceAlert modeli henüz tanımlı olmadığı için boş liste kullanıyoruz
+    finance_alerts = []
 
     # 1. Fatura Geçmişi Analiz Grafiği
     from .models import Invoice
@@ -772,25 +773,27 @@ def finance_dashboard(request):
 def get_ai_financial_advice(user, total_income, total_expense, total_investment):
     # Aktif OpenAI API anahtarını al
     config = AIConfig.objects.filter(active=True).order_by('-created_at').first()
-    if not config:
+    if not config or not openai:
         return "AI öneri servisi yapılandırılmamış."
-    openai.api_key = config.key
-    prompt = f"""
-    Kullanıcının geliri: {total_income}₺\nGideri: {total_expense}₺\nYatırım tutarı: {total_investment}₺\nBu verilere göre kısa bir finansal öneri sun.
-    """
+    
     try:
-        response = openai.ChatCompletion.create(
+        # Yeni OpenAI client formatı
+        client = openai.OpenAI(api_key=config.key)
+        prompt = f"""
+        Kullanıcının geliri: {total_income}₺\nGideri: {total_expense}₺\nYatırım tutarı: {total_investment}₺\nBu verilere göre kısa bir finansal öneri sun.
+        """
+        
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return response['choices'][0]['message']['content']
+        return response.choices[0].message.content
     except Exception as e:
         return f"AI öneri alınamadı: {e}"
 
 @login_required
 def download_financial_report(request):
     # Panelde kullanılan context ile aynı veriler
-    from .views import get_ai_financial_advice
     # (Varsa) paneldeki hesaplamaları tekrar et
     # (Kısa örnek, gerçek paneldekiyle uyumlu olmalı)
     chart_labels = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"]

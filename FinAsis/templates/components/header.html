@@ -1,22 +1,24 @@
 {% load static i18n %}
 <header class="sticky-top">
   <!-- Üst yardımcı çubuk -->
-  <div class="bg-dark text-light small py-1 d-none d-md-block">
+  <div class="bg-dark text-light small py-1 d-none d-md-block" role="navigation" aria-label="Yardımcı bağlantılar">
     <div class="container d-flex justify-content-between align-items-center">
       <div class="d-flex gap-3">
-        <span><i class="bi bi-shield-check me-1"></i> Yerel AI & e‑Dönüşüm</span>
+        <span class="d-none d-lg-inline"><i class="bi bi-shield-check me-1"></i> KVKK Uyumlu</span>
+        <span><i class="bi bi-cpu me-1"></i> Yerel AI & e‑Dönüşüm</span>
         <a class="link-light" href="tel:+902120000000"><i class="bi bi-phone me-1"></i> +90 212 000 00 00</a>
-        <a class="link-light" href="mailto:sales@finasis.com.tr"><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</a>
+  <a class="link-light" href="mailto:sales@finasis.com.tr"><i class="bi bi-envelope me-1"></i> sales@finasis.com.tr</a>
       </div>
       <div>
         <a class="link-light me-3" href="{% url 'kvkk' %}">KVKK</a>
-        <a class="link-light" href="{% url 'privacy_policy' %}">Gizlilik</a>
+        <a class="link-light me-3" href="{% url 'privacy_policy' %}">Gizlilik</a>
+        <a class="link-light" href="{% url 'contact' %}"><i class="bi bi-people me-1"></i> Satışla Görüş</a>
       </div>
     </div>
   </div>
 
   <!-- Ana navigasyon -->
-  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, #007a5e 0%, #009873 100%);">
+  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm brand-nav" role="navigation" aria-label="Ana navigasyon">
     <div class="container">
       <!-- Logo ve marka -->
       <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
@@ -25,7 +27,7 @@
       </a>
 
       <!-- Mobil hamburger butonu -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
               aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
         <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
       </button>
@@ -35,7 +37,7 @@
         <!-- Sol: menü -->
   <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-white {% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}active{% endif %}"
+        <a class="nav-link dropdown-toggle text-white {% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}active{% endif %}"
                href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                aria-current="{% if '/products/' in path or '/finance/' in path or '/dashboard/' in path %}page{% endif %}">Ürünler</a>
             <div class="dropdown-menu p-3 border-0 shadow-lg" aria-labelledby="urunlerDropdown" style="min-width: 520px;">
@@ -85,12 +87,21 @@
                       <small class="text-muted">Kullanıcı & şirket yönetimi</small>
                     </div>
                   </a>
+                  <div class="border-top mt-2 pt-2">
+                    <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'billing:plans' %}">
+                      <i class="bi bi-lightning-charge text-warning"></i>
+                      <div>
+                        <div class="fw-semibold">Hemen Başla</div>
+                        <small class="text-muted">Ücretsiz dene — kredi kartsız</small>
+                      </div>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-white {% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}active{% endif %}"
+        <a class="nav-link dropdown-toggle text-white {% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}active{% endif %}"
                href="#" id="cozumlerDropdown" data-bs-toggle="dropdown" aria-expanded="false"
                aria-current="{% if '/solutions/' in path or '/blockchain/' in path or '/education/' in path %}page{% endif %}">Çözümler</a>
             <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="cozumlerDropdown">
@@ -100,7 +111,7 @@
             </ul>
           </li>
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle text-white {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}"
+  <a class="nav-link dropdown-toggle text-white {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}"
          href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
          aria-current="{% if '/billing/plans/' in path or '/pricing/' in path %}page{% endif %}">Fiyatlandırma</a>
       <ul class="dropdown-menu border-0 shadow-lg" aria-labelledby="pricingDropdown">
@@ -137,11 +148,16 @@
               <i class="bi bi-sun d-none" data-theme-icon="light"></i>
             </button>
           </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-outline-light" style="border-radius:2rem;" href="{% url 'contact' %}">Demo Al</a>
+          <li class="nav-item d-none d-lg-flex">
+            <button class="theme-toggle-btn nav-link px-2" type="button" onclick="toggleA11yContrast()" id="contrastToggle" aria-label="Yüksek kontrast modu" aria-pressed="false" title="Yüksek kontrast modu (Ctrl+K)">
+              <i class="bi bi-eyeglasses"></i>
+            </button>
           </li>
           <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-light text-success px-4" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
+            <a class="btn btn-accent" style="border-radius:2rem;" href="{% url 'contact' %}">Satışla Görüş</a>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <a class="btn btn-brand px-4" style="font-weight:600;border-radius:2rem;" href="{% url 'accounts:register' %}">Ücretsiz Dene</a>
           </li>
           <li class="nav-item">
             <form class="d-none d-xl-flex" role="search" action="{% url 'search' %}" method="get">

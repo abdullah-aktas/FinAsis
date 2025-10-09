@@ -33,7 +33,7 @@ class AuditLog(models.Model):
 
 class ApprovalRequest(models.Model):
     STATUS = (('PENDING','Beklemede'),('APPROVED','Onaylandı'),('REJECTED','Reddedildi'))
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='common_approval_requests')
     object_id = models.CharField(max_length=64)
     content_object = GenericForeignKey('content_type', 'object_id')
     status = models.CharField(max_length=16, choices=STATUS, default='PENDING')

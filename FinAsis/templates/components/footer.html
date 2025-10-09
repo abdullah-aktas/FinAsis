@@ -1,40 +1,56 @@
-{% load i18n %}
-<footer class="footer bg-brand text-white pt-5 pb-3 mt-5" style="background: var(--primary);">
+{% load i18n static %}
+<footer class="footer bg-brand text-white pt-5 pb-3 mt-5" style="background: var(--brand-primary-900);" role="contentinfo">
   <div class="container">
-    <div class="row">
-      <div class="col-md-3 mb-3">
-        <h5 class="fw-bold mb-3">FinAsis</h5>
-        <p class="small text-white-50">Yapay zeka destekli finansal yönetim ve eğitim platformu.</p>
-  <a href="/" class="d-block mb-2 text-white">Anasayfa</a>
-  <a href="/corporate/" class="d-block mb-2 text-white">Kurumsal</a>
-  <a href="/contact/" class="d-block mb-2 text-white">İletişim</a>
-      </div>
-      <div class="col-md-3 mb-3">
-        <h6 class="fw-bold mb-3">Ürünler</h6>
-  <a href="/products/finans/" class="d-block text-white">Finansal Yönetim</a>
-  <a href="/products/egitim/" class="d-block text-white">Eğitim Modülü</a>
-  <a href="/products/blockchain/" class="d-block text-white">Blockchain</a>
-  <a href="/products/oyunlar/" class="d-block text-white">Oyunlaştırma</a>
-  <hr class="border-secondary">
-  <a href="{% url 'billing:plans' %}" class="d-block text-white">Fiyatlandırma</a>
-  <a href="{% url 'billing:plans' %}?audience=sme" class="d-block text-white">KOBİ Planları</a>
-  <a href="{% url 'billing:plans' %}?audience=edu" class="d-block text-white">Eğitim Planları</a>
-      </div>
-      <div class="col-md-3 mb-3">
-        <h6 class="fw-bold mb-3">Çözümler</h6>
-  <a href="/solutions/entegrasyon/" class="d-block text-white">Entegrasyon</a>
-  <a href="/solutions/raporlama/" class="d-block text-white">Raporlama</a>
-  <a href="/solutions/analitik/" class="d-block text-white">Analitik</a>
-      </div>
-      <div class="col-md-3 mb-3">
-        <h6 class="fw-bold mb-3">Takip Edin</h6>
-        <div class="d-flex mb-2">
-          <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="text-white me-3" aria-label="LinkedIn"><i class="bi bi-linkedin fs-4"></i></a>
-          <a href="https://www.instagram.com/finasisapp/" target="_blank" class="text-white me-3" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>
-          <a href="https://x.com/finasis" target="_blank" class="text-white me-3" aria-label="X (Twitter)"><i class="bi bi-twitter-x fs-4"></i></a>
-          <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="text-white" aria-label="YouTube"><i class="bi bi-youtube fs-4"></i></a>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="brand-logo" aria-hidden="true"></span>
+          <h5 class="fw-bold mb-0">FinAsis</h5>
         </div>
-  <a href="mailto:destek@finasis.com.tr" class="d-block text-white">destek@finasis.com.tr</a>
+        <p class="small text-white-50 mb-3">Yapay zeka destekli finansal yönetim ve eğitim platformu. e‑Dönüşüm ve blockchain kanıt katmanı ile entegre.</p>
+        <div class="d-flex align-items-center gap-3 small text-white-50">
+          <span><i class="bi bi-shield-check me-1"></i> KVKK</span>
+          <span><i class="bi bi-lock me-1"></i> Güvenli</span>
+          <span><i class="bi bi-rocket-takeoff me-1"></i> Hızlı Kurulum</span>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <h6 class="fw-bold mb-3">Ürünler</h6>
+        <a href="/products/finans/" class="d-block text-white-50">Finansal Yönetim</a>
+        <a href="/products/egitim/" class="d-block text-white-50">Eğitim Modülü</a>
+        <a href="/products/blockchain/" class="d-block text-white-50">Blockchain</a>
+        <a href="/products/oyunlar/" class="d-block text-white-50">Oyunlaştırma</a>
+        <hr class="border-secondary">
+        <a href="{% url 'billing:plans' %}" class="d-block text-white">Fiyatlandırma</a>
+        <a href="{% url 'billing:plans' %}?audience=sme" class="d-block text-white-50">KOBİ Planları</a>
+        <a href="{% url 'billing:plans' %}?audience=edu" class="d-block text-white-50">Eğitim Planları</a>
+      </div>
+      <div class="col-6 col-md-2">
+        <h6 class="fw-bold mb-3">Şirket</h6>
+        <a href="/" class="d-block text-white-50">Anasayfa</a>
+        <a href="/corporate/" class="d-block text-white-50">Kurumsal</a>
+        <a href="/resources/" class="d-block text-white-50">Kaynaklar</a>
+        <a href="/blog/" class="d-block text-white-50">Blog</a>
+        <a href="/contact/" class="d-block text-white-50">İletişim</a>
+      </div>
+      <div class="col-md-4">
+        <h6 class="fw-bold mb-3">Bültene Katıl</h6>
+        <form class="row g-2" action="{% url 'contact' %}" method="get" aria-label="Bülten kayıt formu">
+          <div class="col-8">
+            <label for="newsletterEmail" class="visually-hidden">E‑posta</label>
+            <input id="newsletterEmail" name="email" type="email" class="form-control form-control-sm" placeholder="ornek@firma.com" required>
+          </div>
+          <div class="col-4">
+            <button class="btn btn-light btn-sm w-100" type="submit">Kaydol</button>
+          </div>
+        </form>
+        <div class="d-flex mt-3 gap-3">
+          <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="text-white" aria-label="LinkedIn"><i class="bi bi-linkedin fs-5"></i></a>
+          <a href="https://www.instagram.com/finasisapp/" target="_blank" class="text-white" aria-label="Instagram"><i class="bi bi-instagram fs-5"></i></a>
+          <a href="https://x.com/finasis" target="_blank" class="text-white" aria-label="X (Twitter)"><i class="bi bi-twitter-x fs-5"></i></a>
+          <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="text-white" aria-label="YouTube"><i class="bi bi-youtube fs-5"></i></a>
+        </div>
+        <div class="small mt-2"><a href="mailto:destek@finasis.com.tr" class="text-white-50">destek@finasis.com.tr</a></div>
       </div>
     </div>
     <hr class="border-light my-4" style="opacity:.35;">

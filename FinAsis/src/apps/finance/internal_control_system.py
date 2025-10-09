@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# type: ignore[reportAttributeAccessIssue]
 """
 FinAsis - İç Denetim ve Kontrol Sistemleri
 GRC (Governance, Risk & Compliance) modülleri
@@ -202,7 +203,11 @@ class UserPermission(models.Model):
         unique_together = [['user', 'company', 'module_name', 'permission_type']]
         
     def __str__(self):
-        return f"{self.user.username} - {self.module_name} - {self.get_permission_type_display()}"
+        try:
+            permission_display = self.get_permission_type_display()
+        except:
+            permission_display = self.permission_type
+        return f"{self.user.username} - {self.module_name} - {permission_display}"
     
     def is_valid(self):
         """İznin geçerli olup olmadığını kontrol et"""
@@ -259,11 +264,19 @@ class ApprovalWorkflow(models.Model):
         ordering = ['name']
         
     def __str__(self):
-        return f"{self.name} ({self.get_workflow_type_display()})"
+        try:
+            workflow_display = self.get_workflow_type_display()
+        except:
+            workflow_display = self.workflow_type
+        return f"{self.name} ({workflow_display})"
     
     def get_next_approver(self, current_step=0):
         """Sonraki onaylayıcıyı al"""
-        steps = self.workflow_steps.filter(is_active=True).order_by('step_order')
+        try:
+            steps = self.workflow_steps.filter(is_active=True).order_by('step_order')
+        except:
+            # workflow_steps relation eksikse boş liste döndür
+            return None
         
         if current_step < len(steps):
             return steps[current_step]
@@ -371,7 +384,7 @@ class ApprovalRequest(models.Model):
     description = models.TextField(_('Açıklama'))
     
     # İlgili nesne
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='finance_approval_requests')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     
@@ -397,7 +410,11 @@ class ApprovalRequest(models.Model):
         ordering = ['-requested_at']
         
     def __str__(self):
-        return f"{self.title} - {self.get_status_display()}"
+        try:
+            status_display = self.get_status_display()
+        except:
+            status_display = self.status
+        return f"{self.title} - {status_display}"
     
     def process_next_step(self):
         """Sonraki adımı işle"""
@@ -505,7 +522,11 @@ class ApprovalRecord(models.Model):
         ordering = ['-created_at']
         
     def __str__(self):
-        return f"{self.request.title} - {self.approver.get_full_name()} - {self.get_status_display()}"
+        try:
+            status_display = self.get_status_display()
+        except:
+            status_display = self.status
+        return f"{self.request.title} - {self.approver.get_full_name()} - {status_display}"
     
     def approve(self, comments=''):
         """Onayla"""
@@ -629,7 +650,11 @@ class RiskAssessment(models.Model):
         ordering = ['-assessment_date']
         
     def __str__(self):
-        return f"{self.risk_title} - {self.get_overall_risk_level_display()}"
+        try:
+            risk_display = self.get_overall_risk_level_display()
+        except:
+            risk_display = self.overall_risk_level or 'N/A'
+        return f"{self.risk_title} - {risk_display}"
     
     def calculate_risk_score(self):
         """Risk skorunu hesapla"""
@@ -813,7 +838,11 @@ class ControlExecution(models.Model):
         ordering = ['-execution_date']
         
     def __str__(self):
-        return f"{self.control_activity.control_id} - {self.execution_date} - {self.get_status_display()}"
+        try:
+            status_display = self.get_status_display()
+        except:
+            status_display = self.status
+        return f"{self.control_activity.control_id} - {self.execution_date} - {status_display}"
 
 
 # Yardımcı fonksiyonlar ve servisler

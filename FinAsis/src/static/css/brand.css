@@ -1,0 +1,117 @@
+/* Brand system (logo-derived) + High-Contrast-ready */
+/* Logo colors: Teal (primary), Amber (accent), Dark Blue (ink) */
+
+:root {
+  /* Core brand palette */
+  --brand-primary: #0AAE94;           /* Teal */
+  --brand-primary-strong: #008E7A;    /* Darker teal for gradients/hover */
+  --brand-primary-900: #066A5C;       /* Deep teal for focus/active */
+
+  --brand-accent: #FFB300;            /* Amber */
+  --brand-accent-700: #FF8F00;        /* Darker amber for hover */
+
+  --brand-ink: #0D3B66;               /* Dark blue for headings/links */
+  --brand-text: #0F172A;              /* Primary body text (nearly black) */
+  --brand-muted: #64748B;             /* Muted text */
+
+  --brand-bg: #F7FAFC;                /* Page background */
+  --brand-surface: #FFFFFF;           /* Cards, surfaces */
+  --brand-border: #E2E8F0;            /* Subtle border */
+
+  /* Bootstrap CSS variable mapping */
+  --bs-body-bg: var(--brand-bg);
+  --bs-body-color: var(--brand-text);
+  --bs-border-color: var(--brand-border);
+
+  --bs-primary: var(--brand-primary);
+  --bs-secondary: var(--brand-ink);
+  --bs-success: var(--brand-primary);
+  --bs-warning: var(--brand-accent);
+  --bs-link-color: var(--brand-ink);
+  --bs-link-hover-color: var(--brand-primary-strong);
+
+  /* RGB mappings for variants/outlines */
+  --bs-primary-rgb: 10, 174, 148;     /* #0AAE94 */
+  --bs-success-rgb: 10, 174, 148;     /* unify success with brand */
+  --bs-warning-rgb: 255, 179, 0;      /* #FFB300 */
+
+  --bs-focus-ring-color: rgba(255, 179, 0, .35); /* amber */
+  --bs-btn-border-radius: .6rem;
+}
+
+/* Dark mode (via html[data-theme="dark"]) */
+html[data-theme="dark"] {
+  --brand-bg: #0B1220;
+  --brand-surface: #111827;
+  --brand-text: #E5E7EB;
+  --brand-muted: #9CA3AF;
+  --brand-border: #374151;
+
+  --brand-primary: #0A8C78;         /* Slightly muted teal */
+  --brand-primary-strong: #076B5C;
+  --brand-primary-900: #055247;
+  --brand-accent: #FF9800;          /* Deeper amber */
+  --brand-accent-700: #F57C00;
+  --brand-ink: #9DB7D6;             /* Softer blue for dark bg */
+
+  --bs-body-bg: var(--brand-bg);
+  --bs-body-color: var(--brand-text);
+  --bs-border-color: var(--brand-border);
+  --bs-primary: var(--brand-primary);
+  --bs-warning: var(--brand-accent);
+  --bs-link-color: var(--brand-ink);
+  --bs-link-hover-color: var(--brand-primary);
+}
+
+/* High contrast mode (body.a11y-contrast toggled by JS) */
+body.a11y-contrast {
+  --brand-bg: #000000;
+  --brand-surface: #000000;
+  --brand-text: #FFFFFF;
+  --brand-muted: #FFFFFF;
+  --brand-border: #FFFFFF;
+
+  --brand-primary: #00FFD1;       /* Neon teal for max contrast on black */
+  --brand-primary-strong: #00D1AE;
+  --brand-primary-900: #00A38B;
+  --brand-accent: #FFD600;        /* Bright amber/yellow */
+  --brand-accent-700: #FFC400;
+  --brand-ink: #FFFFFF;
+
+  --bs-body-bg: var(--brand-bg);
+  --bs-body-color: var(--brand-text);
+  --bs-border-color: var(--brand-border);
+  --bs-link-color: var(--brand-accent);
+  --bs-link-hover-color: var(--brand-primary);
+}
+
+/* Utilities & components */
+.brand-gradient {
+  background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+}
+.brand-nav {
+  background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+}
+.btn-brand {
+  background-color: var(--brand-primary);
+  color: #fff;
+  border: 1px solid transparent;
+}
+.btn-brand:hover { background-color: var(--brand-primary-strong); }
+.btn-accent {
+  background-color: var(--brand-accent);
+  color: #000;
+  border: 1px solid transparent;
+}
+.btn-accent:hover { background-color: var(--brand-accent-700); }
+
+.link-brand { color: var(--bs-link-color); }
+.link-brand:hover { color: var(--bs-link-hover-color); }
+
+/* Ensure default elements pick brand surfaces */
+body { background-color: var(--brand-bg); color: var(--brand-text); }
+.card { background-color: var(--brand-surface); border-color: var(--brand-border); }
+.navbar-collapse { background-color: rgba(0,0,0,.0); }
+
+/* Outline for keyboard accessibility pairs with a11y.css */
+:focus-visible { outline: 3px solid var(--brand-accent); outline-offset: 2px; }

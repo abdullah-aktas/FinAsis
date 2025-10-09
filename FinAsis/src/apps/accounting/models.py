@@ -1,8 +1,10 @@
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FinAsis.settings')
 from django.db import models
+from django.db.models import QuerySet
 from django.conf import settings
 from django.core.validators import RegexValidator
+from decimal import Decimal
 
 """
 Şirket, müşteri, fatura, ürün, satış, ödeme, banka ve hareket modellerini içerir.
@@ -10,6 +12,10 @@ Her modelin başında kısa açıklama ve docstring eklendi.
 """
 
 # Şirket modeli
+class CompanyQuerySet(models.QuerySet["Company"]):
+    def with_totals(self) -> QuerySet:
+        return self
+
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name="Şirket Adı")
     trade_name = models.CharField(max_length=255, verbose_name="Ticari Unvan", blank=True, null=True)
@@ -38,6 +44,9 @@ class Company(models.Model):
     country = models.CharField(max_length=2, verbose_name="Ülke", default="TR", help_text="ISO ülke kodu (örn: TR, US, DE)")
     base_currency = models.CharField(max_length=3, verbose_name="Ana Para Birimi", default="TRY", help_text="ISO para birimi kodu (örn: TRY, USD, EUR)")
 
+    # Custom manager
+    objects = CompanyQuerySet.as_manager()
+
     def __str__(self):
         return self.name
 
@@ -46,6 +55,10 @@ class Company(models.Model):
         verbose_name_plural = "Şirketler"
 
 # Müşteri modeli    
+class CustomerQuerySet(models.QuerySet["Customer"]):
+    def with_company(self) -> QuerySet:
+        return self.select_related('company')
+
 class Customer(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='customers', verbose_name="Bağlı Olduğu Şirket")
     first_name = models.CharField(max_length=100, verbose_name="Adı")
@@ -64,6 +77,9 @@ class Customer(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_customers', verbose_name="Güncelleyen Kullanıcı"
     )
 
+    # Custom manager
+    objects = CustomerQuerySet.as_manager()
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -72,6 +88,10 @@ class Customer(models.Model):
         verbose_name_plural = "Müşteriler"
 
 # Fatura modeli
+class InvoiceQuerySet(models.QuerySet["Invoice"]):
+    def with_related(self) -> QuerySet:
+        return self.select_related('company', 'customer')
+
 class Invoice(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='invoices', verbose_name="Şirket")
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices', verbose_name="Müşteri")
@@ -99,11 +119,14 @@ class Invoice(models.Model):
     gib_pdf = models.FileField(upload_to='efatura/pdf/', blank=True, null=True, verbose_name="e-Fatura PDF")
     e_archive = models.BooleanField(default=False, verbose_name="e-Arşiv")
     KDV_RATES = [
-        (0.01, '%1'),
-        (0.10, '%10'),
-        (0.20, '%20'),
+        (Decimal('0.01'), '%1'),
+        (Decimal('0.10'), '%10'),
+        (Decimal('0.20'), '%20'),
     ]
-    kdv_rate = models.DecimalField(max_digits=4, decimal_places=2, choices=KDV_RATES, default=0.20, verbose_name="KDV Oranı")
+    kdv_rate = models.DecimalField(max_digits=4, decimal_places=2, choices=KDV_RATES, default=Decimal('0.20'), verbose_name="KDV Oranı")
+
+    # Custom manager
+    objects = InvoiceQuerySet.as_manager()
 
     def __str__(self):
         return f"Fatura {self.invoice_number} - {self.customer}"
@@ -114,6 +137,10 @@ class Invoice(models.Model):
         ordering = ["-issue_date"]
 
 # Masraf modeli
+class ExpenseQuerySet(models.QuerySet["Expense"]):
+    def with_company(self) -> QuerySet:
+        return self.select_related('company')
+
 class Expense(models.Model):
     EXPENSE_CATEGORIES = [
         ('KIRA', 'Kira'),
@@ -140,8 +167,14 @@ class Expense(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_expenses', verbose_name="Güncelleyen Kullanıcı"
     )
 
+    # Custom manager
+    objects = ExpenseQuerySet.as_manager()
+
     def __str__(self):
-        return f"{self.get_category_display()} - {self.amount}₺"
+        # Django run-time'da display helper ekler; type checker'a ipucu verelim
+        from typing import cast
+        display = cast(str, getattr(self, 'get_category_display')())
+        return f"{display} - {self.amount}₺"
 
     class Meta:
         verbose_name = "Gider"
@@ -149,6 +182,10 @@ class Expense(models.Model):
         ordering = ['-expense_date']
 
 #Ürün modeli
+class ProductQuerySet(models.QuerySet["Product"]):
+    def with_company(self) -> QuerySet:
+        return self.select_related('company')
+
 class Product(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='products', verbose_name="Şirket")
     name = models.CharField(max_length=255, verbose_name="Ürün Adı")
@@ -165,6 +202,9 @@ class Product(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_products', verbose_name="Güncelleyen Kullanıcı"
     )
 
+    # Custom manager
+    objects = ProductQuerySet.as_manager()
+
     def __str__(self):
         return f"{self.name} ({self.price}₺)"
 
@@ -173,6 +213,10 @@ class Product(models.Model):
         verbose_name_plural = "Ürünler"
 
 #
+class SaleQuerySet(models.QuerySet["Sale"]):
+    def with_related(self) -> QuerySet:
+        return self.select_related('company', 'customer', 'product')
+
 class Sale(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales", verbose_name="Şirket")
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="sales", verbose_name="Müşteri")
@@ -191,6 +235,9 @@ class Sale(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_sales', verbose_name="Güncelleyen Kullanıcı"
     )
 
+    # Custom manager
+    objects = SaleQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         self.total_price = self.unit_price * self.quantity
         super().save(*args, **kwargs)
@@ -204,6 +251,10 @@ class Sale(models.Model):
         ordering = ['-sale_date']
 
 #Ödeme modeli
+class PaymentQuerySet(models.QuerySet["Payment"]):
+    def with_related(self) -> QuerySet:
+        return self.select_related('company', 'customer', 'related_invoice')
+
 class Payment(models.Model):
     PAYMENT_METHODS = [
         ('NAKIT', 'Nakit'),
@@ -243,7 +294,14 @@ class Payment(models.Model):
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_payments', verbose_name="Onaylayan")
     approved_at = models.DateTimeField(blank=True, null=True, verbose_name="Onay Zamanı")
 
+    # Custom manager
+    objects = PaymentQuerySet.as_manager()
+
 #Banka Hesabı modeli
+class BankAccountQuerySet(models.QuerySet["BankAccount"]):
+    def with_company(self) -> QuerySet:
+        return self.select_related('company')
+
 class BankAccount(models.Model):
     ACCOUNT_TYPES = [
         ('VADESIZ', 'Vadesiz Hesap'),
@@ -262,7 +320,7 @@ class BankAccount(models.Model):
     )
     account_name = models.CharField(max_length=100, verbose_name="Hesap Sahibinin Adı")
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, verbose_name="Hesap Türü")
-    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, verbose_name="Bakiye")
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'), verbose_name="Bakiye")
     currency = models.CharField(max_length=10, default="TRY", verbose_name="Para Birimi")
     is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -274,6 +332,9 @@ class BankAccount(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_bankaccounts', verbose_name="Güncelleyen Kullanıcı"
     )
 
+    # Custom manager
+    objects = BankAccountQuerySet.as_manager()
+
     def __str__(self):
         return f"{self.bank_name} ({self.iban})"
 
@@ -282,6 +343,10 @@ class BankAccount(models.Model):
         verbose_name_plural = "Banka Hesapları"
 
 #Fatura Kalemi modeli
+class InvoiceItemQuerySet(models.QuerySet["InvoiceItem"]):
+    def with_related(self) -> QuerySet:
+        return self.select_related('invoice', 'product', 'invoice__company')
+
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items', verbose_name="Fatura")
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ürün")
@@ -290,6 +355,9 @@ class InvoiceItem(models.Model):
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Birim Fiyat")
     total_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Toplam Tutar", editable=False)
     is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
+
+    # Custom manager
+    objects = InvoiceItemQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         self.total_price = self.unit_price * self.quantity
@@ -301,6 +369,10 @@ class InvoiceItem(models.Model):
     class Meta:
         verbose_name = "Fatura Kalemi"
         verbose_name_plural = "Fatura Kalemleri"
+
+class BankTransactionQuerySet(models.QuerySet["BankTransaction"]):
+    def with_related(self) -> QuerySet:
+        return self.select_related('account', 'account__company')
 
 class BankTransaction(models.Model):
     TRANSACTION_TYPES = [
@@ -314,8 +386,13 @@ class BankTransaction(models.Model):
     date = models.DateTimeField(auto_now_add=True, verbose_name="İşlem Tarihi")
     is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
 
+    # Custom manager
+    objects = BankTransactionQuerySet.as_manager()
+
     def __str__(self):
-        return f"{self.account} - {self.amount} ({self.get_transaction_type_display()})"
+        from typing import cast
+        txn_disp = cast(str, getattr(self, 'get_transaction_type_display')())
+        return f"{self.account} - {self.amount} ({txn_disp})"
 
     class Meta:
         verbose_name = "Banka Hareketi"
@@ -522,8 +599,8 @@ class PlanningScenario(models.Model):
     name = models.CharField(max_length=100, verbose_name="Senaryo Adı")
     start_date = models.DateField(verbose_name="Başlangıç Tarihi")
     end_date = models.DateField(verbose_name="Bitiş Tarihi")
-    revenue_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=1.00, verbose_name="Gelir Çarpanı")
-    expense_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=1.00, verbose_name="Gider Çarpanı")
+    revenue_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal('1.00'), verbose_name="Gelir Çarpanı")
+    expense_multiplier = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal('1.00'), verbose_name="Gider Çarpanı")
     notes = models.TextField(blank=True, null=True, verbose_name="Notlar")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -593,8 +670,8 @@ class GLJournalEntry(models.Model):
     source_type = models.CharField(max_length=30, blank=True, null=True, verbose_name="Kaynak Türü")
     source_id = models.CharField(max_length=50, blank=True, null=True, verbose_name="Kaynak ID")
     currency = models.CharField(max_length=3, default='TRY', verbose_name="Fiş Para Birimi")
-    total_debit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Toplam Borç")
-    total_credit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Toplam Alacak")
+    total_debit = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0'), verbose_name="Toplam Borç")
+    total_credit = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0'), verbose_name="Toplam Alacak")
     created_at = models.DateTimeField(auto_now_add=True)
     posted_at = models.DateTimeField(blank=True, null=True, verbose_name="Mizan Onay Zamanı")
 
@@ -608,7 +685,8 @@ class GLJournalEntry(models.Model):
         return f"{self.number} - {self.date}"
 
     def recalc_totals(self):
-        sums = self.lines.aggregate(d=models.Sum('debit'), c=models.Sum('credit'))
+        # Reverse relation 'lines' exists at runtime; to satisfy type checker, query via manager
+        sums = GLJournalLine.objects.filter(entry=self).aggregate(d=models.Sum('debit'), c=models.Sum('credit'))
         self.total_debit = sums.get('d') or 0
         self.total_credit = sums.get('c') or 0
         super().save(update_fields=['total_debit', 'total_credit'])
@@ -617,11 +695,11 @@ class GLJournalLine(models.Model):
     entry = models.ForeignKey(GLJournalEntry, on_delete=models.CASCADE, related_name='lines', verbose_name="Fiş")
     account = models.ForeignKey(GLAccount, on_delete=models.PROTECT, related_name='journal_lines', verbose_name="Hesap")
     description = models.CharField(max_length=255, blank=True, null=True, verbose_name="Açıklama")
-    debit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Borç")
-    credit = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Alacak")
+    debit = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0'), verbose_name="Borç")
+    credit = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0'), verbose_name="Alacak")
     currency = models.CharField(max_length=3, default='TRY', verbose_name="Satır PB")
-    fx_rate = models.DecimalField(max_digits=18, decimal_places=8, default=1, verbose_name="Kur")
-    amount_base = models.DecimalField(max_digits=18, decimal_places=2, default=0, verbose_name="Tutar (Baz PB)")
+    fx_rate = models.DecimalField(max_digits=18, decimal_places=8, default=Decimal('1'), verbose_name="Kur")
+    amount_base = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal('0'), verbose_name="Tutar (Baz PB)")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

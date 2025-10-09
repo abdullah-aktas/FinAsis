@@ -1,6 +1,23 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission, UserManager
 from src.apps.accounting.models import Company
+
+
+class CustomUserQuerySet(models.QuerySet["CustomUser"]):
+    """Kullanıcı listelerinde N+1'ı önlemek için ilişkileri hazırla."""
+    def with_related(self):
+        return self.select_related('company').prefetch_related('groups', 'user_permissions')
+
+
+# from_queryset ile dinamik oluşturulan manager'lar migration sırasında serileştirilemediği
+# için adlandırılmış bir sınıf olarak tanımlıyoruz.
+class CustomUserManager(UserManager):
+    def get_queryset(self):
+        return CustomUserQuerySet(self.model, using=self._db)
+
+    # Manager üzerinden de aynı API'yi sunalım
+    def with_related(self):
+        return self.get_queryset().with_related()
 
 
 class UserType(models.Model):
@@ -50,6 +67,8 @@ class CustomUser(AbstractUser):
         ('viewer', 'İzleyici')
     ], default='staff')
     user_type = models.ForeignKey(UserType, on_delete=models.SET_NULL, null=True, blank=True)
+    # Varsayılan manager: adlandırılmış CustomUserManager kullan
+    objects = CustomUserManager()
     groups = models.ManyToManyField(
         Group,
         related_name='customuser_set',

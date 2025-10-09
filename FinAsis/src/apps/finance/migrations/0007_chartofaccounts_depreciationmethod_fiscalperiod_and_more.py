@@ -424,7 +424,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="journal_vouchers",
-                        to="finance.fiscalperiod",
+                        to="finance.FiscalPeriod",
                         verbose_name="Mali Dönem",
                     ),
                 ),
@@ -526,7 +526,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="depreciation_entries",
-                        to="finance.fiscalperiod",
+                        to="finance.FiscalPeriod",
                     ),
                 ),
                 (

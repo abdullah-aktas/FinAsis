@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('total_credits', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=18)),
                 ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='trial_balance_snapshots', to='accounting.company')),
                 ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='auth.user')),
-                ('fiscal_period', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='trial_balance_snapshots', to='finance.fiscalperiod')),
+                ('fiscal_period', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='trial_balance_snapshots', to='finance.FiscalPeriod')),
             ],
             options={
                 'verbose_name': 'Mizan Anlık Görüntüsü',

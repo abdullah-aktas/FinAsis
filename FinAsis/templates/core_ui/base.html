@@ -11,6 +11,19 @@
   <meta name="keywords" content="finans, muhasebe, eğitim, lms, oyun, blockchain, efatura, yapay zeka, FinAsis">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="{{ request.build_absolute_uri|default_if_none:'' }}">
+  <!-- Open Graph / Twitter for richer previews -->
+  {% block social_meta %}
+  <meta property="og:site_name" content="FinAsis">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% block og_title %}FinAsis · Yerel AI Finans Platformu{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}AI destekli finans, e‑dönüşüm ve eğitim süreçlerini sade, hızlı ve güvenli biçimde yönetin.{% endblock %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri|default_if_none:'' }}">
+  <meta property="og:image" content="{% static 'common/favicon.ico' %}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{% block tw_title %}FinAsis{% endblock %}">
+  <meta name="twitter:description" content="{% block tw_desc %}Yapay zeka destekli finansal yönetim ve e‑dönüşüm.{% endblock %}">
+  <meta name="twitter:image" content="{% static 'common/favicon.ico' %}">
+  {% endblock %}
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'common/favicon.ico' %}">
   <link rel="apple-touch-icon" href="{% static 'common/favicon.ico' %}">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -20,6 +33,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link rel="stylesheet" href="{% static 'css/brand.css' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/a11y.css' %}">
   {% block extra_head %}{% endblock %}
   {% block extra_css %}{% endblock %}
   <style>
@@ -32,6 +46,21 @@
     .skip-link:focus{left:0;top:0;width:auto;height:auto;padding:.75rem 1rem;background:var(--brand-primary);color:#fff;z-index:2000;}
   </style>
   {% include 'core_ui/partials/_analytics.html' %}
+  <!-- Organization JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "FinAsis",
+    "url": "{{ request.build_absolute_uri|default_if_none:'/' }}",
+    "logo": "{{ request.scheme|default:'https' }}://{{ request.get_host|default:'' }}{% static 'common/favicon.ico' %}",
+    "sameAs": [
+      "https://www.linkedin.com/in/finasis/",
+      "https://x.com/finasis",
+      "https://www.youtube.com/@FinAsisApp"
+    ]
+  }
+  </script>
 </head>
 <body class="d-flex flex-column min-vh-100">
   <a href="#main" class="skip-link">İçeriğe geç</a>
@@ -46,11 +75,12 @@
   </main>
   {% block footer %}{% include 'components/footer.html' %}{% endblock %}
   {% include 'core_ui/partials/_cookie_consent.html' %}
-  <script>const STORAGE_KEY_THEME='finasis_pref_theme';(function(){try{const s=localStorage.getItem(STORAGE_KEY_THEME);if(s){document.documentElement.dataset.theme=s}}catch(e){}})();</script>
+  <script>const STORAGE_KEY_THEME='finasis_pref_theme';const STORAGE_KEY_A11Y='finasis_pref_a11y_contrast';(function(){try{const s=localStorage.getItem(STORAGE_KEY_THEME);if(s){document.documentElement.dataset.theme=s}}catch(e){};try{const a=localStorage.getItem(STORAGE_KEY_A11Y);if(a==='1'){document.body.classList.add('a11y-contrast');const btn=document.getElementById('contrastToggle');if(btn){btn.setAttribute('aria-pressed','true');}}}catch(e){}})();</script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function toggleTheme(){const html=document.documentElement;const next=html.dataset.theme==='dark'?'light':'dark';html.dataset.theme=next;try{localStorage.setItem(STORAGE_KEY_THEME,next)}catch(e){};document.dispatchEvent(new CustomEvent('themechange',{detail:{theme:next}}));}
-    document.addEventListener('keydown',e=>{if(e.ctrlKey && e.key==='d'){toggleTheme();}});
+    function toggleA11yContrast(){const b=document.body;const on=b.classList.toggle('a11y-contrast');try{localStorage.setItem(STORAGE_KEY_A11Y,on?'1':'0')}catch(e){};const btn=document.getElementById('contrastToggle');if(btn){btn.setAttribute('aria-pressed',on?'true':'false');}}
+    document.addEventListener('keydown',e=>{if(e.ctrlKey && e.key==='d'){toggleTheme();} if(e.ctrlKey && (e.key==='k' || e.key==='K')){toggleA11yContrast();}});
   </script>
   {% block extra_js %}{% endblock %}
 </body>
