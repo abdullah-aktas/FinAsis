@@ -15,6 +15,7 @@ from .views import (
     home, privacy_policy, terms_view, help_content_api, kvkk_view,
     corporate, resources_view, support_view,
     products_finans, products_egitim, products_blockchain, products_oyunlar,
+    products_edonusum,
     solutions_enteg, solutions_raporlama, solutions_analitik,
     corporate_offer, corporate_about, corporate_team, corporate_sustainability,
     corporate_careers, corporate_press, corporate_investors, corporate_security,
@@ -65,11 +66,17 @@ urlpatterns = [
     path('accounts/', include(('src.apps.accounts.urls', 'accounts'), namespace='accounts')),
     path('accounts/', include('django.contrib.auth.urls')),  # auth views (namespacelenmiyor)
     path('games/', include(('src.apps.games.urls', 'games'), namespace='games')),
+    # Top-level aliases for nested game apps to allow '{% url "game_app:*" %}' usage in templates
+    path('game-app/', include(('src.apps.games.game_app.urls', 'game_app'), namespace='game_app')),
     path('finance/', include(('src.apps.finance.urls', 'finance'), namespace='finance')),
     path('ai-assistant/', include(('src.apps.ai_assistant.urls', 'ai_assistant'), namespace='ai_assistant')),
     path('blockchain/', include(('src.apps.blockchain.urls', 'blockchain'), namespace='blockchain')),
     path('dashboard/', dashboard, name='dashboard'),
-    path('education/', education, name='education'),
+    # Education app (namespaced) + legacy alias
+    path('education/', include(('src.apps.education.urls', 'education'), namespace='education')),
+    # Expose student namespace at top-level for direct reverses in templates
+    path('education/student/', include(('src.apps.education.student.urls', 'student'), namespace='student')),
+    path('education/home/', education, name='education-home'),
         # Search (simple placeholder)
         path('search/', search_view, name='search'),
         # Sitemap
@@ -104,8 +111,11 @@ urlpatterns = [
     path('products/egitim/', products_egitim, name='products_egitim'),
     path('products/blockchain/', products_blockchain, name='products_blockchain'),
     path('products/oyunlar/', products_oyunlar, name='products_oyunlar'),
+    path('products/edonusum/', products_edonusum, name='products_edonusum'),
     # Billing
     path('billing/', include(('src.apps.billing.urls', 'billing'), namespace='billing')),
+    # Permissions
+    path('permissions/', include(('src.apps.permissions.urls', 'permissions'), namespace='permissions')),
     # Solutions
     path('solutions/entegrasyon/', solutions_enteg, name='solutions_enteg'),
     path('solutions/raporlama/', solutions_raporlama, name='solutions_raporlama'),
@@ -121,12 +131,32 @@ urlpatterns = [
     # API v1
     path('api/v1/health/', health_check, name='api-health'),
     path('api/v1/', include('src.api.urls')),
+    path('api/v1/submissions/', include(('src.apps.submissions.urls', 'submissions'), namespace='submissions')),
+    # GIB Mock endpoints (for HTTP mode smoke tests)
+    path('gib-mock/', include(('src.apps.integrator_mock.urls', 'integrator_mock'), namespace='integrator_mock')),
     # i18n dil değiştirme endpointleri (GET uyumlu override + include)
     path('i18n/setlang/', set_language_compat, name='set_language_compat'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('favicon.ico', RedirectView.as_view(url='/static/common/favicon.ico', permanent=True)),
     # Yardım sayfası
     path('help/', TemplateView.as_view(template_name='help/index.html'), name='help'),
+
+    # Placeholder routes for navigation links used in templates
+    path('transactions/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions.html'), name='transactions'),
+    path('transactions/bank/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions_bank.html'), name='transactions-bank'),
+    path('transactions/cash/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions_cash.html'), name='transactions-cash'),
+    path('transactions/invoices/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions_invoices.html'), name='transactions-invoices'),
+    path('transactions/payables/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions_payables.html'), name='transactions-payables'),
+    path('transactions/receivables/', TemplateView.as_view(template_name='auto_placeholders/finance_transactions_receivables.html'), name='transactions-receivables'),
+    path('reports/', TemplateView.as_view(template_name='finance/reports_index.html'), name='reports'),
+    path('budget/', TemplateView.as_view(template_name='auto_placeholders/finance_budgets.html'), name='budget'),
+    path('forecast/', TemplateView.as_view(template_name='auto_placeholders/finance_forecasting.html'), name='forecast'),
+    path('ai/', TemplateView.as_view(template_name='ai_assistant/home.html'), name='ai-home'),
+    path('integrations/', TemplateView.as_view(template_name='auto_placeholders/integrator_list.html'), name='integrations'),
+    path('status/', TemplateView.as_view(template_name='support/status.html'), name='status'),
+    path('careers/', TemplateView.as_view(template_name='corporate/careers.html'), name='careers'),
+    path('press/', TemplateView.as_view(template_name='corporate/press.html'), name='press'),
+    path('security/', TemplateView.as_view(template_name='corporate/security.html'), name='security'),
 
     # Sağlık ve dokümantasyon
     path('health/', health_check),

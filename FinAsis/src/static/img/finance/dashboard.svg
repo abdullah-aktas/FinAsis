@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Finans paneli illüstrasyonu">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2193b0"/>
+      <stop offset="100%" stop-color="#6dd5ed"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="#f4fbfd"/>
+  <rect x="40" y="40" width="560" height="280" rx="16" fill="url(#g1)"/>
+  <rect x="54" y="54" width="532" height="252" rx="12" fill="url(#g2)"/>
+  <!-- Header bar -->
+  <rect x="54" y="54" width="532" height="36" rx="12" fill="#e8f6fb"/>
+  <circle cx="74" cy="72" r="6" fill="#6dd5ed"/>
+  <circle cx="92" cy="72" r="6" fill="#6dd5ed"/>
+  <circle cx="110" cy="72" r="6" fill="#6dd5ed"/>
+  <!-- Left metric cards -->
+  <rect x="74" y="110" width="180" height="56" rx="10" fill="#e9f8ff"/>
+  <rect x="74" y="176" width="180" height="56" rx="10" fill="#e9f8ff"/>
+  <rect x="74" y="242" width="180" height="56" rx="10" fill="#e9f8ff"/>
+  <!-- Chart area -->
+  <rect x="270" y="110" width="300" height="188" rx="12" fill="#e9f8ff"/>
+  <!-- Line chart -->
+  <polyline fill="none" stroke="#2193b0" stroke-width="3" points="280,270 310,240 340,248 370,210 400,220 430,180 460,190 490,160 520,172 560,130"/>
+  <!-- Bars -->
+  <rect x="290" y="250" width="16" height="36" fill="#bde8f4"/>
+  <rect x="318" y="235" width="16" height="51" fill="#87d2e6"/>
+  <rect x="346" y="220" width="16" height="66" fill="#5fc0d9"/>
+  <rect x="374" y="205" width="16" height="81" fill="#3eacc9"/>
+  <rect x="402" y="228" width="16" height="58" fill="#87d2e6"/>
+  <text x="74" y="140" font-family="Segoe UI, Roboto, Arial" font-size="14" fill="#1f2937">Bakiye</text>
+  <text x="74" y="206" font-family="Segoe UI, Roboto, Arial" font-size="14" fill="#1f2937">Gelir</text>
+  <text x="74" y="272" font-family="Segoe UI, Roboto, Arial" font-size="14" fill="#1f2937">Gider</text>
+</svg>

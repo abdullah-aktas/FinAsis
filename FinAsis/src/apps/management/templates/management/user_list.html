@@ -3,7 +3,7 @@
 {% block admin_content %}
 <h2>Kullanıcı Listesi</h2>
 <div class="mb-3 text-end">
-  <a href="{% url 'user_list_export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm">
+  <a href="{% url 'management:user_list_export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm">
     <i class="bi bi-file-earmark-spreadsheet"></i> CSV Dışa Aktar
   </a>
 </div>

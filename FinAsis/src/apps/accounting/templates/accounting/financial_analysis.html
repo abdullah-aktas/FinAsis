@@ -1,4 +1,5 @@
 {% extends "accounting/base.html" %}
+{% load common_tags %}
 {% block content %}
 <h2>Finansal Analiz &amp; AI Öneriler ({{ year }}/{{ month }})</h2>
 <p><strong>Şirket:</strong> {{ company.name }}</p>
@@ -16,15 +17,23 @@
 <h4>Trend Analizi</h4>
 <canvas id="trendChart" width="600" height="300"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="trend-data" type="application/json">
+{
+  "sales": {{ trends|getattr:'Satış Trend'|default:'[]'|safe }},
+  "profit": {{ trends|getattr:'Kar Trend'|default:'[]'|safe }}
+}
+</script>
 <script>
-const salesTrend = {{ trends['Satış Trend']|safe }};
-const profitTrend = {{ trends['Kar Trend']|safe }};
-const labels = Array.from({length: salesTrend.length}, (_, i) => `Dönem ${i+1}`);
+const trendEl = document.getElementById('trend-data');
+const trendParsed = trendEl ? JSON.parse(trendEl.textContent) : { sales: [], profit: [] };
+const salesTrend = Array.isArray(trendParsed.sales) ? trendParsed.sales : [];
+const profitTrend = Array.isArray(trendParsed.profit) ? trendParsed.profit : [];
+const trendLabels = Array.from({length: salesTrend.length}, (_, i) => `Dönem ${i+1}`);
 const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
     type: 'line',
     data: {
-        labels: labels,
+        labels: trendLabels,
         datasets: [
             {
                 label: 'Satış',

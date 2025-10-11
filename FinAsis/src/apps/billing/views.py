@@ -7,7 +7,8 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.conf import settings
 from .models import Plan, Price, SubscriptionProfile, Transaction, BankTransfer, EnterpriseInquiry
 from .services import PayTRClient, RefGenerator
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
+from typing import Optional, cast
 from django.utils import timezone
 from src.apps.accounts.models import SubscriptionType, Subscription, SubscriptionLog
 from django.contrib.auth.models import Group
@@ -32,6 +33,66 @@ def plans(request: HttpRequest) -> HttpResponse:
     if audience in ('sme', 'edu'):
         qs = qs.filter(audience=audience)
     plans_list = list(qs)
+
+    # Türkiye odaklı ek bağlam: KDV, taksit, yıllık indirim vb.
+    VAT_INCLUDED = getattr(settings, 'VAT_INCLUDED', True)
+    try:
+        VAT_RATE = int(getattr(settings, 'VAT_RATE', 20))
+    except Exception:
+        VAT_RATE = 20
+    try:
+        INSTALLMENT_MAX = int(getattr(settings, 'INSTALLMENT_MAX', 12))
+    except Exception:
+        INSTALLMENT_MAX = 12
+
+    # Plan -> fiyat eşlemeleri ve popüler plan belirleme (özellik sayısına göre)
+    card_map: dict[str, dict] = {}
+    popular_code: str | None = None
+    max_modules = -1
+    for p in plans_list:
+        # Modül sayısına göre popüler plan heuristiği
+        try:
+            mod_count = getattr(p, 'plan_modules').all().count()
+        except Exception:
+            mod_count = 0
+        if mod_count > max_modules:
+            max_modules = mod_count
+            popular_code = p.code
+
+        month_price = None
+        year_price = None
+        for pr in getattr(p, 'prices').all():
+            if getattr(pr, 'period', '') == 'month' and month_price is None:
+                month_price = pr
+            if getattr(pr, 'period', '') == 'year' and year_price is None:
+                year_price = pr
+
+        month_amount = cast(Optional[Decimal], getattr(month_price, 'amount', None))
+        year_amount = cast(Optional[Decimal], getattr(year_price, 'amount', None))
+        year_per_month: Optional[Decimal] = None
+        discount_pct: Optional[float] = None
+        try:
+            if year_amount is not None:
+                # Ay eşdeğeri: yıllık/12
+                year_per_month = (year_amount / Decimal('12'))
+            if month_amount is not None and year_amount is not None and month_amount > 0:
+                discount_pct = float(100 * (1 - (year_amount / (month_amount * Decimal('12')))))
+        except (InvalidOperation, ZeroDivisionError):
+            year_per_month = None
+            discount_pct = None
+
+        card_map[p.code] = {
+            'month_amount': month_amount,
+            'year_amount': year_amount,
+            'year_per_month': year_per_month,
+            'discount_pct': discount_pct,
+            'currency': getattr(month_price or year_price, 'currency', 'TL'),
+            'has_month': month_price is not None,
+            'has_year': year_price is not None,
+            'popular': False,  # fill after loop
+        }
+    if popular_code and popular_code in card_map:
+        card_map[popular_code]['popular'] = True
     module_to_plans = {}
     for p in plans_list:
         for pm in getattr(p, 'plan_modules').all():
@@ -46,12 +107,18 @@ def plans(request: HttpRequest) -> HttpResponse:
         }
         for name, codes in sorted(module_to_plans.items(), key=lambda x: x[0].lower())
     ]
+    plan_cards = [{'plan': p, 'card': card_map.get(p.code)} for p in plans_list]
     return render(request, 'billing/plans.html', {
         'plans': plans_list,
+        'plan_cards': plan_cards,
         'audience': audience or 'sme',
         'period': period or 'month',
         'feature_rows': feature_rows,
         'BANK_TRANSFER_ENABLED': getattr(settings, 'BANK_TRANSFER_ENABLED', True),
+        'VAT_INCLUDED': VAT_INCLUDED,
+        'VAT_RATE': VAT_RATE,
+        'INSTALLMENT_MAX': INSTALLMENT_MAX,
+        'card_map': card_map,
     })
 
 @login_required

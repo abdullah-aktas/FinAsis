@@ -1,0 +1,13 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% block title %}{% block permissions_title %}İzinler{% endblock %}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  {% block permissions_content %}
+  <h1 class="h4 mb-3">{% trans "İzinler" %}</h1>
+  {% endblock %}
+  {% block permissions_extra %}{% endblock %}
+  {% block permissions_footer %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+</div>
+{% endblock %}

@@ -4,22 +4,31 @@
 <p><strong>Şirket:</strong> {{ company.name }} | <strong>Ülke:</strong> {{ company.country }} | <strong>Para Birimi:</strong> {{ company.base_currency }}</p>
 <canvas id="kdvChart" width="600" height="300"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="kdv-data" type="application/json">
+{
+    "labels": [
+        {% for row in df.values.tolist %}
+            "{{ row.0 }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ],
+    "matrah": [
+        {% for row in df.values.tolist %}
+            {{ row.1 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ],
+    "tutar": [
+        {% for row in df.values.tolist %}
+            {{ row.3 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
 <script>
-const kdvLabels = [
-    {% for row in df.values.tolist %}
-        '{{ row.0 }}',
-    {% endfor %}
-];
-const kdvMatrah = [
-    {% for row in df.values.tolist %}
-        {{ row.1 }},
-    {% endfor %}
-];
-const kdvTutar = [
-    {% for row in df.values.tolist %}
-        {{ row.3 }},
-    {% endfor %}
-];
+const dataEl = document.getElementById('kdv-data');
+const parsed = dataEl ? JSON.parse(dataEl.textContent) : { labels: [], matrah: [], tutar: [] };
+const kdvLabels = parsed.labels;
+const kdvMatrah = parsed.matrah;
+const kdvTutar = parsed.tutar;
 const ctx = document.getElementById('kdvChart').getContext('2d');
 new Chart(ctx, {
     type: 'bar',

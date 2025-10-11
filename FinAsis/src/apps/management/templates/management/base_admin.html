@@ -1,4 +1,5 @@
 {% extends "common/base.html" %}
+{% load static %}
 {% block title %}Yönetim Paneli{% endblock %}
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
@@ -23,17 +24,24 @@
         <div class="dropdown">
           <button class="btn btn-outline-light btn-sm position-relative" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Bildirimler">
             <i class="bi bi-bell"></i>
-            {% with unread_count=request.user.notifications.filter(is_read=False).count %}
-              {% if unread_count > 0 %}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_count }}</span>
-              {% endif %}
-            {% endwith %}
+            {% if request.user.is_authenticated %}
+              {% with unread_list=request.user.notifications.all %}
+                {% if unread_list %}
+                  {% with unread_count=unread_list|length %}
+                    {% if unread_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_count }}</span>
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              {% endwith %}
+            {% endif %}
           </button>
           <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown" style="min-width: 320px; max-height: 350px; overflow-y: auto;">
-            {% for notif in request.user.notifications.all|dictsortreversed:"created_at"|slice:":10" %}
+            {% if request.user.is_authenticated %}
+            {% for notif in request.user.notifications.all|slice:":10" %}
               <li class="mb-1">
                 <a href="{{ notif.link|default:'#' }}" class="dropdown-item d-flex align-items-center {% if not notif.is_read %}fw-bold{% endif %}">
-                  <i class="bi bi-dot me-2 text-{{ 'primary' if not notif.is_read else 'secondary' }}"></i>
+                  <i class="bi bi-dot me-2 {% if not notif.is_read %}text-primary{% else %}text-secondary{% endif %}"></i>
                   {{ notif.message }}
                   <small class="ms-auto text-muted">{{ notif.created_at|date:'d.m.Y H:i' }}</small>
                 </a>
@@ -41,6 +49,7 @@
             {% empty %}
               <li><span class="dropdown-item text-muted">Hiç bildiriminiz yok.</span></li>
             {% endfor %}
+            {% endif %}
           </ul>
         </div>
       </div>

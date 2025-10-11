@@ -12,6 +12,8 @@ app_name = 'education'
 
 urlpatterns = [
     path('', education_home, name='education_home'),
+    # Student module (namespaced as 'student')
+    path('student/', include(('src.apps.education.student.urls', 'student'), namespace='student')),
     path('kobi-tutorials/', views.kobi_tutorials, name='kobi_tutorials'),
     # Meetings pages
     path('meetings/', views.MeetingListView.as_view(), name='meetings_list'),

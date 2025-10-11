@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2>Gönderimlerim</h2>
+  <table class="table table-sm align-middle mt-3">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Beyan</th>
+        <th>Hedef</th>
+        <th>Durum</th>
+        <th>Tarih</th>
+        <th>Aksiyon</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in submissions %}
+      <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.declaration.code }} - {{ s.declaration.period }}</td>
+        <td>{{ s.get_target_display }}</td>
+        <td>
+          <span class="badge text-bg-{% if s.status == 'accepted' %}success{% elif s.status == 'rejected' %}danger{% elif s.status == 'sent' %}primary{% else %}secondary{% endif %}">
+            {{ s.status|upper }}
+          </span>
+        </td>
+        <td>{{ s.submitted_at|date:'Y-m-d H:i' }}</td>
+        <td>
+          <form method="post" action="/api/v1/submissions/submissions/{{ s.id }}/validate/" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-warning">Doğrula</button>
+          </form>
+          <form method="post" action="/api/v1/submissions/submissions/{{ s.id }}/send/" class="d-inline ms-1">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-primary">Gönder</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-muted">Kayıt yok.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

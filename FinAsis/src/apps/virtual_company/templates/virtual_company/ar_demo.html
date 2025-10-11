@@ -34,7 +34,7 @@ let currentMarker = null;
 let currentProduct = null;
 
 // Şirketleri getir ve dropdown'a ekle
-fetch("{% url 'ar_company_list' %}")
+fetch("{% url 'virtual_company:api:ar_company_list' %}")
   .then(response => response.json())
   .then(companies => {
     if (companies.length > 0) {
@@ -55,7 +55,8 @@ fetch("{% url 'ar_company_list' %}")
 
 // Marker ve ürün eşleştirme fonksiyonu
 function updateProductInfo(markerId, infoId) {
-  fetch(`/ar/product/marker/${markerId}/`)
+  const markerUrlTemplate = "{% url 'virtual_company:api:ar_product_by_marker' marker_id='__MARKER__' %}";
+  fetch(markerUrlTemplate.replace('__MARKER__', encodeURIComponent(markerId)))
     .then(response => response.json())
     .then(product => {
       if (!product.error) {
@@ -93,7 +94,7 @@ document.getElementById('ar-sale-btn').onclick = function() {
   if (!currentProduct || !selectedCompany) return;
   let miktar = prompt("Satış miktarı giriniz:");
   if (miktar) {
-    fetch("{% url 'ar_accounting_entry_create' %}", {
+  fetch("{% url 'virtual_company:api:ar_accounting_entry_create' %}", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +120,7 @@ document.getElementById('ar-expense-btn').onclick = function() {
   if (!currentProduct || !selectedCompany) return;
   let miktar = prompt("Gider miktarı giriniz:");
   if (miktar) {
-    fetch("{% url 'ar_accounting_entry_create' %}", {
+  fetch("{% url 'virtual_company:api:ar_accounting_entry_create' %}", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

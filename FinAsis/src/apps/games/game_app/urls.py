@@ -6,6 +6,8 @@ app_name = 'game_app'
 
 urlpatterns = [
     path('', views.welcome, name='welcome'),
+    # Simple scoreboard placeholder to fix broken link from games_home
+    path('scoreboard/', views.scoreboard, name='scoreboard'),
     path('games/', views.games, name='games'),
     path('games/<str:game_key>/', views.game_detail, name='game_detail'),
     path('student/', views.student_dashboard, name='student_dashboard'),

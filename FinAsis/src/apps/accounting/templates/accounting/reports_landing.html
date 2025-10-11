@@ -14,7 +14,7 @@
           <div class="mb-2" style="font-size:1.8rem; color:#6366F1;"><i class="bi bi-graph-up"></i></div>
           <h5 class="card-title mb-1">Gelir - Gider Özeti</h5>
           <p class="text-muted small mb-3 flex-grow-1">Seçilen tarih aralığına göre gelir / gider kırılımı ve net fark.</p>
-          <a href="/accounting/reports/income-expense/" class="stretched-link"></a>
+          <a href="{% url 'accounting:summary_report' %}" class="stretched-link"></a>
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
           <div class="mb-2" style="font-size:1.8rem; color:#00B894;"><i class="bi bi-cash-stack"></i></div>
           <h5 class="card-title mb-1">Nakit Akışı</h5>
           <p class="text-muted small mb-3 flex-grow-1">Dönemsel giriş-çıkış hareketleri ve kapanış bakiyeleri.</p>
-          <a href="/accounting/reports/cashflow/" class="stretched-link"></a>
+          <a href="{% url 'accounting:summary_report' %}" class="stretched-link"></a>
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@
           <div class="mb-2" style="font-size:1.8rem; color:#FFA500;"><i class="bi bi-receipt"></i></div>
           <h5 class="card-title mb-1">Fatura Performansı</h5>
             <p class="text-muted small mb-3 flex-grow-1">Tahsilat süresi, açık / ödenmiş fatura durumu ve toplam tutarlar.</p>
-          <a href="/accounting/reports/invoices/" class="stretched-link"></a>
+          <a href="{% url 'accounting:invoice_list' %}" class="stretched-link"></a>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@
           <div class="mb-2" style="font-size:1.8rem; color:#e17055;"><i class="bi bi-credit-card-2-front"></i></div>
           <h5 class="card-title mb-1">Gider Analizi</h5>
           <p class="text-muted small mb-3 flex-grow-1">Kategori bazlı gider dağılımı ve dönemsel trendler.</p>
-          <a href="/accounting/reports/expenses/" class="stretched-link"></a>
+          <a href="{% url 'accounting:expense_list' %}" class="stretched-link"></a>
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@
           <div class="mb-2" style="font-size:1.8rem; color:#6366F1;"><i class="bi bi-people"></i></div>
           <h5 class="card-title mb-1">Müşteri Geliri</h5>
           <p class="text-muted small mb-3 flex-grow-1">Müşteri başına gelir katkısı ve konsantrasyon oranları.</p>
-          <a href="/accounting/reports/customers/" class="stretched-link"></a>
+          <a href="{% url 'accounting:customer_list' %}" class="stretched-link"></a>
         </div>
       </div>
     </div>

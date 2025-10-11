@@ -57,7 +57,7 @@ class VoucherListView(LoginRequiredMixin, ListView):
         queryset = (
             JournalVoucher.objects.filter(company=company)
             .select_related('company')
-            .prefetch_related('entries')
+            .prefetch_related('journal_entries')
             .order_by('-date', '-id')
         )
         
@@ -104,12 +104,13 @@ class VoucherListView(LoginRequiredMixin, ListView):
                 date__month=timezone.now().month
             ).count(),
             'total_amount': JournalEntry.objects.filter(
-                journal_voucher__company=company
+                voucher__company=company
             ).aggregate(total=Sum('debit_amount'))['total'] or 0
         }
         
         # Fiş tipleri
-        context['voucher_types'] = getattr(JournalVoucher, 'VOUCHER_TYPE_CHOICES', [])
+        # VOUCHER_TYPES is defined on the model
+        context['voucher_types'] = getattr(JournalVoucher, 'VOUCHER_TYPES', [])
         
         return context
 
@@ -129,7 +130,7 @@ class VoucherDetailView(LoginRequiredMixin, DetailView):
         return (
             JournalVoucher.objects.filter(company=company)
             .select_related('company')
-            .prefetch_related('entries__account')
+            .prefetch_related('journal_entries__account')
         )
     
     def get_context_data(self, **kwargs):
@@ -137,7 +138,7 @@ class VoucherDetailView(LoginRequiredMixin, DetailView):
         
         # Toplam tutarları hesapla
         obj = getattr(self, 'object', None)
-        entries = obj.entries.all() if obj is not None and hasattr(obj, 'entries') else []
+        entries = obj.journal_entries.all() if obj is not None else []
         context['total_debit'] = sum(entry.debit_amount for entry in entries)
         context['total_credit'] = sum(entry.credit_amount for entry in entries)
         context['is_balanced'] = context['total_debit'] == context['total_credit']
@@ -187,7 +188,7 @@ def voucher_create(request):
                     for entry_form in entry_formset:
                         if entry_form.cleaned_data and not entry_form.cleaned_data.get('DELETE', False):
                             entry = entry_form.save(commit=False)
-                            entry.journal_voucher = voucher
+                            entry.voucher = voucher
                             
                             # Boş tutar kontrolü
                             if not entry.debit_amount:
@@ -236,7 +237,7 @@ def voucher_create(request):
         'form': voucher_form,
         'entry_formset': entry_formset,
         'accounts': accounts,
-    'voucher_types': getattr(JournalVoucher, 'VOUCHER_TYPE_CHOICES', []),
+        'voucher_types': getattr(JournalVoucher, 'VOUCHER_TYPES', []),
     }
     
     return render(request, 'accounting/voucher_form.html', context)
@@ -268,7 +269,7 @@ def voucher_edit(request, pk):
             try:
                 with transaction.atomic():
                     # Eski kayıtları sil
-                    entries_rel = getattr(voucher, 'entries', None)
+                    entries_rel = getattr(voucher, 'journal_entries', None)
                     if entries_rel is not None:
                         entries_rel.all().delete()
                     
@@ -283,7 +284,7 @@ def voucher_edit(request, pk):
                     for entry_form in entry_formset:
                         if entry_form.cleaned_data and not entry_form.cleaned_data.get('DELETE', False):
                             entry = entry_form.save(commit=False)
-                            entry.journal_voucher = voucher
+                            entry.voucher = voucher
                             
                             if not entry.debit_amount:
                                 entry.debit_amount = Decimal('0')
@@ -312,7 +313,7 @@ def voucher_edit(request, pk):
                 messages.error(request, f'Güncelleme sırasında hata oluştu: {str(e)}')
     else:
         voucher_form = JournalVoucherForm(instance=voucher)
-        entries_rel = getattr(voucher, 'entries', None)
+        entries_rel = getattr(voucher, 'journal_entries', None)
         qs = entries_rel.all() if entries_rel is not None else JournalEntry.objects.none()
         entry_formset = JournalEntryFormSet(prefix='entries', queryset=qs)
     
@@ -459,19 +460,17 @@ class JournalVoucherForm(forms.ModelForm):
     """
     class Meta:
         model = JournalVoucher
-        fields = ['voucher_number', 'date', 'voucher_type', 'description', 'currency']
+        fields = ['voucher_number', 'date', 'voucher_type', 'description']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'voucher_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Otomatik oluşturulur'}),
             'voucher_type': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'currency': forms.Select(attrs={'class': 'form-select'}),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['date'].initial = timezone.now().date()
-        self.fields['currency'].initial = 'TRY'
         self.fields['voucher_number'].required = False
 
 
@@ -524,10 +523,14 @@ def generate_voucher_number(company, voucher_type):
     # Tip kısaltması
     type_prefix = {
         'GENERAL': 'MF',
-        'SALES': 'SF',
+        'SALE': 'SF',
         'PURCHASE': 'AF',
         'CASH': 'KF',
         'BANK': 'BF',
+        'PAYROLL': 'PF',
+        'DEPRECIATION': 'DF',
+        'ADJUSTMENT': 'ADJ',
+        'CLOSING': 'CL',
     }.get(voucher_type, 'MF')
     
     # Bu yıl için son numara
@@ -599,13 +602,13 @@ def account_ledger(request, account_id):
     date_to = request.GET.get('date_to')
     
     entries = JournalEntry.objects.filter(account=account).select_related(
-        'journal_voucher'
-    ).order_by('journal_voucher__date', 'id')
+        'voucher'
+    ).order_by('voucher__date', 'id')
     
     if date_from:
-        entries = entries.filter(journal_voucher__date__gte=date_from)
+        entries = entries.filter(voucher__date__gte=date_from)
     if date_to:
-        entries = entries.filter(journal_voucher__date__lte=date_to)
+        entries = entries.filter(voucher__date__lte=date_to)
     
     # Bakiye hesaplama
     running_balance = Decimal('0')
@@ -660,7 +663,7 @@ def trial_balance(request):
         # Hesap hareketlerini getir
         entries = JournalEntry.objects.filter(
             account=account,
-            journal_voucher__date__lte=date_to
+            voucher__date__lte=date_to
         )
         
         debit_sum = entries.aggregate(total=Sum('debit_amount'))['total'] or Decimal('0')

@@ -37,25 +37,35 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+        user_company = getattr(self.request.user, 'company', None)
         # İstatistikleri hesapla
-        context['account_count'] = Account.objects.filter(company=self.request.user.company).count()
+        context['account_count'] = Account.objects.filter(company=user_company).count() if user_company else 0
         context['active_account_count'] = Account.objects.filter(
-            company=self.request.user.company, is_active=True
-        ).count()
+            company=user_company, is_active=True
+        ).count() if user_company else 0
         
-        context['voucher_count'] = Voucher.objects.filter(company=self.request.user.company).count()
+        context['voucher_count'] = Voucher.objects.filter(company=user_company).count() if user_company else 0
+        # Not: Voucher.STATE_CHOICES lower-case kullanıyor: ('draft','posted','cancelled')
         context['voucher_draft_count'] = Voucher.objects.filter(
-            company=self.request.user.company, state='DRAFT'
-        ).count()
+            company=user_company, state='draft'
+        ).count() if user_company else 0
         context['voucher_posted_count'] = Voucher.objects.filter(
-            company=self.request.user.company, state='POSTED'
-        ).count()
+            company=user_company, state='posted'
+        ).count() if user_company else 0
+
+        # Yüzdeler (lint ve template basitliği için önceden hesapla)
+        v_total = context['voucher_count'] or 0
+        if v_total:
+            context['posted_percent'] = round((context['voucher_posted_count'] / v_total) * 100)
+            context['draft_percent'] = round((context['voucher_draft_count'] / v_total) * 100)
+        else:
+            context['posted_percent'] = 0
+            context['draft_percent'] = 0
         
         # Son fişleri al
         context['recent_vouchers'] = Voucher.objects.filter(
-            company=self.request.user.company
-        ).order_by('-date', '-created_at')[:10]
+            company=user_company
+        ).order_by('-date', '-created_at')[:10] if user_company else []
         
         return context
 
@@ -119,7 +129,8 @@ class AccountListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         """Kullanıcının şirketine ait hesapları getir"""
-        return Account.objects.filter(company=self.request.user.company).order_by('code')
+        company = getattr(self.request.user, 'company', None)
+        return Account.objects.filter(company=company).order_by('code') if company else Account.objects.none()
 
 
 class AccountDetailView(LoginRequiredMixin, DetailView):
@@ -134,7 +145,7 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
         # Hesap hareketlerini al
         account = self.get_object()
         context['voucher_lines'] = VoucherLine.objects.filter(
-            account=account, voucher__state='POSTED'
+            account=account, voucher__state='posted'
         ).order_by('-voucher__date', '-voucher__created_at')
         
         return context
@@ -149,11 +160,11 @@ class AccountCreateView(LoginRequiredMixin, CreateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['company'] = self.request.user.company
+        kwargs['company'] = getattr(self.request.user, 'company', None)
         return kwargs
     
     def form_valid(self, form):
-        form.instance.company = self.request.user.company
+        form.instance.company = getattr(self.request.user, 'company', None)
         messages.success(self.request, _("Hesap başarıyla oluşturuldu."))
         return super().form_valid(form)
 
@@ -167,7 +178,7 @@ class AccountUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['company'] = self.request.user.company
+        kwargs['company'] = getattr(self.request.user, 'company', None)
         return kwargs
     
     def form_valid(self, form):
@@ -245,7 +256,8 @@ class VoucherListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         """Kullanıcının şirketine ait fişleri getir"""
-        return Voucher.objects.filter(company=self.request.user.company).order_by('-date', '-created_at')
+        company = getattr(self.request.user, 'company', None)
+        return Voucher.objects.filter(company=company).order_by('-date', '-created_at') if company else Voucher.objects.none()
 
 
 class VoucherDetailView(LoginRequiredMixin, DetailView):
@@ -256,7 +268,8 @@ class VoucherDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['voucher_lines'] = self.object.lines.all().order_by('line_no')
+        obj = context.get('object') or self.get_object()
+        context['voucher_lines'] = VoucherLine.objects.filter(voucher=obj).order_by('line_no')
         return context
 
 
@@ -269,7 +282,7 @@ class VoucherCreateView(LoginRequiredMixin, CreateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['company'] = self.request.user.company
+        kwargs['company'] = getattr(self.request.user, 'company', None)
         return kwargs
     
     def get_context_data(self, **kwargs):
@@ -285,7 +298,7 @@ class VoucherCreateView(LoginRequiredMixin, CreateView):
         formset = context['formset']
         
         with transaction.atomic():
-            form.instance.company = self.request.user.company
+            form.instance.company = getattr(self.request.user, 'company', None)
             form.instance.created_by = self.request.user
             self.object = form.save()
             
@@ -313,7 +326,7 @@ class VoucherUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['company'] = self.request.user.company
+        kwargs['company'] = getattr(self.request.user, 'company', None)
         return kwargs
     
     def get_context_data(self, **kwargs):
@@ -325,7 +338,9 @@ class VoucherUpdateView(LoginRequiredMixin, UpdateView):
         return context
     
     def form_valid(self, form):
-        if self.object.state != 'DRAFT':
+        from typing import cast
+        obj = cast(Voucher, self.object)
+        if obj.state != 'draft':
             messages.error(self.request, _("Sadece taslak durumdaki fişler düzenlenebilir."))
             return redirect('accounting:voucher_detail', pk=self.object.pk)
         
@@ -340,7 +355,7 @@ class VoucherUpdateView(LoginRequiredMixin, UpdateView):
                 formset.save()
                 
                 # Satır numaralarını yeniden sırala
-                for i, line in enumerate(self.object.lines.all().order_by('line_no')):
+                for i, line in enumerate(VoucherLine.objects.filter(voucher=self.object).order_by('line_no')):
                     line.line_no = i + 1
                     line.save()
             
@@ -357,8 +372,9 @@ class VoucherDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('accounting:voucher_list')
     
     def delete(self, request, *args, **kwargs):
-        voucher = self.get_object()
-        if voucher.state != 'DRAFT':
+        from typing import cast
+        voucher = cast(Voucher, self.get_object())
+        if voucher.state != 'draft':
             messages.error(request, _("Sadece taslak durumdaki fişler silinebilir."))
             return redirect('accounting:voucher_detail', pk=voucher.pk)
         
@@ -369,9 +385,10 @@ class VoucherDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def post_voucher(request, pk):
     """Fişi onaylama görünümü"""
-    voucher = get_object_or_404(Voucher, pk=pk, company=request.user.company)
+    company = getattr(request.user, 'company', None)
+    voucher = get_object_or_404(Voucher, pk=pk, company=company) if company else get_object_or_404(Voucher, pk=pk)
     
-    if voucher.state != 'DRAFT':
+    if voucher.state != 'draft':
         messages.error(request, _("Sadece taslak durumdaki fişler onaylanabilir."))
         return redirect('accounting:voucher_detail', pk=voucher.pk)
     
@@ -387,9 +404,10 @@ def post_voucher(request, pk):
 @login_required
 def cancel_voucher(request, pk):
     """Fişi iptal etme görünümü"""
-    voucher = get_object_or_404(Voucher, pk=pk, company=request.user.company)
+    company = getattr(request.user, 'company', None)
+    voucher = get_object_or_404(Voucher, pk=pk, company=company) if company else get_object_or_404(Voucher, pk=pk)
     
-    if voucher.state != 'DRAFT':
+    if voucher.state != 'draft':
         messages.error(request, _("Sadece taslak durumdaki fişler iptal edilebilir. Onaylanmış fişler için ters kayıt oluşturun."))
         return redirect('accounting:voucher_detail', pk=voucher.pk)
     
@@ -405,9 +423,10 @@ def cancel_voucher(request, pk):
 @login_required
 def create_reverse_voucher(request, pk):
     """Ters kayıt oluşturma görünümü"""
-    source_voucher = get_object_or_404(Voucher, pk=pk, company=request.user.company)
+    company = getattr(request.user, 'company', None)
+    source_voucher = get_object_or_404(Voucher, pk=pk, company=company) if company else get_object_or_404(Voucher, pk=pk)
     
-    if source_voucher.state != 'POSTED':
+    if source_voucher.state != 'posted':
         messages.error(request, _("Sadece onaylanmış fişler için ters kayıt oluşturulabilir."))
         return redirect('accounting:voucher_detail', pk=source_voucher.pk)
     
@@ -420,18 +439,18 @@ def create_reverse_voucher(request, pk):
                 type=source_voucher.type,
                 number=f"S-{source_voucher.number}",  # Storno prefix
                 date=source_voucher.date,
-                description=_("İPTAL: ") + source_voucher.description,
+                description=f"{_('İPTAL: ')}{source_voucher.description or ''}",
                 reference=source_voucher.reference,
                 created_by=request.user
             )
             
             # Ters fiş satırları oluştur
-            for line in source_voucher.lines.all():
+            for line in VoucherLine.objects.filter(voucher=source_voucher):
                 VoucherLine.objects.create(
                     voucher=reverse_voucher,
                     line_no=line.line_no,
                     account=line.account,
-                    description=_("İPTAL: ") + line.description,
+                    description=f"{_('İPTAL: ')}{line.description or ''}",
                     debit_amount=line.credit_amount,  # Borç/alacak ters çevrilir
                     credit_amount=line.debit_amount   # Borç/alacak ters çevrilir
                 )
@@ -519,7 +538,7 @@ def export_journal(request):
     vouchers = Voucher.objects.filter(date__gte=start_date, date__lte=end_date).order_by('date', 'number')
     data = []
     for v in vouchers:
-        for line in v.lines.all():
+        for line in VoucherLine.objects.filter(voucher=v):
             data.append({
                 'Fiş No': v.number,
                 'Tarih': v.date.strftime('%d.%m.%Y'),

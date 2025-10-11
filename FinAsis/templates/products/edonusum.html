@@ -1,0 +1,95 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}FinAsis | e‑Dönüşüm{% endblock %}
+{% block meta_description %}{% trans 'e‑Fatura, e‑Arşiv ve e‑Defter süreçlerini tek panelden yönetin. Uyum, entegrasyon ve raporlama bir arada.' %}{% endblock %}
+{% block feature_banner %}{% endblock %}
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg,#e3c689 0%, #fffef7 100%);">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold text-warning mb-3">e‑{% trans 'Dönüşüm' %}</h1>
+        <p class="lead text-secondary">{% trans 'e‑Fatura, e‑Arşiv ve e‑Defter operasyonlarını FinAsis ile güvenli ve izlenebilir şekilde yönetin.' %}</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="badge bg-warning text-dark">e‑Fatura</span>
+          <span class="badge bg-warning text-dark">e‑Arşiv</span>
+          <span class="badge bg-warning text-dark">e‑Defter</span>
+          <span class="badge bg-secondary">Uyum</span>
+          <span class="badge bg-info text-dark">API</span>
+        </div>
+      </div>
+      <div class="col-lg-5 text-center">
+        <img src="{% static 'img/finance/einvoice.svg' %}" alt="{% trans 'e‑Dönüşüm görseli' %}" class="img-fluid rounded-3 shadow-sm" loading="lazy" width="480" height="320">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light border-top">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2">e‑Fatura / e‑Arşiv</h5>
+            <p class="text-muted mb-3">{% trans 'Fatura oluşturma, gönderim, iptal ve arşiv süreçleri tek panelde.' %}</p>
+            <a href="{% url 'finance:einvoice_list' %}" class="btn btn-outline-warning btn-sm">{% trans 'e‑Fatura Paneli' %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2">e‑Defter</h5>
+            <p class="text-muted mb-3">{% trans 'Yevmiye ve büyük defterleri mevzuata uygun şekilde üretin.' %}</p>
+            <a href="{% url 'accounting:yevmiye_defteri' %}" class="btn btn-outline-secondary btn-sm">{% trans 'Defterler' %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2">{% trans 'Uyum ve Güvenlik' %}</h5>
+            <p class="text-muted mb-3">{% trans 'Loglama, yetkilendirme ve denetim izleriyle güvence.' %}</p>
+            <a href="{% url 'audit:landing' %}" class="btn btn-outline-info btn-sm">{% trans 'Denetim' %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2">{% trans 'Entegrasyon' %}</h5>
+            <p class="text-muted mb-3">{% trans 'ERP ve muhasebe sistemleriyle çift yönlü veri akışı.' %}</p>
+            <a href="{% url 'solutions_enteg' %}" class="btn btn-outline-primary btn-sm">{% trans 'Detaylar' %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6 order-lg-2">
+        <h2 class="h3 fw-bold mb-3">{% trans 'Neden FinAsis e‑Dönüşüm?' %}</h2>
+        <ul class="text-muted mb-3">
+          <li>{% trans 'Uçtan uca izlenebilirlik ve loglama' %}</li>
+          <li>{% trans 'Hızlı kurulum ve kolay arayüz' %}</li>
+          <li>{% trans 'Güvenli altyapı ve mevzuat uyumu' %}</li>
+          <li>{% trans 'Esnek API ve entegrasyon' %}</li>
+        </ul>
+        <div class="d-flex gap-2">
+          <a href="{% url 'billing:plans' %}" class="btn btn-warning">{% trans 'Planları Gör' %}</a>
+          <a href="{% url 'contact' %}" class="btn btn-outline-primary">{% trans 'İletişime Geç' %}</a>
+        </div>
+      </div>
+      <div class="col-lg-6 order-lg-1 text-center">
+        <img src="{% static 'img/finance/reports.svg' %}" alt="{% trans 'Uygunluk ve raporlama görseli' %}" class="img-fluid rounded-3 shadow-sm" loading="lazy" width="480" height="320">
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

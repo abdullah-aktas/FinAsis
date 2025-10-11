@@ -31,6 +31,8 @@ urlpatterns = [
     # Legacy path redirect for backward compatibility
     path('user_settings/', RedirectView.as_view(pattern_name='user_settings', permanent=False)),
     path('register/', views.register, name='register'),
+    # Legacy change-subscription path alias
+    path('change-subscription/', views.change_subscription, name='change_subscription_legacy'),
     path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),

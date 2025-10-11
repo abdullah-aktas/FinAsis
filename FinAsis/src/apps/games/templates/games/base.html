@@ -1,4 +1,5 @@
 {% extends "core_ui/base.html" %}
+{% load static %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'games/css/games.css' %}">
@@ -11,7 +12,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'home' %}">Ana Sayfa</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'games:game_list' %}">Oyunlar</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'games:games_index' %}">Oyunlar</a></li>
                     {% block breadcrumb %}{% endblock %}
                 </ol>
             </nav>

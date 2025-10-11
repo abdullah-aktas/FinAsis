@@ -3,7 +3,7 @@
 Finance uygulaması WEB URL yapılandırmaları
 """
 
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import TemplateView
 from src.apps.finance.home import finance_home
 from ..views import (
@@ -24,13 +24,29 @@ from ..main_views import (
     IncomeStatementListView, IncomeStatementDetailView, IncomeStatementCreateView, IncomeStatementUpdateView, IncomeStatementDeleteView,
     # E-Invoice Item
     EInvoiceItemListView, EInvoiceItemDetailView, EInvoiceItemCreateView, EInvoiceItemUpdateView, EInvoiceItemDeleteView,
+    # Accounts
+    AccountListView, AccountDetailView, AccountCreateView, AccountUpdateView, AccountDeleteView,
+    # Budgets
+    BudgetListView, BudgetDetailView, BudgetCreateView, BudgetUpdateView, BudgetDeleteView,
+    # Taxes
+    TaxListView, TaxDetailView, TaxCreateView, TaxUpdateView, TaxDeleteView,
+    # Employees
+    EmployeeListView, EmployeeDetailView, EmployeeCreateView, EmployeeUpdateView, EmployeeDeleteView,
+    # Financial Reports
+    FinancialReportListView, FinancialReportDetailView, FinancialReportCreateView, FinancialReportUpdateView, FinancialReportDeleteView,
 )
+from ..main_views import download_financial_report
+from ..views.kobi_views import ajax_cash_flow_data
 
 app_name = 'finance'
 
 urlpatterns = [
     path('', finance_home, name='finance_home'),
     path('reports/', TemplateView.as_view(template_name='finance/reports_index.html'), name='reports_index'),
+    # Dashboard alias used by other apps/templates
+    path('kobi-dashboard/', TemplateView.as_view(template_name='finance/kobi_dashboard.html'), name='kobi_dashboard'),
+    # Include accounting submodule urls under finance namespace (nested namespace 'accounting')
+    path('accounting/', include(('src.apps.finance.accounting.urls', 'accounting'), namespace='accounting')),
     # Banka hesapları ve işlemler
     path('bank-accounts/', banking.BankAccountListView.as_view(), name='bank_account_list'),
     path('bank-accounts/<int:pk>/', banking.BankAccountDetailView.as_view(), name='bank_account_detail'),
@@ -66,16 +82,20 @@ urlpatterns = [
     # path('employee/<int:pk>/update/', accounting.EmployeeUpdateView.as_view(), name='employee_update'),
     # path('employee/<int:pk>/delete/', accounting.EmployeeDeleteView.as_view(), name='employee_delete'),
     path('voucher/', accounting.VoucherListView.as_view(), name='voucher_list'),
-    # path('voucher/<int:pk>/', accounting.VoucherDetailView.as_view(), name='voucher_detail'),
+    path('voucher/<int:pk>/', accounting.VoucherDetailView.as_view(), name='voucher_detail'),
     path('voucher/create/', accounting.VoucherCreateView.as_view(), name='voucher_create'),
-    # path('voucher/<int:pk>/update/', accounting.VoucherUpdateView.as_view(), name='voucher_update'),
-    # path('voucher/<int:pk>/delete/', accounting.VoucherDeleteView.as_view(), name='voucher_delete'),
+    path('voucher/<int:pk>/update/', accounting.VoucherUpdateView.as_view(), name='voucher_update'),
+    path('voucher/<int:pk>/delete/', accounting.VoucherDeleteView.as_view(), name='voucher_delete'),
     # Klasik Fatura (Invoice) işlemleri
     path('invoices/', InvoiceListView.as_view(), name='invoice_list'),
     path('invoices/<int:pk>/', InvoiceDetailView.as_view(), name='invoice_detail'),
     path('invoices/create/', InvoiceCreateView.as_view(), name='invoice_create'),
     path('invoices/<int:pk>/edit/', InvoiceUpdateView.as_view(), name='invoice_update'),
     path('invoices/<int:pk>/delete/', InvoiceDeleteView.as_view(), name='invoice_delete'),
+    # Finance PDF report download
+    path('report/pdf/', download_financial_report, name='download_financial_report'),
+    # AJAX endpoints used by kobi dashboard
+    path('ajax/cash-flow-data/', ajax_cash_flow_data, name='ajax_cash_flow_data'),
 ] 
 urlpatterns += [ path('bank-import/', banking.bank_import, name='bank_import'), ]
 
@@ -105,6 +125,51 @@ urlpatterns += [
     path('einvoice-items/create/', EInvoiceItemCreateView.as_view(), name='e_invoice_item_create'),
     path('einvoice-items/<int:pk>/edit/', EInvoiceItemUpdateView.as_view(), name='e_invoice_item_update'),
     path('einvoice-items/<int:pk>/delete/', EInvoiceItemDeleteView.as_view(), name='e_invoice_item_delete'),
+]
+
+# Accounts CRUD
+urlpatterns += [
+    path('accounts/', AccountListView.as_view(), name='account_list'),
+    path('accounts/<int:pk>/', AccountDetailView.as_view(), name='account_detail'),
+    path('accounts/create/', AccountCreateView.as_view(), name='account_create'),
+    path('accounts/<int:pk>/edit/', AccountUpdateView.as_view(), name='account_update'),
+    path('accounts/<int:pk>/delete/', AccountDeleteView.as_view(), name='account_delete'),
+]
+
+# Budgets CRUD
+urlpatterns += [
+    path('budgets/', BudgetListView.as_view(), name='budget_list'),
+    path('budgets/<int:pk>/', BudgetDetailView.as_view(), name='budget_detail'),
+    path('budgets/create/', BudgetCreateView.as_view(), name='budget_create'),
+    path('budgets/<int:pk>/edit/', BudgetUpdateView.as_view(), name='budget_update'),
+    path('budgets/<int:pk>/delete/', BudgetDeleteView.as_view(), name='budget_delete'),
+]
+
+# Taxes CRUD
+urlpatterns += [
+    path('taxes/', TaxListView.as_view(), name='tax_list'),
+    path('taxes/<int:pk>/', TaxDetailView.as_view(), name='tax_detail'),
+    path('taxes/create/', TaxCreateView.as_view(), name='tax_create'),
+    path('taxes/<int:pk>/edit/', TaxUpdateView.as_view(), name='tax_update'),
+    path('taxes/<int:pk>/delete/', TaxDeleteView.as_view(), name='tax_delete'),
+]
+
+# Employees CRUD
+urlpatterns += [
+    path('employees/', EmployeeListView.as_view(), name='employee_list'),
+    path('employees/<int:pk>/', EmployeeDetailView.as_view(), name='employee_detail'),
+    path('employees/create/', EmployeeCreateView.as_view(), name='employee_create'),
+    path('employees/<int:pk>/edit/', EmployeeUpdateView.as_view(), name='employee_update'),
+    path('employees/<int:pk>/delete/', EmployeeDeleteView.as_view(), name='employee_delete'),
+]
+
+# Financial Reports CRUD
+urlpatterns += [
+    path('financial-reports/', FinancialReportListView.as_view(), name='financial_report_list'),
+    path('financial-reports/<int:pk>/', FinancialReportDetailView.as_view(), name='financial_report_detail'),
+    path('financial-reports/create/', FinancialReportCreateView.as_view(), name='financial_report_create'),
+    path('financial-reports/<int:pk>/edit/', FinancialReportUpdateView.as_view(), name='financial_report_update'),
+    path('financial-reports/<int:pk>/delete/', FinancialReportDeleteView.as_view(), name='financial_report_delete'),
 ]
 
 

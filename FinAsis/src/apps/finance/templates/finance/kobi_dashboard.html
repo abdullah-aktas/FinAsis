@@ -117,7 +117,7 @@
                     <li><a class="dropdown-item" href="{% url 'accounting:invoice_create' %}">
                         <i class="fas fa-receipt me-2"></i>{% trans "Fatura Kes" %}
                     </a></li>
-                    <li><a class="dropdown-item" href="{% url 'finance:payment_create' %}">
+                    <li><a class="dropdown-item" href="{% url 'accounting:payment_create' %}">
                         <i class="fas fa-credit-card me-2"></i>{% trans "Ödeme Kaydet" %}
                     </a></li>
                     <li><hr class="dropdown-divider"></li>
@@ -143,7 +143,7 @@
                         <div class="col-md-6">
                             <h5 class="text-white mb-2">{% trans "Finansal Durum:" %} {{ financial_health.status_text }}</h5>
                             <div class="progress bg-white bg-opacity-25" style="height: 8px;">
-                                <div class="progress-bar bg-white" style="width: {{ financial_health.score }}%"></div>
+                                <div class="progress-bar bg-white" id="healthProgressBar" data-score="{{ financial_health.score|default:0 }}"></div>
                             </div>
                             <small class="text-white-50 mt-2">
                                 {% trans "Son güncelleme:" %} {{ financial_health.last_updated|date:"d M Y" }}
@@ -344,7 +344,7 @@
                     <div class="text-center text-muted py-3">
                         <i class="fas fa-chart-pie fa-3x mb-3"></i>
                         <p>{% trans "Finansal oran hesaplaması için yeterli veri bulunmuyor." %}</p>
-                        <a href="{% url 'finance:analysis_create' %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'ai_assistant:trend_analysis_create' %}" class="btn btn-primary btn-sm">
                             {% trans "Analiz Oluştur" %}
                         </a>
                     </div>
@@ -508,7 +508,7 @@
                             <i class="fas fa-chart-bar me-2"></i>{% trans "Mali Raporlar" %}
                         </a>
                         <hr>
-                        <a href="{% url 'finance:analysis_create' %}" class="btn btn-outline-secondary quick-action-btn">
+                        <a href="{% url 'ai_assistant:trend_analysis_create' %}" class="btn btn-outline-secondary quick-action-btn">
                             <i class="fas fa-microscope me-2"></i>{% trans "Finansal Analiz" %}
                         </a>
                     </div>
@@ -523,23 +523,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Nakit Akış Grafiği
+    /* Finansal sağlık ilerlemesini JS ile uygula (inline style yerine) */
+    const healthBar = document.getElementById('healthProgressBar');
+    if (healthBar && healthBar.dataset.score) {
+        const score = parseFloat(healthBar.dataset.score);
+        if (!Number.isNaN(score)) {
+            healthBar.style.width = score + '%';
+        }
+    }
+
+    /* Nakit Akış Grafiği */
     const cashFlowCtx = document.getElementById('cashFlowChart');
+    const cashFlowLabels = JSON.parse('{{ cash_flow_labels|default:"[]"|escapejs }}');
+    const cashInflowData = JSON.parse('{{ cash_inflow_data|default:"[]"|escapejs }}');
+    const cashOutflowData = JSON.parse('{{ cash_outflow_data|default:"[]"|escapejs }}');
     if (cashFlowCtx) {
         new Chart(cashFlowCtx, {
             type: 'line',
             data: {
-                labels: {{ cash_flow_labels|safe }},
+                labels: cashFlowLabels,
                 datasets: [{
                     label: '{% trans "Nakit Giriş" %}',
-                    data: {{ cash_inflow_data|safe }},
+                    data: cashInflowData,
                     borderColor: '#27ae60',
                     backgroundColor: 'rgba(39, 174, 96, 0.1)',
                     tension: 0.4,
                     fill: true
                 }, {
                     label: '{% trans "Nakit Çıkış" %}',
-                    data: {{ cash_outflow_data|safe }},
+                    data: cashOutflowData,
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     tension: 0.4,
@@ -568,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Gelir/Gider Pasta Grafiği
+    /* Gelir/Gider Pasta Grafiği */
     const incomeExpenseCtx = document.getElementById('incomeExpenseChart');
     const incomeExpenseData = JSON.parse('{{ income_expense_data|default:"[]"|escapejs }}');
     if (incomeExpenseCtx && incomeExpenseData.length) {
@@ -594,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Bütçe Karşılaştırma Grafiği
+    /* Bütçe Karşılaştırma Grafiği */
     const budgetCtx = document.getElementById('budgetChart');
     const budgetData = JSON.parse('{{ budget_data|default:"[]"|escapejs }}');
     const budgetLabels = JSON.parse('{{ budget_labels|default:"[]"|escapejs }}');
@@ -632,21 +644,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Nakit akış dönem değiştirme
+    /* Nakit akış dönem değiştirme */
     document.querySelectorAll('input[name="cashflow-period"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
-            // AJAX ile yeni veri yükle
+            /* AJAX ile yeni veri yükle */
             loadCashFlowData(this.id.replace('cf-', ''));
         });
     });
 });
 
 function loadCashFlowData(period) {
-    // AJAX implementation for loading different period data
+    /* AJAX implementation for loading different period data */
     fetch(`{% url 'finance:ajax_cash_flow_data' %}?period=${period}`)
         .then(response => response.json())
         .then(data => {
-            // Update chart with new data
+            /* Update chart with new data */
             console.log('Loading cash flow data for period:', period);
         })
         .catch(error => console.error('Error:', error));

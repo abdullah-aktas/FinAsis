@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     'src.apps.finance.accounting.apps.AccountingConfig',
     'src.apps.blockchain',
     'src.apps.education',
+    'src.apps.education.student',
     'src.apps.education.teacher_dashboard',
     'src.apps.management',
     'src.apps.tenancy.apps.TenancyConfig',
@@ -162,6 +163,12 @@ INSTALLED_APPS = [
     'src.apps.billing.apps.BillingConfig',
     'src.apps.kobi_analysis.apps.KobiAnalysisConfig',
     'src.apps.security.apps.SecurityConfig',
+    # New regulatory compliance apps
+    'src.apps.advisors.apps.AdvisorsConfig',
+    'src.apps.submissions.apps.SubmissionsConfig',
+    'src.apps.integrator_gib.apps.IntegratorGIBConfig',
+    # HTTP adapter smoke test mock
+    'src.apps.integrator_mock.apps.IntegratorMockConfig',
 ]
 
 
@@ -184,6 +191,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'src.config.urls'
 
 _TEMPLATE_DIR = os.path.join(os.path.dirname(BASE_DIR), 'templates')
+_SRC_TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 _IN_PYTEST = bool(os.environ.get('PYTEST_CURRENT_TEST'))
 _BASE_LOADERS = [
     'django.template.loaders.filesystem.Loader',
@@ -191,7 +199,7 @@ _BASE_LOADERS = [
 ]
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [_TEMPLATE_DIR],
+    'DIRS': [_TEMPLATE_DIR, _SRC_TEMPLATES_DIR],
     # Explicit loaders so we can drop cached loader in tests (stale template issue prevention)
     'OPTIONS': {
         'loaders': _BASE_LOADERS if _IN_PYTEST else [
@@ -204,6 +212,9 @@ TEMPLATES = [{
             'src.apps.billing.context_processors.billing_settings',
             'src.apps.core_ui.context_processors.marketing_features',
             'src.apps.core_ui.context_processors.project_meta',
+        ],
+        'builtins': [
+            'src.apps.education.student.templatetags.student_filters',
         ],
     },
 }]
@@ -327,6 +338,16 @@ GIB_TEST_MODE = config('GIB_TEST_MODE', default=True, cast=bool)
 GIB_EFATURA_BASE_URL = config('GIB_EFATURA_BASE_URL', default='https://efatura-test.efatura.gov.tr/api')
 GIB_EDEFTER_BASE_URL = config('GIB_EDEFTER_BASE_URL', default='https://edefter-test.edefter.gov.tr/api')
 
+# EDOC/GİB istemcisi ayarları (stub/http modu)
+EDOC_GIB_MODE = config('EDOC_GIB_MODE', default='stub')  # 'stub' | 'http'
+EDOC_GIB_BASE_URL = config('EDOC_GIB_BASE_URL', default='')  # http modunda zorunlu
+EDOC_PROFILE_ID = config('EDOC_PROFILE_ID', default='TICARIFATURA')
+EDOC_CUSTOMIZATION_ID = config('EDOC_CUSTOMIZATION_ID', default='TR1.2')
+EDOC_SCHEMAS_DIR = config('EDOC_SCHEMAS_DIR', default='')
+EDOC_RETRY_MAX = config('EDOC_RETRY_MAX', default=3, cast=int)
+EDOC_RETRY_BACKOFF = config('EDOC_RETRY_BACKOFF', default=0.7)
+EDOC_RETRY_MAX_BACKOFF = config('EDOC_RETRY_MAX_BACKOFF', default=8.0)
+
 # OCR/AI yerel ayarları
 USE_GOOGLE_VISION = config('USE_GOOGLE_VISION', default=False, cast=bool)
 STT_ENABLED = config('STT_ENABLED', default=False, cast=bool)
@@ -421,3 +442,7 @@ BRAND_NAME = config('BRAND_NAME', default='FinAsis')
 SWAGGER_USE_COMPAT_RENDERERS = False
 # Django 6.0 URLField default scheme change: opt into https to silence warning
 FORMS_URLFIELD_ASSUME_HTTPS = True
+
+# --- Regulatory feature flags ---
+# By default, disable direct taxpayer submissions; require advisor mediation.
+SUBMISSIONS_ALLOW_DIRECT = bool(config('SUBMISSIONS_ALLOW_DIRECT', default=False, cast=bool))

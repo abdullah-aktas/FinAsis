@@ -1,203 +1,64 @@
-{% load i18n %}{% load i18n %}
+{% load i18n humanize %}
 
-{% load humanize %}{% load humanize %}
-
-
-
-<div class="control-detail-content p-3"><div class="control-detail-content">
-
-    <div class="row">    <div class="row">
-
-        <!-- Control Information -->        <!-- Control Information -->
-
-        <div class="col-md-6 mb-4">        <div class="col-md-6 mb-4">
-
-            <h6 class="text-primary mb-3">            <h6 class="text-primary mb-3">
-
-                <i class="fas fa-info-circle me-2"></i>                <i class="fas fa-info-circle me-2"></i>
-
-                {% trans "Kontrol Bilgileri" %}                {% trans "Kontrol Bilgileri" %}
-
-            </h6>            </h6>
-
-                        
-
-            <div class="info-box">            <div class="info-box">
-
-                <div class="info-item">                <div class="info-item">
-
-                    <strong>{% trans "Kontrol ID:" %}</strong>                    <strong>{% trans "Kontrol ID:" %}</strong>
-
-                    <span>{{ control.control_id }}</span>                    <span>{{ control.control_id }}</span>
-
-                </div>                </div>
-
-                <div class="info-item">                <div class="info-item">
-
-                    <strong>{% trans "Kontrol Tipi:" %}</strong>                    <strong>{% trans "Kontrol Adı:" %}</strong>
-
-                    <span class="badge bg-info">{{ control.control_type }}</span>                    <span>{{ control.control_name }}</span>
-
-                </div>                </div>
-
-                <div class="info-item">                <div class="info-item">
-
-                    <strong>{% trans "Test Sıklığı:" %}</strong>                    <strong>{% trans "Kontrol Tipi:" %}</strong>
-
-                    <span>{{ control.frequency }}</span>                    <span class="badge bg-info">
-
-                </div>                        {{ control.get_control_type_display|default:control.control_type }}
-
-                <div class="info-item">                    </span>
-
-                    <strong>{% trans "Etkinlik:" %}</strong>                </div>
-
-                    {% if control.operating_effectiveness %}                <div class="info-item">
-
-                        <span class="badge bg-success">{{ control.operating_effectiveness }}</span>                    <strong>{% trans "Test Sıklığı:" %}</strong>
-
-                    {% else %}                    <span>{{ control.get_frequency_display|default:control.frequency }}</span>
-
-                        <span class="badge bg-secondary">{% trans "Değerlendirilmemiş" %}</span>                </div>
-
-                    {% endif %}                <div class="info-item">
-
-                </div>                    <strong>{% trans "Kontrol Sahibi:" %}</strong>
-
-                <div class="info-item">                    <span>
-
-                    <strong>{% trans "Son Test:" %}</strong>                        {% if control.control_owner %}
-
-                    <span>                            {{ control.control_owner.get_full_name }}
-
-                        {% if control.last_performed_date %}                        {% else %}
-
-                            {{ control.last_performed_date|date:"d M Y" }}                            -
-
-                        {% else %}                        {% endif %}
-
-                            -                    </span>
-
-                        {% endif %}                </div>
-
-                    </span>            </div>
-
-                </div>        </div>
-
-            </div>
-
-        </div>        <!-- Effectiveness & Testing -->
-
+<div class="control-detail-content p-3">
+    <div class="row">
         <div class="col-md-6 mb-4">
-
-        <!-- Test History -->            <h6 class="text-success mb-3">
-
-        <div class="col-md-6 mb-4">                <i class="fas fa-chart-line me-2"></i>
-
-            <h6 class="text-success mb-3">                {% trans "Etkinlik Durumu" %}
-
-                <i class="fas fa-history me-2"></i>            </h6>
-
-                {% trans "Son Testler" %}            
-
-            </h6>            <div class="info-box">
-
-                            <div class="info-item">
-
-            {% if tests %}                    <strong>{% trans "Operasyonel Etkinlik:" %}</strong>
-
-            <div class="test-history-list" style="max-height: 300px; overflow-y: auto;">                    {% if control.operating_effectiveness %}
-
-                {% for test in tests %}                        <span class="badge bg-{{ control.operating_effectiveness|lower }}">
-
-                <div class="test-item mb-2 p-2 border rounded">                            {{ control.operating_effectiveness }}
-
-                    <div class="d-flex justify-content-between">                        </span>
-
-                        <span>                    {% else %}
-
-                            {% if test.status == 'PASSED' %}                        <span class="badge bg-secondary">{% trans "Değerlendirilmemiş" %}</span>
-
-                                <i class="fas fa-check-circle text-success"></i>                    {% endif %}
-
-                            {% elif test.status == 'FAILED' %}                </div>
-
-                                <i class="fas fa-times-circle text-danger"></i>                <div class="info-item">
-
-                            {% else %}                    <strong>{% trans "Son Test Tarihi:" %}</strong>
-
-                                <i class="fas fa-minus-circle text-secondary"></i>                    <span>
-
-                            {% endif %}                        {% if control.last_performed_date %}
-
-                            {{ test.execution_date|date:"d M Y" }}                            {{ control.last_performed_date|date:"d M Y" }}
-
-                        </span>                        {% else %}
-
-                        <span class="text-muted small">{{ test.performed_by.get_full_name }}</span>                            {% trans "Henüz test edilmemiş" %}
-
-                    </div>            {% else %}
-
-                    {% if test.results_description %}              <span class="badge bg-secondary">{{ t.status }}</span>
-
-                    <p class="small text-muted mb-0 mt-1">{{ test.results_description|truncatechars:100 }}</p>            {% endif %}
-
-                    {% endif %}          </td>
-
-                </div>          <td>{{ t.results_description|default:"-"|truncatechars:60 }}</td>
-
-                {% endfor %}        </tr>
-
-            </div>      {% empty %}
-
-            {% else %}        <tr><td colspan="3" class="text-muted small">Test kaydı yok.</td></tr>
-
-            <p class="text-muted">{% trans "Henüz test kaydı yok" %}</p>      {% endfor %}
-
-            {% endif %}    </tbody>
-
-        </div>  </table>
-
-    </div>  <div class="d-flex gap-2">
-
-    <button class="btn btn-outline-primary btn-sm js-test-control" data-control="{{ control.id }}" data-result="EFFECTIVE">Hızlı PASS</button>
-
-    {% if control.control_description %}    <button class="btn btn-outline-warning btn-sm js-test-control" data-control="{{ control.id }}" data-result="NEEDS_IMPROVEMENT">İyileştirme</button>
-
-    <div class="mb-3">    <button class="btn btn-outline-danger btn-sm js-test-control" data-control="{{ control.id }}" data-result="INEFFECTIVE">Etkisiz</button>
-
-        <h6 class="text-primary">{% trans "Açıklama" %}</h6>  </div>
-
-        <p class="text-muted">{{ control.control_description }}</p></div>
-
+            <h6 class="text-primary mb-3">
+                <i class="fas fa-info-circle me-2"></i> {% trans "Kontrol Bilgileri" %}
+            </h6>
+            <div class="info-box">
+                <div class="info-item"><strong>{% trans "Kontrol ID:" %}</strong> <span>{{ control.control_id }}</span></div>
+                <div class="info-item"><strong>{% trans "Kontrol Adı:" %}</strong> <span>{{ control.control_name }}</span></div>
+                <div class="info-item"><strong>{% trans "Kontrol Tipi:" %}</strong> <span class="badge bg-info">{{ control.get_control_type_display|default:control.control_type }}</span></div>
+                <div class="info-item"><strong>{% trans "Test Sıklığı:" %}</strong> <span>{{ control.get_frequency_display|default:control.frequency }}</span></div>
+                <div class="info-item">
+                    <strong>{% trans "Etkinlik:" %}</strong>
+                    {% if control.operating_effectiveness %}
+                        <span class="badge bg-success">{{ control.operating_effectiveness }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{% trans "Değerlendirilmemiş" %}</span>
+                    {% endif %}
+                </div>
+                <div class="info-item">
+                    <strong>{% trans "Kontrol Sahibi:" %}</strong>
+                    <span>{% if control.control_owner %}{{ control.control_owner.get_full_name }}{% else %}-{% endif %}</span>
+                </div>
+                <div class="info-item">
+                    <strong>{% trans "Son Test:" %}</strong>
+                    <span>{% if control.last_performed_date %}{{ control.last_performed_date|date:"d M Y" }}{% else %}{% trans "Henüz test edilmemiş" %}{% endif %}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <h6 class="text-success mb-3">
+                <i class="fas fa-history me-2"></i> {% trans "Son Testler" %}
+            </h6>
+            <div class="info-box">
+                <div class="test-history-list" style="max-height: 300px; overflow-y: auto;">
+                    {% for test in tests %}
+                        <div class="test-item mb-2 p-2 border rounded d-flex justify-content-between">
+                            <span>{{ test.name|default:test.id }}</span>
+                            <span class="badge {% if test.status == 'PASSED' %}bg-success{% elif test.status == 'FAILED' %}bg-danger{% else %}bg-secondary{% endif %}">{{ test.status|default:'N/A' }}</span>
+                        </div>
+                    {% empty %}
+                        <div class="text-muted">{% trans "Test kaydı yok." %}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
-    {% endif %}
-
     <div class="mt-3">
         <a href="{% url 'audit:control_test' control.id %}" class="btn btn-sm btn-primary">
-            <i class="fas fa-vial me-1"></i>
-            {% trans "Test Et" %}
+            <i class="fas fa-vial me-1"></i> {% trans "Test Et" %}
         </a>
     </div>
 </div>
 
 <style>
-.info-box {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 15px;
-}
-
-.info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.info-item:last-child {
-    border-bottom: none;
-}
+.info-box { background: #f8f9fa; border-radius: 10px; padding: 15px; }
+.info-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #dee2e6; }
+.info-item:last-child { border-bottom: none; }
+</style>
 
 .info-item strong {
     color: #495057;

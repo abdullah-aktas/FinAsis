@@ -16,7 +16,7 @@
     <tr>
       <td>{{ log.timestamp|date:'d.m.Y H:i' }}</td>
       <td>{{ log.action }}</td>
-      <td>{{ log.user.username if log.user else 'Sistem' }}</td>
+  <td>{% if log.user %}{{ log.user.username }}{% else %}Sistem{% endif %}</td>
       <td>{{ log.detail }}</td>
     </tr>
     {% empty %}

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from .models import StudentProfile, StudentAssignment, StudentProgress
-from teacher_dashboard.models import Assignment
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -29,17 +28,17 @@ def student_dashboard(request):
     ).select_related('course')
     
     context = {
-        'profile': student_profile,
+        'student_profile': student_profile,
         'active_assignments': active_assignments,
         'recent_grades': recent_grades,
         'course_progress': course_progress
     }
-    return render(request, 'education/student/dashboard.html', context)
+    return render(request, 'student/dashboard.html', context)
 
 class AssignmentListView(ListView):
     """Ödev listesi görünümü"""
     model = StudentAssignment
-    template_name = 'education/student/assignment_list.html'
+    template_name = 'student/assignment_list.html'
     context_object_name = 'assignments'
 
     def get_queryset(self):
@@ -50,7 +49,7 @@ class AssignmentListView(ListView):
 class AssignmentDetailView(DetailView):
     """Ödev detay görünümü"""
     model = StudentAssignment
-    template_name = 'education/student/assignment_detail.html'
+    template_name = 'student/assignment_detail.html'
     context_object_name = 'student_assignment'
 
     def get_queryset(self):
@@ -60,13 +59,16 @@ class AssignmentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['assignment'] = self.object.assignment
+        from typing import cast
+        obj = context.get('object') or self.get_object()
+        obj_sa = cast(StudentAssignment, obj)
+        context['assignment'] = obj_sa.assignment
         return context
 
 class CourseProgressView(ListView):
     """Ders ilerleme görünümü"""
     model = StudentProgress
-    template_name = 'education/student/course_progress.html'
+    template_name = 'student/course_progress.html'
     context_object_name = 'progress_records'
 
     def get_queryset(self):
@@ -93,6 +95,19 @@ def submit_assignment(request, pk):
         messages.success(request, 'Ödev başarıyla teslim edildi.')
         return redirect('student:assignment_detail', pk=pk)
     
-    return render(request, 'education/student/submit_assignment.html', {
+    return render(request, 'student/submit_assignment.html', {
         'student_assignment': student_assignment
     }) 
+
+
+@login_required
+def profile_update(request):
+    """Öğrenci profilini güncelleme sayfası (basit placeholder)."""
+    student_profile = get_object_or_404(StudentProfile, user=request.user)
+    if request.method == 'POST':
+        # Basit örnek: sadece başarılı mesaj gösterelim; gerçek form entegrasyonu daha sonra eklenir.
+        messages.success(request, 'Profiliniz güncellendi.')
+        return redirect('student:dashboard')
+    return render(request, 'student/profile_update.html', {
+        'student_profile': student_profile
+    })

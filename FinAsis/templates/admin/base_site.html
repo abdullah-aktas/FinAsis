@@ -22,7 +22,12 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">Profilim</a></li>
-            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Çıkış Yap</a></li>
+            <li>
+              <form method="post" action="{% url 'accounts:logout' %}" class="px-3 py-1">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">Çıkış Yap</button>
+              </form>
+            </li>
           </ul>
         </div>
         <button id="toggleDark" class="btn btn-sm btn-outline-light ms-2" type="button"><i class="bi bi-moon"></i></button>

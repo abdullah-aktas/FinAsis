@@ -52,6 +52,22 @@ class VoucherCreateView(CreateView):
         form.instance.employee = employee
         return super().form_valid(form)
 
+class VoucherDetailView(DetailView):
+    model = Voucher
+    template_name = "finance/voucher_detail.html"
+    context_object_name = 'voucher'
+
+class VoucherUpdateView(UpdateView):
+    model = Voucher
+    form_class = VoucherForm
+    template_name = "finance/voucher_form.html"
+    success_url = reverse_lazy('finance:voucher_list')
+
+class VoucherDeleteView(DeleteView):
+    model = Voucher
+    template_name = "finance/voucher_confirm_delete.html"
+    success_url = reverse_lazy('finance:voucher_list')
+
 @login_required
 def dashboard(request):
     # Kullanıcının çalışan profilini güvenli şekilde al

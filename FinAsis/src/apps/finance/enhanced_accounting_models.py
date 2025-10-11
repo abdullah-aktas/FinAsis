@@ -15,7 +15,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.conf import settings as dj_settings
 import uuid
-from django.contrib.postgres.fields import JSONField  # type: ignore
+# Use Django's built-in JSONField to avoid postgres-specific dependency
 
 from src.apps.accounting.models import Company, Customer
 

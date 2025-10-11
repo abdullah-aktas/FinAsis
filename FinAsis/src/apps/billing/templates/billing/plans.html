@@ -2,7 +2,14 @@
 {% block title %}Planlar{% endblock %}
 {% block content %}
 <div class="container py-5">
-  <h2>Planlar</h2>
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+    <h2 class="mb-2 mb-md-0">Planlar</h2>
+    <div class="text-muted small">
+      {% if VAT_INCLUDED %}Fiyatlara KDV dahildir{% else %}Fiyatlara KDV dahil değildir ({{ VAT_RATE }}% KDV uygulanır){% endif %}
+      · Taksit imkânı {{ INSTALLMENT_MAX }} aya kadar (kartınıza bağlıdır)
+    </div>
+  </div>
+
   {% if not user.is_authenticated %}
     <div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
       <div>
@@ -14,66 +21,83 @@
       </div>
     </div>
   {% endif %}
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
+
+  <ul class="nav nav-tabs mb-3" role="tablist" aria-label="Hedef kitle filtresi">
+    <li class="nav-item" role="presentation">
       <a class="nav-link {% if audience == 'sme' %}active{% endif %}" href="{% url 'billing:plans' %}?audience=sme">KOBİ</a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
       <a class="nav-link {% if audience == 'edu' %}active{% endif %}" href="{% url 'billing:plans' %}?audience=edu">Eğitim</a>
     </li>
   </ul>
-  <div class="row">
-    {% for plan in plans %}
-    <div class="col-md-4">
-      <div class="card mb-3 h-100">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ plan.name }}</h5>
-          <p class="card-text">{{ plan.description }}</p>
+
+  <div class="row g-4">
+    {% for pc in plan_cards %}
+    {% with plan=pc.plan card=pc.card %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm position-relative">
+        {% if card.popular %}
+          <div class="position-absolute top-0 end-0 m-2 badge bg-primary" aria-label="Popüler plan">Popüler</div>
+        {% endif %}
+        <div class="card-body d-flex flex-column p-4">
+          <h5 class="card-title fw-bold">{{ plan.name }}</h5>
+          <p class="card-text text-muted small">{{ plan.description }}</p>
+
           <div class="btn-group mb-3" role="group" aria-label="Periyot">
             <a href="?audience={{ audience }}&period=month#{{ plan.code }}" class="btn btn-sm {% if period == 'month' %}btn-primary active{% else %}btn-outline-primary{% endif %}">Aylık</a>
             <a href="?audience={{ audience }}&period=year#{{ plan.code }}" class="btn btn-sm {% if period == 'year' %}btn-primary active{% else %}btn-outline-primary{% endif %}">Yıllık</a>
           </div>
-          <ul class="list-unstyled mb-4">
-            {% if plan.plan_modules.all %}
-              {% for pm in plan.plan_modules.all %}
-                <li class="text-muted">• {{ pm.module.name }}</li>
-              {% endfor %}
-              <hr/>
-            {% endif %}
-            {% with month=plan.prices.all|dictsort:'period' %}{% endwith %}
-            {% for p in plan.prices.all %}
-              <li class="mb-2" id="{{ plan.code }}">
-                <strong>{{ p.amount }} {{ p.currency }}</strong> / {{ p.get_period_display }}
-                <div class="mt-2">
-                  {% if user.is_authenticated %}
-                    <a href="{% url 'billing:select_plan' plan.code %}?period={{ p.period }}" class="btn btn-sm btn-success">Planı Seç ({{ p.get_period_display }})</a>
-                    <a href="{% url 'billing:checkout_paytr' p.id %}" class="btn btn-sm btn-primary">Kart ile Öde</a>
-                    {% if BANK_TRANSFER_ENABLED %}
-                      <a href="{% url 'billing:checkout_bank' p.id %}" class="btn btn-sm btn-outline-secondary">Havale/EFT</a>
-                    {% endif %}
-                  {% else %}
-                    <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-sm btn-outline-primary">Giriş Yap</a>
-                    <a href="{% url 'accounts:register' %}" class="btn btn-sm btn-primary">Kayıt Ol</a>
-                  {% endif %}
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-          <div class="mt-auto">
-            {% if user.is_authenticated %}
-              <a href="{% url 'billing:select_plan' plan.code %}" class="btn btn-success w-100 mb-2">Planı Seç (Varsayılan)</a>
-              {% if 'enterprise' in plan.code|lower or 'enterprise' in plan.name|lower %}
-                <a href="{% url 'billing:enterprise_inquiry' plan.code %}" class="btn btn-outline-dark w-100">Teklif / İletişim</a>
+
+          <div class="d-flex align-items-end gap-3 mb-3" id="{{ plan.code }}">
+            {% if period == 'month' and card.month_amount %}
+              <div>
+                <div class="h3 fw-bold mb-0">{{ card.month_amount }} {{ card.currency }}</div>
+                <div class="text-muted small">/ay</div>
+              </div>
+              {% if card.year_per_month %}
+                <div class="text-muted small">Yıllık eşdeğer: <strong>{{ card.year_per_month|floatformat:2 }}</strong> {{ card.currency }}/ay</div>
               {% endif %}
             {% else %}
-              {% if 'enterprise' in plan.code|lower or 'enterprise' in plan.name|lower %}
-                <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn btn-outline-dark w-100">Teklif için Giriş Yapın</a>
+              {% if card.year_amount %}
+                <div>
+                  <div class="h3 fw-bold mb-0">{{ card.year_amount }} {{ card.currency }}</div>
+                  <div class="text-muted small">/yıl</div>
+                </div>
+                {% if card.discount_pct %}
+                  <span class="badge bg-success">%{{ card.discount_pct|floatformat:0 }} indirim</span>
+                {% endif %}
               {% endif %}
+            {% endif %}
+          </div>
+
+          {% if plan.plan_modules.all %}
+            <ul class="list-unstyled small text-muted mb-4">
+              {% for pm in plan.plan_modules.all %}
+                <li class="mb-1">• {{ pm.module.name }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          <div class="mt-auto d-grid gap-2">
+            {% if user.is_authenticated %}
+              {% if card.has_month %}
+                <a href="{% url 'billing:select_plan' plan.code %}?period=month" class="btn btn-success">Aylık Satın Al</a>
+              {% endif %}
+              {% if card.has_year %}
+                <a href="{% url 'billing:select_plan' plan.code %}?period=year" class="btn btn-outline-success">Yıllık Satın Al</a>
+              {% endif %}
+            {% else %}
+              <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-outline-primary">Satın almak için Giriş Yapın</a>
+            {% endif %}
+
+            {% if 'enterprise' in plan.code|lower or 'enterprise' in plan.name|lower %}
+              <a href="{% url 'billing:enterprise_inquiry' plan.code %}" class="btn btn-outline-dark">Teklif / İletişim</a>
             {% endif %}
           </div>
         </div>
       </div>
     </div>
+    {% endwith %}
     {% endfor %}
   </div>
 
@@ -83,16 +107,16 @@
     <table class="table table-sm align-middle">
       <thead>
         <tr>
-          <th>Özellik</th>
+          <th scope="col">Özellik</th>
           {% for plan in plans %}
-            <th>{{ plan.name }}</th>
+            <th scope="col">{{ plan.name }}</th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
         {% for row in feature_rows %}
           <tr>
-            <td>{{ row.name }}</td>
+            <th scope="row" class="fw-normal">{{ row.name }}</th>
             {% for plan in plans %}
               <td>{% if plan.code in row.included %}✓{% else %}—{% endif %}</td>
             {% endfor %}
@@ -101,5 +125,7 @@
       </tbody>
     </table>
   </div>
+
+  <p class="text-muted small mt-3">Abonelikler otomatik olarak yenilenir. Dilediğiniz zaman iptal edebilirsiniz. Kampanya ve indirimler seçili planlara ve dönemlere göre değişebilir.</p>
 </div>
 {% endblock %}

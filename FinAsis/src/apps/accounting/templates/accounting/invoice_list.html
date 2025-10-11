@@ -136,8 +136,8 @@
                     {% if page_obj.has_next %}
                     <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>
                     <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son »</a></li>
-                    {% else %}
-                    <li class="page-item disabled"><span class="page-link">›</span></li>
+                                            <a href="{% url 'accounting:financial_analysis' %}" class="btn btn-outline-secondary btn-sm">Analiz</a>
+                                            <a href="{% url 'accounting:voucher_create' %}" class="btn btn-success btn-sm">Yeni Fiş</a>
                     <li class="page-item disabled"><span class="page-link">»</span></li>
                     {% endif %}
                 </ul>

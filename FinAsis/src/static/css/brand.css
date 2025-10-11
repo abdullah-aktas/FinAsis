@@ -198,6 +198,19 @@ html[data-theme="dark"] .brand-gradient{
   font-size: 0.8rem;
   padding: 0.4rem 0;
 }
+/* Transparent corporate navbar (~50%) with subtle blur */
+.corporate-navbar{
+  background-color: rgba(255,255,255,0.5) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+html[data-theme='dark'] .corporate-navbar{
+  background-color: rgba(17,24,39,0.5) !important; /* dark slate @ 50% */
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom-color: rgba(255,255,255,0.08);
+}
 
 .corporate-navbar {
   background: linear-gradient(135deg, var(--brand-ink) 0%, rgba(13, 59, 102, 0.98) 50%, var(--brand-primary) 100%) !important;

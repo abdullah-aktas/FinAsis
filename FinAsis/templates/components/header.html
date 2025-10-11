@@ -1,177 +1,163 @@
 {% load static i18n %}
-<header class="sticky-top corporate-header">
-  <!-- Üst kurumsal çubuk -->
-  <div class="corporate-topbar py-2" role="navigation" aria-label="Kurumsal bilgiler">
+<header class="sticky-top corporate-header" role="banner">
+  <nav class="navbar navbar-expand-lg corporate-navbar shadow-sm" role="navigation" aria-label="Ana navigasyon">
     <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-8">
-          <div class="d-flex flex-wrap gap-4 align-items-center small">
-            <span class="d-flex align-items-center gap-1">
-              <i class="bi bi-shield-check text-accent" aria-hidden="true"></i>
-              <span class="text-white">KVKK Uyumlu Güvenli Platform</span>
-            </span>
-            <span class="d-flex align-items-center gap-1 d-none d-lg-flex">
-              <i class="bi bi-cpu text-accent" aria-hidden="true"></i>
-              <span class="text-white-75">Yerel AI & Blockchain Kanıt</span>
-            </span>
-            <span class="d-flex align-items-center gap-1 d-none d-xl-flex">
-              <i class="bi bi-lightning-charge text-accent" aria-hidden="true"></i>
-              <span class="text-white-75">15 Dakika Kurulum</span>
-            </span>
-          </div>
-        </div>
-        <div class="col-md-4 text-end">
-          <div class="d-flex justify-content-end align-items-center gap-3">
-            <a class="link-accent text-decoration-none small fw-medium" href="tel:+902120000000">
-              <i class="bi bi-telephone me-1" aria-hidden="true"></i>+90 212 000 00 00
-            </a>
-            <a class="btn btn-accent btn-sm px-3 py-1" href="{% url 'contact' %}" data-cta="talk-to-sales-topbar">
-              <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Hemen Konuş
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Ana kurumsal navigasyon -->
-  <nav class="navbar navbar-expand-lg corporate-navbar shadow-lg" role="navigation" aria-label="Ana navigasyon">
-    <div class="container">
-      <!-- Kurumsal logo ve marka -->
+      <!-- Marka -->
       <a class="navbar-brand corporate-brand d-flex align-items-center gap-2 py-2" href="{% url 'home' %}" aria-label="FinAsis anasayfa">
-        <div class="brand-logo-circle d-flex align-items-center justify-content-center">
-          <i class="bi bi-graph-up text-white fs-4" aria-hidden="true"></i>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">FinAsis</span>
-          <span class="brand-tagline d-none d-md-block">Finans & AI Platform</span>
-        </div>
-      </a>      <!-- Mobil hamburger menü -->
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-              aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
-        <span class="corporate-hamburger">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
+        <img src="{% static 'common/finasis_logo-192.png' %}" alt="FinAsis logo" class="brand-logo-img" width="36" height="36">
+             </a>
+
+      <!-- Toggler -->
+  <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+      aria-controls="navbarMain" aria-expanded="false" aria-label="Menüyü Aç/Kapat">
+    <i class="bi bi-list fs-3" aria-hidden="true"></i>
+  </button>
 
       <div class="collapse navbar-collapse" id="navbarMain">
         {% with path=request.path %}
-        <!-- Sol: kurumsal menü -->
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center corporate-nav-menu">
-          <li class="nav-item dropdown corporate-dropdown">
-            <a class="nav-link dropdown-toggle corporate-nav-link {% if '/products/' in path %}active{% endif %}" 
-               href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-grid-3x3-gap me-1 d-lg-none" aria-hidden="true"></i>Ürünler
-            </a>
-            <ul class="dropdown-menu corporate-dropdown-menu shadow-lg" aria-labelledby="urunlerDropdown">
-              <li><h6 class="dropdown-header">Finans Çözümleri</h6></li>
-              <li><a class="dropdown-item" href="{% url 'products_finans' %}" data-cta="nav-products-finans">
-                <i class="bi bi-bar-chart text-primary me-2" aria-hidden="true"></i>Finansal Analiz
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'products_egitim' %}" data-cta="nav-products-egitim">
-                <i class="bi bi-mortarboard text-primary me-2" aria-hidden="true"></i>Eğitim Modülü
-              </a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><h6 class="dropdown-header">Teknoloji</h6></li>
-              <li><a class="dropdown-item" href="{% url 'audit:landing' %}" data-cta="nav-products-denetim">
-                <i class="bi bi-search text-primary me-2" aria-hidden="true"></i>Denetim & Uyum
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'products_blockchain' %}" data-cta="nav-products-blockchain">
-                <i class="bi bi-link-45deg text-primary me-2" aria-hidden="true"></i>Blockchain Kanıt
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'products_oyunlar' %}" data-cta="nav-products-oyunlar">
-                <i class="bi bi-controller text-primary me-2" aria-hidden="true"></i>TradeSim & Oyunlar
-              </a></li>
-            </ul>
-          </li>
-          
-          <li class="nav-item dropdown corporate-dropdown">
-            <a class="nav-link dropdown-toggle corporate-nav-link {% if '/solutions/' in path %}active{% endif %}" 
-               href="#" id="cozumlerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-puzzle me-1 d-lg-none" aria-hidden="true"></i>Çözümler
-            </a>
-            <ul class="dropdown-menu corporate-dropdown-menu shadow-lg" aria-labelledby="cozumlerDropdown">
-              <li><a class="dropdown-item" href="{% url 'solutions_enteg' %}" data-cta="nav-solutions-entegrasyon">
-                <i class="bi bi-diagram-3 text-primary me-2" aria-hidden="true"></i>Sistem Entegrasyonu
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'solutions_raporlama' %}" data-cta="nav-solutions-raporlama">
-                <i class="bi bi-file-earmark-bar-graph text-primary me-2" aria-hidden="true"></i>Gelişmiş Raporlama
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'solutions_analitik' %}" data-cta="nav-solutions-analitik">
-                <i class="bi bi-graph-up-arrow text-primary me-2" aria-hidden="true"></i>İş Zekası & Analitik
-              </a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'audit:landing' %}" data-cta="nav-solutions-denetim">
-                <i class="bi bi-shield-check text-primary me-2" aria-hidden="true"></i>Risk & Uyum Yönetimi
-              </a></li>
-            </ul>
-          </li>
-          
-          <li class="nav-item d-flex align-items-center">
-            <a class="nav-link corporate-nav-link {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}" 
-               href="{% url 'billing:plans' %}" data-cta="nav-pricing">
-              <i class="bi bi-tags me-1 d-lg-none" aria-hidden="true"></i>Fiyatlandırma
-            </a>
-            <span id="pricingCampaignBadge" class="badge bg-accent text-dark ms-1 d-none">%20</span>
-          </li>
-          
+        <!-- Sol menü -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center corporate-nav-menu">
+          {# Resolve product URLs safely; empty string if name missing #}
+          {% url 'products_finans' as products_finans_url %}
+          {% url 'products_egitim' as products_egitim_url %}
+          {% url 'products_blockchain' as products_blockchain_url %}
+            {% url 'products_oyunlar' as products_oyunlar_url %}
+            {% url 'products_edonusum' as products_edonusum_url %}
+            {% url 'ai_assistant:home' as products_ai_url %}
+            {% url 'audit:landing' as products_edenetim_url %}
+          <!-- Ürünler -->
+            {% if products_finans_url or products_egitim_url or products_blockchain_url or products_oyunlar_url or products_edonusum_url or products_ai_url or products_edenetim_url %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle corporate-nav-link {% if '/products/' in path %}active{% endif %}" href="#" id="urunlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Ürünler
+              </a>
+              <ul class="dropdown-menu corporate-dropdown-menu shadow-sm" aria-labelledby="urunlerDropdown">
+                {% if products_finans_url %}
+                  <li><a class="dropdown-item" href="{{ products_finans_url }}" data-cta="nav-products-finans"><i class="bi bi-bar-chart me-2 text-primary" aria-hidden="true"></i>Finansal Yönetim</a></li>
+                {% endif %}
+                {% if products_egitim_url %}
+                  <li><a class="dropdown-item" href="{{ products_egitim_url }}" data-cta="nav-products-egitim"><i class="bi bi-mortarboard me-2 text-primary" aria-hidden="true"></i>Eğitim Modülü</a></li>
+                {% endif %}
+                {% if products_blockchain_url %}
+                  <li><a class="dropdown-item" href="{{ products_blockchain_url }}" data-cta="nav-products-blockchain"><i class="bi bi-link-45deg me-2 text-primary" aria-hidden="true"></i>Blockchain Kanıt</a></li>
+                {% endif %}
+                {% if products_oyunlar_url %}
+                  <li><a class="dropdown-item" href="{{ products_oyunlar_url }}" data-cta="nav-products-oyunlar"><i class="bi bi-controller me-2 text-primary" aria-hidden="true"></i>Oyunlar</a></li>
+                {% endif %}
+                  {% if products_edonusum_url %}
+                    <li><a class="dropdown-item" href="{{ products_edonusum_url }}" data-cta="nav-products-edonusum"><i class="bi bi-receipt me-2 text-primary" aria-hidden="true"></i>e‑Dönüşüm</a></li>
+                  {% endif %}
+                  {% if products_edenetim_url %}
+                    <li><a class="dropdown-item" href="{{ products_edenetim_url }}" data-cta="nav-products-edenetim"><i class="bi bi-shield-check me-2 text-primary" aria-hidden="true"></i>E‑Denetim</a></li>
+                  {% endif %}
+                  {% if products_ai_url %}
+                    <li><a class="dropdown-item" href="{{ products_ai_url }}" data-cta="nav-products-ai"><i class="bi bi-robot me-2 text-primary" aria-hidden="true"></i>Yapay Zeka</a></li>
+                  {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+
+          <!-- Çözümler -->
+          {# Resolve solution URLs safely #}
+          {% url 'solutions_enteg' as solutions_enteg_url %}
+          {% url 'solutions_raporlama' as solutions_raporlama_url %}
+          {% url 'solutions_analitik' as solutions_analitik_url %}
+          {% url 'audit:landing' as audit_landing_url %}
+          {% if solutions_enteg_url or solutions_raporlama_url or solutions_analitik_url or audit_landing_url %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle corporate-nav-link {% if '/solutions/' in path %}active{% endif %}" href="#" id="cozumlerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Çözümler
+              </a>
+              <ul class="dropdown-menu corporate-dropdown-menu shadow-sm" aria-labelledby="cozumlerDropdown">
+                {% if solutions_enteg_url %}
+                  <li><a class="dropdown-item" href="{{ solutions_enteg_url }}" data-cta="nav-solutions-entegrasyon"><i class="bi bi-diagram-3 me-2 text-primary" aria-hidden="true"></i>Sistem Entegrasyonu</a></li>
+                {% endif %}
+                {% if solutions_raporlama_url %}
+                  <li><a class="dropdown-item" href="{{ solutions_raporlama_url }}" data-cta="nav-solutions-raporlama"><i class="bi bi-file-earmark-bar-graph me-2 text-primary" aria-hidden="true"></i>Gelişmiş Raporlama</a></li>
+                {% endif %}
+                {% if solutions_analitik_url %}
+                  <li><a class="dropdown-item" href="{{ solutions_analitik_url }}" data-cta="nav-solutions-analitik"><i class="bi bi-robot me-2 text-primary" aria-hidden="true"></i>Yapay Zeka Analitikleri</a></li>
+                {% endif %}
+                {% if audit_landing_url %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{{ audit_landing_url }}" data-cta="nav-solutions-denetim"><i class="bi bi-shield-check me-2 text-primary" aria-hidden="true"></i>Denetim & Uyum</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+
           <li class="nav-item">
-            <a class="nav-link corporate-nav-link {% if '/resources/' in path %}active{% endif %}" 
-               href="{% url 'resources' %}" data-cta="nav-resources">
-              <i class="bi bi-book me-1 d-lg-none" aria-hidden="true"></i>Kaynaklar
+            <a class="nav-link corporate-nav-link {% if '/billing/plans/' in path or '/pricing/' in path %}active{% endif %}"
+               href="{% url 'billing:plans' %}" data-cta="nav-pricing"{% if '/billing/plans/' in path or '/pricing/' in path %} aria-current="page"{% endif %}>
+              Fiyatlandırma
             </a>
           </li>
-          
           <li class="nav-item">
-            <a class="nav-link corporate-nav-link {% if '/corporate/' in path %}active{% endif %}" 
-               href="{% url 'corporate' %}" data-cta="nav-corporate">
-              <i class="bi bi-building me-1 d-lg-none" aria-hidden="true"></i>Kurumsal
+            <a class="nav-link corporate-nav-link {% if '/resources/' in path %}active{% endif %}"
+               href="{% url 'resources' %}" data-cta="nav-resources"{% if '/resources/' in path %} aria-current="page"{% endif %}>
+              Kaynaklar
             </a>
           </li>
-          
-          <!-- Mobil özel seçenekler -->
-          <li class="nav-item d-lg-none mt-3">
-            <hr class="corporate-divider my-2">
+          <li class="nav-item">
+            <a class="nav-link corporate-nav-link {% if '/corporate/' in path %}active{% endif %}"
+               href="{% url 'corporate' %}" data-cta="nav-corporate"{% if '/corporate/' in path %} aria-current="page"{% endif %}>
+              Kurumsal
+            </a>
           </li>
           <li class="nav-item d-lg-none">
-            <a class="btn btn-accent corporate-btn-primary w-100 mb-2" href="{% url 'accounts:register' %}" data-cta="register-mobile">
-              <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Ücretsiz Başlayın
-            </a>
+            <a class="nav-link corporate-nav-link" href="{% url 'contact' %}" data-cta="talk-to-sales"><i class="bi bi-chat-dots me-1" aria-hidden="true"></i>İletişim</a>
           </li>
-          <li class="nav-item d-lg-none">
+          <!-- Mobil: arama -->
+          <li class="nav-item d-lg-none mt-2">
             <form class="d-flex" role="search" action="{% url 'search' %}" method="get">
               <div class="input-group">
                 <input class="form-control corporate-input" type="search" name="q" placeholder="Ne arıyorsunuz?" aria-label="Arama">
-                <button class="btn btn-primary" type="submit">
-                  <i class="bi bi-search" aria-hidden="true"></i>
-                </button>
+                <button class="btn btn-primary" type="submit" aria-label="Ara"><i class="bi bi-search" aria-hidden="true"></i></button>
               </div>
             </form>
           </li>
+          <!-- Mobil: tema -->
           <li class="nav-item d-lg-none mt-2">
             <button class="btn btn-outline-light corporate-btn-outline w-100" type="button" onclick="toggleTheme()" aria-label="Tema değiştir" data-cta="toggle-theme-mobile">
               <i class="bi bi-moon-stars me-1" aria-hidden="true"></i>Tema Değiştir
             </button>
           </li>
+          <!-- Mobil: kayıt CTA -->
+          <li class="nav-item d-lg-none mt-2">
+            <a class="btn btn-accent corporate-btn-primary w-100" href="{% url 'accounts:register' %}" data-cta="register-mobile">
+              <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Ücretsiz Başlayın
+            </a>
+          </li>
         </ul>
 
-        <!-- Sağ: kurumsal eylemler -->
+        <!-- Sağ aksiyonlar -->
         <ul class="navbar-nav ms-auto align-items-center corporate-actions">
-          <!-- Tema toggle -->
+          <!-- Arama (desktop) -->
+          <li class="nav-item dropdown d-none d-lg-block">
+            <a class="nav-link corporate-nav-link" href="#" id="searchDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Arama" data-cta="search-open">
+              <i class="bi bi-search" aria-hidden="true"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end corporate-dropdown-menu p-3 shadow-sm" style="min-width:320px" aria-labelledby="searchDropdown">
+              <form role="search" action="{% url 'search' %}" method="get">
+                <div class="input-group">
+                  <input class="form-control corporate-input" type="search" name="q" placeholder="Ne arıyorsunuz?" aria-label="Arama">
+                  <button class="btn btn-primary" type="submit" aria-label="Ara"><i class="bi bi-search" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            </div>
+          </li>
+
+          <!-- Tema -->
           <li class="nav-item">
-            <button class="corporate-toggle-btn nav-link border-0 bg-transparent p-2" type="button" onclick="toggleTheme()" 
-                    id="themeToggle" aria-label="Tema değiştir" title="Tema değiştir (Ctrl+D)" data-cta="toggle-theme">
+            <button class="corporate-toggle-btn nav-link border-0 bg-transparent p-2" type="button" onclick="toggleTheme()" id="themeToggle" aria-label="Tema değiştir" title="Tema değiştir (Ctrl+D)" data-cta="toggle-theme">
               <i class="bi bi-moon-stars" data-theme-icon="dark"></i>
               <i class="bi bi-sun d-none" data-theme-icon="light"></i>
             </button>
           </li>
-          
-          <!-- Dil seçimi -->
+
+          <!-- Dil -->
           <li class="nav-item dropdown">
-            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" 
-               id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Dil Seçimi">
+            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Dil Seçimi">
               <i class="bi bi-globe2" aria-hidden="true"></i>
               <span class="small">{{ LANGUAGE_CODE|upper|default:'TR' }}</span>
             </a>
@@ -179,86 +165,55 @@
               <li>
                 <form method="post" action="{% url 'set_language_compat' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="language" value="tr" />
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                  <button type="submit" class="dropdown-item">
-                    <i class="bi bi-flag text-primary me-2" aria-hidden="true"></i>Türkçe
-                  </button>
+                  <input type="hidden" name="language" value="tr">
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button type="submit" class="dropdown-item">Türkçe</button>
                 </form>
               </li>
               <li>
                 <form method="post" action="{% url 'set_language_compat' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="language" value="en" />
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <input type="hidden" name="language" value="en">
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button type="submit" class="dropdown-item">English</button>
+                </form>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Auth / CTA -->
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="corporate-avatar" aria-hidden="true"><i class="bi bi-person-circle"></i></span>
+              <span class="d-none d-md-inline">{{ user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end corporate-dropdown-menu" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}"><i class="bi bi-person text-primary me-2" aria-hidden="true"></i>Profilim</a></li>
+              <li><a class="dropdown-item" href="{% url 'billing:portal' %}"><i class="bi bi-credit-card text-primary me-2" aria-hidden="true"></i>Aboneliklerim</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+                  {% csrf_token %}
                   <button type="submit" class="dropdown-item">
-                    <i class="bi bi-flag text-primary me-2" aria-hidden="true"></i>English
+                    <i class="bi bi-box-arrow-right text-danger me-2" aria-hidden="true"></i>Çıkış Yap
                   </button>
                 </form>
               </li>
             </ul>
           </li>
-          
-          <!-- Arama -->
-          <li class="nav-item dropdown d-none d-lg-block">
-            <a class="nav-link corporate-nav-link" href="#" id="searchDropdown" role="button" data-bs-toggle="dropdown" 
-               aria-expanded="false" aria-label="Arama" data-cta="search-open">
-              <i class="bi bi-search" aria-hidden="true"></i>
-            </a>
-            <div class="dropdown-menu dropdown-menu-end corporate-dropdown-menu p-3 shadow-lg" style="min-width:320px" aria-labelledby="searchDropdown">
-              <form role="search" action="{% url 'search' %}" method="get">
-                <div class="input-group">
-                  <input class="form-control corporate-input" type="search" name="q" placeholder="Ne arıyorsunuz?" aria-label="Arama">
-                  <button class="btn btn-primary" type="submit">
-                    <i class="bi bi-search" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </li>
-          
-          <!-- Giriş/Üyelik -->
-          {% if user.is_authenticated %}
-          <li class="nav-item dropdown">
-            <a class="nav-link corporate-nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" 
-               id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <div class="corporate-avatar">
-                <i class="bi bi-person-circle" aria-hidden="true"></i>
-              </div>
-              <span class="d-none d-md-inline">{{ user.username }}</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end corporate-dropdown-menu" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">
-                <i class="bi bi-person text-primary me-2" aria-hidden="true"></i>Profilim
-              </a></li>
-              <li><a class="dropdown-item" href="{% url 'billing:portal' %}">
-                <i class="bi bi-credit-card text-primary me-2" aria-hidden="true"></i>Aboneliklerim
-              </a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                <i class="bi bi-box-arrow-right text-danger me-2" aria-hidden="true"></i>Çıkış Yap
-              </a></li>
-            </ul>
-          </li>
           {% else %}
           <li class="nav-item d-none d-lg-block">
-            <a class="nav-link corporate-nav-link d-flex align-items-center gap-2" href="{% url 'accounts:login' %}" data-cta="login">
-              <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-              <span>Giriş</span>
-            </a>
+            <a class="nav-link corporate-nav-link" href="{% url 'accounts:login' %}" data-cta="login">Giriş</a>
+          </li>
+          <li class="nav-item d-none d-lg-block ms-2">
+            <a class="btn btn-accent corporate-btn-primary" href="{% url 'accounts:register' %}" data-cta="register"><i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Ücretsiz Başlayın</a>
           </li>
           {% endif %}
-          
-          <!-- CTA Butonları -->
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-outline-light corporate-btn-outline me-2" href="{% url 'contact' %}" data-cta="talk-to-sales">
-              <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>İletişim
-            </a>
-          </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-accent corporate-btn-primary" href="{% url 'accounts:register' %}" data-cta="register">
-              <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Başlayın
-            </a>
+
+          <!-- İletişim (desktop) -->
+          <li class="nav-item d-none d-lg-block ms-2">
+            <a class="btn btn-outline-light corporate-btn-outline" href="{% url 'contact' %}" data-cta="talk-to-sales"><i class="bi bi-chat-dots me-1" aria-hidden="true"></i>İletişim</a>
           </li>
         </ul>
         {% endwith %}
@@ -266,54 +221,65 @@
     </div>
   </nav>
 </header>
+
+<!-- Tema ikon senkronizasyonu -->
 <script>
   document.addEventListener('DOMContentLoaded',function(){
-    const btn=document.getElementById('themeToggle');if(!btn) return;
-    function sync(){const t=document.documentElement.dataset.theme||'light';
-      btn.querySelector('[data-theme-icon="dark"]').classList.toggle('d-none',t!=='light');
-      btn.querySelector('[data-theme-icon="light"]').classList.toggle('d-none',t==='light');
+    const btn=document.getElementById('themeToggle'); if(!btn) return;
+    function sync(){ const t=document.documentElement.dataset.theme||'light';
+      btn.querySelector('[data-theme-icon="dark"]').classList.toggle('d-none', t!=='light');
+      btn.querySelector('[data-theme-icon="light"]').classList.toggle('d-none', t==='light');
     }
-    document.addEventListener('themechange',sync);sync();
+    document.addEventListener('themechange', sync); sync();
   });
+  // Klavye kısayolu ipucu: Ctrl+D ile tema
 </script>
+
+<!-- Kampanya parametrelerini CTA linklerine uygula -->
 <script>
   (function(){
     try {
       var params = new URLSearchParams(window.location.search);
       var camp = params.get('campaign');
       var CAMP_KEY = 'fa_campaign_code';
+      if (camp) { localStorage.setItem(CAMP_KEY, camp); } else { camp = localStorage.getItem(CAMP_KEY) || ''; }
       if (camp) {
-        localStorage.setItem(CAMP_KEY, camp);
-      } else {
-        camp = localStorage.getItem(CAMP_KEY) || '';
-      }
-      if (camp) {
-        // Helper to apply campaign to link hrefs
         function applyCampaign(selector) {
           document.querySelectorAll(selector).forEach(function(a){
-            try {
-              var url = new URL(a.getAttribute('href'), window.location.origin);
-              url.searchParams.set('campaign', camp);
-              a.setAttribute('href', url.toString());
-            } catch(e){}
+            try { var url = new URL(a.getAttribute('href'), window.location.origin);
+              url.searchParams.set('campaign', camp); a.setAttribute('href', url.toString()); } catch(e){}
           });
         }
-
-        // Pricing links (existing)
         applyCampaign('a[href*="/billing/plans"]');
-        // Key CTAs: Contact and Register (topbar + main + mobile)
-        applyCampaign('a[data-cta="talk-to-sales"], a[data-cta="talk-to-sales-topbar"], a[data-cta="register"], a[data-cta="register-mobile"]');
-
-        // Dynamic badge label from code (extract first number as % if present)
+        applyCampaign('a[data-cta="talk-to-sales"], a[data-cta="register"], a[data-cta="register-mobile"]');
         var badge = document.getElementById('pricingCampaignBadge');
         if (badge) {
-          var m = String(camp).match(/(\d{1,2})/);
-          var label = m ? ('%' + m[1]) : 'Promo';
-          badge.textContent = label;
-          badge.title = 'Kampanya: ' + String(camp).toUpperCase();
-          badge.classList.remove('d-none');
+          var m = String(camp).match(/(\d{1,2})/); var label = m ? ('%' + m[1]) : 'Promo';
+          badge.textContent = label; badge.title = 'Kampanya: ' + String(camp).toUpperCase(); badge.classList.remove('d-none');
         }
       }
     } catch(e){}
+  })();
+</script>
+<script>
+  // Kısayol: / tuşu ile hızlı arama (desktop)
+  (function(){
+    document.addEventListener('keydown', function(e){
+      if (e.key === '/' && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        const toggle = document.getElementById('searchDropdown');
+        if (!toggle) return;
+        // Sadece input/textarea/select içindeyken tetikleme
+        const tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+        if (['input','textarea','select'].includes(tag)) return;
+        e.preventDefault();
+        // Dropdown'u aç ve input'a odaklan
+        try { toggle.click(); } catch(_) {}
+        setTimeout(function(){
+          const dd = toggle.closest('li')?.querySelector('.dropdown-menu');
+          const input = dd ? dd.querySelector('input[type="search"]') : null;
+          if (input) input.focus();
+        }, 50);
+      }
+    }, {passive: false});
   })();
 </script>

@@ -27,6 +27,11 @@
     "**/__pycache__",
     "**/.*",
     "**/.venv",
-    "**/venv"
+    "**/venv",
+    // Exclude all test suites from type checking to avoid false positives with DRF/Django test client
+    "tests",
+    "**/tests",
+    "FinAsis/src/tests",
+    "src/tests"
   ]
 }

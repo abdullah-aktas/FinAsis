@@ -62,6 +62,17 @@ def quiz(request):
 def welcome(request):
     return render(request, 'game_app/welcome.html')
 
+def scoreboard(request):
+    """Basit skor tablosu placeholder.
+    Gerçek skor verileri eklendiğinde bu view genişletilecektir.
+    """
+    scores = [
+        {"user": "demo1", "score": 1200},
+        {"user": "demo2", "score": 950},
+        {"user": "demo3", "score": 870},
+    ]
+    return render(request, 'game_app/scoreboard.html', {"scores": scores})
+
 def student_dashboard(request):
     return render(request, 'game_app/student_dashboard.html')
 

@@ -1,6 +1,8 @@
 from django.urls import path, include
+from django.views.generic import RedirectView
 from . import views
 from .views_extra import report_views
+from src.apps.accounting.views_extra.enhanced_views import ajax_search_accounts
 from .api import (
     InvoiceViewSet, ExpenseViewSet, BankTransactionViewSet,
     CompanyViewSet, CustomerViewSet, ProductViewSet, SaleViewSet, PaymentViewSet, BankAccountViewSet, InvoiceItemViewSet,
@@ -141,6 +143,13 @@ urlpatterns = [
     path('report/dashboard/', views.chart_dashboard, name='dashboard'),
     path('report/summary-pdf/', views.summary_report_pdf, name='summary_report_pdf'),
 
+    # Voucher alias routes (accounting namespace) -> redirect to finance voucher pages
+    path('vouchers/', RedirectView.as_view(pattern_name='finance:voucher_list'), name='voucher_list'),
+    path('vouchers/create/', RedirectView.as_view(pattern_name='finance:voucher_create'), name='voucher_create'),
+
+    # AJAX helpers
+    path('ajax/accounts/search/', ajax_search_accounts, name='ajax_search_accounts'),
+
     # API
     path('', include(router.urls)),
     path('api/webhook/', webhook_receiver, name='api_webhook'),
@@ -201,4 +210,9 @@ urlpatterns = [
     path('finansal/analiz/', report_views.financial_analysis_view, name='financial_analysis'),
     path('auto-book/', report_views.auto_book_view, name='auto_book'),
     path('rules/', report_views.rule_manager_view, name='rule_manager'),
+    # Navbar convenience routes (placeholders) to avoid broken links
+    path('journals/', report_views.yevmiye_defteri_view, name='journals'),
+    path('ledger/', report_views.kebir_defteri_view, name='ledger'),
+    path('chart-of-accounts/', report_views.mizan_defteri_view, name='chart_of_accounts'),
+    path('close-period/', report_views.envanter_defteri_view, name='close_period'),
 ]

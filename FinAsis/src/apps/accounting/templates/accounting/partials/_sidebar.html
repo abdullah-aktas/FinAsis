@@ -7,7 +7,7 @@
   <a class="nav-link d-flex align-items-center gap-2 {% if p == '/accounting/' or p == '/accounting' or n == 'home' or n == 'accounting_home' %}active fw-semibold{% endif %}" href="{% url 'accounting:home' %}" {% if p == '/accounting/' or p == '/accounting' or n == 'home' or n == 'accounting_home' %}aria-current="page"{% endif %}>
     <i class="bi bi-grid"></i> <span>{% trans 'Ana Panel' %}</span>
   </a>
-  <a class="nav-link d-flex align-items-center gap-2 {% if 'financial-analysis' in p %}active fw-semibold{% endif %}" href="/accounting/financial-analysis/" {% if 'financial-analysis' in p %}aria-current="page"{% endif %}>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'financial-analysis' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:financial_analysis' %}" {% if 'financial-analysis' in p %}aria-current="page"{% endif %}>
     <i class="bi bi-graph-up"></i> <span>{% trans 'Finansal Analiz' %}</span>
   </a>
   <hr class="my-2">
@@ -54,7 +54,7 @@
   </a>
   <hr class="my-2">
   <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Araçlar' %}</div>
-  <a class="nav-link d-flex align-items-center gap-2 {% if 'voucher' in p %}active fw-semibold{% endif %}" href="/accounting/voucher/new/" {% if 'voucher' in p %}aria-current="page"{% endif %}>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'voucher' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:voucher_create' %}" {% if 'voucher' in p %}aria-current="page"{% endif %}>
     <i class="bi bi-plus-circle"></i> <span>{% trans 'Fiş Oluştur' %}</span>
   </a>
   <a class="nav-link d-flex align-items-center gap-2 {% if 'dashboard' in n or 'chart-dashboard' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:dashboard' %}" {% if 'dashboard' in n or 'chart-dashboard' in p %}aria-current="page"{% endif %}>

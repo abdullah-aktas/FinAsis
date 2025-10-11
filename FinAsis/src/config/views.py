@@ -67,6 +67,9 @@ def products_blockchain(request):
 def products_oyunlar(request):
     return render(request, 'products/oyunlar.html', {'year': datetime.now().year})
 
+def products_edonusum(request):
+    return render(request, 'products/edonusum.html', {'year': datetime.now().year})
+
 def solutions_enteg(request):
     return render(request, 'solutions/entegrasyon.html', {'year': datetime.now().year})
 
