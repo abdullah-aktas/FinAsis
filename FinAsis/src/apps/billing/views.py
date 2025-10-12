@@ -33,6 +33,22 @@ def plans(request: HttpRequest) -> HttpResponse:
     if audience in ('sme', 'edu'):
         qs = qs.filter(audience=audience)
     plans_list = list(qs)
+    # Mantıklı sıralama: SME için Starter→Pro→Enterprise; EDU için Student→Teacher→Campus
+    # Configurable plan order via settings, with safe defaults
+    order_cfg = getattr(settings, 'BILLING_PLAN_ORDER', {
+        'sme': ['starter', 'sme_pro', 'sme_enterprise'],
+        'edu': ['edu_student', 'edu_teacher', 'edu_campus'],
+    })
+    if audience == 'sme':
+        order_map = {code: i + 1 for i, code in enumerate(order_cfg.get('sme', []))}
+    elif audience == 'edu':
+        order_map = {code: i + 1 for i, code in enumerate(order_cfg.get('edu', []))}
+    else:
+        # combine both with different buckets so SME appears before EDU on mixed views
+        sme_map = {code: i + 1 for i, code in enumerate(order_cfg.get('sme', []))}
+        edu_map = {code: 10 + i + 1 for i, code in enumerate(order_cfg.get('edu', []))}
+        order_map = {**sme_map, **edu_map}
+    plans_list.sort(key=lambda p: (order_map.get(getattr(p, 'code', ''), 999), getattr(p, 'name', '').lower()))
 
     # Türkiye odaklı ek bağlam: KDV, taksit, yıllık indirim vb.
     VAT_INCLUDED = getattr(settings, 'VAT_INCLUDED', True)
@@ -93,21 +109,47 @@ def plans(request: HttpRequest) -> HttpResponse:
         }
     if popular_code and popular_code in card_map:
         card_map[popular_code]['popular'] = True
-    module_to_plans = {}
+    module_to_plans: dict[str, set[str]] = {}
+    module_meta: dict[str, str] = {}
     for p in plans_list:
         for pm in getattr(p, 'plan_modules').all():
             mname = getattr(pm.module, 'name', None)
             if not mname:
                 continue
             module_to_plans.setdefault(mname, set()).add(p.code)
-    feature_rows = [
+            try:
+                mdesc = getattr(pm.module, 'description', '') or ''
+            except Exception:
+                mdesc = ''
+            if mname not in module_meta and mdesc:
+                module_meta[mname] = mdesc
+    feature_rows = []
+    for name, codes in sorted(module_to_plans.items(), key=lambda x: x[0].lower()):
+        feature_rows.append({
+            'name': name,
+            'desc': module_meta.get(name, ''),
+            'included': sorted(list(codes)),
+        })
+    plan_cards = [{'plan': p, 'card': card_map.get(p.code)} for p in plans_list]
+
+    # Öne çıkan modüller (audience'a göre vitrin)
+    # Featured modules configurable via settings with sensible defaults
+    feat_cfg = getattr(settings, 'BILLING_FEATURED_MODULES', {
+        'sme': ['e-Fatura', 'Nakit Akışı', 'Banka Entegrasyonları', 'AI Destekli Analiz'],
+        'edu': ['Eğitim/LMS', 'Analitik & Gelişmiş Raporlama', 'AI Destekli Analiz'],
+    })
+    if audience == 'edu':
+        featured_names = list(feat_cfg.get('edu', []))
+    else:
+        featured_names = list(feat_cfg.get('sme', []))
+    featured_badges = [
         {
             'name': name,
-            'included': sorted(list(codes)),
+            'desc': module_meta.get(name, '')
         }
-        for name, codes in sorted(module_to_plans.items(), key=lambda x: x[0].lower())
+        for name in featured_names
+        if name in module_to_plans  # sadece var olan modülleri göster
     ]
-    plan_cards = [{'plan': p, 'card': card_map.get(p.code)} for p in plans_list]
     return render(request, 'billing/plans.html', {
         'plans': plans_list,
         'plan_cards': plan_cards,
@@ -119,6 +161,7 @@ def plans(request: HttpRequest) -> HttpResponse:
         'VAT_RATE': VAT_RATE,
         'INSTALLMENT_MAX': INSTALLMENT_MAX,
         'card_map': card_map,
+        'featured_badges': featured_badges,
     })
 
 @login_required

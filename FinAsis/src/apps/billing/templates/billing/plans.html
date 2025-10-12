@@ -32,6 +32,15 @@
   </ul>
 
   <div class="row g-4">
+    {% if featured_badges %}
+      <div class="col-12">
+        <div class="d-flex flex-wrap gap-2 mb-2" aria-label="Öne çıkan modüller">
+          {% for fb in featured_badges %}
+            <span class="badge rounded-pill text-bg-light border" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-title="{{ fb.name }}" data-bs-content="{{ fb.desc }}">{{ fb.name }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
     {% for pc in plan_cards %}
     {% with plan=pc.plan card=pc.card %}
     <div class="col-md-6 col-lg-4">
@@ -44,8 +53,12 @@
           <p class="card-text text-muted small">{{ plan.description }}</p>
 
           <div class="btn-group mb-3" role="group" aria-label="Periyot">
-            <a href="?audience={{ audience }}&period=month#{{ plan.code }}" class="btn btn-sm {% if period == 'month' %}btn-primary active{% else %}btn-outline-primary{% endif %}">Aylık</a>
-            <a href="?audience={{ audience }}&period=year#{{ plan.code }}" class="btn btn-sm {% if period == 'year' %}btn-primary active{% else %}btn-outline-primary{% endif %}">Yıllık</a>
+            {% if card.has_month %}
+              <a href="?audience={{ audience }}&period=month#{{ plan.code }}" class="btn btn-sm {% if period == 'month' %}btn-primary active{% else %}btn-outline-primary{% endif %}" aria-label="Aylık fiyat">Aylık</a>
+            {% endif %}
+            {% if card.has_year %}
+              <a href="?audience={{ audience }}&period=year#{{ plan.code }}" class="btn btn-sm {% if period == 'year' %}btn-primary active{% else %}btn-outline-primary{% endif %}" aria-label="Yıllık fiyat">Yıllık</a>
+            {% endif %}
           </div>
 
           <div class="d-flex align-items-end gap-3 mb-3" id="{{ plan.code }}">
@@ -73,7 +86,14 @@
           {% if plan.plan_modules.all %}
             <ul class="list-unstyled small text-muted mb-4">
               {% for pm in plan.plan_modules.all %}
-                <li class="mb-1">• {{ pm.module.name }}</li>
+                <li class="mb-1 d-flex align-items-center gap-1">
+                  <span>• {{ pm.module.name }}</span>
+                  {% if pm.module.description %}
+                    <button type="button" class="btn btn-link p-0 small text-secondary" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-title="{{ pm.module.name }}" data-bs-content="{{ pm.module.description }}" aria-label="Modül hakkında bilgi" style="text-decoration:none;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469L6.684 9.75c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a.905.905 0 1 0 0-1.81.905.905 0 0 0 0 1.81z"/></svg>
+                    </button>
+                  {% endif %}
+                </li>
               {% endfor %}
             </ul>
           {% endif %}
@@ -116,7 +136,7 @@
       <tbody>
         {% for row in feature_rows %}
           <tr>
-            <th scope="row" class="fw-normal">{{ row.name }}</th>
+            <th scope="row" class="fw-normal" title="{{ row.desc|default:'' }}">{{ row.name }}</th>
             {% for plan in plans %}
               <td>{% if plan.code in row.included %}✓{% else %}—{% endif %}</td>
             {% endfor %}
@@ -128,4 +148,16 @@
 
   <p class="text-muted small mt-3">Abonelikler otomatik olarak yenilenir. Dilediğiniz zaman iptal edebilirsiniz. Kampanya ve indirimler seçili planlara ve dönemlere göre değişebilir.</p>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function(){
+    // Bootstrap 5 popover init
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.forEach(function (popoverTriggerEl) {
+      try { new bootstrap.Popover(popoverTriggerEl); } catch (e) {}
+    });
+  })();
+</script>
 {% endblock %}

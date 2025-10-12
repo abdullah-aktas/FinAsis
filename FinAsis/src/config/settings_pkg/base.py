@@ -380,6 +380,20 @@ PAYTR_MERCHANT_ID = config('PAYTR_MERCHANT_ID', default='')
 PAYTR_MERCHANT_KEY = config('PAYTR_MERCHANT_KEY', default='')
 PAYTR_MERCHANT_SALT = config('PAYTR_MERCHANT_SALT', default='')
 
+# Billing UI defaults (configurable ordering and featured modules)
+# Override in environment-specific settings if needed.
+BILLING_PLAN_ORDER = {
+    # SME: Starter → Pro → Enterprise
+    'sme': ['starter', 'sme_pro', 'sme_enterprise'],
+    # EDU: Student → Teacher → Campus
+    'edu': ['edu_student', 'edu_teacher', 'edu_campus'],
+}
+
+BILLING_FEATURED_MODULES = {
+    'sme': ['e-Fatura', 'Nakit Akışı', 'Banka Entegrasyonları', 'AI Destekli Analiz'],
+    'edu': ['Eğitim/LMS', 'Analitik & Gelişmiş Raporlama', 'AI Destekli Analiz'],
+}
+
 # --- Logging (JSON structured) ---
 LOGGING = {
     'version': 1,
