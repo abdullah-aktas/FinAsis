@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+import json as _json
+from datetime import datetime, timedelta, timezone as _timezone
 from django.urls import reverse_lazy
 from .models import (
     FinancialTermCard,
@@ -302,6 +304,59 @@ class MeetingDetailView(DetailView):
         user = self.request.user
         return Meeting.objects.filter(Q(organizer=user) | Q(participants=user)).distinct()
 
+    def get_context_data(self, **kwargs):  # type: ignore[override]
+        from django.conf import settings
+        ctx = super().get_context_data(**kwargs)
+        mode = getattr(settings, 'MEETINGS_VIDEO_MODE', 'mesh')
+        jitsi_domain = getattr(settings, 'MEETINGS_JITSI_DOMAIN', '')
+        ice_servers = getattr(settings, 'MEETINGS_ICE_SERVERS', [])
+        ctx['video_mode'] = mode
+        ctx['jitsi_domain'] = jitsi_domain
+        try:
+            ctx['ice_servers_json'] = _json.dumps(ice_servers)  # string for safe embedding
+        except Exception:
+            ctx['ice_servers_json'] = '[]'
+
+        # Optional Jitsi JWT token for Secure Domain
+        ctx['jitsi_jwt'] = ''
+        if mode == 'sfu' and jitsi_domain and getattr(settings, 'JITSI_JWT_ENABLED', False):
+            app_id = getattr(settings, 'JITSI_JWT_APP_ID', '')
+            secret = getattr(settings, 'JITSI_JWT_SECRET', '')
+            iss = getattr(settings, 'JITSI_JWT_ISS', 'finasis')
+            aud = getattr(settings, 'JITSI_JWT_AUD', 'jitsi')
+            ttl = int(getattr(settings, 'JITSI_JWT_TTL', 3600))
+            if secret:
+                try:
+                    import jwt  # type: ignore
+                    from typing import cast
+                    user = self.request.user
+                    obj = cast(Meeting, self.get_object())
+                    room = f"finasis-meeting-{obj.pk}"
+                    now = datetime.now(tz=_timezone.utc)
+                    payload = {
+                        'aud': aud,
+                        'iss': iss,
+                        'sub': jitsi_domain,
+                        'room': room,
+                        'exp': now + timedelta(seconds=ttl),
+                        'nbf': now - timedelta(seconds=5),
+                        'context': {
+                            'user': {
+                                'name': getattr(user, 'get_full_name', lambda: '')() or getattr(user, 'get_username', lambda: '')(),
+                                'email': getattr(user, 'email', '') or '',
+                                'moderator': bool(user == obj.organizer),
+                            }
+                        }
+                    }
+                    headers = {}
+                    if app_id:
+                        headers['kid'] = app_id
+                    token = jwt.encode(payload, secret, algorithm='HS256', headers=headers)
+                    ctx['jitsi_jwt'] = token
+                except Exception:
+                    ctx['jitsi_jwt'] = ''
+        return ctx
+
 
 @method_decorator(login_required, name='dispatch')
 class MeetingCreateView(CreateView):
@@ -381,6 +436,180 @@ def meeting_cancel(request, pk: int):
         meeting.save(update_fields=['status'])
         return redirect('education:meetings_detail', pk=meeting.pk)
     return redirect('education:meetings_detail', pk=meeting.pk)
+
+
+@login_required
+def meeting_presence(request, pk: int):
+    """HTML report of MeetingPresence entries for a meeting."""
+    meeting = get_object_or_404(Meeting, pk=pk)
+    user = request.user
+    if not (user == meeting.organizer or meeting.participants.filter(pk=user.pk).exists()):
+        return HttpResponse(status=403)
+    from .models import MeetingPresence
+    from django.utils import timezone as dj_tz
+
+    def fmt_hms(total_sec: int) -> str:
+        if total_sec < 0:
+            total_sec = 0
+        h = total_sec // 3600
+        m = (total_sec % 3600) // 60
+        s = total_sec % 60
+        return (f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}")
+
+    now = dj_tz.now()
+    qs = MeetingPresence.objects.select_related('user').filter(meeting=meeting).order_by('user_id', 'joined_at')
+
+    presence_rows = []
+    per_user = {}
+    ongoing_sessions = 0
+    total_seconds_all = 0
+    for p in qs:
+        joined = p.joined_at
+        left = p.left_at
+        effective_left = left or now
+        if left is None:
+            ongoing_sessions += 1
+        duration_seconds = int((effective_left - joined).total_seconds()) if (joined and effective_left) else 0
+        total_seconds_all += max(duration_seconds, 0)
+        # Per-user totals
+        uname = getattr(p.user, 'get_full_name', lambda: '')() or getattr(p.user, 'get_username', lambda: '')()
+        uid = getattr(p.user, 'pk', None)
+        per_user.setdefault(uid, {'user_display': uname, 'sessions': 0, 'total_seconds': 0})
+        per_user[uid]['sessions'] += 1
+        per_user[uid]['total_seconds'] += max(duration_seconds, 0)
+
+        presence_rows.append({
+            'user_display': uname,
+            'joined_at': joined,
+            'left_at': left,  # keep None if ongoing to display '-'
+            'duration_seconds': max(duration_seconds, 0),
+            'duration_hms': fmt_hms(max(duration_seconds, 0)),
+        })
+
+    per_user_totals = []
+    for _uid, entry in per_user.items():
+        per_user_totals.append({
+            'user_display': entry['user_display'],
+            'sessions': entry['sessions'],
+            'total_seconds': entry['total_seconds'],
+            'total_hms': fmt_hms(entry['total_seconds']),
+        })
+
+    # Sort users by total time desc
+    per_user_totals.sort(key=lambda x: x['total_seconds'], reverse=True)
+
+    summary = {
+        'total_participants': len(per_user_totals),
+        'total_sessions': len(presence_rows),
+        'total_seconds': total_seconds_all,
+        'total_hms': fmt_hms(total_seconds_all),
+        'ongoing_sessions': ongoing_sessions,
+    }
+
+    return render(request, 'education/meetings_presence.html', {
+        'meeting': meeting,
+        'presence_rows': presence_rows,
+        'per_user_totals': per_user_totals,
+        'summary': summary,
+    })
+
+
+@login_required
+def meeting_presence_csv(request, pk: int):
+    """CSV export for MeetingPresence entries."""
+    meeting = get_object_or_404(Meeting, pk=pk)
+    user = request.user
+    if not (user == meeting.organizer or meeting.participants.filter(pk=user.pk).exists()):
+        return HttpResponse(status=403)
+    from .models import MeetingPresence
+    import csv
+    from io import StringIO
+    from django.utils import timezone as dj_tz
+    presences = MeetingPresence.objects.select_related('user').filter(meeting=meeting).order_by('user_id', 'joined_at')
+
+    def fmt_hms(total_sec: int) -> str:
+        if total_sec is None:
+            return ''
+        if total_sec < 0:
+            total_sec = 0
+        h = total_sec // 3600
+        m = (total_sec % 3600) // 60
+        s = total_sec % 60
+        return (f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}")
+
+    out = StringIO()
+    writer = csv.writer(out)
+    writer.writerow(['user_id', 'user', 'joined_at', 'left_at', 'duration_seconds', 'duration_hms'])
+    for p in presences:
+        joined = p.joined_at
+        left = p.left_at
+        if left is None:
+            left = dj_tz.now()
+        duration = int((left - joined).total_seconds()) if (joined and left) else None
+        writer.writerow([
+            getattr(p.user, 'pk', ''),
+            getattr(p.user, 'get_username', lambda: '')(),
+            joined,
+            p.left_at,
+            duration if duration is not None else '',
+            fmt_hms(duration) if duration is not None else '',
+        ])
+    resp = HttpResponse(out.getvalue(), content_type='text/csv; charset=utf-8')
+    resp['Content-Disposition'] = f'attachment; filename="meeting_{meeting.pk}_presence.csv"'
+    return resp
+
+
+@login_required
+def meeting_presence_totals_csv(request, pk: int):
+    """CSV export for per-user presence totals for a meeting."""
+    meeting = get_object_or_404(Meeting, pk=pk)
+    user = request.user
+    if not (user == meeting.organizer or meeting.participants.filter(pk=user.pk).exists()):
+        return HttpResponse(status=403)
+    from .models import MeetingPresence
+    import csv
+    from io import StringIO
+    from django.utils import timezone as dj_tz
+
+    def fmt_hms(total_sec: int) -> str:
+        if total_sec < 0:
+            total_sec = 0
+        h = total_sec // 3600
+        m = (total_sec % 3600) // 60
+        s = total_sec % 60
+        return (f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}")
+
+    qs = MeetingPresence.objects.select_related('user').filter(meeting=meeting).order_by('user_id', 'joined_at')
+    now = dj_tz.now()
+    per_user: dict[int, dict] = {}
+    for p in qs:
+        uid = getattr(p.user, 'pk', None)
+        uname = getattr(p.user, 'get_full_name', lambda: '')() or getattr(p.user, 'get_username', lambda: '')()
+        if uid is None:
+            # skip if user missing
+            continue
+        joined = p.joined_at
+        left = p.left_at or now
+        duration_seconds = int((left - joined).total_seconds()) if (joined and left) else 0
+        entry = per_user.setdefault(uid, {'user_display': uname, 'sessions': 0, 'total_seconds': 0})
+        entry['sessions'] += 1
+        entry['total_seconds'] += max(duration_seconds, 0)
+
+    # Prepare CSV
+    out = StringIO()
+    writer = csv.writer(out)
+    writer.writerow(['user_id', 'user', 'sessions', 'total_seconds', 'total_hms'])
+    for uid, entry in per_user.items():
+        writer.writerow([
+            uid,
+            entry['user_display'],
+            entry['sessions'],
+            entry['total_seconds'],
+            fmt_hms(entry['total_seconds']),
+        ])
+    resp = HttpResponse(out.getvalue(), content_type='text/csv; charset=utf-8')
+    resp['Content-Disposition'] = f'attachment; filename="meeting_{meeting.pk}_presence_totals.csv"'
+    return resp
 
 
 @login_required

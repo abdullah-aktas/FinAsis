@@ -45,11 +45,347 @@
     {% if request.user == meeting.organizer %}
       <a class="btn btn-outline-warning" href="{% url 'education:meetings_edit' meeting.pk %}">{% trans 'Düzenle' %}</a>
       <a class="btn btn-outline-primary" href="{% url 'education:meetings_invite' meeting.pk %}">{% trans 'Davet Et' %}</a>
+      <a class="btn btn-outline-info" href="{% url 'education:meetings_presence' meeting.pk %}">{% trans 'Katılım Raporu' %}</a>
       <form method="post" action="{% url 'education:meetings_cancel' meeting.pk %}">
         {% csrf_token %}
         <button class="btn btn-outline-danger" type="submit">{% trans 'İptal Et' %}</button>
       </form>
     {% endif %}
   </div>
+
+  <hr class="my-4" />
+  <h2 class="h5 mb-3">{% trans 'Dahili Toplantı' %}</h2>
+  {% if video_mode == 'sfu' and jitsi_domain %}
+    {% if request.user == meeting.organizer %}
+    <div class="d-flex gap-2 mb-2">
+      <button id="btnJitsiMuteAll" class="btn btn-outline-secondary btn-sm">{% trans 'Herkesi Sessize Al' %}</button>
+      <button id="btnJitsiChat" class="btn btn-outline-primary btn-sm">{% trans 'Sohbeti Aç/Kapat' %}</button>
+      <button id="btnJitsiTiles" class="btn btn-outline-primary btn-sm">{% trans 'Izgara Görünümü' %}</button>
+    </div>
+    {% endif %}
+    <div id="jitsi-container" class="border rounded" style="height: 70vh"></div>
+    <script src="https://{{ jitsi_domain }}/external_api.js"></script>
+    <script>
+      (function(){
+        const domain = '{{ jitsi_domain }}';
+        const roomName = 'finasis-meeting-{{ meeting.pk }}';
+        const parentNode = document.querySelector('#jitsi-container');
+        const config = {
+          roomName,
+          parentNode,
+          userInfo: { displayName: '{{ request.user.get_full_name|default:request.user.username }}' },
+          // Basic UX tweaks; safe defaults
+          configOverwrite: {
+            prejoinPageEnabled: false,
+            startWithAudioMuted: true,
+            disableDeepLinking: true
+          },
+          interfaceConfigOverwrite: {
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
+          }
+        };
+        const jwtToken = '{{ jitsi_jwt|default:""|escapejs }}';
+        if (jwtToken) { config.jwt = jwtToken; }
+        const api = new JitsiMeetExternalAPI(domain, config);
+        // Optional: mute on start
+        api.executeCommand('toggleFilmStrip');
+
+        // Organizer-only controls wiring
+  const isOrganizer = "{{ request.user.pk|default_if_none:'' }}" === "{{ meeting.organizer.pk|default_if_none:'' }}";
+        if (isOrganizer) {
+          const btnMuteAll = document.getElementById('btnJitsiMuteAll');
+          const btnChat = document.getElementById('btnJitsiChat');
+          const btnTiles = document.getElementById('btnJitsiTiles');
+          if (btnMuteAll) btnMuteAll.onclick = () => {
+            try { api.executeCommand('muteEveryone'); } catch (e) {}
+          };
+          if (btnChat) btnChat.onclick = () => {
+            try { api.executeCommand('toggleChat'); } catch (e) {}
+          };
+          if (btnTiles) btnTiles.onclick = () => {
+            try { api.executeCommand('toggleTileView'); } catch (e) {}
+          };
+        }
+      })();
+    </script>
+  {% else %}
+  <div class="row g-3" id="webrtc-app">
+    <div class="col-md-4">
+      <div class="ratio ratio-4x3 border rounded">
+        <video id="localVideo" autoplay playsinline muted></video>
+      </div>
+      <div class="mt-2 d-flex gap-2 align-items-center">
+        <button class="btn btn-success btn-sm" id="btnJoin">{% trans 'Katıl' %}</button>
+        <button class="btn btn-secondary btn-sm" id="btnMute" disabled>{% trans 'Sesi Kapat' %}</button>
+        <button class="btn btn-secondary btn-sm" id="btnCam" disabled>{% trans 'Kamera Kapat' %}</button>
+        <button class="btn btn-warning btn-sm" id="btnShare" disabled>{% trans 'Ekran Paylaş' %}</button>
+        <button class="btn btn-danger btn-sm" id="btnLeave" disabled>{% trans 'Ayrıl' %}</button>
+        <small id="statusText" class="text-muted ms-2">{% trans 'Bağlı değil' %}</small>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="row" id="remoteContainer"></div>
+    </div>
+  </div>
+
+  <div class="row mt-3" id="mesh-extras">
+    <div class="col-md-8">
+      <div class="border rounded p-2 bg-light" id="chatPanel">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>{% trans 'Sohbet' %}</strong>
+          {% if request.user == meeting.organizer %}
+          <div class="btn-group btn-group-sm" role="group" aria-label="Moderator Controls">
+            <button id="btnLock" class="btn btn-outline-danger">{% trans 'Odayı Kilitle' %}</button>
+            <button id="btnUnlock" class="btn btn-outline-success">{% trans 'Aç' %}</button>
+            <button id="btnMuteAll" class="btn btn-outline-secondary">{% trans 'Herkesi Sessize Al' %}</button>
+          </div>
+          {% endif %}
+        </div>
+        <div id="chatMessages" class="border rounded p-2 bg-white" style="height: 220px; overflow:auto;"></div>
+        <div class="input-group mt-2">
+          <input id="chatInput" class="form-control" placeholder="{% trans 'Mesaj yaz...' %}">
+          <button id="chatSend" class="btn btn-primary">{% trans 'Gönder' %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const meetingId = "{{ meeting.pk }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${wsScheme}://${window.location.host}/ws/meetings/${meetingId}/`;
+    let ws;
+    let localStream;
+  const peers = new Map(); // peerId -> RTCPeerConnection
+    const remoteContainer = document.getElementById('remoteContainer');
+    const localVideo = document.getElementById('localVideo');
+    const me = '{{ request.user.pk }}';
+  const btnJoin = document.getElementById('btnJoin');
+  const btnLeave = document.getElementById('btnLeave');
+  const btnMute = document.getElementById('btnMute');
+  const btnCam = document.getElementById('btnCam');
+  const btnShare = document.getElementById('btnShare');
+  const statusText = document.getElementById('statusText');
+
+  // Otomatik yeniden bağlanma durumu
+  let manualLeave = false;
+  let shouldReconnect = false;
+  let reconnectTimer = null;
+
+  // Dinamik buton etiketleri
+  const LABEL_MUTE_ON = '{% trans "Sesi Kapat" %}';
+  const LABEL_MUTE_OFF = '{% trans "Sesi Aç" %}';
+  const LABEL_CAM_ON = '{% trans "Kamera Kapat" %}';
+  const LABEL_CAM_OFF = '{% trans "Kamerayı Aç" %}';
+
+  function updateMediaButtonLabels(){
+    if (!localStream) return;
+    const audioOn = localStream.getAudioTracks().some(t => t.enabled);
+    const videoOn = localStream.getVideoTracks().some(t => t.enabled);
+    if (btnMute) btnMute.innerText = audioOn ? LABEL_MUTE_ON : LABEL_MUTE_OFF;
+    if (btnCam) btnCam.innerText = videoOn ? LABEL_CAM_ON : LABEL_CAM_OFF;
+  }
+
+  function setConnectedUI(connected){
+    if (btnJoin) btnJoin.disabled = connected;
+    if (btnLeave) btnLeave.disabled = !connected;
+    if (btnMute) btnMute.disabled = !connected;
+    if (btnCam) btnCam.disabled = !connected;
+    if (btnShare) btnShare.disabled = !connected;
+    if (statusText) statusText.textContent = connected ? '{% trans "Bağlandı" %}' : '{% trans "Bağlı değil" %}';
+  }
+
+  const myName = '{{ request.user.get_full_name|default:request.user.username|escapejs }}';
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+
+    function addRemoteVideo(peerId) {
+      const el = document.createElement('div');
+      el.className = 'col-6 mb-3';
+      el.id = `peer-${peerId}`;
+      el.innerHTML = `<div class="ratio ratio-4x3 border rounded"><video id="video-${peerId}" autoplay playsinline></video></div>`;
+      remoteContainer.appendChild(el);
+      return document.getElementById(`video-${peerId}`);
+    }
+
+    function getOrCreatePeer(peerId) {
+      if (peers.has(peerId)) return peers.get(peerId);
+      let ICE_SERVERS = [];
+      try { ICE_SERVERS = JSON.parse('{{ ice_servers_json|escapejs }}'); } catch (e) { ICE_SERVERS = []; }
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      pc.onicecandidate = (e) => { if (e.candidate) send({type:'ice', to: peerId, data: e.candidate}); };
+      pc.ontrack = (e) => {
+        let v = document.getElementById(`video-${peerId}`);
+        if (!v) v = addRemoteVideo(peerId);
+        v.srcObject = e.streams[0];
+      };
+      if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+      peers.set(peerId, pc);
+      return pc;
+    }
+
+    function send(msg){
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(Object.assign({from: me}, msg)));
+      }
+    }
+
+    function connectWS(){
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return; // guard
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        send({type:'join'});
+        setConnectedUI(true);
+        appendSystem('{% trans "Bağlantı kuruldu." %}');
+      };
+      ws.onmessage = async (ev) => {
+        const msg = JSON.parse(ev.data);
+        const {type, from, to, data} = msg;
+        if (from && String(from) === String(me)) return; // ignore self
+        if (type === 'join') {
+          // mesh: create offer to newcomer
+          const pc = getOrCreatePeer(from);
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          send({type:'offer', to: from, data: offer});
+        } else if (type === 'offer' && String(to) === String(me)) {
+          const pc = getOrCreatePeer(from);
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          send({type:'answer', to: from, data: answer});
+        } else if (type === 'answer' && String(to) === String(me)) {
+          const pc = getOrCreatePeer(from);
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+        } else if (type === 'ice' && String(to) === String(me)) {
+          try { await getOrCreatePeer(from).addIceCandidate(new RTCIceCandidate(data)); } catch (e) {}
+        } else if (type === 'chat') {
+          const name = (data && data.from_name) ? data.from_name : ('{% trans "Kullanıcı" %} ' + (from || '?'));
+          const text = (data && data.text) ? data.text : '';
+          appendChat(name, text, false);
+        } else if (type === 'moderate' && data) {
+          if (data.action === 'mute-all') {
+            if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
+            appendSystem('{% trans "Moderator tüm mikrofonları kapattı." %}');
+            updateMediaButtonLabels();
+          } else if (data.action === 'lock-room') {
+            appendSystem('{% trans "Oda kilitlendi. Yeni katılım engellendi." %}');
+          } else if (data.action === 'unlock-room') {
+            appendSystem('{% trans "Oda kilidi açıldı." %}');
+          }
+        }
+      };
+      ws.onclose = () => {
+        setConnectedUI(false);
+        if (!manualLeave && shouldReconnect) {
+          appendSystem('{% trans "Bağlantı kesildi, tekrar bağlanılıyor..." %}');
+          if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+          reconnectTimer = setTimeout(() => { connectWS(); }, 2000);
+        }
+      };
+      ws.onerror = () => {};
+    }
+
+    async function startLocal(){
+      localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+      localVideo.srcObject = localStream;
+      updateMediaButtonLabels();
+    }
+
+    btnJoin.onclick = async () => {
+      if (!localStream) await startLocal();
+      manualLeave = false;
+      shouldReconnect = true;
+      connectWS();
+      setConnectedUI(true);
+    };
+    btnLeave.onclick = () => {
+      manualLeave = true;
+      shouldReconnect = false;
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+      if (ws) ws.close();
+      peers.forEach(pc => pc.close());
+      peers.clear();
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+      localVideo.srcObject = null;
+      remoteContainer.innerHTML = '';
+      setConnectedUI(false);
+    };
+    btnMute.onclick = () => {
+      if (!localStream) return;
+      localStream.getAudioTracks().forEach(t => t.enabled = !t.enabled);
+      updateMediaButtonLabels();
+    };
+    btnCam.onclick = () => {
+      if (!localStream) return;
+      localStream.getVideoTracks().forEach(t => t.enabled = !t.enabled);
+      updateMediaButtonLabels();
+    };
+    btnShare.onclick = async () => {
+      try {
+        const display = await navigator.mediaDevices.getDisplayMedia({video:true});
+        const track = display.getVideoTracks()[0];
+        appendSystem('{% trans "Ekran paylaşımı başlatıldı." %}');
+        peers.forEach(pc => {
+          const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(track);
+        });
+        track.onended = () => {
+          appendSystem('{% trans "Ekran paylaşımı sona erdi." %}');
+          if (!localStream) return;
+          const cam = localStream.getVideoTracks()[0];
+          peers.forEach(pc => {
+            const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (sender) sender.replaceTrack(cam);
+          });
+        };
+      } catch (e) {}
+    };
+
+    function appendChat(name, text, isMine){
+      if (!chatMessages) return;
+      const row = document.createElement('div');
+      row.className = 'mb-1';
+      const who = isMine ? '{% trans "Ben" %}' : name;
+      row.textContent = who + ': ' + text;
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    function appendSystem(text){
+      if (!chatMessages) return;
+      const row = document.createElement('div');
+      row.className = 'mb-1 text-muted';
+      row.textContent = '• ' + text;
+      chatMessages.appendChild(row);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    if (chatSend) {
+      chatSend.onclick = () => {
+        const text = (chatInput && chatInput.value || '').trim();
+        if (!text) return;
+        send({type:'chat', data:{text, from_name: myName, ts: Date.now()}});
+        appendChat(myName, text, true);
+        if (chatInput) chatInput.value = '';
+      };
+    }
+    if (chatInput) {
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (chatSend) chatSend.click();
+        }
+      });
+    }
+    const btnLock = document.getElementById('btnLock');
+    const btnUnlock = document.getElementById('btnUnlock');
+    const btnMuteAll = document.getElementById('btnMuteAll');
+    if (btnLock) btnLock.onclick = () => send({type:'moderate', data:{action:'lock-room'}});
+    if (btnUnlock) btnUnlock.onclick = () => send({type:'moderate', data:{action:'unlock-room'}});
+    if (btnMuteAll) btnMuteAll.onclick = () => send({type:'moderate', data:{action:'mute-all'}});
+  })();
+  </script>
+  {% endif %}
 </div>
 {% endblock %}

@@ -440,3 +440,26 @@ class MeetingInvitation(models.Model):
 
     def __str__(self):
         return f"{self.meeting.title} -> {self.email or (self.invitee and self.invitee.email) or 'unknown'}"
+
+
+class MeetingPresence(models.Model):
+    """Per-user presence log for a Meeting.
+    Records multiple sessions per user if they reconnect.
+    """
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name='presences', verbose_name=_('Toplantı'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='meeting_presences', verbose_name=_('Kullanıcı'))
+    joined_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Katılım'))
+    left_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Ayrılış'))
+    client_id = models.CharField(max_length=64, blank=True, verbose_name=_('İstemci Kimliği'))
+
+    class Meta:
+        verbose_name = _('Toplantı Varlığı')
+        verbose_name_plural = _('Toplantı Varlıkları')
+        indexes = [
+            models.Index(fields=['meeting', 'user', 'joined_at']),
+        ]
+
+    def __str__(self):
+        mid = getattr(self, 'meeting_id', None) or (self.meeting and self.meeting.pk)
+        uid = getattr(self, 'user_id', None) or (self.user and self.user.pk)
+        return f"{mid}::{uid} {self.joined_at} -> {self.left_at or '-'}"

@@ -11,16 +11,13 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from django.urls import re_path
-
-# WebSocket için basit bir consumer (örnek)
-from channels.generic.websocket import AsyncWebsocketConsumer  # placeholder for future consumers
-import json
+from src.apps.education import routing as education_routing
 
 # Normalized settings module path
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings')
 
-websocket_urlpatterns: list = []  # Add websocket patterns here, e.g., re_path(r"^ws/test/$", Consumer.as_asgi())
+websocket_urlpatterns = []  # type: ignore[var-annotated]
+websocket_urlpatterns += education_routing.websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),

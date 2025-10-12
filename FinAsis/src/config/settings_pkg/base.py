@@ -7,6 +7,7 @@ import os
 import sys
 import importlib
 from typing import Any
+import json as _json
 try:
     import environ  # type: ignore
 except ModuleNotFoundError:  # Lightweight fallback for test/import-time
@@ -363,6 +364,53 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
+
+# Meetings/WebRTC settings
+# video mode: 'mesh' (P2P) or 'sfu'
+MEETINGS_VIDEO_MODE = config('MEETINGS_VIDEO_MODE', default='mesh')
+# When using SFU via Jitsi (self-host), set domain like 'meet.yourdomain.com'
+MEETINGS_JITSI_DOMAIN = config('MEETINGS_JITSI_DOMAIN', default='')
+# ICE servers for P2P mesh mode (JSON string). Example:
+#   [ {"urls": "stun:stun.l.google.com:19302"}, {"urls": "turn:turn.domain:3478", "username": "u", "credential": "p"} ]
+try:
+    _ice_json = str(config('MEETINGS_ICE_SERVERS', default='[]'))
+    MEETINGS_ICE_SERVERS = _json.loads(_ice_json) if _ice_json else []
+except Exception:
+    MEETINGS_ICE_SERVERS = []
+
+# Optional Jitsi JWT auth (Secure Domain)
+JITSI_JWT_ENABLED = config('JITSI_JWT_ENABLED', default=False, cast=bool)
+JITSI_JWT_APP_ID = config('JITSI_JWT_APP_ID', default='')
+JITSI_JWT_SECRET = config('JITSI_JWT_SECRET', default='')
+JITSI_JWT_ISS = config('JITSI_JWT_ISS', default='finasis')
+JITSI_JWT_AUD = config('JITSI_JWT_AUD', default='jitsi')
+JITSI_JWT_TTL = config('JITSI_JWT_TTL', default=60 * 60, cast=int)
+
+# If Redis details are provided and channels_redis is installed, switch channel layer to Redis
+_REDIS_URL = config('REDIS_URL', default='')
+_REDIS_HOST = config('CHANNEL_REDIS_HOST', default='')
+if _REDIS_URL or _REDIS_HOST:
+    try:
+        import channels_redis  # type: ignore  # noqa: F401
+        _hosts = []
+        if _REDIS_URL:
+            _hosts = [_REDIS_URL]
+        elif _REDIS_HOST:
+            _port_val = config('CHANNEL_REDIS_PORT', default='6379')
+            try:
+                _port = int(_port_val) if _port_val is not None else 6379
+            except Exception:
+                _port = 6379
+            _hosts = [(str(_REDIS_HOST), _port)]
+        CHANNEL_LAYERS = {
+            'default': {
+                'BACKEND': 'channels_redis.core.RedisChannelLayer',
+                'CONFIG': {'hosts': _hosts},
+            }
+        }
+    except Exception:
+        # Fallback to in-memory if channels_redis not available
+        pass
 
 # Email settings
 # Use console backend in development; allow override via env

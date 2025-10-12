@@ -22,6 +22,9 @@ urlpatterns = [
     path('meetings/<int:pk>/edit/', views.MeetingUpdateView.as_view(), name='meetings_edit'),
     path('meetings/<int:pk>/ics/', views.meeting_ics, name='meetings_ics'),
     path('meetings/<int:pk>/cancel/', views.meeting_cancel, name='meetings_cancel'),
+    path('meetings/<int:pk>/presence/', views.meeting_presence, name='meetings_presence'),
+    path('meetings/<int:pk>/presence.csv', views.meeting_presence_csv, name='meetings_presence_csv'),
+    path('meetings/<int:pk>/presence_totals.csv', views.meeting_presence_totals_csv, name='meetings_presence_totals_csv'),
     path('meetings/<int:pk>/invite/', views.meeting_invite, name='meetings_invite'),
     path('meetings/rsvp/<str:token>/<str:action>/', views.meeting_rsvp, name='meetings_rsvp'),
     # FinancialTermCard CRUD
