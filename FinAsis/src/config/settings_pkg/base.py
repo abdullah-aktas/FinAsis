@@ -508,3 +508,8 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 # --- Regulatory feature flags ---
 # By default, disable direct taxpayer submissions; require advisor mediation.
 SUBMISSIONS_ALLOW_DIRECT = bool(config('SUBMISSIONS_ALLOW_DIRECT', default=False, cast=bool))
+
+# --- Auth redirects ---
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/panel/'  # Kullanıcı giriş sonrası kişisel paneline yönlendirilir
+LOGOUT_REDIRECT_URL = '/'

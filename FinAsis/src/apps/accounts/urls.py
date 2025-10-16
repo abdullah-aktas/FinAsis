@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from . import views
 from .api import UserProfileView, CompanyView, AchievementsView, UserSettingsView
+from .api_panel import panel_data_api
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -46,6 +47,7 @@ urlpatterns = [
     path('api/company/', CompanyView.as_view(), name='api_company'),
     path('api/achievements/', AchievementsView.as_view(), name='api_achievements'),
     path('api/settings/', UserSettingsView.as_view(), name='api_settings'),
+    path('api/v1/panel/', panel_data_api, name='api_panel_data'),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='api_docs'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='api_redoc'),
     path('ai-assistant/', include('src.apps.ai_assistant.urls')),

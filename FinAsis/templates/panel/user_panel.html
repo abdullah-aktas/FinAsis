@@ -1,0 +1,314 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ panel_title }} - FinAsis{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js for graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Hoş Geldiniz Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h3 mb-2">
+                        <i class="bi bi-person-circle me-2"></i>
+                        {% trans "Hoş Geldiniz" %}, {{ user.get_full_name|default:user.username }}!
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if company %}
+                            <i class="bi bi-building me-1"></i>{{ company.name }}
+                        {% else %}
+                            {% trans "Kişisel Paneliniz" %}
+                        {% endif %}
+                        {% if user_roles %}
+                            <span class="ms-3">
+                                {% for role in user_roles %}
+                                    <span class="badge bg-secondary">{{ role }}</span>
+                                {% endfor %}
+                            </span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rol Bazlı İçgörü Kartları -->
+    {% if role_insights %}
+    <div class="row mb-4">
+        {% for insight in role_insights %}
+        <div class="col-md-4 mb-3">
+            <div class="alert alert-{{ insight.color }} d-flex align-items-center" role="alert">
+                <i class="bi {{ insight.icon }} fs-3 me-3"></i>
+                <div>
+                    <strong>{{ insight.title }}</strong><br>
+                    <small>{{ insight.message }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        {% if invoice_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-file-earmark-text text-primary fs-1"></i>
+                    <h3 class="mt-2">{{ invoice_count }}</h3>
+                    <p class="text-muted mb-0">{% trans "Faturalar" %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if expense_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-receipt text-danger fs-1"></i>
+                    <h3 class="mt-2">{{ expense_count }}</h3>
+                    <p class="text-muted mb-0">{% trans "Giderler" %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transaction_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-bank text-success fs-1"></i>
+                    <h3 class="mt-2">{{ transaction_count }}</h3>
+                    <p class="text-muted mb-0">{% trans "Banka İşlemleri" %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if ai_interaction_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-robot text-info fs-1"></i>
+                    <h3 class="mt-2">{{ ai_interaction_count }}</h3>
+                    <p class="text-muted mb-0">{% trans "AI Etkileşimleri" %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Grafikler -->
+    {% if invoice_trend_json or expense_trend_json %}
+    <div class="row mb-4">
+        {% if invoice_trend_json %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-graph-up me-2"></i>{% trans "Gelir Trendi (Son 6 Ay)" %}
+                </div>
+                <div class="card-body">
+                    <canvas id="incomeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if expense_trend_json %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <i class="bi bi-graph-down me-2"></i>{% trans "Gider Trendi (Son 6 Ay)" %}
+                </div>
+                <div class="card-body">
+                    <canvas id="expenseChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Hızlı Erişim -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-lightning-fill me-2"></i>{% trans "Hızlı Erişim" %}
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'accounts:user_profile' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person me-2"></i>{% trans "Profilim" %}
+                        </a>
+                        {% if company %}
+                        <a href="{% url 'accounts:company_detail' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-building me-2"></i>{% trans "Şirket Bilgileri" %}
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'ai_assistant:home' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-robot me-2"></i>{% trans "AI Asistan" %}
+                        </a>
+                        <a href="{% url 'accounts:user_settings' %}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-gear me-2"></i>{% trans "Ayarlar" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son İşlemler -->
+        {% if recent_transactions %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <i class="bi bi-clock-history me-2"></i>{% trans "Son İşlemler" %}
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for txn in recent_transactions %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi {% if txn.type == 'income' %}bi-arrow-up text-success{% else %}bi-arrow-down text-danger{% endif %} me-2"></i>
+                                    <small>{{ txn.description|truncatechars:30 }}</small>
+                                    <br>
+                                    <small class="text-muted">{{ txn.date|date:"d.m.Y" }}</small>
+                                </div>
+                                <span class="badge {% if txn.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ txn.amount }} TL
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- AI Önerileri -->
+        {% if ai_recommendations %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <i class="bi bi-lightbulb me-2"></i>{% trans "AI Önerileri" %}
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for rec in ai_recommendations %}
+                        <div class="list-group-item">
+                            <small class="text-muted">{{ rec.created_at|date:"d.m.Y H:i" }}</small>
+                            <p class="mb-0 mt-1">{{ rec.ai_response|truncatechars:80 }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'ai_assistant:home' %}" class="btn btn-sm btn-outline-warning w-100">
+                            {% trans "Daha Fazla Öneri" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Yardım ve Destek -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body text-center">
+                    <i class="bi bi-question-circle fs-1 text-primary"></i>
+                    <h5 class="mt-3">{% trans "Yardıma mı ihtiyacınız var?" %}</h5>
+                    <p class="text-muted">
+                        {% trans "AI Asistanımız her sayfada yanınızda. Sorularınız için sohbet başlatabilirsiniz." %}
+                    </p>
+                    <a href="{% url 'ai_assistant:home' %}" class="btn btn-primary">
+                        <i class="bi bi-chat-dots me-2"></i>{% trans "AI ile Sohbet Başlat" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gelir Grafiği
+    try {
+        const invoiceDataRaw = '{{ invoice_trend_json|safe|escapejs }}';
+        if (invoiceDataRaw && invoiceDataRaw !== 'None') {
+            const invoiceData = JSON.parse(invoiceDataRaw);
+            const incomeCtx = document.getElementById('incomeChart');
+            if (incomeCtx && Array.isArray(invoiceData)) {
+                new Chart(incomeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: invoiceData.map(function(d) { return d.month; }),
+                        datasets: [{
+                            label: 'Gelir (TL)',
+                            data: invoiceData.map(function(d) { return d.total; }),
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Gelir grafiği yüklenemedi:', e);
+    }
+
+    // Gider Grafiği
+    try {
+        const expenseDataRaw = '{{ expense_trend_json|safe|escapejs }}';
+        if (expenseDataRaw && expenseDataRaw !== 'None') {
+            const expenseData = JSON.parse(expenseDataRaw);
+            const expenseCtx = document.getElementById('expenseChart');
+            if (expenseCtx && Array.isArray(expenseData)) {
+                new Chart(expenseCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: expenseData.map(function(d) { return d.month; }),
+                        datasets: [{
+                            label: 'Gider (TL)',
+                            data: expenseData.map(function(d) { return d.total; }),
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Gider grafiği yüklenemedi:', e);
+    }
+});
+</script>
+{% endblock %}

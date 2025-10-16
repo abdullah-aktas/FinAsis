@@ -23,6 +23,7 @@ from .views import (
 from .views import search_view
 from .views import set_language_compat
 from src.views import dashboard, education, pricing, legal, contact
+from src.apps.accounts.views_panel import user_panel
 
 from src.apps.accounting.admin import FinAsisAdminSite
 from django.contrib import admin as django_admin
@@ -65,6 +66,10 @@ urlpatterns = [
     path('audit/', include(('src.apps.audit.urls', 'audit'), namespace='audit')),
     path('accounts/', include(('src.apps.accounts.urls', 'accounts'), namespace='accounts')),
     path('accounts/', include('django.contrib.auth.urls')),  # auth views (namespacelenmiyor)
+    
+    # Kullanıcı Kişisel Paneli (giriş sonrası yönlendirme)
+    path('panel/', user_panel, name='user_panel'),
+    
     path('games/', include(('src.apps.games.urls', 'games'), namespace='games')),
     # Top-level aliases for nested game apps to allow '{% url "game_app:*" %}' usage in templates
     path('game-app/', include(('src.apps.games.game_app.urls', 'game_app'), namespace='game_app')),
