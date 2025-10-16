@@ -617,12 +617,30 @@ def ai_assistant_chat(request):
     """
     try:
         data = request.data
-        message = data.get('message')
+        message = data.get('message') or data.get('query')
+        context = data.get('context') or {
+            'page_path': request.headers.get('X-Page-Path') or request.META.get('HTTP_REFERER'),
+            'page_title': request.headers.get('X-Page-Title'),
+            'locale': request.LANGUAGE_CODE if hasattr(request, 'LANGUAGE_CODE') else None,
+        }
         if not message:
             return Response({'error': 'Mesaj boş olamaz.'}, status=status.HTTP_400_BAD_REQUEST)
         chat_service = ChatAIService()
-        response = chat_service.get_response(request.user, message)
-        return Response({'response': response}, status=status.HTTP_200_OK)
+        response_text = chat_service.get_response(request.user, message, context=context)
+
+        # Etkileşimi kaydet (model alanı opsiyonel; şema gerektirmiyor)
+        try:
+            UserInteraction.objects.create(
+                user=request.user,
+                interaction_type='chat',
+                content=message,
+                ai_response=response_text,
+                processing_time=0.0,
+            )
+        except Exception as e:
+            logger.warning(f"UserInteraction kaydı başarısız: {e}")
+
+        return Response({'response': response_text}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"AI asistan chat endpoint hatası: {str(e)}")
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -864,7 +882,11 @@ def recommendation_api(request):
     try:
         data = request.data
         service = RecommendationService()
-        result = service.generate(data)
+        context = {
+            'page_path': request.headers.get('X-Page-Path') or request.META.get('HTTP_REFERER'),
+            'page_title': request.headers.get('X-Page-Title'),
+        }
+        result = service.generate(data, user=request.user, context=context)
         return Response(result)
     except Exception as e:
         return Response({'error': str(e)}, status=500)

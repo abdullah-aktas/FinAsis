@@ -5,7 +5,7 @@ Makine Öğrenmesi Servisleri
 - Finansal Tahmin (Prophet)
 - Öneri Sistemi (kural tabanlı/ML)
 """
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 import numpy as np
 import joblib
 import os
@@ -19,6 +19,8 @@ import pandas as pd
 import datetime
 from django.utils import timezone
 from ..models import AIModel, UserInteraction
+from django.conf import settings
+from .knowledge_service import KnowledgeIndex
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -126,7 +128,7 @@ class FinancialForecastService:
         """Prophet ile modeli eğitir. df: ['ds', 'y'] sütunları olmalı."""
         if Prophet is None:
             raise RuntimeError("'prophet' paketi kullanılamıyor. NumPy 2.x ile uyumsuz olabilir. Lütfen 'pip install numpy<2 prophet' ile uygun sürümleri kurun.")
-        self.model = Prophet(yearly_seasonality=True, weekly_seasonality=True)
+        self.model = Prophet(yearly_seasonality=True, weekly_seasonality=True)  # type: ignore[arg-type]
         self.model.fit(df)
         # AIModel güncelle
         params = {'yearly_seasonality': True, 'weekly_seasonality': True}
@@ -159,14 +161,22 @@ class FinancialForecastService:
         self.log_event(f'{periods} gün için tahmin üretildi.', user)
         # Prophet explainability (örnek): trend, seasonality, en yüksek tahmin günü
         max_idx = forecast['yhat'].idxmax()
+        # idxmax bir label döndürebilir; .loc ile erişelim
+        max_row = forecast.loc[max_idx]
+        max_date = str(getattr(max_row, 'ds', max_row['ds']))
+        max_yhat_val = getattr(max_row, 'yhat', max_row['yhat'])
+        try:
+            max_yhat = float(max_yhat_val)  # type: ignore[arg-type]
+        except Exception:
+            max_yhat = float(getattr(max_yhat_val, 'iloc', [0])[-1] if hasattr(max_yhat_val, 'iloc') else 0)
         explanation = {
             'features': [
                 {'name': 'Trend', 'value': float(forecast['trend'].iloc[-1]), 'importance': 0.4},
                 {'name': 'Yearly Seasonality', 'value': float(forecast['yearly'].iloc[-1]) if 'yearly' in forecast else 0, 'importance': 0.3},
                 {'name': 'Weekly Seasonality', 'value': float(forecast['weekly'].iloc[-1]) if 'weekly' in forecast else 0, 'importance': 0.2},
-                {'name': 'En Yüksek Tahmin Günü', 'value': str(forecast['ds'].iloc[max_idx]), 'importance': 0.1}
+                {'name': 'En Yüksek Tahmin Günü', 'value': str(max_date), 'importance': 0.1}
             ],
-            'summary': f"Tahmin edilen en yüksek değer: {forecast['yhat'].iloc[max_idx]:.2f} ({forecast['ds'].iloc[max_idx]})"
+            'summary': f"Tahmin edilen en yüksek değer: {max_yhat:.2f} ({max_date})"
         }
         return {
             'dates': forecast['ds'].dt.strftime('%Y-%m-%d').tolist(),
@@ -192,33 +202,209 @@ class FinancialForecastService:
 
 class RecommendationService:
     """
-    Basit kural tabanlı veya ML tabanlı öneri sistemi
+    Kural tabanlı + bilgi destekli öneri sistemi (rol farkındalığı ile).
     """
-    def generate(self, data: Dict[str, Any]) -> dict:
-        """Kullanıcı finansal verilerine göre öneri ve model meta verisi üretir."""
-        income = data.get('income', 0)
-        expenses = data.get('expenses', 0)
-        savings = data.get('savings', 0)
-        goal = data.get('goals', '')
-        if income - expenses > 0 and savings > 0:
-            if goal == 'investment':
-                rec = "Birikiminizin bir kısmını düşük riskli yatırım araçlarında değerlendirebilirsiniz."
-            elif goal == 'savings':
-                rec = "Düzenli olarak birikim yapmaya devam edin."
-            elif goal == 'debt':
-                rec = "Öncelikle borçlarınızı kapatmaya odaklanın."
-            elif goal == 'retirement':
-                rec = "Emeklilik için uzun vadeli yatırım fonlarını inceleyin."
-            else:
-                rec = "Finansal durumunuz iyi, hedeflerinize uygun plan yapabilirsiniz."
-        else:
-            rec = "Giderlerinizi azaltmayı ve acil durum fonu oluşturmayı düşünün."
-        # Model meta verisi örnek
+    def __init__(self):
+        try:
+            base_dir = getattr(settings, 'BASE_DIR', None) or os.getcwd()
+        except Exception:
+            base_dir = os.getcwd()
+        self.knowledge = KnowledgeIndex.load(os.path.join(base_dir, 'var', 'ai_knowledge.json'))
+
+    def _role_hints(self, user=None) -> List[str]:
+        hints: List[str] = []
+        try:
+            if user is not None:
+                roles = list(getattr(user, 'groups').all().values_list('name', flat=True))  # type: ignore
+                rl = [r.lower() for r in roles]
+                if 'accountant' in rl:
+                    hints.append('Muhasebe odaklı: kayıt doğruluğu, mutabakat ve raporlama sürekliliği.')
+                if 'manager' in rl or getattr(user, 'is_staff', False):
+                    hints.append('Yönetim odaklı: özet KPI, aksiyon ve riskleri önceliklendir.')
+        except Exception:
+            pass
+        return hints
+
+    def _basic_metrics(self, income: float, expenses: float, savings: float) -> Dict[str, float]:
+        net = float(income) - float(expenses)
+        savings_rate = (float(savings) / float(income)) if income else 0.0
+        expense_ratio = (float(expenses) / float(income)) if income else 0.0
         return {
-            'recommendation': rec,
-            'model_version': 'v1.0.0',
-            'model_parameters': {'type': 'rule-based', 'rules': 5}
-        } 
+            'net': net,
+            'savings_rate': round(savings_rate, 3),
+            'expense_ratio': round(expense_ratio, 3),
+        }
+
+    def _knowledge_tips(self, query: str, top_k: int = 2) -> List[Dict[str, str]]:
+        tips: List[Dict[str, str]] = []
+        if not self.knowledge:
+            return tips
+        tops = self.knowledge.search(query, top_k=top_k)
+        for t in tops:
+            tips.append({
+                'title': t.title,
+                'path': t.path,
+                'snippet': t.content[:280] + ('...' if len(t.content) > 280 else ''),
+            })
+        return tips
+
+    def generate(self, data: Dict[str, Any], user=None, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Kullanıcı verilerine göre öneri paketi döner."""
+        income = float(data.get('income', 0) or 0)
+        expenses = float(data.get('expenses', 0) or 0)
+        savings = float(data.get('savings', 0) or 0)
+        goal = (data.get('goals') or '').strip().lower()
+        # Opsiyonel finansal oranlar (varsa değerlendir)
+        current_ratio = data.get('current_ratio')
+        debt_to_equity = data.get('debt_to_equity') or data.get('de_ratio')
+        gross_margin = data.get('gross_margin')
+        operating_margin = data.get('operating_margin')
+        cash_buffer_months = data.get('cash_buffer_months')
+
+        metrics = self._basic_metrics(income, expenses, savings)
+        role_hints = self._role_hints(user)
+
+        recs: List[Dict[str, Any]] = []
+
+        # 1) Bütçe ve nakit akışı
+        if metrics['net'] < 0:
+            recs.append({
+                'title': 'Bütçe Dengesi Negatif',
+                'priority': 'high',
+                'recommendation': 'Giderlerinizi %10 azaltmayı hedefleyin ve değişken giderlerde tasarruf planı oluşturun.',
+                'actions': ['Aylık gider kalemlerini sınıflandırın', 'Değişken giderlerde tavan belirleyin', '3 ay trend takibi yapın'],
+                'kpis': {'net': metrics['net'], 'expense_ratio': metrics['expense_ratio']},
+            })
+        else:
+            recs.append({
+                'title': 'Pozitif Nakit Akışı',
+                'priority': 'medium',
+                'recommendation': 'Artı veren bütçeyi güçlendirin; gelir çeşitlendirmesi ve maliyet optimizasyonu planlayın.',
+                'actions': ['Gelir kaynaklarını çeşitlendirin', 'Sabit giderlerde sözleşme iyileştirme'],
+                'kpis': {'net': metrics['net'], 'savings_rate': metrics['savings_rate']},
+            })
+
+        # 2) Finansal oranlara göre uyarılar/öneriler
+        if isinstance(current_ratio, (int, float)):
+            try:
+                cr = float(current_ratio)
+                if cr < 1.2:
+                    recs.append({
+                        'title': 'Cari Oran Düşük',
+                        'priority': 'high',
+                        'recommendation': 'Kısa vadeli yükümlülüklere karşı likiditeyi güçlendirin. Alacak tahsil sürelerini kısaltın, stok devir hızını artırın.',
+                        'actions': ['Erken ödeme iskonto politikası', 'Stok optimizasyonu', 'Kısa vadeli borç yapılandırma'],
+                        'kpis': {'current_ratio': round(cr, 2), 'target': 1.2},
+                    })
+            except Exception:
+                pass
+        if isinstance(debt_to_equity, (int, float)):
+            try:
+                de = float(debt_to_equity)
+                if de > 2.0:
+                    recs.append({
+                        'title': 'Borç/Özsermaye Yüksek',
+                        'priority': 'high',
+                        'recommendation': 'Kaldıraç yüksek. Nakit yaratmayan borçları azaltın; özsermaye güçlendirme veya uzun vade yeniden finansman düşünün.',
+                        'actions': ['Vade uzatma görüşmeleri', 'Özsermaye katkısı planı', 'Varlık satışı değerlendirmesi'],
+                        'kpis': {'debt_to_equity': round(de, 2), 'target_max': 2.0},
+                    })
+            except Exception:
+                pass
+        if isinstance(gross_margin, (int, float)):
+            try:
+                gm = float(gross_margin)
+                if gm < 0.2:
+                    recs.append({
+                        'title': 'Brüt Marj Düşük',
+                        'priority': 'medium',
+                        'recommendation': 'Fiyatlandırma ve tedarik maliyetlerini gözden geçirin. Kârlı ürün/müşteri segmentlerine odaklanın.',
+                        'actions': ['Maliyet düşürme planı', 'Segment bazlı fiyat güncelleme'],
+                        'kpis': {'gross_margin': round(gm, 3), 'target_min': 0.25},
+                    })
+            except Exception:
+                pass
+        if isinstance(operating_margin, (int, float)):
+            try:
+                om = float(operating_margin)
+                if om < 0.1:
+                    recs.append({
+                        'title': 'Faaliyet Marjı Zayıf',
+                        'priority': 'medium',
+                        'recommendation': 'Faaliyet giderlerini (OPEX) kontrol altına alın, verimlilik projeleri başlatın.',
+                        'actions': ['Gider tavanları', 'Süreç otomasyonu', 'Satın alma sözleşmeleri revizyonu'],
+                        'kpis': {'operating_margin': round(om, 3), 'target_min': 0.12},
+                    })
+            except Exception:
+                pass
+        if isinstance(cash_buffer_months, (int, float)):
+            try:
+                cb = float(cash_buffer_months)
+                if cb < 3:
+                    recs.append({
+                        'title': 'Nakit Yastığı Yetersiz',
+                        'priority': 'high',
+                        'recommendation': 'En az 3-6 aylık işletme giderini karşılayacak nakit yastığı oluşturun.',
+                        'actions': ['Acil durum fonu planı', 'Kredi limitleri gözden geçirme'],
+                        'kpis': {'cash_buffer_months': round(cb, 2), 'target_min': 3},
+                    })
+            except Exception:
+                pass
+
+        # 3) Hedefe göre öneriler
+        if goal == 'investment':
+            recs.append({
+                'title': 'Yatırım Disiplini',
+                'priority': 'medium',
+                'recommendation': 'Düşük/orta riskli enstrümanlarla hedef bazlı portföy. Stop-loss ve dönemsel rebalancing uygulayın.',
+                'actions': ['Hedef-vadeye göre dağılım belirleyin', 'Aylık otomatik alım planı'],
+            })
+        elif goal == 'savings':
+            recs.append({
+                'title': 'Birikim Oranı Artışı',
+                'priority': 'medium',
+                'recommendation': 'Tasarruf oranını kademeli olarak %5-%10 artırmayı hedefleyin.',
+                'actions': ['Otomatik aktarım talimatı', 'Gereksiz abonelikleri gözden geçirin'],
+            })
+        elif goal == 'debt':
+            recs.append({
+                'title': 'Borç Azaltma Planı',
+                'priority': 'high',
+                'recommendation': 'Faizi yüksek borçları önceliklendirerek kademeli ödeme planı oluşturun.',
+                'actions': ['Borç listesi ve faiz oranı bazlı sıralama', 'Ödeme planı oluşturma'],
+            })
+        elif goal == 'retirement':
+            recs.append({
+                'title': 'Emeklilik Stratejisi',
+                'priority': 'medium',
+                'recommendation': 'Uzun vadeli fonlar ve vergi avantajlarından faydalanarak düzenli katkı yapın.',
+                'actions': ['Bireysel emeklilik katkı planı', 'Yıllık gözden geçirme'],
+            })
+
+    # 4) Bilgi destekli ipuçları
+        kb_tips = self._knowledge_tips(goal or 'bütçe nakit akışı')
+        if kb_tips:
+            recs.append({
+                'title': 'İlgili Dokümanlar',
+                'priority': 'low',
+                'recommendation': 'Aşağıdaki içeriği gözden geçirerek planınızı güçlendirin.',
+                'references': kb_tips,
+            })
+
+        # Rol uyarlaması: yöneticiye özet, muhasebeye detaylı aksiyon vurgusu
+        if role_hints:
+            if any('Yönetim' in h for h in role_hints):
+                # Yönetici için en kritik 3 öneri
+                recs = sorted(recs, key=lambda r: 0 if r.get('priority') == 'high' else (1 if r.get('priority') == 'medium' else 2))[:3]
+
+        package = {
+            'recommendations': recs,
+            'metrics': metrics,
+            'role_hints': role_hints,
+            'model_version': 'v2.0.0',
+            'model_parameters': {'type': 'rule+kb', 'rules': len(recs)},
+        }
+        return package
 
 class SimpleVoucherClassifier:
     """
