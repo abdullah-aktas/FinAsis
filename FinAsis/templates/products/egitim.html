@@ -1,41 +1,244 @@
+
 {% extends "core_ui/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block feature_banner %}{% endblock %}
 {% block title %}FinAsis | {% trans 'Eğitim Modülü' %}{% endblock %}
-{% block meta_description %}{% trans 'Finansal okuryazarlık, yatırım eğitimi ve oyunlaştırma ile öğrenme platformu.' %}{% endblock %}
+{% block meta_description %}{% trans 'Finansal okuryazarlık, yatırım eğitimi, oyunlaştırma, rozetler ve liderlik ile öğrenme platformu.' %}{% endblock %}
 {% block content %}
-<section class="py-5" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+<!-- HERO -->
+<section class="py-5 bg-gradient-primary-to-secondary text-white">
   <div class="container text-center">
-    <h1 class="display-5 fw-bold text-success">{% trans 'Eğitim Modülü' %}</h1>
-    <p class="lead mb-4">{% trans 'Finansal okuryazarlık, yatırım eğitimi ve rozetli başarılar ile gelişiminizi hızlandırın.' %}</p>
+    <span class="badge corporate-badge-new mb-3"><i class="bi bi-mortarboard me-1"></i> {% trans 'Eğitim Modülü' %}</span>
+    <h1 class="display-4 fw-bold mb-3">Finansal Okuryazarlık ve Oyunlaştırılmış Eğitim</h1>
+    <p class="lead mb-4">Finansal okuryazarlık, yatırım eğitimi, rozetler ve oyunlaştırma ile öğrenmeyi eğlenceli ve etkili hale getiriyoruz.</p>
+    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center mb-4">
+      <a href="/education/" class="btn corporate-btn-primary btn-lg px-4"><i class="bi bi-journal-text me-2"></i>{% trans 'Eğitim Paneli' %}</a>
+      <a href="/games/" class="btn corporate-btn-secondary btn-lg px-4"><i class="bi bi-controller me-2"></i>{% trans 'Oyunlar' %}</a>
+      <a href="/accounts/profile/" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-award me-2"></i>{% trans 'Rozetlerim' %}</a>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+      <span class="badge bg-primary fs-6"><i class="bi bi-stars me-1"></i> {% trans 'Oyunlaştırma' %}</span>
+      <span class="badge bg-success fs-6"><i class="bi bi-award me-1"></i> {% trans 'Rozet Kazan' %}</span>
+      <span class="badge bg-warning text-dark fs-6"><i class="bi bi-trophy me-1"></i> {% trans 'Eğitimde Liderlik' %}</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-stars me-1"></i> {% trans 'Özellikler' %}</span>
+      <h2 class="fw-bold display-6 mb-3">Eğitimde Tüm İhtiyaçlar Tek Platformda</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px;">Kapsamlı eğitim içerikleri, interaktif testler, oyunlaştırma ve başarı rozetleri ile finansal gelişiminizi destekliyoruz.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-journal-text text-primary display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Finansal Okuryazarlık</h4>
+          <p class="text-muted mb-0">Temel finans kavramları, interaktif dersler ve quizler.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.1s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-bar-chart-steps text-success display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Yatırım Eğitimi</h4>
+          <p class="text-muted mb-0">Yatırım araçları, stratejiler ve simülasyonlar.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.2s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-controller text-warning display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Oyunlaştırma & Rozetler</h4>
+          <p class="text-muted mb-0">Başarı rozetleri, liderlik tabloları ve motivasyon.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.3s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-mortarboard text-info display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Eğitimde Liderlik</h4>
+          <p class="text-muted mb-0">Liderlik tabloları ile rekabetçi ve eğlenceli öğrenme.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.4s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-people text-secondary display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Topluluk & Paylaşım</h4>
+          <p class="text-muted mb-0">Forumlar, grup çalışmaları ve sosyal öğrenme.</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.5s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-lightbulb text-danger display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Sürekli Gelişim</h4>
+          <p class="text-muted mb-0">Yeni içerikler, güncellenen dersler ve kişisel gelişim.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMIFICATION & BADGES -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-12 col-lg-6">
+        <h3 class="fw-bold mb-3"><i class="bi bi-stars text-primary me-2"></i>Oyunlaştırma & Rozetler</h3>
+        <ul class="list-unstyled mb-4">
+          <li class="mb-2"><i class="bi bi-trophy text-warning me-2"></i> Başarı rozetleri ile motivasyonunuzu artırın</li>
+          <li class="mb-2"><i class="bi bi-bar-chart-steps text-success me-2"></i> Liderlik tablolarında yarışın</li>
+          <li class="mb-2"><i class="bi bi-controller text-info me-2"></i> Eğitim oyunları ile pratik yapın</li>
+          <li class="mb-2"><i class="bi bi-award text-primary me-2"></i> Kişisel gelişiminizi takip edin</li>
+        </ul>
+        <a href="/accounts/profile/" class="btn corporate-btn-primary px-4"><i class="bi bi-award me-2"></i>Rozetlerimi Gör</a>
+      </div>
+      <div class="col-12 col-lg-6 text-center">
+        <img src="{% static 'brand/egitim-badges.svg' %}" alt="Eğitim Rozetleri" class="img-fluid rounded shadow-sm" style="max-width: 340px;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-5 bg-gradient-testimonials">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-people me-1"></i> Öğrenci Yorumları</span>
+      <h2 class="fw-bold mb-3">Kullanıcılarımız Ne Diyor?</h2>
+    </div>
     <div class="row g-4 justify-content-center">
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">{% trans 'Finansal Okuryazarlık' %} <span class="badge bg-primary ms-2">{% trans 'Oyunlaştırma' %}</span></h5>
-          <p>{% trans 'Temel finans kavramlarını öğrenin, test edin.' %}</p>
-          <a href="/education/" class="btn btn-outline-primary mt-2">{% trans 'Eğitim Paneli' %}</a>
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in">
+          <div class="corporate-testimonial-stars mb-3">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"Eğitim modülü sayesinde finansı eğlenerek öğrendim, rozetler çok motive edici!"</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">Ayşe K.</div>
+              <div class="small text-muted">Üniversite Öğrencisi</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">{% trans 'Yatırım Eğitimi' %} <span class="badge bg-warning text-dark ms-2">{% trans 'Yeni' %}</span></h5>
-          <p>{% trans 'Yatırım araçlarını ve stratejilerini keşfedin.' %}</p>
-          <a href="/games/" class="btn btn-outline-warning mt-2">{% trans 'Oyunlar' %}</a>
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in" style="animation-delay:0.1s;">
+          <div class="corporate-testimonial-stars mb-3">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"Quizler ve oyunlar sayesinde öğrendiklerimi hemen uygulayabiliyorum."</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">Mehmet D.</div>
+              <div class="small text-muted">Lise Öğrencisi</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">{% trans 'Rozetli Başarı' %} <span class="badge bg-success ms-2">{% trans 'Motivasyon' %}</span></h5>
-          <p>{% trans 'Başarılarınızı rozetlerle taçlandırın.' %}</p>
-          <a href="/accounts/profile/" class="btn btn-outline-success mt-2">{% trans 'Profilim' %}</a>
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in" style="animation-delay:0.2s;">
+          <div class="corporate-testimonial-stars mb-3">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"Liderlik tablosunda üst sıralara çıkmak için her gün yeni bir şey öğreniyorum."</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">Zeynep Y.</div>
+              <div class="small text-muted">Genç Girişimci</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-primary fs-6 me-2">{% trans 'Oyunlaştırma' %}</span>
-      <span class="badge bg-success fs-6 me-2">{% trans 'Rozet Kazan' %}</span>
-      <span class="badge bg-warning text-dark fs-6">{% trans 'Eğitimde Liderlik' %}</span>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-question-circle me-1"></i> Sıkça Sorulan Sorular</span>
+      <h2 class="fw-bold display-6 mb-3">Eğitim Modülü Hakkında Merak Edilenler</h2>
     </div>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq1">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+            Eğitim modülüne kimler katılabilir?
+          </button>
+        </h2>
+        <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">Tüm kullanıcılar, öğrenciler, çalışanlar ve finansal gelişim hedefleyen herkes eğitim modülünden faydalanabilir.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq2">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+            Rozetler nasıl kazanılır?
+          </button>
+        </h2>
+        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">Quizleri tamamlayarak, eğitimleri bitirerek ve oyunlarda başarı göstererek rozet kazanabilirsiniz.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq3">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+            Oyunlaştırma nedir?
+          </button>
+        </h2>
+        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">Eğitim sürecini daha eğlenceli ve motive edici hale getirmek için puan, rozet, liderlik tablosu gibi oyun mekaniklerinin kullanılmasıdır.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq4">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+            Eğitim içerikleri nasıl güncelleniyor?
+          </button>
+        </h2>
+        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faq4" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">Eğitim içerikleri uzman eğitmenler tarafından düzenli olarak güncellenir ve yeni dersler eklenir.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-gradient-primary-to-secondary text-white">
+  <div class="container text-center">
+    <h2 class="fw-bold display-5 mb-3">Finansal okuryazarlık yolculuğunuza bugün başlayın!</h2>
+    <p class="lead mb-4">Ücretsiz kaydolun, eğitimleri keşfedin ve başarılarınızı rozetlerle taçlandırın.</p>
+    <a href="/accounts/register/" class="btn corporate-btn-primary btn-lg px-5"><i class="bi bi-person-plus me-2"></i>Ücretsiz Deneyin</a>
   </div>
 </section>
 {% endblock %}

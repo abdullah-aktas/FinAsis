@@ -402,7 +402,7 @@ html[data-theme='dark'] .corporate-navbar{
 
 /* ===== KURUMSAL FOOTER COMPONENTS ===== */
 .corporate-footer {
-  background: linear-gradient(135deg, var(--brand-ink) 0%, #0A2E52 50%, var(--brand-accent) 100%);
+  background: linear-gradient(135deg, var(--brand-ink) 0%, rgba(13, 59, 102, 0.98) 50%, var(--brand-primary) 100%);
   color: white;
   box-shadow: 0 -4px 20px rgba(13, 59, 102, 0.3);
 }
@@ -416,14 +416,14 @@ html[data-theme='dark'] .corporate-navbar{
 .corporate-footer-logo-circle {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-accent-700) 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #000;
   font-size: 1.2rem;
-  box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(10, 174, 148, 0.3);
 }
 
 .corporate-footer-brand-text .brand-name {
@@ -434,7 +434,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-footer-brand-text .brand-tagline {
-  color: var(--brand-accent);
+  color: var(--brand-primary);
   font-weight: 500;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
@@ -485,7 +485,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-footer-link:hover {
-  color: var(--brand-accent);
+  color: var(--brand-primary);
   transform: translateX(4px);
 }
 
@@ -505,7 +505,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-footer-link-secondary:hover {
-  color: var(--brand-accent);
+  color: var(--brand-primary);
 }
 
 .corporate-divider {
@@ -539,7 +539,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-btn-secondary {
-  background: linear-gradient(135deg, var(--brand-ink) 0%, #0A2E52 100%);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
   border: none;
   color: white;
   font-weight: 600;
@@ -548,7 +548,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-btn-secondary:hover {
-  background: linear-gradient(135deg, #0A2E52 0%, var(--brand-ink) 100%);
+  background: linear-gradient(135deg, var(--brand-primary-strong) 0%, var(--brand-primary-900) 100%);
   color: white;
   transform: translateY(-1px);
 }
@@ -613,7 +613,7 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-contact-link:hover {
-  color: var(--brand-accent);
+  color: var(--brand-primary);
 }
 
 .corporate-footer-divider {
@@ -642,12 +642,12 @@ html[data-theme='dark'] .corporate-navbar{
 }
 
 .corporate-legal-link:hover {
-  color: var(--brand-accent);
+  color: var(--brand-primary);
 }
 
 /* Dark mode adaptasyonları */
 [data-theme="dark"] .corporate-footer {
-  background: linear-gradient(135deg, #0a0a0a 0%, var(--brand-ink) 50%, rgba(255, 179, 0, 0.2) 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, var(--brand-ink) 50%, rgba(10, 174, 148, 0.2) 100%);
 }
 
 /* Responsive footer adaptasyonları */

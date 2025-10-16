@@ -4,37 +4,78 @@
 {% block title %}FinAsis | {% trans 'Blockchain Ürünleri' %}{% endblock %}
 {% block meta_description %}{% trans 'Finansal işlemlerde bütünlük, doğrulama ve güvenlik sağlayan blockchain çözümleri.' %}{% endblock %}
 {% block content %}
-<section class="py-5" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
+<!-- HERO -->
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#e0f7fa 0%, #f8fff9 100%);">
   <div class="container text-center">
-    <h1 class="display-5 fw-bold text-info">{% trans 'Blockchain Ürünleri' %}</h1>
+    <h1 class="display-4 fw-bold text-info mb-3">{% trans 'Blockchain Ürünleri' %}</h1>
     <p class="lead mb-4">{% trans 'Finansal işlemlerde bütünlük, doğrulama ve güvenlik için blockchain teknolojisi.' %}</p>
+    <div class="d-flex justify-content-center gap-3 mb-3 flex-wrap">
+      <span class="badge bg-success fs-6">{% trans 'Güvenli' %}</span>
+      <span class="badge bg-info fs-6">AI {% trans 'Destekli' %}</span>
+      <span class="badge bg-warning text-dark fs-6">{% trans 'Değişmezlik' %}</span>
+    </div>
+    <a href="#blockchain-features" class="btn corporate-btn-primary btn-lg shadow-sm mt-2">{% trans 'Blockchain Çözümlerini Keşfet' %}</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="blockchain-features" class="py-5 bg-white">
+  <div class="container">
     <div class="row g-4 justify-content-center">
       <div class="col-md-4">
-        <div class="card h-100 p-4">
+        <div class="feature-card h-100 p-4 text-center border rounded shadow-sm">
+          <div class="mb-3"><i class="bi bi-shield-lock text-success display-5"></i></div>
           <h5 class="fw-bold">SHA-256 {% trans 'Kanıtlama' %} <span class="badge bg-success ms-2">{% trans 'Güvenli' %}</span></h5>
-          <p>{% trans 'Fatura, fiş ve e-defter için bütünlük kontrolleri.' %}</p>
-          <a href="/blockchain/" class="btn btn-outline-success mt-2">{% trans 'Blockchain Paneli' %}</a>
+          <p class="mb-2">{% trans 'Fatura, fiş ve e-defter için bütünlük kontrolleri.' %}</p>
+          <a href="/blockchain/" class="btn corporate-btn-secondary mt-2">{% trans 'Blockchain Paneli' %}</a>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card h-100 p-4">
+        <div class="feature-card h-100 p-4 text-center border rounded shadow-sm">
+          <div class="mb-3"><i class="bi bi-check2-circle text-warning display-5"></i></div>
           <h5 class="fw-bold">{% trans 'Doğrulama Akışları' %} <span class="badge bg-warning text-dark ms-2">{% trans 'Yeni' %}</span></h5>
-          <p>{% trans 'İşlemlerinizin değişmezliğini ve doğruluğunu garanti edin.' %}</p>
-          <a href="/finance/" class="btn btn-outline-warning mt-2">{% trans 'Finans Paneli' %}</a>
+          <p class="mb-2">{% trans 'İşlemlerinizin değişmezliğini ve doğruluğunu garanti edin.' %}</p>
+          <a href="/finance/" class="btn corporate-btn-secondary mt-2">{% trans 'Finans Paneli' %}</a>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card h-100 p-4">
+        <div class="feature-card h-100 p-4 text-center border rounded shadow-sm">
+          <div class="mb-3"><i class="bi bi-cpu text-info display-5"></i></div>
           <h5 class="fw-bold">AI {% trans 'Destekli Blockchain' %} <span class="badge bg-info ms-2">{% trans 'Akıllı' %}</span></h5>
-          <p>{% trans 'Yapay zeka ile blockchain analizleri.' %}</p>
-          <a href="/ai-assistant/" class="btn btn-outline-info mt-2">AI {% trans 'Asistanı' %}</a>
+          <p class="mb-2">{% trans 'Yapay zeka ile blockchain analizleri.' %}</p>
+          <a href="/ai-assistant/" class="btn corporate-btn-secondary mt-2">AI {% trans 'Asistanı' %}</a>
         </div>
       </div>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-success fs-6 me-2">{% trans 'Güvenli' %}</span>
-      <span class="badge bg-info fs-6 me-2">AI {% trans 'Destekli' %}</span>
-      <span class="badge bg-warning text-dark fs-6">{% trans 'Değişmezlik' %}</span>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-light border-top">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-3">{% trans 'Finansal süreçlerinizi blockchain ile güvence altına alın.' %}</h2>
+    <p class="lead mb-4">{% trans 'FinAsis blockchain çözümleriyle işlemlerinizin bütünlüğünü, doğruluğunu ve güvenliğini artırın.' %}</p>
+  <a href="/contact/" class="btn corporate-btn-primary btn-lg shadow">{% trans 'Demo Talep Et' %}</a>
+  </div>
+</section>
+
+<!-- FAQ (optional) -->
+<section class="py-5 bg-white border-top">
+  <div class="container">
+    <h3 class="fw-bold mb-4 text-center">{% trans 'Sıkça Sorulan Sorular' %}</h3>
+    <div class="accordion accordion-flush" id="blockchainFAQ">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq1"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1c" aria-expanded="false" aria-controls="faq1c">{% trans 'Blockchain ile bütünlük nasıl sağlanır?' %}</button></h2>
+        <div id="faq1c" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#blockchainFAQ"><div class="accordion-body">{% trans 'SHA-256 gibi kriptografik algoritmalarla her işlem ve belge benzersiz şekilde imzalanır, böylece değişiklikler anında tespit edilir.' %}</div></div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2c" aria-expanded="false" aria-controls="faq2c">{% trans 'AI destekli blockchain ne sağlar?' %}</button></h2>
+        <div id="faq2c" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#blockchainFAQ"><div class="accordion-body">{% trans 'Yapay zeka, blockchain üzerindeki anomali ve riskleri tespit ederek daha akıllı ve güvenli finansal süreçler sunar.' %}</div></div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq3"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3c" aria-expanded="false" aria-controls="faq3c">{% trans 'FinAsis blockchain çözümleri kimler için uygundur?' %}</button></h2>
+        <div id="faq3c" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#blockchainFAQ"><div class="accordion-body">{% trans 'KOBİ’ler, büyük işletmeler ve finansal kurumlar için uygundur. Özellikle yüksek hacimli ve regülasyona tabi işlemler için idealdir.' %}</div></div>
+      </div>
     </div>
   </div>
 </section>

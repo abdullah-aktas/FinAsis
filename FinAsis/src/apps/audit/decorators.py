@@ -26,7 +26,8 @@ def require_roles(*roles):
             user_roles = set(request.user.groups.values_list('name', flat=True))
             if not user_roles.intersection(roles):
                 messages.error(request, _('Bu işlem için yetkiniz yok.'))
-                return redirect('audit:control_dashboard')
+                # Avoid redirecting to the same route (would cause a loop). Send to landing.
+                return redirect('audit:landing')
             return view_func(request, *args, **kwargs)
         return _wrapped
     return decorator

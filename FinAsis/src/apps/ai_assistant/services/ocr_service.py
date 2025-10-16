@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 import json
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # Optional heavy dependencies; guard to avoid import-time errors.
 try:
@@ -47,7 +47,22 @@ class OCRService:
         # Tesseract yolu Windows için ayarlanıyor
         if os.name == 'nt':  # Windows işletim sistemi
             if pytesseract is not None:
-                pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+                # Önce ortam değişkeni ile ayarlanmışsa onu kullan
+                env_cmd = os.getenv('TESSERACT_CMD')
+                default_paths = [
+                    r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe',
+                    r'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe',
+                ]
+                cmd = env_cmd or next((p for p in default_paths if os.path.exists(p)), None)
+                if cmd:
+                    try:
+                        pytesseract.pytesseract.tesseract_cmd = cmd
+                    except Exception:
+                        # Ayarlama başarısız olsa da çalışma PATH üzerinden devam eder
+                        logger.debug('Tesseract yolu ayarlanamadı, PATH üzerinden deneniyor: %s', cmd)
+                else:
+                    # Hiçbiri bulunamazsa PATH üzerinden çalışmayı dener
+                    logger.debug('Tesseract varsayılan yolu bulunamadı; PATH kullanılacak.')
             
         # Google Cloud Vision istemcisi
         if use_google_vision:
@@ -140,7 +155,7 @@ class OCRService:
             image = types.Image(content=content)
             
             # OCR işlemi
-            response = self.vision_client.text_detection(image=image)
+            response = self.vision_client.text_detection(image=image)  # type: ignore[attr-defined]
             texts = response.text_annotations
             
             if not texts:
@@ -273,6 +288,13 @@ class OCRService:
             dict: İşlenmiş fatura bilgileri
         """
         try:
+            # Basit PDF tespiti: pdf2image entegrasyonu yoksa nazikçe uyar.
+            _, ext = os.path.splitext(image_path.lower())
+            if ext == '.pdf':
+                return {
+                    'error': 'PDF önizleme/OCR henüz etkin değil. Lütfen JPG/PNG yükleyin veya pdf2image kurulumu ile etkinleştiriniz.',
+                    'invoice_number': '', 'date': '', 'total': '', 'tax_rate': '', 'company_name': ''
+                }
             return self.extract_invoice_data(image_path)
         except Exception as e:
             logger.error(f"Fatura işleme hatası: {str(e)}")

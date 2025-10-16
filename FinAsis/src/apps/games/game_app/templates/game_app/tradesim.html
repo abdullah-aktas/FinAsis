@@ -1,43 +1,9 @@
 {% extends "core_ui/base.html" %}
-
-{% block title %}TradeSim - Finansal Simülasyon{% endblock %}
-
+{% load i18n %}
+{% block title %}{% trans "TradeSim" %}{% endblock %}
 {% block content %}
-<div class="container-fluid p-0">
-    <div id="game-container" style="width: 100vw; height: 100vh;"></div>
-    <div id="game-ui" class="position-fixed top-0 start-0 p-3" style="z-index: 1000;">
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5>Kaynaklarınız</h5>
-                <p>Altın: <span id="gold">10000</span></p>
-                <p>Mallar: <span id="goods">-</span></p>
-                <p>İtibar: <span id="reputation">0</span></p>
-                <p>Seviye: <span id="level">1</span></p>
-                <p>Deneyim: <span id="experience">0</span>/100</p>
-            </div>
-        </div>
-    </div>
-    <div id="quest-panel" class="position-fixed top-0 end-0 p-3" style="z-index: 1000;">
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5>Aktif Görevler</h5>
-                <div id="active-quests"></div>
-            </div>
-        </div>
-    </div>
-    <div id="city-menu" class="position-fixed top-50 start-50 translate-middle d-none">
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5 class="card-title">Şehir Seçin</h5>
-                <div class="list-group" id="city-list">
-                    <!-- Şehirler dinamik olarak JS ile eklenecek -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="container py-5"><h1 class="h3">{% trans "TradeSim" %}</h1><p>{% trans "Ticaret simülasyonu sahnesi yakında aktif." %}</p></div>
 {% endblock %}
-
 {% block extra_js %}
 <script src="/static/js/tradesim.js"></script>
 {% endblock %} 

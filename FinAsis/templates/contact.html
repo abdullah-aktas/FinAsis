@@ -1,22 +1,103 @@
 {% extends "core_ui/base.html" %}
 {% block title %}İletişim - FinAsis{% endblock %}
 {% block content %}
-{% include "components/messages.html" %}
-<h2>İletişim</h2>
-<form class="mt-4" method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="name" class="form-label">Adınız</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="fw-bold display-5 mb-2"><i class="bi bi-envelope-at text-primary me-2"></i>İletişim</h1>
+                <p class="lead text-secondary mb-0">Pazarlama, teknik destek ve kurumsal iletişim için bize ulaşın. Size en kısa sürede dönüş yaparız.</p>
+            </div>
+        </div>
+        <div class="row g-4 mb-5">
+            <div class="col-12 col-md-4">
+                <div class="card corporate-card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="corporate-icon mb-3"><i class="bi bi-chat-dots fs-2 text-primary"></i></div>
+                        <h5 class="fw-bold mb-2">Satış & Demo</h5>
+                        <p class="text-muted mb-2">Ürünlerimiz hakkında bilgi almak veya demo talep etmek için bize ulaşın.</p>
+                        <a href="mailto:satis@finasis.com.tr" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-envelope me-2"></i>satis@finasis.com.tr</a>
+                        <div class="small text-muted">Hafta içi 09:00-18:00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card corporate-card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="corporate-icon mb-3"><i class="bi bi-life-preserver fs-2 text-success"></i></div>
+                        <h5 class="fw-bold mb-2">Teknik Destek</h5>
+                        <p class="text-muted mb-2">Destek talepleriniz ve teknik sorularınız için ekibimiz 7/24 yanınızda.</p>
+                        <a href="mailto:destek@finasis.com.tr" class="btn btn-outline-success w-100 mb-2"><i class="bi bi-envelope-at me-2"></i>destek@finasis.com.tr</a>
+                        <div class="small text-muted">7/24 Destek</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card corporate-card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="corporate-icon mb-3"><i class="bi bi-megaphone fs-2 text-warning"></i></div>
+                        <h5 class="fw-bold mb-2">Basın & Kurumsal</h5>
+                        <p class="text-muted mb-2">Basın, iş ortaklığı ve diğer kurumsal iletişimler için bize yazın.</p>
+                        <a href="mailto:info@finasis.com.tr" class="btn btn-outline-warning w-100 mb-2"><i class="bi bi-envelope-open me-2"></i>info@finasis.com.tr</a>
+                        <div class="small text-muted">Yanıt süresi: 1 iş günü</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-8">
+                <div class="card corporate-card shadow-lg">
+                    <div class="card-body p-4">
+                        <h3 class="fw-bold mb-3 text-center"><i class="bi bi-pencil-square text-primary me-2"></i>Bize Mesaj Gönderin</h3>
+                        {% include "components/messages.html" %}
+                        <form method="post" data-form="contact" novalidate autocomplete="on">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label for="name" class="form-label fw-semibold">Adınız Soyadınız</label>
+                                    <input type="text" class="form-control corporate-input" id="name" name="name" placeholder="Adınız Soyadınız" required aria-required="true">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label for="email" class="form-label fw-semibold">E-posta Adresiniz</label>
+                                    <input type="email" class="form-control corporate-input" id="email" name="email" placeholder="ornek@firma.com" required aria-required="true">
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label fw-semibold">Konu</label>
+                                    <input type="text" class="form-control corporate-input" id="subject" name="subject" placeholder="Konu" maxlength="120">
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label fw-semibold">Mesajınız</label>
+                                    <textarea class="form-control corporate-input" id="message" name="message" rows="5" placeholder="Mesajınızı buraya yazın..." required aria-required="true"></textarea>
+                                </div>
+                                <div class="col-12 text-center mt-3">
+                                    <button type="submit" class="btn corporate-btn-primary btn-lg px-5">
+                                        <i class="bi bi-send me-2"></i>Gönder
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-geo-alt text-primary fs-3"></i>
+                </div>
+                <div class="fw-semibold mb-1">FinAsis Teknoloji A.Ş.</div>
+                <div class="text-muted mb-2">İTÜ ARI Teknokent, Reşitpaşa Mah. Katar Cad. No:2/18 Sarıyer, İstanbul</div>
+                <div class="mb-2">
+                    <a href="tel:+902122222222" class="me-3 text-primary text-decoration-none"><i class="bi bi-telephone me-1"></i>+90 212 222 22 22</a>
+                    <a href="mailto:info@finasis.com.tr" class="text-primary text-decoration-none"><i class="bi bi-envelope-at me-1"></i>info@finasis.com.tr</a>
+                </div>
+                <div>
+                    <a href="https://www.linkedin.com/in/finasis/" target="_blank" class="me-2 text-secondary"><i class="bi bi-linkedin fs-4"></i></a>
+                    <a href="https://x.com/finasis" target="_blank" class="me-2 text-secondary"><i class="bi bi-twitter-x fs-4"></i></a>
+                    <a href="https://www.youtube.com/@FinAsisApp" target="_blank" class="me-2 text-secondary"><i class="bi bi-youtube fs-4"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="email" class="form-label">E-posta</label>
-        <input type="email" class="form-control" id="email" name="email" required>
-    </div>
-    <div class="mb-3">
-        <label for="message" class="form-label">Mesajınız</label>
-        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Gönder</button>
-</form>
-{% endblock %} 
+</section>
+{% endblock %}

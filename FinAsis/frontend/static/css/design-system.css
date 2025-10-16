@@ -1,0 +1,759 @@
+/* === Responsive & Odaklı Düzen İyileştirmeleri === */
+@media (max-width: 991.98px) {
+  .corporate-hero {
+    min-height: 60vh;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+  .corporate-hero-title {
+    font-size: 2rem;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .corporate-hero-description {
+    font-size: 1rem;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .corporate-hero-actions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .corporate-roi-calculator {
+    margin-bottom: 2rem;
+    margin-top: 0;
+  }
+  .corporate-logo-row {
+    gap: 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+  .corporate-logo-item {
+    max-width: 90px;
+    max-height: 36px;
+  }
+  .corporate-feature-card {
+    padding: 1.25rem 0.75rem;
+  }
+  .corporate-step-card {
+    margin-bottom: 1.5rem;
+  }
+  .corporate-pricing-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .corporate-hero-title {
+    font-size: 1.5rem;
+  }
+  .corporate-hero-description {
+    font-size: 0.95rem;
+  }
+  .corporate-feature-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+  .corporate-step-number {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+  .corporate-logo-item {
+    max-width: 64px;
+    max-height: 24px;
+  }
+  .corporate-stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+/* Odaklı grid ve spacing */
+.corporate-logo-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3rem;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+.corporate-logo-item {
+  opacity: 0.7;
+  filter: grayscale(100%);
+  transition: all var(--transition-base);
+  max-width: 120px;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+}
+.corporate-logo-item:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+.corporate-feature-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: white;
+  transition: box-shadow 0.2s;
+  padding: 2rem 1.5rem;
+  margin-bottom: 0;
+}
+.corporate-feature-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+.corporate-step-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: white;
+  padding: 2rem 1.5rem;
+  margin-bottom: 0;
+}
+.corporate-testimonial-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: white;
+  padding: 2rem 1.5rem;
+  margin-bottom: 0;
+}
+.corporate-pricing-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: white;
+  padding: 2rem 1.5rem;
+  margin-bottom: 0;
+}
+.corporate-popular-badge {
+  top: -16px;
+  right: 24px;
+  font-size: 0.95rem;
+  padding: 0.4rem 1.1rem;
+}
+.corporate-hero {
+  min-height: 70vh;
+}
+/**
+ * FinAsis Design System
+ * Version: 2.0
+ * Modern, Corporate, User-Friendly Design
+ */
+
+/* ===========================
+   1. CSS Custom Properties
+   =========================== */
+
+:root {
+  /* Brand Colors */
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-primary-light: #34d399;
+  --color-secondary: #1e293b;
+  --color-secondary-dark: #0f172a;
+  --color-secondary-light: #334155;
+  --color-accent: #f59e0b;
+  --color-accent-dark: #d97706;
+  --color-accent-light: #fbbf24;
+  
+  /* Semantic Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Grays */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  
+  /* Typography */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+  --text-5xl: 3rem;        /* 48px */
+  
+  /* Spacing */
+  --spacing-1: 0.25rem;    /* 4px */
+  --spacing-2: 0.5rem;     /* 8px */
+  --spacing-3: 0.75rem;    /* 12px */
+  --spacing-4: 1rem;       /* 16px */
+  --spacing-5: 1.5rem;     /* 24px */
+  --spacing-6: 2rem;       /* 32px */
+  --spacing-8: 3rem;       /* 48px */
+  --spacing-10: 4rem;      /* 64px */
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===========================
+   2. Base Styles
+   =========================== */
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-gray-800);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-secondary);
+}
+
+/* ===========================
+   3. Hero Section
+   =========================== */
+
+.corporate-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.corporate-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  color: white;
+}
+
+.corporate-hero-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-lg);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+/* ===========================
+   4. Buttons
+   =========================== */
+
+.corporate-btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.corporate-btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: white;
+}
+
+.corporate-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.corporate-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.corporate-btn-preset {
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-gray-300);
+  color: var(--color-gray-700);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.corporate-btn-preset:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   5. Badges
+   =========================== */
+
+.corporate-badge-new {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.corporate-badge-secondary {
+  background: var(--color-gray-100);
+  color: var(--color-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* ===========================
+   6. Trust Badges
+   =========================== */
+
+.corporate-trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.corporate-trust-badges li {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.corporate-trust-badges i {
+  font-size: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+/* ===========================
+   7. ROI Calculator Card
+   =========================== */
+
+.corporate-roi-calculator {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.card-elevated {
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.corporate-calculator-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.75rem;
+}
+
+.corporate-input {
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-size: var(--text-base);
+  transition: all var(--transition-fast);
+}
+
+.corporate-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  outline: none;
+}
+
+.corporate-roi-result {
+  background: var(--color-gray-50);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+}
+
+.corporate-roi-result.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border-left-color: var(--color-primary);
+}
+
+/* ===========================
+   8. Logo Grid - Social Proof
+   =========================== */
+
+.corporate-logo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 2rem;
+  align-items: center;
+  justify-items: center;
+}
+
+.corporate-logo-item {
+  opacity: 0.6;
+  filter: grayscale(100%);
+  transition: all var(--transition-base);
+}
+
+.corporate-logo-item:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+.corporate-logo-item img {
+  max-width: 120px;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+}
+
+/* ===========================
+   9. Feature Cards
+   =========================== */
+
+.corporate-feature-card {
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  background: white;
+}
+
+.corporate-feature-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.corporate-feature-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+/* ===========================
+   10. Stats Section
+   =========================== */
+
+.corporate-stat {
+  padding: 1.5rem;
+}
+
+.corporate-stat-value {
+  font-weight: 800;
+  line-height: 1;
+  color: white;
+}
+
+.corporate-stat-label {
+  font-size: var(--text-base);
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* ===========================
+   11. Step Cards
+   =========================== */
+
+.corporate-step-card {
+  padding: 2rem;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--color-gray-200);
+  transition: all var(--transition-base);
+}
+
+.corporate-step-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.corporate-step-number {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+}
+
+/* ===========================
+   12. Testimonial Cards
+   =========================== */
+
+.corporate-testimonial-card {
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  background: white;
+  transition: all var(--transition-base);
+}
+
+.corporate-testimonial-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.corporate-testimonial-stars {
+  font-size: 1rem;
+}
+
+.corporate-avatar {
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+/* ===========================
+   13. Pricing Cards
+   =========================== */
+
+.corporate-pricing-card {
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  background: white;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.corporate-pricing-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-4px);
+}
+
+.corporate-pricing-card-popular {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.corporate-popular-badge {
+  position: absolute;
+  top: -12px;
+  right: 24px;
+  background: var(--color-accent);
+  color: white;
+  padding: 0.375rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+/* ===========================
+   14. Gradients & Backgrounds
+   =========================== */
+
+.bg-gradient-primary-to-secondary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+}
+
+.bg-gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-accent) 100%);
+}
+
+/* ===========================
+   15. Animations
+   =========================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+/* ===========================
+   16. Utilities
+   =========================== */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .corporate-hero-title {
+    font-size: 2rem;
+  }
+  
+  .corporate-hero-description {
+    font-size: 1rem;
+  }
+  
+  .corporate-hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .corporate-hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .corporate-trust-badges {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* ===========================
+   17. Accessibility
+   =========================== */
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Skip to main content */
+.skip-to-main {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--color-primary);
+  color: white;
+  padding: 1rem 2rem;
+  z-index: 9999;
+  transition: top var(--transition-base);
+}
+
+.skip-to-main:focus {
+  top: 0;
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===========================
+   18. Print Styles
+   =========================== */
+
+@media print {
+  .corporate-hero-actions,
+  .corporate-roi-calculator,
+  .corporate-btn-primary,
+  .corporate-btn-secondary {
+    display: none !important;
+  }
+  
+  .corporate-feature-card,
+  .corporate-pricing-card,
+  .corporate-testimonial-card {
+    break-inside: avoid;
+  }
+}
+
+/* ===========================
+   19. Dark Mode Support (Future)
+   =========================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Dark mode variables can be added here in future iterations */
+  /* Currently using light theme as primary design */
+}

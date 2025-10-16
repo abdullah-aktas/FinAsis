@@ -11,28 +11,28 @@ def games(request):
             'title': 'Borsa Simülasyonu',
             'description': 'Sanal borsada alım-satım yaparak yatırım deneyimi kazanın.',
             'category': 'borsa',
-            'image': '/static/img/games/stock.jpg',
+            'image': 'img/games/stock.svg',
             'url': '/games/game_app/stock-market/'
         },
         {
             'title': 'Bütçe Mücadelesi',
             'description': 'Gerçek hayat senaryolarıyla bütçe yönetimini öğrenin.',
             'category': 'finans',
-            'image': '/static/img/games/budget.jpg',
+            'image': 'img/games/budget.svg',
             'url': '/games/game_app/budget-challenge/'
         },
         {
             'title': 'Yatırım Simülatörü',
             'description': 'Yatırım stratejilerinizi test edin ve deneyim kazanın.',
             'category': 'yatırım',
-            'image': '/static/img/games/investment.jpg',
+            'image': 'img/games/investment.svg',
             'url': '/games/game_app/investment-simulator/'
         },
         {
             'title': 'Ticaretin İzinde 3D',
             'description': '3D dünyada ticaret ve finansı deneyimleyin.',
             'category': 'ticaret',
-            'image': '/static/img/games/trade3d.jpg',
+            'image': 'img/games/trade3d.svg',
             'url': '/games/game_app/trade-trail-3d/'
         },
     ]

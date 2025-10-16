@@ -357,11 +357,26 @@ def generate_nakit_akisi_tablosu(company, year, month):
     return pd.DataFrame(data)
 
 def export_report_to_excel(df, filename):
+    """Export a DataFrame to an in-memory .xlsx file.
+
+    Prefers the xlsxwriter engine for speed/formatting; gracefully falls back
+    to openpyxl if xlsxwriter isn't installed.
+    """
     output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+    # Decide engine dynamically to avoid hard dependency errors and static warnings
+    try:
+        import importlib.util as _il
+        engine = 'xlsxwriter' if _il.find_spec('xlsxwriter') else 'openpyxl'
+    except Exception:
+        engine = 'openpyxl'
+
+    with pd.ExcelWriter(output, engine=engine) as writer:
         df.to_excel(writer, index=False)
     output.seek(0)
-    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response = HttpResponse(
+        output,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
     response['Content-Disposition'] = f'attachment; filename={filename}'
     return response
 

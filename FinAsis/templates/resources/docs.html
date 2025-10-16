@@ -1,25 +1,102 @@
 {% extends "core_ui/base.html" %}
+{% load i18n %}
 {% block content %}
-<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
-  <div class="container text-center">
-    <h1 class="display-5 fw-bold text-warning animate__animated animate__fadeInDown">Dokümantasyon</h1>
-    <p class="lead mb-4 animate__animated animate__fadeInUp">Tüm modüller için kapsamlı dokümanlar!</p>
-    <div class="card p-4 animate__animated animate__fadeInUp">
-      <h5 class="fw-bold">Modül Dokümantasyonları</h5>
-      <ul class="list-group mb-3 text-start">
-        <li class="list-group-item"><a href="/finance/">Finans Modülü</a> – Raporlama, analiz, bütçe yönetimi</li>
-        <li class="list-group-item"><a href="/accounting/">Muhasebe Modülü</a> – Fatura, fiş, entegrasyon</li>
-        <li class="list-group-item"><a href="/education/">Eğitim Modülü</a> – Eğitim içerikleri, testler</li>
-        <li class="list-group-item"><a href="/ai-assistant/">AI Asistan</a> – Otomasyon, öneriler, analiz</li>
-        <li class="list-group-item"><a href="/blockchain/">Blockchain</a> – Güvenlik, veri yönetimi</li>
-      </ul>
-      <h5 class="fw-bold mt-4">API & Entegrasyon</h5>
-      <a href="/contact/" class="btn btn-outline-info">API Desteği Al</a>
-    </div>
-    <div class="mt-5">
-      <span class="badge bg-warning text-dark fs-6 animate__animated animate__bounce">Detaylı</span>
-      <span class="badge bg-success fs-6 animate__animated animate__bounce">Kapsamlı</span>
+
+<!-- HERO -->
+<section class="py-5 bg-gradient-primary-to-secondary text-white">
+  <div class="container">
+    <div class="row align-items-center g-4 justify-content-center">
+      <div class="col-12 col-lg-9 text-center mx-auto">
+        <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-journals me-1" aria-hidden="true"></i>{% trans 'Dokümantasyon' %}</span>
+        <h1 class="fw-bold display-5 mb-3">{% trans 'Modüller ve entegrasyonlar için kapsamlı dokümanlar' %}</h1>
+        <p class="lead mb-4">{% trans 'Kurulum, yapılandırma ve kullanım örnekleri — hepsi tek yerde.' %}</p>
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+          <a href="{% url 'support-tech' %}" class="btn btn-light btn-lg px-4"><i class="bi bi-tools me-2" aria-hidden="true"></i>{% trans 'Teknik Destek' %}</a>
+          <a href="{% url 'support' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-life-preserver me-2" aria-hidden="true"></i>{% trans 'Destek Merkezi' %}</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- MODULE DOCS GRID -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-grid me-1" aria-hidden="true"></i>{% trans 'Modül Dokümanları' %}</span>
+      <h2 class="fw-bold display-6 mb-2">{% trans 'Her modül için rehberler' %}</h2>
+      <p class="lead text-muted">{% trans 'Başlangıçtan ileri düzeye, adım adım yönergeler.' %}</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-graph-up" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'Finans' %}</h5>
+          <p class="text-muted mb-3">{% trans 'Bütçe, KPI, nakit akışı ve raporlar.' %}</p>
+          <a href="/products/finans/" class="btn btn-outline-primary btn-sm px-3">{% trans 'Finans Ürünleri' %}</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-receipt" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'Muhasebe' %}</h5>
+          <p class="text-muted mb-3">{% trans 'e‑Fatura, e‑Arşiv, fiş, entegrasyon.' %}</p>
+          <a href="/products/finans/" class="btn btn-outline-secondary btn-sm px-3">{% trans 'Muhasebe Ürünleri' %}</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-mortarboard" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'Eğitim (LMS)' %}</h5>
+          <p class="text-muted mb-3">{% trans 'Dersler, sınavlar ve rozetler.' %}</p>
+          <a href="/products/egitim/" class="btn btn-outline-success btn-sm px-3">{% trans 'Eğitim Ürünleri' %}</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-cpu" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'AI Asistan' %}</h5>
+          <p class="text-muted mb-3">{% trans 'OCR, sınıflandırma, analiz ve otomasyon.' %}</p>
+          <a href="/ai-assistant/" class="btn btn-outline-info btn-sm px-3">{% trans 'AI Asistan' %}</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-link-45deg" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'Blockchain' %}</h5>
+          <p class="text-muted mb-3">{% trans 'Kayıt güvenliği, doğrulanabilirlik, entegrasyonlar.' %}</p>
+          <a href="/products/blockchain/" class="btn btn-outline-warning btn-sm px-3">{% trans 'Blockchain Ürünleri' %}</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 p-4 text-center">
+          <div class="corporate-feature-icon mb-3 mx-auto"><i class="bi bi-controller" aria-hidden="true"></i></div>
+          <h5 class="fw-bold mb-2">{% trans 'Oyunlaştırma' %}</h5>
+          <p class="text-muted mb-3">{% trans 'TradeSim 3D ve interaktif simülasyonlar.' %}</p>
+          <a href="/products/oyunlar/" class="btn btn-outline-danger btn-sm px-3">{% trans 'Oyunlar' %}</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5">
+      <span class="badge corporate-badge-secondary me-2">{% trans 'Detaylı' %}</span>
+      <span class="badge corporate-badge-secondary">{% trans 'Kapsamlı' %}</span>
+    </div>
+  </div>
+</section>
+
+<!-- API CTA -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row align-items-center g-4 justify-content-center">
+      <div class="col-12 col-lg-8 text-center mx-auto">
+        <h3 class="fw-bold mb-3">{% trans 'API ve Entegrasyon Desteği' %}</h3>
+        <p class="lead text-muted mb-4">{% trans 'Webhook, REST API ve entegrasyon kılavuzları için teknik ekipten destek alın.' %}</p>
+        <a href="{% url 'contact' %}" class="btn corporate-btn-primary btn-lg px-5"><i class="bi bi-plug me-2" aria-hidden="true"></i>{% trans 'İletişime Geçin' %}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

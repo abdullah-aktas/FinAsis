@@ -1,4 +1,5 @@
 {% extends "core_ui/base.html" %}
+{% load dict_extras %}
 {% block title %}Nakit Akışı{% endblock %}
 {% block content %}
 <div class="container py-4">
@@ -32,21 +33,21 @@
     </div>
   </form>
 
-  {% if df is not None %}
+  {% if rows %}
   <div class="table-responsive">
     <table class="table table-sm table-striped align-middle">
       <thead>
         <tr>
-          {% for col in df.columns %}
+          {% for col in columns %}
             <th>{{ col }}</th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
-        {% for row in df.itertuples %}
+        {% for row in rows %}
           <tr>
-            {% for col in df.columns %}
-              <td>{{ row._asdict[col] }}</td>
+            {% for col in columns %}
+              <td>{{ row|get_item:col }}</td>
             {% endfor %}
           </tr>
         {% endfor %}

@@ -91,6 +91,7 @@ urlpatterns = [
     path('ml/recommendation/', views.recommendation_api, name='ml-recommendation'),
     path('assistant/chat/', views.ai_assistant_chat, name='ai-assistant-chat'),
     path('ocr/', views.ocr_upload_view, name='ocr'),
+    path('ocr/process/', views.ocr_process_api, name='ocr_process_api'),
     path('a_i_model/', views.AIModelListView.as_view(), name='a_i_model_list'),
     path('a_i_model/<int:pk>/', views.AIModelDetailView.as_view(), name='a_i_model_detail'),
     path('a_i_model/create/', views.AIModelCreateView.as_view(), name='a_i_model_create'),

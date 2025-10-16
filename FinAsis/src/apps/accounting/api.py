@@ -13,7 +13,7 @@ from .services.ai_service import (
 )
 from src.apps.ai_assistant.services.ocr_service import OCRService
 from django.conf import settings
-from src.apps.ai_assistant.services import LocalSTTService
+from src.apps.ai_assistant.services.local_stt_service import LocalSTTService
 from .services.ai_service import map_text_to_voucher_lines
 from src.apps.finance.accounting.models import AutoBookingRule
 from .services.gamification_service import award_badge, increase_user_level

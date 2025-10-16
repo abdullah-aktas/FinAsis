@@ -1,9 +1,13 @@
 {% extends "core_ui/base.html" %}
 {% load static i18n %}
 
-{% block title %}FinAsis · Yerel AI Finans Platformu{% endblock %}
-{% block meta_description %}AI destekli finans, e‑dönüşüm ve eğitim süreçlerini sade, hızlı ve güvenli biçimde yönetin.{% endblock %}
-{% block meta_keywords %}finans yazılımı, e-fatura, ai, kobİ, eğitim, blockchain{% endblock %}
+{% block title %}FinAsis · Finansı Hızlandıran Yerel AI Platform{% endblock %}
+{% block meta_description %}e-Fatura, finansal analiz, eğitim (LMS), blockchain ve oyunlaştırma — tek panelde birleşir. Maliyetleri düşürür, karar hızını artırır.{% endblock %}
+{% block meta_keywords %}finans yazılımı, e-fatura, e-arşiv, ai, muhasebe, kobİ, lms, blockchain, finansal analiz, otomasyon{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+{% endblock %}
 
 {% block content %}
   {% include 'components/home_sections.html' %}

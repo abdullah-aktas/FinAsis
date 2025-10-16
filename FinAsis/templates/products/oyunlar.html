@@ -1,41 +1,264 @@
 {% extends "core_ui/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block feature_banner %}{% endblock %}
 {% block title %}FinAsis | {% trans 'Oyunlaştırma Ürünleri' %}{% endblock %}
-{% block meta_description %}{% trans 'Finansal okuryazarlık, ticaret simülasyonu ve rozetli başarılar içeren oyunlaştırma çözümleri.' %}{% endblock %}
+{% block meta_description %}{% trans 'Finansal oyunlar, simülasyonlar, rozet ve liderlik tabloları ile oyunlaştırılmış öğrenme deneyimi.' %}{% endblock %}
 {% block content %}
-<section class="py-5" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+
+<!-- HERO -->
+<section class="py-5 bg-gradient-primary-to-secondary text-white">
   <div class="container text-center">
-    <h1 class="display-5 fw-bold text-warning">{% trans 'Oyunlaştırma Ürünleri' %}</h1>
-    <p class="lead mb-4">{% trans 'Finansal okuryazarlık, ticaret simülasyonu ve rozetli başarılar ile eğlenerek öğrenin.' %}</p>
-    <div class="row g-4 justify-content-center">
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">{% trans 'Simülasyonlar' %} <span class="badge bg-info ms-2">{% trans 'Popüler' %}</span></h5>
-          <p>{% trans 'Gerçek piyasa koşullarında pratik yapın.' %}</p>
-          <a href="/games/" class="btn btn-outline-info mt-2">{% trans 'Oyun Paneli' %}</a>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">{% trans 'Rozetli Başarı' %} <span class="badge bg-success ms-2">{% trans 'Motivasyon' %}</span></h5>
-          <p>{% trans 'Başarılarınızı rozetlerle taçlandırın.' %}</p>
-          <a href="/accounts/profile/" class="btn btn-outline-success mt-2">{% trans 'Profilim' %}</a>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100 p-4">
-          <h5 class="fw-bold">AI {% trans 'Destekli Oyunlar' %} <span class="badge bg-primary ms-2">{% trans 'Akıllı' %}</span></h5>
-          <p>{% trans 'Yapay zeka ile kişiselleştirilmiş oyun deneyimi.' %}</p>
-          <a href="/ai-assistant/" class="btn btn-outline-primary mt-2">AI {% trans 'Asistanı' %}</a>
-        </div>
-      </div>
+    <span class="badge corporate-badge-new mb-3" aria-label="Oyunlar modu"><i class="bi bi-controller me-1" aria-hidden="true"></i> {% trans 'Oyunlaştırma Ürünleri' %}</span>
+    <h1 class="display-4 fw-bold mb-3">{% trans 'Finansal Oyunlar ve Simülasyonlar' %}</h1>
+    <p class="lead mb-4">{% trans 'Gerçekçi senaryolar ve oyunlaştırma ile finansı eğlenerek öğrenin; rozetler ve liderlik ile motivasyonunuzu artırın.' %}</p>
+    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center mb-4">
+      <a href="{% url 'games:game_app:games' %}" class="btn corporate-btn-primary btn-lg px-4" data-cta="games-panel"><i class="bi bi-controller me-2" aria-hidden="true"></i>{% trans 'Oyunlar Paneli' %}</a>
+      <a href="{% url 'education:education_home' %}" class="btn corporate-btn-secondary btn-lg px-4" data-cta="education-module"><i class="bi bi-mortarboard me-2" aria-hidden="true"></i>{% trans 'Eğitim Modülü' %}</a>
+      <a href="/ai-assistant/" class="btn btn-outline-light btn-lg px-4" data-cta="ai-assistant"><i class="bi bi-robot me-2" aria-hidden="true"></i>AI {% trans 'Asistanı' %}</a>
     </div>
-    <div class="mt-5">
-      <span class="badge bg-info fs-6 me-2">{% trans 'Simülasyon' %}</span>
-      <span class="badge bg-success fs-6 me-2">{% trans 'Rozet Kazan' %}</span>
-      <span class="badge bg-primary fs-6">AI {% trans 'Destekli Oyun' %}</span>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+      <span class="badge bg-primary fs-6"><i class="bi bi-stars me-1" aria-hidden="true"></i> {% trans 'Oyunlaştırma' %}</span>
+      <span class="badge bg-success fs-6"><i class="bi bi-award me-1" aria-hidden="true"></i> {% trans 'Rozet Kazan' %}</span>
+      <span class="badge bg-warning text-dark fs-6"><i class="bi bi-graph-up-arrow me-1" aria-hidden="true"></i> {% trans 'Simülasyon' %}</span>
     </div>
   </div>
 </section>
+
+<!-- FEATURES -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-stars me-1" aria-hidden="true"></i> {% trans 'Özellikler' %}</span>
+      <h2 class="fw-bold display-6 mb-3">{% trans 'Oyunlaştırılmış Öğrenmenin Tüm Bileşenleri' %}</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 720px;">{% trans 'Simülasyonlar, görevler, rozetler ve liderlik tabloları ile hedef odaklı, eğlenceli ve ölçülebilir bir öğrenme deneyimi.' %}</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-graph-up text-primary display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'Ticaret Simülasyonu' %}</h4>
+          <p class="text-muted mb-0">{% trans 'Piyasa dinamiklerini gerçekçi alım-satım oyunlarıyla deneyimleyin.' %}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.1s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-cash-coin text-success display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'Bütçe Oyunu' %}</h4>
+          <p class="text-muted mb-0">{% trans 'Gelir-gider yönetimini eğlenceli görevlerle öğrenin.' %}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.2s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-trophy text-warning display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'Rozetler & Liderlik' %}</h4>
+          <p class="text-muted mb-0">{% trans 'Başarı rozetleri ve sıralamalarla ilerlemenizi ölçün.' %}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.3s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-people text-info display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'Takım Oyunları' %}</h4>
+          <p class="text-muted mb-0">{% trans 'İşbirlikçi görevler ve grup stratejileri.' %}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.4s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-layers text-secondary display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'Seviye & Görevler' %}</h4>
+          <p class="text-muted mb-0">{% trans 'Kademeli zorluklar ve hedef odaklı görev akışları.' %}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card corporate-feature-card h-100 text-center p-4 animate-zoom-in" style="animation-delay:0.5s;">
+          <div class="corporate-feature-icon mb-3 mx-auto bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+            <i class="bi bi-robot text-danger display-6"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{% trans 'AI Destekli İpuçları' %}</h4>
+          <p class="text-muted mb-0">{% trans 'Kişiselleştirilmiş öneriler ve akıllı geri bildirim.' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- GAMES GRID -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-4">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-controller me-1" aria-hidden="true"></i> {% trans 'Öne Çıkan Oyunlar' %}</span>
+      <h3 class="fw-bold mb-3">{% trans 'Hemen Oynamaya Başlayın' %}</h3>
+      <p class="text-muted mb-0">{% trans 'Aşağıdaki oyunlar finansal becerilerinizi geliştirmek için tasarlandı.' %}</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2"><i class="bi bi-graph-up-arrow me-2 text-primary" aria-hidden="true"></i>{% trans 'TradeSim' %}</h5>
+            <p class="text-muted">{% trans 'Piyasa verileri üzerinden sanal alım-satım yapın ve stratejilerinizi test edin.' %}</p>
+            <a href="{% url 'games:trade_sim:start_game' %}" class="btn btn-outline-primary" data-cta="play-tradesim">{% trans 'Oyna' %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2"><i class="bi bi-wallet2 me-2 text-success" aria-hidden="true"></i>{% trans 'Bütçe Ustası' %}</h5>
+            <p class="text-muted">{% trans 'Aylık gelir-giderleri dengeleyerek tasarruf hedeflerine ulaşın.' %}</p>
+            <a href="{% url 'games:game_app:budget_challenge' %}" class="btn btn-outline-success" data-cta="play-budget">{% trans 'Oyna' %}</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="fw-bold mb-2"><i class="bi bi-lightning-charge me-2 text-warning" aria-hidden="true"></i>{% trans 'Hızlı Quiz' %}</h5>
+            <p class="text-muted">{% trans 'Kısa soru-cevap oyunları ile kavramları pekiştirin.' %}</p>
+            <a href="{% url 'games:game_app:quiz' %}" class="btn btn-outline-warning text-dark" data-cta="play-quiz">{% trans 'Oyna' %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-5 bg-gradient-testimonials">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-people me-1" aria-hidden="true"></i> {% trans 'Kullanıcı Yorumları' %}</span>
+      <h2 class="fw-bold mb-3">{% trans 'Kullanıcılarımız Ne Diyor?' %}</h2>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in">
+          <div class="corporate-testimonial-stars mb-3" aria-label="5 yıldız">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"{% trans 'Oyunlar sayesinde finansal kavramları uygulayarak öğrendim, rozetler motivasyon sağlıyor!' %}"</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">{% trans 'Ayşe K.' %}</div>
+              <div class="small text-muted">{% trans 'Üniversite Öğrencisi' %}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in" style="animation-delay:0.1s;">
+          <div class="corporate-testimonial-stars mb-3" aria-label="5 yıldız">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"{% trans 'TradeSim ile risk almadan strateji denemek harika!' %}"</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">{% trans 'Mehmet D.' %}</div>
+              <div class="small text-muted">{% trans 'Analist Adayı' %}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="testimonial-card card h-100 p-4 text-center animate-zoom-in" style="animation-delay:0.2s;">
+          <div class="corporate-testimonial-stars mb-3" aria-label="5 yıldız">
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+            <i class="bi bi-star-fill text-warning"></i>
+          </div>
+          <p class="mb-3">"{% trans 'Liderlik tablosunda yükselmek için her gün oynuyorum.' %}"</p>
+          <div class="d-flex align-items-center gap-3 justify-content-center">
+            <img src="{% static 'brand/avatar-placeholder.svg' %}" alt="Avatar" class="corporate-avatar" width="48" height="48">
+            <div>
+              <div class="fw-bold">{% trans 'Zeynep Y.' %}</div>
+              <div class="small text-muted">{% trans 'Genç Girişimci' %}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge corporate-badge-secondary mb-3"><i class="bi bi-question-circle me-1" aria-hidden="true"></i> {% trans 'Sıkça Sorulan Sorular' %}</span>
+      <h2 class="fw-bold display-6 mb-3">{% trans 'Oyunlar Hakkında Merak Edilenler' %}</h2>
+    </div>
+    <div class="accordion" id="faqAccordionGames">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqG1">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqGCollapse1" aria-expanded="true" aria-controls="faqGCollapse1">
+            {% trans 'Oyunlara nasıl başlayabilirim?' %}
+          </button>
+        </h2>
+        <div id="faqGCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqG1" data-bs-parent="#faqAccordionGames">
+          <div class="accordion-body">{% trans 'Oyunlar sayfasından bir oyunu seçin ve “Oyna” butonuna tıklayın. Gerekirse giriş yapın.' %}</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqG2">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqGCollapse2" aria-expanded="false" aria-controls="faqGCollapse2">
+            {% trans 'Rozetler nasıl kazanılır?' %}
+          </button>
+        </h2>
+        <div id="faqGCollapse2" class="accordion-collapse collapse" aria-labelledby="faqG2" data-bs-parent="#faqAccordionGames">
+          <div class="accordion-body">{% trans 'Görevleri tamamlayarak, hedef puanlara ulaşarak ve etkinliklere katılarak rozet kazanabilirsiniz.' %}</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqG3">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqGCollapse3" aria-expanded="false" aria-controls="faqGCollapse3">
+            {% trans 'Takım olarak oynayabilir miyiz?' %}
+          </button>
+        </h2>
+        <div id="faqGCollapse3" class="accordion-collapse collapse" aria-labelledby="faqG3" data-bs-parent="#faqAccordionGames">
+          <div class="accordion-body">{% trans 'Evet, takım tabanlı görevler ve işbirlikçi modlar desteklenir.' %}</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqG4">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqGCollapse4" aria-expanded="false" aria-controls="faqGCollapse4">
+            {% trans 'Oyun verilerim nasıl takip ediliyor?' %}
+          </button>
+        </h2>
+        <div id="faqGCollapse4" class="accordion-collapse collapse" aria-labelledby="faqG4" data-bs-parent="#faqAccordionGames">
+          <div class="accordion-body">{% trans 'Puanlar, rozetler ve ilerleme bilgileriniz profilinizde saklanır ve liderlik tablolarına yansıtılır.' %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-gradient-primary-to-secondary text-white">
+  <div class="container text-center">
+    <h2 class="fw-bold display-5 mb-3">{% trans 'Finansal oyunlarla bugün tanışın!' %}</h2>
+    <p class="lead mb-4">{% trans 'Ücretsiz deneyin, rozetler kazanın ve liderlik tablosunda yerinizi alın.' %}</p>
+    <a href="/accounts/register/" class="btn corporate-btn-primary btn-lg px-5" data-cta="register-now"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>{% trans 'Ücretsiz Deneyin' %}</a>
+  </div>
+</section>
+
 {% endblock %}

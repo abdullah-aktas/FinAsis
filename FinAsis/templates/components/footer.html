@@ -6,7 +6,7 @@
       <div class="col-md-4">
         <div class="corporate-footer-brand mb-3">
           <div class="corporate-footer-logo-circle">
-            <img src="D:\FinAsis\FinAsis\src\static\common\finasis_logo-192.png" alt="FinAsis Logo" class="img-fluid">
+            <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis Logo" class="img-fluid">
           </div>
           <div class="corporate-footer-brand-text">
             <h5 class="brand-name mb-1">FinAsis</h5>
@@ -18,15 +18,15 @@
         </p>
         <div class="corporate-footer-features">
           <div class="feature-item">
-            <i class="bi bi-shield-check text-accent me-2"></i>
+            <i class="bi bi-shield-check text-primary me-2"></i>
             <span>KVKK Uyumlu</span>
           </div>
           <div class="feature-item">
-            <i class="bi bi-lock text-accent me-2"></i>
+            <i class="bi bi-lock text-primary me-2"></i>
             <span>256-bit SSL Güvenlik</span>
           </div>
           <div class="feature-item">
-            <i class="bi bi-rocket-takeoff text-accent me-2"></i>
+            <i class="bi bi-rocket-takeoff text-primary me-2"></i>
             <span>5 Dakikada Kurulum</span>
           </div>
         </div>
@@ -36,7 +36,7 @@
       <div class="col-6 col-md-2">
         <div class="corporate-footer-section">
           <h6 class="corporate-footer-title">
-            <i class="bi bi-box-seam text-accent me-2"></i>Ürünler
+            <i class="bi bi-box-seam text-primary me-2"></i>Ürünler
           </h6>
           <div class="corporate-footer-links">
             <a href="/products/finans/" class="corporate-footer-link">
@@ -64,7 +64,7 @@
           <hr class="corporate-divider">
           <div class="corporate-footer-links">
             <a href="{% url 'billing:plans' %}" class="corporate-footer-link featured">
-              <i class="bi bi-tags text-accent me-2"></i>Fiyatlandırma
+              <i class="bi bi-tags text-primary me-2"></i>Fiyatlandırma
             </a>
             <a href="{% url 'billing:plans' %}?audience=sme" class="corporate-footer-link-secondary">KOBİ Planları</a>
             <a href="{% url 'billing:plans' %}?audience=edu" class="corporate-footer-link-secondary">Eğitim Planları</a>
@@ -76,7 +76,7 @@
       <div class="col-6 col-md-2">
         <div class="corporate-footer-section">
           <h6 class="corporate-footer-title">
-            <i class="bi bi-building text-accent me-2"></i>Şirket
+            <i class="bi bi-building text-primary me-2"></i>Şirket
           </h6>
           <div class="corporate-footer-links">
             <a href="/" class="corporate-footer-link">
@@ -102,7 +102,7 @@
       <div class="col-md-4">
         <div class="corporate-footer-section">
           <h6 class="corporate-footer-title">
-            <i class="bi bi-bell text-accent me-2"></i>Bültene Katıl
+            <i class="bi bi-bell text-primary me-2"></i>Bültene Katıl
           </h6>
           <p class="corporate-footer-newsletter-desc">
             En yeni özellikler ve finansal içgörüler için bültenimize abone olun.

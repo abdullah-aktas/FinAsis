@@ -21,13 +21,14 @@ import logging
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import os
-from .services import FinancialAIService, ChatAIService
+from .services.financial_service import FinancialAIService
+from .services.chat_service import ChatAIService
 from .models import CashFlowForecaster, CustomerRiskScorer, AIModel, UserInteraction, FinancialPrediction, AIFeedback, FinancialReport, AnomalyDetection, TrendAnalysis, UserPreference, AIInsight, Recommendation, Notification, MarketAnalysis
 from .services.ocr_service import OCRService
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .services import get_market_analysis
+from .services.market_service import get_market_analysis
 from .serializers import (
     AIModelSerializer, UserInteractionSerializer, FinancialPredictionSerializer,
     AIFeedbackSerializer, FinancialReportSerializer, AnomalyDetectionSerializer,
@@ -103,8 +104,9 @@ def analyze_financial_data(request):
 def get_ai_recommendations(request):
     """Kişiselleştirilmiş öneriler API endpoint'i"""
     try:
-        service = FinancialAIService()
-        recommendations = service.get_personalized_recommendations(request.user, request.data)
+        # FinancialAIService'ta bu method yok; RecommendationService kullan
+        rec_service = RecommendationService()
+        recommendations = rec_service.generate(request.data)
         return Response({"recommendations": recommendations})
     except Exception as e:
         logger.error(f"Öneri oluşturma hatası: {str(e)}")
@@ -118,9 +120,9 @@ def get_ai_recommendations(request):
 def predict_market_trends(request):
     """Piyasa trend analizi API endpoint'i"""
     try:
-        service = FinancialAIService()
-        trends = service.predict_market_trends(request.user, request.data)
-        return Response(trends)
+        # FinancialAIService'ta predict_market_trends yok; MarketAnalysis üzerinden sağla
+        analysis = get_market_analysis()
+        return Response({"analysis": analysis})
     except Exception as e:
         logger.error(f"Piyasa trend analizi hatası: {str(e)}")
         return Response(
@@ -285,7 +287,6 @@ def ocr_upload_view(request):
     """
     return render(request, 'ai_assistant/ocr_upload.html')
 
-@csrf_exempt
 @login_required
 def ocr_process_api(request):
     """
@@ -314,7 +315,11 @@ def ocr_process_api(request):
             # Dosyayı sil
             default_storage.delete(file_path)
             
-            return JsonResponse(result)
+            # Hata anahtarı varsa başarısız say
+            if isinstance(result, dict) and result.get('error'):
+                return JsonResponse({'success': False, 'error': result.get('error')})
+            # Frontend beklenen şema: { success: True, data: {...} }
+            return JsonResponse({'success': True, 'data': result})
             
         except Exception as e:
             return JsonResponse({
@@ -615,23 +620,13 @@ def ai_assistant_chat(request):
         message = data.get('message')
         if not message:
             return Response({'error': 'Mesaj boş olamaz.'}, status=status.HTTP_400_BAD_REQUEST)
-        ai_service = AIAssistantService()
-        response = ai_service.chat(message)
+        chat_service = ChatAIService()
+        response = chat_service.get_response(request.user, message)
         return Response({'response': response}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"AI asistan chat endpoint hatası: {str(e)}")
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@csrf_exempt
-def ocr_upload_view(request):
-    if request.method == 'POST' and request.FILES.get('image'):
-        ocr_service = OCRService()
-        try:
-            result = ocr_service.extract_text_from_image_file(request.FILES['image'])
-            return JsonResponse({'text': result})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Geçerli bir resim yükleyin.'}, status=400)
 
 class AIModelListView(ListView):
     model = AIModel

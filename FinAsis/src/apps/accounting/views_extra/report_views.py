@@ -258,7 +258,25 @@ def bilanco_view(request: HttpRequest) -> HttpResponse:
         return export_report_to_excel(df, f'bilanco_{year}_{month}.xlsx')
     if 'pdf' in request.GET:
         return export_report_to_pdf(df, f'bilanco_{year}_{month}.pdf')
-    return render(request, 'accounting/bilanco.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+    # Prepare safe data for template (avoid underscore attributes like row._asdict)
+    try:
+        columns = list(df.columns) if df is not None else []
+        rows = df.to_dict(orient='records') if df is not None else []
+    except Exception:
+        columns, rows = [], []
+    return render(
+        request,
+        'accounting/bilanco.html',
+        {
+            'df': df,
+            'columns': columns,
+            'rows': rows,
+            'year': year,
+            'month': month,
+            'company': company,
+            'companies': companies,
+        },
+    )
 
 @login_required
 def gelir_tablosu_view(request: HttpRequest) -> HttpResponse:
@@ -275,7 +293,24 @@ def gelir_tablosu_view(request: HttpRequest) -> HttpResponse:
         return export_report_to_excel(df, f'gelir_{year}_{month}.xlsx')
     if 'pdf' in request.GET:
         return export_report_to_pdf(df, f'gelir_{year}_{month}.pdf')
-    return render(request, 'accounting/gelir_tablosu.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+    try:
+        columns = list(df.columns) if df is not None else []
+        rows = df.to_dict(orient='records') if df is not None else []
+    except Exception:
+        columns, rows = [], []
+    return render(
+        request,
+        'accounting/gelir_tablosu.html',
+        {
+            'df': df,
+            'columns': columns,
+            'rows': rows,
+            'year': year,
+            'month': month,
+            'company': company,
+            'companies': companies,
+        },
+    )
 
 @login_required
 def nakit_akisi_tablosu_view(request: HttpRequest) -> HttpResponse:
@@ -292,7 +327,24 @@ def nakit_akisi_tablosu_view(request: HttpRequest) -> HttpResponse:
         return export_report_to_excel(df, f'nakit_akisi_{year}_{month}.xlsx')
     if 'pdf' in request.GET:
         return export_report_to_pdf(df, f'nakit_akisi_{year}_{month}.pdf')
-    return render(request, 'accounting/nakit_akisi_tablosu.html', {'df': df, 'year': year, 'month': month, 'company': company, 'companies': companies})
+    try:
+        columns = list(df.columns) if df is not None else []
+        rows = df.to_dict(orient='records') if df is not None else []
+    except Exception:
+        columns, rows = [], []
+    return render(
+        request,
+        'accounting/nakit_akisi_tablosu.html',
+        {
+            'df': df,
+            'columns': columns,
+            'rows': rows,
+            'year': year,
+            'month': month,
+            'company': company,
+            'companies': companies,
+        },
+    )
 
 @login_required
 def financial_analysis_view(request: HttpRequest) -> HttpResponse:
