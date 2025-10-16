@@ -141,7 +141,7 @@ class ChatAIService:
 
             # Mock yanıt (istemci yoksa da mock'a düş)
             if self.mock_mode or not getattr(self, 'client', None):
-                prefix = "FinAsis Cevap (Mock)"
+                prefix = "[MOCK] FinAsis Cevap (Mock)"
                 tips = (
                     "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
                     "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
@@ -168,7 +168,7 @@ class ChatAIService:
             except Exception as call_err:
                 # Bağlantı/istek hatalarında kullanıcıya yedek cevap dön
                 logger.error(f"OpenAI sohbet isteği başarısız: {call_err}")
-                prefix = "FinAsis Cevap (Yedek Mod)"
+                prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
                 tips = (
                     "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
                     "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
@@ -181,7 +181,7 @@ class ChatAIService:
         except Exception as e:
             # Genel beklenmeyen hatalarda da yedek cevap dön
             logger.error(f"AI sohbet hatası: {str(e)}")
-            prefix = "FinAsis Cevap (Yedek Mod)"
+            prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
             tips = (
                 "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
                 "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"

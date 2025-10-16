@@ -83,6 +83,7 @@ except AttributeError:
 urlpatterns = [
     # Canonical home name only
     path('api/', include(router.urls)),
+    path('api/health/', views.ai_health, name='ai-health'),
     # ML tabanlı özel API endpointleri
     path('ml/risk-score/', views.risk_score_api, name='ml-risk-score'),
     path('ml/financial-forecast/', views.financial_forecast_api, name='ml-financial-forecast'),

@@ -893,3 +893,19 @@ def recommendation_api(request):
 
 def home(request):
     return render(request, 'ai_assistant/home.html')
+
+# Basit sağlık kontrolü: AI istemcisi/mode durumu
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def ai_health(request):
+    try:
+        svc = ChatAIService()
+        status_info = {
+            'ok': True,
+            'mock_mode': bool(getattr(svc, 'mock_mode', False)),
+            'client_initialized': bool(getattr(svc, 'client', None)),
+            'model': os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+        }
+        return Response(status_info, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'ok': False, 'error': str(e)}, status=status.HTTP_200_OK)
