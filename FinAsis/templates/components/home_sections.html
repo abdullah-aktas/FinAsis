@@ -75,12 +75,13 @@
     <div class="text-center mb-2">
       <span class="text-muted small fw-semibold">500+ işletmenin güvendiği platform</span>
     </div>
-    <div class="corporate-logo-row d-flex flex-nowrap overflow-auto gap-4 justify-content-center align-items-center py-2">
-      <img src="{% static 'brand/client-logo-1.svg' %}" alt="Müşteri 1" class="corporate-logo-item" loading="lazy">
-      <img src="{% static 'brand/client-logo-2.svg' %}" alt="Müşteri 2" class="corporate-logo-item" loading="lazy">
-      <img src="{% static 'brand/client-logo-3.svg' %}" alt="Müşteri 3" class="corporate-logo-item" loading="lazy">
-      <img src="{% static 'brand/client-logo-4.svg' %}" alt="Müşteri 4" class="corporate-logo-item" loading="lazy">
-      <img src="{% static 'brand/client-logo-5.svg' %}" alt="Müşteri 5" class="corporate-logo-item" loading="lazy">
+    <div class="corporate-logo-row d-flex flex-wrap gap-4 justify-content-center align-items-center py-2">
+      {# Client logos - Müşteri logoları buraya eklenecek #}
+      <div class="text-muted small">
+        <i class="bi bi-building me-2"></i>500+ aktif şirket
+        <i class="bi bi-people ms-3 me-2"></i>2000+ kullanıcı
+        <i class="bi bi-award ms-3 me-2"></i>%99.9 uptime
+      </div>
     </div>
   </div>
 </section>

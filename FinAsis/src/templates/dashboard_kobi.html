@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% load static i18n humanize %}
+
+{% block title %}KOBİ Dashboard - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* KOBİ Dashboard Özel Stiller */
+.dashboard-header {
+    background: linear-gradient(135deg, var(--finasis-primary) 0%, var(--finasis-primary-dark) 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 1rem 1rem;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: var(--finasis-border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--finasis-box-shadow);
+    height: 100%;
+    transition: transform 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--finasis-box-shadow-lg);
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-label {
+    font-size: 0.875rem;
+    color: var(--finasis-text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.kpi-change {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.quick-action {
+    background: white;
+    border: 2px solid var(--finasis-border-light);
+    border-radius: var(--finasis-border-radius);
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+.quick-action:hover {
+    border-color: var(--finasis-primary);
+    background: rgba(0, 184, 148, 0.05);
+    transform: translateY(-2px);
+}
+
+.recent-activity {
+    background: white;
+    border-radius: var(--finasis-border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--finasis-box-shadow);
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--finasis-border-light);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h3 mb-2">Hoş Geldiniz, {{ user.get_full_name|default:user.username }}</h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-calendar3 me-2"></i>{% now "l, j F Y" %}
+                    <i class="bi bi-clock ms-3 me-2"></i>Son güncelleme: {% now "H:i" %}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <button class="btn btn-outline-light me-2">
+                    <i class="bi bi-download me-2"></i>Rapor İndir
+                </button>
+                <button class="btn btn-light" onclick="toggleTheme()">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- KPI Kartları -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div class="kpi-label">Toplam Gelir</div>
+                <div class="kpi-value text-success">₺{{ total_income|default:"0"|floatformat:0|intcomma }}</div>
+                <div class="kpi-change text-success">
+                    <i class="bi bi-arrow-up me-1"></i>+12% bu ay
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="kpi-label">Toplam Gider</div>
+                <div class="kpi-value text-danger">₺{{ total_expense|default:"0"|floatformat:0|intcomma }}</div>
+                <div class="kpi-change text-warning">
+                    <i class="bi bi-arrow-up me-1"></i>+5% bu ay
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="kpi-label">Net Kar</div>
+                <div class="kpi-value text-primary">₺{{ net_profit|default:"0"|floatformat:0|intcomma }}</div>
+                <div class="kpi-change text-success">
+                    <i class="bi bi-arrow-up me-1"></i>+8% bu ay
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div class="kpi-label">Nakit Bakiye</div>
+                <div class="kpi-value text-info">₺{{ cash_balance|default:"0"|floatformat:0|intcomma }}</div>
+                <div class="kpi-change text-muted">
+                    <i class="bi bi-dash me-1"></i>Değişim yok
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Ana Grafik -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-graph-up text-primary me-2"></i>Finansal Trend
+                        </h5>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary active">7 Gün</button>
+                            <button type="button" class="btn btn-outline-primary">30 Gün</button>
+                            <button type="button" class="btn btn-outline-primary">90 Gün</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Grafik Alanı -->
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                    
+                    <!-- Grafik olmadan placeholder -->
+                    <div class="text-center py-5" id="chartPlaceholder">
+                        <i class="bi bi-graph-up display-1 text-muted opacity-25"></i>
+                        <p class="text-muted mt-3">Grafik verileri yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Sidebar -->
+        <div class="col-lg-4">
+            <!-- Hızlı İşlemler -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-lightning-charge text-warning me-2"></i>Hızlı İşlemler
+                    </h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{% url 'accounting:invoice_create' %}" class="quick-action">
+                                <i class="bi bi-receipt fs-4 text-primary mb-2"></i>
+                                <div class="small">Yeni Fatura</div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'accounting:expense_create' %}" class="quick-action">
+                                <i class="bi bi-cash-coin fs-4 text-danger mb-2"></i>
+                                <div class="small">Gider Ekle</div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'finance:reports_index' %}" class="quick-action">
+                                <i class="bi bi-file-earmark-text fs-4 text-success mb-2"></i>
+                                <div class="small">Raporlar</div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'accounting:customer_create' %}" class="quick-action">
+                                <i class="bi bi-person-plus fs-4 text-info mb-2"></i>
+                                <div class="small">Müşteri Ekle</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Öneriler -->
+            <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="card-title text-primary mb-3">
+                        <i class="bi bi-robot me-2"></i>AI Asistan Önerisi
+                    </h6>
+                    <div class="alert alert-info border-0 mb-3">
+                        <small>
+                            <i class="bi bi-lightbulb me-2"></i>
+                            <strong>İpucu:</strong> Bu ay giderleriniz %5 arttı. Bütçe kontrolü yapmanızı öneriyoruz.
+                        </small>
+                    </div>
+                    <button class="btn btn-primary w-100 btn-sm">
+                        <i class="bi bi-chat-dots me-2"></i>AI ile Sohbet Et
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alt Bölüm: Son Aktiviteler -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-6">
+            <div class="recent-activity">
+                <h6 class="mb-3">
+                    <i class="bi bi-clock-history text-primary me-2"></i>Son Faturalar
+                </h6>
+                {% if recent_invoices %}
+                    {% for invoice in recent_invoices|slice:":5" %}
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">{{ invoice.invoice_number }}</div>
+                            <small class="text-muted">{{ invoice.customer_name }} • {{ invoice.date|date:"d M Y" }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">₺{{ invoice.total|floatformat:2|intcomma }}</div>
+                            <span class="badge bg-success bg-opacity-10 text-success">Ödendi</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
+                        <p class="text-muted mt-3 mb-0">Henüz fatura bulunmuyor</p>
+                        <a href="{% url 'accounting:invoice_create' %}" class="btn btn-sm btn-primary mt-2">
+                            İlk Faturanızı Oluşturun
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="recent-activity">
+                <h6 class="mb-3">
+                    <i class="bi bi-exclamation-circle text-warning me-2"></i>Bekleyen Ödemeler
+                </h6>
+                {% if pending_payments %}
+                    {% for payment in pending_payments|slice:":5" %}
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">{{ payment.vendor_name }}</div>
+                            <small class="text-muted">Vade: {{ payment.due_date|date:"d M Y" }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-danger">₺{{ payment.amount|floatformat:2|intcomma }}</div>
+                            <span class="badge bg-warning bg-opacity-10 text-warning">Bekliyor</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-check-circle display-4 text-success opacity-25"></i>
+                        <p class="text-muted mt-3 mb-0">Harika! Bekleyen ödeme yok</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Basit bir dashboard JS
+document.addEventListener('DOMContentLoaded', function() {
+    // Grafik period toggle
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Basit Chart.js entegrasyonu için placeholder
+    // Gerçek implementasyonda Chart.js kullanılacak
+    console.log('Dashboard loaded');
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,323 @@
+{% extends 'core_ui/base.html' %}
+{% load static i18n humanize role_tags %}
+
+{% block title %}{% trans "Dashboard" %} - {{ user_role_display }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h1 class="h3 mb-2">
+                        {% blocktrans with name=user.get_full_name|default:user.username %}
+                        Hoş geldiniz, {{ name }}
+                        {% endblocktrans %}
+                    </h1>
+                    <div class="d-flex align-items-center gap-2">
+                        {% show_role_badge user %}
+                        <span class="text-muted">•</span>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar3 me-1"></i>{% now "l, j F Y" %}
+                        </small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if user|has_role:'admin' %}
+                        <a href="{% url 'management:dashboard' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-shield-lock me-1"></i>{% trans "Yönetim" %}
+                        </a>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleTheme()">
+                        <i class="bi bi-moon-stars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Kartları (Finans modülü erişimi olanlar için) -->
+    {% can_user user 'CAN_VIEW_FINANCE' as can_view_finance %}
+    {% if can_view_finance %}
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3 fs-1 text-success"><i class="bi bi-cash-stack"></i></div>
+                        <div>
+                            <div class="text-muted small text-uppercase mb-1">{% trans "Toplam Gelir" %}</div>
+                            <div class="fs-3 fw-bold text-success">₺{{ total_income|default:"0"|floatformat:0|intcomma }}</div>
+                        </div>
+                    </div>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+12% {% trans "bu ay" %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3 fs-1 text-danger"><i class="bi bi-cash-coin"></i></div>
+                        <div>
+                            <div class="text-muted small text-uppercase mb-1">{% trans "Toplam Gider" %}</div>
+                            <div class="fs-3 fw-bold text-danger">₺{{ total_expense|default:"0"|floatformat:0|intcomma }}</div>
+                        </div>
+                    </div>
+                    <small class="text-warning">
+                        <i class="bi bi-arrow-up me-1"></i>+5% {% trans "bu ay" %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3 fs-1 text-primary"><i class="bi bi-graph-up"></i></div>
+                        <div>
+                            <div class="text-muted small text-uppercase mb-1">{% trans "Net Kar" %}</div>
+                            <div class="fs-3 fw-bold text-primary">₺{{ net_profit|default:"0"|floatformat:0|intcomma }}</div>
+                        </div>
+                    </div>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+8% {% trans "bu ay" %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3 fs-1 text-info"><i class="bi bi-wallet2"></i></div>
+                        <div>
+                            <div class="text-muted small text-uppercase mb-1">{% trans "Nakit Bakiye" %}</div>
+                            <div class="fs-3 fw-bold text-info">₺{{ cash_balance|default:"0"|floatformat:0|intcomma }}</div>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-dash me-1"></i>{% trans "Değişim yok" %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Ana İçerik Alanı -->
+    <div class="row g-4">
+        <!-- Sol Kolon: Grafikler ve Ana İçerik -->
+        <div class="col-lg-8">
+            {% if can_view_finance %}
+                <!-- Finansal Trend Grafiği -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-graph-up text-primary me-2"></i>{% trans "Finansal Trend" %}
+                            </h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary active">7 {% trans "Gün" %}</button>
+                                <button type="button" class="btn btn-outline-primary">30 {% trans "Gün" %}</button>
+                                <button type="button" class="btn btn-outline-primary">90 {% trans "Gün" %}</button>
+                            </div>
+                        </div>
+                        <div class="text-center py-5">
+                            <i class="bi bi-graph-up display-1 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">{% trans "Grafik verileri yükleniyor..." %}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if user|has_any_role:'teacher,student' %}
+                <!-- Eğitim İçeriği -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-mortarboard text-primary me-2"></i>{% trans "Eğitim Modülü" %}
+                        </h5>
+                        <p class="text-muted">{% trans "Kurslarınız ve ödevleriniz burada görünecek" %}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if user|has_role:'player' %}
+                <!-- Oyun İçeriği -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-controller text-primary me-2"></i>{% trans "Oyunlar" %}
+                        </h5>
+                        <p class="text-muted">{% trans "Oyunlarınız ve liderlik tablosu burada görünecek" %}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sağ Sidebar: Hızlı İşlemler ve AI -->
+        <div class="col-lg-4">
+            <!-- Hızlı İşlemler -->
+            {% if user_quick_actions %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        {% show_quick_actions %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- AI Asistan Önerileri -->
+            {% can_user user 'CAN_USE_AI' as can_use_ai %}
+            {% if can_use_ai %}
+                <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary mb-3">
+                            <i class="bi bi-robot me-2"></i>{% trans "AI Asistan" %}
+                        </h6>
+                        <div class="alert alert-info border-0 mb-3">
+                            <small>
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>{% trans "İpucu:" %}</strong> 
+                                {% trans "Bu ay giderleriniz %5 arttı. Bütçe kontrolü yapmanızı öneriyoruz." %}
+                            </small>
+                        </div>
+                        <a href="{% url 'ai_assistant:home' %}" class="btn btn-primary w-100 btn-sm">
+                            <i class="bi bi-chat-dots me-2"></i>{% trans "AI ile Sohbet Et" %}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Erişilebilen Modüller -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-grid text-primary me-2"></i>{% trans "Modülleriniz" %}
+                    </h6>
+                    <div class="d-grid gap-2">
+                        {% for module in user_modules %}
+                            {% if module == 'accounting' %}
+                                <a href="{% url 'accounting:home' %}" class="btn btn-outline-primary btn-sm text-start">
+                                    <i class="bi bi-calculator me-2"></i>{% trans "Muhasebe" %}
+                                </a>
+                            {% elif module == 'finance' %}
+                                <a href="{% url 'finance:home' %}" class="btn btn-outline-success btn-sm text-start">
+                                    <i class="bi bi-graph-up me-2"></i>{% trans "Finans" %}
+                                </a>
+                            {% elif module == 'education' %}
+                                <a href="{% url 'education:index' %}" class="btn btn-outline-info btn-sm text-start">
+                                    <i class="bi bi-mortarboard me-2"></i>{% trans "Eğitim" %}
+                                </a>
+                            {% elif module == 'games' %}
+                                <a href="{% url 'games:home' %}" class="btn btn-outline-warning btn-sm text-start">
+                                    <i class="bi bi-controller me-2"></i>{% trans "Oyunlar" %}
+                                </a>
+                            {% elif module == 'ai_assistant' %}
+                                <a href="{% url 'ai_assistant:home' %}" class="btn btn-outline-secondary btn-sm text-start">
+                                    <i class="bi bi-robot me-2"></i>{% trans "AI Asistan" %}
+                                </a>
+                            {% elif module == 'management' %}
+                                <a href="{% url 'management:dashboard' %}" class="btn btn-outline-danger btn-sm text-start">
+                                    <i class="bi bi-gear me-2"></i>{% trans "Yönetim" %}
+                                </a>
+                            {% endif %}
+                        {% empty %}
+                            <p class="text-muted small mb-0">{% trans "Erişilebilir modül yok" %}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alt Bölüm: Son Aktiviteler -->
+    {% if can_view_finance %}
+    <div class="row g-4 mt-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom">
+                    <i class="bi bi-clock-history text-primary me-2"></i>{% trans "Son Faturalar" %}
+                </div>
+                <div class="card-body">
+                    {% if recent_invoices %}
+                        {% for invoice in recent_invoices|slice:":5" %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <div class="fw-medium">{{ invoice.invoice_number }}</div>
+                                <small class="text-muted">{{ invoice.date|date:"d M Y" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-success">₺{{ invoice.total|floatformat:2|intcomma }}</div>
+                                <span class="badge bg-success-subtle text-success">{% trans "Ödendi" %}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3 mb-0">{% trans "Henüz fatura bulunmuyor" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom">
+                    <i class="bi bi-exclamation-circle text-warning me-2"></i>{% trans "Bekleyen Ödemeler" %}
+                </div>
+                <div class="card-body">
+                    {% if pending_payments %}
+                        {% for payment in pending_payments|slice:":5" %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <div class="fw-medium">{{ payment.vendor_name }}</div>
+                                <small class="text-muted">{% trans "Vade:" %} {{ payment.due_date|date:"d M Y" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-danger">₺{{ payment.amount|floatformat:2|intcomma }}</div>
+                                <span class="badge bg-warning-subtle text-warning">{% trans "Bekliyor" %}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle display-4 text-success opacity-25"></i>
+                            <p class="text-muted mt-3 mb-0">{% trans "Harika! Bekleyen ödeme yok" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dashboard specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Period toggle buttons
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    console.log('Role-based dashboard loaded');
+    console.log('User role:', '{{ user_role }}');
+    console.log('User modules:', {{ user_modules|safe }});
+});
+</script>
+{% endblock %}
+

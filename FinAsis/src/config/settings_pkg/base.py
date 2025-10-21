@@ -213,6 +213,8 @@ TEMPLATES = [{
             'src.apps.billing.context_processors.billing_settings',
             'src.apps.core_ui.context_processors.marketing_features',
             'src.apps.core_ui.context_processors.project_meta',
+            'src.apps.common.context_processors.user_roles',
+            'src.apps.common.context_processors.platform_context',
         ],
         'builtins': [
             'src.apps.education.student.templatetags.student_filters',

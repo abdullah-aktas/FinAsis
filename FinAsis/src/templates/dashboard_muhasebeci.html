@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static i18n humanize %}
+
+{% block title %}Muhasebeci Dashboard - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Muhasebeci Dashboard - Profesyonel & Verimli */
+.accountant-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+}
+
+.data-table-wrapper {
+    background: white;
+    border-radius: var(--finasis-border-radius);
+    box-shadow: var(--finasis-box-shadow);
+    overflow: hidden;
+}
+
+.table-toolbar {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--finasis-border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-sidebar {
+    background: white;
+    border-radius: var(--finasis-border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--finasis-box-shadow);
+    position: sticky;
+    top: 1rem;
+}
+
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--finasis-secondary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-mini {
+    background: white;
+    border-radius: var(--finasis-border-radius);
+    padding: 1rem;
+    box-shadow: var(--finasis-box-shadow);
+}
+
+.stat-mini-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-mini-label {
+    font-size: 0.75rem;
+    color: var(--finasis-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Compact Header -->
+<div class="accountant-header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h4 mb-0">Muhasebe Yönetimi</h1>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-upload me-1"></i>İçe Aktar
+                </button>
+                <button class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-download me-1"></i>Dışa Aktar
+                </button>
+                <button class="btn btn-light btn-sm">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-mini">
+            <div class="stat-mini-value text-primary">{{ total_transactions|default:"0" }}</div>
+            <div class="stat-mini-label">Toplam İşlem</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value text-success">{{ completed_today|default:"0" }}</div>
+            <div class="stat-mini-label">Bugün Tamamlanan</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value text-warning">{{ pending_approval|default:"0" }}</div>
+            <div class="stat-mini-label">Onay Bekleyen</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value text-danger">{{ overdue|default:"0" }}</div>
+            <div class="stat-mini-label">Gecikmiş</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <h6 class="mb-3">
+                    <i class="bi bi-funnel me-2"></i>Filtreler
+                </h6>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Tarih Aralığı</label>
+                    <input type="date" class="form-control form-control-sm mb-2" placeholder="Başlangıç">
+                    <input type="date" class="form-control form-control-sm" placeholder="Bitiş">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Müşteri/Tedarikçi</label>
+                    <select class="form-select form-select-sm">
+                        <option>Tümü</option>
+                        <option>ABC Ltd.</option>
+                        <option>XYZ A.Ş.</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">İşlem Tipi</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="type1" checked>
+                        <label class="form-check-label small" for="type1">Fatura</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="type2" checked>
+                        <label class="form-check-label small" for="type2">Gider</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="type3" checked>
+                        <label class="form-check-label small" for="type3">Ödeme</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Durum</label>
+                    <select class="form-select form-select-sm">
+                        <option>Tümü</option>
+                        <option>Ödendi</option>
+                        <option>Bekliyor</option>
+                        <option>İptal</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-sm">
+                        <i class="bi bi-search me-1"></i>Filtrele
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1"></i>Temizle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Data Table -->
+        <div class="col-lg-9">
+            <div class="data-table-wrapper">
+                <!-- Toolbar -->
+                <div class="table-toolbar">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Yeni İşlem
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Excel
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-printer me-1"></i>Yazdır
+                        </button>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="search" class="form-control form-control-sm" placeholder="Ara..." style="width: 200px;">
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input">
+                                </th>
+                                <th>Tarih</th>
+                                <th>Belge No</th>
+                                <th>Müşteri/Tedarikçi</th>
+                                <th>Tür</th>
+                                <th class="text-end">Tutar</th>
+                                <th>Durum</th>
+                                <th class="text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if transactions %}
+                                {% for item in transactions %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input">
+                                    </td>
+                                    <td>
+                                        <small>{{ item.date|date:"d.m.Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-medium">{{ item.document_no }}</span>
+                                    </td>
+                                    <td>{{ item.party_name|truncatewords:3 }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ item.type|lower }}-subtle text-{{ item.type|lower }}">
+                                            {{ item.type }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end fw-medium">
+                                        ₺{{ item.amount|floatformat:2|intcomma }}
+                                    </td>
+                                    <td>
+                                        {% if item.status == 'paid' %}
+                                        <span class="badge bg-success-subtle text-success">
+                                            <i class="bi bi-check-circle me-1"></i>Ödendi
+                                        </span>
+                                        {% elif item.status == 'pending' %}
+                                        <span class="badge bg-warning-subtle text-warning">
+                                            <i class="bi bi-clock me-1"></i>Bekliyor
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            <i class="bi bi-x-circle me-1"></i>İptal
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="table-actions">
+                                            <button class="btn btn-sm btn-outline-primary action-btn" title="Görüntüle">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary action-btn" title="Düzenle">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger action-btn" title="Sil">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <i class="bi bi-inbox display-4 text-muted opacity-25"></i>
+                                        <p class="text-muted mt-3 mb-0">Kayıt bulunamadı</p>
+                                        <small class="text-muted">Filtreleri değiştirin veya yeni işlem ekleyin</small>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="table-toolbar border-top-0">
+                    <div class="small text-muted">
+                        Toplam {{ total_count|default:"0" }} kayıt • Sayfa {{ current_page|default:"1" }} / {{ total_pages|default:"1" }}
+                    </div>
+                    <nav aria-label="Table pagination">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Klavye Kısayolları -->
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-keyboard me-2"></i>
+        <strong>Klavye Kısayolları:</strong>
+        <kbd>Ctrl+N</kbd> Yeni İşlem
+        <kbd>Ctrl+F</kbd> Ara
+        <kbd>Ctrl+P</kbd> Yazdır
+        <kbd>Ctrl+E</kbd> Excel
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Muhasebeci dashboard özel JS
+document.addEventListener('DOMContentLoaded', function() {
+    // Klavye kısayolları
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'n':
+                    e.preventDefault();
+                    console.log('Yeni işlem');
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    document.querySelector('input[type="search"]').focus();
+                    break;
+                case 'p':
+                    e.preventDefault();
+                    window.print();
+                    break;
+            }
+        }
+    });
+
+    // Toplu seçim
+    document.querySelector('thead input[type="checkbox"]').addEventListener('change', function(e) {
+        document.querySelectorAll('tbody input[type="checkbox"]').forEach(cb => {
+            cb.checked = e.target.checked;
+        });
+    });
+});
+</script>
+{% endblock %}
+
