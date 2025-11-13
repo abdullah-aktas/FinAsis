@@ -150,6 +150,119 @@ def modul_ogrenci(request):
 def modul_oyuncu(request):
     return render(request, 'accounts/modul_oyuncu.html')
 
+@user_type_required('muhasebe_elemani')
+@login_required
+def modul_muhasebe(request):
+    """Muhasebe elemanı dashboard"""
+    company = getattr(request.user, 'company', None)
+    
+    # Bugün, bu hafta ve bu ay istatistikleri
+    from datetime import datetime, timedelta
+    from django.db.models import Sum, Count
+    
+    today = datetime.now().date()
+    week_start = today - timedelta(days=today.weekday())
+    month_start = today.replace(day=1)
+    
+    stats = {
+        'today_invoices': 0,
+        'week_invoices': 0,
+        'month_invoices': 0,
+        'pending_tasks': 0,
+    }
+    
+    if company:
+        stats['today_invoices'] = Invoice.objects.filter(
+            company=company, 
+            issue_date=today
+        ).count()
+        
+        stats['week_invoices'] = Invoice.objects.filter(
+            company=company,
+            issue_date__gte=week_start
+        ).count()
+        
+        stats['month_invoices'] = Invoice.objects.filter(
+            company=company,
+            issue_date__gte=month_start
+        ).count()
+    
+    context = {
+        'stats': stats,
+        'company': company,
+        'recent_invoices': Invoice.objects.filter(company=company).order_by('-issue_date')[:10] if company else [],
+    }
+    
+    return render(request, 'accounts/modul_muhasebe.html', context)
+
+@user_type_required('satis_elemani')
+@login_required
+def modul_satis(request):
+    """Satış elemanı dashboard"""
+    company = getattr(request.user, 'company', None)
+    
+    from datetime import datetime
+    from django.db.models import Sum, Count
+    
+    today = datetime.now().date()
+    month_start = today.replace(day=1)
+    
+    stats = {
+        'month_sales': 0,
+        'month_count': 0,
+        'pending_orders': 0,
+        'customer_count': 0,
+    }
+    
+    if company:
+        month_invoices = Invoice.objects.filter(
+            company=company,
+            issue_date__gte=month_start
+        )
+        
+        month_aggregate = month_invoices.aggregate(
+            total=Sum('total_amount'),
+            count=Count('id')
+        )
+        
+        stats['month_sales'] = float(month_aggregate['total'] or 0)
+        stats['month_count'] = month_aggregate['count'] or 0
+        stats['customer_count'] = Invoice.objects.filter(
+            company=company
+        ).values('customer').distinct().count()
+    
+    context = {
+        'stats': stats,
+        'company': company,
+        'recent_sales': Invoice.objects.filter(company=company).order_by('-issue_date')[:10] if company else [],
+    }
+    
+    return render(request, 'accounts/modul_satis.html', context)
+
+@user_type_required('depo_elemani')
+@login_required
+def modul_depo(request):
+    """Depo elemanı dashboard"""
+    company = getattr(request.user, 'company', None)
+    
+    # Depo ve stok istatistikleri
+    stats = {
+        'low_stock_items': 0,
+        'pending_shipments': 0,
+        'today_movements': 0,
+        'total_items': 0,
+    }
+    
+    # Eğer stok modülü varsa, buradan verileri çek
+    # Şimdilik placeholder
+    
+    context = {
+        'stats': stats,
+        'company': company,
+    }
+    
+    return render(request, 'accounts/modul_depo.html', context)
+
 # Not: 'invoices/list.html' template dosyasını 'FinAsisV1/apps/accounts/templates/invoices/list.html' olarak oluşturmalısınız.
 
 @receiver(post_save, sender=CustomUser)

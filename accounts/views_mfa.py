@@ -10,16 +10,30 @@ from django_otp import devices_for_user, login as otp_login
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from accounts.forms import OTPSetupForm, OTPVerifyForm
+from accounts.utils_redirect import get_redirect_after_login
 from common.services import audit_logger
 
 
 def _get_safe_redirect(request, fallback=None):
-    next_url = request.GET.get("next") or request.session.pop("post_otp_redirect", None)
+    """
+    MFA sonrası güvenli yönlendirme URL'ini döndürür
+    """
+    # Önce session'da kaydedilmiş URL'i kontrol et
+    next_url = request.session.pop("post_otp_redirect", None)
+    
+    # Sonra GET parametresinden
     if not next_url:
-        fallback = fallback or settings.LOGIN_REDIRECT_URL
-        return resolve_url(fallback)
-    if url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = request.GET.get("next")
+    
+    # Güvenli URL kontrolü
+    if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
         return next_url
+    
+    # Fallback: Kullanıcı tipine göre dashboard
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        return get_redirect_after_login(request, request.user)
+    
+    # Son çare: settings'den veya fallback
     return resolve_url(fallback or settings.LOGIN_REDIRECT_URL)
 
 

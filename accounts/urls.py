@@ -63,6 +63,9 @@ urlpatterns = [
     path('egitimci/modul/', views.modul_egitimci, name='modul_egitimci'),
     path('ogrenci/modul/', views.modul_ogrenci, name='modul_ogrenci'),
     path('oyuncu/modul/', views.modul_oyuncu, name='modul_oyuncu'),
+    path('muhasebe/modul/', views.modul_muhasebe, name='modul_muhasebe'),
+    path('satis/modul/', views.modul_satis, name='modul_satis'),
+    path('depo/modul/', views.modul_depo, name='modul_depo'),
     path('premium/ozellik/', views.premium_feature, name='premium_feature'),
 ]
 

@@ -1,0 +1,365 @@
+{% extends 'accounts/base_accounts.html' %} {% load static %} {% load i18n %} {%
+block title %}{% trans "Depo Paneli" %} - FinAsis{% endblock %} {% block content
+%}
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="h3 mb-1">
+            <i class="bi bi-box-seam text-info me-2"></i>
+            {% trans "Depo Paneli" %}
+          </h1>
+          <p class="text-muted mb-0">
+            {% if company %} {{ company.name }} {% else %} {% trans "Hoş
+            geldiniz" %}, {{ user.get_full_name|default:user.username }} {%
+            endif %}
+          </p>
+        </div>
+        <div>
+          <button
+            class="btn btn-info"
+            data-bs-toggle="modal"
+            data-bs-target="#stockMovementModal"
+          >
+            <i class="bi bi-arrow-left-right me-2"></i>
+            {% trans "Stok Hareketi" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Depo İstatistikleri -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-danger border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">{% trans "Düşük Stok" %}</p>
+              <h3 class="mb-0">{{ stats.low_stock_items }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-warning border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                <i class="bi bi-truck text-warning fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">
+                {% trans "Bekleyen Sevkiyat" %}
+              </p>
+              <h3 class="mb-0">{{ stats.pending_shipments }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-primary border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                <i class="bi bi-activity text-primary fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">
+                {% trans "Bugünkü Hareketler" %}
+              </p>
+              <h3 class="mb-0">{{ stats.today_movements }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-success border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                <i class="bi bi-boxes text-success fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">{% trans "Toplam Ürün" %}</p>
+              <h3 class="mb-0">{{ stats.total_items }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hızlı İşlemler -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-lightning-charge text-warning me-2"></i>
+            {% trans "Hızlı İşlemler" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <button
+                class="btn btn-outline-primary w-100 py-3"
+                data-bs-toggle="modal"
+                data-bs-target="#stockInModal"
+              >
+                <i class="bi bi-box-arrow-in-down d-block fs-3 mb-2"></i>
+                {% trans "Stok Girişi" %}
+              </button>
+            </div>
+            <div class="col-md-3">
+              <button
+                class="btn btn-outline-danger w-100 py-3"
+                data-bs-toggle="modal"
+                data-bs-target="#stockOutModal"
+              >
+                <i class="bi bi-box-arrow-up d-block fs-3 mb-2"></i>
+                {% trans "Stok Çıkışı" %}
+              </button>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-outline-info w-100 py-3">
+                <i class="bi bi-search d-block fs-3 mb-2"></i>
+                {% trans "Ürün Ara" %}
+              </button>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-outline-success w-100 py-3">
+                <i class="bi bi-file-earmark-bar-graph d-block fs-3 mb-2"></i>
+                {% trans "Stok Raporu" %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Düşük Stok Uyarıları -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+            {% trans "Düşük Stok Uyarıları" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            {% trans "Stok modülü aktif olduğunda düşük stok uyarıları burada
+            görünecektir." %}
+          </div>
+
+          <!-- Placeholder örnek -->
+          <div class="list-group list-group-flush">
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{% trans "Örnek Ürün 1" %}</strong>
+                  <br />
+                  <small class="text-muted"
+                    >{% trans "Kategori: Genel" %}</small
+                  >
+                </div>
+                <span class="badge bg-danger">{% trans "Kritik Seviye" %}</span>
+              </div>
+              <div class="progress mt-2" style="height: 5px">
+                <div class="progress-bar bg-danger" style="width: 15%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Son Hareketler -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-clock-history text-primary me-2"></i>
+            {% trans "Son Hareketler" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            {% trans "Stok modülü aktif olduğunda son hareketler burada
+            görünecektir." %}
+          </div>
+
+          <!-- Placeholder örnek -->
+          <div class="list-group list-group-flush">
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <span class="badge bg-success mb-1">{% trans "Giriş" %}</span>
+                  <br />
+                  <strong>{% trans "Örnek Ürün" %}</strong>
+                  <br />
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>
+                    {% trans "2 saat önce" %}
+                  </small>
+                </div>
+                <div class="text-end">
+                  <strong class="text-success">+50</strong>
+                  <br />
+                  <small class="text-muted">{% trans "adet" %}</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <span class="badge bg-danger mb-1">{% trans "Çıkış" %}</span>
+                  <br />
+                  <strong>{% trans "Örnek Ürün 2" %}</strong>
+                  <br />
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>
+                    {% trans "4 saat önce" %}
+                  </small>
+                </div>
+                <div class="text-end">
+                  <strong class="text-danger">-25</strong>
+                  <br />
+                  <small class="text-muted">{% trans "adet" %}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilgilendirme -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-info-circle text-primary fs-1 mb-3"></i>
+          <h5 class="mb-2">{% trans "Stok Yönetimi Modülü" %}</h5>
+          <p class="text-muted mb-3">
+            {% trans "Detaylı stok takibi ve yönetimi için stok modülünü aktif
+            ediniz." %}
+          </p>
+          <a href="{% url 'billing:plans' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>
+            {% trans "Modülü Aktifleştir" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stok Hareketi Modal -->
+<div class="modal fade" id="stockMovementModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Stok Hareketi" %}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>{% trans "Stok hareketi işlemi için stok modülü gereklidir." %}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          {% trans "Kapat" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stok Giriş Modal -->
+<div class="modal fade" id="stockInModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Stok Girişi" %}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>{% trans "Stok giriş işlemi için stok modülü gereklidir." %}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          {% trans "Kapat" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stok Çıkış Modal -->
+<div class="modal fade" id="stockOutModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Stok Çıkışı" %}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>{% trans "Stok çıkış işlemi için stok modülü gereklidir." %}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          {% trans "Kapat" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

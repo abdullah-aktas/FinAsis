@@ -1,0 +1,366 @@
+{% extends 'accounts/base_accounts.html' %} {% load static %} {% load i18n %} {%
+block title %}{% trans "Satış Paneli" %} - FinAsis{% endblock %} {% block
+content %}
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="h3 mb-1">
+            <i class="bi bi-cart-check text-success me-2"></i>
+            {% trans "Satış Paneli" %}
+          </h1>
+          <p class="text-muted mb-0">
+            {% if company %} {{ company.name }} {% else %} {% trans "Hoş
+            geldiniz" %}, {{ user.get_full_name|default:user.username }} {%
+            endif %}
+          </p>
+        </div>
+        <div>
+          <button
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#newSaleModal"
+          >
+            <i class="bi bi-plus-circle me-2"></i>
+            {% trans "Yeni Satış" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Satış İstatistikleri -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-success border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                <i class="bi bi-currency-exchange text-success fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">{% trans "Bu Ay Satış" %}</p>
+              <h3 class="mb-0">{{ stats.month_sales|floatformat:2 }} ₺</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-primary border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                <i class="bi bi-receipt text-primary fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">{% trans "Satış Adedi" %}</p>
+              <h3 class="mb-0">{{ stats.month_count }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-warning border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                <i class="bi bi-hourglass-split text-warning fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">
+                {% trans "Bekleyen Siparişler" %}
+              </p>
+              <h3 class="mb-0">{{ stats.pending_orders }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div
+        class="card border-0 shadow-sm h-100 border-start border-info border-4"
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                <i class="bi bi-people text-info fs-4"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="text-muted mb-1 small">{% trans "Aktif Müşteri" %}</p>
+              <h3 class="mb-0">{{ stats.customer_count }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hızlı İşlemler -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-lightning-charge text-warning me-2"></i>
+            {% trans "Hızlı İşlemler" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <a
+                href="{% url 'accounting:invoice_create' %}"
+                class="btn btn-outline-success w-100 py-3"
+              >
+                <i class="bi bi-cart-plus d-block fs-3 mb-2"></i>
+                {% trans "Yeni Satış" %}
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a
+                href="{% url 'accounting:invoice_list' %}"
+                class="btn btn-outline-primary w-100 py-3"
+              >
+                <i class="bi bi-list-ul d-block fs-3 mb-2"></i>
+                {% trans "Satış Listesi" %}
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a href="#" class="btn btn-outline-info w-100 py-3">
+                <i class="bi bi-people d-block fs-3 mb-2"></i>
+                {% trans "Müşteriler" %}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Son Satışlar -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div
+          class="card-header bg-white border-bottom d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0">
+            <i class="bi bi-clock-history text-primary me-2"></i>
+            {% trans "Son Satışlar" %}
+          </h5>
+          <a
+            href="{% url 'accounting:invoice_list' %}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            {% trans "Tümünü Gör" %}
+            <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_sales %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>{% trans "Müşteri" %}</th>
+                  <th>{% trans "Tarih" %}</th>
+                  <th class="text-end">{% trans "Tutar" %}</th>
+                  <th>{% trans "Durum" %}</th>
+                  <th class="text-end">{% trans "İşlem" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sale in recent_sales %}
+                <tr>
+                  <td>
+                    <div>
+                      <strong>{{ sale.customer.name }}</strong>
+                      <br />
+                      <small class="text-muted"
+                        >{{ sale.invoice_number }}</small
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      <i class="bi bi-calendar3 me-1"></i>
+                      {{ sale.issue_date|date:"d.m.Y" }}
+                    </small>
+                  </td>
+                  <td class="text-end">
+                    <strong class="text-success"
+                      >{{ sale.total_amount|floatformat:2 }} ₺</strong
+                    >
+                  </td>
+                  <td>
+                    {% if sale.is_paid %}
+                    <span class="badge bg-success">
+                      <i class="bi bi-check-circle me-1"></i>
+                      {% trans "Tahsil Edildi" %}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-warning">
+                      <i class="bi bi-clock me-1"></i>
+                      {% trans "Bekliyor" %}
+                    </span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <a
+                      href="{% url 'accounting:invoice_detail' sale.id %}"
+                      class="btn btn-sm btn-outline-primary"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-5">
+            <i class="bi bi-cart-x text-muted" style="font-size: 3rem"></i>
+            <p class="text-muted mt-3">
+              {% trans "Henüz satış kaydı bulunmuyor" %}
+            </p>
+            <a
+              href="{% url 'accounting:invoice_create' %}"
+              class="btn btn-success"
+            >
+              <i class="bi bi-plus-circle me-2"></i>
+              {% trans "İlk Satışı Oluştur" %}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Performans Özeti -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-trophy text-warning me-2"></i>
+            {% trans "Performans Özeti" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted small">{% trans "Aylık Hedef" %}</span>
+              <span class="fw-bold">75%</span>
+            </div>
+            <div class="progress" style="height: 8px">
+              <div
+                class="progress-bar bg-success"
+                role="progressbar"
+                style="width: 75%"
+              ></div>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted">
+              <i class="bi bi-star-fill text-warning me-1"></i>
+              {% trans "Bu Ay" %}
+            </span>
+            <strong class="text-success"
+              >{{ stats.month_count }} {% trans "satış" %}</strong
+            >
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">
+              <i class="bi bi-graph-up text-primary me-1"></i>
+              {% trans "Toplam Ciro" %}
+            </span>
+            <strong class="text-primary"
+              >{{ stats.month_sales|floatformat:0 }} ₺</strong
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-lightbulb text-info me-2"></i>
+            {% trans "İpuçları" %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <small>{% trans "Müşteri takibini güncel tutun" %}</small>
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <small>{% trans "Fatura detaylarını eksiksiz doldurun" %}</small>
+            </li>
+            <li class="mb-0">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <small>{% trans "Tahsilat takibini düzenli yapın" %}</small>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Yeni Satış Modal -->
+<div class="modal fade" id="newSaleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Yeni Satış" %}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          {% trans "Satış işlemi için fatura oluşturma sayfasına
+          yönlendirileceksiniz." %}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          {% trans "İptal" %}
+        </button>
+        <a href="{% url 'accounting:invoice_create' %}" class="btn btn-success"
+          >{% trans "Devam Et" %}</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
