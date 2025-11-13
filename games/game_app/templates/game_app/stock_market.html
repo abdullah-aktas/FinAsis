@@ -1,0 +1,658 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Borsa Simülasyonu" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Tam Ekran Oyun Modu */
+body.game-fullscreen header,
+body.game-fullscreen footer,
+body.game-fullscreen #system-messages,
+body.game-fullscreen .breadcrumbs {
+  display: none !important;
+}
+
+body.game-fullscreen main {
+  padding-top: 0 !important;
+}
+
+/* Toggle Butonu */
+.ui-toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 24px;
+}
+
+.ui-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.7);
+}
+
+.ui-toggle-btn::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 60px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ui-toggle-btn:hover::before {
+  opacity: 1;
+}
+
+/* Modern Dark Theme */
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  min-height: 100vh;
+}
+
+.stock-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stock-card {
+  border: none;
+  background: rgba(30, 41, 59, 0.95);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stock-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+}
+
+.stock-card .card-header {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.stock-card .card-header h5 {
+  color: white;
+}
+
+.stock-card .table {
+  color: white;
+}
+
+.stock-card .table thead {
+  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stock-card .table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.stock-card .table tbody tr:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.price-up { 
+  color: #10b981;
+  font-weight: 700;
+}
+
+.price-down { 
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.chart-container {
+  height: 300px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.portfolio-summary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.trade-btn { 
+  border-radius: 12px;
+  font-weight: 700;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.trade-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-header.bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 8px;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #667eea;
+  color: white;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.holding-item {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.holding-item:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="stock-header text-center">
+        <h1 class="fw-bold mb-2">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            {% trans "Borsa Simülasyonu" %}
+        </h1>
+        <p class="mb-0">{% trans "Sanal borsada alım-satım yaparak yatırım deneyimi kazanın" %}</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Portfolio Summary -->
+        <div class="col-12">
+            <div class="portfolio-summary">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h6 class="opacity-75">{% trans "Portföy Değeri" %}</h6>
+                        <h3 class="fw-bold" id="portfolio-value">₺100,000</h3>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="opacity-75">{% trans "Nakit" %}</h6>
+                        <h3 class="fw-bold" id="cash-balance">₺100,000</h3>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="opacity-75">{% trans "Günlük Kar/Zarar" %}</h6>
+                        <h3 class="fw-bold" id="daily-pnl">₺0</h3>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="opacity-75">{% trans "Toplam Getiri" %}</h6>
+                        <h3 class="fw-bold" id="total-return">0%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock List -->
+        <div class="col-lg-8">
+            <div class="card stock-card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        {% trans "Hisse Senetleri" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Sembol" %}</th>
+                                    <th>{% trans "Şirket" %}</th>
+                                    <th class="text-end">{% trans "Fiyat" %}</th>
+                                    <th class="text-end">{% trans "Değişim" %}</th>
+                                    <th class="text-center">{% trans "İşlem" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stock-list">
+                                <!-- Dynamic content will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="card stock-card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        <span id="chart-title">{% trans "Grafik" %}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container d-flex align-items-center justify-content-center">
+                        <canvas id="stock-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Portfolio & Trade Panel -->
+        <div class="col-lg-4">
+            <!-- Trade Panel -->
+            <div class="card stock-card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-exchange me-2"></i>
+                        {% trans "İşlem Yap" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="trade-form">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Sembol" %}</label>
+                            <input type="text" class="form-control" id="trade-symbol" placeholder="AAPL" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Adet" %}</label>
+                            <input type="number" class="form-control" id="trade-quantity" min="1" value="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Fiyat" %}</label>
+                            <input type="text" class="form-control" id="trade-price" readonly>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success trade-btn" onclick="executeTrade('buy')">
+                                <i class="bi bi-arrow-up-circle me-2"></i>{% trans "Al" %}
+                            </button>
+                            <button type="button" class="btn btn-danger trade-btn" onclick="executeTrade('sell')">
+                                <i class="bi bi-arrow-down-circle me-2"></i>{% trans "Sat" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- My Holdings -->
+            <div class="card stock-card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase me-2"></i>
+                        {% trans "Portföyüm" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="my-holdings">
+                        <p class="text-muted text-center">{% trans "Henüz hisse senedi yok" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Toggle Button -->
+    <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+      <span id="toggleIcon">👁️</span>
+    </button>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Sample stock data
+const stocks = [
+    { symbol: 'AAPL', name: 'Apple Inc.', price: 150.25, change: 2.5 },
+    { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 2750.80, change: -1.2 },
+    { symbol: 'MSFT', name: 'Microsoft Corp.', price: 310.50, change: 1.8 },
+    { symbol: 'AMZN', name: 'Amazon.com', price: 3300.00, change: 3.2 },
+    { symbol: 'TSLA', name: 'Tesla Inc.', price: 850.75, change: -2.8 },
+    { symbol: 'META', name: 'Meta Platforms', price: 325.60, change: 4.1 }
+];
+
+let cashBalance = 100000;
+let holdings = {};
+let chartInstance = null;
+let volatilityMultiplier = 1.0;
+
+// Initialize
+function init() {
+    // Kişiselleştirme ayarlarını çek
+    fetch('/games/api/personalize/?game=stock-market')
+        .then(r => r.json())
+        .then(data => {
+            const p = (data && data.data && data.data.params) || {};
+            if (typeof p.starting_cash === 'number') {
+                cashBalance = p.starting_cash;
+                document.getElementById('cash-balance').textContent = `₺${cashBalance.toLocaleString('tr-TR')}`;
+                document.getElementById('portfolio-value').textContent = `₺${cashBalance.toLocaleString('tr-TR')}`;
+            }
+            if (typeof p.volatility === 'number') {
+                volatilityMultiplier = p.volatility;
+            }
+        })
+        .finally(() => {
+            renderStockList();
+            updatePortfolioSummary();
+            renderChart();
+        });
+}
+
+// Render stock list
+function renderStockList() {
+    const tbody = document.getElementById('stock-list');
+    tbody.innerHTML = stocks.map(stock => {
+        const changeClass = stock.change >= 0 ? 'price-up' : 'price-down';
+        const changeIcon = stock.change >= 0 ? 'arrow-up' : 'arrow-down';
+        return `
+            <tr>
+                <td><strong>${stock.symbol}</strong></td>
+                <td>${stock.name}</td>
+                <td class="text-end">₺${stock.price.toFixed(2)}</td>
+                <td class="text-end ${changeClass}">
+                    <i class="bi bi-${changeIcon}-short"></i>
+                    ${Math.abs(stock.change).toFixed(2)}%
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary" onclick="selectStock('${stock.symbol}')">
+                        <i class="bi bi-cursor"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Select stock for trading
+function selectStock(symbol) {
+    const stock = stocks.find(s => s.symbol === symbol);
+    if (stock) {
+        document.getElementById('trade-symbol').value = symbol;
+        document.getElementById('trade-price').value = `₺${stock.price.toFixed(2)}`;
+        document.getElementById('chart-title').textContent = `${stock.symbol} - ${stock.name}`;
+        updateChart(stock);
+    }
+}
+
+// Execute trade
+function executeTrade(action) {
+    const symbol = document.getElementById('trade-symbol').value.toUpperCase();
+    const quantity = parseInt(document.getElementById('trade-quantity').value);
+    const stock = stocks.find(s => s.symbol === symbol);
+    
+    if (!stock) {
+        alert('{% trans "Geçersiz sembol!" %}');
+        return;
+    }
+
+    const totalCost = stock.price * quantity;
+
+    if (action === 'buy') {
+        if (cashBalance < totalCost) {
+            alert('{% trans "Yetersiz bakiye!" %}');
+            return;
+        }
+        cashBalance -= totalCost;
+        holdings[symbol] = (holdings[symbol] || 0) + quantity;
+        showNotification(`${quantity} adet ${symbol} satın alındı!`, 'success');
+    } else if (action === 'sell') {
+        if (!holdings[symbol] || holdings[symbol] < quantity) {
+            alert('{% trans "Yetersiz hisse!" %}');
+            return;
+        }
+        cashBalance += totalCost;
+        holdings[symbol] -= quantity;
+        if (holdings[symbol] === 0) delete holdings[symbol];
+        showNotification(`${quantity} adet ${symbol} satıldı!`, 'success');
+
+        // Basit geri bildirim: Anlık değişim pozitifse doğru kabul et
+        try {
+            fetch('/games/api/track/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || ''
+                },
+                body: JSON.stringify({
+                    game: 'stock-market',
+                    category: 'Yatırım',
+                    outcome: (stock.change >= 0) ? 'correct' : 'incorrect'
+                })
+            });
+        } catch (e) {}
+    }
+
+    updatePortfolioSummary();
+    renderHoldings();
+}
+
+// Update portfolio summary
+function updatePortfolioSummary() {
+    let portfolioValue = cashBalance;
+    for (const [symbol, qty] of Object.entries(holdings)) {
+        const stock = stocks.find(s => s.symbol === symbol);
+        if (stock) portfolioValue += stock.price * qty;
+    }
+
+    const totalReturn = ((portfolioValue - 100000) / 100000 * 100).toFixed(2);
+    const dailyPnL = (portfolioValue - 100000).toFixed(2);
+
+    document.getElementById('cash-balance').textContent = `₺${cashBalance.toLocaleString('tr-TR')}`;
+    document.getElementById('portfolio-value').textContent = `₺${portfolioValue.toLocaleString('tr-TR')}`;
+    document.getElementById('daily-pnl').textContent = `₺${dailyPnL}`;
+    document.getElementById('total-return').textContent = `${totalReturn}%`;
+}
+
+// Render holdings
+function renderHoldings() {
+    const container = document.getElementById('my-holdings');
+    if (Object.keys(holdings).length === 0) {
+        container.innerHTML = '<p class="text-center" style="color: rgba(255, 255, 255, 0.5);">{% trans "Henüz hisse senedi yok" %}</p>';
+        return;
+    }
+
+    container.innerHTML = Object.entries(holdings).map(([symbol, qty]) => {
+        const stock = stocks.find(s => s.symbol === symbol);
+        const value = stock ? (stock.price * qty).toFixed(2) : 0;
+        const currentValue = stock ? stock.price * qty : 0;
+        const profit = 0; // Alış fiyatını takip etmedik, basit gösterim
+        
+        return `
+            <div class="holding-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong style="color: white; font-size: 16px;">${symbol}</strong>
+                        <div class="small" style="color: rgba(255, 255, 255, 0.6);">${qty} adet</div>
+                    </div>
+                    <div class="text-end">
+                        <div style="color: white; font-weight: 700;">₺${currentValue.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</div>
+                        <div class="small" style="color: rgba(255, 255, 255, 0.6);">₺${stock.price.toFixed(2)} / adet</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render chart
+function renderChart() {
+    const ctx = document.getElementById('stock-chart').getContext('2d');
+    const data = {
+        labels: ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
+        datasets: [{
+            label: 'Fiyat',
+            data: [150, 152, 151, 153, 155, 154, 156, 158],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    };
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: false }
+            }
+        }
+    });
+}
+
+// Update chart
+function updateChart(stock) {
+    if (chartInstance) {
+        const basePrice = stock.price;
+        const newData = Array.from({length: 8}, () => 
+            basePrice + (Math.random() - 0.5) * 10
+        );
+        chartInstance.data.datasets[0].data = newData;
+        chartInstance.update();
+    }
+}
+
+// Show notification
+function showNotification(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+// Simulate price changes
+setInterval(() => {
+    stocks.forEach(stock => {
+        stock.price += (Math.random() - 0.5) * 2 * volatilityMultiplier;
+        stock.change = (Math.random() - 0.5) * 5 * volatilityMultiplier;
+    });
+    renderStockList();
+    updatePortfolioSummary();
+}, 5000);
+
+// Initialize on load
+init();
+
+// Tam Ekran Oyun Modu Toggle
+(function() {
+  const toggleBtn = document.getElementById('uiToggle');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const body = document.body;
+  
+  const savedMode = localStorage.getItem('finasis_game_fullscreen');
+  
+  if (savedMode === null || savedMode === 'true') {
+    body.classList.add('game-fullscreen');
+    toggleIcon.textContent = '👁️';
+    toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+  } else {
+    body.classList.remove('game-fullscreen');
+    toggleIcon.textContent = '🎮';
+    toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+  }
+  
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    body.classList.toggle('game-fullscreen');
+    const isFullscreen = body.classList.contains('game-fullscreen');
+    
+    if (isFullscreen) {
+      toggleIcon.textContent = '👁️';
+      toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+    } else {
+      toggleIcon.textContent = '🎮';
+      toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+    }
+    
+    localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    
+    if (!isFullscreen) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      toggleBtn.click();
+    }
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}

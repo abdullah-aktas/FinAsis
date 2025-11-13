@@ -1,0 +1,416 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block feature_banner %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Blockchain Güvenlik & Kanıt Platformu' %}{% endblock %}
+{% block meta_description %}{% trans 'SHA-256 kriptografik doğrulama, immutable kayıtlar, %0 manipülasyon riski. Blockchain tabanlı denetim izi.' %}{% endblock %}
+{% block extra_css %}
+<style>
+  :root {
+    --blockchain-primary: #06b6d4;
+    --blockchain-secondary: #6366f1;
+    --blockchain-gradient: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
+  }
+
+  .hero-section {
+    background: var(--blockchain-gradient);
+    color: white;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        transparent 25%
+      ),
+      linear-gradient(225deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+      linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+      linear-gradient(315deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%);
+    background-size: 80px 80px;
+    animation: blockchainMove 20s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes blockchainMove {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 80px 80px;
+    }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(6, 182, 212, 0.25);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--blockchain-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-label {
+    color: #6c757d;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    height: 100%;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(6, 182, 212, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+  }
+
+  .feature-card:hover::before {
+    animation: shimmer 1.5s infinite;
+    opacity: 1;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--blockchain-primary);
+    box-shadow: 0 20px 60px rgba(6, 182, 212, 0.2);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--blockchain-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--blockchain-primary);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-text {
+    color: #495057;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 5rem 0;
+    margin-top: 4rem;
+  }
+
+  .cta-box {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .btn-primary-custom {
+    background: var(--blockchain-gradient);
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title">⛓️ Blockchain Güvenlik & Kanıt Platformu</h1>
+      <p class="hero-subtitle">
+        <strong>Finansal işlemlerinize kripto güvenlik!</strong> SHA-256
+        kriptografik doğrulama ile <strong>%0 manipülasyon riski</strong>.
+        Immutable (değiştirilemez) blockchain kayıtları ile tüm finansal
+        işlemleriniz <strong>sonsuza kadar güvende</strong>. 🔒 Denetim
+        sırasında tek tıkla kanıt sunun, blockchain ile doğrulayın!
+      </p>
+      <div class="mt-4">
+        {% if user.is_authenticated %}
+        <a href="/blockchain/" class="btn btn-light btn-lg px-5 py-3 me-3">
+          ⛓️ Blockchain Paneli
+        </a>
+        <a href="/panel/" class="btn btn-outline-light btn-lg px-5 py-3">
+          📊 Panelim
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3 me-3">
+          🚀 Hemen Başla
+        </a>
+        <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+          🔐 Güvenlik Özellikleri
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Metrics Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">5M+</div>
+          <div class="metric-label">Blockchain Kayıt</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">%0</div>
+          <div class="metric-label">Manipülasyon Riski</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">&lt;1sn</div>
+          <div class="metric-label">Doğrulama Süresi</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">∞</div>
+          <div class="metric-label">Kalıcı Saklama</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">🎯 Neden FinAsis Blockchain?</h2>
+      <p class="lead text-muted">
+        Kripto düzey güvenlik, şeffaf denetim, sıfır manipülasyon
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3 class="feature-title">SHA-256 Kriptografi</h3>
+          <p class="feature-text">
+            Her finansal işlem <strong>SHA-256 algoritması</strong> ile
+            hash'lenir ve blockchain'e kaydedilir. Tek bir karakterin bile
+            değiştirilmesi <strong>anında tespit edilir</strong>. 🛡️ Bitcoin
+            seviyesinde güvenlik - finansal verileriniz için!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">⛓️</div>
+          <h3 class="feature-title">Immutable Kayıtlar</h3>
+          <p class="feature-text">
+            Blockchain'e kaydedilen veriler
+            <strong>asla değiştirilemez, silinemez</strong>. Her işlem bir
+            önceki bloğa bağlıdır, zincir kırılamaz. ✅
+            <strong>Sonsuza kadar geçerli</strong> denetim izi - geriye dönük
+            hiçbir müdahale yapılamaz!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-title">Anında Doğrulama</h3>
+          <p class="feature-text">
+            Herhangi bir işlemi <strong>&lt;1 saniyede</strong> blockchain
+            üzerinden doğrulayın. QR kod veya hash ID ile anında kanıt sunun. 🎯
+            Denetimler haftalardan <strong>saatlere düşer</strong>!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">👁️</div>
+          <h3 class="feature-title">%100 Şeffaflık</h3>
+          <p class="feature-text">
+            Her işlem blockchain üzerinde
+            <strong>şeffaf ve izlenebilir</strong>. Yetkilendirilmiş kişiler
+            (denetçi, yönetici, yatırımcı) gerçek zamanlı erişebilir. 🔍
+            <strong>Güven değil, kanıt!</strong> - Her şey kayıt altında.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 class="feature-title">Merkezi Olmayan Altyapı</h3>
+          <p class="feature-text">
+            Verileriniz <strong>birden fazla node</strong> üzerinde dağıtık
+            olarak saklanır. Tek nokta arıza riski yok! 🚀
+            <strong>%99.99 uptime</strong> garantisi - verileriniz her zaman
+            erişilebilir.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">📜</div>
+          <h3 class="feature-title">Akıllı Kontratlar</h3>
+          <p class="feature-text">
+            Ödeme, tahsilat, sözleşme şartları
+            <strong>otomatik yürütülür</strong>. Şartlar sağlandığında işlem
+            otomatik gerçekleşir, manuel müdahale yok! ⚙️
+            <strong>Güven yerine kod!</strong> - Her şey önceden programlanmış.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2 class="display-5 fw-bold mb-4">
+        🔐 Verilerinize Blockchain Koruması
+      </h2>
+      <p class="lead mb-4">
+        <strong>14 gün ücretsiz</strong> blockchain güvenliği deneyin! Kredi
+        kartı gerektirmez. 🎉
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if user.is_authenticated %}
+        <a href="/blockchain/" class="btn btn-primary-custom">
+          🔐 Blockchain'e Git
+        </a>
+        <a href="/panel/" class="btn btn-outline-primary btn-lg">
+          📊 Panelim
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom">
+          🚀 Güvenli Başla
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg">
+          🔑 Giriş Yap
+        </a>
+        {% endif %}
+      </div>
+      <p class="text-muted mt-4 mb-0">
+        <small
+          >✅ Kredi kartı gerekmez • ✅ SHA-256 korumalı • ✅ İstediğiniz zaman
+          iptal</small
+        >
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

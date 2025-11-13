@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Hedef Takibi" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Hedef Takibi" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Özet Kartlar -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <p class="text-sm text-gray-600">{% trans "Toplam Hedef" %}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ total_goals }}</p>
+        </div>
+        <div class="bg-blue-50 rounded-lg shadow p-6">
+            <p class="text-sm text-blue-600">{% trans "Devam Eden" %}</p>
+            <p class="text-3xl font-bold text-blue-600">{{ active_goals.count }}</p>
+        </div>
+        <div class="bg-green-50 rounded-lg shadow p-6">
+            <p class="text-sm text-green-600">{% trans "Tamamlanan" %}</p>
+            <p class="text-3xl font-bold text-green-600">{{ completed_goals.count }}</p>
+        </div>
+        <div class="bg-red-50 rounded-lg shadow p-6">
+            <p class="text-sm text-red-600">{% trans "Başarısız" %}</p>
+            <p class="text-3xl font-bold text-red-600">{{ failed_goals.count }}</p>
+        </div>
+    </div>
+
+    <!-- Devam Eden Hedefler -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">{% trans "Devam Eden Hedefler" %}</h2>
+        {% if active_goals %}
+        <div class="space-y-6">
+            {% for goal in active_goals %}
+            <div class="border rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ goal.goal_title }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">{{ goal.description }}</p>
+                    </div>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                        {{ goal.get_goal_type_display }}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500">{% trans "Hedef Değer" %}</p>
+                        <p class="text-lg font-semibold">₺{{ goal.target_value|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">{% trans "Mevcut Değer" %}</p>
+                        <p class="text-lg font-semibold">₺{{ goal.current_value|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">{% trans "Bitiş Tarihi" %}</p>
+                        <p class="text-lg font-semibold">{{ goal.target_date|date:"d.m.Y" }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>{% trans "İlerleme" %}</span>
+                        <span>{{ goal.get_progress_percentage|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full transition-all" 
+                            style="width: {{ goal.get_progress_percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p class="text-gray-600">{% trans "Devam eden hedef bulunmuyor" %}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tamamlanan Hedefler -->
+    {% if completed_goals %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">{% trans "Tamamlanan Hedefler" %}</h2>
+        <div class="space-y-4">
+            {% for goal in completed_goals %}
+            <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">{{ goal.goal_title }}</h3>
+                        <p class="text-sm text-gray-600">{{ goal.get_goal_type_display }}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

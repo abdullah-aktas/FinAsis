@@ -1,0 +1,164 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}{% trans "Kaynak Merkezi" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, #0d3b66 0%, #0aae94 100%);
+         --resource-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 70%);">
+  <div class="container text-center">
+    <span class="persona-hero-icon mb-3"><i class="bi bi-compass"></i></span>
+    <h1 class="display-5 fw-bold mb-2">{% trans "Resource Hub" %}</h1>
+    <p class="lead mb-4">{% trans "Kılavuzlar, dokümantasyon, eğitim videoları ve destek içeriği tek merkezde." %}</p>
+    <div class="persona-action-group">
+      {% for tile in resource_tiles %}
+      <a href="{{ tile.href }}" class="btn btn-modern btn-modern-outline">
+        <i class="bi {{ tile.icon }} me-2"></i>{{ tile.cta_label }}
+      </a>
+      {% endfor %}
+    </div>
+    {% if popular_searches %}
+    <div class="resource-chip-group justify-content-center mt-4">
+      {% for tag in popular_searches %}
+      <span class="resource-chip"><i class="bi bi-hash"></i>{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="container pb-5">
+  <section aria-labelledby="resource-search" class="mb-5">
+    <div class="persona-section-title d-flex justify-content-between align-items-center" id="resource-search">
+      <span><i class="bi bi-search"></i>{% trans "Kaynaklarda Ara" %}</span>
+      {% if total_results is not None %}
+      <span class="text-muted small">{{ total_results }} {% trans "sonuç" %}</span>
+      {% endif %}
+    </div>
+    <form method="get" class="resource-search-form row g-3 align-items-end">
+      <div class="col-md-6">
+        <label for="searchQuery" class="form-label fw-semibold text-muted small text-uppercase">{% trans "Anahtar Kelime" %}</label>
+        <input type="search" class="form-control" id="searchQuery" name="q" value="{{ search_query }}" placeholder="{% trans 'Örn. e-Fatura, API, eğitim' %}">
+      </div>
+      <div class="col-md-4">
+        <label for="searchCategory" class="form-label fw-semibold text-muted small text-uppercase">{% trans "Kategori" %}</label>
+        <select id="searchCategory" name="category" class="form-select">
+          <option value="">{% trans "Tümü" %}</option>
+          {% for category in resource_categories %}
+          <option value="{{ category }}" {% if category == search_category %}selected{% endif %}>{{ category }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-modern btn-modern-primary">
+          <i class="bi bi-search me-2"></i>{% trans "Ara" %}
+        </button>
+      </div>
+    </form>
+
+    {% if search_query or search_category %}
+    <div class="resource-results mt-4">
+      {% if search_results %}
+      <div class="row g-4">
+        {% for entry in search_results %}
+        <div class="col-md-6 col-xl-4">
+          <article class="resource-card compact" style="--resource-accent: rgba(13,59,102,0.45);">
+            <span class="resource-card-icon"><i class="bi bi-folder"></i></span>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h2 class="h6 fw-semibold mb-1">{{ entry.title }}</h2>
+                <span class="badge bg-light text-dark text-uppercase fw-semibold">{{ entry.category }}</span>
+              </div>
+              <span class="badge bg-primary-subtle text-primary text-uppercase fw-semibold">{{ entry.type }}</span>
+            </div>
+            <p class="text-secondary mb-3">{{ entry.description }}</p>
+            <a href="{{ entry.url }}" class="btn btn-modern btn-modern-outline btn-sm">
+              <i class="bi bi-arrow-up-right"></i>{% trans "Aç" %}
+            </a>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-modern alert-warning mt-3">
+        <i class="bi bi-exclamation-circle me-2"></i>{% trans "Aramanızla eşleşen kaynak bulunamadı. Farklı anahtar kelimeler deneyin." %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="resource-categories" class="mb-5">
+    <div class="persona-section-title" id="resource-categories">
+      <i class="bi bi-grid"></i>{% trans "Kaynak Kategorileri" %}
+    </div>
+    <div class="row g-4">
+      {% for tile in resource_tiles %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card" style="--resource-accent: {{ tile.accent }};">
+          <span class="resource-card-icon"><i class="bi {{ tile.icon }}"></i></span>
+          <h2 class="h5 fw-semibold mb-2">{{ tile.title }}</h2>
+          <p class="text-secondary mb-4">{{ tile.description }}</p>
+          <a href="{{ tile.href }}" class="btn btn-modern btn-modern-outline btn-sm">
+            <i class="bi bi-arrow-right"></i>{{ tile.cta_label }}
+          </a>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="featured-resources" class="mb-5">
+    <div class="persona-section-title" id="featured-resources">
+      <i class="bi bi-stars"></i>{% trans "Öne Çıkan İçerikler" %}
+    </div>
+    <div class="row g-4">
+      {% for resource in featured_resources %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card" style="--resource-accent: {{ resource.accent }};">
+          <span class="resource-card-icon"><i class="bi {{ resource.icon }}"></i></span>
+          <h2 class="h6 fw-semibold mb-2">{{ resource.title }}</h2>
+          <p class="text-secondary mb-4">{{ resource.description }}</p>
+          <a href="{{ resource.href }}" class="btn btn-modern btn-modern-outline btn-sm">
+            <i class="bi bi-arrow-up-right"></i>{% trans "İncele" %}
+          </a>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="support-links">
+    <div class="persona-section-title" id="support-links">
+      <i class="bi bi-life-preserver"></i>{% trans "Destek ve Yardım" %}
+    </div>
+    <div class="row g-4">
+      {% for topic in support_topics %}
+      <div class="col-md-6 col-xl-3">
+        <article class="resource-support-card">
+          <span class="resource-card-icon" style="--resource-accent: {{ topic.accent }};"><i class="bi {{ topic.icon }}"></i></span>
+          <div>
+            <h2 class="h6 fw-semibold mb-2">{{ topic.title }}</h2>
+            <p class="text-secondary mb-3">{{ topic.description }}</p>
+          </div>
+          <div class="resource-chip-group">
+            {% for badge in topic.badges %}
+            <span class="resource-chip"><i class="bi bi-check2"></i>{{ badge }}</span>
+            {% endfor %}
+          </div>
+          <div class="mt-auto pt-3">
+            <a href="{{ topic.href }}" class="btn btn-modern btn-modern-outline btn-sm">
+              <i class="bi bi-arrow-right"></i>{% trans "Git" %}
+            </a>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Yasal - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .legal-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .legal-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .legal-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin: -60px auto 80px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .legal-link-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .legal-link-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .legal-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    color: #667eea;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+
+  .legal-link-card h5 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .legal-link-card p {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .legal-hero h1 {
+      font-size: 32px;
+    }
+    .legal-links-grid {
+      margin-top: 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="legal-hero">
+  <div class="container">
+    <h1>Yasal Bilgiler</h1>
+    <p>FinAsis kullanımıyla ilgili tüm yasal belgeler</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="legal-links-grid">
+    <a href="{% url 'terms' %}" class="legal-link-card">
+      <div class="legal-icon">
+        <i class="bi bi-file-text"></i>
+      </div>
+      <h5>Kullanım Şartları</h5>
+      <p>Hizmet kullanım koşulları ve kuralları</p>
+    </a>
+
+    <a href="{% url 'privacy_policy' %}" class="legal-link-card">
+      <div class="legal-icon">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <h5>Gizlilik Politikası</h5>
+      <p>KVKK ve GDPR kapsamında veri koruma</p>
+    </a>
+
+    <a href="{% url 'cookie_policy' %}" class="legal-link-card">
+      <div class="legal-icon">
+        <i class="bi bi-cookie"></i>
+      </div>
+      <h5>Çerez Politikası</h5>
+      <p>Çerez kullanımı ve tercihleriniz</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

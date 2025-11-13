@@ -1,0 +1,179 @@
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'KOBİ Dashboard' %}{% endblock %}
+{% block acct_subtitle %}{% trans "KOBİ'lere özel modüller ve finansal özet" %}{% endblock %}
+{% block acct_content %}
+<div class="dashboard-container">
+  <div class="dashboard-main">
+    <div class="card-modern">
+      <div class="card-modern-body">
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+          <div>
+            <h1 class="h3 fw-semibold mb-1">{% blocktrans with name=request.user.first_name|default:request.user.username %}Merhaba {{ name }}{% endblocktrans %}</h1>
+            <p class="text-secondary mb-0">{% trans "KOBİ'nizin finansal sağlığını, uyumluluğunu ve görevlerini tek panelde yönetin." %}</p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'accounts:user_settings' %}" class="btn btn-modern btn-modern-outline">
+              <i class="bi bi-gear me-2"></i>{% trans "Ayarlar" %}
+            </a>
+            <a href="{% url 'accounts:company_edit' %}" class="btn btn-modern btn-modern-outline">
+              <i class="bi bi-building me-2"></i>{% trans "Şirket Bilgileri" %}
+            </a>
+            <a href="{% url 'accounts:password_change' %}" class="btn btn-modern btn-modern-outline">
+              <i class="bi bi-key me-2"></i>{% trans "Şifre" %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if finans_ozet %}
+    <section aria-labelledby="finance-overview">
+      <h2 id="finance-overview" class="visually-hidden">{% trans "Finansal Özet" %}</h2>
+      <div class="stats-grid">
+        <article class="stat-card">
+          <header class="stat-card-header">
+            <div>
+              <div class="text-muted text-uppercase small fw-semibold">{% trans "Toplam Fatura" %}</div>
+              <div class="stat-value text-brand">{{ finans_ozet.toplam_fatura|default:0 }}</div>
+            </div>
+            <div class="stat-card-icon primary">
+              <i class="bi bi-receipt"></i>
+            </div>
+          </header>
+          <p class="text-secondary mb-0">{% trans "Son 30 gün içindeki kesilen faturaların toplam tutarı." %}</p>
+        </article>
+        <article class="stat-card">
+          <header class="stat-card-header">
+            <div>
+              <div class="text-muted text-uppercase small fw-semibold">{% trans "Toplam Gider" %}</div>
+              <div class="stat-value text-danger">{{ finans_ozet.toplam_gider|default:0 }}</div>
+            </div>
+            <div class="stat-card-icon warning">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+          </header>
+          <p class="text-secondary mb-0">{% trans "Ödeme akışını yönetmek için bekleyen ve gerçekleşen giderler." %}</p>
+        </article>
+        <article class="stat-card">
+          <header class="stat-card-header">
+            <div>
+              <div class="text-muted text-uppercase small fw-semibold">{% trans "Toplam Bakiye" %}</div>
+              <div class="stat-value text-success">{{ finans_ozet.toplam_bakiye|default:0 }}</div>
+            </div>
+            <div class="stat-card-icon success">
+              <i class="bi bi-wallet2"></i>
+            </div>
+          </header>
+          <p class="text-secondary mb-0">{% trans "Bağlı tüm banka hesaplarındaki net nakit pozisyonu." %}</p>
+        </article>
+      </div>
+    </section>
+    {% endif %}
+
+    <div class="row g-4">
+      <section class="col-lg-6" aria-labelledby="recent-invoices">
+        <div class="card-modern h-100">
+          <header class="card-modern-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge-modern primary"><i class="bi bi-clock-history"></i></span>
+              <h2 id="recent-invoices" class="h6 fw-semibold mb-0">{% trans "Son Faturalar" %}</h2>
+            </div>
+            <a href="{% url 'accounting:invoice_list' %}" class="btn btn-sm btn-modern btn-modern-outline">
+              {% trans "Tümünü Gör" %}
+            </a>
+          </header>
+          <div class="card-modern-body p-0">
+            <ul class="list-group list-group-flush">
+              {% for f in son_faturalar %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ f.invoice_number }}</div>
+                  <small class="text-muted">{{ f.issue_date }}</small>
+                </div>
+                <span class="badge rounded-pill bg-primary">{{ f.total_amount }}</span>
+              </li>
+              {% empty %}
+              <li class="list-group-item text-muted text-center py-4">{% trans "Kayıt yok." %}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section class="col-lg-6" aria-labelledby="recent-bank">
+        <div class="card-modern h-100">
+          <header class="card-modern-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge-modern secondary"><i class="bi bi-bank"></i></span>
+              <h2 id="recent-bank" class="h6 fw-semibold mb-0">{% trans "Son Banka İşlemleri" %}</h2>
+            </div>
+            <a href="{% url 'accounting:banktransaction_list' %}" class="btn btn-sm btn-modern btn-modern-outline">
+              {% trans "Detay" %}
+            </a>
+          </header>
+          <div class="card-modern-body p-0">
+            <ul class="list-group list-group-flush">
+              {% for b in son_banka %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ b.description|default:"-" }}</div>
+                  <small class="text-muted">{{ b.date }}</small>
+                </div>
+                <span class="badge rounded-pill bg-secondary">{{ b.amount }}</span>
+              </li>
+              {% empty %}
+              <li class="list-group-item text-muted text-center py-4">{% trans "Kayıt yok." %}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <aside class="dashboard-sidebar">
+    <section class="card-modern">
+      <div class="card-modern-header">
+        <h2 class="h6 fw-semibold mb-0">{% trans "Hızlı Modüller" %}</h2>
+      </div>
+      <div class="card-modern-body d-grid gap-2">
+        <a class="sidebar-modern sidebar-link" href="{% url 'finance:reports_index' %}">
+          <i class="bi bi-graph-up"></i>{% trans "Finansal Raporlar" %}
+        </a>
+        <a class="sidebar-modern sidebar-link" href="{% url 'accounting:dashboard' %}">
+          <i class="bi bi-speedometer2"></i>{% trans "Muhasebe Kokpiti" %}
+        </a>
+        <a class="sidebar-modern sidebar-link" href="{% url 'ai_assistant:home' %}">
+          <i class="bi bi-robot"></i>{% trans "AI Finans Asistanı" %}
+        </a>
+      </div>
+    </section>
+    <section class="card-modern">
+      <div class="card-modern-header">
+        <h2 class="h6 fw-semibold mb-0">{% trans "Uyumluluk Görevleri" %}</h2>
+      </div>
+      <div class="card-modern-body">
+        <div class="resource-checklist">
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "AML raporlarını gözden geçir ve riskli müşterileri işaretle." %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Vergi beyanı için son 7 günün fatura verisini doğrula." %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "KVKK veri erişim taleplerini cevapla." %}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-modern-footer text-end">
+        <a href="{% url 'resources_compliance_checklist' %}" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-journal-check me-1"></i>{% trans "Checklist" %}
+        </a>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}{{ contract.contract_name }} - Smart Contract{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{% url 'blockchain:contract_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Tüm Contracts
+        </a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-file-earmark-code me-2"></i>
+                {{ contract.contract_name }}
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <strong>Contract Address:</strong>
+                    <div class="hash-display mt-1">{{ contract.contract_address }}</div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>Tip:</strong> <span class="badge bg-primary">{{ contract.get_contract_type_display }}</span>
+                </div>
+                <div class="col-md-4">
+                    <strong>Durum:</strong> 
+                    {% if contract.is_active %}
+                    <span class="badge bg-success">Aktif</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Pasif</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <strong>Execution:</strong> <span class="badge bg-info">{{ contract.execution_count }} kez</span>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Deployed By:</strong> {{ contract.deployed_by.username }}
+                </div>
+                <div class="col-md-6">
+                    <strong>Deployed At:</strong> {{ contract.deployed_at }}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <strong>Contract Code:</strong>
+                <pre class="bg-light p-3 mt-2 rounded">{{ contract.code }}</pre>
+            </div>
+            
+            <div class="mb-3">
+                <strong>Parameters:</strong>
+                <pre class="bg-light p-3 mt-2 rounded">{{ contract.parameters|pprint }}</pre>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Execute Contract -->
+    {% if contract.is_active %}
+    <div class="card">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">
+                <i class="bi bi-play-circle me-2"></i>
+                Contract Çalıştır
+            </h5>
+        </div>
+        <div class="card-body">
+            <form id="executeForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Execution Parameters (JSON)</label>
+                    <textarea name="parameters" class="form-control font-monospace" rows="4">{}</textarea>
+                </div>
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-lightning-fill me-2"></i>Çalıştır
+                </button>
+            </form>
+            <div id="result" class="mt-3"></div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('executeForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('{% url "blockchain:contract_execute" contract.contract_address %}', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        const resultDiv = document.getElementById('result');
+        if (result.success) {
+            resultDiv.innerHTML = `<div class="alert alert-success">✅ Contract başarıyla çalıştırıldı!<pre class="mt-2">${JSON.stringify(result, null, 2)}</pre></div>`;
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">❌ Hata: ${result.error}</div>`;
+        }
+    } catch (e) {
+        document.getElementById('result').innerHTML = `<div class="alert alert-danger">❌ ${e.message}</div>`;
+    }
+});
+</script>
+
+<style>
+    .hash-display {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+</style>
+{% endblock %}
+

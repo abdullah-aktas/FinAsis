@@ -1,0 +1,112 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Partner Marketplace" %}{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <span class="badge bg-danger-subtle text-danger fw-semibold px-3 py-2 rounded-pill mb-3">{% trans "Partner Ekosistemi" %}</span>
+        <h1 class="display-5 fw-bold mb-3">{% trans "FinAsis Partner Marketplace" %}</h1>
+        <p class="lead text-muted mb-0">
+          {% trans "ERP, CRM ve regülasyon odaklı çözüm ortaklarıyla entegre olun, müşterilerinize değer katın." %}
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="{% url 'partners:apply' %}" class="btn btn-modern btn-modern-primary">
+          <i class="bi bi-briefcase me-2"></i>{% trans "Partner Başvurusu" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    {% if partner_categories %}
+    <div class="row g-3 mb-4">
+      {% for category in partner_categories %}
+      <div class="col-md-4">
+        <div class="card border-0 bg-light h-100">
+          <div class="card-body">
+            {% if category.icon %}
+            <div class="text-primary fs-3 mb-2"><i class="bi {{ category.icon }}"></i></div>
+            {% endif %}
+            <h2 class="h6 fw-semibold mb-1">{{ category.name }}</h2>
+            <p class="small text-muted mb-0">{{ category.description }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+      {% for partner in partner_listings %}
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            {% if partner.badge %}
+            <span class="badge bg-primary-subtle text-primary fw-semibold mb-2">{{ partner.badge }}</span>
+            {% endif %}
+            <h2 class="h5 fw-semibold mb-1">{{ partner.name }}</h2>
+            {% if partner.headline %}
+            <p class="small text-muted mb-1">{{ partner.headline }}</p>
+            {% endif %}
+            <p class="small text-muted mb-2">{{ partner.category }}</p>
+            <p class="text-muted mb-3">{{ partner.description }}</p>
+            {% if partner.website %}
+            <a href="{{ partner.website }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+              <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "Detaylar" %}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>{% trans "Onboarding Adımları" %}</h2>
+            <ol class="list-group list-group-numbered">
+              {% for step in onboarding_steps %}
+              <li class="list-group-item border-0 ps-0">
+                <div class="fw-semibold">{{ step.title }}</div>
+                <div class="small text-muted">{{ step.detail }}</div>
+              </li>
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-shield-lock me-2 text-success"></i>{% trans "Uyumluluk & SLA" %}</h2>
+            <ul class="list-unstyled d-grid gap-2 m-0">
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>{% trans "SSO ve OAuth entegrasyonu ile güvenli partner erişimi." %}</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>{% trans "Her partner için SLA metrikleri ve uyumluluk raporları." %}</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>{% trans "Gelir paylaşımı sözleşmeleri ve raporlama paneli." %}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,21 @@
+{% extends 'core_ui/base_dashboard.html' %}
+{% load i18n %}
+{#
+  Accounts Module Base
+  Provides role-aware dashboard scaffolding for user/account related pages.
+  Blocks inherited from core_ui/base_dashboard.html:
+    - dashboard_title -> acct_title
+    - dashboard_subtitle -> acct_subtitle
+    - dashboard_actions -> acct_actions
+    - dashboard_content -> acct_content
+#}
+
+{# Map higher-level semantic blocks to underlying dashboard blocks #}
+{% block dashboard_title %}{% block acct_title %}{% trans 'Hesap Paneli' %}{% endblock %}{% endblock %}
+{% block dashboard_subtitle %}{% block acct_subtitle %}{% trans 'Hesap ve kullanıcı işlemleri' %}{% endblock %}{% endblock %}
+{% block dashboard_actions %}{% block acct_actions %}{% endblock %}{% endblock %}
+{% block dashboard_content %}{% block acct_content %}{% endblock %}{% endblock %}
+
+{% block sidebar %}
+  {% include 'accounts/partials/_sidebar.html' %}
+{% endblock %}

@@ -1,0 +1,476 @@
+{% load i18n static %}
+<style>
+  .site-footer {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--brand-ink) 85%, #050b18 15%) 0%, color-mix(in srgb, var(--brand-primary-900) 80%, #031d16 20%) 100%);
+    color: rgba(255, 255, 255, 0.88);
+    padding: clamp(3.5rem, 6vw, 5rem) 0 2.5rem;
+    position: relative;
+    margin-top: 5rem;
+    overflow: hidden;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(520px 260px at 15% 20%, rgba(255, 179, 0, 0.18), transparent 70%),
+      radial-gradient(640px 320px at 75% -10%, rgba(27, 222, 189, 0.15), transparent 75%);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .site-footer__grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 2.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .site-footer__brand {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .site-footer__brand-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .site-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .site-footer__logo-circle {
+    width: 58px;
+    height: 58px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 18px 38px rgba(10, 174, 148, 0.35);
+  }
+
+  .site-footer__logo-circle img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .site-footer__identity {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .site-footer__name {
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: #fff;
+  }
+
+  .site-footer__tagline {
+    font-size: 0.85rem;
+    letter-spacing: 0.4px;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .site-footer__description {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .site-footer__values {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .site-footer__value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .site-footer__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fef9c3;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.4px;
+  }
+
+  .site-footer__section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .site-footer__links {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .site-footer__link {
+    color: rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .site-footer__link:hover {
+    color: #64f2d6;
+    transform: translateX(4px);
+  }
+
+  .site-footer__link--sub {
+    padding-left: 1.45rem;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .site-footer__callout {
+    margin-top: 1.2rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 1.1rem;
+    background: rgba(10, 174, 148, 0.12);
+    border: 1px solid rgba(10, 174, 148, 0.2);
+    color: #fff;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .site-footer__newsletter p {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1rem;
+  }
+
+  .site-footer__form .input-group {
+    border-radius: 0.9rem;
+    overflow: hidden;
+    box-shadow: 0 14px 26px rgba(3, 13, 32, 0.35);
+  }
+
+  .site-footer__form .form-control {
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  .site-footer__form .btn {
+    border: none;
+    padding: 0.75rem 1.3rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+  }
+
+  .site-footer__social {
+    margin-top: 1.6rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .site-footer__social-links {
+    display: flex;
+    gap: 0.9rem;
+  }
+
+  .site-footer__social-link {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.15rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+  }
+
+  .site-footer__social-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+  }
+
+  .site-footer__contact {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .site-footer__metrics {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    margin-top: 1.1rem;
+  }
+
+  .site-footer__metric {
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .site-footer__metric > .value {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+  }
+
+  .site-footer__metric > .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .site-footer__bottom {
+    margin-top: clamp(3rem, 5vw, 4rem);
+    padding-top: 1.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  .site-footer__legal {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .site-footer__legal a {
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+
+  .site-footer__legal a:hover {
+    color: #64f2d6;
+  }
+
+  @media (max-width: 767.98px) {
+    .site-footer__grid {
+      gap: 2rem;
+    }
+
+    .site-footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<footer class="site-footer" role="contentinfo">
+  <div class="container position-relative">
+    <div class="site-footer__grid">
+      <section class="site-footer__brand">
+        <div class="site-footer__brand-head">
+          <div class="site-footer__logo">
+            <span class="site-footer__logo-circle">
+              <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo">
+            </span>
+            <span class="site-footer__identity">
+              <span class="site-footer__name">{{ brand_identity.name }}</span>
+              <span class="site-footer__tagline">{{ brand_identity.tagline }}</span>
+            </span>
+          </div>
+          <span class="site-footer__pill">
+            <i class="bi bi-lightning-charge"></i>
+            {{ brand_identity.version.label }}
+          </span>
+        </div>
+        <p class="site-footer__description">
+          {{ brand_identity.description }}
+        </p>
+        <div class="site-footer__values">
+          {% for value in brand_identity.values %}
+            <span class="site-footer__value">
+              <i class="bi bi-{{ value.icon }}"></i>
+              {{ value.label }}
+            </span>
+          {% endfor %}
+        </div>
+        {% if metrics and has_metrics_activity %}
+          <div>
+            <h6 class="site-footer__section-title mt-3">
+              <i class="bi bi-activity"></i> {% trans "Platform verileri" %}
+            </h6>
+            <div class="site-footer__metrics">
+              {% for metric in metrics|slice:"3:" %}
+                <div class="site-footer__metric">
+                  <span class="value">{{ metric.value }}</span>
+                  <span class="label">{{ metric.label }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </section>
+
+      <section>
+        <h6 class="site-footer__section-title">
+          <i class="bi bi-box-seam"></i>
+          {% if primary_navigation %}{% trans "Platform" %}{% else %}{% trans "Ürünler" %}{% endif %}
+        </h6>
+        <div class="site-footer__links">
+          {% if primary_navigation %}
+            {% for item in primary_navigation %}
+              <a href="{{ item.href }}" class="site-footer__link" data-cta="footer-platform">
+                <i class="bi bi-arrow-right-short"></i> {{ item.label }}
+              </a>
+            {% endfor %}
+          {% else %}
+            {% url 'products_muhasebe' as products_muhasebe_url %}
+            {% url 'products_finans' as products_finans_url %}
+            {% url 'products_egitim' as products_egitim_url %}
+            {% url 'products_blockchain' as products_blockchain_url %}
+            {% url 'products_oyunlar' as products_oyunlar_url %}
+            {% url 'products_edonusum' as products_edonusum_url %}
+            {% url 'products_edenetim' as products_edenetim_url %}
+            {% url 'products_yapay_zeka' as products_ai_url %}
+            <a href="{{ products_muhasebe_url }}" class="site-footer__link" data-cta="footer-product" data-product="muhasebe">
+              <i class="bi bi-journal-text"></i> Muhasebe
+            </a>
+            <a href="{{ products_finans_url }}" class="site-footer__link" data-cta="footer-product" data-product="finans">
+              <i class="bi bi-bar-chart"></i> Finansal Yönetim
+            </a>
+            <a href="{{ products_egitim_url }}" class="site-footer__link" data-cta="footer-product" data-product="egitim">
+              <i class="bi bi-mortarboard"></i> Eğitim Modülü
+            </a>
+            <a href="{{ products_blockchain_url }}" class="site-footer__link" data-cta="footer-product" data-product="blockchain">
+              <i class="bi bi-link-45deg"></i> Blockchain Kanıt
+            </a>
+            <a href="{{ products_oyunlar_url }}" class="site-footer__link" data-cta="footer-product" data-product="oyunlar">
+              <i class="bi bi-controller"></i> Oyunlar
+            </a>
+            <a href="{{ products_edonusum_url }}" class="site-footer__link" data-cta="footer-product" data-product="edonusum">
+              <i class="bi bi-receipt"></i> e‑Dönüşüm
+            </a>
+            <a href="{{ products_edenetim_url }}" class="site-footer__link" data-cta="footer-product" data-product="edenetim">
+              <i class="bi bi-shield-check"></i> E‑Denetim
+            </a>
+            <a href="{{ products_ai_url }}" class="site-footer__link" data-cta="footer-product" data-product="yapay-zeka">
+              <i class="bi bi-robot"></i> Yapay Zeka
+            </a>
+          {% endif %}
+        </div>
+        <div class="site-footer__callout mt-3">
+          <strong>{% trans "Fiyatlandırma" %}</strong><br>
+          <a href="{% url 'billing:plans' %}" class="site-footer__link site-footer__link--sub" data-cta="footer-pricing">• {% trans "Planları inceleyin" %}</a>
+          <a href="{% url 'billing:plans' %}?audience=sme" class="site-footer__link site-footer__link--sub" data-cta="footer-pricing" data-audience="sme">• {% trans "KOBİ paketleri" %}</a>
+          <a href="{% url 'billing:plans' %}?audience=edu" class="site-footer__link site-footer__link--sub" data-cta="footer-pricing" data-audience="edu">• {% trans "Eğitim kurumları" %}</a>
+        </div>
+      </section>
+
+      <section>
+        <h6 class="site-footer__section-title">
+          <i class="bi bi-building"></i>
+          {% if solutions %}{% trans "Çözümler" %}{% else %}{% trans "Şirket" %}{% endif %}
+        </h6>
+        <div class="site-footer__links">
+          {% if solutions %}
+            {% for solution in solutions|slice:":6" %}
+              <a href="{{ solution.href|default:'#' }}" class="site-footer__link" data-cta="footer-solution">
+                <i class="bi {{ solution.icon }}"></i> {{ solution.title }}
+              </a>
+            {% endfor %}
+          {% else %}
+            <a href="/" class="site-footer__link"><i class="bi bi-house"></i> {% trans "Anasayfa" %}</a>
+            <a href="{% url 'corporate:landing' %}" class="site-footer__link"><i class="bi bi-briefcase"></i> {% trans "Kurumsal" %}</a>
+            <a href="{% url 'resources' %}" class="site-footer__link"><i class="bi bi-book"></i> {% trans "Kaynaklar" %}</a>
+            <a href="{% url 'blog' %}" class="site-footer__link"><i class="bi bi-journal-text"></i> Blog</a>
+            <a href="{% url 'contact' %}" class="site-footer__link"><i class="bi bi-envelope"></i> {% trans "İletişim" %}</a>
+          {% endif %}
+        </div>
+        {% if ecosystem %}
+          <div class="site-footer__callout mt-3">
+            {% if ecosystem.partner_count %}
+              {% blocktrans with partner_count=ecosystem.partner_count document_count=ecosystem.document_count %}
+                {{ partner_count }}+ partner ve {{ document_count }} canlı doküman için güncellemeleri ilk siz duyun.
+              {% endblocktrans %}
+            {% else %}
+              {% trans "Yerel fintech ekosistemine katılın, yenilikleri kaçırmayın." %}
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
+
+      <section class="site-footer__newsletter">
+        <h6 class="site-footer__section-title">
+          <i class="bi bi-bell"></i>
+          {% trans "Bültene katılın" %}
+        </h6>
+        <p>
+          {% trans "Yeni modüller, finansal içgörüler ve etkinlik davetleri için bültene abone olun." %}
+        </p>
+        <form class="site-footer__form" action="{% url 'contact' %}" method="get" aria-label="Bülten kayıt formu">
+          <div class="input-group">
+            <input id="newsletterEmail" name="email" type="email" class="form-control" placeholder="ornek@firma.com" required aria-label="E-posta adresi">
+            <button class="btn text-white" type="submit">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+        </form>
+        <div class="site-footer__social">
+          <h6 class="site-footer__section-title mb-0">
+            <i class="bi bi-share"></i>
+            {% trans "Bizi takip edin" %}
+          </h6>
+          <div class="site-footer__social-links">
+            {% for social in brand_identity.social %}
+              <a href="{{ social.url }}" target="_blank" class="site-footer__social-link {{ social.class }}" aria-label="{{ social.name }}">
+                <i class="bi bi-{{ social.icon }}"></i>
+              </a>
+            {% endfor %}
+          </div>
+          <a href="mailto:{{ brand_identity.support.email }}" class="site-footer__contact">
+            <i class="bi bi-envelope-at"></i> {{ brand_identity.support.email }}
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <div class="site-footer__bottom">
+      <div>
+        <i class="bi bi-c-circle me-1"></i>
+        {{ brand_identity.current_year }} {{ brand_identity.name }} · {% trans "Tüm hakları saklıdır." %}
+      </div>
+      <div class="site-footer__legal">
+        <a href="/legal/">{% trans "Yasal Bilgiler" %}</a>
+        <a href="{% url 'legal_kvkk' %}">KVKK</a>
+        <a href="{% url 'terms' %}">{% trans "Kullanım Şartları" %}</a>
+        <a href="{% url 'privacy_policy' %}">{% trans "Gizlilik Politikası" %}</a>
+      </div>
+    </div>
+  </div>
+</footer>

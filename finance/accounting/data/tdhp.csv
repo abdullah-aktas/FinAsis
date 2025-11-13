@@ -1,0 +1,19 @@
+code,name,type_code
+100,Kasa,ASSET
+101,Alınan Çekler,ASSET
+102,Banka,ASSET
+120,Alıcılar,ASSET
+121,Alacak Senetleri,ASSET
+153,Ticari Mallar,INVENTORY
+191,İndirilecek KDV,TAX
+320,Satıcılar,LIABILITY
+321,Borç Senetleri,LIABILITY
+391,Hesaplanan KDV,TAX
+600,Yurtiçi Satışlar,REVENUE
+610,Satıştan İadeler,REVENUE
+620,Satışların Maliyeti,COGS
+649,Diğer Olağan Gelir ve Karlar,REVENUE
+740,Hizmet Üretim Maliyeti,EXPENSE
+760,Pazarlama Satış ve Dağıtım Giderleri,EXPENSE
+770,Genel Yönetim Giderleri,EXPENSE
+780,Finansman Giderleri,EXPENSE

@@ -1,0 +1,241 @@
+{% extends "core_ui/base.html" %} {% load i18n %} {% block title %}TradeSim
+Debug Console{% endblock %} {% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>🐛 TradeSim Debug Console</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6>API Test Buttons</h6>
+              <div class="d-grid gap-2">
+                <button
+                  class="btn btn-outline-primary"
+                  onclick="testFetchCities()"
+                >
+                  Test Cities API
+                </button>
+                <button
+                  class="btn btn-outline-info"
+                  onclick="testFetchProducts()"
+                >
+                  Test Products API
+                </button>
+                <button
+                  class="btn btn-outline-warning"
+                  onclick="testFetchMarkets()"
+                >
+                  Test Markets API
+                </button>
+                <button
+                  class="btn btn-outline-success"
+                  onclick="testMarketTrade()"
+                >
+                  Test Market Trade API
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6>Game State Actions</h6>
+              <div class="d-grid gap-2">
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="checkGameSession()"
+                >
+                  Check Game Session
+                </button>
+                <button class="btn btn-outline-dark" onclick="initGameData()">
+                  Initialize Game Data
+                </button>
+                <button class="btn btn-outline-danger" onclick="clearConsole()">
+                  Clear Console
+                </button>
+                <button
+                  class="btn btn-success"
+                  onclick="window.location.href='{% url 'trade_sim:play' %}'"
+                >
+                  Go to Game
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6>Console Output</h6>
+            <div
+              id="console-output"
+              style="
+                background: #1e1e1e;
+                color: #00ff00;
+                padding: 15px;
+                border-radius: 5px;
+                font-family: 'Courier New', monospace;
+                height: 300px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+              "
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h6>Game Data Preview</h6>
+        </div>
+        <div class="card-body">
+          <div
+            id="data-preview"
+            style="font-size: 12px; max-height: 400px; overflow-y: auto"
+          >
+            <p class="text-muted">Data will appear here after API tests...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // CSRF Token
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+
+  // API Base
+  const API_BASE = '/games/trade-sim';
+
+  // Console functions
+  function log(message, type = 'info') {
+      const console = document.getElementById('console-output');
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+      console.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+      console.scrollTop = console.scrollHeight;
+  }
+
+  function clearConsole() {
+      document.getElementById('console-output').textContent = '';
+      document.getElementById('data-preview').innerHTML = '<p class="text-muted">Console cleared...</p>';
+  }
+
+  function updateDataPreview(title, data) {
+      const preview = document.getElementById('data-preview');
+      preview.innerHTML = `<h6>${title}</h6><pre style="font-size: 10px;">${JSON.stringify(data, null, 2)}</pre>`;
+  }
+
+  // API Test Functions
+  async function testFetchCities() {
+      log('Testing Cities API...');
+      try {
+          const response = await fetch(`${API_BASE}/cities/`);
+          const data = await response.json();
+
+          if (response.ok) {
+              log(`Cities API success! Found ${data.cities?.length || 0} cities`, 'success');
+              updateDataPreview('Cities Data', data);
+          } else {
+              log(`Cities API error: ${response.status} - ${response.statusText}`, 'error');
+          }
+      } catch (error) {
+          log(`Cities API exception: ${error.message}`, 'error');
+      }
+  }
+
+  async function testFetchProducts() {
+      log('Testing Products API...');
+      try {
+          const response = await fetch(`${API_BASE}/products/`);
+          const data = await response.json();
+
+          if (response.ok) {
+              log(`Products API success! Found ${data.products?.length || 0} products`, 'success');
+              updateDataPreview('Products Data', data);
+          } else {
+              log(`Products API error: ${response.status} - ${response.statusText}`, 'error');
+          }
+      } catch (error) {
+          log(`Products API exception: ${error.message}`, 'error');
+      }
+  }
+
+  async function testFetchMarkets() {
+      log('Testing Markets API (city ID 2 - Istanbul)...');
+      try {
+          const response = await fetch(`${API_BASE}/city-markets/2/`);
+          const data = await response.json();
+
+          if (response.ok) {
+              log(`Markets API success! Found ${data.markets?.length || 0} markets for ${data.city}`, 'success');
+              updateDataPreview('Markets Data', data);
+          } else {
+              log(`Markets API error: ${response.status} - ${response.statusText}`, 'error');
+          }
+      } catch (error) {
+          log(`Markets API exception: ${error.message}`, 'error');
+      }
+  }
+
+  async function testMarketTrade() {
+      log('Testing Market Trade API (buy 1 Elma)...');
+      try {
+          const response = await fetch(`${API_BASE}/market-trade/`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken
+              },
+              body: JSON.stringify({
+                  action: 'buy',
+                  product_name: 'Elma',
+                  amount: 1,
+                  price: 45,
+                  city: 'istanbul'
+              })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.status === 'ok') {
+              log(`Market Trade API success! ${data.result?.message || 'Trade completed'}`, 'success');
+              updateDataPreview('Trade Result', data);
+          } else {
+              log(`Market Trade API error: ${data.error || 'Unknown error'}`, 'error');
+              updateDataPreview('Trade Error', data);
+          }
+      } catch (error) {
+          log(`Market Trade API exception: ${error.message}`, 'error');
+      }
+  }
+
+  function checkGameSession() {
+      log('Checking game session...');
+      {% if game_session %}
+          log('Game session exists!', 'success');
+          updateDataPreview('Game Session', {{ game_session|safe }});
+      {% else %}
+          log('No game session found. Need to start game first.', 'warning');
+          log('Go to: /games/trade-sim/start/ to select difficulty', 'info');
+      {% endif %}
+  }
+
+  async function initGameData() {
+      log('Initializing game data...');
+      await testFetchCities();
+      await testFetchProducts();
+      await testFetchMarkets();
+      log('Game data initialization complete!', 'success');
+  }
+
+  // Auto-run basic checks on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      log('🐛 TradeSim Debug Console loaded');
+      log('User: {{ user.username|default:"Anonymous" }}');
+      log('CSRF Token: ' + (csrfToken ? 'Available' : 'Missing'));
+      checkGameSession();
+  });
+</script>
+{% endblock %}

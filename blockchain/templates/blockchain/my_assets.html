@@ -1,0 +1,50 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Varlıklarım - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-wallet2 me-2"></i>Dijital Varlık Cüzdanım
+    </h1>
+    
+    <div class="row">
+        {% for balance in balances %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-exchange fs-1 text-success mb-3"></i>
+                    <h5>{{ balance.asset.asset_name }}</h5>
+                    <h3 class="text-primary mb-3">{{ balance.balance }} {{ balance.asset.asset_symbol }}</h3>
+                    
+                    {% if balance.locked_balance > 0 %}
+                    <p class="small text-muted">
+                        <i class="bi bi-lock"></i> Kilitli: {{ balance.locked_balance }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'blockchain:asset_detail' balance.asset.asset_id %}" class="btn btn-outline-primary btn-sm">
+                            Detay
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-inbox fs-1 mb-3"></i>
+                <h5>Henüz dijital varlığınız yok</h5>
+                <p>Yeni varlık oluşturun veya transfer alın</p>
+                <a href="{% url 'blockchain:asset_create' %}" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-circle me-2"></i>Varlık Oluştur
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

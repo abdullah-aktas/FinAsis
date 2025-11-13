@@ -1,0 +1,120 @@
+# Arabic translations for FinAsis project.
+# Copyright (C) 2024 FinAsis
+# This file is distributed under the same license as the FinAsis project.
+msgid ""
+msgstr ""
+"Project-Id-Version: FinAsis 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-20 20:00+0300\n"
+"PO-Revision-Date: 2024-04-20 20:00+0300\n"
+"Last-Translator: \n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: integrations/base.py
+msgid "Integration Error"
+msgstr "خطأ في التكامل"
+
+#: integrations/base.py
+msgid "Authentication failed"
+msgstr "فشل المصادقة"
+
+#: integrations/base.py
+msgid "Invalid credentials"
+msgstr "بيانات اعتماد غير صالحة"
+
+#: integrations/base.py
+msgid "Rate limit exceeded"
+msgstr "تم تجاوز حد المعدل"
+
+#: integrations/base.py
+msgid "Service unavailable"
+msgstr "الخدمة غير متوفرة"
+
+#: integrations/base.py
+msgid "Invalid response format"
+msgstr "تنسيق استجابة غير صالح"
+
+#: integrations/bank_integration/service.py
+msgid "Bank account not found"
+msgstr "لم يتم العثور على الحساب المصرفي"
+
+#: integrations/bank_integration/service.py
+msgid "Insufficient funds"
+msgstr "رصيد غير كافٍ"
+
+#: integrations/bank_integration/service.py
+msgid "Invalid transaction"
+msgstr "معاملة غير صالحة"
+
+#: integrations/ecommerce/service.py
+msgid "Product not found"
+msgstr "المنتج غير موجود"
+
+#: integrations/ecommerce/service.py
+msgid "Out of stock"
+msgstr "غير متوفر في المخزون"
+
+#: integrations/ecommerce/service.py
+msgid "Invalid order"
+msgstr "طلب غير صالح"
+
+#: integrations/e_invoice/service.py
+msgid "Invoice not found"
+msgstr "الفاتورة غير موجودة"
+
+#: integrations/e_invoice/service.py
+msgid "Invalid invoice format"
+msgstr "تنسيق فاتورة غير صالح"
+
+#: integrations/erp/service.py
+msgid "Department not found"
+msgstr "القسم غير موجود"
+
+#: integrations/erp/service.py
+msgid "Employee not found"
+msgstr "الموظف غير موجود"
+
+#: integrations/erp/service.py
+msgid "Project not found"
+msgstr "المشروع غير موجود"
+
+#: integrations/payment/service.py
+msgid "Payment failed"
+msgstr "فشل الدفع"
+
+#: integrations/payment/service.py
+msgid "Invalid payment method"
+msgstr "طريقة دفع غير صالحة"
+
+#: integrations/payment/service.py
+msgid "Payment declined"
+msgstr "تم رفض الدفع"
+
+#: integrations/external_services/service.py
+msgid "Service not available"
+msgstr "الخدمة غير متوفرة"
+
+#: integrations/external_services/service.py
+msgid "Invalid request"
+msgstr "طلب غير صالح"
+
+#: integrations/external_services/service.py
+msgid "Data not found"
+msgstr "البيانات غير موجودة"
+
+#: integrations/services.py
+msgid "Cache error"
+msgstr "خطأ في التخزين المؤقت"
+
+#: integrations/services.py
+msgid "Configuration error"
+msgstr "خطأ في التكوين"
+
+#: integrations/services.py
+msgid "Validation error"
+msgstr "خطأ في التحقق" 

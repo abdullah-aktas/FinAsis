@@ -1,0 +1,168 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Tema Rehberi" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-bold">{% trans "FinAsis Tema Rehberi" %}</h1>
+            <p class="lead text-muted">{% trans "Tasarım sistemi ve marka bütünlüğü" %}</p>
+        </div>
+        <button onclick="toggleTheme()" class="btn btn-outline-primary">
+            <i class="bi bi-moon"></i> {% trans "Tema Değiştir" %}
+        </button>
+    </div>
+
+    <!-- Marka Kimliği -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Marka Kimliği" %}</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">{% trans "Renk Paleti" %}</h5>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rounded me-3" style="width: 50px; height: 50px; background: #0AAE94;"></div>
+                                <div>
+                                    <strong>Ana Renk (Primary)</strong><br>
+                                    <code>#0AAE94</code> - Turkuaz Yeşil
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            {% trans "Finansal güvenilirlik ve yenilikçiliği temsil eden turkuaz yeşil, FinAsis'in ana marka rengidir." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">{% trans "Tipografi" %}</h5>
+                        <p style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700;">
+                            Inter - Bold
+                        </p>
+                        <p style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 400;">
+                            Inter - Regular
+                        </p>
+                        <p class="text-muted small mb-0">
+                            {% trans "Modern, okunaklı ve profesyonel görünüm için Inter font ailesi kullanılır." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tasarım Prensipleri -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Tasarım Prensipleri" %}</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-palette text-primary fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">{% trans "Tutarlılık" %}</h5>
+                        <p class="text-muted small">{% trans "Tüm bileşenlerde aynı renk, tipografi ve spacing kullan" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-speedometer2 text-success fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">{% trans "Performans" %}</h5>
+                        <p class="text-muted small">{% trans "Hızlı yüklenen, optimize edilmiş tasarımlar" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-universal-access text-info fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold">{% trans "Erişilebilirlik" %}</h5>
+                        <p class="text-muted small">{% trans "Herkes için kullanılabilir, WCAG uyumlu tasarım" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Component Showcase -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Örnek Bileşenler" %}</h2>
+        
+        <!-- Form Elements -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">{% trans "Form Elemanları" %}</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{% trans "Metin Girişi" %}</label>
+                        <input type="text" class="form-control" placeholder="Placeholder text">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">{% trans "Seçim Kutusu" %}</label>
+                        <select class="form-select">
+                            <option>Seçenek 1</option>
+                            <option>Seçenek 2</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label">Switch örneği</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">{% trans "Uyarılar" %}</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-success border-0 mb-2">
+                    <i class="bi bi-check-circle me-2"></i><strong>Başarılı!</strong> İşlem tamamlandı.
+                </div>
+                <div class="alert alert-warning border-0 mb-2">
+                    <i class="bi bi-exclamation-triangle me-2"></i><strong>Dikkat!</strong> Bu işlem geri alınamaz.
+                </div>
+                <div class="alert alert-danger border-0 mb-0">
+                    <i class="bi bi-x-circle me-2"></i><strong>Hata!</strong> Bir sorun oluştu.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Klavye Kısayolları -->
+    <section>
+        <h2 class="h3 fw-bold mb-4">{% trans "Klavye Kısayolları" %}</h2>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><kbd>Ctrl</kbd> + <kbd>D</kbd> - {% trans "Dark/Light mod değiştir" %}</p>
+                        <p><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> - {% trans "Yüksek kontrast modu" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+

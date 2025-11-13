@@ -1,0 +1,54 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Eğitim Modülü - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .education-hero {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .education-hero h1 {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .education-hero p {
+    font-size: 18px;
+    opacity: 0.95;
+  }
+
+  .btn-hero-primary {
+    background: white;
+    color: #f59e0b;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    color: #f59e0b;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="education-hero">
+  <div class="container">
+    <h1>Eğitim Modülü</h1>
+    <p class="mb-4">Dersler, sınavlar ve gelişim araçları tek yerde</p>
+    <a class="btn btn-hero-primary" href="{% url 'education:education_home' %}">
+      <i class="bi bi-mortarboard me-2"></i>Panele Git
+    </a>
+  </div>
+</section>
+{% endblock %}

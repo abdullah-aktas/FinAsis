@@ -1,0 +1,305 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Kurumsal Teklif Al - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .offer-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .offer-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .offer-hero p {
+    font-size: 20px;
+    opacity: 0.95;
+  }
+
+  .offer-form-container {
+    max-width: 700px;
+    margin: -60px auto 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .offer-form-card {
+    background: white;
+    border-radius: 32px;
+    padding: 48px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
+
+  .offer-form-card h3 {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 32px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .form-control,
+  .form-select {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 16px;
+    padding: 16px 48px;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    color: white;
+  }
+
+  .benefits-section {
+    background: #f8f9fa;
+    padding: 60px 0;
+    margin-top: 60px;
+  }
+
+  .benefit-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .benefit-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  .benefit-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .benefit-text {
+    font-size: 14px;
+    color: #718096;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .offer-hero h1 {
+      font-size: 32px;
+    }
+    .offer-form-card {
+      padding: 32px 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="offer-hero">
+  <div class="container">
+    <h1>Kurumsal Teklif Alın</h1>
+    <p>İşletmenizin ihtiyaçlarına özel çözümler için formu doldurun</p>
+  </div>
+</section>
+
+<!-- Offer Form -->
+<div class="container">
+  <div class="offer-form-container">
+    <div class="offer-form-card">
+      <h3><i class="bi bi-file-earmark-text me-3"></i>Teklif Formu</h3>
+      {% include "components/messages.html" %}
+      <form method="post" novalidate id="offerForm">
+        {% csrf_token %}
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label for="company" class="form-label">
+              <i class="bi bi-building me-2"></i>Şirket/Kurum Adı
+            </label>
+            <input type="text" class="form-control" id="company" name="company" placeholder="Şirketinizin adı" required>
+          </div>
+          <div class="col-md-6">
+            <label for="name" class="form-label">
+              <i class="bi bi-person me-2"></i>Yetkili Kişi
+            </label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Adınız Soyadınız" required>
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="form-label">
+              <i class="bi bi-envelope me-2"></i>E-posta
+            </label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="ornek@sirket.com" required>
+          </div>
+          <div class="col-md-6">
+            <label for="phone" class="form-label">
+              <i class="bi bi-telephone me-2"></i>Telefon
+            </label>
+            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+90 555 123 45 67">
+          </div>
+          <div class="col-12">
+            <label for="employees" class="form-label">
+              <i class="bi bi-people me-2"></i>Çalışan Sayısı
+            </label>
+            <select class="form-select" id="employees" name="employees">
+              <option value="">Seçiniz</option>
+              <option value="1-10">1-10 çalışan</option>
+              <option value="11-50">11-50 çalışan</option>
+              <option value="51-200">51-200 çalışan</option>
+              <option value="201-500">201-500 çalışan</option>
+              <option value="500+">500+ çalışan</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="message" class="form-label">
+              <i class="bi bi-chat-text me-2"></i>Talebiniz ve İhtiyaçlarınız
+            </label>
+            <textarea class="form-control" id="message" name="message" rows="6" placeholder="İhtiyaçlarınızı ve talebinizi detaylıca yazın..." required></textarea>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-submit">
+              <i class="bi bi-send me-2"></i>Teklif Talebi Gönder
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <script>
+        document.getElementById('offerForm').addEventListener('submit', function(e) {
+          const btn = this.querySelector('.btn-submit');
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Gönderiliyor...';
+          btn.disabled = true;
+        });
+      </script>
+
+      <div class="alert alert-info mt-4 rounded-3">
+        <i class="bi bi-info-circle me-2"></i>
+        <small>
+          <strong>Not:</strong> Tekliflerimiz genellikle 1 iş günü içinde hazırlanır ve 
+          size e-posta ile iletilir. Acil durumlar için doğrudan telefon ile ulaşabilirsiniz.
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Benefits -->
+<section class="benefits-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-size: 36px; font-weight: 800; color: #1a202c;">Kurumsal Müşterilerimize Özel Avantajlar</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <h4 class="benefit-title">Özel Hesap Yöneticisi</h4>
+          <p class="benefit-text">
+            Size özel atanmış bir hesap yöneticisi ile 7/24 destek
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-diagram-3"></i>
+          </div>
+          <h4 class="benefit-title">Özel Entegrasyonlar</h4>
+          <p class="benefit-text">
+            Mevcut sistemlerinizle özel entegrasyon ve API desteği
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-mortarboard"></i>
+          </div>
+          <h4 class="benefit-title">Yerinde Eğitim</h4>
+          <p class="benefit-text">
+            Ekibiniz için yerinde veya online kapsamlı eğitim programları
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h4 class="benefit-title">SLA Garantisi</h4>
+          <p class="benefit-text">
+            %99.9 uptime garantisi ve öncelikli teknik destek
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-server"></i>
+          </div>
+          <h4 class="benefit-title">On-Premise Seçeneği</h4>
+          <p class="benefit-text">
+            Kendi sunucularınızda kurulum imkanı
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <h4 class="benefit-title">Özel Raporlar</h4>
+          <p class="benefit-text">
+            İhtiyaçlarınıza göre özelleştirilmiş analiz ve raporlar
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

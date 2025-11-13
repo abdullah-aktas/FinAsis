@@ -1,0 +1,454 @@
+{% extends 'core_ui/base.html' %} {% load static %} {% block title %}Planlar ve
+Fiyatlandırma - FinAsis{% endblock %} {% block extra_css %}
+<style>
+  .category-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-hero::before {
+    content: "💳";
+    position: absolute;
+    font-size: 240px;
+    opacity: 0.08;
+    top: -60px;
+    right: -40px;
+    animation: float 10s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-15px) rotate(5deg);
+    }
+  }
+
+  .category-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border-top: 5px solid #667eea;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .category-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 16px 50px rgba(102, 126, 234, 0.2);
+    color: inherit;
+  }
+
+  .category-card.kobi {
+    border-top-color: #10b981;
+  }
+  .category-card.education {
+    border-top-color: #f59e0b;
+  }
+  .category-card.games {
+    border-top-color: #ec4899;
+  }
+
+  .category-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.1),
+      rgba(118, 75, 162, 0.05)
+    );
+  }
+
+  .category-card.kobi .category-icon {
+    background: linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.1),
+      rgba(5, 150, 105, 0.05)
+    );
+  }
+
+  .category-card.education .category-icon {
+    background: linear-gradient(
+      135deg,
+      rgba(245, 158, 11, 0.1),
+      rgba(217, 119, 6, 0.05)
+    );
+  }
+
+  .category-card.games .category-icon {
+    background: linear-gradient(
+      135deg,
+      rgba(236, 72, 153, 0.1),
+      rgba(190, 24, 93, 0.05)
+    );
+  }
+
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+    flex-grow: 1;
+  }
+
+  .feature-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 15px;
+    color: #4a5568;
+  }
+
+  .feature-list li:last-child {
+    border-bottom: none;
+  }
+
+  .price-range {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 20px 0;
+  }
+
+  .category-card.kobi .price-range {
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .category-card.education .price-range {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .category-card.games .price-range {
+    background: linear-gradient(135deg, #ec4899, #be185d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .btn-category {
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .stat-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    margin: 4px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="category-hero text-center">
+    <div style="position: relative; z-index: 2">
+      <h1 style="font-size: 56px; font-weight: 800; margin-bottom: 16px">
+        💳 Planlar ve Fiyatlandırma
+      </h1>
+      <p style="font-size: 24px; opacity: 0.95; margin-bottom: 12px">
+        Size uygun plan kategorisini seçin
+      </p>
+      <p style="font-size: 16px; opacity: 0.85">
+        Tüm planlarda 14 gün ücretsiz deneme · İstediğiniz zaman iptal
+      </p>
+    </div>
+  </div>
+
+  <!-- Öne Çıkan Özellikler -->
+  <div class="text-center mb-5">
+    <span
+      class="stat-badge"
+      style="background: rgba(16, 185, 129, 0.1); color: #059669"
+    >
+      <i class="bi bi-shield-check me-1"></i>Güvenli Ödeme
+    </span>
+    <span
+      class="stat-badge"
+      style="background: rgba(102, 126, 234, 0.1); color: #667eea"
+    >
+      <i class="bi bi-arrow-repeat me-1"></i>İstediğiniz Zaman İptal
+    </span>
+    <span
+      class="stat-badge"
+      style="background: rgba(245, 158, 11, 0.1); color: #d97706"
+    >
+      <i class="bi bi-credit-card me-1"></i>12 Aya Kadar Taksit
+    </span>
+    <span
+      class="stat-badge"
+      style="background: rgba(236, 72, 153, 0.1); color: #be185d"
+    >
+      <i class="bi bi-percent me-1"></i>Yıllık %20 İndirim
+    </span>
+  </div>
+
+  <!-- Kategori Kartları -->
+  <div class="row g-4 mb-5">
+    <!-- KOBİ -->
+    <div class="col-md-4">
+      <a href="{% url 'billing:plans_kobi' %}" class="category-card kobi">
+        <div class="category-icon">🏢</div>
+        <h3 class="fw-bold text-center mb-2">KOBİ Planları</h3>
+        <p class="text-center text-muted mb-3">
+          Küçük ve orta büyüklükteki işletmeler için finansal yönetim çözümleri
+        </p>
+
+        <div class="text-center price-range">299₺ - 2.499₺</div>
+        <p class="text-center text-muted small mb-4">/ay</p>
+
+        <ul class="feature-list">
+          <li>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Finansal
+            Analiz & Raporlama
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>e-Fatura &
+            e-Arşiv
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Bütçe &
+            Nakit Akış Yönetimi
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>AI Destekli
+            Sağlık Skoru
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Blockchain
+            Audit Trail
+          </li>
+        </ul>
+
+        <div class="d-grid">
+          <button class="btn btn-success btn-category">
+            <i class="bi bi-arrow-right-circle me-2"></i>KOBİ Planlarını Gör
+          </button>
+        </div>
+      </a>
+    </div>
+
+    <!-- Eğitim -->
+    <div class="col-md-4">
+      <a
+        href="{% url 'billing:plans_education' %}"
+        class="category-card education"
+      >
+        <div class="category-icon">🎓</div>
+        <h3 class="fw-bold text-center mb-2">Eğitim Planları</h3>
+        <p class="text-center text-muted mb-3">
+          Öğrenciler, öğretmenler ve eğitim kurumları için özel paketler
+        </p>
+
+        <div class="text-center price-range">99₺ - 999₺</div>
+        <p class="text-center text-muted small mb-4">/ay</p>
+
+        <ul class="feature-list">
+          <li>
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>Sanal
+            Şirket Simülasyonu
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>Video
+            Eğitim Kütüphanesi
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>Sertifika
+            Programları
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>Öğrenci
+            Takip Sistemi
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>Finansal
+            Okuryazarlık
+          </li>
+        </ul>
+
+        <div class="d-grid">
+          <button class="btn btn-warning btn-category">
+            <i class="bi bi-arrow-right-circle me-2"></i>Eğitim Planlarını Gör
+          </button>
+        </div>
+      </a>
+    </div>
+
+    <!-- Oyuncu -->
+    <div class="col-md-4">
+      <a href="{% url 'billing:plans_games' %}" class="category-card games">
+        <div class="category-icon">🎮</div>
+        <h3 class="fw-bold text-center mb-2">Oyuncu Planları</h3>
+        <p class="text-center text-muted mb-3">
+          Finansal okur-yazarlığı oyunlaştırarak öğrenin, yarışın ve kazanın
+        </p>
+
+        <div class="text-center price-range">Ücretsiz - 99₺</div>
+        <p class="text-center text-muted small mb-4">/ay</p>
+
+        <ul class="feature-list">
+          <li>
+            <i class="bi bi-check-circle-fill me-2" style="color: #ec4899"></i
+            >Ticaret Simülasyonu
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill me-2" style="color: #ec4899"></i
+            >Liderlik Tabloları
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill me-2" style="color: #ec4899"></i
+            >Rozet & Başarı Sistemi
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill me-2" style="color: #ec4899"></i
+            >Multiplayer Turnuvalar
+          </li>
+          <li>
+            <i class="bi bi-check-circle-fill me-2" style="color: #ec4899"></i
+            >AI Ticaret Asistanı
+          </li>
+        </ul>
+
+        <div class="d-grid">
+          <button
+            class="btn btn-category"
+            style="
+              background: linear-gradient(135deg, #ec4899, #be185d);
+              color: white;
+              border: none;
+            "
+          >
+            <i class="bi bi-arrow-right-circle me-2"></i>Oyuncu Planlarını Gör
+          </button>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Alt Bilgi -->
+  <div
+    class="card border-0 shadow-sm"
+    style="
+      border-radius: 20px;
+      background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.05),
+        rgba(118, 75, 162, 0.02)
+      );
+      padding: 40px;
+    "
+  >
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h4 class="fw-bold mb-2">
+          Hangi planın size uygun olduğundan emin değil misiniz?
+        </h4>
+        <p class="text-muted mb-0">
+          Uzman ekibimiz size en uygun planı seçmenizde yardımcı olabilir.
+          Ücretsiz danışmanlık için bizimle iletişime geçin.
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a
+          href="{% url 'contact' %}"
+          class="btn btn-primary btn-lg"
+          style="border-radius: 12px"
+        >
+          <i class="bi bi-telephone me-2"></i>İletişime Geçin
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SSS -->
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4 text-center">Sık Sorulan Sorular</h4>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div
+          class="card border-0 shadow-sm"
+          style="border-radius: 16px; padding: 24px"
+        >
+          <h6 class="fw-bold mb-2">
+            <i class="bi bi-question-circle me-2" style="color: #667eea"></i>
+            Ücretsiz deneme süresi var mı?
+          </h6>
+          <p class="text-muted small mb-0">
+            Evet, tüm planlarda 14 gün ücretsiz deneme sunuyoruz. Kredi kartı
+            bilgisi gerekmez.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div
+          class="card border-0 shadow-sm"
+          style="border-radius: 16px; padding: 24px"
+        >
+          <h6 class="fw-bold mb-2">
+            <i class="bi bi-question-circle me-2" style="color: #667eea"></i>
+            İstediğim zaman iptal edebilir miyim?
+          </h6>
+          <p class="text-muted small mb-0">
+            Evet, herhangi bir taahhüt yok. İstediğiniz zaman iptal
+            edebilirsiniz.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div
+          class="card border-0 shadow-sm"
+          style="border-radius: 16px; padding: 24px"
+        >
+          <h6 class="fw-bold mb-2">
+            <i class="bi bi-question-circle me-2" style="color: #667eea"></i>
+            Yıllık abonelikte indirim var mı?
+          </h6>
+          <p class="text-muted small mb-0">
+            Evet, yıllık aboneliklerde %20'ye varan indirim sağlıyoruz.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div
+          class="card border-0 shadow-sm"
+          style="border-radius: 16px; padding: 24px"
+        >
+          <h6 class="fw-bold mb-2">
+            <i class="bi bi-question-circle me-2" style="color: #667eea"></i>
+            Plan değişikliği yapabilir miyim?
+          </h6>
+          <p class="text-muted small mb-0">
+            Evet, istediğiniz zaman planınızı yükseltebilir veya
+            düşürebilirsiniz.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

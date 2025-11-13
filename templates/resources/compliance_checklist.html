@@ -1,0 +1,170 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ page_title|default:_("Uyumluluk Checklist") }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, rgba(13, 59, 102, 0.85), rgba(0, 142, 122, 0.9));
+         --resource-hero-glow: radial-gradient(circle at top right, rgba(255, 255, 255, 0.25), transparent 70%);">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-7">
+      <div class="d-inline-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-warning text-dark">{% trans "MASAK & KVKK Uyum Rehberi" %}</span>
+        <span class="badge bg-light text-dark">{% trans "Güncel: Q4 2025" %}</span>
+      </div>
+      <h1 class="display-6 fw-bold mb-3">{% trans "Uyumluluk Checklist" %}</h1>
+      <p class="lead mb-4">
+        {% trans "FinAsis uyumluluk motoruyla entegre çalışan operasyon checklist'i. Riskli işlem tespiti, müşteri tanıma (KYC/KYB) ve veri koruma prosedürlerini adım adım takip edin." %}
+      </p>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="#masak-controls" class="btn btn-light btn-lg" data-cta="compliance-masak">
+          <i class="bi bi-shield-lock me-2"></i>{% trans "MASAK Kontrolleri" %}
+        </a>
+        <a href="#kvkk-controls" class="btn btn-outline-light btn-lg" data-cta="compliance-kvkk">
+          <i class="bi bi-person-badge me-2"></i>{% trans "KVKK & Veri Koruma" %}
+        </a>
+        <a href="#iso-27001" class="btn btn-outline-light btn-lg" data-cta="compliance-iso">
+          <i class="bi bi-diagram-3 me-2"></i>{% trans "ISO 27001 Süreçleri" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-5 text-lg-end">
+      <img src="{% static 'common/login_illustration.svg' %}" alt="{% trans 'Uyumluluk Checklist Görseli' %}" class="img-fluid" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="py-4" id="masak-controls">
+  <div class="row g-4">
+    <div class="col-xl-6">
+      <div class="resource-card compliance-card h-100">
+        <div class="resource-pill amber mb-3">
+          <i class="bi bi-shield-check"></i>MASAK {% trans "Kontrolleri" %}
+        </div>
+        <h2 class="h5 fw-semibold mb-3">{% trans "Müşteri Tanıma (KYC/KYB)" %}</h2>
+        <div class="resource-checklist">
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Gerçek ve tüzel kişi müşteri kimlik doğrulamalarını FinAsis KYC modülünden doğruladınız mı?" %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Riskli ülke/kurum listelerini FinAsis AML motoruyla eşleştirip pozitif eşleşmeleri raporladınız mı?" %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Politika gereği güncellenen kimlik ve yetki belgeleri için blockchain kanıtı oluşturuldu mu?" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="resource-card compliance-card h-100">
+        <h2 class="h5 fw-semibold mb-3">{% trans "Şüpheli İşlem ve Uyarılar" %}</h2>
+        <div class="resource-checklist">
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Günlük eşik aşımı (threshold) uyarıları ve kara liste eşleşmeleri incelendi mi?" %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "FinAsis risk panosunda bekleyen AML görevleri kapatıldı mı?" %}</span>
+          </div>
+          <div class="item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "Şüpheli işlem raporları MASAK bildirim formatına göre arşivlendi mi?" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="kvkk-controls">
+  <div class="row g-4">
+    <div class="col-xl-4">
+      <div class="resource-card compliance-card h-100">
+        <div class="resource-pill teal mb-3">
+          <i class="bi bi-shield-shaded"></i>{% trans "Veri Envanteri" %}
+        </div>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Veri işleme envanteri FinAsis KVKK modülünde güncellendi." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Dış hizmet sağlayıcıları (veri işleyen) sözleşmeleri yenilendi." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Veri saklama süreleri ve silme politikaları gözden geçirildi." %}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="resource-card compliance-card h-100">
+        <h3 class="h6 fw-semibold mb-3">{% trans "Aydınlatma ve Rıza Süreçleri" %}</h3>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Çerez politikaları ve açık rıza kayıtları güncellendi." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Müşteri/veri sahibi başvuruları için SLA takip listesi oluşturuldu." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Veri ihlali bildirim prosedürü FinAsis yardım merkezinde duyuruldu." %}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="resource-card compliance-card h-100">
+        <h3 class="h6 fw-semibold mb-3">{% trans "Erişim Yetkileri" %}</h3>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "RBAC modülünde rol bazlı erişim kontrolleri gözden geçirildi." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "İki faktörlü doğrulama zorunluluğu yüksek riskli roller için aktif." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Çalışan çıkış kontrol listesi ve erişim iptal kayıtları saklandı." %}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="iso-27001">
+  <div class="resource-card compliance-card">
+    <div class="category-chip chip-iso mb-3">
+      <i class="bi bi-stack"></i>{% trans "ISO 27001 Entegrasyonu" %}
+    </div>
+    <p class="text-secondary mb-4">
+      {% trans "FinAsis, ISO 27001 bilgi güvenliği yönetim sistemi için politika ve prosedürlerinizi dijitalleştirmenize yardımcı olur. Aşağıdaki kontrolleri uyguladığınızda denetim süreçleri hızlanır." %}
+    </p>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "Risk değerlendirme ve düzeltici faaliyet planları platforma işlendi." %}</li>
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "İş sürekliliği ve kurtarma testleri için FinAsis görev şablonları kullanıldı." %}</li>
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "Tedarikçi güvenlik denetimleri için e-imza ve blockchain kayıtları oluşturuldu." %}</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "Olay yönetimi kayıtları FinAsis yardım masası entegrasyonu ile tutuldu." %}</li>
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "Eğitim & farkındalık programları FinAsis LMS modülünde planlandı." %}</li>
+          <li><i class="bi bi-check-circle-fill text-primary me-2"></i>{% trans "Varlık envanteri ve sınıflandırması finans modülü ile eşleştirildi." %}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="compliance-card">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-8">
+        <h2 class="h5 fw-semibold mb-3">{% trans "Checklist'i İndir ve Ekibinle Paylaş" %}</h2>
+        <p class="text-secondary mb-0">
+          {% trans "FinAsis uyumluluk checklist'ini PDF ve Google Sheets formatında dışa aktararak ekip toplantılarında kullanabilirsiniz. Güncellemeleri otomatik almak için destek ekibimizle iletişime geçin." %}
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="{% url 'contact' %}?subject=compliance-checklist" class="btn btn-primary">
+          <i class="bi bi-chat-dots me-2"></i>{% trans "Checklist Talep Et" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

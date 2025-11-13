@@ -1,0 +1,84 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Dijital Varlık Oluştur - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-plus-circle me-2"></i>Yeni Dijital Varlık
+    </h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Varlık Adı</label>
+                            <input type="text" name="asset_name" class="form-control" placeholder="örn: FinAsis Loyalty Points" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sembol</label>
+                                <input type="text" name="asset_symbol" class="form-control" placeholder="örn: FASLP" maxlength="10" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Varlık Tipi</label>
+                                <select name="asset_type" class="form-select" required>
+                                    {% for value, label in asset_types %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Toplam Arz (Total Supply)</label>
+                            <input type="number" name="total_supply" class="form-control" step="0.01" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Metadata (JSON - Opsiyonel)</label>
+                            <textarea name="metadata" class="form-control font-monospace" rows="4">{
+    "description": "Varlık açıklaması",
+    "icon_url": ""
+}</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="bi bi-gem me-2"></i>Varlık Oluştur
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb me-2"></i>Dijital Varlık Nedir?</h6>
+                    <p class="small">
+                        Blockchain üzerinde token'ize edilmiş değerlerdir. Loyalty puanları, ödül sistemleri veya NFT'ler oluşturabilirsiniz.
+                    </p>
+                    <h6 class="mt-3">Varlık Tipleri:</h6>
+                    <ul class="small">
+                        <li><strong>Utility:</strong> Kullanım token'ları</li>
+                        <li><strong>Security:</strong> Menkul kıymet</li>
+                        <li><strong>NFT:</strong> Benzersiz varlıklar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

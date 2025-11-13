@@ -1,0 +1,140 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ client.company_name }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'corporate:client_list' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Müşteri Listesine Dön" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                    <i class="bi bi-building text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ client.company_name }}</h4>
+                <p class="text-muted mb-3">{{ client.get_industry_sector_display }}</p>
+                
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ client.email }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-envelope me-2"></i>{% trans "E-posta Gönder" %}
+                    </a>
+                    <a href="tel:{{ client.phone }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-telephone me-2"></i>{% trans "Ara" %}
+                    </a>
+                </div>
+
+                <hr class="my-3">
+                
+                <div class="text-start">
+                    <p class="small mb-2"><strong>{% trans "Vergi No" %}:</strong> {{ client.tax_number }}</p>
+                    <p class="small mb-2"><strong>{% trans "Telefon" %}:</strong> {{ client.phone }}</p>
+                    <p class="small mb-2"><strong>{% trans "E-posta" %}:</strong> {{ client.email }}</p>
+                    {% if client.website %}
+                    <p class="small mb-0"><strong>{% trans "Website" %}:</strong> <a href="{{ client.website }}" target="_blank">{{ client.website }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- İletişim Bilgileri -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>{% trans "İletişim Kişileri" %}</h5>
+                <button class="btn btn-sm btn-primary">{% trans "Yeni Kişi Ekle" %}</button>
+            </div>
+            <div class="card-body">
+                {% if contacts %}
+                <div class="list-group list-group-flush">
+                    {% for contact in contacts %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ contact.first_name }} {{ contact.last_name }}</h6>
+                            <small class="text-muted">{{ contact.position }}</small>
+                        </div>
+                        <div>
+                            <a href="mailto:{{ contact.email }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">{% trans "İletişim kişisi bulunmuyor" %}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Projeler -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-kanban me-2"></i>{% trans "Projeler" %}</h5>
+                <button class="btn btn-sm btn-success">{% trans "Yeni Proje" %}</button>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                {% for project in projects %}
+                <div class="d-flex justify-content-between align-items-center mb-3 {% if not forloop.last %}pb-3 border-bottom{% endif %}">
+                    <div>
+                        <h6 class="mb-1">{{ project.project_name }}</h6>
+                        <small class="text-muted">{{ project.start_date }} - {{ project.end_date|default:"Devam ediyor" }}</small>
+                    </div>
+                    <span class="badge bg-{% if project.status == 'IN_PROGRESS' %}primary{% elif project.status == 'COMPLETED' %}success{% else %}secondary{% endif %}">
+                        {{ project.get_status_display }}
+                    </span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center py-3">{% trans "Proje bulunmuyor" %}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sözleşmeler -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>{% trans "Sözleşmeler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if contracts %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Sözleşme Adı" %}</th>
+                                <th>{% trans "Başlangıç" %}</th>
+                                <th>{% trans "Bitiş" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in contracts %}
+                            <tr>
+                                <td>{{ contract.contract_title }}</td>
+                                <td>{{ contract.start_date }}</td>
+                                <td>{{ contract.end_date }}</td>
+                                <td><span class="badge bg-{% if contract.is_active %}success{% else %}secondary{% endif %}">
+                                    {% if contract.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                                </span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">{% trans "Sözleşme bulunmuyor" %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

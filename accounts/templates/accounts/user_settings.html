@@ -1,0 +1,31 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Kullanıcı Ayarları" %} | FinAsis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-xl-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-4">{% trans "Kullanıcı Ayarları" %}</h3>
+        <form method="post" class="needs-validation" novalidate>
+          {% csrf_token %}
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" value="1" {% if settings and settings.email_notifications %}checked{% endif %}>
+            <label class="form-check-label" for="email_notifications">{% trans "E-posta Bildirimleri" %}</label>
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="dark_mode" name="dark_mode" value="1" {% if settings and settings.dark_mode %}checked{% endif %}>
+            <label class="form-check-label" for="dark_mode">{% trans "Koyu Tema Tercihi" %}</label>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'accounts:user_profile' %}" class="btn btn-outline-secondary">{% trans "İptal" %}</a>
+            <button type="submit" class="btn btn-primary">{% trans "Kaydet" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

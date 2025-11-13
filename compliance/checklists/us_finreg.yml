@@ -1,0 +1,15 @@
+- id: finreg_aml_app
+  title: "Uyumluluk uygulaması yüklü"
+  type: app_installed
+  app: "security"
+  severity: info
+  message: "AML logları için security uygulaması zorunlu."
+
+- id: finreg_api_throttle
+  title: "Developer API rate limit tanımlı"
+  type: setting_contains
+  path: "REST_FRAMEWORK"
+  expected: "developer_portal.throttling.DeveloperAPIKeyRateThrottle"
+  severity: warning
+  message: "FINTRAC uyumluluğu için API rate limit zorunlu."
+

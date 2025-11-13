@@ -1,0 +1,194 @@
+{% load static %}
+
+<!-- FinAsis Help System - Tüm sayfalarda görünür -->
+
+<!-- Floating Help Widget -->
+<div id="helpWidget" class="help-widget">
+    <!-- Minimize edilmiş durum -->
+    <div id="helpWidgetMinimized" class="help-widget-minimized">
+        <button class="btn btn-primary rounded-circle shadow-lg" 
+                onclick="toggleHelpWidget()"
+                data-bs-toggle="tooltip"
+                data-bs-placement="left"
+                title="Yardıma mı ihtiyacınız var? Tıklayın! (Alt+H)">
+            <i class="bi-question-circle fs-4"></i>
+        </button>
+    </div>
+    
+    <!-- Açık durum -->
+    <div id="helpWidgetExpanded" class="help-widget-expanded" style="display: none;">
+        <div class="card shadow-lg border-0" style="width: 350px;">
+            <!-- Header -->
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi-question-circle me-2"></i>
+                    Hızlı Yardım
+                </h6>
+                <button class="btn btn-sm btn-link text-white p-0" 
+                        onclick="toggleHelpWidget()">
+                    <i class="bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="card-body" style="max-height: 450px; overflow-y: auto;">
+                
+                <!-- Arama -->
+                <div class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi-search"></i></span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="widgetSearch"
+                               placeholder="Ne arıyorsunuz?"
+                               autocomplete="off">
+                    </div>
+                    <div id="widgetSearchResults" class="mt-2"></div>
+                </div>
+                
+                <!-- Hızlı Linkler -->
+                <h6 class="text-muted mb-2 small">HIZLI ERİŞİM</h6>
+                <div class="list-group list-group-flush mb-3">
+                    <a href="{% url 'common:help_center' %}" class="list-group-item list-group-item-action py-2">
+                        <i class="bi-house text-primary me-2"></i>
+                        <small>Yardım Merkezi</small>
+                    </a>
+                    <a href="{% url 'common:help_quick_start' %}" class="list-group-item list-group-item-action py-2">
+                        <i class="bi-rocket text-success me-2"></i>
+                        <small>Hızlı Başlangıç</small>
+                    </a>
+                    <a href="{% url 'common:help_faq' %}" class="list-group-item list-group-item-action py-2">
+                        <i class="bi-question-circle text-info me-2"></i>
+                        <small>SSS</small>
+                    </a>
+                    <a href="{% url 'common:help_videos' %}" class="list-group-item list-group-item-action py-2">
+                        <i class="bi-play-circle text-danger me-2"></i>
+                        <small>Video Eğitimler</small>
+                    </a>
+                    <a href="{% url 'common:help_shortcuts' %}" class="list-group-item list-group-item-action py-2">
+                        <i class="bi-keyboard text-secondary me-2"></i>
+                        <small>Klavye Kısayolları</small>
+                    </a>
+                </div>
+                
+                <!-- Günün İpucu -->
+                <div class="alert alert-warning alert-sm mb-3">
+                    <strong><i class="bi-lightbulb me-1"></i> Günün İpucu:</strong><br>
+                    <small id="dailyTip">AI Asistan ile sesli komut vererek fatura oluşturabilirsiniz!</small>
+                </div>
+                
+                <!-- Klavye Kısayolları -->
+                <h6 class="text-muted mb-2 small">KLAVYE KISAYOLLARI</h6>
+                <div class="mb-3">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td><kbd class="small">Alt+H</kbd></td>
+                            <td><small>Yardım</small></td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="small">Alt+S</kbd></td>
+                            <td><small>Arama</small></td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="small">Alt+D</kbd></td>
+                            <td><small>Dashboard</small></td>
+                        </tr>
+                    </table>
+                </div>
+                
+            </div>
+            
+            <!-- Footer -->
+            <div class="card-footer bg-light">
+                <div class="d-grid">
+                    <a href="{% url 'common:help_contact' %}" class="btn btn-sm btn-success">
+                        <i class="bi-headset me-2"></i>Destek Talebi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help System CSS -->
+<link rel="stylesheet" href="{% static 'common/css/help-system.css' %}">
+
+<!-- Help System JS -->
+<script src="{% static 'common/js/help-system.js' %}"></script>
+
+<script>
+function toggleHelpWidget() {
+    const minimized = document.getElementById('helpWidgetMinimized');
+    const expanded = document.getElementById('helpWidgetExpanded');
+    
+    if (minimized.style.display === 'none') {
+        minimized.style.display = 'block';
+        expanded.style.display = 'none';
+    } else {
+        minimized.style.display = 'none';
+        expanded.style.display = 'block';
+        
+        // Focus search
+        setTimeout(() => {
+            document.getElementById('widgetSearch')?.focus();
+        }, 100);
+    }
+}
+
+// Widget içi arama
+document.addEventListener('DOMContentLoaded', function() {
+    const widgetSearch = document.getElementById('widgetSearch');
+    if (widgetSearch) {
+        widgetSearch.addEventListener('input', async function(e) {
+            const query = e.target.value.trim();
+            const resultsDiv = document.getElementById('widgetSearchResults');
+            
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/help/api/search/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    let html = '<div class="list-group">';
+                    data.results.slice(0, 5).forEach(result => {
+                        html += `
+                            <a href="${result.url}" class="list-group-item list-group-item-action py-2">
+                                <i class="${result.icon} text-primary me-2"></i>
+                                <small>${result.title}</small>
+                            </a>
+                        `;
+                    });
+                    html += '</div>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<small class="text-muted">Sonuç bulunamadı</small>';
+                }
+            } catch (error) {
+                console.error('Widget search error:', error);
+            }
+        });
+    }
+    
+    // Günün ipucunu random seç
+    const tips = [
+        'AI Asistan ile sesli komut vererek fatura oluşturabilirsiniz!',
+        'Toplu fatura import için Excel kullanabilirsiniz.',
+        'Klavye kısayolları ile daha hızlı çalışabilirsiniz (Alt+H).',
+        'Dashboard widget\'larını sürükle-bırak ile düzenleyebilirsiniz.',
+        'OCR ile belge fotoğraflarını otomatik okutabilirsiniz.',
+        'TradeSim oyunu ile eğlenerek finansal okuryazarlığınızı artırın!',
+        'Blockchain ile tüm işlemleriniz güvenli ve değiştirilemez.',
+    ];
+    
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    const tipElement = document.getElementById('dailyTip');
+    if (tipElement) {
+        tipElement.textContent = randomTip;
+    }
+});
+</script>
+

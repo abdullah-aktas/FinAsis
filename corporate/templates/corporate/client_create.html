@@ -1,0 +1,72 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni Müşteri Ekle" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            <a href="{% url 'corporate:client_list' %}" class="text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>{% trans "Müşteri Listesine Dön" %}
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h4 class="mb-0 fw-bold">{% trans "Yeni Kurumsal Müşteri Ekle" %}</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Şirket Adı" %} <span class="text-danger">*</span></label>
+                            <input type="text" name="company_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Vergi Numarası" %} <span class="text-danger">*</span></label>
+                            <input type="text" name="tax_number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Sektör" %}</label>
+                            <select name="industry_sector" class="form-select">
+                                {% for value, label in industry_sectors %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Telefon" %}</label>
+                            <input type="tel" name="phone" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "E-posta" %}</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Website" %}</label>
+                            <input type="url" name="website" class="form-control" placeholder="https://">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{% trans "Adres" %}</label>
+                            <textarea name="address" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-2"></i>{% trans "Kaydet" %}
+                        </button>
+                        <a href="{% url 'corporate:client_list' %}" class="btn btn-outline-secondary px-4">
+                            {% trans "İptal" %}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,293 @@
+roles:
+  mali_musavir:
+    prompts:
+      - intent: portfolio_health
+        title: "AI Asistan: Portföy Sağlığı"
+        body: "Son 30 günde nakit akışı düşen müşteriler için uyarı raporunu inceleyin."
+        cta_label: "Raporu Aç"
+        cta_href: "/ai-assistant/reports/portfolio-health/"
+        icon: "bi-stars"
+        prompt: |
+          Finansal danışman olarak portföy sağlığını değerlendir. Aşağıdaki müşteri listesinde nakit akışı düşüşü yaşayan şirketleri tespit et, düşüş nedenlerini varsay ve kısa vadeli aksiyon önerileri çıkar. Yanıtlarken priorite, müşteri adı, risk notu ve öneri alanlarını tablo olarak ver.
+      - intent: compliance_forecast
+        title: "Uyumluluk Tahmini"
+        body: "MASAK/KVKK checklist’inde tekrar eden eksikler için önleyici aksiyonları belirleyin."
+        cta_label: "Önerileri Gör"
+        cta_href: "/security/compliance/recommendations/"
+        icon: "bi-shield-lock"
+        prompt: |
+          Uyumluluk danışmanı rolündesin. Masak ve KVKK checklist sonuçlarını kullanarak riskli alanları skorla. Her risk için etkilenen süreç, önerilen kontrol, çözüm süresi ve sorumlu rolü listesi oluştur.
+      - intent: revenue_simulation
+        title: "Gelir Artış Simülasyonu"
+        body: "Gelir trendi düşen müşteriler için fiyatlandırma senaryolarını test edin."
+        cta_label: "Simülasyonu Başlat"
+        cta_href: "/finance/simulations/pricing/"
+        icon: "bi-cpu"
+        prompt: |
+          Portföydeki müşteriler için gelir projeksiyonu hazırla. Üç fiyatlandırma senaryosu üret (koru, optimize, agresif). Her senaryo için beklenen gelir artışı, müşteri kaybı riski ve önerilen takip aksiyonlarını özetle.
+
+  egitimci:
+    prompts:
+      - intent: lesson_outline
+        title: "Ders Planı Taslağı"
+        body: "Seçtiğiniz modüle göre 45 dakikalık finans dersi taslağı oluşturun."
+        cta_label: "Planı Oluştur"
+        cta_href: "/ai-assistant/class-summaries/"
+        icon: "bi-journal-plus"
+        prompt: |
+          Finans okuryazarlığı öğretmeni olarak 45 dakikalık ders planı hazırla. Bölümler: giriş hikayesi, kavram anlatımı, oyunlaştırılmış aktivite, değerlendirme. Her bölüm için süre, materyal, beklenen çıktı alanları ver.
+      - intent: assignment_generator
+        title: "Gamified Ödev Önerileri"
+        body: "Öğrencilerin oyun görevleriyle entegre ödev fikirleri alın."
+        cta_label: "Ödevleri Gör"
+        cta_href: "/education/assignments/recommendations/"
+        icon: "bi-clipboard-check"
+        prompt: |
+          Öğrencilerin FinQuest görev motoruyla bağlantılı ödevler üret. Her ödev için öğrenme amacı, oyun içi görev ilişkisi, değerlendirme kriteri ve beklenen teslim formatını belirt.
+      - intent: feedback_digest
+        title: "Öğrenci Geri Bildirim Özeti"
+        body: "Son haftaki öğrenci etkileşimlerini 3 maddelik aksiyon planına dönüştürün."
+        cta_label: "Özeti Çıkar"
+        cta_href: "/education/reports/feedback-summary/"
+        icon: "bi-chat-dots"
+        prompt: |
+          Öğrenci yorumlarını analiz et. Öne çıkan güçlü yönler ve geliştirme alanlarını belirle. Her madde için eylem önerisi ve takip sorusu üret.
+
+  ogrenci:
+    prompts:
+      - intent: study_plan
+        title: "AI Asistan: Çalışma Planı"
+        body: "Bu hafta tamamlaman gereken dersler için günlük plan hazırlayın."
+        cta_label: "Planı Aç"
+        cta_href: "/ai-assistant/study-plan/"
+        icon: "bi-list-task"
+        prompt: |
+          Öğrenciye 5 günlük çalışma planı çıkar. Günlük hedefler, oyun görevi ve bilgi pekiştirme sorusu dahil et. Her gün için motivasyon mesajı ekle.
+      - intent: quiz_builder
+        title: "Quiz Hazırlığı"
+        body: "Yaklaşan sınav için mini quiz önerileri alın."
+        cta_label: "Quiz Başlat"
+        cta_href: "/education/exams/quick-prep/"
+        icon: "bi-lightning-charge"
+        prompt: |
+          Finans temelleri için 10 soruluk quiz oluştur. Soru türü, zorluk, doğru cevap ve açıklama ver. Sonunda 3 pekiştirme ipucu sağla.
+      - intent: career_coach
+        title: "Kariyer Koçu"
+        body: "İlgi alanlarına göre staj ve rozet önerilerini keşfedin."
+        cta_label: "Önerileri Aç"
+        cta_href: "/education/career-paths/"
+        icon: "bi-compass"
+        prompt: |
+          Öğrencinin ilgi alanları ve tamamladığı görev listesini kullanarak kariyer önerisi hazırla. 3 rol önerisi, gerekli beceriler ve FinAsis modülleriyle nasıl pekiştirileceğini belirt.
+
+  oyuncu:
+    prompts:
+      - intent: mission_brief
+        title: "FinQuest Görev Brifingi"
+        body: "Finans oyunundaki bu haftanın görev hedeflerini özetleyin."
+        cta_label: "Brifingi Gör"
+        cta_href: "/games/quests/"
+        icon: "bi-controller"
+        prompt: |
+          FinQuest oyuncusuna haftalık görev özeti ver. Görev adı, kazanılacak XP, ilgili finansal kavram ve gerçek hayat uygulamasını açıklayan tablo oluştur.
+      - intent: simulation_bridge
+        title: "Simülasyon Köprüsü"
+        body: "Oyun görevlerini gerçek finansal simülasyonlarla eşleştirin."
+        cta_label: "Simülasyonu Başlat"
+        cta_href: "/finance/simulations/pricing/"
+        icon: "bi-cpu"
+        prompt: |
+          Oyuncunun tamamladığı görevleri al ve üç finansal senaryoya bağla. Her senaryo için şirket durumu, karar noktası ve oyun içi mekanik ile nasıl ilişkilendiğini açıkla.
+      - intent: leaderboard_tips
+        title: "Liderlik Tavsiyeleri"
+        body: "Liderlik tablosunda yükselmek için veriye dayalı ipuçları alın."
+        cta_label: "Tavsiyeleri Al"
+        cta_href: "/games/leaderboard/"
+        icon: "bi-trophy"
+        prompt: |
+          Kullanıcının skor geçmişine göre liderlik tablosunda yükselmek için 3 taktik öner. Her taktik için uygulanacak oyun görevi, finansal kavram ve beklenen kazanımı anlat.
+
+  kobi:
+    prompts:
+      - intent: cashflow_alert
+        title: "Nakit Akışı Uyarısı"
+        body: "Anlık nakit açığı riskini ve önerilen aksiyonları görüntüleyin."
+        cta_label: "Riskleri İncele"
+        cta_href: "/finance/reports/cashflow/"
+        icon: "bi-cash-coin"
+        prompt: |
+          KOBİ finans yöneticisine son 14 günlük nakit hareketlerini özetle. Riskli günleri, beklenen tahsilatları ve önerilen aksiyonları tablo halinde sun.
+      - intent: expense_optimizer
+        title: "Gider Optimizasyon Paketi"
+        body: "Gider kalemlerini AI destekli tasarruf önerileriyle gözden geçirin."
+        cta_label: "Tasarruf Bul"
+        cta_href: "/finance/insights/expense-optimizer/"
+        icon: "bi-piggy-bank"
+        prompt: |
+          Masraf kategorilerini analiz et. Yüksek maliyetli üç alan seç ve her biri için tasarruf stratejisi, etki potansiyeli ve uygulanması gereken modülleri belirt.
+
+  admin:
+    prompts:
+      - intent: release_go_no_go
+        title: "Release Go/No-Go Asistanı"
+        body: "Yayın öncesi health check sonuçlarını ve kritik bloklayıcıları özetleyin."
+        cta_label: "Kontrol Listesini Aç"
+        cta_href: "/management/ops/health-check/"
+        icon: "bi-clipboard-pulse"
+        prompt: |
+          Yayın öncesi sistem durum raporu hazırla. Sağlık kontrolleri, açık incident kayıtları ve gerekli aksiyonları başlık, sorumlu, ETA ve risk düzeyi sütunlarıyla tablolandır.
+      - intent: incident_postmortem
+        title: "Incident Postmortem Taslağı"
+        body: "Üretim kesintisi sonrası öğrenilen dersleri ve aksiyonları standart formatta çıkarın."
+        cta_label: "Postmortem Şablonu"
+        cta_href: "/management/ops/runbooks/postmortem/"
+        icon: "bi-lightning-charge"
+        prompt: |
+          Incident özeti, etki alanı, kök sebep analizi, düzeltici/önleyici aksiyonlar ve SLO etkisini içeren detaylı postmortem yaz. Her aksiyonun sorumlusunu ve hedef tarihini belirt.
+      - intent: access_review
+        title: "Erişim Gözden Geçirme"
+        body: "Kritik gruplardaki kullanıcı erişimlerini inceleyip uygunsuz atamaları raporlayın."
+        cta_label: "RBAC Paneli"
+        cta_href: "/management/security/access-review/"
+        icon: "bi-key"
+        prompt: |
+          Yönetici, finans ve destek gruplarındaki kullanıcı listesini gözden geçir. Riskli veya uyumsuz atamalar için gerekçe ve önerilen aksiyonu belirt. Sonuçları tablo halinde sun.
+
+  finance_manager:
+    prompts:
+      - intent: liquidity_playbook
+        title: "Likidite Playbook'u"
+        body: "Kısa vadeli nakit ihtiyacını yönetmek için transfer önerileri hazırlayın."
+        cta_label: "Hazine Paneli"
+        cta_href: "/finance/banking/"
+        icon: "bi-bank"
+        prompt: |
+          Banka bakiyeleri ve yaklaşan ödemeler verisini kullanarak likidite planı oluştur. Üç senaryo (baz, stres, fırsat) için transfer önerileri, etkilediği hesaplar ve onay gereksinimlerini listele.
+      - intent: kpi_scorecard
+        title: "Finans KPI Skor Kartı"
+        body: "Aylık finansal KPI'ları hızla özetleyin ve sapmalar için açıklamalar üretin."
+        cta_label: "KPI Raporu"
+        cta_href: "/finance/reports/scorecard/"
+        icon: "bi-speedometer2"
+        prompt: |
+          Gelir, gider, brüt marj, EBITDA ve nakit dönüşüm oranlarını içeren KPI tablosu hazırla. Her metrik için hedef, gerçekleşen, sapma yüzdesi ve yorum sütunlarını doldur.
+      - intent: approval_digest
+        title: "Onay Kuyruğu Özeti"
+        body: "Bekleyen finans onaylarını öncelik sırasına göre düzenleyin."
+        cta_label: "Onay Kuyruğu"
+        cta_href: "/accounting/approvals/"
+        icon: "bi-check2-square"
+        prompt: |
+          Bekleyen ödeme ve gider taleplerini önem derecesine göre sırala. Her kayıt için tutar, tedarikçi, son tarih ve önerilen aksiyonu belirt. Riskli kalemleri işaretle.
+
+  accountant:
+    prompts:
+      - intent: closing_checklist
+        title: "Kapanış Checklist Otomasyonu"
+        body: "Dönem kapanış sürecindeki görevleri sıralayın ve eksikleri tespit edin."
+        cta_label: "Kapanış Yardımcısı"
+        cta_href: "/accounting/period-close/"
+        icon: "bi-calendar-check"
+        prompt: |
+          Banka mutabakatı, stok sayımı, amortisman, gelir tahakkuku ve gider tahakkuklarını içeren kapanış görev listesi oluştur. Her görev için durum, sorumlu ve hedef tarihi belirt.
+      - intent: anomaly_detector
+        title: "Anomali Dedektörü"
+        body: "Muhasebe fişlerinde olağan dışı kalemleri işaretleyip açıklama isteyin."
+        cta_label: "Anomali Görüntüle"
+        cta_href: "/accounting/anomalies/"
+        icon: "bi-exclamation-triangle"
+        prompt: |
+          Sıradışı tutar, karşı hesap veya KDV oranına sahip fişleri listele. Her fiş için potansiyel nedeni, önerilen kontrol adımını ve takip notunu ekle.
+      - intent: compliance_summary
+        title: "Uyum Özeti"
+        body: "KDV, BA/BS ve e-defter teslim durumlarını yönetime raporlayın."
+        cta_label: "Uyum Panosu"
+        cta_href: "/accounting/compliance/"
+        icon: "bi-journal-check"
+        prompt: |
+          Vadesi yaklaşan beyanname ve bildirimleri özetle. Durum, sorumlu ve gerekli belgeleri tabloya yaz. Gecikme riski olanları kırmızı ile vurgula.
+
+  financial_advisor:
+    prompts:
+      - intent: advisory_brief
+        title: "Danışmanlık Brifi"
+        body: "Müşteri yönetim kurulu toplantısı için aksiyon listesini hazırlayın."
+        cta_label: "Brifing Şablonu"
+        cta_href: "/finance/reports/board-pack/"
+        icon: "bi-easel3"
+        prompt: |
+          Portföydeki kritik müşteriler için finansal performans, risk, önerilen danışmanlık hizmetleri ve takip aksiyonlarından oluşan tablo oluştur. Öncelik sırası ekle.
+      - intent: cross_sell_matrix
+        title: "Çapraz Satış Matrisi"
+        body: "Müşteri ihtiyaçlarına göre ek hizmet önerileri çıkarın."
+        cta_label: "Hizmet Matrisi"
+        cta_href: "/ai-assistant/recommendations/cross-sell/"
+        icon: "bi-grid"
+        prompt: |
+          Müşteri segmentleri, mevcut hizmetler ve ihtiyaç boşluklarına göre çapraz satış matrisi üret. Her eşleşme için değer önerisi ve beklenen gelir etkisini ekle.
+      - intent: risk_heatmap
+        title: "Risk Isı Haritası"
+        body: "Uyumluluk, nakit ve vergi risklerini görselleştirip aksiyon planı çıkarın."
+        cta_label: "Risk Raporu"
+        cta_href: "/ai-assistant/reports/risk-map/"
+        icon: "bi-lightbulb"
+        prompt: |
+          Risk faktörlerini (nakit akışı, vergi, uyum, operasyon) düşük-orta-yüksek olarak sınıflandır. Her risk için açıklama, etki, olasılık ve önerilen aksiyonu tablolandır.
+
+  kobi_employee:
+    prompts:
+      - intent: day_planner
+        title: "Günlük Operasyon Planı"
+        body: "Gelen görevleri önceliklendirerek iş gününü planlayın."
+        cta_label: "Görev Listesi"
+        cta_href: "/management/tasks/"
+        icon: "bi-list-task"
+        prompt: |
+          Muhasebe, destek ve eğitim modüllerindeki bekleyen işleri öncelik sırasıyla planla. Her görev için tahmini süre, gerekli belge ve sorumlu kişiyi belirt.
+      - intent: customer_followup
+        title: "Müşteri Takip Notları"
+        body: "Müşteri aramalarını özetleyip CRM kayıtlarını güncelleyin."
+        cta_label: "CRM Paneli"
+        cta_href: "/management/crm/"
+        icon: "bi-telephone"
+        prompt: |
+          Son müşteri görüşmelerini özetle. Sorun, çözüm adımı, ihtiyaç duyulan eskalasyon ve takip tarihini tablo halinde yaz.
+
+  auditor:
+    prompts:
+      - intent: audit_scope
+        title: "Denetim Kapsam Planı"
+        body: "Dönem denetimi için kapsam, örneklem ve kaynak planını oluşturun."
+        cta_label: "Denetim Planı"
+        cta_href: "/audit/planning/"
+        icon: "bi-diagram-3"
+        prompt: |
+          Süreç bazlı denetim kapsamı çıkar. Her süreç için risk notu, incelenecek belgeler, önerilen örneklem büyüklüğü ve tamamlanma tarihlerini listele.
+      - intent: finding_digest
+        title: "Denetim Bulguları Özeti"
+        body: "Tespit ettiğiniz bulguları önem derecesine göre raporlayın."
+        cta_label: "Bulguları Paylaş"
+        cta_href: "/audit/findings/"
+        icon: "bi-flag"
+        prompt: |
+          Her bulgu için kategori, etki, önerilen aksiyon, sorumlu kişi ve takip tarihini tabloya ekle. Yüksek riskli maddeleri kırmızıyla işaretle.
+
+  viewer:
+    prompts:
+      - intent: executive_snapshot
+        title: "Yönetici Özeti"
+        body: "FinAsis panolarındaki temel göstergeleri tek bakışta görün."
+        cta_label: "Özet Rapor"
+        cta_href: "/dashboard/executive-summary/"
+        icon: "bi-eye"
+        prompt: |
+          Gelir, gider, nakit, kullanıcı aktivitesi ve eğitim ilerlemesini içeren 5 maddelik özet çıkar. Her madde için trend yönünü ve önerilen tek aksiyonu belirt.
+      - intent: module_overview
+        title: "Modül Gezinme Rehberi"
+        body: "Erişebildiğiniz modüllerin kısa açıklamalarını alın."
+        cta_label: "Modül Rehberi"
+        cta_href: "/help/modules/"
+        icon: "bi-compass"
+        prompt: |
+          Kullanıcının erişebildiği modülleri listele. Her modül için amaç, ana özellikler ve önerilen ilk adımı kısa paragraf olarak ver.
+

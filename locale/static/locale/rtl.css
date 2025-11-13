@@ -1,0 +1,283 @@
+/*
+RTL (Right-to-Left) Language Support
+Sağdan Sola Dil Desteği için CSS
+*/
+
+/* HTML dir="rtl" olduğunda aktif olur */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Genel Text Alignment */
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+/* Float */
+[dir="rtl"] .float-start {
+  float: right !important;
+}
+
+[dir="rtl"] .float-end {
+  float: left !important;
+}
+
+/* Margin & Padding */
+[dir="rtl"] .me-1,
+[dir="rtl"] .me-2,
+[dir="rtl"] .me-3,
+[dir="rtl"] .me-4,
+[dir="rtl"] .me-5 {
+  margin-left: var(--bs-gutter-x, 1rem);
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .ms-1,
+[dir="rtl"] .ms-2,
+[dir="rtl"] .ms-3,
+[dir="rtl"] .ms-4,
+[dir="rtl"] .ms-5 {
+  margin-right: var(--bs-gutter-x, 1rem);
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .pe-1,
+[dir="rtl"] .pe-2,
+[dir="rtl"] .pe-3,
+[dir="rtl"] .pe-4,
+[dir="rtl"] .pe-5 {
+  padding-left: var(--bs-gutter-x, 1rem);
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .ps-1,
+[dir="rtl"] .ps-2,
+[dir="rtl"] .ps-3,
+[dir="rtl"] .ps-4,
+[dir="rtl"] .ps-5 {
+  padding-right: var(--bs-gutter-x, 1rem);
+  padding-left: 0 !important;
+}
+
+/* Border Radius */
+[dir="rtl"] .rounded-start {
+  border-top-right-radius: var(--bs-border-radius) !important;
+  border-bottom-right-radius: var(--bs-border-radius) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+[dir="rtl"] .rounded-end {
+  border-top-left-radius: var(--bs-border-radius) !important;
+  border-bottom-left-radius: var(--bs-border-radius) !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Borders */
+[dir="rtl"] .border-start {
+  border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+  border-left: 0 !important;
+}
+
+[dir="rtl"] .border-end {
+  border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+  border-right: 0 !important;
+}
+
+/* Dropdown */
+[dir="rtl"] .dropdown-menu {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+[dir="rtl"] .dropdown-menu-end {
+  right: auto;
+  left: 0;
+}
+
+/* Forms */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="rtl"] .input-group > :not(:first-child) {
+  margin-right: -1px;
+  margin-left: 0;
+  border-top-right-radius: var(--bs-border-radius);
+  border-bottom-right-radius: var(--bs-border-radius);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Icons */
+[dir="rtl"] .bi::before {
+  transform: scaleX(-1);
+}
+
+/* Navigation */
+[dir="rtl"] .navbar-nav {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .nav {
+  padding-right: 0;
+  list-style: none;
+}
+
+/* Sidebar */
+[dir="rtl"] .sidebar {
+  right: 0;
+  left: auto;
+}
+
+/* Modal */
+[dir="rtl"] .modal-header .btn-close {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* Breadcrumb */
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+  float: right;
+  padding-left: 0.5rem;
+  padding-right: 0;
+  content: "\\";
+}
+
+/* Pagination */
+[dir="rtl"] .page-item:first-child .page-link {
+  border-top-right-radius: var(--bs-border-radius);
+  border-bottom-right-radius: var(--bs-border-radius);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+[dir="rtl"] .page-item:last-child .page-link {
+  border-top-left-radius: var(--bs-border-radius);
+  border-bottom-left-radius: var(--bs-border-radius);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Table */
+[dir="rtl"] table {
+  text-align: right;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Alerts */
+[dir="rtl"] .alert-dismissible {
+  padding-left: 3rem;
+  padding-right: 1rem;
+}
+
+[dir="rtl"] .alert-dismissible .btn-close {
+  left: 0;
+  right: auto;
+}
+
+/* Toast */
+[dir="rtl"] .toast-header .btn-close {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Progress */
+[dir="rtl"] .progress-bar {
+  right: 0;
+}
+
+/* List Group */
+[dir="rtl"] .list-group {
+  padding-right: 0;
+}
+
+/* Card */
+[dir="rtl"] .card-header:first-child {
+  border-radius: 0 0 var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius);
+}
+
+/* Offcanvas */
+[dir="rtl"] .offcanvas-start {
+  right: 0;
+  left: auto;
+  border-left: var(--bs-offcanvas-border-width) solid var(--bs-offcanvas-border-color);
+  border-right: 0;
+  transform: translateX(100%);
+}
+
+[dir="rtl"] .offcanvas-end {
+  left: 0;
+  right: auto;
+  border-right: var(--bs-offcanvas-border-width) solid var(--bs-offcanvas-border-color);
+  border-left: 0;
+  transform: translateX(-100%);
+}
+
+/* Custom Components */
+[dir="rtl"] .language-selector {
+  direction: rtl;
+}
+
+[dir="rtl"] .stat-card {
+  text-align: center;
+}
+
+/* Animations for RTL */
+[dir="rtl"] .slide-in-right {
+  animation: slideInLeft 0.3s ease;
+}
+
+[dir="rtl"] .slide-in-left {
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Font Family for Arabic/Kurdish */
+[dir="rtl"] {
+  font-family: 'Segoe UI', 'Tahoma', 'Arabic Typesetting', 'Traditional Arabic', 'Arial', sans-serif;
+}
+
+/* Numbers should stay LTR in RTL text */
+[dir="rtl"] .number,
+[dir="rtl"] .amount,
+[dir="rtl"] .price,
+[dir="rtl"] .percentage {
+  direction: ltr;
+  display: inline-block;
+}
+

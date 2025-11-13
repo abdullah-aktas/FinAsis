@@ -1,0 +1,17 @@
+{% extends "core_ui/base.html" %}
+
+{% block title %}Gelir Tabloları{% endblock %}
+
+{% block content %}
+<h1>Gelir Tabloları</h1>
+<a href="{% url 'finance:income_statement_create' %}" class="btn btn-success mb-3">Yeni Gelir Tablosu Ekle</a>
+<ul>
+  {% for statement in statements %}
+    <li>
+      <a href="{% url 'finance:income_statement_detail' statement.pk %}">{{ statement.period }} - {{ statement.start_date }} - {{ statement.end_date }}</a>
+    </li>
+  {% empty %}
+    <li>Hiç gelir tablosu yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

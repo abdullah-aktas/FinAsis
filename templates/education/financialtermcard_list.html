@@ -1,0 +1,72 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Finansal Terimler - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .terms-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .term-item {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid #667eea;
+  }
+
+  .term-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="terms-hero">
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h1 class="mb-2" style="font-size: 32px; font-weight: 800;">Finansal Terimler</h1>
+          <p class="mb-0" style="opacity: 0.95;">Muhasebe ve finans dünyasını öğrenin</p>
+        </div>
+        <a class="btn btn-light" href="{% url 'education:financialtermcard_add' %}" style="border-radius: 12px; font-weight: 600;">
+          <i class="bi bi-plus-lg me-2"></i>Yeni Ekle
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      {% for card in cards %}
+        <div class="term-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1" style="font-weight: 700; color: #1a202c;">{{ card.term }}</h5>
+              <p class="text-muted mb-0" style="font-size: 14px;">Tıklayarak detayları görün</p>
+            </div>
+            <a href="{% url 'education:financialtermcard_detail' card.pk %}" class="btn btn-outline-primary" style="border-radius: 10px;">
+              <i class="bi bi-eye me-2"></i>Görüntüle
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-center py-5" style="background: rgba(102, 126, 234, 0.05); border-radius: 20px;">
+          <i class="bi bi-journal-text" style="font-size: 48px; color: #667eea;"></i>
+          <h4 class="mt-3" style="font-weight: 700;">Henüz Terim Yok</h4>
+          <p class="text-muted">İlk finansal terimi ekleyerek başlayın!</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

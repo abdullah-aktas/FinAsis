@@ -1,0 +1,19 @@
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Premium Özellik' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Sadece Premium aboneler için gelişmiş modüller' %}{% endblock %}
+{% block acct_content %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="h5 mb-3">{% trans 'Premium Özellik Alanı' %}</h2>
+            <p class="mb-3">{% trans 'Bu sayfa sadece Premium abonelere açıktır.' %}</p>
+            <div class="alert alert-success">
+                <strong>{% trans 'Tebrikler!' %}</strong> {% trans 'Premium aboneliğiniz sayesinde bu özel modüle erişiminiz var.' %}
+            </div>
+            <div class="border rounded p-4 text-center text-muted border-dashed">
+                <div class="mb-2" style="font-size:2rem;"><i class="bi bi-star"></i></div>
+                <p class="mb-0">{% trans 'Gelişmiş raporlar ve araçlar yakında burada listelenecek.' %}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

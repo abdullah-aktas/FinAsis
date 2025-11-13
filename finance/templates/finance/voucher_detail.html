@@ -1,0 +1,12 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Avans Detayı{% endblock %}
+{% block content %}
+<h1>Avans Detayı</h1>
+<p><strong>Çalışan:</strong> {{ voucher.employee }}</p>
+<p><strong>Tutar:</strong> {{ voucher.amount }} TL</p>
+<p><strong>Açıklama:</strong> {{ voucher.description }}</p>
+<p><strong>Tarih:</strong> {{ voucher.created_at }}</p>
+<a href="{% url 'finance:voucher_update' voucher.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:voucher_delete' voucher.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:voucher_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

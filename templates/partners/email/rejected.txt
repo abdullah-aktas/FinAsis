@@ -1,0 +1,15 @@
+Merhaba {{ application.contact_name }},
+
+FinAsis Partner Programı’na yaptığınız başvuruyu inceledik.
+Şu anda kriterlerimizi karşılamadığı için başvurunuzu onaylayamadık.
+
+Şirket Adı: {{ application.company_name }}
+Partner Tipi: {{ application.get_partner_type_display }}
+
+Gelecekteki iş birliği fırsatlarını değerlendirmekten memnuniyet duyarız.
+Yeni bir ürün lansmanı veya entegrasyon planınız olduğunda tekrar başvurabilirsiniz.
+
+Sorularınız için {{ support_email }} adresine ulaşabilirsiniz.
+
+FinAsis Partner Ekibi
+

@@ -1,0 +1,717 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Kariyer - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .careers-hero {
+    position: relative;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .careers-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .careers-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .careers-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .careers-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .careers-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Why Section */
+  .why-section {
+    padding: 80px 0;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+
+  .why-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .why-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--why-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .why-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .why-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  }
+
+  .why-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: var(--why-bg);
+    color: var(--why-color);
+  }
+
+  .why-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .why-desc {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Benefits Section */
+  .benefits-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+
+  .benefit-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .benefit-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+    color: #8b5cf6;
+  }
+
+  .benefit-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .benefit-content p {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+  }
+
+  /* Positions Section */
+  .positions-section {
+    padding: 100px 0;
+  }
+
+  .positions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 32px;
+  }
+
+  .position-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid #8b5cf6;
+    position: relative;
+  }
+
+  .position-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(139, 92, 246, 0.15);
+  }
+
+  .position-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+  }
+
+  .position-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+
+  .position-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .position-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #718096;
+  }
+
+  .position-meta-item i {
+    color: #8b5cf6;
+  }
+
+  .position-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .position-tag {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+
+  .position-desc {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .position-apply {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .position-apply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+    color: white;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .careers-hero h1 {
+      font-size: 36px;
+    }
+
+    .why-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .benefits-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .positions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-title {
+      font-size: 32px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="careers-hero">
+  <div class="container careers-hero-content">
+    <span class="careers-badge">
+      <i class="bi bi-briefcase"></i>
+      Kariyer Fırsatları
+    </span>
+    <h1>Geleceği Birlikte İnşa Edelim</h1>
+    <p>
+      FinAsis'te yetenekli, tutkulu ve yenilikçi profesyonellerle çalışın. 
+      Finansın geleceğini şekillendiren ekibimizin bir parçası olun.
+    </p>
+  </div>
+</section>
+
+<!-- Why FinAsis Section -->
+<section class="why-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge">
+        <i class="bi bi-heart me-2"></i>Neden FinAsis?
+      </span>
+      <h2 class="section-title">Fark Yaratın</h2>
+      <p class="section-subtitle">
+        FinAsis'te çalışmanın size sunduğu eşsiz fırsatlar ve avantajlar
+      </p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card" style="--why-color: #10b981; --why-bg: rgba(16, 185, 129, 0.1);">
+        <div class="why-icon">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+        <h3 class="why-title">Gerçek Etki</h3>
+        <p class="why-desc">
+          KOBİ'lerin finansal kararlarına doğrudan katkı sağlayın. 
+          Yaptığınız işin sonuçlarını hemen görün ve fark yaratın.
+        </p>
+      </div>
+
+      <div class="why-card" style="--why-color: #06b6d4; --why-bg: rgba(6, 182, 212, 0.1);">
+        <div class="why-icon">
+          <i class="bi bi-mortarboard"></i>
+        </div>
+        <h3 class="why-title">Sürekli Öğrenme</h3>
+        <p class="why-desc">
+          Mentorluk programları, eğitim bütçesi ve konferans katılımları ile 
+          kendinizi sürekli geliştirin ve kariyerinizi ilerletin.
+        </p>
+      </div>
+
+      <div class="why-card" style="--why-color: #f59e0b; --why-bg: rgba(245, 158, 11, 0.1);">
+        <div class="why-icon">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <h3 class="why-title">Esneklik</h3>
+        <p class="why-desc">
+          Hibrit çalışma modeli, esnek saatler ve iş-yaşam dengesi ile 
+          verimli ve mutlu bir çalışma ortamı.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-gift me-2"></i>Yan Haklar
+      </span>
+      <h2 class="section-title">Size Sunduklarımız</h2>
+      <p class="section-subtitle">
+        Çalışanlarımızın refahını ve gelişimini destekleyen kapsamlı yan haklar
+      </p>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-heart-pulse"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Özel Sağlık Sigortası</h4>
+          <p>Kapsamlı sağlık güvencesi</p>
+        </div>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-laptop"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Ekipman Desteği</h4>
+          <p>MacBook, monitör ve aksesuar</p>
+        </div>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-book"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Eğitim Bütçesi</h4>
+          <p>Yıllık eğitim ve konferans desteği</p>
+        </div>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-cup-hot"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Yemek & Ulaşım</h4>
+          <p>Günlük yemek ve ulaşım kartı</p>
+        </div>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-house-heart"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Remote Çalışma</h4>
+          <p>Hibrit veya tam remote seçeneği</p>
+        </div>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div class="benefit-content">
+          <h4>Performans Bonusu</h4>
+          <p>Başarı odaklı ödül sistemi</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Open Positions Section -->
+<section class="positions-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-search me-2"></i>Açık Pozisyonlar
+      </span>
+      <h2 class="section-title">Ekibimize Katılın</h2>
+      <p class="section-subtitle">
+        Şu anda aktif olarak aradığımız yetenekli profesyoneller
+      </p>
+    </div>
+
+    <div class="positions-grid">
+      <!-- Backend Engineer -->
+      <div class="position-card">
+        <span class="position-badge">Tam Zamanlı</span>
+        <h3 class="position-title">Senior Backend Mühendisi</h3>
+        <div class="position-meta">
+          <span class="position-meta-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            İstanbul / Remote
+          </span>
+          <span class="position-meta-item">
+            <i class="bi bi-calendar3"></i>
+            Tam Zamanlı
+          </span>
+        </div>
+        <div class="position-tags">
+          <span class="position-tag">Django</span>
+          <span class="position-tag">REST API</span>
+          <span class="position-tag">PostgreSQL</span>
+          <span class="position-tag">Docker</span>
+        </div>
+        <p class="position-desc">
+          Ölçeklenebilir backend servisleri, RESTful API'ler ve veritabanı mimarileri 
+          geliştirerek finansal uygulamalarımızın temelini oluşturun.
+        </p>
+        <a href="/contact/" class="position-apply">
+          <i class="bi bi-send"></i>
+          Başvur
+        </a>
+      </div>
+
+      <!-- Frontend Engineer -->
+      <div class="position-card">
+        <span class="position-badge">Tam Zamanlı</span>
+        <h3 class="position-title">Frontend Mühendisi</h3>
+        <div class="position-meta">
+          <span class="position-meta-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            İstanbul / Hibrit
+          </span>
+          <span class="position-meta-item">
+            <i class="bi bi-calendar3"></i>
+            Tam Zamanlı
+          </span>
+        </div>
+        <div class="position-tags">
+          <span class="position-tag">React</span>
+          <span class="position-tag">TypeScript</span>
+          <span class="position-tag">Tailwind CSS</span>
+          <span class="position-tag">Next.js</span>
+        </div>
+        <p class="position-desc">
+          Modern, kullanıcı dostu ve performanslı arayüzler tasarlayıp geliştirerek 
+          finansal deneyimimizi şekillendirin.
+        </p>
+        <a href="/contact/" class="position-apply">
+          <i class="bi bi-send"></i>
+          Başvur
+        </a>
+      </div>
+
+      <!-- Data Scientist -->
+      <div class="position-card">
+        <span class="position-badge">Tam Zamanlı</span>
+        <h3 class="position-title">Data Scientist</h3>
+        <div class="position-meta">
+          <span class="position-meta-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            İstanbul / Remote
+          </span>
+          <span class="position-meta-item">
+            <i class="bi bi-calendar3"></i>
+            Tam Zamanlı
+          </span>
+        </div>
+        <div class="position-tags">
+          <span class="position-tag">Python</span>
+          <span class="position-tag">ML/AI</span>
+          <span class="position-tag">TensorFlow</span>
+          <span class="position-tag">Data Analysis</span>
+        </div>
+        <p class="position-desc">
+          Finansal verileri analiz ederek yapay zeka modelleri geliştirin ve 
+          içgörülerle iş kararlarını destekleyin.
+        </p>
+        <a href="/contact/" class="position-apply">
+          <i class="bi bi-send"></i>
+          Başvur
+        </a>
+      </div>
+
+      <!-- Product Designer -->
+      <div class="position-card">
+        <span class="position-badge">Tam Zamanlı</span>
+        <h3 class="position-title">Product Designer</h3>
+        <div class="position-meta">
+          <span class="position-meta-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            İstanbul / Hibrit
+          </span>
+          <span class="position-meta-item">
+            <i class="bi bi-calendar3"></i>
+            Tam Zamanlı
+          </span>
+        </div>
+        <div class="position-tags">
+          <span class="position-tag">Figma</span>
+          <span class="position-tag">UI/UX</span>
+          <span class="position-tag">User Research</span>
+          <span class="position-tag">Prototyping</span>
+        </div>
+        <p class="position-desc">
+          Kullanıcı araştırmaları yaparak ve modern tasarımlar oluşturarak 
+          ürünlerimizin deneyimini iyileştirin.
+        </p>
+        <a href="/contact/" class="position-apply">
+          <i class="bi bi-send"></i>
+          Başvur
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-icon">
+      <i class="bi bi-envelope-paper"></i>
+    </div>
+    <h2 class="cta-title">Aradığınız Pozisyon Yok mu?</h2>
+    <p class="cta-subtitle">
+      Özgeçmişinizi bizimle paylaşın. Uygun fırsatlar için sizinle iletişime geçelim.
+    </p>
+    <div class="mt-4">
+      <a href="/contact/" class="btn btn-cta-primary">
+        <i class="bi bi-send me-2"></i>Özgeçmiş Gönder
+      </a>
+      <a href="/corporate/team/" class="btn btn-cta-secondary">
+        <i class="bi bi-people me-2"></i>Ekibimizi Tanıyın
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

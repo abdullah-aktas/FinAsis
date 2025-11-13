@@ -1,0 +1,90 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Kullanıcı Ayarları - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .settings-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .settings-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .form-check-modern {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .form-check-modern:hover {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  }
+
+  .form-check-input {
+    width: 48px;
+    height: 24px;
+    cursor: pointer;
+  }
+
+  .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="settings-header">
+    <div class="container text-center">
+      <i class="bi bi-gear" style="font-size: 48px; margin-bottom: 16px;"></i>
+      <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Kullanıcı Ayarları</h1>
+      <p style="opacity: 0.95; margin: 0;">Tercihlerinizi yapılandırın</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="settings-card">
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-check-modern form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="email_notifications" id="email_notifications" {% if settings.email_notifications %}checked{% endif %}>
+            <label class="form-check-label" for="email_notifications" style="cursor: pointer;">
+              <strong style="display: block; margin-bottom: 4px;"><i class="bi bi-envelope me-2"></i>E-posta Bildirimleri</strong>
+              <small class="text-muted">Önemli güncellemeler ve bildirimler için e-posta alın</small>
+            </label>
+          </div>
+
+          <div class="form-check-modern form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="dark_mode" id="dark_mode" {% if settings.dark_mode %}checked{% endif %}>
+            <label class="form-check-label" for="dark_mode" style="cursor: pointer;">
+              <strong style="display: block; margin-bottom: 4px;"><i class="bi bi-moon-stars me-2"></i>Karanlık Mod</strong>
+              <small class="text-muted">Gözlerinizi koruyun, karanlık temayı etkinleştirin</small>
+            </label>
+          </div>
+
+          <div class="mt-4">
+            <button class="btn btn-primary btn-lg" type="submit" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+              <i class="bi bi-check-lg me-2"></i>Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

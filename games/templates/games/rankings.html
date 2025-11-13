@@ -1,0 +1,211 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Sıralamalar - FinAsis E-Spor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ranking-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    border-radius: 24px;
+    margin-bottom: 40px;
+  }
+
+  .rank-row {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+  }
+
+  .rank-row:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(102,126,234,0.15);
+  }
+
+  .rank-1 {
+    background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.05));
+    border-left: 5px solid #FFD700;
+  }
+
+  .rank-2 {
+    background: linear-gradient(135deg, rgba(192,192,192,0.1), rgba(128,128,128,0.05));
+    border-left: 5px solid #C0C0C0;
+  }
+
+  .rank-3 {
+    background: linear-gradient(135deg, rgba(205,127,50,0.1), rgba(139,69,19,0.05));
+    border-left: 5px solid #CD7F32;
+  }
+
+  .my-rank {
+    border: 3px solid #ec4899;
+    box-shadow: 0 0 0 4px rgba(236,72,153,0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="ranking-hero">
+    <i class="bi bi-bar-chart-steps" style="font-size: 72px; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">Sıralamalar</h1>
+    <p style="font-size: 20px; opacity: 0.95;">En iyi oyuncular ve rekor kırıcılar!</p>
+  </div>
+
+  <!-- Sıralama Türleri -->
+  <ul class="nav nav-pills mb-4 justify-content-center gap-2" id="rankingTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="global-tab" data-bs-toggle="pill" data-bs-target="#global" type="button" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-globe me-2"></i>Global
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="weekly-tab" data-bs-toggle="pill" data-bs-target="#weekly" type="button" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-calendar-week me-2"></i>Haftalık
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="rankingTabsContent">
+    <!-- Global Sıralama -->
+    <div class="tab-pane fade show active" id="global" role="tabpanel">
+      <!-- Top 3 Özel Kartlar -->
+      {% if global_rankings|slice:":3" %}
+      <div class="row g-4 mb-5">
+        {% for entry in global_rankings|slice:":3" %}
+        <div class="col-md-4">
+          <div class="card border-0 shadow-lg rank-{{ entry.rank }}" style="border-radius: 20px; padding: 32px; text-align: center;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: {% if entry.rank == 1 %}linear-gradient(135deg, #FFD700, #FFA500){% elif entry.rank == 2 %}linear-gradient(135deg, #C0C0C0, #808080){% else %}linear-gradient(135deg, #CD7F32, #8B4513){% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white; font-weight: 800;">
+              {% if entry.rank == 1 %}🥇{% elif entry.rank == 2 %}🥈{% else %}🥉{% endif %}
+            </div>
+            <h4 class="fw-bold mb-1">{{ entry.player.username }}</h4>
+            <p class="text-muted mb-3">Sıra #{{ entry.rank }}</p>
+            <div style="background: rgba(0,0,0,0.05); border-radius: 12px; padding: 12px;">
+              <h3 class="fw-bold mb-0" style="color: #667eea;">{{ entry.score|floatformat:0 }}</h3>
+              <small class="text-muted">Toplam Puan</small>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Sıralama Listesi -->
+      <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          {% for entry in global_rankings %}
+          <div class="rank-row {% if entry.rank <= 3 %}rank-{{ entry.rank }}{% endif %} {% if entry.player == request.user %}my-rank{% endif %}">
+            <div class="row align-items-center">
+              <div class="col-2 col-md-1 text-center">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
+                  {{ entry.rank }}
+                </div>
+              </div>
+
+              <div class="col-6 col-md-5">
+                <div class="d-flex align-items-center gap-2">
+                  <h6 class="fw-bold mb-0">{{ entry.player.username }}</h6>
+                  {% if entry.player == request.user %}
+                  <span class="badge bg-danger">SEN</span>
+                  {% endif %}
+                </div>
+                <small class="text-muted">ELO: {{ entry.player.player_profile.elo_rating }}</small>
+              </div>
+
+              <div class="col-4 col-md-3 text-center">
+                <span class="badge bg-{% if entry.player.player_profile.rank == 'challenger' %}warning{% elif entry.player.player_profile.rank in 'grandmaster,master' %}danger{% elif entry.player.player_profile.rank in 'diamond,platinum' %}primary{% else %}secondary{% endif %}" style="font-size: 13px;">
+                  {{ entry.player.player_profile.get_rank_display }}
+                </span>
+              </div>
+
+              <div class="col-12 col-md-3 text-end mt-2 mt-md-0">
+                <h5 class="fw-bold mb-0" style="color: #10b981;">{{ entry.score|floatformat:0 }}</h5>
+                <small class="text-muted">puan</small>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 64px; color: #cbd5e0;"></i>
+            <p class="text-muted mt-3">Henüz sıralama yok</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Haftalık Sıralama -->
+    <div class="tab-pane fade" id="weekly" role="tabpanel">
+      <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          {% for entry in weekly_rankings %}
+          <div class="rank-row">
+            <div class="row align-items-center">
+              <div class="col-2 col-md-1 text-center">
+                <h5 class="fw-bold mb-0" style="color: #667eea;">#{{ entry.rank }}</h5>
+              </div>
+              <div class="col-6 col-md-7">
+                <h6 class="fw-bold mb-1">{{ entry.player.username }}</h6>
+              </div>
+              <div class="col-4 col-md-4 text-end">
+                <h5 class="fw-bold mb-0" style="color: #f59e0b;">{{ entry.score|floatformat:0 }}</h5>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-5">
+            <i class="bi bi-calendar-week" style="font-size: 64px; color: #cbd5e0;"></i>
+            <p class="text-muted mt-3">Bu hafta henüz veri yok</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kendi Sıralamanız -->
+  {% if my_rank %}
+  <div class="mt-5">
+    <div class="card border-0 shadow-lg" style="border-radius: 20px; border: 3px solid #ec4899;">
+      <div class="card-body p-4">
+        <div class="text-center">
+          <h5 class="fw-bold mb-3"><i class="bi bi-person-circle me-2" style="color: #ec4899;"></i>Senin Sıralaman</h5>
+          <div class="row g-4">
+            <div class="col-md-3">
+              <div style="background: rgba(236,72,153,0.1); border-radius: 12px; padding: 20px;">
+                <h2 class="fw-bold mb-1" style="color: #ec4899;">#{{ my_rank.rank }}</h2>
+                <small class="text-muted">Global Sıra</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div style="background: rgba(102,126,234,0.1); border-radius: 12px; padding: 20px;">
+                <h2 class="fw-bold mb-1" style="color: #667eea;">{{ my_rank.score|floatformat:0 }}</h2>
+                <small class="text-muted">Toplam Puan</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div style="background: rgba(16,185,129,0.1); border-radius: 12px; padding: 20px;">
+                <h2 class="fw-bold mb-1" style="color: #10b981;">{{ my_rank.player.player_profile.elo_rating }}</h2>
+                <small class="text-muted">ELO Rating</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div style="background: rgba(245,158,11,0.1); border-radius: 12px; padding: 20px;">
+                <h2 class="fw-bold mb-1" style="color: #f59e0b;">{{ my_rank.player.player_profile.get_rank_display }}</h2>
+                <small class="text-muted">Rank</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

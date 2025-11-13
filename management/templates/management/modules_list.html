@@ -1,0 +1,206 @@
+{% extends "management/base_admin.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Modül Yönetimi - FinAsis{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Modüller</li>
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    .module-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+        border-left: 5px solid;
+    }
+    
+    .module-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .module-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .module-icon {
+        font-size: 3.5rem;
+        margin-right: 1.5rem;
+        opacity: 0.9;
+    }
+    
+    .module-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .module-description {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        min-height: 45px;
+    }
+    
+    .module-stats {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .stat-item {
+        flex: 1;
+        min-width: 100px;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 0.25rem;
+    }
+    
+    .module-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(255,255,255,0.9);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 fw-bold mb-3">
+            <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
+            Sistem Modülleri
+        </h1>
+        <p class="text-muted">
+            FinAsis platformundaki tüm modüllerin yönetimi. Her modüle tıklayarak detaylarını görün.
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    {% for module in modules %}
+    <div class="col-lg-4 col-md-6 mb-4 animate-fade-in" style="animation-delay: {{ forloop.counter|add:'-1'|multiply:0.1 }}s;">
+        <a href="{% url 'management:module_detail' module.app_name %}" class="module-card border-{{ module.color }}">
+            <div class="module-header">
+                <i class="bi {{ module.icon }} module-icon text-{{ module.color }}"></i>
+                <div>
+                    <h3 class="module-title">{{ module.name }}</h3>
+                    <small class="text-muted">{{ module.app_name }}</small>
+                </div>
+            </div>
+            
+            <p class="module-description">
+                {{ module.description }}
+            </p>
+            
+            <div class="module-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Modeller</div>
+                    <div class="stat-value text-{{ module.color }}">{{ module.model_count }}</div>
+                </div>
+                
+                {% if module.stats.users %}
+                <div class="stat-item">
+                    <div class="stat-label">Kullanıcı</div>
+                    <div class="stat-value text-primary">{{ module.stats.users }}</div>
+                </div>
+                {% endif %}
+                
+                {% if module.stats.companies %}
+                <div class="stat-item">
+                    <div class="stat-label">Şirket</div>
+                    <div class="stat-value text-success">{{ module.stats.companies }}</div>
+                </div>
+                {% endif %}
+                
+                {% if module.stats.invoices %}
+                <div class="stat-item">
+                    <div class="stat-label">Fatura</div>
+                    <div class="stat-value text-warning">{{ module.stats.invoices }}</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="mt-3 text-end">
+                <i class="bi bi-arrow-right-circle text-{{ module.color }} fs-4"></i>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Henüz modül kaydı bulunmamaktadır.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Bilgi Kartı -->
+<div class="row mt-4 animate-fade-in" style="animation-delay: 0.5s">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-lightbulb fs-1 text-primary mb-3"></i>
+                <h5 class="fw-bold">Modül Yönetimi</h5>
+                <p class="text-muted mb-3">
+                    Her modülün detay sayfasında model listesini, istatistikleri ve hızlı erişim linklerini bulabilirsiniz.
+                    Yeni modül eklendikçe otomatik olarak burada görünecektir.
+                </p>
+                <a href="{% url 'management:admin_dashboard' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Dashboard'a Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

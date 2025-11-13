@@ -1,0 +1,280 @@
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+
+{% block acct_title %}{% trans 'Profilim' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Profil bilgileri, abonelik durumu ve hesap işlemleri' %}{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{# Safely serialize context for JS #}
+{{ trend_aylar|json_script:"profile-trend-labels" }}
+{{ trend_gelirler|json_script:"profile-trend-incomes" }}
+{{ trend_giderler|json_script:"profile-trend-expenses" }}
+{{ gider_kategori_labels|json_script:"profile-expense-cat-labels" }}
+{{ gider_kategori_data|json_script:"profile-expense-cat-data" }}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var ctx = document.getElementById('trendChart');
+    if (ctx) {
+      var isDark = document.body.classList.contains('dark-theme');
+      var labels = [];
+      var incomes = [];
+      var expenses = [];
+      try { labels = JSON.parse(document.getElementById('profile-trend-labels')?.textContent || '[]'); } catch { }
+      try { incomes = JSON.parse(document.getElementById('profile-trend-incomes')?.textContent || '[]'); } catch { }
+      try { expenses = JSON.parse(document.getElementById('profile-trend-expenses')?.textContent || '[]'); } catch { }
+      if (!Array.isArray(labels)) labels = [];
+      if (!Array.isArray(incomes)) incomes = [];
+      if (!Array.isArray(expenses)) expenses = [];
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "{% trans 'Fatura (Gelir)' %}",
+              data: incomes,
+              borderColor: '#fd7e14',
+              backgroundColor: 'rgba(253,126,20,0.12)',
+              tension: 0.3,
+              fill: true,
+            },
+            {
+              label: "{% trans 'Gider' %}",
+              data: expenses,
+              borderColor: isDark ? '#ffc107' : '#dc3545',
+              backgroundColor: 'rgba(220,53,69,0.1)',
+              tension: 0.3,
+              fill: true,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: isDark ? '#f1f3f4' : '#212529'
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: isDark ? '#f1f3f4' : '#212529' } },
+            y: { ticks: { color: isDark ? '#f1f3f4' : '#212529' } }
+          }
+        }
+      });
+    }
+
+    var cat = document.getElementById('giderKategoriChart');
+    if (cat) {
+      var isDark = document.body.classList.contains('dark-theme');
+      var catLabels = [];
+      var catData = [];
+      try { catLabels = JSON.parse(document.getElementById('profile-expense-cat-labels')?.textContent || '[]'); } catch { }
+      try { catData = JSON.parse(document.getElementById('profile-expense-cat-data')?.textContent || '[]'); } catch { }
+      if (!Array.isArray(catLabels)) catLabels = [];
+      if (!Array.isArray(catData)) catData = [];
+      new Chart(cat, {
+        type: 'pie',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: ['#fd7e14', '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#0dcaf0', '#6f42c1'],
+            borderColor: isDark ? '#23272b' : '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          plugins: { legend: { labels: { color: isDark ? '#f1f3f4' : '#212529' } } }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block acct_content %}
+<div class="container-fluid px-0">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-2">Merhaba, {{ request.user.first_name|default:request.user.username }}!</h1>
+      <p class="lead">Profil bilgilerinizi görüntüleyin, güncelleyin ve hesap ayarlarınıza kolayca ulaşın.</p>
+    </div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-person-circle"></i></div>
+          <h6 class="card-title">Kişisel Bilgiler</h6>
+          <p class="card-text">
+            Ad: {{ request.user.first_name|default:"-" }}<br>
+            Soyad: {{ request.user.last_name|default:"-" }}<br>
+            Email: {{ request.user.email|default:"-" }}<br>
+            <strong>Kullanıcı Tipi:</strong> {% if request.user.user_type %}{{ request.user.user_type.name }}{% else
+            %}-{% endif %}<br>
+            <strong>Abonelik:</strong> {% if request.user.subscription and request.user.subscription.subscription_type
+            %}{{ request.user.subscription.subscription_type.name }}{% else %}-{% endif %}<br>
+          </p>
+          {% if request.user.subscription %}
+          <a href="{% url 'accounts:change_subscription' %}" class="btn btn-outline-primary btn-sm mt-2">Abonelik Tipini
+            Değiştir</a>
+          {% endif %}
+
+          {% if request.user.subscription_logs.exists %}
+          <div class="mt-4">
+            <h6>Abonelik Geçmişi</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Değişiklik Tarihi</th>
+                    <th>Eski Abonelik</th>
+                    <th>Yeni Abonelik</th>
+                    <th>Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in request.user.subscription_logs.all|dictsortreversed:"changed_at" %}
+                  <tr>
+                    <td>{{ log.changed_at|date:"d.m.Y H:i" }}</td>
+                    <td>{% if log.old_subscription %}{{ log.old_subscription.name }}{% else %}-{% endif %}</td>
+                    <td>{% if log.new_subscription %}{{ log.new_subscription.name }}{% else %}-{% endif %}</td>
+                    <td>{{ log.note|default:"-" }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center">Kayıt yok.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-gear"></i></div>
+          <h6 class="card-title">Ayarlar</h6>
+          <p class="card-text">Hesap ve güvenlik ayarlarınızı yönetin.</p>
+          <a href="{% url 'accounts:user_settings' %}" class="btn btn-primary w-100">Ayarları Düzenle</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-building"></i></div>
+          <h6 class="card-title">Şirket Bilgileri</h6>
+          <p class="card-text">Şirketinizi yönetin ve güncelleyin.</p>
+          <a href="{% url 'accounts:company_edit' %}" class="btn btn-primary w-100">Şirketi Düzenle</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+          <div class="mb-2" style="font-size:2rem;"><i class="bi bi-question-circle"></i></div>
+          <h5 class="card-title">Yardım & Rehber</h5>
+          <a href="/help/" class="btn btn-outline-primary mt-2 w-100">Yardım & SSS</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+          <div class="mb-2" style="font-size:2rem;"><i class="bi bi-lock"></i></div>
+          <h5 class="card-title">Şifre Değiştir</h5>
+          <a href="{% url 'password_change' %}" class="btn btn-outline-primary mt-2 w-100">Şifreyi Değiştir</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if role_task_brief or role_missions %}
+  <div class="row g-4 mb-4">
+    {% if role_task_brief %}
+    <div class="col-xl-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-3"><i class="bi bi-kanban me-2"></i>Görev Özeti</h5>
+          <p class="text-muted mb-2">Toplam görev: <strong>{{ role_task_brief.task_count }}</strong></p>
+          <p class="text-muted mb-2">Toplam XP: <strong>{{ role_task_brief.total_reward_xp }}</strong></p>
+          {% if role_task_brief.tags %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for tag in role_task_brief.tags %}
+            <span class="badge rounded-pill bg-secondary">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if role_missions %}
+    <div class="col-xl-{% if role_task_brief %}8{% else %}12{% endif %}">
+      <div class="row g-4">
+        {% for mission in role_missions %}
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary-subtle text-primary"><i class="bi {{ mission.icon|default:'bi-flag' }}"></i></span>
+                <h6 class="mb-0">{{ mission.title }}</h6>
+              </div>
+              <p class="text-muted flex-grow-1">{{ mission.description }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                {% if mission.reward_xp %}
+                <span class="badge bg-success-subtle text-success">XP {{ mission.reward_xp }}</span>
+                {% endif %}
+                {% if mission.cta_href %}
+                <a href="{{ mission.cta_href }}" class="btn btn-outline-primary btn-sm">{{ mission.cta_label|default:"Detay" }}</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if ai_cards %}
+  <div class="row g-4 mb-4">
+    {% for card in ai_cards %}
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-info-subtle text-info"><i class="bi {{ card.icon|default:'bi-robot' }}"></i></span>
+            <h6 class="mb-0">{{ card.title }}</h6>
+          </div>
+          <p class="text-muted flex-grow-1">{{ card.body }}</p>
+          {% if card.cta_href %}
+          <a href="{{ card.cta_href }}" class="btn btn-modern btn-modern-outline mt-3">{{ card.cta_label|default:"İncele" }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="alert alert-info mt-5" role="alert">
+    <strong>Yardıma mı ihtiyacınız var?</strong> Hesap yönetimiyle ilgili <a href="/help/" class="alert-link">yardım
+      sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
+  </div>
+  <div class="text-center text-muted mt-4" style="font-size:1.1rem;">
+    <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
+    Profilinizi güncel tutmak için bilgilerinizi düzenleyebilirsiniz.
+  </div>
+</div>
+{% endblock %}

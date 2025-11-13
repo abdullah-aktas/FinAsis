@@ -1,0 +1,23 @@
+{% extends "common/base.html" %}
+{% block title %}Faturalarım{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">Faturalarım</h1>
+  <table class="table table-sm">
+    <thead>
+      <tr><th>No</th><th>Tarih</th><th>Tutar</th></tr>
+    </thead>
+    <tbody>
+    {% for inv in invoices %}
+      <tr>
+        <td>{{ inv.number }}</td>
+        <td>{{ inv.issue_date|date:"d.m.Y" }}</td>
+        <td>{{ inv.total_amount }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">Kayıt yok.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

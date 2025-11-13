@@ -1,0 +1,29 @@
+{#
+Reusable gated button: redirects unauthenticated users to login with next=<target>
+
+    Params:
+    - href: target URL to go when authenticated
+    - label: button text
+    - variant: bootstrap variant without leading 'btn-' (e.g., 'primary', 'outline-primary')
+    - size: optional size like 'lg', 'sm'
+    - extra_classes: optional extra classes
+    - icon_class: optional icon class to render after label
+    #}
+
+    {% load static %}
+
+    {% with btn_variant=variant|default:'primary' %}
+    {% with btn_size=size|default:'' %}
+    {% if user.is_authenticated %}
+    <a href="{{ href }}"
+        class="btn btn-{{ btn_variant }}{% if btn_size %} btn-{{ btn_size }}{% endif %} {{ extra_classes|default:'' }}">
+        {{ label }}{% if icon_class %} <i class="{{ icon_class }}"></i>{% endif %}
+    </a>
+    {% else %}
+    <a href="{% url 'accounts:login' %}?next={{ href|urlencode:'' }}"
+        class="btn btn-{{ btn_variant }}{% if btn_size %} btn-{{ btn_size }}{% endif %} {{ extra_classes|default:'' }}">
+        {{ label }}{% if icon_class %} <i class="{{ icon_class }}"></i>{% endif %}
+    </a>
+    {% endif %}
+    {% endwith %}
+    {% endwith %}

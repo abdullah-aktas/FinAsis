@@ -1,0 +1,217 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}FinQuest 3D - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+
+  .finquest-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .finquest-card {
+    background: white;
+    border-radius: 24px;
+    padding: 60px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .icon-3d {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    margin: 0 auto 32px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .feature-item {
+    background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+    padding: 24px;
+    border-radius: 16px;
+    text-align: left;
+  }
+
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+  }
+
+  .back-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.7);
+  }
+
+  .game-link-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4) !important;
+  }
+
+  .game-link-btn:active {
+    transform: translateY(-2px);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="finquest-container">
+  <div class="finquest-card">
+    <div class="icon-3d">🎮</div>
+    
+    <h1 style="font-size: 48px; font-weight: 800; color: #1a202c; margin-bottom: 16px;">
+      FinQuest 3D
+    </h1>
+    
+    <p style="font-size: 24px; color: #667eea; font-weight: 600; margin-bottom: 16px;">
+      Çok Yakında! 🚀
+    </p>
+    
+    <p style="font-size: 18px; color: #718096; line-height: 1.8; margin-bottom: 40px;">
+      3D dünyada ticaret, finans ve macera! FinQuest 3D oyunu şu anda geliştirme aşamasında. 
+      İleri teknoloji WebGL ve Three.js kullanarak muhteşem bir deneyim sunacağız!
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon">🌍</div>
+        <h4 style="color: #1a202c; font-weight: 700; margin-bottom: 8px;">3D Dünya</h4>
+        <p style="color: #718096; font-size: 14px; margin: 0;">
+          Gerçekçi 3D ortamda özgürce hareket et
+        </p>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-icon">💼</div>
+        <h4 style="color: #1a202c; font-weight: 700; margin-bottom: 8px;">Ticaret Sistemi</h4>
+        <p style="color: #718096; font-size: 14px; margin: 0;">
+          NPC'lerle ticaret yap, şirket kur
+        </p>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-icon">🏆</div>
+        <h4 style="color: #1a202c; font-weight: 700; margin-bottom: 8px;">Çok Oyunculu</h4>
+        <p style="color: #718096; font-size: 14px; margin: 0;">
+          Arkadaşlarınla birlikte oyna
+        </p>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-icon">🎯</div>
+        <h4 style="color: #1a202c; font-weight: 700; margin-bottom: 8px;">Görevler</h4>
+        <p style="color: #718096; font-size: 14px; margin: 0;">
+          Heyecan dolu görevleri tamamla
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e2e8f0;">
+      <h5 style="color: #667eea; font-weight: 700; margin-bottom: 24px;">
+        💡 Şimdilik Diğer Oyunları Dene!
+      </h5>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 900px; margin: 0 auto;">
+        <a href="/games/trade-sim/start/" class="game-link-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 16px 24px; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">
+          <div style="font-size: 32px; margin-bottom: 8px;">🏪</div>
+          <div>TradeSim</div>
+        </a>
+        <a href="/game-app/budget-challenge/" class="game-link-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; padding: 16px 24px; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+          <div style="font-size: 32px; margin-bottom: 8px;">💰</div>
+          <div>Bütçe Mücadelesi</div>
+        </a>
+        <a href="/game-app/stock-market/" class="game-link-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; text-decoration: none; padding: 16px 24px; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);">
+          <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
+          <div>Borsa Simülasyonu</div>
+        </a>
+        <a href="/game-app/quiz/" class="game-link-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; text-decoration: none; padding: 16px 24px; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+          <div style="font-size: 32px; margin-bottom: 8px;">🎯</div>
+          <div>Finans Quiz</div>
+        </a>
+      </div>
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="/games/hub/" class="btn btn-lg btn-primary" style="border-radius: 12px; padding: 14px 32px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+          <i class="bi bi-grid-3x3-gap-fill me-2"></i>Tüm Oyunlar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Back Button -->
+<button class="back-btn" onclick="goBack()" data-tooltip="Geri Dön" aria-label="Geri Dön">
+  <i class="bi bi-arrow-left"></i>
+</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function goBack() {
+    window.location.href = '/games/hub/';
+}
+</script>
+{% endblock %}
+

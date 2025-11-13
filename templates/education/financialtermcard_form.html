@@ -1,0 +1,64 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Finansal Terim - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .form-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .form-card h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 24px;
+  }
+
+  .form-card label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+  }
+
+  .form-card input,
+  .form-card textarea {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    padding: 12px 16px;
+  }
+
+  .form-card input:focus,
+  .form-card textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="form-card">
+        <h1><i class="bi bi-journal-text me-2" style="color: #667eea;"></i>Finansal Terim</h1>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-primary" type="submit" style="border-radius: 12px; padding: 12px 28px; font-weight: 600;">
+              <i class="bi bi-check-lg me-2"></i>Kaydet
+            </button>
+            <a class="btn btn-outline-secondary" href="{% url 'education:financialtermcard_list' %}" style="border-radius: 12px; padding: 12px 28px; font-weight: 600;">
+              <i class="bi bi-x-lg me-2"></i>İptal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

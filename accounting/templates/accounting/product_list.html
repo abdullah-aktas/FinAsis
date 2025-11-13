@@ -1,0 +1,98 @@
+{% extends 'accounting/base_accounting.html' %}
+{% load i18n %}
+{% block acc_title %}Ürünler{% endblock %}
+{% block acc_subtitle %}Satışa konu ürün ve stok kayıtları{% endblock %}
+{% block acc_actions %}
+    <a href="{% url 'accounting:product_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ürün</a>
+{% endblock %}
+{% block acc_content %}
+<div class="product-list-view">
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body pb-2">
+            <form method="get" class="row gy-2 gx-3 align-items-end" aria-label="Ürün filtre formu">
+                <div class="col-md-3">
+                    <label for="q" class="form-label small text-muted">Ara (Ad)</label>
+                    <input type="text" id="q" name="q" value="{{ request.GET.q }}" class="form-control form-control-sm" placeholder="Örn: SaaS Lisans">
+                </div>
+                <div class="col-md-3">
+                    <label for="company" class="form-label small text-muted">Şirket</label>
+                    <select name="company" id="company" class="form-select form-select-sm">
+                        <option value="">Hepsi</option>
+                        {% for c in companies %}
+                            <option value="{{ c.id }}" {% if request.GET.company == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="min_stock" class="form-label small text-muted">Min Stok</label>
+                    <input type="number" name="min_stock" id="min_stock" value="{{ request.GET.min_stock }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label for="max_stock" class="form-label small text-muted">Max Stok</label>
+                    <input type="number" name="max_stock" id="max_stock" value="{{ request.GET.max_stock }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2 text-md-end">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Ara</button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle me-1"></i>Sıfırla</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between bg-white">
+            <div>
+                <h5 class="mb-0">Ürünler</h5>
+                <small class="text-muted">Toplam: {{ page_obj.paginator.count|default:products|length }} kayıt</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'accounting:product_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Yeni Ürün</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ad</th>
+                        <th>Şirket</th>
+                        <th class="text-end">Fiyat</th>
+                        <th class="text-end">Stok</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td class="fw-medium"><a href="{% url 'accounting:product_detail' product.pk %}" class="text-decoration-none">{{ product.name }}</a></td>
+                            <td>{{ product.company.name }}</td>
+                            <td class="text-end">{{ product.price|floatformat:2 }} ₺</td>
+                            <td class="text-end {% if product.stock|default:0 <= 0 %}text-danger{% elif product.stock < 5 %}text-warning{% endif %}">{{ product.stock }}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'accounting:product_detail' product.pk %}" class="btn btn-outline-primary" title="Detay"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'accounting:product_update' product.pk %}" class="btn btn-outline-warning" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'accounting:product_delete' product.pk %}" class="btn btn-outline-danger" title="Sil"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <div style="font-size:2.2rem;" class="mb-2"><i class="bi bi-box-seam"></i></div>
+                                    <p class="mb-2">Kayıtlı ürün yok.</p>
+                                    <a href="{% url 'accounting:product_create' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-circle me-1"></i>İlk Ürünü Ekle</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white">
+            {% include 'accounting/partials/_pagination.html' with page_obj=page_obj %}
+        </div>
+    </div>
+</div>
+{% endblock %}

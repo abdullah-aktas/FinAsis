@@ -1,0 +1,198 @@
+<!-- Floating Help Widget -->
+<!-- Tüm sayfalarda görünür, sağ altta sabit -->
+
+<div id="helpWidget" class="help-widget">
+    <!-- Minimize edilmiş durum -->
+    <div id="helpWidgetMinimized" class="help-widget-minimized">
+        <button class="btn btn-primary rounded-circle shadow-lg" 
+                onclick="toggleHelpWidget()"
+                data-bs-toggle="tooltip"
+                title="Yardıma mı ihtiyacınız var? Tıklayın!">
+            <i class="bi-question-circle fs-4"></i>
+        </button>
+    </div>
+    
+    <!-- Açık durum -->
+    <div id="helpWidgetExpanded" class="help-widget-expanded" style="display: none;">
+        <div class="card shadow-lg border-0">
+            <!-- Header -->
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi-question-circle me-2"></i>
+                    Hızlı Yardım
+                </h6>
+                <button class="btn btn-sm btn-link text-white" 
+                        onclick="toggleHelpWidget()">
+                    <i class="bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                
+                <!-- Arama -->
+                <div class="mb-3">
+                    <input type="text" 
+                           class="form-control form-control-sm" 
+                           id="widgetSearch"
+                           placeholder="Ne arıyorsunuz?"
+                           autocomplete="off">
+                    <div id="widgetSearchResults" class="mt-2"></div>
+                </div>
+                
+                <!-- Hızlı Linkler -->
+                <h6 class="text-muted mb-2">Hızlı Erişim</h6>
+                <div class="list-group list-group-flush mb-3">
+                    <a href="{% url 'common:help_center' %}" class="list-group-item list-group-item-action">
+                        <i class="bi-house text-primary me-2"></i>Yardım Merkezi
+                    </a>
+                    <a href="{% url 'common:help_quick_start' %}" class="list-group-item list-group-item-action">
+                        <i class="bi-rocket text-success me-2"></i>Hızlı Başlangıç
+                    </a>
+                    <a href="{% url 'common:help_faq' %}" class="list-group-item list-group-item-action">
+                        <i class="bi-question-circle text-info me-2"></i>SSS
+                    </a>
+                    <a href="{% url 'common:help_videos' %}" class="list-group-item list-group-item-action">
+                        <i class="bi-play-circle text-danger me-2"></i>Video Eğitimler
+                    </a>
+                </div>
+                
+                <!-- Sayfa Özel Yardım -->
+                <div id="contextualHelp"></div>
+                
+                <!-- Klavye Kısayolları -->
+                <div class="mt-3">
+                    <a href="{% url 'common:help_shortcuts' %}" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi-keyboard me-2"></i>Klavye Kısayolları
+                    </a>
+                </div>
+                
+            </div>
+            
+            <!-- Footer -->
+            <div class="card-footer bg-light">
+                <div class="d-grid">
+                    <a href="{% url 'common:help_contact' %}" class="btn btn-sm btn-success">
+                        <i class="bi-headset me-2"></i>Destek Talebi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.help-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.help-widget-minimized button {
+    width: 60px;
+    height: 60px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.help-widget-expanded {
+    width: 350px;
+}
+
+.help-widget-expanded .card {
+    max-height: 500px;
+}
+
+/* Mobil responsive */
+@media (max-width: 576px) {
+    .help-widget {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .help-widget-expanded {
+        width: calc(100vw - 20px);
+        right: 10px;
+    }
+    
+    .help-widget-minimized button {
+        width: 50px;
+        height: 50px;
+    }
+}
+</style>
+
+<script>
+function toggleHelpWidget() {
+    const minimized = document.getElementById('helpWidgetMinimized');
+    const expanded = document.getElementById('helpWidgetExpanded');
+    
+    if (minimized.style.display === 'none') {
+        minimized.style.display = 'block';
+        expanded.style.display = 'none';
+    } else {
+        minimized.style.display = 'none';
+        expanded.style.display = 'block';
+        
+        // Focus search
+        document.getElementById('widgetSearch')?.focus();
+    }
+}
+
+// Widget içi arama
+document.addEventListener('DOMContentLoaded', function() {
+    const widgetSearch = document.getElementById('widgetSearch');
+    if (widgetSearch) {
+        widgetSearch.addEventListener('input', async function(e) {
+            const query = e.target.value.trim();
+            const resultsDiv = document.getElementById('widgetSearchResults');
+            
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/help/api/search/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    let html = '<div class="list-group">';
+                    data.results.slice(0, 5).forEach(result => {
+                        html += `
+                            <a href="${result.url}" class="list-group-item list-group-item-action py-2">
+                                <i class="${result.icon} text-primary me-2"></i>
+                                <small>${result.title}</small>
+                            </a>
+                        `;
+                    });
+                    html += '</div>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<small class="text-muted">Sonuç bulunamadı</small>';
+                }
+            } catch (error) {
+                console.error('Widget search error:', error);
+            }
+        });
+    }
+});
+
+// Klavye kısayolu: Alt+H ile widget aç/kapa
+document.addEventListener('keydown', function(e) {
+    if (e.altKey && e.key === 'h') {
+        e.preventDefault();
+        toggleHelpWidget();
+    }
+});
+</script>
+

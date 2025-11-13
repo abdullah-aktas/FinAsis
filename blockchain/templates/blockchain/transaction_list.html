@@ -1,0 +1,103 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Transaction Listesi - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-arrow-left-right me-2"></i>Transaction Listesi
+    </h1>
+    
+    <!-- Filtreleme -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">Tüm Tipler</option>
+                        {% for value, label in tx_types %}
+                        <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Tüm Durumlar</option>
+                        {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control" placeholder="TX ID veya adres ara..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-filter"></i> Filtrele
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Transaction Listesi -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>TX ID</th>
+                            <th>Tip</th>
+                            <th>From → To</th>
+                            <th>Tutar</th>
+                            <th>Durum</th>
+                            <th>Blok</th>
+                            <th>Zaman</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr>
+                            <td><code>{{ tx.transaction_id|truncatechars:12 }}</code></td>
+                            <td><span class="badge bg-secondary">{{ tx.get_transaction_type_display }}</span></td>
+                            <td><small>{{ tx.from_address|truncatechars:15 }} → {{ tx.to_address|truncatechars:15 }}</small></td>
+                            <td><strong>{{ tx.amount }} TL</strong></td>
+                            <td>
+                                {% if tx.status == 'confirmed' %}
+                                <span class="badge bg-success">Onaylı</span>
+                                {% elif tx.status == 'pending' %}
+                                <span class="badge bg-warning">Bekliyor</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ tx.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if tx.block %}
+                                <a href="{% url 'blockchain:block_detail' tx.block.block_number %}">#{{ tx.block.block_number }}</a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ tx.timestamp|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'blockchain:transaction_detail' tx.transaction_id %}" class="btn btn-sm btn-outline-info">
+                                    Detay
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Transaction bulunamadı</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

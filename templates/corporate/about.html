@@ -1,0 +1,546 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Hakkımızda - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .about-hero {
+    position: relative;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .about-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .about-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .about-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .about-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Vision & Mission Cards */
+  .vision-mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    margin-top: -80px;
+    position: relative;
+    z-index: 3;
+    margin-bottom: 80px;
+  }
+
+  .vm-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vm-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+    border-radius: 0 0 0 100%;
+  }
+
+  .vm-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .vm-card-vision {
+    border-top-color: #667eea;
+  }
+
+  .vm-card-mission {
+    border-top-color: #10b981;
+  }
+
+  .vm-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 24px;
+  }
+
+  .vm-icon-vision {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    color: #667eea;
+  }
+
+  .vm-icon-mission {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .vm-card h5 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: #1a202c;
+  }
+
+  .vm-card p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #718096;
+    margin: 0;
+  }
+
+  /* Values Section */
+  .values-section {
+    padding: 100px 0;
+    background: #f8f9fa;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+
+  .value-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .value-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--value-color), transparent);
+  }
+
+  .value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .value-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background: var(--value-bg);
+    color: var(--value-color);
+  }
+
+  .value-card h6 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1a202c;
+  }
+
+  .value-card p {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Timeline Section */
+  .timeline-section {
+    padding: 100px 0;
+  }
+
+  .timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+    align-items: center;
+  }
+
+  .timeline-year {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: right;
+  }
+
+  .timeline-content {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #10b981;
+    transition: all 0.3s ease;
+  }
+
+  .timeline-content:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .timeline-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .timeline-badge {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .about-hero h1 {
+      font-size: 36px;
+    }
+
+    .vision-mission-grid {
+      grid-template-columns: 1fr;
+      margin-top: 40px;
+    }
+
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline-item {
+      grid-template-columns: 80px 1fr;
+      gap: 16px;
+    }
+
+    .timeline-year {
+      font-size: 24px;
+    }
+
+    .cta-title {
+      font-size: 32px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero">
+  <div class="container about-hero-content">
+    <span class="about-badge">
+      <i class="bi bi-info-circle"></i>
+      Hakkımızda
+    </span>
+    <h1>Finansın Geleceğini Şekillendiriyoruz</h1>
+    <p>
+      FinAsis olarak KOBİ ve girişimlere yapay zeka destekli finansal çözümler sunuyor, 
+      dijital dönüşümü hızlandırıyoruz. Vizyonumuz, misyonumuz ve değerlerimizle tanışın.
+    </p>
+  </div>
+</section>
+
+<!-- Vision & Mission -->
+<div class="container">
+  <div class="vision-mission-grid">
+    <div class="vm-card vm-card-vision">
+      <div class="vm-icon vm-icon-vision">
+        <i class="bi bi-eye"></i>
+      </div>
+      <h5>Vizyonumuz</h5>
+      <p>
+        KOBİ ve girişimlere veri odaklı finans asistanı olarak Türkiye'nin en güvenilir 
+        ve yenilikçi çözümü olmak. Finansal kararları basitleştirerek, her ölçekteki 
+        işletmenin büyümesine katkı sağlamak.
+      </p>
+    </div>
+
+    <div class="vm-card vm-card-mission">
+      <div class="vm-icon vm-icon-mission">
+        <i class="bi bi-bullseye"></i>
+      </div>
+      <h5>Misyonumuz</h5>
+      <p>
+        Finansal süreçleri otomasyon ve yapay zeka ile basitleştirmek, içgörü sağlamak 
+        ve kullanıcı deneyimini ön planda tutarak işletmelerin rekabet gücünü artırmak. 
+        Geleceği bugünden inşa etmek.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Values Section -->
+<section class="values-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge">
+        <i class="bi bi-star me-2"></i>Değerlerimiz
+      </span>
+      <h2 class="section-title">Bizi Biz Yapan Değerler</h2>
+      <p class="section-subtitle">
+        FinAsis'i oluştururken temel aldığımız ilkeler ve her gün hayata geçirdiğimiz değerler
+      </p>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card" style="--value-color: #10b981; --value-bg: rgba(16, 185, 129, 0.1);">
+        <div class="value-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h6>Güven & Güvenlik</h6>
+        <p>Veri güvenliği ve etik her zaman önceliğimizdir. Müşteri verisini şeffaflıkla ve sorumluluğa yönetiriz.</p>
+      </div>
+
+      <div class="value-card" style="--value-color: #06b6d4; --value-bg: rgba(6, 182, 212, 0.1);">
+        <div class="value-icon">
+          <i class="bi bi-lightbulb"></i>
+        </div>
+        <h6>Yenilik & İnovasyon</h6>
+        <p>Sürekli öğrenir, geliştirir ve deneyimleriz. Teknoloji ile değer üretmek DNA'mızda.</p>
+      </div>
+
+      <div class="value-card" style="--value-color: #f59e0b; --value-bg: rgba(245, 158, 11, 0.1);">
+        <div class="value-icon">
+          <i class="bi bi-eye"></i>
+        </div>
+        <h6>Şeffaflık</h6>
+        <p>Açık iletişim, net raporlama ve dürüstlük her işimizde yer alır.</p>
+      </div>
+
+      <div class="value-card" style="--value-color: #8b5cf6; --value-bg: rgba(139, 92, 246, 0.1);">
+        <div class="value-icon">
+          <i class="bi bi-universal-access"></i>
+        </div>
+        <h6>Erişilebilirlik</h6>
+        <p>Basit, anlaşılır ve herkes için kullanılabilir ürünler geliştiririz.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="timeline-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-flag me-2"></i>Kilometre Taşları
+      </span>
+      <h2 class="section-title">Yolculuğumuz</h2>
+      <p class="section-subtitle">
+        FinAsis'in kuruluşundan bugüne uzanan yolculuğumuzun önemli anları
+      </p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">2023</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="timeline-title">FinAsis Kuruluşu</div>
+              <small class="text-muted">Vizyonun hayata geçmesi</small>
+            </div>
+            <span class="timeline-badge badge bg-light text-dark">Başlangıç</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2024</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="timeline-title">İlk Beta Lansmanı</div>
+              <small class="text-muted">100+ aktif kullanıcı</small>
+            </div>
+            <span class="timeline-badge badge bg-success">Büyüme</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2025</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="timeline-title">AI & Blockchain Entegrasyonu</div>
+              <small class="text-muted">Kurumsal paket lansmanı</small>
+            </div>
+            <span class="timeline-badge badge bg-primary">Olgunluk</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">Birlikte Çalışalım</h2>
+    <p class="cta-subtitle">
+      İşletmeniz için özel çözümler ve kurumsal destek almak için bize ulaşın
+    </p>
+    <div class="mt-4">
+      <a href="/corporate/offer/" class="btn btn-cta-primary">
+        <i class="bi bi-file-earmark-text me-2"></i>Kurumsal Teklif Al
+      </a>
+      <a href="/contact/" class="btn btn-cta-secondary">
+        <i class="bi bi-envelope me-2"></i>İletişime Geç
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

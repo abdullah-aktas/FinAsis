@@ -1,0 +1,102 @@
+{% load i18n static %}
+<style>
+  .fa-chat-widget{position:fixed;z-index:1050;right:16px;bottom:16px;}
+  .fa-chat-toggle{width:56px;height:56px;border-radius:50%;border:0;box-shadow:0 4px 12px rgba(0,0,0,.2);background:var(--brand-primary,#0AAE94);color:#fff;}
+  .fa-chat-panel{display:none;position:fixed;right:16px;bottom:84px;width:360px;max-width:90vw;max-height:70vh;background:var(--bs-body-bg,#fff);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.25);overflow:hidden;border:1px solid rgba(0,0,0,.06)}
+  .fa-chat-panel.show{display:flex;flex-direction:column}
+  .fa-chat-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid rgba(0,0,0,.06);background:linear-gradient(90deg,var(--brand-primary,#0AAE94),#18c3ae);color:#fff}
+  .fa-chat-body{padding:8px;overflow:auto;flex:1;background:var(--bs-tertiary-bg,#f8f9fa)}
+  .fa-chat-msg{margin:8px 0;display:flex}
+  .fa-chat-msg.user{justify-content:flex-end}
+  .fa-chat-bubble{max-width:80%;padding:8px 12px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .fa-chat-msg.user .fa-chat-bubble{background:#d1ecf1;color:#0c5460;border-top-right-radius:4px}
+  .fa-chat-msg.assistant .fa-chat-bubble{background:#fff;border:1px solid rgba(0,0,0,.06);border-top-left-radius:4px}
+  .fa-chat-input{display:flex;gap:.5rem;padding:.5rem;border-top:1px solid rgba(0,0,0,.06);background:var(--bs-body-bg,#fff)}
+  .fa-chat-input input{flex:1}
+</style>
+<div class="fa-chat-widget" aria-live="polite" aria-label="{% trans 'FinAsis Yapay Zeka Asistanı' %}">
+  <div id="faChatPanel" class="fa-chat-panel" role="dialog" aria-modal="false" aria-labelledby="faChatTitle">
+    <div class="fa-chat-header">
+      <div>
+        <strong id="faChatTitle">FinAsis</strong>
+        <div class="small" style="opacity:.9">{% trans 'Muhasebe & Finansman Uzmanı' %}</div>
+      </div>
+      <button id="faChatClose" class="btn btn-sm btn-light" aria-label="{% trans 'Kapat' %}">×</button>
+    </div>
+    <div id="faChatBody" class="fa-chat-body" tabindex="0"></div>
+    <form id="faChatForm" class="fa-chat-input">
+      <input id="faChatInput" class="form-control" type="text" autocomplete="off" placeholder="{% trans 'Sorunuzu yazın…' %}">
+      <button class="btn btn-primary" type="submit">{% trans 'Gönder' %}</button>
+    </form>
+  </div>
+  <button id="faChatToggle" class="fa-chat-toggle" aria-expanded="false" aria-controls="faChatPanel">
+    <i class="bi bi-cash-coin" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans 'Bilgeyi aç' %}</span>
+  </button>
+  
+  <script>
+  (function(){
+    const elPanel = document.getElementById('faChatPanel');
+    const elToggle = document.getElementById('faChatToggle');
+    const elClose = document.getElementById('faChatClose');
+    const elBody = document.getElementById('faChatBody');
+    const elForm = document.getElementById('faChatForm');
+    const elInput = document.getElementById('faChatInput');
+
+    function toggle(){
+      const show = !elPanel.classList.contains('show');
+      elPanel.classList.toggle('show', show);
+      elToggle.setAttribute('aria-expanded', show ? 'true' : 'false');
+      if(show){ setTimeout(()=>{ elInput?.focus(); }, 100); }
+    }
+    elToggle.addEventListener('click', toggle);
+    elClose.addEventListener('click', toggle);
+
+    function addMsg(role, text){
+      const row = document.createElement('div');
+      row.className = 'fa-chat-msg ' + (role === 'user' ? 'user' : 'assistant');
+      const bubble = document.createElement('div');
+      bubble.className = 'fa-chat-bubble';
+      bubble.textContent = text;
+      row.appendChild(bubble);
+      elBody.appendChild(row);
+      elBody.scrollTop = elBody.scrollHeight;
+    }
+
+    async function ask(text){
+      addMsg('user', text);
+      addMsg('assistant', '{% trans "Yazıyor…" %}');
+      const typing = elBody.lastElementChild;
+      try{
+        const resp = await fetch('{% url "ai_assistant:ai-assistant-chat" %}', {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Page-Path': location.pathname,
+            'X-Page-Title': document.title,
+            'X-CSRFToken': (function(){
+              const m = document.cookie.match(/csrftoken=([^;]+)/); return m? m[1]: '';
+            })()
+          },
+          body: JSON.stringify({ message: text, context: { path: location.pathname, title: document.title }})
+        });
+        const data = await resp.json();
+        typing.remove();
+        if(resp.ok){ addMsg('assistant', data.response || '{% trans "Yanıt alınamadı" %}'); }
+        else { addMsg('assistant', (data.error || 'Error')); }
+      }catch(err){
+        if(typing && typing.remove){ typing.remove(); }
+        addMsg('assistant', '{% trans "Bağlantı hatası" %}');
+      }
+    }
+
+    elForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const text = (elInput.value || '').trim();
+      if(!text) return; elInput.value = '';
+      ask(text);
+    });
+  })();
+  </script>
+</div>

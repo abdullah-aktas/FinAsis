@@ -1,0 +1,22 @@
+:root{--fin-primary:#009873;--fin-primary-dark:#007a5e;--fin-bg:#f9f9fb;--fin-text:#1e1e2f;--fin-focus:#ffffff;--fin-active-bg:rgba(255,255,255,.14)}
+body[data-theme='dark']{--fin-bg:#121318;--fin-text:#e8e8ef;background:#121318;color:var(--fin-text)}
+body{font-family:Inter,Roboto,'Open Sans',system-ui,-apple-system,sans-serif;background:var(--fin-bg);color:var(--fin-text);}
+
+/* NAVBAR */
+nav.navbar{background:var(--fin-primary);}
+body[data-theme='dark'] nav.navbar{background:linear-gradient(90deg,#024d3b,#009873)}
+nav.navbar .navbar-brand img{box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+nav.navbar .nav-link{color:#fff!important;position:relative;font-weight:500;font-size:.92rem}
+nav.navbar .nav-link:focus-visible{outline:2px solid var(--fin-focus);outline-offset:2px;border-radius:.5rem}
+nav.navbar .nav-link.active{background:var(--fin-active-bg);border-radius:.55rem}
+nav.navbar .nav-link::after{content:"";position:absolute;left:1rem;right:1rem;bottom:6px;height:0;opacity:0;background:#fff;border-radius:2px;transition:.25s}
+nav.navbar .nav-link:hover::after{height:2px;opacity:1}
+nav.navbar .dropdown-menu .dropdown-item:focus,.dropdown-menu .dropdown-item:active{background:rgba(0,0,0,.05)}
+
+/* FOOTER */
+.footer{background:#1e1e2f;color:#f8f9fa;}
+
+/* BUTTONS */
+.btn-primary{background:var(--fin-primary);border-color:var(--fin-primary)}
+.btn-primary:hover{background:var(--fin-primary-dark);border-color:var(--fin-primary-dark)}
+

@@ -1,0 +1,79 @@
+{
+  "price": "Biha",
+  "owned": "Xwedî",
+  "buy": "Kirrîn",
+  "sell": "Firotin",
+  "not_enough_money": "Pere têrê nake",
+  "welcome_message": "Bi xêr hatî lîstika bazirganiya fînansê!",
+  "day": "Roj",
+  "money": "Pere",
+  "portfolio_value": "Nirxa Portfolyoyê",
+  "total_value": "Nirxa Giştî",
+  "market_closed": "Bazar girtî ye",
+  "market_open": "Bazar vekirî ye",
+  "next_day": "Roja Din",
+  "save_game": "Lîstikê Tomar Bike",
+  "load_game": "Lîstikê Bar Bike",
+  "settings": "Mîheng",
+  "exit": "Derketin",
+  "confirm": "Erêkirin",
+  "cancel": "Betal",
+  
+  "tutorial": {
+    "welcome": "Bi xêr hatî dersa fêrbûnê!",
+    "basic_controls": "Kontrolên Bingehîn",
+    "trading_basics": "Bingehên Bazirganiyê",
+    "market_info": "Agahiyên Bazarê",
+    "next": "Pêş",
+    "previous": "Paş",
+    "finish": "Qedandin"
+  },
+  
+  "notifications": {
+    "transaction_success": "Danûstandin bi ser ket",
+    "transaction_failed": "Danûstandin bi ser neket",
+    "market_update": "Nûvekirina Bazarê",
+    "game_saved": "Lîstik hat tomarkirin",
+    "game_loaded": "Lîstik hat barkirin",
+    "language_changed": "Ziman hat guhertin"
+  },
+
+  "menu": {
+    "language_settings": "Mîhengên Ziman",
+    "save_game": "Lîstikê Tomar Bike",
+    "load_game": "Lîstikê Bar Bike",
+    "settings": "Mîheng",
+    "exit": "Derketin"
+  },
+
+  "game_specific": {
+    "company_info": "Agahiyên Şirketê",
+    "company_not_selected": "Tu şirket nehatiye hilbijartin",
+    "buy_50_stocks": "50 Par Bikire",
+    "buy_10_stocks": "10 Par Bikire",
+    "sell_10_stocks": "10 Par Bifiroşe",
+    "sell_all_stocks": "Hemû Paran Bifiroşe",
+    "financial_mentor": "Şêwirmendê We yê Fînansê",
+    "mentor_welcome": "Silav! Ez şêwirmendê we yê fînansê me. Ez li vir im ku alîkariya we bikim.",
+    "loading_question": "Pirs tê barkirin...",
+    "finance_quiz": "Quiza Zanîna Fînansê",
+    "daily_tasks": "Erkên Rojane",
+    "task_completed": "Erk hat temamkirin",
+    "new_quest": "Erkeke nû"
+  },
+
+  "analytics": {
+    "analytics_dashboard": "Panela Analîtîkê",
+    "portfolio_performance": "Performansa Portfolyoyê",
+    "trading_history": "Dîroka Bazirganiyê",
+    "knowledge_progress": "Pêşketina Zanînê",
+    "market_analysis": "Analîza Bazarê",
+    "total_value": "Nirxa Giştî",
+    "daily_change": "Guharbûna Rojane",
+    "total_trades": "Bazirganiyên Giştî",
+    "total_profit": "Kêfa Giştî",
+    "bull_market": "Bazara Bilind",
+    "bear_market": "Bazara Kêm",
+    "stable_market": "Bazara Stabil"
+  }
+} 

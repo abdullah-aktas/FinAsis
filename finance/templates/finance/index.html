@@ -1,0 +1,30 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title|default:_('Finans Modülü') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">{% trans 'Hoş Geldiniz' %}</h1>
+            <p class="lead">{% trans 'Bu Finance modülünün ana sayfasıdır.' %}</p>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>{% trans 'Modül Özellikleri' %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>{% trans 'Özellik 1' %}</li>
+                        <li>{% trans 'Özellik 2' %}</li>
+                        <li>{% trans 'Özellik 3' %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+{% endblock %}
+

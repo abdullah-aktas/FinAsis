@@ -1,0 +1,195 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ api_key.name }} · {% trans "API Anahtarı" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="display-6 fw-bold mb-1">{{ api_key.name }}</h1>
+      <p class="text-muted mb-0">
+        {{ api_key.masked_key }} · {{ api_key.get_status_display }}
+      </p>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#rotateModal">
+        <i class="bi bi-arrow-repeat me-2"></i>{% trans "Döndür" %}
+      </button>
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#revokeModal">
+        <i class="bi bi-slash-circle me-2"></i>{% trans "Devre dışı bırak" %}
+      </button>
+    </div>
+  </div>
+
+  {% if raw_secret %}
+  <div class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-3"></i>
+    <div>
+      <strong>{% trans "Yeni anahtar" %}:</strong>
+      <code class="ms-2">{{ raw_secret }}</code>
+      <div class="small text-muted">
+        {% trans "Bu anahtarı yalnızca bir kez göreceksiniz. Lütfen güvenli bir yerde saklayın." %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header">
+          <h2 class="h6 mb-0">{% trans "Özet" %}</h2>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-5 text-muted">{% trans "Plan" %}</dt>
+            <dd class="col-7">{{ api_key.rate_limit_plan|title }}</dd>
+
+            <dt class="col-5 text-muted">{% trans "Durum" %}</dt>
+            <dd class="col-7">
+              <span class="badge bg-{% if api_key.is_active %}success{% else %}secondary{% endif %}">
+                {{ api_key.get_status_display }}
+              </span>
+            </dd>
+
+            <dt class="col-5 text-muted">{% trans "Son kullanım" %}</dt>
+            <dd class="col-7">
+              {% if api_key.last_used_at %}
+                {{ api_key.last_used_at|date:"SHORT_DATE_FORMAT" }} {{ api_key.last_used_at|time:"H:i" }}
+              {% else %}
+                <span class="text-muted">{% trans "Kullanım yok" %}</span>
+              {% endif %}
+            </dd>
+
+            <dt class="col-5 text-muted">{% trans "İzinli IP" %}</dt>
+            <dd class="col-7">
+              {% if api_key.allowed_ips %}
+                <ul class="list-unstyled mb-0">
+                  {% for ip in api_key.allowed_ips %}
+                  <li><code>{{ ip }}</code></li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <span class="text-muted">{% trans "Sınırlama yok" %}</span>
+              {% endif %}
+            </dd>
+
+            <dt class="col-5 text-muted">{% trans "Oluşturulma" %}</dt>
+            <dd class="col-7">{{ api_key.created_at|date:"SHORT_DATE_FORMAT" }}</dd>
+
+            <dt class="col-5 text-muted">{% trans "Bitiş" %}</dt>
+            <dd class="col-7">
+              {% if api_key.expires_at %}
+                {{ api_key.expires_at|date:"SHORT_DATE_FORMAT" }}
+              {% else %}
+                <span class="text-muted">{% trans "Belirtilmedi" %}</span>
+              {% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h2 class="h6 mb-0">{% trans "Son Kullanımlar" %}</h2>
+          <span class="text-muted small">
+            {% blocktrans with total=usage_summary.requests %}Son 24 saatte {{ total }} çağrı{% endblocktrans %}
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>{% trans "Zaman" %}</th>
+                  <th>{% trans "Metod" %}</th>
+                  <th>{% trans "Endpoint" %}</th>
+                  <th>{% trans "Kod" %}</th>
+                  <th>{% trans "Süre (ms)" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in usage_logs %}
+                <tr>
+                  <td>{{ log.timestamp|date:"SHORT_DATE_FORMAT" }} {{ log.timestamp|time:"H:i:s" }}</td>
+                  <td><span class="badge bg-primary">{{ log.method }}</span></td>
+                  <td><code>{{ log.path }}</code></td>
+                  <td>{{ log.response_code }}</td>
+                  <td>{{ log.duration_ms }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center py-5 text-muted">
+                    {% trans "Henüz kullanım kaydı bulunmuyor." %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rotate Modal -->
+<div class="modal fade" id="rotateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'developer_portal:api_key_rotate' api_key.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Anahtarı Döndür" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">
+            {% trans "Mevcut anahtar devre dışı bırakılacak ve yeni bir anahtar oluşturulacak. Yeni anahtarı hemen kaydetmeyi unutmayın." %}
+          </p>
+          {{ rotate_form.confirm }}
+          <label class="form-check-label ms-2" for="{{ rotate_form.confirm.id_for_label }}">
+            {{ rotate_form.confirm.label }}
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "Döndür" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Revoke Modal -->
+<div class="modal fade" id="revokeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'developer_portal:api_key_revoke' api_key.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">{% trans "Anahtarı Devre Dışı Bırak" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">
+            {% trans "Anahtar devre dışı bırakılacak ve erişim sonlandırılacak. Bu işlem geri alınamaz." %}
+          </p>
+          <div class="mb-3">
+            <label class="form-label">{{ revoke_form.reason.label }}</label>
+            {{ revoke_form.reason }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+          <button type="submit" class="btn btn-danger">{% trans "Devre dışı bırak" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

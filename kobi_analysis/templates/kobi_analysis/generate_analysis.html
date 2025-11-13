@@ -1,0 +1,207 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Yeni Analiz Oluştur - {{ company.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .generate-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+
+  .analysis-type-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+
+  .analysis-type-card:hover {
+    border-color: #667eea;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+  }
+
+  .analysis-type-card.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+  }
+
+  .custom-input {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: all 0.3s ease;
+  }
+
+  .custom-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="generate-hero">
+    <div style="font-size: 64px; margin-bottom: 20px;">🤖</div>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">
+      AI Destekli Finansal Analiz
+    </h1>
+    <p style="font-size: 20px; opacity: 0.95;">
+      Otomatik veri toplama ve akıllı öneriler ile kapsamlı analiz
+    </p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="form-card">
+        <h4 class="fw-bold mb-4 text-center">Analiz Parametreleri</h4>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <!-- Analiz Türü -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Analiz Türü</label>
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="analysis-type-card active" onclick="selectType(this, 'MONTHLY')">
+                  <i class="bi bi-calendar-month" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+                  <h6 class="fw-bold mb-0">Aylık</h6>
+                  <input type="radio" name="analysis_type" value="MONTHLY" checked style="display: none;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="analysis-type-card" onclick="selectType(this, 'QUARTERLY')">
+                  <i class="bi bi-calendar3" style="font-size: 32px; color: #10b981; margin-bottom: 8px;"></i>
+                  <h6 class="fw-bold mb-0">Çeyreklik</h6>
+                  <input type="radio" name="analysis_type" value="QUARTERLY" style="display: none;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="analysis-type-card" onclick="selectType(this, 'ANNUAL')">
+                  <i class="bi bi-calendar-check" style="font-size: 32px; color: #f59e0b; margin-bottom: 8px;"></i>
+                  <h6 class="fw-bold mb-0">Yıllık</h6>
+                  <input type="radio" name="analysis_type" value="ANNUAL" style="display: none;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="analysis-type-card" onclick="selectType(this, 'CUSTOM')">
+                  <i class="bi bi-calendar-range" style="font-size: 32px; color: #8b5cf6; margin-bottom: 8px;"></i>
+                  <h6 class="fw-bold mb-0">Özel</h6>
+                  <input type="radio" name="analysis_type" value="CUSTOM" style="display: none;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarih Aralığı -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Başlangıç Tarihi</label>
+              <input type="date" name="start_date" class="form-control custom-input" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Bitiş Tarihi</label>
+              <input type="date" name="end_date" class="form-control custom-input" required>
+            </div>
+          </div>
+
+          <!-- AI Özellikler -->
+          <div class="p-4 mb-4" style="background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02)); border-radius: 16px; border-left: 4px solid #667eea;">
+            <h6 class="fw-bold mb-3">🤖 AI Analiz Özellikleri</h6>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="anomaly" checked>
+              <label class="form-check-label" for="anomaly">
+                Anomali Tespiti - Olağandışı işlemleri tespit et
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="prediction" checked>
+              <label class="form-check-label" for="prediction">
+                Trend Tahmini - Gelecek dönem tahmini yap
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="benchmark" checked>
+              <label class="form-check-label" for="benchmark">
+                Sektör Karşılaştırması - Rakiplerle kıyasla
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="recommendations" checked>
+              <label class="form-check-label" for="recommendations">
+                Akıllı Öneriler - Optimizasyon önerileri al
+              </label>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg" style="border-radius: 14px; padding: 16px 48px; font-weight: 700;">
+              <i class="bi bi-play-fill me-2"></i>Analizi Başlat
+            </button>
+            <a href="{% url 'kobi_analysis:dashboard' %}" class="btn btn-outline-secondary btn-lg ms-2" style="border-radius: 14px; padding: 16px 48px;">
+              İptal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectType(element, value) {
+  document.querySelectorAll('.analysis-type-card').forEach(card => {
+    card.classList.remove('active');
+  });
+  element.classList.add('active');
+  element.querySelector('input[type="radio"]').checked = true;
+  
+  // Önerilen tarih aralıklarını set et
+  const today = new Date();
+  const startInput = document.querySelector('input[name="start_date"]');
+  const endInput = document.querySelector('input[name="end_date"]');
+  
+  if (value === 'MONTHLY') {
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    startInput.value = firstDay.toISOString().split('T')[0];
+    endInput.value = today.toISOString().split('T')[0];
+  } else if (value === 'QUARTERLY') {
+    const quarter = Math.floor(today.getMonth() / 3);
+    const firstDay = new Date(today.getFullYear(), quarter * 3, 1);
+    startInput.value = firstDay.toISOString().split('T')[0];
+    endInput.value = today.toISOString().split('T')[0];
+  } else if (value === 'ANNUAL') {
+    const firstDay = new Date(today.getFullYear(), 0, 1);
+    startInput.value = firstDay.toISOString().split('T')[0];
+    endInput.value = today.toISOString().split('T')[0];
+  }
+}
+
+// İlk yüklemede aylık analiz tarihlerini set et
+window.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  document.querySelector('input[name="start_date"]').value = firstDay.toISOString().split('T')[0];
+  document.querySelector('input[name="end_date"]').value = today.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Kaynaklar{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <h1 class="display-5 fw-bold mb-3">Kaynak Merkezi</h1>
+      <p class="lead text-muted mb-4">
+        FinAsis ekosistemindeki dökümanlar, eğitimler ve sıkça sorulan sorulara buradan erişebilirsiniz.
+      </p>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">KOBİ Eğitimleri</h5>
+          <p class="card-text text-muted">Adım adım kılavuzlar, finansal okuryazarlık içerikleri ve uygulamalı eğitimler.</p>
+          <a href="{% url 'education:kobi_tutorials' %}" class="btn btn-primary btn-sm">Eğitim Rehberleri</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Ders Platformu</h5>
+          <p class="card-text text-muted">Öğrenciler ve eğitmenler için interaktif dersler, videolar ve sınavlar.</p>
+          <a href="{% url 'education:education_home' %}" class="btn btn-primary btn-sm">Platforma Git</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">SSS & Destek</h5>
+          <p class="card-text text-muted">Sıkça sorulan sorular, hızlı başlangıç kılavuzları ve destek kanalları.</p>
+          <a href="{% url 'common:help_center' %}" class="btn btn-primary btn-sm">Destek Merkezi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

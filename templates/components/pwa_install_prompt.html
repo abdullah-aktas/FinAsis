@@ -1,0 +1,243 @@
+{% load static %}
+<!-- PWA Kurulum Hatırlatıcı -->
+<div id="pwa-install-prompt" class="pwa-prompt d-none" role="dialog" aria-labelledby="pwa-prompt-title" aria-describedby="pwa-prompt-desc">
+  <div class="pwa-prompt-content">
+    <div class="pwa-prompt-header">
+      <div class="pwa-prompt-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-phone" viewBox="0 0 16 16">
+          <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
+          <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+        </svg>
+      </div>
+      <div class="pwa-prompt-text">
+        <h5 id="pwa-prompt-title" class="pwa-prompt-title">FinAsis'i Cihazınıza Kurun</h5>
+        <p id="pwa-prompt-desc" class="pwa-prompt-description">Hızlı erişim için uygulamayı ana ekranınıza ekleyin. Çevrimdışı çalışma ve daha iyi performans!</p>
+      </div>
+    </div>
+    
+    <div class="pwa-prompt-actions">
+      <button type="button" id="pwa-install-btn" class="btn btn-primary btn-sm pwa-btn-install">
+        <i class="bi bi-download me-1"></i>
+        Kur
+      </button>
+      <button type="button" id="pwa-dismiss-btn" class="btn btn-outline-secondary btn-sm pwa-btn-dismiss">
+        Şimdi Değil
+      </button>
+      <button type="button" id="pwa-never-show-btn" class="btn btn-link btn-sm text-muted pwa-btn-never" aria-label="Bir daha gösterme">
+        <i class="bi bi-x-circle"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* PWA Prompt Stilleri */
+  .pwa-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    max-width: 480px;
+    width: calc(100% - 40px);
+    background: var(--bs-body-bg, #ffffff);
+    border-radius: 16px;
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html[data-theme='dark'] .pwa-prompt {
+    background: var(--bs-dark, #1a1a1a);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .pwa-prompt-content {
+    padding: 20px;
+  }
+
+  .pwa-prompt-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .pwa-prompt-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--brand-accent, #009873), var(--brand-primary, #0AAE94));
+    border-radius: 12px;
+    color: white;
+  }
+
+  .pwa-prompt-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pwa-prompt-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    color: var(--bs-body-color, #212529);
+  }
+
+  html[data-theme='dark'] .pwa-prompt-title {
+    color: var(--bs-light, #f8f9fa);
+  }
+
+  .pwa-prompt-description {
+    font-size: 14px;
+    color: var(--text-muted, #6c757d);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .pwa-prompt-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pwa-btn-install {
+    font-weight: 500;
+    padding: 8px 20px;
+    background: var(--brand-primary, #0AAE94);
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .pwa-btn-install:hover {
+    background: var(--brand-primary-dark, #009873);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(10, 174, 148, 0.3);
+  }
+
+  .pwa-btn-dismiss {
+    font-weight: 500;
+    padding: 8px 16px;
+  }
+
+  .pwa-btn-never {
+    padding: 8px 12px;
+    font-size: 14px;
+    text-decoration: none;
+    margin-left: auto;
+  }
+
+  .pwa-btn-never:hover {
+    color: var(--bs-danger, #dc3545) !important;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  @keyframes fadeOutDown {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
+  }
+
+  .pwa-prompt.fade-in {
+    animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .pwa-prompt.fade-out {
+    animation: fadeOutDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Mobile optimizasyonu */
+  @media (max-width: 576px) {
+    .pwa-prompt {
+      bottom: 10px;
+      width: calc(100% - 20px);
+      max-width: none;
+    }
+
+    .pwa-prompt-content {
+      padding: 16px;
+    }
+
+    .pwa-prompt-header {
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pwa-prompt-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .pwa-prompt-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .pwa-prompt-title {
+      font-size: 15px;
+    }
+
+    .pwa-prompt-description {
+      font-size: 13px;
+    }
+
+    .pwa-prompt-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .pwa-btn-install,
+    .pwa-btn-dismiss {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .pwa-btn-never {
+      margin-left: 0;
+      align-self: center;
+    }
+  }
+
+  /* Erişilebilirlik için focus stilleri */
+  .pwa-prompt button:focus-visible {
+    outline: 2px solid var(--brand-primary, #0AAE94);
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion desteği */
+  @media (prefers-reduced-motion: reduce) {
+    .pwa-prompt,
+    .pwa-prompt *,
+    .pwa-btn-install {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+

@@ -1,0 +1,68 @@
+<!-- Modern Breadcrumb Componenti -->
+{% load static %}
+
+<nav aria-label="breadcrumb" class="modern-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'management:admin_dashboard' %}">
+                <i class="bi bi-house-door"></i>
+                Ana Sayfa
+            </a>
+        </li>
+        {% for crumb in breadcrumbs %}
+        <li class="breadcrumb-item {% if forloop.last %}active{% endif %}" {% if forloop.last %}aria-current="page"{% endif %}>
+            {% if crumb.url and not forloop.last %}
+            <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+            {% else %}
+            {{ crumb.title }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</nav>
+
+<style>
+.modern-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb {
+    margin: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.breadcrumb-item a {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breadcrumb-item a:hover {
+    color: #764ba2;
+}
+
+.breadcrumb-item.active {
+    color: #6c757d;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #cbd5e0;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+</style>
+

@@ -1,0 +1,478 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}KOBİ Sağlık Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kobi-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 60px 0;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kobi-hero::before {
+    content: '🏢';
+    position: absolute;
+    font-size: 240px;
+    opacity: 0.08;
+    top: -60px;
+    right: -40px;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+  }
+
+  .health-card-main {
+    background: white;
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+
+  .score-circle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: conic-gradient(
+      #10b981 0deg, 
+      #10b981 {{ health_score.overall_score|mul:3.6 }}deg,
+      #e5e7eb {{ health_score.overall_score|mul:3.6 }}deg,
+      #e5e7eb 360deg
+    );
+    box-shadow: 0 4px 20px rgba(16,185,129,0.2);
+  }
+
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .score-value {
+    position: relative;
+    z-index: 2;
+    font-size: 64px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .grade-badge {
+    display: inline-block;
+    padding: 12px 32px;
+    border-radius: 24px;
+    font-weight: 800;
+    font-size: 24px;
+    margin-top: 16px;
+  }
+
+  .grade-A { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+  .grade-B { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+  .grade-C { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+  .grade-D { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+  .grade-F { background: linear-gradient(135deg, #6b7280, #4b5563); color: white; }
+
+  .breakdown-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    height: 100%;
+  }
+
+  .breakdown-bar {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .breakdown-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease;
+  }
+
+  .benchmark-card {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    border-radius: 20px;
+    padding: 28px;
+    border-left: 5px solid #667eea;
+  }
+
+  .opportunity-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-left: 4px solid #f59e0b;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .opportunity-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(245,158,11,0.15);
+  }
+
+  .recommendation-pill {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px;
+  }
+
+  .pill-critical { background: rgba(239,68,68,0.1); color: #dc2626; }
+  .pill-high { background: rgba(245,158,11,0.1); color: #d97706; }
+  .pill-medium { background: rgba(59,130,246,0.1); color: #1d4ed8; }
+  .pill-low { background: rgba(16,185,129,0.1); color: #059669; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="kobi-hero text-center">
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 12px;">
+        🏢 KOBİ Sağlık Paneli
+      </h1>
+      <p style="font-size: 20px; opacity: 0.95; margin-bottom: 8px;">
+        {{ company.name }}
+      </p>
+      <small style="opacity: 0.85;">AI ve Blockchain Destekli Kapsamlı Analiz</small>
+    </div>
+  </div>
+
+  <!-- Ana Sağlık Skoru -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-5">
+      <div class="health-card-main">
+        <div class="score-circle">
+          <div class="score-value">{{ health_score.overall_score|floatformat:0 }}</div>
+        </div>
+        
+        <div class="grade-badge grade-{{ health_score.grade }}">
+          {{ health_score.grade }} Derece
+        </div>
+        
+        <h4 class="fw-bold mt-3 mb-2">{{ health_score.status }}</h4>
+        <p class="text-muted mb-0">Genel Sağlık Durumu</p>
+
+        <div class="row g-3 mt-4">
+          <div class="col-6">
+            <div style="background: rgba(16,185,129,0.1); border-radius: 12px; padding: 12px;">
+              <h6 class="fw-bold mb-0" style="color: #10b981;">{{ health_score.breakdown.audit_quality|floatformat:0 }}</h6>
+              <small class="text-muted">Audit Kalitesi</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(59,130,246,0.1); border-radius: 12px; padding: 12px;">
+              <h6 class="fw-bold mb-0" style="color: #3b82f6;">{{ health_score.breakdown.compliance|floatformat:0 }}</h6>
+              <small class="text-muted">Uyumluluk</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(245,158,11,0.1); border-radius: 12px; padding: 12px;">
+              <h6 class="fw-bold mb-0" style="color: #f59e0b;">{{ health_score.breakdown.operational_efficiency|floatformat:0 }}</h6>
+              <small class="text-muted">Verimlilik</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(139,92,246,0.1); border-radius: 12px; padding: 12px;">
+              <h6 class="fw-bold mb-0" style="color: #8b5cf6;">{{ health_score.breakdown.risk_management|floatformat:0 }}</h6>
+              <small class="text-muted">Risk Yönetimi</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm" style="border-radius: 20px; height: 100%;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-bar-chart-fill me-2" style="color: #667eea;"></i>
+            Detaylı Skor Dağılımı
+          </h5>
+
+          <!-- Audit Kalitesi -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">Audit Trail Kalitesi</h6>
+                <small class="text-muted">Kayıt düzeni ve detay seviyesi</small>
+              </div>
+              <span class="fw-bold" style="color: #10b981; font-size: 18px;">{{ health_score.breakdown.audit_quality|floatformat:0 }}/100</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width: {{ health_score.breakdown.audit_quality }}%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+            </div>
+          </div>
+
+          <!-- Finansal Sağlık -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">Finansal Sağlık</h6>
+                <small class="text-muted">Karlılık, likidite ve borçluluk</small>
+              </div>
+              <span class="fw-bold" style="color: #3b82f6; font-size: 18px;">{{ health_score.breakdown.financial_health|floatformat:0 }}/100</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width: {{ health_score.breakdown.financial_health }}%; background: linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
+            </div>
+          </div>
+
+          <!-- Uyumluluk -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">Uyumluluk Durumu</h6>
+                <small class="text-muted">Yasal ve iç düzenlemelere uyum</small>
+              </div>
+              <span class="fw-bold" style="color: #667eea; font-size: 18px;">{{ health_score.breakdown.compliance|floatformat:0 }}/100</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width: {{ health_score.breakdown.compliance }}%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+            </div>
+          </div>
+
+          <!-- Operasyonel Verimlilik -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">Operasyonel Verimlilik</h6>
+                <small class="text-muted">Süreç optimizasyonu ve hız</small>
+              </div>
+              <span class="fw-bold" style="color: #f59e0b; font-size: 18px;">{{ health_score.breakdown.operational_efficiency|floatformat:0 }}/100</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width: {{ health_score.breakdown.operational_efficiency }}%; background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
+            </div>
+          </div>
+
+          <!-- Risk Yönetimi -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">Risk Yönetimi</h6>
+                <small class="text-muted">Risk tespiti ve önleme</small>
+              </div>
+              <span class="fw-bold" style="color: #8b5cf6; font-size: 18px;">{{ health_score.breakdown.risk_management|floatformat:0 }}/100</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width: {{ health_score.breakdown.risk_management }}%; background: linear-gradient(90deg, #8b5cf6, #7c3aed);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sektör Karşılaştırması -->
+  {% if benchmarking %}
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-graph-up-arrow me-2" style="color: #667eea;"></i>
+      Sektör Karşılaştırması
+    </h4>
+
+    <div class="benchmark-card">
+      <div class="row g-4">
+        <div class="col-md-3 text-center">
+          <h3 class="fw-bold mb-1" style="color: #667eea;">{{ benchmarking.sector_average|floatformat:0 }}</h3>
+          <small class="text-muted">Sektör Ortalaması</small>
+        </div>
+        <div class="col-md-3 text-center">
+          <h3 class="fw-bold mb-1" style="color: {% if benchmarking.position <= 25 %}#10b981{% elif benchmarking.position <= 50 %}#3b82f6{% elif benchmarking.position <= 75 %}#f59e0b{% else %}#ef4444{% endif %};">
+            %{{ benchmarking.position|floatformat:0 }}
+          </h3>
+          <small class="text-muted">Yüzdelik Dilim</small>
+        </div>
+        <div class="col-md-3 text-center">
+          <h3 class="fw-bold mb-1" style="color: {{ benchmarking.trend_positive|yesno:'#10b981,#ef4444' }};">
+            <i class="bi bi-arrow-{{ benchmarking.trend_positive|yesno:'up,down' }}"></i>
+            {{ benchmarking.trend_percentage|floatformat:1 }}%
+          </h3>
+          <small class="text-muted">Aylık Trend</small>
+        </div>
+        <div class="col-md-3 text-center">
+          <h3 class="fw-bold mb-1" style="color: #8b5cf6;">{{ benchmarking.top_quartile|floatformat:0 }}</h3>
+          <small class="text-muted">En İyi %25</small>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <p class="mb-2"><strong>📊 Değerlendirme:</strong></p>
+      <p class="text-muted mb-0">{{ benchmarking.analysis }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Maliyet Optimizasyonu Fırsatları -->
+  {% if cost_opportunities %}
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-piggy-bank me-2" style="color: #f59e0b;"></i>
+      Maliyet Tasarrufu Fırsatları
+    </h4>
+
+    <div class="row g-3">
+      {% for opportunity in cost_opportunities %}
+      <div class="col-md-6">
+        <div class="opportunity-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h6 class="fw-bold mb-1">{{ opportunity.title }}</h6>
+              <small class="text-muted">{{ opportunity.category }}</small>
+            </div>
+            <span class="recommendation-pill pill-{{ opportunity.priority }}">
+              {{ opportunity.priority|upper }}
+            </span>
+          </div>
+
+          <p class="text-muted small mb-3">{{ opportunity.description }}</p>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div style="background: rgba(16,185,129,0.1); border-radius: 8px; padding: 10px; text-align: center;">
+                <h6 class="fw-bold mb-0" style="color: #10b981;">{{ opportunity.savings_amount|floatformat:0 }} ₺</h6>
+                <small class="text-muted">Potansiyel Tasarruf</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div style="background: rgba(59,130,246,0.1); border-radius: 8px; padding: 10px; text-align: center;">
+                <h6 class="fw-bold mb-0" style="color: #3b82f6;">{{ opportunity.implementation_effort }}</h6>
+                <small class="text-muted">Uygulama Zorluğu</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <strong class="small">Adımlar:</strong>
+            <ol class="small mt-1 mb-0 ps-3">
+              {% for step in opportunity.steps %}
+              <li>{{ step }}</li>
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- AI Önerileri -->
+  {% if health_score.recommendations %}
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-lightbulb me-2" style="color: #667eea;"></i>
+      AI Destekli Öneriler
+    </h4>
+
+    <div class="row g-3">
+      {% for rec in health_score.recommendations %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; height: 100%; border-top: 3px solid {{ rec.color|default:'#667eea' }};">
+          <div class="card-body p-4">
+            <div class="mb-3" style="font-size: 36px;">{{ rec.icon|default:'💡' }}</div>
+            <h6 class="fw-bold mb-2">{{ rec.title }}</h6>
+            <p class="text-muted small mb-3">{{ rec.description }}</p>
+            <span class="recommendation-pill pill-{{ rec.priority }}">
+              {{ rec.priority|upper }}
+            </span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Yönetici Özeti -->
+  {% if executive_summary %}
+  <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-4">
+        <i class="bi bi-file-earmark-text me-2" style="color: #667eea;"></i>
+        Yönetici Özeti
+      </h5>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <h6 class="fw-bold mb-3 text-success">✓ Güçlü Yönler</h6>
+          <ul class="list-unstyled">
+            {% for strength in executive_summary.strengths %}
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              {{ strength }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-md-6">
+          <h6 class="fw-bold mb-3 text-warning">⚠ İyileştirme Alanları</h6>
+          <ul class="list-unstyled">
+            {% for weakness in executive_summary.weaknesses %}
+            <li class="mb-2">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+              {{ weakness }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <h6 class="fw-bold mb-3">📌 Öncelikli Aksiyon Önerileri</h6>
+      <div class="row g-3">
+        {% for action in executive_summary.priority_actions %}
+        <div class="col-md-4">
+          <div style="background: rgba(102,126,234,0.05); border-radius: 12px; padding: 16px;">
+            <div class="fw-bold mb-1" style="color: #667eea;">{{ forloop.counter }}. {{ action.title }}</div>
+            <small class="text-muted">{{ action.description }}</small>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- İndir & Paylaş Butonları -->
+  <div class="text-center mt-5">
+    <button class="btn btn-primary btn-lg me-2" style="border-radius: 12px; padding: 14px 32px;">
+      <i class="bi bi-download me-2"></i>Raporu İndir (PDF)
+    </button>
+    <button class="btn btn-outline-primary btn-lg" style="border-radius: 12px; padding: 14px 32px;">
+      <i class="bi bi-share me-2"></i>Paylaş
+    </button>
+  </div>
+</div>
+{% endblock %}
+

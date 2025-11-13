@@ -1,0 +1,329 @@
+{% extends "core_ui/base.html" %} {% load static %} {% block title %}Panel -
+FinAsis{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css"
+/>
+{% endblock %} {% block content %}
+<div
+  class="dashboard-hero bg-gradient-to-r from-brand-primary to-brand-accent text-white py-5 mb-4"
+>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2 animate-fade-in-up">
+          Hoş Geldin, {{ user.first_name|default:user.username }}! 👋
+        </h1>
+        <p class="lead mb-0 animate-fade-in-up" style="animation-delay: 0.2s">
+          İşte bugünkü finansal özetiniz ve AI önerileriniz
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div class="d-flex flex-column align-items-md-end">
+          <span
+            class="badge bg-white bg-opacity-20 px-3 py-2 rounded-pill mb-2"
+          >
+            <i class="bi bi-calendar me-2"></i>{{ today|date:"d F Y" }}
+          </span>
+          <div class="d-flex gap-2">
+            <button class="btn btn-light btn-sm" onclick="refreshDashboard()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Yenile
+            </button>
+            <a
+              href="{% url 'accounts:user_profile' %}"
+              class="btn btn-outline-light btn-sm"
+            >
+              <i class="bi bi-gear me-1"></i>Ayarlar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- KPI Stats - Modern Card Design -->
+  <div class="stats-grid animate-fade-in-up">
+    {% if stats %}
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon success">
+          <i class="bi bi-trend-up"></i>
+        </div>
+        <div class="dropdown">
+          <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            Bu Ay
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('today')"
+                >Bugün</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('week')"
+                >Bu Hafta</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('month')"
+                >Bu Ay</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('year')"
+                >Bu Yıl</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.total_income|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Toplam Gelir</div>
+      <div class="stat-card-change positive">
+        <i class="bi bi-arrow-up"></i>
+        <span>+12.5% önceki aya göre</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon danger">
+          <i class="bi bi-trend-down"></i>
+        </div>
+        <button
+          class="btn btn-sm btn-outline-primary"
+          onclick="showExpenseDetails()"
+        >
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.total_expenses|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Toplam Gider</div>
+      <div class="stat-card-change negative">
+        <i class="bi bi-arrow-down"></i>
+        <span>-5.2% önceki aya göre</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon info">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <span class="badge bg-success">Pozitif</span>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.net_balance|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Net Bakiye</div>
+      <div class="progress mt-2" style="height: 4px">
+        <div class="progress-bar bg-success" style="width: 75%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon warning">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <a
+          href="{% url 'accounting:invoice_list' %}"
+          class="btn btn-sm btn-outline-warning"
+        >
+          <i class="bi bi-list"></i>
+        </a>
+      </div>
+      <div class="stat-card-value">{{ stats.pending_invoices|default:0 }}</div>
+      <div class="stat-card-label">Bekleyen Fatura</div>
+      {% if stats.pending_invoices > 0 %}
+      <div class="text-warning mt-2">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        <small>Acil işlem gerekiyor</small>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <!-- Veri yok durumu - Modern Empty State -->
+    <div class="col-12">
+      <div class="card-modern text-center py-5">
+        <div class="mb-4">
+          <div
+            class="stat-card-icon info mx-auto mb-3"
+            style="width: 80px; height: 80px; font-size: 2rem"
+          >
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <h3 class="text-primary">Hoş geldiniz!</h3>
+          <p class="text-muted">
+            İlk işlemlerinizi yapmaya başlayın ve istatistikleriniz burada
+            görünecek.
+          </p>
+        </div>
+        <div class="d-flex justify-content-center gap-2">
+          <a
+            href="{% url 'accounting:invoice_create' %}"
+            class="btn-modern primary"
+          >
+            <i class="bi bi-plus-lg"></i>İlk Faturanızı Oluşturun
+          </a>
+          <button class="btn-modern secondary" onclick="startTour()">
+            <i class="bi bi-play-circle"></i>Tura Başla
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <!-- Left Column -->
+    <div>
+      <!-- AI Assistant Panel -->
+      <div class="panel-card">
+        <h3 class="panel-title">
+          <i class="bi bi-robot"></i>
+          AI Asistan Önerileri
+          <span class="badge-ai ms-2">Beta</span>
+        </h3>
+        {% if ai_suggestions and ai_suggestions|length > 0 %} {% for suggestion
+        in ai_suggestions %}
+        <div class="ai-suggestion">
+          <div class="ai-suggestion-text">
+            <strong>{{ suggestion.icon }} {{ suggestion.title }}:</strong><br />
+            {{ suggestion.text }}
+          </div>
+        </div>
+        {% endfor %} {% else %}
+        <div class="alert alert-light" role="alert">
+          <i class="bi bi-lightbulb me-2"></i>
+          AI asistanınız verilerinizi analiz ediyor. Öneriler yakında burada
+          görünecek.
+        </div>
+        {% endif %}
+        <div class="mt-3">
+          <a href="/ai-assistant/" class="btn btn-outline-primary">
+            <i class="bi bi-chat-dots me-2"></i>Asistan ile Konuş
+          </a>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="panel-card mt-4">
+        <h3 class="panel-title">
+          <i class="bi bi-clock-history"></i>
+          Son İşlemler
+        </h3>
+        {% if recent_activities and recent_activities|length > 0 %} {% for
+        activity in recent_activities %}
+        <div class="timeline-item">
+          <div class="timeline-icon timeline-icon-{{ activity.type }}">
+            <i class="bi bi-{{ activity.icon }}"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="timeline-time">{{ activity.time|date:"H:i" }}</div>
+            <div class="timeline-text">{{ activity.description }}</div>
+          </div>
+          <span class="badge bg-{{ activity.badge_type }}"
+            >{{ activity.status }}</span
+          >
+        </div>
+        {% endfor %} {% else %}
+        <div class="alert alert-light" role="alert">
+          <i class="bi bi-inbox me-2"></i>
+          Henüz işlem bulunmuyor. İlk işleminizi yapmaya başlayın!
+        </div>
+        {% endif %}
+        <div class="timeline-item" style="visibility: hidden">
+          <div class="timeline-icon timeline-icon-info">
+            <i class="bi bi-arrow-repeat"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="timeline-time">15:00</div>
+            <div class="timeline-text">Stok güncellendi (Otomatik)</div>
+          </div>
+          <span class="badge bg-info">Otomatik</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+      <!-- Quick Actions -->
+      <div class="panel-card">
+        <h3 class="panel-title">
+          <i class="bi bi-lightning-charge"></i>
+          Hızlı İşlemler
+        </h3>
+        <a
+          href="{% url 'accounting:invoice_create' %}"
+          class="quick-action-btn"
+        >
+          <div class="quick-action-icon"><i class="bi bi-receipt"></i></div>
+          <div class="quick-action-label">Yeni Fatura</div>
+        </a>
+        <a
+          href="{% url 'accounting:expense_create' %}"
+          class="quick-action-btn"
+        >
+          <div class="quick-action-icon"><i class="bi bi-cash-coin"></i></div>
+          <div class="quick-action-label">Yeni Gider</div>
+        </a>
+        <a
+          href="{% url 'accounting:purchase_invoice_create' %}"
+          class="quick-action-btn"
+        >
+          <div class="quick-action-icon"><i class="bi bi-box-seam"></i></div>
+          <div class="quick-action-label">Stok Girişi</div>
+        </a>
+        <a
+          href="/ai-assistant/"
+          class="quick-action-btn"
+          style="
+            border-color: rgba(102, 126, 234, 0.4);
+            background: linear-gradient(
+              135deg,
+              rgba(102, 126, 234, 0.05),
+              rgba(118, 75, 162, 0.05)
+            );
+          "
+        >
+          <div class="quick-action-icon"><i class="bi bi-robot"></i></div>
+          <div class="quick-action-label">AI Asistan</div>
+        </a>
+      </div>
+
+      <!-- Education Card -->
+      <div class="edu-card">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <i class="bi bi-mortarboard" style="font-size: 32px"></i>
+          <span
+            class="badge"
+            style="background: rgba(255, 255, 255, 0.2); padding: 6px 12px"
+            >Öğren & Kazan</span
+          >
+        </div>
+        <div class="edu-term">📘 Bugünün Finansal Terimi</div>
+        <div class="edu-desc mb-3">
+          <strong>Net Kar Marjı:</strong> Şirketin net karının toplam gelire
+          oranı. Karlılığı ölçmek için kullanılan temel göstergelerden biridir.
+        </div>
+        <a href="{% url 'education:courses' %}" class="btn btn-light">
+          <i class="bi bi-book me-2"></i>Daha Fazla Öğren
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

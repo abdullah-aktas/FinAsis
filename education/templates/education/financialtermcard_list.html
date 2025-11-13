@@ -1,0 +1,15 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Finansal Terimler{% endblock %}
+{% block content %}
+<h1>Finansal Terimler</h1>
+<a href="{% url 'education:financialtermcard_add' %}" class="btn btn-success mb-3">Yeni Terim Ekle</a>
+<ul>
+  {% for card in cards %}
+    <li>
+      <a href="{% url 'education:financialtermcard_detail' card.pk %}">{{ card.term }}</a>
+    </li>
+  {% empty %}
+    <li>Hiç terim yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

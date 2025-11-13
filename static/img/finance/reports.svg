@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Raporlar illüstrasyonu">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6dd5be"/>
+      <stop offset="100%" stop-color="#2193b0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="#f2fbf8"/>
+  <g transform="translate(60,40)">
+    <rect width="520" height="280" rx="16" fill="white" stroke="#cdece4"/>
+    <rect x="16" y="16" width="488" height="36" rx="8" fill="#e9fcf7"/>
+    <rect x="16" y="68" width="240" height="96" rx="10" fill="#f3fffb" stroke="#d1f3ea"/>
+    <rect x="264" y="68" width="240" height="96" rx="10" fill="#f3fffb" stroke="#d1f3ea"/>
+    <rect x="16" y="172" width="240" height="88" rx="10" fill="#f3fffb" stroke="#d1f3ea"/>
+    <rect x="264" y="172" width="240" height="88" rx="10" fill="#f3fffb" stroke="#d1f3ea"/>
+    <!-- pie chart -->
+    <circle cx="88" cy="116" r="36" fill="#e6faf4"/>
+    <path d="M88,116 L88,80 A36,36 0 0 1 120,131 Z" fill="#6dd5be"/>
+    <path d="M88,116 L120,131 A36,36 0 1 1 88,80 Z" fill="#2193b0" opacity="0.8"/>
+    <!-- mini bars -->
+    <rect x="292" y="96" width="18" height="40" fill="#6dd5be"/>
+    <rect x="316" y="86" width="18" height="50" fill="#47cbb0"/>
+    <rect x="340" y="108" width="18" height="28" fill="#21b49a"/>
+    <rect x="364" y="78" width="18" height="58" fill="#2193b0"/>
+    <!-- kpi lines -->
+    <rect x="40" y="188" width="176" height="12" rx="6" fill="#e1f7f1"/>
+    <rect x="40" y="206" width="148" height="12" rx="6" fill="#e1f7f1"/>
+    <rect x="288" y="188" width="180" height="12" rx="6" fill="#e1f7f1"/>
+    <rect x="288" y="206" width="120" height="12" rx="6" fill="#e1f7f1"/>
+  </g>
+</svg>

@@ -1,0 +1,228 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Destek - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .support-hero {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .support-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .support-hero p {
+    font-size: 20px;
+    opacity: 0.95;
+  }
+
+  .support-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin: -60px auto 60px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .support-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+  }
+
+  .support-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .support-card-info { border-top-color: #06b6d4; }
+  .support-card-success { border-top-color: #10b981; }
+  .support-card-warning { border-top-color: #f59e0b; }
+
+  .support-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .support-icon-info {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
+    color: #06b6d4;
+  }
+
+  .support-icon-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .support-icon-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    color: #f59e0b;
+  }
+
+  .support-card h5 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .support-card p {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .support-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+
+  .btn-support {
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-support:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .support-hero h1 {
+      font-size: 32px;
+    }
+    .support-cards-grid {
+      margin-top: 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="support-hero">
+  <div class="container">
+    <h1>Destek Merkezi</h1>
+    <p>7/24 canlı destek, kapsamlı SSS ve teknik yardım ile her zaman yanınızdayız</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="support-cards-grid">
+    <div class="support-card support-card-info">
+      <div class="support-icon support-icon-info">
+        <i class="bi bi-chat-dots"></i>
+      </div>
+      <span class="support-badge" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">Hızlı Yanıt</span>
+      <h5>Canlı Destek</h5>
+      <p>Uzman ekibimizle anında iletişim kurun ve sorularınıza hızlı yanıt alın</p>
+      <a href="{% url 'support-live' %}" class="btn btn-outline-info btn-support">
+        <i class="bi bi-chat-square-text me-2"></i>Canlı Destek Başlat
+      </a>
+    </div>
+
+    <div class="support-card support-card-success">
+      <div class="support-icon support-icon-success">
+        <i class="bi bi-question-circle"></i>
+      </div>
+      <span class="support-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Yardımcı</span>
+      <h5>Sık Sorulan Sorular</h5>
+      <p>En çok sorulan sorular ve detaylı cevaplarıyla hızlı çözümler bulun</p>
+      <a href="{% url 'support-faq' %}" class="btn btn-outline-success btn-support">
+        <i class="bi bi-list-check me-2"></i>SSS'leri Görüntüle
+      </a>
+    </div>
+
+    <div class="support-card support-card-warning">
+      <div class="support-icon support-icon-warning">
+        <i class="bi bi-tools"></i>
+      </div>
+      <span class="support-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Uzman</span>
+      <h5>Teknik Yardım</h5>
+      <p>Teknik sorunlarınız için profesyonel destek ekibimizle iletişime geçin</p>
+      <a href="{% url 'support-tech' %}" class="btn btn-outline-warning btn-support">
+        <i class="bi bi-wrench me-2"></i>Teknik Destek Al
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-size: 36px; font-weight: 800; color: #1a202c;">Size Nasıl Yardımcı Olabiliriz?</h2>
+      <p style="font-size: 18px; color: #718096;">Destek kanallarımızdan size en uygun olanı seçin</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="d-flex gap-3 p-4 bg-white rounded-4 shadow-sm h-100">
+          <div style="width: 48px; height: 48px; background: rgba(6, 182, 212, 0.1); color: #06b6d4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+            <i class="bi bi-headset"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-2">7/24 Destek</h5>
+            <p class="text-muted mb-0 small">Tüm paketlerde kesintisiz destek hizmeti sunuyoruz</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex gap-3 p-4 bg-white rounded-4 shadow-sm h-100">
+          <div style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+            <i class="bi bi-clock"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-2">Hızlı Yanıt</h5>
+            <p class="text-muted mb-0 small">Ortalama yanıt süremiz 5 dakika altında</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex gap-3 p-4 bg-white rounded-4 shadow-sm h-100">
+          <div style="width: 48px; height: 48px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+            <i class="bi bi-mortarboard"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-2">Uzman Ekip</h5>
+            <p class="text-muted mb-0 small">Deneyimli profesyonellerden yardım alın</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex gap-3 p-4 bg-white rounded-4 shadow-sm h-100">
+          <div style="width: 48px; height: 48px; background: rgba(102, 126, 234, 0.1); color: #667eea; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+            <i class="bi bi-translate"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-2">Çoklu Dil</h5>
+            <p class="text-muted mb-0 small">Türkçe, İngilizce ve daha fazla dil desteği</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Yardım ve Dökümantasyon - FinAsis{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4"><i class="bi bi-question-circle me-2"></i>Yardım ve Dökümantasyon</h1>
+  <div class="row mb-4">
+    <div class="col-md-4 mb-2">
+      <select id="docRoleSelect" class="form-select">
+        <option value="genel">Genel Kullanıcı</option>
+        <option value="admin">Yönetici</option>
+        <option value="muhasebeci">Muhasebeci</option>
+        <option value="calisan">Çalışan</option>
+        <option value="ogrenci">Öğrenci</option>
+        <option value="ogretmen">Öğretmen</option>
+      </select>
+    </div>
+    <div class="col-md-8">
+      <input type="text" id="docSearch" class="form-control" placeholder="Anahtar kelime ile ara...">
+    </div>
+  </div>
+  <div id="docContent">
+    <!-- Yardım/dökümantasyon içeriği buraya gelecek -->
+  </div>
+</div>
+<script src="{% static 'js/help.js' %}"></script>
+<script>
+// Sayfa için de aynı helpData ve render fonksiyonu kullanılabilir
+function renderDoc(role, search) {
+  let items = helpData[role] || [];
+  if (search) {
+    items = items.filter(item => item.q.toLowerCase().includes(search.toLowerCase()) || item.a.toLowerCase().includes(search.toLowerCase()));
+  }
+  if (items.length === 0) {
+    document.getElementById('docContent').innerHTML = '<div class="alert alert-warning">Sonuç bulunamadı.</div>';
+    return;
+  }
+  document.getElementById('docContent').innerHTML = items.map(item => `<div class='mb-4'><h5>${item.q}</h5><p>${item.a}</p></div>`).join('');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const roleSelect = document.getElementById('docRoleSelect');
+  const searchInput = document.getElementById('docSearch');
+  roleSelect.addEventListener('change', () => renderDoc(roleSelect.value, searchInput.value));
+  searchInput.addEventListener('input', () => renderDoc(roleSelect.value, searchInput.value));
+  renderDoc(roleSelect.value, '');
+});
+</script>
+{% endblock %} 

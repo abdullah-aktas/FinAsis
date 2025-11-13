@@ -1,0 +1,10 @@
+{% extends "core_ui/base.html" %}
+{% block title %}E-Fatura Ekle/Düzenle{% endblock %}
+{% block content %}
+<h1>E-Fatura Ekle/Düzenle</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Kaydet</button>
+  <a href="{% url 'finance:einvoice_list' %}" class="btn btn-secondary">Vazgeç</a>
+</form>
+{% endblock %} 

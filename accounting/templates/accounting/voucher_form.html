@@ -1,0 +1,774 @@
+{% extends "core_ui/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Muhasebe Fişi" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.voucher-form {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+}
+
+.entry-row {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.entry-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.account-select {
+    min-width: 200px;
+}
+
+.amount-input {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.balance-indicator {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.balance-balanced {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.balance-unbalanced {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.btn-add-entry {
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    border: none;
+    border-radius: 25px;
+    padding: 8px 20px;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-add-entry:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.btn-remove-entry {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voucher-preview {
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.voucher-header {
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.entry-table {
+    font-size: 0.9em;
+}
+
+.entry-table th {
+    background-color: #f1f2f6;
+    border: none;
+    font-weight: 600;
+}
+
+.entry-table td {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.total-row {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    border-top: 2px solid #3498db;
+}
+
+.form-floating .form-control {
+    border-radius: 8px;
+}
+
+.form-floating label {
+    color: #6c757d;
+}
+
+.animated-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.quick-accounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.quick-account-btn {
+    font-size: 0.75em;
+    padding: 2px 8px;
+    border-radius: 15px;
+    border: 1px solid #dee2e6;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-account-btn:hover {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Başlık -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 text-dark fw-bold">
+                        <i class="fas fa-file-invoice animated-icon me-2 text-primary"></i>
+                        {% if object %}
+                            {% trans "Muhasebe Fişi Düzenle" %} #{{ object.voucher_number }}
+                        {% else %}
+                            {% trans "Yeni Muhasebe Fişi" %}
+                        {% endif %}
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'finance:kobi_dashboard' %}">{% trans "Ana Sayfa" %}</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'accounting:voucher_list' %}">{% trans "Muhasebe Fişleri" %}</a></li>
+                            <li class="breadcrumb-item active">
+                                {% if object %}{% trans "Düzenle" %}{% else %}{% trans "Yeni" %}{% endif %}
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    {% if object %}
+                    <a href="{% url 'accounting:voucher_detail' object.pk %}" class="btn btn-outline-info me-2">
+                        <i class="fas fa-eye me-1"></i>{% trans "Görüntüle" %}
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'accounting:voucher_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>{% trans "Geri Dön" %}
+                    </a>
+                </div>
+            </div>
+
+            <form method="post" id="voucherForm" class="voucher-form p-4">
+                {% csrf_token %}
+                
+                <!-- Fiş Bilgileri -->
+                <div class="form-section">
+                    <h5 class="section-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans "Fiş Bilgileri" %}
+                    </h5>
+                    <div class="p-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    {{ form.voucher_number }}
+                                    <label>{% trans "Fiş No" %}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    {{ form.date }}
+                                    <label>{% trans "Tarih" %}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    {{ form.voucher_type }}
+                                    <label>{% trans "Fiş Tipi" %}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    {{ form.currency }}
+                                    <label>{% trans "Para Birimi" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating mb-3">
+                                    {{ form.description }}
+                                    <label>{% trans "Açıklama" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Muhasebe Kayıtları -->
+                <div class="form-section">
+                    <div class="section-header d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="fas fa-list me-2"></i>
+                            {% trans "Muhasebe Kayıtları" %}
+                        </span>
+                        <button type="button" class="btn btn-add-entry" onclick="addEntry()">
+                            <i class="fas fa-plus me-1"></i>{% trans "Kayıt Ekle" %}
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <!-- Hızlı Hesap Seçimi -->
+                        <div class="mb-3">
+                            <small class="text-muted">{% trans "Sık Kullanılan Hesaplar:" %}</small>
+                            <div class="quick-accounts">
+                                <button type="button" class="quick-account-btn" data-account-code="100" data-account-name="Kasa">100 - Kasa</button>
+                                <button type="button" class="quick-account-btn" data-account-code="102" data-account-name="Bankalar">102 - Bankalar</button>
+                                <button type="button" class="quick-account-btn" data-account-code="120" data-account-name="Alıcılar">120 - Alıcılar</button>
+                                <button type="button" class="quick-account-btn" data-account-code="320" data-account-name="Satıcılar">320 - Satıcılar</button>
+                                <button type="button" class="quick-account-btn" data-account-code="600" data-account-name="Satış Gelirleri">600 - Satış Gelirleri</button>
+                                <button type="button" class="quick-account-btn" data-account-code="770" data-account-name="Genel Giderler">770 - Genel Giderler</button>
+                            </div>
+                        </div>
+
+                        <!-- Kayıt Satırları -->
+                        <div id="entries-container">
+                            {% for entry_form in entry_formset %}
+                            <div class="entry-row p-3" data-entry-index="{{ forloop.counter0 }}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            {{ entry_form.account }}
+                                            <label>{% trans "Hesap" %}</label>
+                                        </div>
+                                        <small class="text-muted account-name" id="account-name-{{ forloop.counter0 }}"></small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating">
+                                            {{ entry_form.description }}
+                                            <label>{% trans "Açıklama" %}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-floating">
+                                            {{ entry_form.debit_amount }}
+                                            <label>{% trans "Borç" %}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-floating">
+                                            {{ entry_form.credit_amount }}
+                                            <label>{% trans "Alacak" %}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <button type="button" class="btn btn-remove-entry" onclick="removeEntry(this)" title="{% trans 'Sil' %}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% for hidden in entry_form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Toplam ve Denge -->
+                        <div class="mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="balance-indicator" id="balance-indicator">
+                                        <i class="fas fa-balance-scale me-2"></i>
+                                        <span id="balance-text">{% trans "Denge Kontrol Ediliyor..." %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">{% trans "Toplam Borç:" %}</span>
+                                        <span class="fw-bold text-success" id="total-debit">₺0,00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">{% trans "Toplam Alacak:" %}</span>
+                                        <span class="fw-bold text-info" id="total-credit">₺0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Management Form for Formset -->
+                        {{ entry_formset.management_form }}
+                    </div>
+                </div>
+
+                <!-- Önizleme -->
+                <div class="form-section" id="preview-section" style="display: none;">
+                    <h5 class="section-header">
+                        <i class="fas fa-eye me-2"></i>
+                        {% trans "Fiş Önizlemesi" %}
+                    </h5>
+                    <div class="p-4">
+                        <div class="voucher-preview" id="voucher-preview">
+                            <!-- Önizleme içeriği JavaScript ile doldurulacak -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Aksiyonları -->
+                <div class="form-section">
+                    <div class="p-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-info me-2" onclick="showPreview()">
+                                    <i class="fas fa-eye me-1"></i>{% trans "Önizleme" %}
+                                </button>
+                                <button type="button" class="btn btn-outline-warning me-2" onclick="saveDraft()">
+                                    <i class="fas fa-save me-1"></i>{% trans "Taslak Kaydet" %}
+                                </button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
+                                    <i class="fas fa-undo me-1"></i>{% trans "Sıfırla" %}
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="save-button" disabled>
+                                    <i class="fas fa-check me-1"></i>
+                                    {% if object %}{% trans "Güncelle" %}{% else %}{% trans "Kaydet" %}{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Hesap Arama Modal -->
+<div class="modal fade" id="accountSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Hesap Seç" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="accountSearch" placeholder="{% trans 'Hesap kodu veya adı arayın...' %}">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Kod" %}</th>
+                                <th>{% trans "Hesap Adı" %}</th>
+                                <th>{% trans "Tip" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountSearchResults">
+                            <!-- AJAX ile doldurulacak -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let entryIndex = {{ entry_formset|length }};
+let currentAccountField = null;
+
+$(document).ready(function() {
+    // Form yüklendiğinde hesaplamaları güncelle
+    updateCalculations();
+    
+    // Tutar girişlerinde hesaplama güncelle
+    $(document).on('input', '.amount-input', function() {
+        updateCalculations();
+    });
+    
+    // Hesap seçiminde isim güncelle
+    $(document).on('change', 'select[name$="-account"]', function() {
+        updateAccountName(this);
+    });
+    
+    // Hızlı hesap butonları
+    $('.quick-account-btn').click(function() {
+        let accountCode = $(this).data('account-code');
+        let accountName = $(this).data('account-name');
+        if (currentAccountField) {
+            $(currentAccountField).val(accountCode);
+            updateAccountName(currentAccountField);
+        }
+    });
+    
+    // Hesap arama modal
+    $('#accountSearch').on('input', function() {
+        searchAccounts($(this).val());
+    });
+});
+
+function addEntry() {
+    const container = $('#entries-container');
+    // Build HTML without Django trying to render variables inside JS template literal prematurely.
+    let newEntry = '<div class="entry-row p-3" data-entry-index="' + entryIndex + '">\n'
+        + '  <div class="row align-items-center">\n'
+        + '    <div class="col-md-4">\n'
+        + '      <div class="form-floating">\n'
+        + '        <select name="entries-' + entryIndex + '-account" class="form-select account-select" id="id_entries-' + entryIndex + '-account" required>\n'
+        + '          <option value="">{% trans "Hesap Seçin" %}</option>\n'
+        + '          {% for account in accounts %}<option value="{{ account.pk }}">{{ account.code }} - {{ account.name }}</option>{% endfor %}\n'
+        + '        </select>\n'
+        + '        <label>{% trans "Hesap" %}</label>\n'
+        + '      </div>\n'
+        + '      <small class="text-muted account-name" id="account-name-' + entryIndex + '"></small>\n'
+        + '    </div>\n'
+        + '    <div class="col-md-3">\n'
+        + '      <div class="form-floating">\n'
+        + '        <input type="text" name="entries-' + entryIndex + '-description" class="form-control" id="id_entries-' + entryIndex + '-description">\n'
+        + '        <label>{% trans "Açıklama" %}</label>\n'
+        + '      </div>\n'
+        + '    </div>\n'
+        + '    <div class="col-md-2">\n'
+        + '      <div class="form-floating">\n'
+        + '        <input type="number" name="entries-' + entryIndex + '-debit_amount" class="form-control amount-input" id="id_entries-' + entryIndex + '-debit_amount" step="0.01" min="0">\n'
+        + '        <label>{% trans "Borç" %}</label>\n'
+        + '      </div>\n'
+        + '    </div>\n'
+        + '    <div class="col-md-2">\n'
+        + '      <div class="form-floating">\n'
+        + '        <input type="number" name="entries-' + entryIndex + '-credit_amount" class="form-control amount-input" id="id_entries-' + entryIndex + '-credit_amount" step="0.01" min="0">\n'
+        + '        <label>{% trans "Alacak" %}</label>\n'
+        + '      </div>\n'
+        + '    </div>\n'
+        + '    <div class="col-md-1 text-center">\n'
+        + '      <button type="button" class="btn btn-remove-entry" onclick="removeEntry(this)" title="{% trans "Sil" %}">\n'
+        + '        <i class="fas fa-times"></i>\n'
+        + '      </button>\n'
+        + '    </div>\n'
+        + '  </div>\n'
+        + '  <input type="hidden" name="entries-' + entryIndex + '-id" id="id_entries-' + entryIndex + '-id">\n'
+        + '</div>';
+
+    container.append(newEntry);
+    entryIndex++;
+    $('#id_entries-TOTAL_FORMS').val(entryIndex); // Management form update
+    updateCalculations();
+}
+
+function removeEntry(button) {
+    $(button).closest('.entry-row').remove();
+    updateCalculations();
+}
+
+function updateCalculations() {
+    let totalDebit = 0;
+    let totalCredit = 0;
+    
+    $('.entry-row').each(function() {
+        let debitInput = $(this).find('input[name$="-debit_amount"]');
+        let creditInput = $(this).find('input[name$="-credit_amount"]');
+        
+        let debit = parseFloat(debitInput.val()) || 0;
+        let credit = parseFloat(creditInput.val()) || 0;
+        
+        totalDebit += debit;
+        totalCredit += credit;
+    });
+    
+    // Toplamları güncelle
+    $('#total-debit').text(formatCurrency(totalDebit));
+    $('#total-credit').text(formatCurrency(totalCredit));
+    
+    // Denge kontrolü
+    let balanced = Math.abs(totalDebit - totalCredit) < 0.01;
+    let balanceIndicator = $('#balance-indicator');
+    let balanceText = $('#balance-text');
+    let saveButton = $('#save-button');
+    
+    if (balanced && totalDebit > 0) {
+        balanceIndicator.removeClass('balance-unbalanced').addClass('balance-balanced');
+        balanceText.html('<i class="fas fa-check-circle me-2"></i>{% trans "Borç = Alacak (Dengeli)" %}');
+        saveButton.prop('disabled', false);
+    } else if (totalDebit === 0 && totalCredit === 0) {
+        balanceIndicator.removeClass('balance-balanced balance-unbalanced');
+        balanceText.html('<i class="fas fa-info-circle me-2"></i>{% trans "Kayıt girişi bekleniyor..." %}');
+        saveButton.prop('disabled', true);
+    } else {
+        balanceIndicator.removeClass('balance-balanced').addClass('balance-unbalanced');
+        let difference = Math.abs(totalDebit - totalCredit);
+        balanceText.html('<i class="fas fa-exclamation-triangle me-2"></i>{% trans "Dengesiz!" %} (Fark: ' + formatCurrency(difference) + ')');
+        saveButton.prop('disabled', true);
+    }
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY'
+    }).format(amount);
+}
+
+function updateAccountName(selectElement) {
+    let selectedOption = $(selectElement).find('option:selected');
+    let entryIndex = $(selectElement).closest('.entry-row').data('entry-index');
+    let accountName = selectedOption.text();
+    
+    if (accountName && accountName !== '{% trans "Hesap Seçin" %}') {
+        $('#account-name-' + entryIndex).text(accountName);
+    } else {
+        $('#account-name-' + entryIndex).text('');
+    }
+}
+
+function showPreview() {
+    generatePreview();
+    $('#preview-section').show();
+    $('html, body').animate({
+        scrollTop: $('#preview-section').offset().top - 20
+    }, 500);
+}
+
+function generatePreview() {
+    let voucherNumber = $('#id_voucher_number').val() || '{% trans "Otomatik" %}';
+    let date = $('#id_date').val();
+    let description = $('#id_description').val();
+    let currency = $('#id_currency option:selected').text() || 'TRY';
+    
+    let previewHtml = `
+        <div class="voucher-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4><strong>{% trans "Muhasebe Fişi" %}</strong></h4>
+                    <p><strong>{% trans "Fiş No:" %}</strong> ${voucherNumber}</p>
+                    <p><strong>{% trans "Tarih:" %}</strong> ${date}</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p><strong>{% trans "Para Birimi:" %}</strong> ${currency}</p>
+                    <p><strong>{% trans "Açıklama:" %}</strong> ${description}</p>
+                </div>
+            </div>
+        </div>
+        <table class="table entry-table">
+            <thead>
+                <tr>
+                    <th>{% trans "Hesap Kodu" %}</th>
+                    <th>{% trans "Hesap Adı" %}</th>
+                    <th>{% trans "Açıklama" %}</th>
+                    <th class="text-end">{% trans "Borç" %}</th>
+                    <th class="text-end">{% trans "Alacak" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    let totalDebit = 0;
+    let totalCredit = 0;
+    
+    $('.entry-row').each(function() {
+        let accountSelect = $(this).find('select[name$="-account"]');
+        let accountText = accountSelect.find('option:selected').text();
+        let entryDescription = $(this).find('input[name$="-description"]').val();
+        let debit = parseFloat($(this).find('input[name$="-debit_amount"]').val()) || 0;
+        let credit = parseFloat($(this).find('input[name$="-credit_amount"]').val()) || 0;
+        
+        if (accountText && accountText !== '{% trans "Hesap Seçin" %}') {
+            let parts = accountText.split(' - ');
+            let accountCode = parts[0];
+            let accountName = parts.slice(1).join(' - ');
+            
+            previewHtml += `
+                <tr>
+                    <td>${accountCode}</td>
+                    <td>${accountName}</td>
+                    <td>${entryDescription}</td>
+                    <td class="text-end">${debit > 0 ? formatCurrency(debit) : ''}</td>
+                    <td class="text-end">${credit > 0 ? formatCurrency(credit) : ''}</td>
+                </tr>
+            `;
+            
+            totalDebit += debit;
+            totalCredit += credit;
+        }
+    });
+    
+    previewHtml += `
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3"><strong>{% trans "TOPLAM" %}</strong></td>
+                    <td class="text-end"><strong>${formatCurrency(totalDebit)}</strong></td>
+                    <td class="text-end"><strong>${formatCurrency(totalCredit)}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+    
+    $('#voucher-preview').html(previewHtml);
+}
+
+function saveDraft() {
+    // Draft kaydetme işlemi
+    let formData = $('#voucherForm').serialize();
+    formData += '&draft=true';
+    
+    $.ajax({
+        url: window.location.href,
+        method: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                showNotification('{% trans "Taslak başarıyla kaydedildi" %}', 'success');
+            }
+        },
+        error: function() {
+            showNotification('{% trans "Taslak kaydedilirken hata oluştu" %}', 'error');
+        }
+    });
+}
+
+function resetForm() {
+    if (confirm('{% trans "Tüm girilen bilgiler silinecek. Emin misiniz?" %}')) {
+        document.getElementById('voucherForm').reset();
+        updateCalculations();
+    }
+}
+
+function searchAccounts(query) {
+    if (query.length < 2) return;
+    
+    $.ajax({
+        url: '{% url "accounting:ajax_search_accounts" %}',
+        data: { 'q': query },
+        success: function(data) {
+            let results = $('#accountSearchResults');
+            results.empty();
+            
+            data.accounts.forEach(function(account) {
+                results.append(`
+                    <tr>
+                        <td>${account.code}</td>
+                        <td>${account.name}</td>
+                        <td>${account.account_type}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="selectAccount(${account.id}, '${account.code}', '${account.name}')">
+                                {% trans "Seç" %}
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+    });
+}
+
+function selectAccount(accountId, accountCode, accountName) {
+    if (currentAccountField) {
+        $(currentAccountField).val(accountId);
+        updateAccountName(currentAccountField);
+    }
+    $('#accountSearchModal').modal('hide');
+}
+
+function showNotification(message, type) {
+    // Toast notification gösterme
+    let toast = $(`
+        <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `);
+    
+    $('.toast-container').append(toast);
+    let bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+}
+
+// Form validation before submit
+$('#voucherForm').on('submit', function(e) {
+    let totalDebit = 0;
+    let totalCredit = 0;
+    
+    $('.entry-row').each(function() {
+        let debit = parseFloat($(this).find('input[name$="-debit_amount"]').val()) || 0;
+        let credit = parseFloat($(this).find('input[name$="-credit_amount"]').val()) || 0;
+        totalDebit += debit;
+        totalCredit += credit;
+    });
+    
+    if (Math.abs(totalDebit - totalCredit) >= 0.01) {
+        e.preventDefault();
+        showNotification('{% trans "Borç ve alacak tutarları eşit olmalıdır!" %}', 'error');
+        return false;
+    }
+    
+    if (totalDebit === 0) {
+        e.preventDefault();
+        showNotification('{% trans "En az bir kayıt girmelisiniz!" %}', 'error');
+        return false;
+    }
+});
+</script>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}FinAsis | {% trans 'Liderlik Tablosu' %}{% endblock %}
+{% block meta_description %}{% trans 'En iyi oyuncular, rozetler ve sıralama tablosu.' %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaderboard-hero {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 60px 0;
+        border-radius: 0 0 50px 50px;
+    }
+
+    .rank-badge {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .rank-1 {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+    }
+
+    .rank-2 {
+        background: linear-gradient(135deg, #C0C0C0, #808080);
+    }
+
+    .rank-3 {
+        background: linear-gradient(135deg, #CD7F32, #8B4513);
+    }
+
+    .rank-default {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .user-rank-card {
+        border: 3px solid #667eea;
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .badge-card {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .badge-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .badge-earned {
+        opacity: 1;
+    }
+
+    .badge-locked {
+        opacity: 0.5;
+        filter: grayscale(100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="leaderboard-hero">
+    <div class="container text-center">
+        <span class="badge bg-white text-primary mb-3 fs-6">
+            <i class="bi bi-trophy me-2"></i>{% trans 'Liderlik Tablosu' %}
+        </span>
+        <h1 class="display-3 fw-bold mb-4">{% trans 'En İyi Oyuncular' %}</h1>
+        <p class="lead mb-0">{% trans 'Oyunlarda başarılı olan oyuncuları görüntüleyin ve rozetlerini keşfedin!' %}</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Kullanıcının Sıralaması -->
+        {% if user.is_authenticated %}
+        <div class="col-12">
+            <div class="card user-rank-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rank-badge rank-default">
+                            <span id="user-rank">-</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">{{ user.username }}</h5>
+                            <p class="text-muted mb-0 small">{% trans 'Senin Sıralaman' %}</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="fw-bold text-primary mb-0"><span id="user-score">0</span> <i
+                                class="bi bi-star-fill text-warning"></i></h4>
+                        <p class="text-muted mb-0 small"><span id="user-games">0</span> {% trans 'oyun' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Liderlik Tablosu -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="bi bi-trophy me-2"></i>{% trans 'En İyi 10 Oyuncu' %}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Sıra' %}</th>
+                                    <th>{% trans 'Oyuncu' %}</th>
+                                    <th>{% trans 'Skor' %}</th>
+                                    <th>{% trans 'Oyun' %}</th>
+                                    <th>{% trans 'Rozetler' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                        {% trans 'Yükleniyor...' %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rozetler -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-award me-2"></i>{% trans 'Rozetler' %}</h5>
+                </div>
+                <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                    <div id="badges-container">
+                        <p class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        {% trans 'Yükleniyor...' %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Liderlik tablosunu yükle
+        try {
+            const leaderRes = await fetch('/games/api/leaderboard/?limit=10');
+            const leaderData = await leaderRes.json();
+
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            leaderData.leaderboard.forEach(player => {
+                const rankClass = player.rank === 1 ? 'rank-1' : player.rank === 2 ? 'rank-2' : player.rank === 3 ? 'rank-3' : 'rank-default';
+                const icon = player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : player.rank;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>
+                    <div class="rank-badge ${rankClass}" style="width: 40px; height: 40px; font-size: 1rem;">
+                        ${icon}
+                    </div>
+                </td>
+                <td><strong>${player.username}</strong></td>
+                <td><span class="badge bg-warning text-dark">${player.score}</span></td>
+                <td>${player.games_played}</td>
+                <td>
+                    <span class="badge bg-primary">${player.badge_count} <i class="bi bi-award"></i></span>
+                </td>
+            `;
+                tbody.appendChild(row);
+            });
+
+            // Kullanıcının kendi sıralaması
+            if (leaderData.user_rank) {
+                document.getElementById('user-rank').textContent = leaderData.user_rank.rank;
+                document.getElementById('user-score').textContent = leaderData.user_rank.score;
+                document.getElementById('user-games').textContent = leaderData.user_rank.games_played;
+            }
+        } catch (err) {
+            console.error('Liderlik tablosu yüklenemedi:', err);
+            document.getElementById('leaderboard-body').innerHTML = '<tr><td colspan="5" class="text-center text-danger">{% trans "Yüklenemedi" %}</td></tr>';
+        }
+
+        // Rozetleri yükle
+        try {
+            const badgesRes = await fetch('/games/api/badges/');
+            const badgesData = await badgesRes.json();
+
+            const container = document.getElementById('badges-container');
+            container.innerHTML = '';
+
+            badgesData.badges.forEach(badge => {
+                const badgeDiv = document.createElement('div');
+                badgeDiv.className = `badge-card p-3 mb-3 ${badge.earned ? 'badge-earned' : 'badge-locked'}`;
+                badgeDiv.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <div style="font-size: 2rem;">${badge.icon}</div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold">${badge.name}</h6>
+                        <p class="mb-1 small text-muted">${badge.description}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-dark">${badge.points} puan</span>
+                            ${badge.earned ? '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Kazanıldı</span>' : '<span class="badge bg-secondary"><i class="bi bi-lock me-1"></i>Kilitli</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+                container.appendChild(badgeDiv);
+            });
+        } catch (err) {
+            console.error('Rozetler yüklenemedi:', err);
+            document.getElementById('badges-container').innerHTML = '<p class="text-center text-danger">{% trans "Yüklenemedi" %}</p>';
+        }
+    });
+</script>
+{% endblock %}

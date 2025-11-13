@@ -1,0 +1,256 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Kullanım Şartları - FinAsis{% endblock %}
+{% block meta_description %}FinAsis kullanım koşulları ve abonelik şartları. Hizmetimizi kullanmadan önce lütfen bu şartları dikkatlice okuyun.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .legal-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .legal-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .legal-hero p {
+    font-size: 18px;
+    opacity: 0.95;
+  }
+
+  .legal-container {
+    max-width: 900px;
+    margin: -40px auto 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .legal-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .legal-section {
+    margin-bottom: 40px;
+  }
+
+  .legal-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  }
+
+  .legal-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 24px 0 12px;
+  }
+
+  .legal-section p {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .legal-section ul {
+    margin-bottom: 20px;
+    padding-left: 24px;
+  }
+
+  .legal-section li {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-left: 4px solid #667eea;
+    padding: 24px;
+    border-radius: 12px;
+    margin: 24px 0;
+  }
+
+  .highlight-box h4 {
+    color: #667eea;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .highlight-box p {
+    margin-bottom: 0;
+  }
+
+  .last-updated {
+    text-align: center;
+    padding: 24px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    margin-top: 40px;
+  }
+
+  .last-updated-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .legal-hero h1 {
+      font-size: 32px;
+    }
+    .legal-card {
+      padding: 32px 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="legal-hero">
+  <div class="container">
+    <h1>Kullanım Şartları</h1>
+    <p>FinAsis hizmetlerini kullanırken geçerli olan kurallar ve koşullar</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="legal-container">
+    <div class="legal-card">
+      <div class="legal-section">
+        <h2>1. Genel Hükümler</h2>
+        <p>
+          Bu Kullanım Şartları ("Şartlar"), FinAsis platformunun ("Platform") kullanımını düzenler. 
+          Platform'u kullanarak bu Şartları kabul etmiş sayılırsınız.
+        </p>
+        <div class="highlight-box">
+          <h4><i class="bi bi-info-circle me-2"></i>Önemli Not</h4>
+          <p>
+            Platformu kullanmadan önce lütfen bu şartları dikkatlice okuyun. 
+            Kabul etmiyorsanız, platformu kullanmayınız.
+          </p>
+        </div>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Hizmet Kapsamı</h2>
+        <p>FinAsis aşağıdaki hizmetleri sunar:</p>
+        <ul>
+          <li>Finansal analiz ve raporlama araçları</li>
+          <li>e-Fatura, e-Arşiv ve e-Defter entegrasyonları</li>
+          <li>AI destekli finansal danışmanlık ve öneriler</li>
+          <li>Muhasebe ve envanter yönetimi</li>
+          <li>Blockchain tabanlı belge doğrulama</li>
+          <li>Eğitim modülleri ve oyunlaştırılmış öğrenme</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Kullanıcı Yükümlülükleri</h2>
+        <h3>3.1. Hesap Güvenliği</h3>
+        <p>
+          Kullanıcılar, hesap bilgilerinin gizliliğinden ve güvenliğinden kendileri sorumludur. 
+          Şifrenizi güçlü tutmalı ve başkalarıyla paylaşmamalısınız.
+        </p>
+        <h3>3.2. Yasalara Uyum</h3>
+        <p>
+          Platform'u yürürlükteki tüm yasalara ve düzenlemelere uygun olarak kullanmayı kabul edersiniz.
+        </p>
+        <h3>3.3. Veri Doğruluğu</h3>
+        <p>
+          Platforma girdiğiniz tüm bilgilerin doğru ve güncel olmasından siz sorumlusunuz.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Gizlilik ve Veri Koruma</h2>
+        <p>
+          Kişisel verileriniz KVKK (Kişisel Verilerin Korunması Kanunu) ve GDPR kapsamında işlenir. 
+          Detaylı bilgi için <a href="{% url 'privacy_policy' %}" style="color: #667eea; font-weight: 600;">Gizlilik Politikası</a> sayfamızı inceleyebilirsiniz.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Ödeme ve Abonelik</h2>
+        <h3>5.1. Ücretlendirme</h3>
+        <p>
+          Seçtiğiniz plana göre aylık veya yıllık ödeme yapabilirsiniz. 
+          Fiyatlar güncel <a href="{% url 'billing:plans' %}" style="color: #667eea; font-weight: 600;">fiyatlandırma sayfamızda</a> belirtilmiştir.
+        </p>
+        <h3>5.2. İptal ve İade</h3>
+        <p>
+          Aboneliğinizi istediğiniz zaman iptal edebilirsiniz. İlk 30 gün içinde iptal ederseniz 
+          tam iade alırsınız. Detaylar için müşteri hizmetlerimizle iletişime geçin.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Sorumluluk Sınırlamaları</h2>
+        <p>
+          FinAsis, platform üzerinden sağlanan bilgilerin doğruluğu için çaba gösterir ancak 
+          garanti vermez. Platform "olduğu gibi" sunulur.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Fikri Mülkiyet</h2>
+        <p>
+          Platform'daki tüm içerik, yazılım, tasarım ve ticari markalar FinAsis'e aittir ve 
+          telif hakkı yasaları ile korunmaktadır.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Değişiklikler</h2>
+        <p>
+          FinAsis, bu Kullanım Şartlarını önceden haber vermeksizin değiştirme hakkını saklı tutar. 
+          Değişiklikler yayınlandığı anda yürürlüğe girer.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. İletişim</h2>
+        <p>
+          Bu Şartlar hakkında sorularınız varsa bizimle iletişime geçebilirsiniz:
+        </p>
+        <ul>
+          <li><strong>E-posta:</strong> <a href="mailto:info@finasis.com.tr" style="color: #667eea;">info@finasis.com.tr</a></li>
+          <li><strong>Telefon:</strong> <a href="tel:+902122222222" style="color: #667eea;">+90 212 222 22 22</a></li>
+          <li><strong>Adres:</strong> İTÜ ARI Teknokent, Sarıyer, İstanbul</li>
+        </ul>
+      </div>
+
+      <div class="last-updated">
+        <div class="last-updated-text">
+          <i class="bi bi-calendar-check me-2"></i>
+          Son Güncelleme: 30 Ekim 2025
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'privacy_policy' %}" class="btn btn-outline-primary me-2">
+          <i class="bi bi-shield-check me-2"></i>Gizlilik Politikası
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-house me-2"></i>Ana Sayfa
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

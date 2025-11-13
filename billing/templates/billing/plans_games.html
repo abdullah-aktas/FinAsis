@@ -1,0 +1,1023 @@
+{% extends 'core_ui/base.html' %}
+{% load static i18n %}
+
+{% block title %}Oyuncu Planları - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary-purple: #7c3aed;
+    --primary-pink: #ec4899;
+    --accent-green: #10b981;
+    --dark-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-light: #f1f5f9;
+    --text-muted: #94a3b8;
+  }
+
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
+    min-height: 100vh;
+    color: var(--text-light);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    padding: 80px 0 60px;
+    margin: -2rem -2rem 3rem;
+    border-radius: 0 0 40px 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 64px;
+    font-weight: 900;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+
+  .hero-subtitle {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+  }
+
+  /* Beta Banner */
+  .beta-banner {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 20px;
+    padding: 24px 32px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 40px rgba(251, 191, 36, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .beta-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .beta-icon {
+    font-size: 48px;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .beta-text {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .beta-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #1f2937;
+    margin-bottom: 8px;
+  }
+
+  .beta-description {
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 12px;
+  }
+
+  .beta-badge-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .beta-badge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1f2937;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .beta-cta {
+    display: flex;
+    gap: 12px;
+  }
+
+  /* Period Toggle */
+  .period-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .period-btn {
+    flex: 1;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: var(--text-muted);
+    position: relative;
+  }
+
+  .period-btn.active {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    color: white;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+  }
+
+  .period-btn:hover:not(.active) {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .region-switcher {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .region-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 8px 16px;
+  }
+
+  .region-select {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .region-select option {
+    color: #0f172a;
+  }
+  /* Plan Cards */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    margin-bottom: 64px;
+  }
+
+  .plan-card {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 40px 32px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .plan-card:hover {
+    transform: translateY(-16px) scale(1.02);
+    box-shadow: 0 30px 80px rgba(124, 58, 237, 0.4);
+    border-color: var(--primary-purple);
+  }
+
+  .plan-card:hover::before {
+    opacity: 1;
+  }
+
+  .plan-card.popular {
+    border-color: var(--primary-purple);
+    background: rgba(124, 58, 237, 0.15);
+    transform: scale(1.05);
+  }
+
+  .plan-card.popular::before {
+    opacity: 1;
+    height: 6px;
+  }
+
+  .plan-card.free {
+    border-color: var(--accent-green);
+  }
+
+  .plan-card.free::before {
+    background: linear-gradient(90deg, var(--accent-green) 0%, #059669 100%);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -14px;
+    right: 24px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .badge-popular {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    color: white;
+  }
+
+  .badge-free {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+    color: white;
+  }
+
+  .plan-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+  }
+
+  .plan-card.free .plan-icon {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+  }
+
+  .plan-name {
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 12px;
+    color: white;
+  }
+
+  .plan-description {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    min-height: 48px;
+  }
+
+  .plan-price {
+    text-align: center;
+    padding: 28px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    margin-bottom: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .price-amount {
+    font-size: 52px;
+    font-weight: 900;
+    background: linear-gradient(135deg, white 0%, var(--text-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .plan-card.free .price-amount {
+    font-size: 40px;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .price-currency {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  .price-period {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .discount-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    margin-top: 10px;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px 0;
+  }
+
+  .features-list li {
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-light);
+    font-size: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .feature-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .plan-card.free .feature-check {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+  }
+
+  /* Buttons */
+  .btn-primary-gradient {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    border: none;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+  }
+
+  .btn-primary-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.6);
+    color: white;
+  }
+
+  .btn-outline-gradient {
+    background: transparent;
+    border: 3px solid var(--primary-purple);
+    border-radius: 16px;
+    padding: 14px 32px;
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+  }
+
+  .btn-outline-gradient:hover {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.4);
+    color: white;
+  }
+
+  .btn-free {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  }
+
+  .btn-free:hover {
+    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+  }
+
+  /* Features Section */
+  .features-section {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 32px;
+    padding: 56px 40px;
+    margin-bottom: 64px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .features-section h2 {
+    font-size: 40px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 48px;
+    background: linear-gradient(135deg, white 0%, var(--text-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+  }
+
+  .feature-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 28px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .feature-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.3);
+  }
+
+  .feature-item-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .feature-item-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  .feature-item-desc {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Comparison Table */
+  .comparison-section {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 32px;
+    padding: 56px 40px;
+    margin-bottom: 64px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .comparison-section h2 {
+    font-size: 40px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 48px;
+    color: white;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .comparison-table thead {
+    background: rgba(124, 58, 237, 0.2);
+  }
+
+  .comparison-table th {
+    padding: 20px;
+    font-weight: 800;
+    color: white;
+    font-size: 16px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .comparison-table th:first-child {
+    border-radius: 16px 0 0 0;
+  }
+
+  .comparison-table th:last-child {
+    border-radius: 0 16px 0 0;
+  }
+
+  .comparison-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+    font-size: 15px;
+  }
+
+  .comparison-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .check-icon {
+    color: var(--accent-green);
+    font-size: 24px;
+  }
+
+  /* Important Notice */
+  .important-notice {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid rgba(239, 68, 68, 0.3);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-top: 16px;
+    display: flex;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .important-notice-icon {
+    font-size: 24px;
+    color: #ef4444;
+    flex-shrink: 0;
+  }
+
+  .important-notice-text {
+    font-size: 14px;
+    color: #fca5a5;
+    line-height: 1.5;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 32px;
+    padding: 56px 40px;
+    text-align: center;
+    border: 2px solid rgba(124, 58, 237, 0.4);
+  }
+
+  .cta-section h2 {
+    font-size: 40px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .cta-section p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 42px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+    }
+
+    .plans-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .plan-card.popular {
+      transform: scale(1);
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .beta-banner-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .beta-cta {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Hero Section -->
+  <div class="hero-section text-center">
+    <div class="hero-content container">
+      <div class="mb-3">
+        <span class="badge bg-light text-dark px-3 py-2" style="font-size: 14px; font-weight: 800; border-radius: 20px;">
+          <i class="bi bi-stars"></i> BETA SÜRÜMÜ
+        </span>
+      </div>
+      
+      <h1 class="hero-title">🎮 Oyuncu Planları</h1>
+      <p class="hero-subtitle">
+        Finansal okuryazarlığı oyunlaştırarak öğren, gerçek piyasa simülasyonlarında yarış,
+        liderlik tablosunda yerini al ve ödüller kazan!
+      </p>
+
+      <div class="d-flex gap-2 justify-content-center flex-wrap mt-4">
+        <div class="px-4 py-2 bg-white bg-opacity-25 rounded-3">
+          <strong>10K+</strong> Aktif Oyuncu
+        </div>
+        <div class="px-4 py-2 bg-white bg-opacity-25 rounded-3">
+          <strong>50+</strong> Oyun & Senaryo
+        </div>
+        <div class="px-4 py-2 bg-white bg-opacity-25 rounded-3">
+          <strong>100+</strong> Rozet & Başarı
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beta Banner -->
+  <div class="beta-banner">
+    <div class="beta-banner-content">
+      <div class="beta-icon">🎁</div>
+      <div class="beta-text">
+        <div class="beta-title">Beta Oyuncusu Olun, Şirket Ortağı Olun!</div>
+        <div class="beta-description">
+          <strong>Ücretli</strong> plan satın alan tüm beta oyuncularına <strong>2 ay ücretsiz erişim</strong> + <strong>Şirket hissesi</strong> + <strong>Beta Pioneer Rozeti</strong> 
+          ve lansmanında <strong>%50 kalıcı indirim</strong> garantisi!
+        </div>
+        <div class="beta-badge-group">
+          <span class="beta-badge"><i class="bi bi-graph-up-arrow"></i> Şirket Hissesi</span>
+          <span class="beta-badge"><i class="bi bi-gift"></i> 2 Ay Ücretsiz</span>
+          <span class="beta-badge"><i class="bi bi-trophy-fill"></i> Beta Rozeti</span>
+          <span class="beta-badge"><i class="bi bi-percent"></i> %50 İndirim</span>
+        </div>
+      </div>
+      <div class="beta-cta">
+        {% if not user.is_authenticated %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-dark btn-lg px-4 fw-bold" style="border-radius: 14px;">
+          <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla
+        </a>
+        {% else %}
+        <div class="text-center">
+          <i class="bi bi-check-circle" style="font-size: 32px; color: #16a34a;"></i>
+          <div class="fw-bold text-dark">Kayıtlısınız!</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="region-switcher">
+    <form method="get" class="region-form">
+      <input type="hidden" name="period" value="{{ period|default:'month' }}">
+      <span class="text-muted small fw-semibold">{% trans "Bölge" %}</span>
+      <select name="region" class="region-select" onchange="this.form.submit()">
+        {% for option in region_options %}
+        <option value="{{ option.code }}" {% if option.code == region %}selected{% endif %}>{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- Period Toggle -->
+  <div class="period-toggle">
+    <a href="?period=month{% if region %}&region={{ region }}{% endif %}" class="period-btn {% if period == 'month' or not period %}active{% endif %}">
+      <i class="bi bi-calendar-month me-2"></i>Aylık
+    </a>
+    <a href="?period=year{% if region %}&region={{ region }}{% endif %}" class="period-btn {% if period == 'year' %}active{% endif %}">
+      <i class="bi bi-calendar-check me-2"></i>Yıllık
+      <span class="badge bg-success ms-1" style="font-size: 11px;">İndirimli</span>
+    </a>
+  </div>
+
+  <!-- Plans Grid -->
+  <div class="plans-grid">
+    {% for pc in plan_cards %}
+    {% with plan=pc.plan card=pc.card %}
+    <div class="plan-card {% if card.popular %}popular{% endif %} {% if card.month_amount == 0 %}free{% endif %}">
+      <!-- Badge -->
+      {% if card.popular %}
+      <div class="plan-badge badge-popular">⭐ EN POPÜLER</div>
+      {% elif card.month_amount == 0 %}
+      <div class="plan-badge badge-free">✨ ÜCRETSİZ</div>
+      {% endif %}
+
+      <!-- Icon -->
+      <div class="plan-icon">
+        {% if 'free' in plan.code|lower %}🎮
+        {% elif 'pro' in plan.code|lower %}🏆
+        {% elif 'elite' in plan.code|lower %}👑
+        {% else %}🎯{% endif %}
+      </div>
+
+      <!-- Name & Description -->
+      <h3 class="plan-name">{{ plan.name }}</h3>
+      <p class="plan-description">{{ plan.description }}</p>
+
+      <!-- Price -->
+      <div class="plan-price">
+        {% if card.month_amount == 0 %}
+          <div class="price-amount">Ücretsiz</div>
+          <div class="price-period">Sınırsız Kullanım</div>
+        {% elif period == 'month' or not period %}
+          {% if card.month_amount %}
+            <div>
+              <span class="price-amount">{{ card.month_amount }}</span>
+              <span class="price-currency">{{ card.currency }}</span>
+            </div>
+            <div class="price-period">/ ay</div>
+            {% if card.year_per_month %}
+            <div class="text-muted small mt-2">
+              Yıllık: {{ card.year_per_month|floatformat:2 }} {{ card.currency }}/ay
+            </div>
+            {% endif %}
+            {% if card.tax_rate_percent and card.tax_amount %}
+            <div class="text-muted small mt-2">
+              +{{ card.tax_amount }} {{ card.currency }} vergi ({{ card.tax_rate_percent|floatformat:0 }}%)
+            </div>
+            {% elif card.tax_note %}
+            <div class="text-muted small mt-2">{{ card.tax_note }}</div>
+            {% endif %}
+          {% endif %}
+        {% else %}
+          {% if card.year_amount %}
+            <div>
+              <span class="price-amount">{{ card.year_amount }}</span>
+              <span class="price-currency">{{ card.currency }}</span>
+            </div>
+            <div class="price-period">/ yıl</div>
+            {% if card.discount_pct %}
+            <div class="discount-badge">
+              %{{ card.discount_pct|floatformat:0 }} İndirim
+            </div>
+            {% endif %}
+            {% if card.tax_rate_percent and card.tax_amount %}
+            <div class="text-muted small mt-2">
+              +{{ card.tax_amount }} {{ card.currency }} vergi ({{ card.tax_rate_percent|floatformat:0 }}%)
+            </div>
+            {% elif card.tax_note %}
+            <div class="text-muted small mt-2">{{ card.tax_note }}</div>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <!-- Features -->
+      {% if plan.plan_modules.all %}
+      <ul class="features-list">
+        {% for pm in plan.plan_modules.all %}
+        <li>
+          <span class="feature-check">
+            <i class="bi bi-check-lg"></i>
+          </span>
+          <span>{{ pm.module.name }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Action Button -->
+      <div class="d-grid">
+        {% if user.is_authenticated %}
+          {% if card.month_amount == 0 %}
+            <a href="{% url 'billing:select_plan' plan.code %}?period=month" class="btn btn-free btn-primary-gradient">
+              <i class="bi bi-play-circle me-2"></i>Ücretsiz Başla
+            </a>
+          {% elif period == 'year' and card.has_year %}
+            <a href="{% url 'billing:select_plan' plan.code %}?period=year" class="btn btn-primary-gradient">
+              <i class="bi bi-cart-check me-2"></i>Satın Al
+            </a>
+          {% elif card.has_month %}
+            <a href="{% url 'billing:select_plan' plan.code %}?period=month" class="btn btn-primary-gradient">
+              <i class="bi bi-cart-check me-2"></i>Satın Al
+            </a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-outline-gradient">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Important Notice for Free Plan -->
+      {% if card.month_amount == 0 %}
+      <div class="important-notice">
+        <i class="bi bi-info-circle-fill important-notice-icon"></i>
+        <div class="important-notice-text">
+          <strong>Not:</strong> Ücretsiz plan beta avantajlarından (şirket hissesi, özel indirimler) yararlanamaz. 
+          Beta avantajları sadece ücretli planlara özeldir.
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <h2>🌟 Platform Özelliklerimiz</h2>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-item-icon">🎯</div>
+        <div class="feature-item-title">Ticaret Simülasyonu</div>
+        <div class="feature-item-desc">
+          Gerçek piyasa verileriyle risk almadan sanal ticaret yapın ve stratejilerinizi test edin.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon">🏆</div>
+        <div class="feature-item-title">Liderlik Tabloları</div>
+        <div class="feature-item-desc">
+          Haftalık, aylık ve tüm zamanlar sıralamalarında diğer oyuncularla yarışın ve ödül kazanın.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon">🎖️</div>
+        <div class="feature-item-title">Rozet Sistemi</div>
+        <div class="feature-item-desc">
+          100'den fazla rozet ve başarı kazanarak ilerlemenizi sergileyin ve özel ödüllere ulaşın.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon">📊</div>
+        <div class="feature-item-title">Gerçek Zamanlı Analitik</div>
+        <div class="feature-item-desc">
+          Performansınızı detaylı grafikler, raporlar ve AI önerileri ile anlık takip edin.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon">🤝</div>
+        <div class="feature-item-title">Multiplayer Turnuvalar</div>
+        <div class="feature-item-desc">
+          Düzenli turnuvalara katılın, diğer oyuncularla rekabet edin ve nakit ödüller kazanın.
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon">🎓</div>
+        <div class="feature-item-title">Finansal Eğitim</div>
+        <div class="feature-item-desc">
+          Oyunlaştırılmış eğitim modülleri ile finansal okuryazarlığınızı geliştirin.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison-section">
+    <h2>📋 Detaylı Plan Karşılaştırması</h2>
+    <div class="table-responsive">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th class="text-start">Özellik</th>
+            {% for plan in plans %}
+            <th class="text-center">{{ plan.name }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in feature_rows %}
+          <tr>
+            <td class="text-start fw-semibold">{{ row.name }}</td>
+            {% for plan in plans %}
+            <td class="text-center">
+              {% if plan.code in row.included %}
+              <i class="bi bi-check-circle-fill check-icon"></i>
+              {% else %}
+              <span style="color: #475569;">—</span>
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="cta-section">
+    <h2>🚀 Finansal Oyun Dünyasına Katıl!</h2>
+    <p>
+      Beta döneminde katılan ücretli plan sahipleri, sadece oyuncu değil şirket ortağı oluyor. 
+      2 ay ücretsiz + Şirket hissesi + Beta rozetleri ve daha fazlası sizi bekliyor!
+    </p>
+    <div class="cta-buttons">
+      <a href="{% url 'accounts:register' %}" class="btn btn-primary-gradient btn-lg px-5">
+        <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla
+      </a>
+      <a href="{% url 'games:games_index' %}" class="btn btn-outline-light btn-lg px-5" style="border-width: 2px; font-weight: 700;">
+        <i class="bi bi-controller me-2"></i>Oyunları İncele
+      </a>
+    </div>
+  </div>
+
+  <!-- Back Link -->
+  <div class="text-center mt-4">
+    <a href="{% url 'billing:plans_index' %}" class="btn btn-link text-white">
+      <i class="bi bi-arrow-left me-2"></i>Diğer Planlara Dön
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Smooth animations
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to plan cards
+    const planCards = document.querySelectorAll('.plan-card');
+    planCards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(30px)';
+      setTimeout(() => {
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 150);
+    });
+
+    // Period toggle functionality
+    const periodBtns = document.querySelectorAll('.period-btn');
+    periodBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        // Let the link work naturally
+      });
+    });
+  });
+</script>
+{% endblock %}

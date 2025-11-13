@@ -1,0 +1,153 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "UI Bileşenleri" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="display-4 fw-bold mb-4">{% trans "FinAsis UI Bileşenleri" %}</h1>
+    <p class="lead text-muted mb-5">{% trans "Uygulama genelinde kullan
+
+ılan UI bileşenlerinin demo sayfası" %}</p>
+
+    <!-- Renkler -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Marka Renkleri" %}</h2>
+        <div class="row g-3">
+            <div class="col-md-2">
+                <div class="bg-primary p-4 rounded text-white text-center">
+                    <strong>Primary</strong><br>
+                    <small>#0AAE94</small>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-success p-4 rounded text-white text-center">
+                    <strong>Success</strong>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-danger p-4 rounded text-white text-center">
+                    <strong>Danger</strong>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-warning p-4 rounded text-white text-center">
+                    <strong>Warning</strong>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-info p-4 rounded text-white text-center">
+                    <strong>Info</strong>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-secondary p-4 rounded text-white text-center">
+                    <strong>Secondary</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Butonlar -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Butonlar" %}</h2>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-success">Success</button>
+            <button class="btn btn-danger">Danger</button>
+            <button class="btn btn-warning">Warning</button>
+            <button class="btn btn-info">Info</button>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-outline-primary">Outline Primary</button>
+            <button class="btn btn-outline-secondary">Outline Secondary</button>
+            <button class="btn btn-outline-success">Outline Success</button>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-primary">Small</button>
+            <button class="btn btn-primary">Normal</button>
+            <button class="btn btn-lg btn-primary">Large</button>
+        </div>
+    </section>
+
+    <!-- Kartlar -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Kartlar" %}</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Kart Başlığı</h5>
+                        <p class="card-text">Kart içeriği buraya gelir</p>
+                        <button class="btn btn-primary">İşlem</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0">Başlıklı Kart</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">İçerik...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Renkli Kenarlık</h5>
+                        <p class="card-text">Vurgulu kart tasarımı</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Badges -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Badge'ler" %}</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-primary">Primary</span>
+            <span class="badge bg-success">Success</span>
+            <span class="badge bg-danger">Danger</span>
+            <span class="badge bg-warning">Warning</span>
+            <span class="badge bg-info">Info</span>
+            <span class="badge bg-light text-dark">Light</span>
+            <span class="badge bg-dark">Dark</span>
+        </div>
+    </section>
+
+    <!-- İkonlar -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "İkonlar (Bootstrap Icons)" %}</h2>
+        <div class="d-flex flex-wrap gap-3" style="font-size: 2rem;">
+            <i class="bi bi-house"></i>
+            <i class="bi bi-person"></i>
+            <i class="bi bi-gear"></i>
+            <i class="bi bi-bell"></i>
+            <i class="bi bi-envelope"></i>
+            <i class="bi bi-calendar"></i>
+            <i class="bi bi-file-earmark"></i>
+            <i class="bi bi-graph-up"></i>
+            <i class="bi bi-cart"></i>
+            <i class="bi bi-heart"></i>
+        </div>
+    </section>
+
+    <!-- Tipografi -->
+    <section class="mb-5">
+        <h2 class="h3 fw-bold mb-4">{% trans "Tipografi" %}</h2>
+        <h1>H1 Heading (Inter Font)</h1>
+        <h2>H2 Heading</h2>
+        <h3>H3 Heading</h3>
+        <h4>H4 Heading</h4>
+        <p class="lead">Lead paragraf - Vurgulu metin</p>
+        <p>Normal paragraf metni. FinAsis'te Inter font ailesi kullanılmaktadır.</p>
+        <p class="text-muted small">Küçük ve soluk metin</p>
+    </section>
+
+</div>
+{% endblock %}
+

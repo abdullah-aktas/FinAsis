@@ -1,0 +1,130 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}Dokümantasyon - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         --resource-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 65%);">
+  <div class="container text-center">
+    <span class="persona-hero-icon mb-3"><i class="bi bi-journal-text"></i></span>
+    <h1 class="display-5 fw-bold mb-3">{% trans "FinAsis Dokümantasyonu" %}</h1>
+    <p class="lead mb-4">{% trans "Kurulumdan entegrasyona tüm modüller için adım adım rehberler ve API referansları." %}</p>
+    <div class="persona-action-group">
+      <a href="{% url 'accounts:register' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Ücretsiz Başlayın" %}
+      </a>
+      <a href="{% url 'developer_api' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-console me-2"></i>{% trans "API Rehberi" %}
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <section class="mb-5" aria-labelledby="quick-search">
+    <form class="card-modern" role="search">
+      <div class="card-modern-body">
+        <label for="doc-search" class="form-label fw-semibold">{% trans "Doküman Arayın" %}</label>
+        <div class="input-group">
+          <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+          <input id="doc-search" name="q" type="search" class="form-control" placeholder="{% trans 'ör. e-Fatura entegrasyonu' %}">
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="mb-5" aria-labelledby="categories">
+    <div class="persona-section-title" id="categories">
+      <i class="bi bi-layers"></i>{% trans "Başlıca Kategoriler" %}
+    </div>
+    <div class="row g-4">
+      {% for category in categories %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="persona-hero-icon" style="width:56px;height:56px;border-radius:16px;font-size:1.5rem;"><i class="{{ category.icon }}"></i></span>
+            <div>
+              <h2 class="h5 fw-semibold mb-1">{{ category.title }}</h2>
+              <p class="text-muted mb-0 small">{{ category.description }}</p>
+            </div>
+          </div>
+          <ul class="list-unstyled d-grid gap-2 mb-0">
+            {% for link in category.links %}
+            <li>
+              <a href="{{ link.url }}" class="doc-link justify-content-between">
+                <span>{{ link.label }}</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="api-guides">
+    <div class="persona-section-title" id="api-guides">
+      <i class="bi bi-code-slash"></i>{% trans "API Rehberleri" %}
+    </div>
+    <div class="resource-card">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-6">
+          <h2 class="h4 fw-semibold mb-3">{% trans "REST & Webhook" %}</h2>
+          <p class="text-secondary mb-4">{% trans "OAuth 2.0 ile kimlik doğrulama, finans ve uyumluluk uç noktaları, webhook olayları ve SDK örnekleri." %}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'developer_api' %}" class="btn btn-modern btn-modern-outline">
+              <i class="bi bi-journal-code me-2"></i>{% trans "Geliştirici Rehberi" %}
+            </a>
+            <a href="/api/docs/" class="btn btn-modern btn-modern-outline">
+              <i class="bi bi-diagram-3 me-2"></i>{% trans "Swagger" %}
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <pre class="resource-code-block"><code>curl -X POST https://api.finasis.com/oauth/token \
+  -H "Content-Type: application/json" \
+  -d '{"client_id": "YOUR_ID", "client_secret": "YOUR_SECRET"}'</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="latest" class="mb-5">
+    <div class="persona-section-title" id="latest">
+      <i class="bi bi-newspaper"></i>{% trans "Son Güncellemeler" %}
+    </div>
+    <div class="row g-4">
+      {% for update in latest_updates %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card">
+          <header class="mb-3">
+            <div class="badge-modern primary mb-2"><i class="bi bi-calendar-event me-1"></i>{{ update.date }}</div>
+            <h2 class="h6 fw-semibold mb-1">{{ update.title }}</h2>
+            <p class="text-muted small mb-0">{{ update.summary }}</p>
+          </header>
+          <footer>
+            <a href="{{ update.url }}" class="btn btn-modern btn-modern-outline btn-sm">
+              <i class="bi bi-arrow-up-right"></i>{% trans "İncele" %}
+            </a>
+          </footer>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="persona-list-card text-center">
+          <h3 class="h6 fw-semibold mb-1">{% trans "Yakında" %}</h3>
+          <p class="text-muted mb-0">{% trans "Yeni dokümanlar ve güncellemeler üzerinde çalışıyoruz." %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

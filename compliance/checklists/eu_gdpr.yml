@@ -1,0 +1,15 @@
+- id: gdpr_locale_middleware
+  title: "Locale middleware aktif"
+  type: setting_contains
+  path: "MIDDLEWARE"
+  expected: "django.middleware.locale.LocaleMiddleware"
+  severity: info
+  message: "Çoklu dil desteği için LocaleMiddleware aktif olmalı."
+
+- id: gdpr_celery_audit_model
+  title: "Audit log modeli mevcut"
+  type: model_exists
+  model: "security.SecurityAuditLog"
+  severity: info
+  message: "GDPR erişim logları için SecurityAuditLog kullanılmalı."
+

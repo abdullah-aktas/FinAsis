@@ -1,0 +1,120 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "API Anahtarları" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="display-6 fw-bold mb-1">{% trans "API Anahtarları" %}</h1>
+      <p class="text-muted mb-0">{% trans "Yeni anahtar oluşturun veya mevcut anahtarlarınızı yönetin." %}</p>
+    </div>
+    <button class="btn btn-modern btn-modern-outline" data-bs-toggle="modal" data-bs-target="#createKeyModal">
+      <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Anahtar" %}
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% trans "Ad" %}</th>
+              <th>{% trans "Plan" %}</th>
+              <th>{% trans "Durum" %}</th>
+              <th>{% trans "Son Kullanım" %}</th>
+              <th class="text-end">{% trans "İşlem" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key in api_keys %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ key.name }}</div>
+                <div class="text-muted small">{{ key.masked_key }}</div>
+              </td>
+              <td>{{ key.rate_limit_plan|title }}</td>
+              <td>
+                <span class="badge bg-{% if key.is_active %}success{% else %}secondary{% endif %}">
+                  {{ key.get_status_display }}
+                </span>
+              </td>
+              <td>
+                {% if key.last_used_at %}
+                  {{ key.last_used_at|date:"SHORT_DATE_FORMAT" }} {{ key.last_used_at|time:"H:i" }}
+                {% else %}
+                  <span class="text-muted small">{% trans "Kullanım yok" %}</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'developer_portal:api_key_detail' key.pk %}" class="btn btn-sm btn-outline-primary">
+                  {% trans "Detay" %}
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="bi bi-key mb-2" style="font-size: 2rem;"></i>
+                <div>{% trans "Henüz bir API anahtarı oluşturmadınız." %}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createKeyModal" tabindex="-1" aria-labelledby="createKeyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createKeyModalLabel">{% trans "Yeni API Anahtarı" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Kapat' %}"></button>
+      </div>
+      <form method="post" action="{% url 'developer_portal:api_keys' %}">
+        <div class="modal-body">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">{% trans "Ad" %}</label>
+              <input type="text" name="name" class="form-control" maxlength="120" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{% trans "Plan" %}</label>
+              <select name="rate_limit_plan" class="form-select">
+                <option value="standard">{% trans "Standard · 100 req/dk" %}</option>
+                <option value="pro">{% trans "Pro · 1000 req/dk" %}</option>
+                <option value="enterprise">{% trans "Enterprise · özel" %}</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">{% trans "Açıklama" %}</label>
+              <textarea name="description" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{% trans "İzin verilen IP'ler" %}</label>
+              <input type="text" name="allowed_ips" class="form-control" placeholder="192.168.1.1, 10.0.0.2">
+              <div class="form-text">{% trans "Boş bırakırsanız tüm IP adreslerine izin verilir." %}</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{% trans "Bitiş tarihi" %}</label>
+              <input type="datetime-local" name="expires_at" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "İptal" %}</button>
+          <button type="submit" class="btn btn-primary">{% trans "Anahtar Oluştur" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

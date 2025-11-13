@@ -1,0 +1,14 @@
+/* Legacy theme bridge: keeps backwards compatibility with older PWA cache lists. */
+@import url("./brand.css");
+@import url("./main.css");
+@import url("./modern-ui.css");
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+

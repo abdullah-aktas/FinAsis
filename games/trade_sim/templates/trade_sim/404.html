@@ -1,0 +1,95 @@
+{% extends "trade_sim/base.html" %} {% load i18n %} {% block title %}Sayfa
+Bulunamadı - TradeSim{% endblock %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      <div class="error-container p-5">
+        <i class="bi bi-compass text-primary" style="font-size: 5rem"></i>
+
+        <h1 class="mt-4 mb-3">Kaybolmuş Gibisin!</h1>
+
+        <p class="lead text-muted mb-4">
+          {{ error_message|default:"Aradığınız sayfa bulunamadı. Belki başka bir
+          rotaya çıkmak ister misin?" }}
+        </p>
+
+        <div class="mt-4">
+          <a
+            href="{{ return_url|default:'/games/trade-sim/start/' }}"
+            class="btn btn-primary btn-lg me-3"
+          >
+            <i class="bi bi-house-door me-2"></i>Oyuna Dön
+          </a>
+          <a
+            href="/games/trade-sim/leaderboard/"
+            class="btn btn-outline-primary"
+          >
+            <i class="bi bi-trophy me-2"></i>Liderlik Tablosu
+          </a>
+        </div>
+
+        <div class="mt-5">
+          <h5 class="text-muted">Popüler Sayfalar</h5>
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <a href="/games/trade-sim/start/" class="text-decoration-none">
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body text-center">
+                    <i
+                      class="bi bi-play-circle text-success"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6 class="mt-2">Oyuna Başla</h6>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a
+                href="/games/trade-sim/leaderboard/"
+                class="text-decoration-none"
+              >
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body text-center">
+                    <i
+                      class="bi bi-trophy text-warning"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6 class="mt-2">Liderler</h6>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-4">
+              <a href="/games/trade-sim/stats/" class="text-decoration-none">
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body text-center">
+                    <i
+                      class="bi bi-graph-up text-info"
+                      style="font-size: 2rem"
+                    ></i>
+                    <h6 class="mt-2">İstatistikler</h6>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .error-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+  }
+</style>
+{% endblock %}

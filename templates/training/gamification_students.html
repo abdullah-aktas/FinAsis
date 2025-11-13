@@ -1,0 +1,88 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Gamification ile Öğrenci Yönetimi" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero">
+  <div class="container">
+    <span class="badge badge-success">{% trans "Eğitim Modülü" %}</span>
+    <h1>{% trans "Gamification ile Öğrenci Yönetimi" %}</h1>
+    <p class="lead">
+      {% trans "Öğrencileri oyunlaştırılmış görevlerle motive edin, puanlama motorunu ve rozetleri yönetin." %}
+    </p>
+    <div class="resource-meta">
+      <div><i class="bi bi-clock me-2"></i>{% trans "Süre" %}: 16 dk</div>
+      <div><i class="bi bi-person-video3 me-2"></i>{% trans "Eğitmen" %}: Ece Sarı</div>
+      <div><i class="bi bi-stars me-2"></i>{% trans "Seviye" %}: {% trans "Başlangıç" %}</div>
+      <div><i class="bi bi-calendar-event me-2"></i>{% trans "Yayın Tarihi" %}: 30.05.2025</div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <article class="card card-body shadow-sm h-100">
+          <h2 class="h4 mb-3">{% trans "Ders Başlıkları" %}</h2>
+          <p>
+            {% trans "Bu modülde, öğretmen panelindeki gamification motorunu yapılandırır, öğrenci görevlerini tanımlar ve rozetleri otomatik olarak dağıtırsınız. Ayrıca FinQuest ve simülasyon oyunlarıyla entegrasyonu keşfedersiniz." %}
+          </p>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Görev motoru temel kavramları" %}</strong>
+              <div class="text-muted">{% trans "Görev YAML dosyaları, seviye koşulları ve ödül türleri." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Öğrenci paneli deneyimi" %}</strong>
+              <div class="text-muted">{% trans "Öğrenciler için ilerleme çubukları, liderlik tablosu ve AI koç önerileri." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Simülasyon entegrasyonu" %}</strong>
+              <div class="text-muted">{% trans "FinQuest görevlerinin öğretmen hedefleriyle eşleştirilmesi." %}</div>
+            </li>
+          </ol>
+          <h3 class="h5">{% trans "Örnek Görev Akışı" %}</h3>
+          <div class="bg-light rounded-4 p-4">
+            <pre class="mb-0"><code>mission:
+  id: student_onboarding
+  steps:
+    - complete_module: "finquest_intro"
+    - submit_assignment: "budget_canvas"
+    - attend_live: true
+  rewards:
+    xp: 250
+    badge: "FinQuest Explorer"</code></pre>
+          </div>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="d-grid gap-4">
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Ana Kazanımlar" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Görev motorunu yapılandırın" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Öğrenci motivasyonunu artırın" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Simülasyonlarla entegrasyonu sağlayın" %}</li>
+            </ul>
+          </div>
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Destek Kaynakları" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-link-45deg me-2 text-primary"></i>{% trans "FinAsis Academy canlı oturumları" %}</li>
+              <li><i class="bi bi-link-45deg me-2 text-primary"></i>{% trans "Öğretmen onboarding rehberi" %}</li>
+              <li><i class="bi bi-link-45deg me-2 text-primary"></i>{% trans "AI koç prompt koleksiyonu" %}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

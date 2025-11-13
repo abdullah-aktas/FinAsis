@@ -1,0 +1,395 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block feature_banner %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Dijital Dönüşüm Hızlandırıcı' %}{% endblock %}
+{% block meta_description %}{% trans 'e-Fatura, e-Arşiv, e-Defter. GİB onaylı entegrasyon, %85 maliyet azaltımı, kağıtsız süreçler.' %}{% endblock %}
+{% block extra_css %}
+<style>
+  :root {
+    --edonusum-primary: #f59e0b;
+    --edonusum-secondary: #fb923c;
+    --edonusum-gradient: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+  }
+
+  .hero-section {
+    background: var(--edonusum-gradient);
+    color: white;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255, 255, 255, 0.05) 20px,
+        rgba(255, 255, 255, 0.05) 40px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 20px,
+        rgba(255, 255, 255, 0.03) 20px,
+        rgba(255, 255, 255, 0.03) 40px
+      );
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-8px) rotate(-1deg);
+    box-shadow: 0 20px 50px rgba(245, 158, 11, 0.25);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--edonusum-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-label {
+    color: #6c757d;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    height: 100%;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--edonusum-gradient);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 0;
+  }
+
+  .feature-card:hover::before {
+    opacity: 0.05;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px) rotate(-1deg);
+    border-color: var(--edonusum-primary);
+    box-shadow: 0 20px 60px rgba(245, 158, 11, 0.2);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--edonusum-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--edonusum-primary);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-text {
+    color: #495057;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 5rem 0;
+    margin-top: 4rem;
+  }
+
+  .cta-box {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .btn-primary-custom {
+    background: var(--edonusum-gradient);
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title">⚡ Dijital Dönüşüm Hızlandırıcı</h1>
+      <p class="hero-subtitle">
+        <strong>Kağıtsız süreçlerle %85 maliyet azaltımı!</strong> e-Fatura,
+        e-Arşiv, e-Defter ve e-Defterhane ile
+        <strong>GİB onaylı</strong> dijital dönüşüm. Saniyeler içinde e-belge
+        gönderimi, otomatik arşivleme, <strong>sıfır kağıt israfı</strong>. 🚀
+        Dijital dönüşümü hızlandırın, rekabette öne geçin!
+      </p>
+      <div class="mt-4">
+        {% if user.is_authenticated %}
+        <a href="/accounting/" class="btn btn-light btn-lg px-5 py-3 me-3">
+          📄 E-Belge Paneli
+        </a>
+        <a href="/panel/" class="btn btn-outline-light btn-lg px-5 py-3">
+          📊 Panelim
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3 me-3">
+          🚀 Dijital Başla
+        </a>
+        <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+          ⚡ Özellikleri Keşfet
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Metrics Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">8M+</div>
+          <div class="metric-label">e-Belge/Yıl</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">%85</div>
+          <div class="metric-label">Maliyet Azaltımı</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">&lt;5sn</div>
+          <div class="metric-label">e-Belge Gönderimi</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">%100</div>
+          <div class="metric-label">GİB Uyumlu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">🎯 Neden FinAsis e-Dönüşüm?</h2>
+      <p class="lead text-muted">
+        Kağıtsız ofis, hızlı süreçler, düşük maliyetler
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">📧</div>
+          <h3 class="feature-title">e-Fatura & e-Arşiv</h3>
+          <p class="feature-text">
+            <strong>Saniyeler içinde</strong> e-fatura ve e-arşiv fatura kesin,
+            gönderin! GİB entegrasyonu otomatik,
+            <strong>manuel müdahale yok</strong>. Müşterileriniz anında faturayı
+            alır, siz zaman kazanırsınız. ⚡
+            <strong>&lt;5 saniye</strong> gönderim süresi!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-title">e-Defter & e-Defterhane</h3>
+          <p class="feature-text">
+            Yevmiye, kebir, mizan, envanter - tüm
+            <strong>resmi defterler dijital</strong>! e-Defterhane'ye otomatik
+            gönderim, GİB onayı anlık. 📝 <strong>Kağıt defter yok</strong>,
+            arşiv masrafı yok, depolama sorunu yok!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3 class="feature-title">%85 Maliyet Tasarrufu</h3>
+          <p class="feature-text">
+            Kağıt, baskı, posta, arşiv, personel maliyetlerinden
+            <strong>%85'e kadar tasarruf</strong>! Yıllık 10,000 fatura için
+            ~₺50K tasarruf. 💡 <strong>ROI 3 ayda</strong> gerçekleşir - yatırım
+            değil, kazanç!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">Otomatik İş Akışı</h3>
+          <p class="feature-text">
+            Fatura kesildiğinde otomatik e-posta, SMS, WhatsApp bildirimi! Ödeme
+            hatırlatmaları, vade takibi,
+            <strong>otomatik tahsilat</strong> süreçleri. ⚙️
+            <strong>Siz uyuyana kadar sistem çalışır!</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🌿</div>
+          <h3 class="feature-title">Çevre Dostu</h3>
+          <p class="feature-text">
+            Yılda <strong>100+ ağacı kurtarın</strong>! Kağıt israfı sıfır,
+            karbon ayak izi minimum. 🌍 ESG (çevresel, sosyal, kurumsal yönetim)
+            hedeflerinize katkı. <strong>Yeşil işletme</strong> sertifikası için
+            yoldayız!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h3 class="feature-title">API Entegrasyonu</h3>
+          <p class="feature-text">
+            Mevcut ERP, CRM, e-ticaret sistemlerinizle
+            <strong>API ile entegre</strong> olun. SAP, Logo, Netsis, Ticimax -
+            hepsiyle uyumlu! 🚀 <strong>Plug & play</strong> - kurulum 1 günde
+            tamamlanır!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2 class="display-5 fw-bold mb-4">⚡ Dijital Dönüşümü Hızlandırın</h2>
+      <p class="lead mb-4">
+        <strong>14 gün ücretsiz</strong> deneyin, kağıtsız ofise geçin! İlk 100
+        e-belge ücretsiz. 🎉
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if user.is_authenticated %}
+        <a href="/accounting/" class="btn btn-primary-custom">
+          📄 E-Belge Sistemine Git
+        </a>
+        <a href="/panel/" class="btn btn-outline-primary btn-lg">
+          📊 Panelim
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom">
+          🚀 Dijitale Geç
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg">
+          🔑 Giriş Yap
+        </a>
+        {% endif %}
+      </div>
+      <p class="text-muted mt-4 mb-0">
+        <small
+          >✅ İlk 100 e-belge ücretsiz • ✅ GİB onaylı • ✅ İstediğiniz zaman
+          iptal</small
+        >
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

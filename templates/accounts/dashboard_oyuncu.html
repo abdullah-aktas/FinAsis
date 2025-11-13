@@ -1,0 +1,132 @@
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+{% block title %}{% trans "Oyuncu Paneli" %} - FinAsis E-Spor{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/dashboards.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <section class="persona-hero mb-5"
+    style="--persona-hero-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+           --persona-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 70%);">
+    <span class="persona-hero-icon"><i class="bi bi-controller"></i></span>
+    <h1 class="display-5 fw-bold mb-2">{% trans "Oyuncu Paneli" %}</h1>
+    <p class="lead mb-0">{% trans "Finansal oyunları keşfedin, rozet kazanın ve liderlik tablosunda yükselin." %}</p>
+    <div class="persona-action-group mt-4">
+      <a href="{% url 'game_app:games' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-play-fill me-2"></i>{% trans "Tüm Oyunlar" %}
+      </a>
+      <a href="{% url 'games:games_index' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-grid-3x3-gap me-2"></i>{% trans "Oyun Merkezi" %}
+      </a>
+      <a href="{% url 'games:leaderboard' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-trophy me-2"></i>{% trans "Liderlik Tablosu" %}
+      </a>
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="game-missions">
+    <div class="persona-section-title" id="game-missions">
+      <i class="bi bi-lightning-charge-fill"></i>{% trans "Günlük Görevler" %}
+    </div>
+    <div class="dashboard-onboarding">
+      {% for mission in gaming_missions %}
+      <article class="dashboard-onboarding__item">
+        <span class="dashboard-onboarding__icon" style="background: rgba(236, 72, 153, 0.2); color:#ec4899;">
+          <i class="bi {{ mission.icon }}"></i>
+        </span>
+        <div>
+          <h3 class="fw-semibold mb-1">{{ mission.title }}</h3>
+          <p class="text-muted mb-0 small">{{ mission.description }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="game-progress">
+    <div class="persona-section-title" id="game-progress">
+      <i class="bi bi-trophy-fill"></i>{% trans "Seviye İlerlemesi" %}
+    </div>
+    <article class="dashboard-progress dashboard-section-card--warm border-0">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 class="h6 fw-semibold mb-1">{% trans "Seviye" %} {{ game_progress.level }}</h3>
+          <p class="text-muted small mb-0">{{ game_progress.xp }}</p>
+        </div>
+        <span class="badge bg-danger">{{ game_progress.percentage }}%</span>
+      </div>
+      <div class="dashboard-progress__bar mb-3">
+        <span style="width: {{ game_progress.percentage }}%; background: linear-gradient(135deg, #ec4899, #be185d);"></span>
+      </div>
+      <p class="text-muted small mb-0">{% trans "Yeni rozet için oyun oyna ve simülasyon tamamla." %}</p>
+    </article>
+  </section>
+
+  <section class="mb-5" aria-labelledby="game-hub">
+    <div class="persona-section-title" id="game-hub">
+      <i class="bi bi-controller"></i>{% trans "Oyun Merkezi" %}
+    </div>
+    <div class="dashboard-action-grid">
+      <a href="/games/achievements/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#ec4899;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-trophy"></i></div>
+          <div class="dashboard-action-card__label">{% trans "Başarılarım" %}</div>
+          <div class="dashboard-action-card__hint">{% trans "Kazandığınız rozetleri görüntüleyin." %}</div>
+        </div>
+      </a>
+      <a href="/games/inventory/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#f97316;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-bag"></i></div>
+          <div class="dashboard-action-card__label">{% trans "Envanter" %}</div>
+          <div class="dashboard-action-card__hint">{% trans "Öğeleri yönetin ve kullanın." %}</div>
+        </div>
+      </a>
+      <a href="/games/leaderboard/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#8b5cf6;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-bar-chart-steps"></i></div>
+          <div class="dashboard-action-card__label">{% trans "Liderlik Tablosu" %}</div>
+          <div class="dashboard-action-card__hint">{% trans "Sıralamada yükselin." %}</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="simulation-bridge">
+    <div class="persona-section-title" id="simulation-bridge">
+      <i class="bi bi-cpu"></i>{% trans "Finansal Simülasyonlar" %}
+    </div>
+    <div class="dashboard-action-grid">
+      {% for sim in simulation_cards %}
+      <a href="{{ sim.href }}" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#f472b6;">
+          <div class="dashboard-action-card__icon"><i class="bi {{ sim.icon }}"></i></div>
+          <div class="dashboard-action-card__label">{{ sim.title }}</div>
+          <div class="dashboard-action-card__hint">{{ sim.description }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="game-ai">
+    <div class="persona-section-title" id="game-ai">
+      <i class="bi bi-robot"></i>{% trans "AI Koç Önerileri" %}
+    </div>
+    <div class="ai-suggestion-grid">
+      {% for suggestion in ai_cards %}
+      <article class="ai-suggestion-card">
+        <div class="ai-suggestion-card__icon"><i class="bi {{ suggestion.icon }}"></i></div>
+        <h3 class="ai-suggestion-card__title">{{ suggestion.title }}</h3>
+        <p class="ai-suggestion-card__body mb-0">{{ suggestion.body }}</p>
+        <a href="{{ suggestion.cta_href }}" class="ai-suggestion-card__cta">
+          {{ suggestion.cta_label }} <i class="bi bi-arrow-right-short"></i>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

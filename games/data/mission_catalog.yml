@@ -1,0 +1,300 @@
+tasks:
+  - id: teacher_lesson_script
+    audience: teacher
+    kind: onboarding
+    title: "Finans 101 Ders Planı"
+    description: "Görev motorundan gelen oyun senaryosu ile 45 dakikalık ders planını eşleştir."
+    icon: "bi-journal-plus"
+    link:
+      label: "Ders Planını Aç"
+      href: "/education/courses/planner/"
+    reward:
+      xp: 120
+    tags: ["lesson", "planning", "academy"]
+
+  - id: teacher_mission_bridge
+    audience: teacher
+    kind: mission
+    title: "Görev Köprüsü"
+    description: "FinQuest görevlerini sınıf hedefleriyle eşleştir ve geri bildirim topla."
+    icon: "bi-diagram-3"
+    link:
+      label: "Görevleri Eşleştir"
+      href: "/games/quests/bridge/"
+    reward:
+      xp: 90
+    tags: ["gamification", "assessment"]
+
+  - id: teacher_feedback_loop
+    audience: teacher
+    kind: analytics
+    title: "Geri Bildirim Döngüsü"
+    description: "Öğrenci oyun skorlarını inceleyip ders içeriğini güncelle."
+    icon: "bi-chat-dots"
+    link:
+      label: "Skorları İncele"
+      href: "/education/reports/feedback-summary/"
+    reward:
+      xp: 60
+    tags: ["analytics", "insight"]
+
+  - id: student_intro_path
+    audience: student
+    kind: onboarding
+    title: "Mikro Bütçe Görevi"
+    description: "İlk oyun görevini tamamla ve ders içeriğindeki bütçe bölümünü bitir."
+    icon: "bi-person-check"
+    link:
+      label: "Göreve Başla"
+      href: "/games/quests/micro-budget/"
+    reward:
+      xp: 80
+    tags: ["budgeting", "starter"]
+
+  - id: student_quiz_sync
+    audience: student
+    kind: challenge
+    title: "Quiz Senkronizasyonu"
+    description: "Görev motorundaki quiz’i tamamla, AI çalışma planını güncelle."
+    icon: "bi-lightning-charge"
+    link:
+      label: "Quiz Başlat"
+      href: "/education/exams/quick-prep/"
+    reward:
+      xp: 110
+    tags: ["quiz", "ai-plan"]
+
+  - id: student_career_track
+    audience: student
+    kind: mission
+    title: "Kariyer Rotası"
+    description: "Seçtiğin kariyer rotası için iki oyun senaryosu oyna ve refleksiyon yaz."
+    icon: "bi-compass"
+    link:
+      label: "Rotanı Keşfet"
+      href: "/education/career-paths/"
+    reward:
+      xp: 150
+    tags: ["career", "reflection"]
+
+  - id: gamer_daily_challenge
+    audience: gamer
+    kind: mission
+    title: "Günlük Likidite Görevi"
+    description: "Günlük görevde likidite oranını 1.25 üzerinde tutmayı başar."
+    icon: "bi-lightning"
+    link:
+      label: "Göreve Git"
+      href: "/games/quests/"
+    reward:
+      xp: 75
+    tags: ["liquidity", "daily"]
+
+  - id: gamer_simulation_link
+    audience: gamer
+    kind: simulation
+    title: "Senaryo Simülasyonu"
+    description: "Finansal simülasyonla oyun görevini bağla, sonuçları raporla."
+    icon: "bi-cpu"
+    link:
+      label: "Simülasyon Başlat"
+      href: "/finance/simulations/pricing/"
+    reward:
+      xp: 130
+    tags: ["simulation", "reporting"]
+
+  - id: gamer_leaderboard_push
+    audience: gamer
+    kind: challenge
+    title: "Liderlik Sıçraması"
+    description: "Üç finansal görevi zincir halinde tamamlayarak liderlik tablosunda yüksel."
+    icon: "bi-trophy"
+    link:
+      label: "Liderlik Tablosu"
+      href: "/games/leaderboard/"
+    reward:
+      xp: 100
+    tags: ["leaderboard", "combo"]
+
+  - id: admin_resilience_audit
+    audience: admin
+    kind: mission
+    title: "Operasyonel Dayanıklılık Denetimi"
+    description: "Üretim öncesi kritik modüllerde health check çalıştır, Sentry/PROM loglarını gözden geçir, riskli bulgular için görev aç."
+    icon: "bi-shield-lock"
+    link:
+      label: "Durum Panosu"
+      href: "/management/ops/health-check/"
+    reward:
+      xp: 140
+    tags: ["ops", "compliance", "release"]
+
+  - id: admin_incident_drill
+    audience: admin
+    kind: challenge
+    title: "Incident Drill"
+    description: "Test ortamında simüle edilmiş kesintiye karşı runbook uygula, kesinti süresini ve çözüm adımlarını raporla."
+    icon: "bi-activity"
+    link:
+      label: "Runbook'u Aç"
+      href: "/management/ops/runbooks/incident-drill/"
+    reward:
+      xp: 160
+    tags: ["sre", "playbook"]
+
+  - id: owner_cashflow_standup
+    audience: kobi_owner
+    kind: daily
+    title: "Nakit Akışı Stand-up"
+    description: "Son 7 gün tahsilat ve ödemelerini özetle, AI nakit uyarı kartlarını gözden geçir, iki aksiyon maddesi belirle."
+    icon: "bi-cash-coin"
+    link:
+      label: "Nakit Raporu"
+      href: "/finance/reports/cashflow/"
+    reward:
+      xp: 120
+    tags: ["cashflow", "owner", "daily"]
+
+  - id: owner_cost_optimizer
+    audience: kobi_owner
+    kind: mission
+    title: "Gider Optimizasyonu Sprinti"
+    description: "En pahalı üç gider kalemini incele, tasarruf stratejilerini FinAsis modülleriyle eşleştir ve görevleri takıma ata."
+    icon: "bi-graph-down"
+    link:
+      label: "Tasarruf Paneli"
+      href: "/finance/insights/expense-optimizer/"
+    reward:
+      xp: 150
+    tags: ["cost", "strategy"]
+
+  - id: employee_invoice_onboarding
+    audience: kobi_employee
+    kind: onboarding
+    title: "Fatura Süreci Onboarding"
+    description: "Yeni müşteri kaydı oluştur, örnek bir satış faturası gir ve onaya gönder; süreçteki adımları checklist ile doğrula."
+    icon: "bi-receipt"
+    link:
+      label: "Fatura Oluştur"
+      href: "/accounting/invoices/new/"
+    reward:
+      xp: 90
+    tags: ["onboarding", "invoice"]
+
+  - id: employee_support_round
+    audience: kobi_employee
+    kind: daily
+    title: "Destek Turu"
+    description: "Gelen iki müşteri talebini çöz, CRM notu ekle ve gerekiyorsa muhasebeciye eskale et."
+    icon: "bi-headset"
+    link:
+      label: "Destek Masası"
+      href: "/management/support/queue/"
+    reward:
+      xp: 70
+    tags: ["support", "customer"]
+
+  - id: finance_manager_treasury_huddle
+    audience: finance_manager
+    kind: mission
+    title: "Hazine Huddle"
+    description: "Banka bakiyelerini konsolide et, kısa vadeli likidite ihtiyacını hesapla ve önerilen transfer planını oluştur."
+    icon: "bi-bank"
+    link:
+      label: "Banka Panosu"
+      href: "/finance/banking/"
+    reward:
+      xp: 180
+    tags: ["treasury", "liquidity"]
+
+  - id: finance_manager_approval_wave
+    audience: finance_manager
+    kind: challenge
+    title: "Onay Dalgası"
+    description: "Bekleyen ödeme taleplerini değerlendirmek için bayi, gider ve maaş kalemlerinden en az üçünü onayla veya reddet."
+    icon: "bi-check2-square"
+    link:
+      label: "Onay Kuyruğu"
+      href: "/accounting/approvals/"
+    reward:
+      xp: 130
+    tags: ["approval", "workflow"]
+
+  - id: accountant_period_close
+    audience: accountant
+    kind: mission
+    title: "Dönem Kapanışı"
+    description: "Açık faturaları temizle, mutabakat raporu üret ve kapanış defterini PDF olarak paydaşlara gönder."
+    icon: "bi-archive"
+    link:
+      label: "Kapanış Asistanı"
+      href: "/accounting/period-close/"
+    reward:
+      xp: 200
+    tags: ["close", "reporting"]
+
+  - id: accountant_vat_checklist
+    audience: accountant
+    kind: checklist
+    title: "KDV Beyanname Kontrolü"
+    description: "Beyanname taslağını doğrula, eksik evrakları müşteriyle paylaş ve gönderim öncesi kontrol listelerini tamamla."
+    icon: "bi-list-check"
+    link:
+      label: "KDV Paneli"
+      href: "/accounting/vat/"
+    reward:
+      xp: 110
+    tags: ["vat", "compliance"]
+
+  - id: advisor_portfolio_sync
+    audience: financial_advisor
+    kind: analytics
+    title: "Portföy Sağlığı Senkronizasyonu"
+    description: "AI portföy kartlarını incele, düşen kârlılığa sahip iki müşteri için takip planı oluştur ve paylaş."
+    icon: "bi-bar-chart-line"
+    link:
+      label: "Portföy Raporu"
+      href: "/ai-assistant/reports/portfolio-health/"
+    reward:
+      xp: 140
+    tags: ["portfolio", "advisor"]
+
+  - id: advisor_board_brief
+    audience: financial_advisor
+    kind: mission
+    title: "Yönetim Kurulu Brifi"
+    description: "Şirket yönetimi için aylık finansal özet hazırla, risk ve fırsatları üç maddelik aksiyon planıyla sun."
+    icon: "bi-easel3"
+    link:
+      label: "Brifing Şablonu"
+      href: "/finance/reports/board-pack/"
+    reward:
+      xp: 170
+    tags: ["brief", "exec"]
+
+  - id: auditor_control_matrix
+    audience: auditor
+    kind: checklist
+    title: "Kontrol Matrisi Tarama"
+    description: "Finansal kontrol listesini yürüt, kritik bulguları işaretle ve iyileştirme önerilerini dokümante et."
+    icon: "bi-clipboard-data"
+    link:
+      label: "Kontrol Listesi"
+      href: "/audit/checklists/control-matrix/"
+    reward:
+      xp: 130
+    tags: ["audit", "internal-control"]
+
+  - id: auditor_sample_test
+    audience: auditor
+    kind: mission
+    title: "Örneklem Testi"
+    description: "Gelir ve gider kalemlerinden örnek seç, destekleyici belgeleri doğrula ve rapor özetini paylaş."
+    icon: "bi-search"
+    link:
+      label: "Denetim Modülü"
+      href: "/audit/samples/"
+    reward:
+      xp: 150
+    tags: ["audit", "sampling"]
+

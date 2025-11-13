@@ -1,0 +1,81 @@
+{% extends 'core_ui/base.html' %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "KVKK Aydınlatma Metni" %}{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <h1 class="display-5 fw-bold mb-4 text-primary">{% trans "KVKK Aydınlatma Metni" %}</h1>
+    <p class="lead text-muted">
+      {% blocktrans %}
+      FinAsis olarak 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında kişisel verilerinizi güvenle işliyor
+      ve saklıyoruz. Bu sayfa, veri işleme amaçlarımızı, saklama sürelerimizi ve haklarınızı özetler.
+      {% endblocktrans %}
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <article class="card-modern p-4">
+          <h2 class="h4 fw-semibold mb-3 text-primary">{% trans "Veri Sorumlusu" %}</h2>
+          <p>
+            {% blocktrans %}
+            FinAsis Yazılım ve Danışmanlık A.Ş., KVKK uyarınca veri sorumlusudur. İletişim: kvkk@finasis.com.tr
+            {% endblocktrans %}
+          </p>
+
+          <h2 class="h4 fw-semibold mt-4 mb-3 text-primary">{% trans "Veri İşleme Amaçlarımız" %}</h2>
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Hizmetlerin sunulması ve sözleşme süreçlerinin yürütülmesi" %}</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Mali işlem kayıtlarının tutulması ve mevzuata uyum" %}</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Müşteri desteği ve operasyonel süreçlerin yürütülmesi" %}</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Ürün geliştirme, kişiselleştirme ve analitik faaliyetleri" %}</li>
+          </ul>
+
+          <h2 class="h4 fw-semibold mt-4 mb-3 text-primary">{% trans "Saklama Süreleri" %}</h2>
+          <p>
+            {% blocktrans %}
+            Kişisel veriler, ilgili mevzuatın öngördüğü minimum süre boyunca saklanır. Finansal kayıtlar için 10 yıl, destek talepleri için 3 yıl, pazarlama izinleri için silme talebine kadar saklama uygulanır.
+            {% endblocktrans %}
+          </p>
+
+          <h2 class="h4 fw-semibold mt-4 mb-3 text-primary">{% trans "Haklarınız" %}</h2>
+          <p>
+            {% blocktrans %}
+            KVKK madde 11 kapsamındaki haklarınızı kullanmak için kvkk@finasis.com.tr adresine imzalı dilekçe veya kayıtlı elektronik posta (KEP) yoluyla başvurabilirsiniz. Talebiniz en geç 30 gün içerisinde yanıtlanacaktır.
+            {% endblocktrans %}
+          </p>
+
+          <h2 class="h4 fw-semibold mt-4 mb-3 text-primary">{% trans "Veri İşleme Güvenliği" %}</h2>
+          <p>
+            {% blocktrans %}
+            FinAsis platformu; şifreleme (AES-256), erişim kontrolü, denetim logları, MFA/SSO ve coğrafi yedekleme gibi teknik ve idari tedbirler uygular. Anonimleştirme ve silme süreçleri için `manage.py retention_execute` komutları uygulanmaktadır.
+            {% endblocktrans %}
+          </p>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="card-modern p-4">
+          <h3 class="h5 fw-semibold text-primary mb-3">{% trans "Hızlı Erişim" %}</h3>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a class="text-decoration-none" href="{% url 'privacy_policy' %}">{% trans "Gizlilik Politikası" %}</a></li>
+            <li class="mb-2"><a class="text-decoration-none" href="{% url 'terms' %}">{% trans "Kullanım Şartları" %}</a></li>
+            <li class="mb-2"><a class="text-decoration-none" href="{% url 'cookie_policy' %}">{% trans "Çerez Politikası" %}</a></li>
+            <li class="mb-2"><a class="text-decoration-none" href="{% url 'resources_compliance_checklist' %}">{% trans "Uyumluluk Checklist" %}</a></li>
+          </ul>
+          <div class="mt-4">
+            <h4 class="h6 fw-semibold text-primary">{% trans "Veri Koruma Ekibi" %}</h4>
+            <p class="mb-1">kvkk@finasis.com.tr</p>
+            <p class="mb-0">+90 (212) 000 00 00</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

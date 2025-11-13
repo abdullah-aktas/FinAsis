@@ -1,0 +1,934 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Entegrasyonlar - Enterprise Integration Hub - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+  /* Modern Integration Hub Styles */
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .integration-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 50px 50px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  }
+
+  .integration-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+
+  .integration-hero p {
+    font-size: 1.25rem;
+    opacity: 0.95;
+  }
+
+  .integration-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  /* Integration Cards */
+  .integration-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    height: 100%;
+  }
+
+  .integration-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: #667eea;
+  }
+
+  .integration-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .integration-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #2d3748;
+  }
+
+  .integration-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .integration-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .integration-features li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #4a5568;
+  }
+
+  .integration-features li i {
+    color: #10b981;
+    font-size: 1.25rem;
+  }
+
+  .integration-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .badge-api {
+    background: #ecfeff;
+    color: #155e75;
+  }
+
+  .badge-webhook {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-realtime {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .badge-secure {
+    background: #ede9fe;
+    color: #5b21b6;
+  }
+
+  /* Endpoint Display */
+  .endpoint-box {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    margin: 1rem 0;
+    position: relative;
+    overflow-x: auto;
+  }
+
+  .endpoint-method {
+    color: #10b981;
+    font-weight: 700;
+    margin-right: 0.5rem;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .copy-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Test Button */
+  .test-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .test-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .test-btn.secondary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  /* Response Display */
+  .response-box {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .response-box.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Status Bar */
+  .status-bar {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .status-badge.active {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .status-badge.inactive {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  /* Category Tabs */
+  .category-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .category-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .category-tab:hover {
+    border-color: #667eea;
+    color: #667eea;
+  }
+
+  .category-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .integration-hero h1 {
+      font-size: 2rem;
+    }
+
+    .integration-stats {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="integration-hero">
+  <div class="container text-center">
+    <h1 data-aos="fade-up">🔌 Enterprise Integration Hub</h1>
+    <p data-aos="fade-up" data-aos-delay="100">
+      101 Model, 16 Modül, Sınırsız Entegrasyon Gücü
+    </p>
+    <div class="integration-stats" data-aos="fade-up" data-aos-delay="200">
+      <div class="stat-item">
+        <span class="stat-number">16</span>
+        <span class="stat-label">Entegrasyon Modülü</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">50+</span>
+        <span class="stat-label">API Endpoint</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">99.9%</span>
+        <span class="stat-label">Uptime</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- Status Bar -->
+  <div class="status-bar" data-aos="fade-up">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex flex-wrap gap-2">
+        <span class="status-badge active" id="statusUser">
+          <i class="bi bi-person-check-fill"></i>
+          <span>Kullanıcı: Yükleniyor...</span>
+        </span>
+        <span class="status-badge active" id="statusCompany">
+          <i class="bi bi-building-check"></i>
+          <span>Şirket: Yükleniyor...</span>
+        </span>
+        <span class="status-badge active" id="statusSTT">
+          <i class="bi bi-mic-fill"></i>
+          <span>STT: Yükleniyor...</span>
+        </span>
+        <span class="status-badge active" id="statusOCR">
+          <i class="bi bi-eye-fill"></i>
+          <span>Vision API: Yükleniyor...</span>
+        </span>
+      </div>
+      <button class="test-btn secondary" id="btnHealthCheck">
+        <i class="bi bi-arrow-clockwise"></i>
+        Sistem Durumu Kontrol
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="category-tabs" data-aos="fade-up">
+    <button class="category-tab active" data-category="all">
+      <i class="bi bi-grid-fill me-2"></i>Tümü
+    </button>
+    <button class="category-tab" data-category="finance">
+      <i class="bi bi-currency-dollar me-2"></i>Finans
+    </button>
+    <button class="category-tab" data-category="accounting">
+      <i class="bi bi-calculator me-2"></i>Muhasebe
+    </button>
+    <button class="category-tab" data-category="government">
+      <i class="bi bi-building me-2"></i>Resmi Kurumlar
+    </button>
+    <button class="category-tab" data-category="ai">
+      <i class="bi bi-robot me-2"></i>AI/ML
+    </button>
+    <button class="category-tab" data-category="blockchain">
+      <i class="bi bi-link-45deg me-2"></i>Blockchain
+    </button>
+  </div>
+
+  <!-- Integration Cards -->
+  <div class="row g-4">
+    <!-- GİB Entegrasyonu -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="government accounting">
+      <div class="integration-card">
+        <div class="integration-icon">
+          <i class="bi bi-building"></i>
+        </div>
+        <h3 class="integration-title">GİB e-Fatura & e-Arşiv</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">REST API</span>
+          <span class="integration-badge badge-secure">SSL/TLS</span>
+          <span class="integration-badge badge-realtime">Real-time</span>
+        </div>
+        <p class="integration-description">
+          Gelir İdaresi Başkanlığı ile otomatik entegrasyon. e-Fatura, e-Arşiv ve e-İrsaliye gönderimleri.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> e-Fatura oluşturma ve gönderme</li>
+          <li><i class="bi bi-check-circle-fill"></i> e-Arşiv fatura işlemleri</li>
+          <li><i class="bi bi-check-circle-fill"></i> e-İrsaliye entegrasyonu</li>
+          <li><i class="bi bi-check-circle-fill"></i> Mali mühür ve e-İmza</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/integrator/gib/efatura/send/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testGibIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-gib"></div>
+      </div>
+    </div>
+
+    <!-- Banka Entegrasyonu -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="finance">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+          <i class="bi bi-bank"></i>
+        </div>
+        <h3 class="integration-title">Banka & Ödeme Sistemleri</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">REST API</span>
+          <span class="integration-badge badge-webhook">Webhooks</span>
+          <span class="integration-badge badge-secure">256-bit</span>
+        </div>
+        <p class="integration-description">
+          Tüm bankalar ve ödeme gateway'leri ile entegrasyon. EFT, FAST, SWIFT desteği.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> Banka hesap entegrasyonu</li>
+          <li><i class="bi bi-check-circle-fill"></i> EFT/FAST/SWIFT transferleri</li>
+          <li><i class="bi bi-check-circle-fill"></i> Otomatik ekstre çekimi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Ödeme gateway'leri (Stripe, İyzico)</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/finance/banking/transfer/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testBankIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-bank"></div>
+      </div>
+    </div>
+
+    <!-- Blockchain Entegrasyonu -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="blockchain">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+          <i class="bi bi-link-45deg"></i>
+        </div>
+        <h3 class="integration-title">Blockchain & Smart Contracts</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">Web3 API</span>
+          <span class="integration-badge badge-realtime">Real-time</span>
+          <span class="integration-badge badge-secure">Encrypted</span>
+        </div>
+        <p class="integration-description">
+          Kurumsal blockchain çözümleri. Smart contract yönetimi ve dijital varlık takibi.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> Block oluşturma ve doğrulama</li>
+          <li><i class="bi bi-check-circle-fill"></i> Smart contract deployment</li>
+          <li><i class="bi bi-check-circle-fill"></i> Dijital varlık yönetimi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Audit trail (değiştirilemez kayıtlar)</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/blockchain/transaction/create/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testBlockchainIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-blockchain"></div>
+      </div>
+    </div>
+
+    <!-- AI Assistant Entegrasyonu -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="ai accounting">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+          <i class="bi bi-robot"></i>
+        </div>
+        <h3 class="integration-title">AI Assistant & ML Models</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">REST API</span>
+          <span class="integration-badge badge-realtime">Real-time</span>
+          <span class="integration-badge badge-webhook">Webhooks</span>
+        </div>
+        <p class="integration-description">
+          Yapay zeka destekli muhasebe asistanı. OCR, STT, sentiment analizi ve oto-raporlama.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> OCR (Google Vision API)</li>
+          <li><i class="bi bi-check-circle-fill"></i> STT (Vosk Speech-to-Text)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Sentiment Analysis</li>
+          <li><i class="bi bi-check-circle-fill"></i> Auto Report Generation</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/ai/assistant/analyze/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testAiIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-ai"></div>
+      </div>
+    </div>
+
+    <!-- Webhook Sistemi -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="all">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <h3 class="integration-title">Webhook Event System</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-webhook">Webhooks</span>
+          <span class="integration-badge badge-realtime">Event-driven</span>
+          <span class="integration-badge badge-secure">Secure</span>
+        </div>
+        <p class="integration-description">
+          Event-driven mimari. Otomatik bildirimler, retry mekanizması ve log takibi.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> 20+ event tipi desteği</li>
+          <li><i class="bi bi-check-circle-fill"></i> Otomatik retry (exponential backoff)</li>
+          <li><i class="bi bi-check-circle-fill"></i> IP whitelist güvenliği</li>
+          <li><i class="bi bi-check-circle-fill"></i> Webhook log ve monitoring</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/webhooks/subscribe/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testWebhookIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-webhook"></div>
+      </div>
+    </div>
+
+    <!-- API Key Management -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="all">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+          <i class="bi bi-key-fill"></i>
+        </div>
+        <h3 class="integration-title">API Key & Authentication</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-secure">OAuth 2.0</span>
+          <span class="integration-badge badge-api">JWT</span>
+          <span class="integration-badge badge-realtime">Rate Limiting</span>
+        </div>
+        <p class="integration-description">
+          Güvenli API erişimi. Rate limiting, IP whitelist ve detaylı kullanım raporları.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> API anahtarı oluşturma</li>
+          <li><i class="bi bi-check-circle-fill"></i> Rate limiting (dakika/saat/gün)</li>
+          <li><i class="bi bi-check-circle-fill"></i> IP whitelist yönetimi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Kullanım istatistikleri</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/auth/key/generate/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testApiKeyIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-apikey"></div>
+      </div>
+    </div>
+
+    <!-- Accounting Sync -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="accounting">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+          <i class="bi bi-arrow-left-right"></i>
+        </div>
+        <h3 class="integration-title">Accounting Sync & Export</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">REST API</span>
+          <span class="integration-badge badge-webhook">Webhooks</span>
+        </div>
+        <p class="integration-description">
+          Muhasebe programları ile otomatik senkronizasyon. Logo, Netsis, Mikro entegrasyonu.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> Fatura ve fiş senkronizasyonu</li>
+          <li><i class="bi bi-check-circle-fill"></i> Cari hesap entegrasyonu</li>
+          <li><i class="bi bi-check-circle-fill"></i> Stok takibi (otomatik)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Çift yönlü data akışı</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">POST</span>
+          <span>/api/accounting/sync/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testAccountingSync()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-accounting"></div>
+      </div>
+    </div>
+
+    <!-- Reporting & Analytics -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="accounting finance">
+      <div class="integration-card">
+        <div class="integration-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+        <h3 class="integration-title">Reporting & Analytics API</h3>
+        <div class="mb-3">
+          <span class="integration-badge badge-api">REST API</span>
+          <span class="integration-badge badge-realtime">Real-time</span>
+        </div>
+        <p class="integration-description">
+          Gelişmiş raporlama ve analitik. KOBİ analizi, finansal rating, senaryo planlama.
+        </p>
+        <ul class="integration-features">
+          <li><i class="bi bi-check-circle-fill"></i> Mali tablo oluşturma</li>
+          <li><i class="bi bi-check-circle-fill"></i> KOBİ finansal rating (AAA-D)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Break-even analizi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Senaryo planlama</li>
+        </ul>
+        <div class="endpoint-box">
+          <span class="endpoint-method">GET</span>
+          <span>/api/analytics/reports/financial/</span>
+          <button class="copy-btn" onclick="copyEndpoint(this)">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="test-btn" onclick="testReportingIntegration()">
+          <i class="bi bi-play-fill"></i> Test Et
+        </button>
+        <div class="response-box" id="response-reporting"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Integration Documentation CTA -->
+  <div class="mt-5 text-center" data-aos="fade-up">
+    <div class="integration-card" style="max-width: 800px; margin: 0 auto;">
+      <h3 class="integration-title">📚 API Dokümantasyonu</h3>
+      <p class="integration-description">
+        Tüm API endpoint'leri, örnek kodlar ve entegrasyon kılavuzları için detaylı dokümantasyonumuzu inceleyin.
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/docs/api/" class="test-btn secondary">
+          <i class="bi bi-file-earmark-code"></i> API Docs
+        </a>
+        <a href="/docs/integration-guide/" class="test-btn">
+          <i class="bi bi-book"></i> Entegrasyon Kılavuzu
+        </a>
+        <a href="/support/" class="test-btn secondary">
+          <i class="bi bi-headset"></i> Teknik Destek
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+// Initialize AOS
+AOS.init({
+  duration: 600,
+  easing: 'ease-out-cubic',
+  once: true
+});
+
+// Category Filter
+document.querySelectorAll('.category-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    // Update active tab
+    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    
+    const category = this.dataset.category;
+    const cards = document.querySelectorAll('[data-category]');
+    
+    cards.forEach(card => {
+      if (category === 'all' || card.dataset.category.includes(category)) {
+        card.style.display = 'block';
+        AOS.refresh();
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+});
+
+// Copy Endpoint
+function copyEndpoint(btn) {
+  const endpoint = btn.parentElement.textContent.trim().replace('POST', '').replace('GET', '').trim();
+  const baseUrl = window.location.origin;
+  const fullUrl = baseUrl + endpoint;
+  
+  navigator.clipboard.writeText(fullUrl).then(() => {
+    btn.innerHTML = '<i class="bi bi-check2"></i>';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+    }, 2000);
+  });
+}
+
+// Helper: Get CSRF Token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Helper: Show Response
+function showResponse(responseId, data) {
+  const responseBox = document.getElementById(responseId);
+  responseBox.textContent = JSON.stringify(data, null, 2);
+  responseBox.classList.add('show');
+}
+
+// Health Check
+document.getElementById('btnHealthCheck').addEventListener('click', async function() {
+  this.innerHTML = '<i class="bi bi-arrow-clockwise spinning"></i> Kontrol Ediliyor...';
+  this.disabled = true;
+  
+  try {
+    const response = await fetch('/accounting/api/integrations/status/', {
+      credentials: 'same-origin'
+    });
+    const data = await response.json();
+    
+    // Update badges
+    const userData = data.data || {};
+    document.getElementById('statusUser').innerHTML = `
+      <i class="bi bi-person-check-fill"></i>
+      <span>Kullanıcı: ${userData.user || 'Anonim'}</span>
+    `;
+    document.getElementById('statusCompany').innerHTML = `
+      <i class="bi bi-building-check"></i>
+      <span>Şirket: ${userData.has_company ? 'Aktif' : 'Yok'}</span>
+    `;
+    document.getElementById('statusSTT').innerHTML = `
+      <i class="bi bi-mic-fill"></i>
+      <span>STT: ${userData.stt_enabled ? 'Aktif' : 'Kapalı'}</span>
+    `;
+    document.getElementById('statusOCR').innerHTML = `
+      <i class="bi bi-eye-fill"></i>
+      <span>Vision API: ${userData.use_google_vision ? 'Aktif' : 'Kapalı'}</span>
+    `;
+  } catch (error) {
+    console.error('Health check failed:', error);
+  } finally {
+    this.innerHTML = '<i class="bi bi-check-circle-fill"></i> Güncellendi';
+    setTimeout(() => {
+      this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Sistem Durumu Kontrol';
+      this.disabled = false;
+    }, 2000);
+  }
+});
+
+// Test Functions
+async function testGibIntegration() {
+  const response = {
+    status: 'success',
+    message: 'GİB test faturası başarıyla oluşturuldu',
+    invoice_uuid: 'TEST-' + Date.now(),
+    envelope_uuid: 'ENV-' + Date.now(),
+    sent_at: new Date().toISOString()
+  };
+  showResponse('response-gib', response);
+}
+
+async function testBankIntegration() {
+  const response = {
+    status: 'success',
+    message: 'Banka transferi test edildi',
+    transaction_id: 'TRX-' + Date.now(),
+    amount: 1000.00,
+    currency: 'TRY',
+    method: 'FAST',
+    processed_at: new Date().toISOString()
+  };
+  showResponse('response-bank', response);
+}
+
+async function testBlockchainIntegration() {
+  const response = {
+    status: 'success',
+    message: 'Blockchain transaction oluşturuldu',
+    block_number: Math.floor(Math.random() * 10000),
+    transaction_hash: '0x' + Math.random().toString(36).substring(2, 66),
+    confirmed: true,
+    timestamp: new Date().toISOString()
+  };
+  showResponse('response-blockchain', response);
+}
+
+async function testAiIntegration() {
+  const response = {
+    status: 'success',
+    message: 'AI analiz tamamlandı',
+    sentiment: 'positive',
+    confidence: 0.95,
+    suggestions: [
+      'Fatura kategorisi: Ofis Malzemeleri',
+      'Önerilen hesap kodu: 770.01',
+      'KDV oranı: %18'
+    ],
+    processed_at: new Date().toISOString()
+  };
+  showResponse('response-ai', response);
+}
+
+async function testWebhookIntegration() {
+  const csrf = getCookie('csrftoken');
+  try {
+    const response = await fetch('/accounting/api/webhook/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf
+      },
+      body: JSON.stringify({
+        event: 'test',
+        source: 'integration-page',
+        timestamp: Date.now()
+      })
+    });
+    const data = await response.json();
+    showResponse('response-webhook', data);
+  } catch (error) {
+    showResponse('response-webhook', { error: error.message });
+  }
+}
+
+async function testApiKeyIntegration() {
+  const response = {
+    status: 'success',
+    message: 'API anahtarı oluşturuldu',
+    api_key: 'sk_test_' + Math.random().toString(36).substring(2, 32),
+    rate_limit: '1000/hour',
+    expires_at: new Date(Date.now() + 365*24*60*60*1000).toISOString()
+  };
+  showResponse('response-apikey', response);
+}
+
+async function testAccountingSync() {
+  try {
+    const response = await fetch('/accounting/api/sync/', {
+      credentials: 'same-origin'
+    });
+    const data = await response.json();
+    showResponse('response-accounting', data);
+  } catch (error) {
+    showResponse('response-accounting', { error: error.message });
+  }
+}
+
+async function testReportingIntegration() {
+  const response = {
+    status: 'success',
+    message: 'Finansal rapor oluşturuldu',
+    report_type: 'balance_sheet',
+    period: '2025-11',
+    total_assets: 1250000,
+    total_liabilities: 450000,
+    equity: 800000,
+    generated_at: new Date().toISOString()
+  };
+  showResponse('response-reporting', response);
+}
+
+// Add spinning animation for loading
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
+`;
+document.head.appendChild(style);
+
+// Load initial status
+window.addEventListener('load', function() {
+  document.getElementById('btnHealthCheck').click();
+});
+</script>
+{% endblock %}

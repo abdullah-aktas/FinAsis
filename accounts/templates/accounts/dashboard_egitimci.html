@@ -1,0 +1,12 @@
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Eğitimci Dashboard' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Eğitimcilere özel içerik alanı' %}{% endblock %}
+{% block acct_content %}
+    <p class="lead">{% blocktrans with name=request.user.first_name|default:request.user.username %}Hoş geldiniz {{ name }}! Burada eğitimcilere özel içeriklere ulaşabilirsiniz.{% endblocktrans %}</p>
+    <div class="card border-dashed p-5 text-center text-muted">
+        <div class="mb-3 fs-1 text-primary"><i class="bi bi-mortarboard"></i></div>
+        <h5 class="mb-2">{% trans 'Eğitimci Paneli' %}</h5>
+        <p class="mb-0">{% trans 'Eğitimciye özel bileşenler burada listelenecek.' %}</p>
+    </div>
+{% endblock %} 

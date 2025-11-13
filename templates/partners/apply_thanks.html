@@ -1,0 +1,35 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Başvuru Gönderildi" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width:680px;border-radius:24px;">
+      <div class="card-body p-5 text-center">
+        <div class="display-4 text-success mb-3">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h1 class="h3 fw-bold mb-3">{% trans "Başvurunuzu Aldık!" %}</h1>
+        <p class="text-muted mb-4">
+          {% trans "Partner ekibimiz başvurunuzu inceleyecek ve en geç 3 iş günü içerisinde sizinle iletişime geçecek." %}
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-center">
+          <a href="{{ apply_url }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>{% trans "Yeni Başvuru" %}
+          </a>
+          <a href="{% url 'resources_partner_marketplace' %}" class="btn btn-modern btn-modern-primary">
+            <i class="bi bi-compass me-2"></i>{% trans "Marketplace'e Dön" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,386 @@
+{% extends "management/base_admin.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Super Admin Dashboard - FinAsis{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    /* Modern Admin Dashboard Styles */
+    .admin-stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .quick-access-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+    
+    .quick-access-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .module-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .activity-item {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        transition: all 0.2s ease;
+        border-left: 3px solid;
+    }
+    
+    .activity-item:hover {
+        transform: translateX(3px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .shortcut-btn {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: block;
+        color: #2d3748;
+    }
+    
+    .shortcut-btn:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateX(5px);
+        text-decoration: none;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<!-- İstatistik Kartları -->
+<div class="row animate-fade-in mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-stat-card border-primary">
+            <i class="bi bi-people stat-icon text-primary"></i>
+            <div class="stat-value text-primary">{{ user_count }}</div>
+            <div class="stat-label">Toplam Kullanıcı</div>
+            <small class="text-muted d-block mt-2">
+                <i class="bi bi-check-circle me-1"></i>{{ active_users }} aktif (30 gün)
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-stat-card border-success">
+            <i class="bi bi-building stat-icon text-success"></i>
+            <div class="stat-value text-success">{{ company_count }}</div>
+            <div class="stat-label">Kayıtlı Şirket</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-stat-card border-warning">
+            <i class="bi bi-receipt stat-icon text-warning"></i>
+            <div class="stat-value text-warning">{{ invoice_count }}</div>
+            <div class="stat-label">Toplam Fatura</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="admin-stat-card border-info">
+            <i class="bi bi-currency-dollar stat-icon text-info"></i>
+            <div class="stat-value text-info">{{ total_invoice_amount|floatformat:0 }}</div>
+            <div class="stat-label">Toplam Ciro (TL)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Hızlı Erişim Modülleri -->
+<div class="row animate-fade-in mb-4" style="animation-delay: 0.1s">
+    <div class="col-12 mb-3">
+        <h4 class="fw-bold">
+            <i class="bi bi-lightning-fill me-2 text-warning"></i>
+            Hızlı Erişim - Sık Kullanılan Modüller
+        </h4>
+    </div>
+    
+    {% for module in quick_access_modules %}
+    <div class="col-lg-3 col-md-6 mb-3">
+        <a href="{{ module.url }}" class="quick-access-card">
+            <i class="bi {{ module.icon }} module-icon text-{{ module.color }}"></i>
+            <h5 class="fw-bold mb-2">{{ module.name }}</h5>
+            <p class="small text-muted mb-3">{{ module.description }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-{{ module.color }}">{{ module.count }} kayıt</span>
+                <i class="bi bi-arrow-right-circle text-{{ module.color }}"></i>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Ana İçerik -->
+<div class="row animate-fade-in" style="animation-delay: 0.2s">
+    <!-- Sol Taraf - Grafikler ve Aktiviteler -->
+    <div class="col-lg-8 mb-4">
+        <!-- Grafik -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2 text-primary"></i>
+                    Son 7 Günlük Aktivite
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="dashboardChart" height="100"></canvas>
+            </div>
+        </div>
+        
+        <!-- Son Faturalar -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-receipt me-2 text-warning"></i>
+                    Son Faturalar
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if latest_invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fatura No</th>
+                                    <th>Şirket</th>
+                                    <th>Müşteri</th>
+                                    <th>Tutar</th>
+                                    <th>Tarih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in latest_invoices %}
+                                <tr>
+                                    <td><strong>{{ invoice.invoice_number|default:"-" }}</strong></td>
+                                    <td>{{ invoice.company.name|truncatechars:20 }}</td>
+                                    <td>{{ invoice.customer.first_name|default:"-" }}</td>
+                                    <td><span class="badge bg-success">{{ invoice.total_amount }} TL</span></td>
+                                    <td>{{ invoice.issue_date|date:"d.m.Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">Henüz fatura kaydı yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Taraf - Muhasebe Shortcuts ve Son Kullanıcılar -->
+    <div class="col-lg-4 mb-4">
+        <!-- Muhasebe Hızlı Erişim -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-calculator me-2"></i>
+                    Muhasebe İşlemleri
+                </h6>
+            </div>
+            <div class="card-body p-2">
+                {% for shortcut in accounting_shortcuts %}
+                <a href="{{ shortcut.url }}" class="shortcut-btn">
+                    <i class="bi {{ shortcut.icon }} me-2 text-primary"></i>
+                    {{ shortcut.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Son Kullanıcılar -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class="bi bi-person-plus me-2 text-success"></i>
+                    Son Kayıt Olan Kullanıcılar
+                </h6>
+            </div>
+            <div class="card-body p-2">
+                {% if latest_users %}
+                    {% for user in latest_users %}
+                    <div class="activity-item border-success">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <strong>{{ user.username }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="bi bi-envelope me-1"></i>{{ user.email|default:"-" }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">{{ user.date_joined|date:"d.m.Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-2">Kayıt yok</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Son Şirketler -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class="bi bi-building me-2 text-info"></i>
+                    Son Eklenen Şirketler
+                </h6>
+            </div>
+            <div class="card-body p-2">
+                {% if latest_companies %}
+                    {% for company in latest_companies %}
+                    <div class="activity-item border-info">
+                        <strong>{{ company.name }}</strong>
+                        <br>
+                        <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>{{ company.city|default:"Türkiye" }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-2">Kayıt yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('dashboardChart').getContext('2d');
+    const chartData = {{ chart_data|safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Günlük Faturalar',
+                    data: chartData.invoices,
+                    borderColor: 'rgb(255, 193, 7)',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                },
+                {
+                    label: 'Toplam Kullanıcılar',
+                    data: chartData.users,
+                    borderColor: 'rgb(13, 110, 253)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    position: 'top',
+                    labels: {
+                        font: { size: 12 },
+                        padding: 15,
+                        usePointStyle: true,
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 13 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

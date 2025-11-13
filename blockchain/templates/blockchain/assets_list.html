@@ -1,0 +1,23 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Varlıklar - Blockchain{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4">Blockchain Varlıkları</h1>
+  <p class="text-muted">Yer tutucu sayfa. Varlık bakiyeleri burada listelenecek.</p>
+  <div class="row row-cols-1 row-cols-md-3 g-3">
+    {% for a in assets %}
+    <div class="col">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ a.symbol }}</h5>
+          <p class="card-text">Bakiye: {{ a.balance }}</p>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col"><div class="alert alert-info">Varlık bulunamadı.</div></div>
+    {% endfor %}
+  </div>
+  <a href="{% url 'blockchain:home' %}" class="btn btn-secondary mt-4">Blockchain Anasayfa</a>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% load locale_tags %}
+
+<!-- Dil Seçici Component -->
+<div class="language-selector" data-style="{{ style }}">
+  {% if style == 'dropdown' %}
+    <!-- Dropdown Style -->
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px;">
+        <span style="font-size: 18px;">{{ current_language_info.flag }}</span>
+        <span class="ms-2">{{ current_language_info.native }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown" style="min-width: 200px;">
+        {% for code, info in languages.items %}
+        <li>
+          <a class="dropdown-item {% if code == current_language %}active{% endif %}" 
+             href="#" 
+             onclick="changeLanguage('{{ code }}'); return false;"
+             style="display: flex; align-items: center; gap: 12px; padding: 10px 16px;">
+            <span style="font-size: 20px;">{{ info.flag }}</span>
+            <div>
+              <div class="fw-bold">{{ info.native }}</div>
+              <small class="text-muted">{{ info.name }}</small>
+            </div>
+            {% if code == current_language %}
+            <i class="bi bi-check-lg ms-auto text-success"></i>
+            {% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  {% elif style == 'flags' %}
+    <!-- Flag Style (Sadece Bayraklar) -->
+    <div class="d-flex gap-2">
+      {% for code, info in languages.items %}
+      <button 
+        class="btn btn-sm {% if code == current_language %}btn-primary{% else %}btn-outline-secondary{% endif %}" 
+        onclick="changeLanguage('{{ code }}')"
+        title="{{ info.native }}"
+        style="border-radius: 50%; width: 40px; height: 40px; padding: 0; font-size: 20px;">
+        {{ info.flag }}
+      </button>
+      {% endfor %}
+    </div>
+
+  {% elif style == 'compact' %}
+    <!-- Compact Style -->
+    <div class="btn-group btn-group-sm" role="group">
+      {% for code, info in languages.items %}
+      <button 
+        type="button" 
+        class="btn {% if code == current_language %}btn-primary{% else %}btn-outline-primary{% endif %}"
+        onclick="changeLanguage('{{ code }}')"
+        title="{{ info.native }}">
+        {{ info.flag }} {{ code|upper }}
+      </button>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <!-- List Style -->
+    <div class="list-group" style="max-width: 300px;">
+      {% for code, info in languages.items %}
+      <a href="#" 
+         class="list-group-item list-group-item-action {% if code == current_language %}active{% endif %}"
+         onclick="changeLanguage('{{ code }}'); return false;"
+         style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">{{ info.flag }}</span>
+        <div class="flex-grow-1">
+          <div class="fw-bold">{{ info.native }}</div>
+          <small>{{ info.name }}</small>
+        </div>
+        {% if code == current_language %}
+        <i class="bi bi-check-circle-fill text-white"></i>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<script>
+function changeLanguage(langCode) {
+  // AJAX ile dil değiştir
+  fetch('{% url "locale:set_language" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: `language=${langCode}&next=${window.location.pathname}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Sayfayı yenile
+      window.location.reload();
+    } else {
+      console.error('Dil değiştirilemedi:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Hata:', error);
+    // Fallback: Normal form submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "locale:set_language" %}';
+    
+    const langInput = document.createElement('input');
+    langInput.type = 'hidden';
+    langInput.name = 'language';
+    langInput.value = langCode;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    
+    const nextInput = document.createElement('input');
+    nextInput.type = 'hidden';
+    nextInput.name = 'next';
+    nextInput.value = window.location.pathname;
+    
+    form.appendChild(langInput);
+    form.appendChild(csrfInput);
+    form.appendChild(nextInput);
+    document.body.appendChild(form);
+    form.submit();
+  });
+}
+</script>
+
+<style>
+.language-selector .dropdown-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.language-selector .btn:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* RTL Dil Desteği */
+[dir="rtl"] .language-selector {
+  direction: rtl;
+}
+
+[dir="rtl"] .language-selector .dropdown-menu {
+  right: auto;
+  left: 0;
+}
+</style>
+

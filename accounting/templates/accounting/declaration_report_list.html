@@ -1,0 +1,39 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+<h2>Beyanname Raporları</h2>
+<form method="get" class="mb-3">
+    <label for="company">Şirket Seç:</label>
+    <select name="company" id="company" class="form-control" onchange="this.form.submit()">
+        {% for c in companies %}
+            <option value="{{ c.id }}" {% if request.GET.company|default:companies.0.id == c.id %}selected{% endif %}>{{ c.name }} ({{ c.country }})</option>
+        {% endfor %}
+    </select>
+</form>
+<ul>
+    <li><a href="{% url 'accounting:kdv_report' %}?company={{ request.GET.company|default:companies.0.id }}">KDV Beyannamesi Raporu</a></li>
+    <li><a href="{% url 'accounting:muhtasar_report' %}?company={{ request.GET.company|default:companies.0.id }}">Muhtasar Beyanname Raporu</a></li>
+    <li><a href="{% url 'accounting:babs_report' %}?company={{ request.GET.company|default:companies.0.id }}">BA/BS Formu Raporu</a></li>
+</ul>
+<h3>Resmi Defterler</h3>
+<ul>
+    <li><a href="{% url 'accounting:yevmiye_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Yevmiye Defteri</a></li>
+    <li><a href="{% url 'accounting:kebir_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Büyük Defter (Kebir)</a></li>
+    <li><a href="{% url 'accounting:mizan_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Mizan</a></li>
+</ul>
+<h3>Diğer Zorunlu Defterler</h3>
+<ul>
+    <li><a href="{% url 'accounting:envanter_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Envanter Defteri</a></li>
+    <li><a href="{% url 'accounting:kasa_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Kasa Defteri</a></li>
+    <li><a href="{% url 'accounting:demirbas_defteri' %}?company={{ request.GET.company|default:companies.0.id }}">Demirbaş Defteri</a></li>
+</ul>
+<h3>Finansal Tablolar</h3>
+<ul>
+    <li><a href="{% url 'accounting:bilanco' %}?company={{ request.GET.company|default:companies.0.id }}">Bilanço</a></li>
+    <li><a href="{% url 'accounting:gelir_tablosu' %}?company={{ request.GET.company|default:companies.0.id }}">Gelir Tablosu</a></li>
+    <li><a href="{% url 'accounting:nakit_akisi_tablosu' %}?company={{ request.GET.company|default:companies.0.id }}">Nakit Akış Tablosu</a></li>
+</ul>
+<h3>Yöneticiye Özel</h3>
+<ul>
+    <li><a href="{% url 'accounting:financial_analysis' %}?company={{ request.GET.company|default:companies.0.id }}">Finansal Analiz &amp; AI Öneriler</a></li>
+</ul>
+{% endblock %} 

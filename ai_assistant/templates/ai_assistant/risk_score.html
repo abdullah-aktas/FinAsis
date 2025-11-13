@@ -1,0 +1,189 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Müşteri Risk Skoru{% endblock %}
+
+{% block extra_css %}
+<style>
+    .risk-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .risk-score {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .risk-level {
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .risk-explanation {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    
+    .risk-factors {
+        margin-top: 20px;
+    }
+    
+    .risk-factor-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .risk-factor-icon {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+    
+    .high-risk {
+        color: #dc3545;
+    }
+    
+    .medium-risk {
+        color: #ffc107;
+    }
+    
+    .low-risk {
+        color: #28a745;
+    }
+    
+    .model-info {
+        background: #e9f7ef;
+        border-left: 5px solid #1abc9c;
+        padding: 12px 18px;
+        margin-bottom: 18px;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="risk-card">
+                <h2 class="mb-4 text-center">Müşteri Risk Skoru Hesaplama</h2>
+                <form id="risk-score-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Ortalama Gecikme (gün)</label>
+                            <input type="number" step="0.01" class="form-control" name="f1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Gecikme Sayısı</label>
+                            <input type="number" step="1" class="form-control" name="f2" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Ortalama İşlem Tutarı</label>
+                            <input type="number" step="0.01" class="form-control" name="f3" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>İşlem Sayısı</label>
+                            <input type="number" step="1" class="form-control" name="f4" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Son Ödemeden Geçen Gün</label>
+                            <input type="number" step="1" class="form-control" name="f5" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Sektör Risk Skoru</label>
+                            <input type="number" step="0.01" class="form-control" name="f6" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Risk Skorunu Hesapla</button>
+                </form>
+                <div id="risk-result" class="mt-4" style="display:none;">
+                    <div class="risk-score" id="risk-score-value"></div>
+                    <div class="risk-level" id="risk-level-text"></div>
+                    <div class="risk-explanation" id="risk-explanation"></div>
+                    <div class="model-info" id="model-info"></div>
+                    <div id="explainability-box"></div>
+                </div>
+                <div id="risk-error" class="alert alert-danger mt-3" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function riskLevelText(score) {
+    if (score >= 0.8) return 'Yüksek Risk';
+    if (score >= 0.5) return 'Orta Risk';
+    return 'Düşük Risk';
+}
+$('#risk-score-form').on('submit', function(e) {
+    e.preventDefault();
+    $('#risk-result').hide();
+    $('#risk-error').hide();
+    let features = [
+        parseFloat($('input[name="f1"]').val()),
+        parseInt($('input[name="f2"]').val()),
+        parseFloat($('input[name="f3"]').val()),
+        parseInt($('input[name="f4"]').val()),
+        parseInt($('input[name="f5"]').val()),
+        parseFloat($('input[name="f6"]').val())
+    ];
+    fetch('/ai-assistant/ml/risk-score/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({features: features})
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        if (data.error) {
+            $('#risk-error').text(data.error).show();
+        } else {
+            let score = data.risk_score;
+            let percent = Math.round(score * 100);
+            $('#risk-score-value').text(percent + ' / 100');
+            $('#risk-level-text').text(riskLevelText(score));
+            $('#risk-explanation').text('Risk skoru, makine öğrenmesi modeli ile hesaplanmıştır.');
+            let modelInfo = '';
+            if (data.model_version) {
+                modelInfo += `<b>Model Versiyonu:</b> ${data.model_version}<br>`;
+            }
+            if (data.model_parameters) {
+                modelInfo += `<b>Model Parametreleri:</b> <pre style='font-size:12px;'>${JSON.stringify(data.model_parameters, null, 2)}</pre>`;
+            }
+            $('#model-info').html(modelInfo);
+            // Explainability
+            if (data.explanation && data.explanation.features) {
+                let html = `<div style='background:#f8f9fa;border-left:5px solid #1abc9c;border-radius:8px;padding:18px;margin:24px 0;max-width:600px;margin-left:auto;margin-right:auto;'>`;
+                html += `<h4 style='margin-bottom:12px;'>Model Açıklaması (Explainability)</h4><ul style='list-style:none;padding:0;margin:0;'>`;
+                data.explanation.features.forEach(f => {
+                    html += `<li style='margin-bottom:6px;display:flex;align-items:center;'><span style='font-weight:bold;min-width:120px;'>${f.name}:</span><span style='margin-left:8px;'>${f.value}</span><span style='margin-left:16px;color:#36a2eb;font-weight:bold;'>Etki: ${Math.round(f.importance*100)}%</span></li>`;
+                });
+                html += `</ul>`;
+                if (data.explanation.summary) {
+                    html += `<div style='margin-top:12px;color:#333;'><b>Özet:</b> ${data.explanation.summary}</div>`;
+                }
+                html += `</div>`;
+                $('#explainability-box').html(html);
+            } else {
+                $('#explainability-box').html('');
+            }
+            $('#risk-result').show();
+        }
+    })
+    .catch(err => {
+        $('#risk-error').text('Sunucu hatası: ' + err).show();
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,100 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Muhasebe Ana Sayfa{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Muhasebe Modülü Ana Sayfa</h1>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Şirketler</h5>
+                    <p class="card-text">Tüm şirket kayıtlarını görüntüleyin ve yönetin.</p>
+                    <a href="{% url 'accounting:company_list' %}" class="btn btn-primary">Şirket Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Müşteriler</h5>
+                    <p class="card-text">Müşteri kayıtlarını yönetin.</p>
+                    <a href="{% url 'accounting:customer_list' %}" class="btn btn-primary">Müşteri Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Faturalar</h5>
+                    <p class="card-text">Fatura işlemlerini yönetin.</p>
+                    <a href="{% url 'accounting:invoice_list' %}" class="btn btn-primary">Fatura Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Giderler</h5>
+                    <p class="card-text">Şirket giderlerini takip edin.</p>
+                    <a href="{% url 'accounting:expense_list' %}" class="btn btn-primary">Gider Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ürünler</h5>
+                    <p class="card-text">Ürün kayıtlarını yönetin.</p>
+                    <a href="{% url 'accounting:product_list' %}" class="btn btn-primary">Ürün Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Satışlar</h5>
+                    <p class="card-text">Satış işlemlerini yönetin.</p>
+                    <a href="{% url 'accounting:sale_list' %}" class="btn btn-primary">Satış Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Ödemeler</h5>
+                    <p class="card-text">Ödeme işlemlerini yönetin.</p>
+                    <a href="{% url 'accounting:payment_list' %}" class="btn btn-primary">Ödeme Listesi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Banka Hesapları</h5>
+                    <p class="card-text">Banka hesaplarını yönetin.</p>
+                    <a href="{% url 'accounting:bankaccount_list' %}" class="btn btn-primary">Banka Hesapları</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Banka Hareketleri</h5>
+                    <p class="card-text">Banka hareketlerini görüntüleyin.</p>
+                    <a href="{% url 'accounting:banktransaction_list' %}" class="btn btn-primary">Banka Hareketleri</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Raporlar</h5>
+                    <p class="card-text">Özet ve grafik raporları görüntüleyin.</p>
+                    <a href="{% url 'accounting:summary_report' %}" class="btn btn-success">Özet Rapor</a>
+                    <a href="{% url 'accounting:dashboard' %}" class="btn btn-info">Grafik Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

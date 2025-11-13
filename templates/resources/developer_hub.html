@@ -1,0 +1,92 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Developer Hub" %}{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-dark text-white">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <h1 class="display-5 fw-bold mb-3">{% trans "FinAsis Developer Hub" %}</h1>
+        <p class="lead mb-0">
+          {% trans "REST API, webhook test konsolu ve topluluk etkinlikleri ile üretken entegrasyonlar geliştirin." %}
+        </p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <a href="/developers/" class="btn btn-modern btn-modern-primary">
+          <i class="bi bi-key me-2"></i>{% trans "Portal Giriş" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-code-slash me-2 text-primary"></i>{% trans "API Kaynakları" %}</h2>
+            <ul class="list-unstyled d-grid gap-3 m-0">
+              {% for resource in api_resources %}
+              <li>
+                <a href="{{ resource.url }}" class="fw-semibold text-decoration-none">{{ resource.label }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-people me-2 text-success"></i>{% trans "Topluluk Etkinlikleri" %}</h2>
+            <ul class="list-unstyled d-grid gap-3 m-0">
+              {% for event in community_updates %}
+              <li>
+                <div class="fw-semibold">{{ event.title }}</div>
+                <div class="small text-muted">{{ event.date }} · {{ event.format }}</div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-graph-up-arrow me-2 text-warning"></i>{% trans "Ekosistem Metrikleri" %}</h2>
+            <div class="d-flex flex-wrap gap-4">
+              <div>
+                <div class="fw-bold fs-4">{{ metrics.total_reward_xp|default:0 }}</div>
+                <div class="text-muted small text-uppercase">{% trans "Toplam XP" %}</div>
+              </div>
+              <div>
+                <div class="fw-bold fs-4">{{ metrics.task_count|default:0 }}</div>
+                <div class="text-muted small text-uppercase">{% trans "Görev Sayısı" %}</div>
+              </div>
+              <div>
+                <div class="fw-bold fs-4">{{ metrics.tags|length }}</div>
+                <div class="text-muted small text-uppercase">{% trans "Etiket" %}</div>
+              </div>
+              <div>
+                <div class="fw-bold fs-4">100%</div>
+                <div class="text-muted small text-uppercase">{% trans "API Uptime (30g)" %}</div>
+              </div>
+            </div>
+            <p class="text-muted small mt-3 mb-0">
+              {% trans "Webhook test konsolu, AI prompt yönetimi ve görev motoru entegrasyonları developer portalı üzerinden erişime açıldı." %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

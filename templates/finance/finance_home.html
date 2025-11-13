@@ -1,0 +1,109 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Finans Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .finance-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="finance-hero">
+      <div class="container">
+        <i class="bi bi-cash-stack" style="font-size: 48px; margin-bottom: 16px;"></i>
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Merhaba, {{ request.user.first_name|default:request.user.username }}</h1>
+        <p style="opacity: 0.95; margin: 0;">Finansal işlemlerinizi kolayca yönetin, özetleri görün ve hızlıca yeni işlem başlatın</p>
+      </div>
+    </div>
+    <!-- Özet Kutuları -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-wallet2"></i></div>
+                    <h6 class="card-title">Toplam Bakiye</h6>
+                    <p class="card-text fw-bold" style="font-size:1.3rem;">₺ 0,00</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-arrow-left-right"></i></div>
+                    <h6 class="card-title">Son İşlemler</h6>
+                    <p class="card-text">Hızlıca göz atın</p>
+                    <a href="/finance/transactions/" class="btn btn-link btn-sm">Detaylar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#00CEC9;"><i class="bi bi-receipt"></i></div>
+                    <h6 class="card-title">Bekleyen Faturalar</h6>
+                    <p class="card-text">0 fatura</p>
+                    <a href="/finance/einvoices/" class="btn btn-link btn-sm">Faturalara Git</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2" style="font-size:2rem; color:#FFA500;"><i class="bi bi-bank"></i></div>
+                    <h6 class="card-title">Banka Hesapları</h6>
+                    <p class="card-text">Hesaplarınızı yönetin</p>
+                    <a href="/finance/bank-accounts/" class="btn btn-link btn-sm">Banka Hesapları</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hızlı Erişim ve İşlem Başlat -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Fatura Oluştur</h5>
+                    <a href="/finance/einvoices/create/" class="btn btn-primary mt-2 w-100">Fatura Oluştur</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Banka İşlemi</h5>
+                    <a href="/finance/transactions/create/" class="btn btn-primary mt-2 w-100">İşlem Başlat</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="mb-2" style="font-size:2rem;"><i class="bi bi-plus-circle"></i></div>
+                    <h5 class="card-title">Yeni Muhasebe Fişi</h5>
+                    <a href="/finance/voucher/create/" class="btn btn-primary mt-2 w-100">Fiş Oluştur</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Yardım ve Rehberlik -->
+    <div class="alert alert-info mt-5" role="alert">
+        <strong>Yardıma mı ihtiyacınız var?</strong> Finans modülünün kullanımıyla ilgili <a href="/help/" class="alert-link">yardım sayfasını</a> veya <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattını</a> kullanabilirsiniz.
+    </div>
+    <!-- Boş Durum ve Teşvik -->
+    <div class="text-center text-muted mt-4" style="font-size:1.1rem;">
+        <i class="bi bi-lightbulb" style="font-size:2rem;"></i><br>
+        Henüz hiç işlem eklemediniz mi? Hemen yukarıdan yeni bir işlem başlatın!
+    </div>
+</div>
+{% endblock %} 

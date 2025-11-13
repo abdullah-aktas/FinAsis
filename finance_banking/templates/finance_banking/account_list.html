@@ -1,0 +1,75 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Banka Hesapları" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Banka Hesaplarım" %}</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Hesap" %}
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for account in accounts %}
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ account.bank_name }}</h5>
+                        <p class="text-muted mb-0">{{ account.account_name }}</p>
+                        <p class="text-muted small">{{ account.account_number }}</p>
+                    </div>
+                    <span class="badge bg-{% if account.is_active %}success{% else %}secondary{% endif %} px-3">
+                        {% if account.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                    </span>
+                </div>
+
+                <div class="bg-light rounded p-3 mb-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="text-muted small mb-1">{% trans "Güncel Bakiye" %}</p>
+                            <h4 class="fw-bold mb-0">₺{{ account.current_balance|floatformat:2 }}</h4>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted small mb-1">{% trans "Kullanılabilir" %}</p>
+                            <h4 class="fw-bold mb-0 text-success">₺{{ account.available_balance|floatformat:2 }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between text-muted small mb-3">
+                    <span><i class="bi bi-globe me-1"></i>{{ account.currency }}</span>
+                    {% if account.last_sync_date %}
+                    <span><i class="bi bi-clock me-1"></i>{{ account.last_sync_date|date:"d.m.Y H:i" }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-clockwise me-1"></i>{% trans "Senkronize" %}
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-bank2 display-3 text-muted mb-3"></i>
+            <h5 class="text-muted mb-3">{% trans "Henüz banka hesabı eklenmemiş" %}</h5>
+            <button class="btn btn-primary">{% trans "İlk Hesabınızı Ekleyin" %}</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

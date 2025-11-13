@@ -1,0 +1,15 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Avanslar{% endblock %}
+{% block content %}
+<h1>Avanslar</h1>
+<a href="{% url 'finance:voucher_create' %}" class="btn btn-success mb-3">Yeni Avans Ekle</a>
+<ul>
+  {% for voucher in vouchers %}
+    <li>
+      <a href="{% url 'finance:voucher_detail' voucher.pk %}">{{ voucher.employee }} - {{ voucher.amount }} TL</a>
+    </li>
+  {% empty %}
+    <li>Hiç avans yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "SWOT Analizi" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "SWOT Analizi" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{% trans "SWOT Analizi" %}</h1>
+                <p class="text-gray-600 mt-2">{% trans "Güçlü/Zayıf Yönler, Fırsatlar ve Tehditler" %}</p>
+            </div>
+            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                {% trans "Yeni SWOT" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- En Son SWOT -->
+    {% if latest_swot %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">{% trans "Güncel SWOT Analizi" %}</h2>
+            <p class="text-sm text-gray-500">{{ latest_swot.analysis_date|date:"d F Y" }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Strengths (Güçlü Yönler) -->
+            <div class="border-2 border-green-200 rounded-lg p-6 bg-green-50">
+                <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    {% trans "Güçlü Yönler" %} (Strengths)
+                </h3>
+                <ul class="space-y-2 text-gray-700">
+                    {% for item in latest_swot.strengths_list %}
+                    <li class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span>{{ item }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500 italic">{% trans "Belirtilmemiş" %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Weaknesses (Zayıf Yönler) -->
+            <div class="border-2 border-red-200 rounded-lg p-6 bg-red-50">
+                <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    {% trans "Zayıf Yönler" %} (Weaknesses)
+                </h3>
+                <ul class="space-y-2 text-gray-700">
+                    {% for item in latest_swot.weaknesses_list %}
+                    <li class="flex items-start">
+                        <span class="text-red-600 mr-2">✗</span>
+                        <span>{{ item }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500 italic">{% trans "Belirtilmemiş" %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Opportunities (Fırsatlar) -->
+            <div class="border-2 border-blue-200 rounded-lg p-6 bg-blue-50">
+                <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/>
+                    </svg>
+                    {% trans "Fırsatlar" %} (Opportunities)
+                </h3>
+                <ul class="space-y-2 text-gray-700">
+                    {% for item in latest_swot.opportunities_list %}
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-2">●</span>
+                        <span>{{ item }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500 italic">{% trans "Belirtilmemiş" %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Threats (Tehditler) -->
+            <div class="border-2 border-orange-200 rounded-lg p-6 bg-orange-50">
+                <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    {% trans "Tehditler" %} (Threats)
+                </h3>
+                <ul class="space-y-2 text-gray-700">
+                    {% for item in latest_swot.threats_list %}
+                    <li class="flex items-start">
+                        <span class="text-orange-600 mr-2">⚠</span>
+                        <span>{{ item }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500 italic">{% trans "Belirtilmemiş" %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {% if latest_swot.strategic_recommendations %}
+        <div class="mt-6 bg-purple-50 border border-purple-200 rounded-lg p-6">
+            <h3 class="font-bold text-purple-900 mb-3">{% trans "Stratejik Öneriler" %}</h3>
+            <p class="text-purple-800">{{ latest_swot.strategic_recommendations }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <svg class="w-20 h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">{% trans "SWOT Analizi Oluşturulmamış" %}</h3>
+        <p class="text-gray-600 mb-6">{% trans "Şirketinizin güçlü/zayıf yönlerini ve pazar fırsatlarını değerlendirin" %}</p>
+        <button class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            {% trans "İlk SWOT Analizinizi Oluşturun" %}
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Geçmiş SWOT Analizleri -->
+    {% if all_swots.count > 1 %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">{% trans "Geçmiş Analizler" %}</h2>
+        <div class="space-y-3">
+            {% for swot in all_swots %}
+            {% if swot != latest_swot %}
+            <div class="border rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold text-gray-800">{% trans "SWOT Analizi" %}</p>
+                        <p class="text-sm text-gray-500">{{ swot.analysis_date|date:"d F Y" }}</p>
+                    </div>
+                    <button class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                        {% trans "Görüntüle" %}
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

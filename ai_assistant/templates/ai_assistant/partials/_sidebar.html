@@ -1,0 +1,18 @@
+{% load i18n %}
+<nav class="nav flex-column small" aria-label="{% trans 'AI Asistan navigasyonu' %}">
+  {% with p=request.path %}
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Genel' %}</div>
+  <a href="/ai-assistant/" class="nav-link d-flex align-items-center gap-2 {% if p == '/ai-assistant/' or p == '/ai-assistant' %}active fw-semibold{% endif %}" {% if p == '/ai-assistant/' or p == '/ai-assistant' %}aria-current="page"{% endif %}><i class="bi bi-cpu"></i> <span>{% trans 'Panel' %}</span></a>
+  <a href="/ai-assistant/chat/" class="nav-link d-flex align-items-center gap-2 {% if 'chat' in p %}active fw-semibold{% endif %}" {% if 'chat' in p %}aria-current="page"{% endif %}><i class="bi bi-chat-dots"></i> <span>{% trans 'Sohbet' %}</span></a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Analizler' %}</div>
+  <a href="/ai-assistant/market-analysis/" class="nav-link d-flex align-items-center gap-2 {% if 'market-analysis' in p %}active fw-semibold{% endif %}" {% if 'market-analysis' in p %}aria-current="page"{% endif %}><i class="bi bi-graph-up"></i> <span>{% trans 'Piyasa Analizi' %}</span></a>
+  <a href="/ai-assistant/recommendations/" class="nav-link d-flex align-items-center gap-2 {% if 'recommendations' in p %}active fw-semibold{% endif %}" {% if 'recommendations' in p %}aria-current="page"{% endif %}><i class="bi bi-lightbulb"></i> <span>{% trans 'Öneriler' %}</span></a>
+  <a href="/ai-assistant/financial-predictions/" class="nav-link d-flex align-items-center gap-2 {% if 'financial-predictions' in p %}active fw-semibold{% endif %}" {% if 'financial-predictions' in p %}aria-current="page"{% endif %}><i class="bi bi-bar-chart"></i> <span>{% trans 'Tahminler' %}</span></a>
+  <a href="/ai-assistant/financial-reports/" class="nav-link d-flex align-items-center gap-2 {% if 'financial-reports' in p %}active fw-semibold{% endif %}" {% if 'financial-reports' in p %}aria-current="page"{% endif %}><i class="bi bi-journal-text"></i> <span>{% trans 'Raporlar' %}</span></a>
+  <a href="/ai-assistant/anomaly-detections/" class="nav-link d-flex align-items-center gap-2 {% if 'anomaly-detections' in p %}active fw-semibold{% endif %}" {% if 'anomaly-detections' in p %}aria-current="page"{% endif %}><i class="bi bi-exclamation-triangle"></i> <span>{% trans 'Anomaliler' %}</span></a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Diğer' %}</div>
+  <a href="/ai-assistant/ocr/" class="nav-link d-flex align-items-center gap-2 {% if 'ocr' in p %}active fw-semibold{% endif %}" {% if 'ocr' in p %}aria-current="page"{% endif %}><i class="bi bi-camera"></i> <span>{% trans 'OCR Yükleme' %}</span></a>
+  {% endwith %}
+</nav>

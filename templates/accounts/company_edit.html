@@ -1,0 +1,107 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Şirket Düzenle - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .company-form-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .company-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    text-align: center;
+  }
+
+  .company-form-card label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .company-form-card input,
+  .company-form-card textarea {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    padding: 12px 16px;
+  }
+
+  .company-form-card input:focus,
+  .company-form-card textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="company-header">
+    <i class="bi bi-building-gear" style="font-size: 48px; margin-bottom: 16px;"></i>
+    <h1 style="font-size: 32px; font-weight: 800;">Şirket Bilgileri</h1>
+    <p style="opacity: 0.95; margin: 0;">Şirket bilgilerinizi güncelleyin</p>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="company-form-card">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label><i class="bi bi-building me-2"></i>Şirket Adı</label>
+            <input class="form-control" type="text" name="name" value="{{ company.name }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label><i class="bi bi-briefcase me-2"></i>Sektör</label>
+            <input class="form-control" type="text" name="sector" value="{{ company.sector }}">
+          </div>
+
+          <div class="mb-3">
+            <label><i class="bi bi-hash me-2"></i>Vergi No</label>
+            <input class="form-control" type="text" name="tax_number" value="{{ company.tax_number }}">
+          </div>
+
+          <div class="mb-3">
+            <label><i class="bi bi-geo-alt me-2"></i>Adres</label>
+            <textarea class="form-control" name="address" rows="3">{{ company.address }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label><i class="bi bi-telephone me-2"></i>Telefon</label>
+            <input class="form-control" type="text" name="phone" value="{{ company.phone }}">
+          </div>
+
+          <div class="mb-3">
+            <label><i class="bi bi-envelope me-2"></i>E-posta</label>
+            <input class="form-control" type="email" name="email" value="{{ company.email }}">
+          </div>
+
+          <div class="mb-4">
+            <label><i class="bi bi-image me-2"></i>Logo</label>
+            <input class="form-control" type="file" name="logo">
+            <small class="text-muted">PNG, JPG veya SVG (Max 2MB)</small>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-lg" type="submit" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+              <i class="bi bi-check-lg me-2"></i>Kaydet
+            </button>
+            <a href="{% url 'accounts:company_detail' company.id %}" class="btn btn-outline-secondary btn-lg" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+              <i class="bi bi-x-lg me-2"></i>İptal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

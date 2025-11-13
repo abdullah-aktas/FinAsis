@@ -1,0 +1,681 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}AI Asistan - Fiş Oluşturma - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Tam Ekran Modu */
+  body.game-fullscreen header,
+  body.game-fullscreen footer,
+  body.game-fullscreen #system-messages,
+  body.game-fullscreen .breadcrumbs {
+    display: none !important;
+  }
+
+  body.game-fullscreen main {
+    padding-top: 0 !important;
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+
+  /* UI Toggle & Back Buttons */
+  .ui-toggle-btn, .back-btn {
+    position: fixed;
+    top: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+  }
+
+  .ui-toggle-btn {
+    right: 20px;
+  }
+
+  .back-btn {
+    left: 20px;
+  }
+
+  .ui-toggle-btn:hover, .back-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.7);
+  }
+
+  .ai-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    animation: slideDown 0.6s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .input-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    animation: fadeIn 0.6s ease-out backwards;
+  }
+
+  .input-card:nth-child(1) { animation-delay: 0.1s; }
+  .input-card:nth-child(2) { animation-delay: 0.2s; }
+  .input-card:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .input-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+  }
+
+  .input-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .ai-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+  }
+
+  .ai-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  .ai-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .preview-box {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-top: 30px;
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin: 20px 0;
+  }
+
+  .status-ready {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .status-processing {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  .status-error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .preview-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .preview-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .preview-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .preview-table tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  textarea, input[type="file"] {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+
+  textarea:focus, input[type="file"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  textarea {
+    min-height: 140px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    resize: vertical;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .input-hint {
+    font-size: 13px;
+    color: #718096;
+    margin-top: 8px;
+  }
+
+  .confirm-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .confirm-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Hero -->
+  <div class="ai-hero text-center">
+    <div style="width: 100px; height: 100px; margin: 0 auto 24px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px;">
+      🤖
+    </div>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">AI Fiş Asistanı</h1>
+    <p style="font-size: 20px; opacity: 0.95; max-width: 700px; margin: 0 auto;">
+      Metin, ses veya belge ile fiş kesimi! AI asistanınız sizin için muhasebe kayıtlarını oluşturur. 🎯
+    </p>
+  </div>
+
+  <!-- Status -->
+  <div class="text-center mb-4">
+    <span class="status-badge status-ready" id="statusBadge">
+      <i class="bi bi-check-circle me-2"></i><span id="statusText">Hazır</span>
+    </span>
+  </div>
+
+  <!-- Input Methods -->
+  <div class="row g-4 mb-4">
+    <!-- Metin ile -->
+    <div class="col-lg-4">
+      <div class="input-card">
+        <div class="input-icon">💬</div>
+        <h3 style="font-size: 24px; font-weight: 700; color: #1a202c; margin-bottom: 12px; text-align: center;">
+          Metin ile
+        </h3>
+        <p style="color: #718096; text-align: center; margin-bottom: 24px; font-size: 14px;">
+          Fiş bilgilerini yazarak oluşturun
+        </p>
+        
+        <div class="mb-3">
+          <label for="textInput">Fiş Bilgileri</label>
+          <textarea 
+            id="textInput" 
+            placeholder="Örn: 02.11.2025 akaryakıt 1.250 TL, kasa çıkış, KDV %20&#10;veya: Market alışverişi 450 TL nakit&#10;veya: Elektrik faturası 380 TL banka"
+          ></textarea>
+          <div class="input-hint">
+            💡 Tarih, tutar, açıklama ve ödeme yöntemini yazın
+          </div>
+        </div>
+        
+        <button class="ai-button" id="btnText">
+          <i class="bi bi-magic me-2"></i>AI ile Önizle
+        </button>
+      </div>
+    </div>
+
+    <!-- Ses ile -->
+    <div class="col-lg-4">
+      <div class="input-card">
+        <div class="input-icon">🎤</div>
+        <h3 style="font-size: 24px; font-weight: 700; color: #1a202c; margin-bottom: 12px; text-align: center;">
+          Ses ile
+        </h3>
+        <p style="color: #718096; text-align: center; margin-bottom: 24px; font-size: 14px;">
+          Sesli komutla fiş oluşturun
+        </p>
+        
+        <div class="mb-3">
+          <label for="audioInput">Ses Dosyası</label>
+          <input type="file" id="audioInput" accept="audio/*" />
+          <div class="input-hint">
+            💡 WAV veya WebM formatında ses dosyası yükleyin
+          </div>
+        </div>
+        
+        <button class="ai-button" id="btnVoice">
+          <i class="bi bi-mic-fill me-2"></i>Sesi İşle
+        </button>
+      </div>
+    </div>
+
+    <!-- Belge ile -->
+    <div class="col-lg-4">
+      <div class="input-card">
+        <div class="input-icon">📄</div>
+        <h3 style="font-size: 24px; font-weight: 700; color: #1a202c; margin-bottom: 12px; text-align: center;">
+          Belge ile
+        </h3>
+        <p style="color: #718096; text-align: center; margin-bottom: 24px; font-size: 14px;">
+          Fatura veya fiş fotoğrafı yükleyin
+        </p>
+        
+        <div class="mb-3">
+          <label for="docInput">Belge Dosyası</label>
+          <input type="file" id="docInput" accept="image/*,application/pdf" />
+          <div class="input-hint">
+            💡 JPG, PNG veya PDF formatında belge yükleyin
+          </div>
+        </div>
+        
+        <button class="ai-button" id="btnDoc">
+          <i class="bi bi-file-earmark-text me-2"></i>Belgeyi Analiz Et
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Box -->
+  <div id="previewBox" style="display: none;">
+    <div class="preview-box">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 style="font-size: 28px; font-weight: 800; color: #667eea; margin: 0;">
+          <i class="bi bi-eye me-2"></i>Fiş Önizlemesi
+        </h3>
+        <button class="ai-button confirm-btn" id="btnConfirm" style="width: auto; padding: 12px 28px;">
+          <i class="bi bi-check-circle me-2"></i>Onayla ve Kaydet
+        </button>
+      </div>
+
+      <!-- Preview Info -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div style="background: rgba(102,126,234,0.1); padding: 16px; border-radius: 12px;">
+            <div style="font-size: 13px; color: #718096; margin-bottom: 4px;">📅 Tarih</div>
+            <div style="font-size: 18px; font-weight: 700; color: #1a202c;" id="previewDate">-</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background: rgba(102,126,234,0.1); padding: 16px; border-radius: 12px;">
+            <div style="font-size: 13px; color: #718096; margin-bottom: 4px;">🔖 Referans</div>
+            <div style="font-size: 18px; font-weight: 700; color: #1a202c;" id="previewRef">-</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background: rgba(102,126,234,0.1); padding: 16px; border-radius: 12px;">
+            <div style="font-size: 13px; color: #718096; margin-bottom: 4px;">💰 Toplam</div>
+            <div style="font-size: 18px; font-weight: 700; color: #10b981;" id="previewTotal">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Table -->
+      <div style="overflow-x: auto;">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>Hesap</th>
+              <th>Hesap Adı</th>
+              <th>Açıklama</th>
+              <th>Borç</th>
+              <th>Alacak</th>
+            </tr>
+          </thead>
+          <tbody id="previewLines">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Raw Data (Collapsible) -->
+      <details style="margin-top: 24px;">
+        <summary style="cursor: pointer; font-weight: 600; color: #667eea; padding: 12px; background: rgba(102,126,234,0.05); border-radius: 8px;">
+          <i class="bi bi-code-square me-2"></i>Ham Veri (JSON)
+        </summary>
+        <div id="rawData" style="background: #1a202c; color: #10b981; padding: 20px; border-radius: 12px; margin-top: 12px; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto; max-height: 400px; overflow-y: auto;">
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- UI Toggle & Back Buttons -->
+  <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+    <span id="toggleIcon">👁️</span>
+  </button>
+  <button class="back-btn" onclick="goBack()" data-tooltip="Geri Dön" aria-label="Geri Dön">
+    <i class="bi bi-arrow-left"></i>
+  </button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ========================================
+// AI FİŞ ASISTANI SİSTEMİ
+// ========================================
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+let currentPreview = null;
+
+const statusBadge = document.getElementById('statusBadge');
+const statusText = document.getElementById('statusText');
+const rawData = document.getElementById('rawData');
+const previewBox = document.getElementById('previewBox');
+
+function updateStatus(text, type = 'ready') {
+  statusText.textContent = text;
+  statusBadge.className = 'status-badge status-' + type;
+  
+  if (type === 'ready') {
+    statusBadge.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + text;
+  } else if (type === 'processing') {
+    statusBadge.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>' + text;
+  } else if (type === 'error') {
+    statusBadge.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>' + text;
+  }
+}
+
+function showPreview(preview) {
+  currentPreview = preview;
+  
+  document.getElementById('previewDate').textContent = preview.date || '-';
+  document.getElementById('previewRef').textContent = preview.reference || '-';
+  document.getElementById('previewTotal').textContent = preview.total ? '₺' + preview.total : '-';
+  
+  const tbody = document.getElementById('previewLines');
+  tbody.innerHTML = '';
+  
+  (preview.lines || []).forEach(line => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${line.account}</strong></td>
+      <td>${line.account_name || '-'}</td>
+      <td>${line.description || '-'}</td>
+      <td style="color: #ef4444; font-weight: 600;">${line.debit ? '₺' + line.debit : '-'}</td>
+      <td style="color: #10b981; font-weight: 600;">${line.credit ? '₺' + line.credit : '-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  previewBox.style.display = 'block';
+  previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function postJSON(url, body) {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json', 
+      'X-CSRFToken': csrftoken 
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || 'İşlem başarısız');
+  return data;
+}
+
+async function postForm(url, form) {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrftoken },
+    body: form
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || 'İşlem başarısız');
+  return data;
+}
+
+// Metin ile önizleme
+document.getElementById('btnText').onclick = async () => {
+  try {
+    updateStatus('AI fiş önizlemesi oluşturuluyor...', 'processing');
+    const text = document.getElementById('textInput').value;
+    
+    if (!text.trim()) {
+      throw new Error('Lütfen fiş bilgilerini girin');
+    }
+    
+    const data = await postJSON('/ai-assistant/api/voucher/from-text/', { text });
+    rawData.textContent = JSON.stringify(data, null, 2);
+    showPreview(data.preview || {});
+    updateStatus('Önizleme hazır! Onaylayabilirsiniz.', 'ready');
+  } catch (e) {
+    updateStatus('Hata: ' + e.message, 'error');
+    console.error(e);
+  }
+};
+
+// Ses ile önizleme
+document.getElementById('btnVoice').onclick = async () => {
+  try {
+    updateStatus('Ses dosyası işleniyor...', 'processing');
+    const f = document.getElementById('audioInput').files[0];
+    
+    if (!f) {
+      throw new Error('Lütfen ses dosyası seçin');
+    }
+    
+    const form = new FormData();
+    form.append('file', f, f.name);
+    
+    const data = await postForm('/ai-assistant/api/voucher/from-voice/', form);
+    rawData.textContent = JSON.stringify(data, null, 2);
+    showPreview(data.preview || {});
+    updateStatus('Önizleme hazır! Onaylayabilirsiniz.', 'ready');
+  } catch (e) {
+    updateStatus('Hata: ' + e.message, 'error');
+    console.error(e);
+  }
+};
+
+// Belge ile önizleme
+document.getElementById('btnDoc').onclick = async () => {
+  try {
+    updateStatus('Belge analiz ediliyor (OCR)...', 'processing');
+    const f = document.getElementById('docInput').files[0];
+    
+    if (!f) {
+      throw new Error('Lütfen belge dosyası seçin');
+    }
+    
+    const form = new FormData();
+    form.append('file', f, f.name);
+    
+    const data = await postForm('/ai-assistant/api/voucher/from-document/', form);
+    rawData.textContent = JSON.stringify(data, null, 2);
+    showPreview(data.preview || {});
+    updateStatus('Önizleme hazır! Onaylayabilirsiniz.', 'ready');
+  } catch (e) {
+    updateStatus('Hata: ' + e.message, 'error');
+    console.error(e);
+  }
+};
+
+// Onayla ve kaydet
+document.getElementById('btnConfirm').onclick = async () => {
+  try {
+    if (!currentPreview) {
+      throw new Error('Önizleme bulunamadı');
+    }
+    
+    updateStatus('Fiş oluşturuluyor ve deftere işleniyor...', 'processing');
+    
+    const data = await postJSON('/ai-assistant/api/voucher/confirm/', { 
+      mapped: currentPreview 
+    });
+    
+    rawData.textContent = JSON.stringify(data, null, 2);
+    updateStatus('✅ Fiş başarıyla oluşturuldu! ID: ' + (data.voucher_id || '-'), 'ready');
+    
+    // Başarı popup'ı
+    const popup = document.createElement('div');
+    popup.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 10000; text-align: center; animation: fadeIn 0.5s ease-out;';
+    popup.innerHTML = `
+      <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+      <h3 style="color: #10b981; font-size: 28px; font-weight: 800; margin-bottom: 12px;">Başarılı!</h3>
+      <p style="color: #718096; font-size: 16px;">Fiş deftere işlendi. ID: ${data.voucher_id || '-'}</p>
+      <button onclick="this.parentElement.remove(); location.reload();" style="margin-top: 20px; padding: 12px 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">
+        Tamam
+      </button>
+    `;
+    document.body.appendChild(popup);
+    
+  } catch (e) {
+    updateStatus('Hata: ' + e.message, 'error');
+    console.error(e);
+  }
+};
+
+// Back button
+function goBack() {
+  window.location.href = '/ai-assistant/';
+}
+
+// UI Toggle
+(function() {
+  const toggleBtn = document.getElementById('uiToggle');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const body = document.body;
+  
+  const savedMode = localStorage.getItem('finasis_game_fullscreen');
+  
+  if (savedMode === null || savedMode === 'true') {
+    body.classList.add('game-fullscreen');
+    toggleIcon.textContent = '👁️';
+    toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+  } else {
+    body.classList.remove('game-fullscreen');
+    toggleIcon.textContent = '🎮';
+    toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+  }
+  
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    body.classList.toggle('game-fullscreen');
+    const isFullscreen = body.classList.contains('game-fullscreen');
+    
+    if (isFullscreen) {
+      toggleIcon.textContent = '👁️';
+      toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+    } else {
+      toggleIcon.textContent = '🎮';
+      toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+    }
+    
+    localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    
+    if (!isFullscreen) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  });
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleBtn.click();
+    }
+  });
+})();
+</script>
+{% endblock %}

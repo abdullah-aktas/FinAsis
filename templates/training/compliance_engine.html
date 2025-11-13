@@ -1,0 +1,80 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Uyumluluk Motoru Eğitimi" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero">
+  <div class="container">
+    <span class="badge badge-info">{% trans "Eğitim Modülü" %}</span>
+    <h1>{% trans "Uyumluluk Motoru İleri Seviye" %}</h1>
+    <p class="lead">
+      {% trans "MASAK, KVKK ve blockchain tabanlı kanıt süreçlerini tek panelden yönetin." %}
+    </p>
+    <div class="resource-meta">
+      <div><i class="bi bi-clock me-2"></i>{% trans "Süre" %}: 24 dk</div>
+      <div><i class="bi bi-person-video3 me-2"></i>{% trans "Eğitmen" %}: Murat Biçer</div>
+      <div><i class="bi bi-lightning-charge me-2"></i>{% trans "Seviye" %}: {% trans "Orta" %}</div>
+      <div><i class="bi bi-calendar-event me-2"></i>{% trans "Yayın Tarihi" %}: 28.06.2025</div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <article class="card card-body shadow-sm h-100">
+          <h2 class="h4 mb-3">{% trans "Ders Akışı" %}</h2>
+          <p>
+            {% trans "Uyumluluk motoru, gerçek zamanlı risk taraması ve otomatik raporlama sunar. Bu derste kontrol listelerini çalıştırmayı, sonuçları yorumlamayı ve blockchain loglarını incelemeyi öğreneceksiniz." %}
+          </p>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Checklist otomasyonu" %}</strong>
+              <div class="text-muted">{% trans "MASAK ve KVKK YAML checklist dosyalarının zamanlanması." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Blockchain audit" %}</strong>
+              <div class="text-muted">{% trans "İşlem hash kayıtlarının doğrulanması ve kanıt raporu üretimi." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Alert orkestrasyonu" %}</strong>
+              <div class="text-muted">{% trans "Sentry, Prometheus ve Slack entegrasyonlarıyla uyarıların yönetimi." %}</div>
+            </li>
+          </ol>
+          <h3 class="h5">{% trans "Sahne Senaryosu" %}</h3>
+          <p class="mb-0">
+            {% trans "Gerçek bir MASAK incelemesinde nasıl aksiyon alındığını, sistemin hangi kayıtları ürettiğini ve denetim ekibinin hangi raporları istediğini simüle ediyoruz." %}
+          </p>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="d-grid gap-4">
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Gerekli Modüller" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Uyumluluk Motoru" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Blockchain Audit" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Log ve Alert Pipeline" %}</li>
+            </ul>
+          </div>
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "İndirilebilirler" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-filetype-yml me-2 text-warning"></i>{% trans "MASAK checklist örneği" %}</li>
+              <li><i class="bi bi-filetype-yml me-2 text-warning"></i>{% trans "KVKK checklist örneği" %}</li>
+              <li><i class="bi bi-filetype-pdf me-2 text-danger"></i>{% trans "Denetim raporu şablonu" %}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

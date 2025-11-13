@@ -1,0 +1,371 @@
+{% load static %}
+
+<!-- Beta Feedback Floating Button -->
+<style>
+  .beta-feedback-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 1000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: pulse 2s infinite;
+  }
+
+  .beta-feedback-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+  }
+
+  .beta-feedback-btn i {
+    font-size: 18px;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+    50% {
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.8);
+    }
+  }
+
+  /* Beta Feedback Modal */
+  .beta-feedback-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .beta-feedback-modal.active {
+    display: flex;
+  }
+
+  .beta-feedback-content {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease;
+    position: relative;
+  }
+
+  html[data-theme='dark'] .beta-feedback-content {
+    background: #1a202c;
+    color: white;
+  }
+
+  .beta-feedback-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #718096;
+    transition: color 0.2s ease;
+  }
+
+  .beta-feedback-close:hover {
+    color: #667eea;
+  }
+
+  .beta-feedback-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .beta-feedback-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+  }
+
+  .beta-feedback-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+
+  html[data-theme='dark'] .beta-feedback-title {
+    color: white;
+  }
+
+  .beta-feedback-subtitle {
+    font-size: 14px;
+    color: #718096;
+  }
+
+  .beta-feedback-form .form-group {
+    margin-bottom: 20px;
+  }
+
+  .beta-feedback-form label {
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  html[data-theme='dark'] .beta-feedback-form label {
+    color: white;
+  }
+
+  .beta-feedback-form input,
+  .beta-feedback-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+  }
+
+  html[data-theme='dark'] .beta-feedback-form input,
+  html[data-theme='dark'] .beta-feedback-form textarea {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: white;
+  }
+
+  .beta-feedback-form input:focus,
+  .beta-feedback-form textarea:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .beta-feedback-form textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .beta-feedback-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .beta-feedback-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  .beta-feedback-success {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .beta-feedback-success.active {
+    display: block;
+  }
+
+  .beta-feedback-success-icon {
+    font-size: 64px;
+    color: #10b981;
+    margin-bottom: 16px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .beta-feedback-btn {
+      bottom: 80px;
+      right: 15px;
+      font-size: 12px;
+      padding: 10px 18px;
+    }
+
+    .beta-feedback-content {
+      padding: 30px 20px;
+    }
+  }
+</style>
+
+<button class="beta-feedback-btn" onclick="openBetaFeedback()" aria-label="Beta Geri Bildirim">
+  <i class="bi bi-chat-left-heart"></i>
+  <span>Beta Görüşünüz</span>
+</button>
+
+<div class="beta-feedback-modal" id="betaFeedbackModal">
+  <div class="beta-feedback-content">
+    <button class="beta-feedback-close" onclick="closeBetaFeedback()" aria-label="Kapat">
+      <i class="bi bi-x"></i>
+    </button>
+    
+    <div id="feedbackFormContainer">
+      <div class="beta-feedback-header">
+        <div class="beta-feedback-icon">
+          <i class="bi bi-lightbulb"></i>
+        </div>
+        <h3 class="beta-feedback-title">Beta Görüşleriniz Değerli!</h3>
+        <p class="beta-feedback-subtitle">
+          FinAsis'i daha iyi hale getirmemize yardımcı olun. Her görüş önemli!
+        </p>
+      </div>
+
+      <form class="beta-feedback-form" onsubmit="submitBetaFeedback(event)">
+        <div class="form-group">
+          <label for="feedbackType">Geri Bildirim Türü</label>
+          <select id="feedbackType" class="form-select" required>
+            <option value="">Seçiniz...</option>
+            <option value="bug">🐛 Hata Bildirimi</option>
+            <option value="feature">💡 Özellik Önerisi</option>
+            <option value="improvement">⚡ İyileştirme</option>
+            <option value="general">💬 Genel Görüş</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="feedbackEmail">E-posta (Opsiyonel)</label>
+          <input type="email" id="feedbackEmail" placeholder="ornek@firma.com">
+        </div>
+
+        <div class="form-group">
+          <label for="feedbackMessage">Mesajınız</label>
+          <textarea id="feedbackMessage" placeholder="Görüşlerinizi buraya yazın..." required></textarea>
+        </div>
+
+        <button type="submit" class="beta-feedback-submit">
+          <i class="bi bi-send me-2"></i>Gönder
+        </button>
+      </form>
+    </div>
+
+    <div class="beta-feedback-success" id="feedbackSuccessMessage">
+      <div class="beta-feedback-success-icon">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <h4 class="beta-feedback-title">Teşekkürler! 🎉</h4>
+      <p class="beta-feedback-subtitle">
+        Geri bildiriminiz başarıyla alındı. Katkınız için teşekkür ederiz!
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openBetaFeedback() {
+    document.getElementById('betaFeedbackModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBetaFeedback() {
+    document.getElementById('betaFeedbackModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Reset form after closing
+    setTimeout(() => {
+      document.getElementById('feedbackFormContainer').style.display = 'block';
+      document.getElementById('feedbackSuccessMessage').classList.remove('active');
+      document.querySelector('.beta-feedback-form').reset();
+    }, 300);
+  }
+
+  function submitBetaFeedback(event) {
+    event.preventDefault();
+    
+    const type = document.getElementById('feedbackType').value;
+    const email = document.getElementById('feedbackEmail').value;
+    const message = document.getElementById('feedbackMessage').value;
+    
+    // Store feedback in localStorage (simple solution for beta)
+    const feedback = {
+      type: type,
+      email: email,
+      message: message,
+      timestamp: new Date().toISOString(),
+      url: window.location.href
+    };
+    
+    try {
+      const existingFeedback = JSON.parse(localStorage.getItem('beta_feedback') || '[]');
+      existingFeedback.push(feedback);
+      localStorage.setItem('beta_feedback', JSON.stringify(existingFeedback));
+      
+      // Also log to console for developers
+      console.log('[Beta Feedback]', feedback);
+      
+      // Show success message
+      document.getElementById('feedbackFormContainer').style.display = 'none';
+      document.getElementById('feedbackSuccessMessage').classList.add('active');
+      
+      // Auto close after 2 seconds
+      setTimeout(() => {
+        closeBetaFeedback();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Feedback storage error:', error);
+      alert('Geri bildiriminiz kaydedilemedi. Lütfen daha sonra tekrar deneyin.');
+    }
+  }
+
+  // Close modal when clicking outside
+  document.addEventListener('click', function(event) {
+    const modal = document.getElementById('betaFeedbackModal');
+    if (event.target === modal) {
+      closeBetaFeedback();
+    }
+  });
+
+  // Close modal with ESC key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeBetaFeedback();
+    }
+  });
+</script>
+

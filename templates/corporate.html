@@ -1,0 +1,488 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Kurumsal - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .corporate-hero {
+    position: relative;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .corporate-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  }
+
+  .corporate-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .corporate-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .corporate-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto 40px;
+  }
+
+  .corporate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .info-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: -80px;
+    position: relative;
+    z-index: 3;
+    margin-bottom: 60px;
+  }
+
+  .info-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+  }
+
+  .info-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .info-card-success { border-top-color: #10b981; }
+  .info-card-warning { border-top-color: #f59e0b; }
+  .info-card-info { border-top-color: #06b6d4; }
+  .info-card-secondary { border-top-color: #64748b; }
+  .info-card-primary { border-top-color: #667eea; }
+  .info-card-danger { border-top-color: #ef4444; }
+
+  .info-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+
+  .info-icon-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .info-icon-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    color: #f59e0b;
+  }
+
+  .info-icon-info {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
+    color: #06b6d4;
+  }
+
+  .info-icon-secondary {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.1), rgba(71, 85, 105, 0.1));
+    color: #64748b;
+  }
+
+  .info-icon-primary {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    color: #667eea;
+  }
+
+  .info-icon-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+    color: #ef4444;
+  }
+
+  .info-card h5 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1a202c;
+  }
+
+  .info-card p {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 20px;
+  }
+
+  .info-card .btn {
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .values-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+  }
+
+  .value-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .value-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .milestone-section {
+    padding: 60px 0;
+  }
+
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: center;
+  }
+
+  .timeline-year {
+    font-size: 24px;
+    font-weight: 800;
+    color: #667eea;
+    min-width: 80px;
+  }
+
+  .timeline-content {
+    flex: 1;
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .timeline-title {
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .timeline-badge {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .corporate-hero h1 {
+      font-size: 36px;
+    }
+    .info-cards-grid {
+      grid-template-columns: 1fr;
+      margin-top: 40px;
+    }
+    .cta-title {
+      font-size: 32px;
+    }
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="corporate-hero">
+  <div class="container corporate-hero-content">
+    <span class="corporate-badge">
+      <i class="bi bi-building"></i>
+      Kurumsal Bilgiler
+    </span>
+    <h1>Şeffaflık, Güven ve Sürdürülebilirlik</h1>
+    <p>
+      FinAsis olarak kurumsal değerlerimiz, vizyonumuz ve topluma katkılarımız hakkında 
+      bilgi edinin. İşletmenizin geleceğini birlikte inşa edelim.
+    </p>
+  </div>
+</section>
+
+<!-- Info Cards -->
+<div class="container">
+  <div class="info-cards-grid">
+    <div class="info-card info-card-success">
+      <div class="info-icon info-icon-success">
+        <i class="bi bi-building"></i>
+      </div>
+      <h5>Hakkımızda</h5>
+      <p>FinAsis'in vizyonu, misyonu ve kurumsal değerleri</p>
+      <a href="/corporate/about/" class="btn btn-outline-success">
+        <i class="bi bi-arrow-right me-2"></i>Keşfet
+      </a>
+    </div>
+
+    <div class="info-card info-card-warning">
+      <div class="info-icon info-icon-warning">
+        <i class="bi bi-people"></i>
+      </div>
+      <h5>Ekibimiz</h5>
+      <p>Alanında uzman kadromuzla tanışın</p>
+      <a href="/corporate/team/" class="btn btn-outline-warning">
+        <i class="bi bi-arrow-right me-2"></i>Ekibi Gör
+      </a>
+    </div>
+
+    <div class="info-card info-card-info">
+      <div class="info-icon info-icon-info">
+        <i class="bi bi-recycle"></i>
+      </div>
+      <h5>Sürdürülebilirlik</h5>
+      <p>Çevre ve topluma duyarlı projelerimiz</p>
+      <a href="/corporate/sustainability/" class="btn btn-outline-info">
+        <i class="bi bi-arrow-right me-2"></i>Projeler
+      </a>
+    </div>
+
+    <div class="info-card info-card-secondary">
+      <div class="info-icon info-icon-secondary">
+        <i class="bi bi-briefcase"></i>
+      </div>
+      <h5>Kariyer</h5>
+      <p>Açık pozisyonlar ve işe alım süreci</p>
+      <a href="/corporate/careers/" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right me-2"></i>Başvur
+      </a>
+    </div>
+
+    <div class="info-card info-card-primary">
+      <div class="info-icon info-icon-primary">
+        <i class="bi bi-megaphone"></i>
+      </div>
+      <h5>Basın</h5>
+      <p>Basın bültenleri ve medya kitleri</p>
+      <a href="/corporate/press/" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-right me-2"></i>Basın Kiti
+      </a>
+    </div>
+
+    <div class="info-card info-card-danger">
+      <div class="info-icon info-icon-danger">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <h5>Güvenlik</h5>
+      <p>Veri güvenliği ve uyumluluk bilgileri</p>
+      <a href="/corporate/security/" class="btn btn-outline-danger">
+        <i class="bi bi-arrow-right me-2"></i>Detaylar
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Values Section -->
+<section class="values-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+        <i class="bi bi-star me-2"></i>Değerlerimiz
+      </span>
+      <h2 class="section-title" style="font-size: 42px; font-weight: 800; color: #1a202c; margin: 16px 0;">
+        Bizi Biz Yapan Değerler
+      </h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="value-card">
+          <span class="value-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Güven</span>
+          <h4 class="fw-bold mt-3 mb-3">Şeffaflık ve Güven</h4>
+          <p class="text-muted mb-0">
+            Müşteri verisini güvenle işleyip şeffaflıkla yönetiriz. Her adımda güven önceliğimizdir.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="value-card">
+          <span class="value-badge" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">Yenilik</span>
+          <h4 class="fw-bold mt-3 mb-3">Sürekli İnovasyon</h4>
+          <p class="text-muted mb-0">
+            Sürekli öğrenir, yeni teknolojilerle değer üretiriz. Geleceği bugünden inşa ediyoruz.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="value-card">
+          <span class="value-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Müşteri Odaklılık</span>
+          <h4 class="fw-bold mt-3 mb-3">Kullanıcı Deneyimi</h4>
+          <p class="text-muted mb-0">
+            Kararlarımızı kullanıcı deneyimi ve fayda üzerine kurarız. Sizin başarınız bizim başarımız.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Milestones -->
+<section class="milestone-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+        <i class="bi bi-flag me-2"></i>Kilometre Taşları
+      </span>
+      <h2 class="section-title" style="font-size: 42px; font-weight: 800; color: #1a202c; margin: 16px 0;">
+        Yolculuğumuz
+      </h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">2023</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="timeline-title">FinAsis Kuruluşu</div>
+            <span class="timeline-badge badge bg-light text-dark">Başlangıç</span>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2024</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="timeline-title">İlk 100 Kurumsal Müşteri</div>
+            <span class="timeline-badge badge bg-success">Büyüme</span>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2025</div>
+        <div class="timeline-content">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="timeline-title">AI & Blockchain Entegrasyonu</div>
+            <span class="timeline-badge badge bg-info">Yenilik</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">İşletmeniz için Hazırız</h2>
+    <p class="cta-subtitle">
+      İhtiyaçlarınıza uygun kurumsal çözümler için bize ulaşın
+    </p>
+    <div class="mt-4">
+      <a href="/corporate/offer/" class="btn btn-cta-primary">
+        <i class="bi bi-file-earmark-text me-2"></i>Kurumsal Teklif Al
+      </a>
+      <a href="{% url 'contact' %}" class="btn btn-cta-secondary">
+        <i class="bi bi-envelope me-2"></i>İletişime Geç
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% load i18n %}
+{% load static %}
+<nav class="nav flex-column small" aria-label="{% trans 'Muhasebe navigasyon' %}">
+  {% with p=request.path %}
+  {% with n=request.resolver_match.url_name %}
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Genel' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2 {% if p == '/accounting/' or p == '/accounting' or n == 'home' or n == 'accounting_home' %}active fw-semibold{% endif %}" href="{% url 'accounting:home' %}" {% if p == '/accounting/' or p == '/accounting' or n == 'home' or n == 'accounting_home' %}aria-current="page"{% endif %}>
+    <i class="bi bi-grid"></i> <span>{% trans 'Ana Panel' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'financial-analysis' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:financial_analysis' %}" {% if 'financial-analysis' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-graph-up"></i> <span>{% trans 'Finansal Analiz' %}</span>
+  </a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Kayıtlar' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'bankaccount' in n or 'bank-accounts' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:bankaccount_list' %}" {% if 'bankaccount' in n or 'bank-accounts' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-bank"></i> <span>{% trans 'Bankalar' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'banktransaction' in n or 'bank-transactions' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:banktransaction_list' %}" {% if 'banktransaction' in n or 'bank-transactions' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-arrow-left-right"></i> <span>{% trans 'Banka Hareketleri' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'invoice' in n and not 'purchase' in n or 'invoices' in p and not 'purchase' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:invoice_list' %}" {% if 'invoice' in n and not 'purchase' in n or 'invoices' in p and not 'purchase' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-receipt"></i> <span>{% trans 'Satış Faturaları' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'purchase_invoice' in n or 'purchase-invoices' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:purchase_invoice_list' %}" {% if 'purchase_invoice' in n or 'purchase-invoices' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-bag-check"></i> <span>{% trans 'Alım Faturaları' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'expense' in n or 'expenses' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:expense_list' %}" {% if 'expense' in n or 'expenses' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-cash-coin"></i> <span>{% trans 'Giderler' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'vendor_' in n or 'vendors' in p and not 'payments' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:vendor_list' %}" {% if 'vendor_' in n or 'vendors' in p and not 'payments' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-people"></i> <span>{% trans 'Tedarikçiler' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'customer' in n or 'customers' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:customer_list' %}" {% if 'customer' in n or 'customers' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-person-badge"></i> <span>{% trans 'Müşteriler' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'product' in n or 'products' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:product_list' %}" {% if 'product' in n or 'products' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-box-seam"></i> <span>{% trans 'Ürünler' %}</span>
+  </a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Ödemeler' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'payment_' in n or 'payments' in p and not 'vendor' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:payment_list' %}" {% if 'payment_' in n or 'payments' in p and not 'vendor' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-credit-card"></i> <span>{% trans 'Ödemeler' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'vendor_payment' in n or 'vendor-payments' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:vendor_payment_list' %}" {% if 'vendor_payment' in n or 'vendor-payments' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-wallet2"></i> <span>{% trans 'Tedarikçi Ödemeleri' %}</span>
+  </a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Raporlama' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'summary_report' in n or 'report' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:summary_report' %}" {% if 'summary_report' in n or 'report' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-journal-text"></i> <span>{% trans 'Raporlar' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'scenarios' in p %}active fw-semibold{% endif %}" href="/accounting/scenarios/" {% if 'scenarios' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-bezier"></i> <span>{% trans 'Senaryolar' %}</span>
+  </a>
+  <hr class="my-2">
+  <div class="text-uppercase fw-semibold text-muted small mb-2">{% trans 'Araçlar' %}</div>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'voucher' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:voucher_create' %}" {% if 'voucher' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-plus-circle"></i> <span>{% trans 'Fiş Oluştur' %}</span>
+  </a>
+  <a class="nav-link d-flex align-items-center gap-2 {% if 'dashboard' in n or 'chart-dashboard' in p %}active fw-semibold{% endif %}" href="{% url 'accounting:dashboard' %}" {% if 'dashboard' in n or 'chart-dashboard' in p %}aria-current="page"{% endif %}>
+    <i class="bi bi-bar-chart"></i> <span>{% trans 'Grafikler' %}</span>
+  </a>
+  {% endwith %}
+  {% endwith %}
+</nav>

@@ -1,0 +1,82 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Finans Dashboard Eğitimi" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero">
+  <div class="container">
+    <span class="badge badge-accent">{% trans "Eğitim Modülü" %}</span>
+    <h1>{% trans "Finans Dashboard'a Giriş" %}</h1>
+    <p class="lead">
+      {% trans "KPI kartlarını okuma, nakit akışı senaryoları ve aksiyon planları oluşturmayı öğrenin." %}
+    </p>
+    <div class="resource-meta">
+      <div><i class="bi bi-clock me-2"></i>{% trans "Süre" %}: 18 dk</div>
+      <div><i class="bi bi-person-video3 me-2"></i>{% trans "Eğitmen" %}: Selin Kaya</div>
+      <div><i class="bi bi-bar-chart-line me-2"></i>{% trans "Seviye" %}: {% trans "Başlangıç" %}</div>
+      <div><i class="bi bi-calendar-event me-2"></i>{% trans "Yayın Tarihi" %}: 12.07.2025</div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <article class="card card-body shadow-sm h-100">
+          <h2 class="h4 mb-3">{% trans "Ders İçeriği" %}</h2>
+          <p>
+            {% trans "Bu modül, FinAsis finans dashboard'unu etkin şekilde nasıl kullanacağınızı adım adım gösterir. KPI kartlarının anlamını keşfeder, nakit akışı senaryolarını oluşturur ve AI destekli önerileri yorumlarsınız." %}
+          </p>
+          <ol class="list-group list-group-numbered mb-4">
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Giriş ve gezinme" %}</strong>
+              <div class="text-muted">{% trans "Dashboard bileşenleri, KPI kart tipleri ve zaman filtreleri." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "Nakit akışı senaryoları" %}</strong>
+              <div class="text-muted">{% trans "Gelir/gider projeksiyonu, risk seviyeleri ve uyarı eşikleri." %}</div>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+              <strong>{% trans "AI aksiyon planları" %}</strong>
+              <div class="text-muted">{% trans "AI önerilerini görev motoru ile entegre ederek aksiyon alma." %}</div>
+            </li>
+          </ol>
+          <h3 class="h5">{% trans "Ek Materyaller" %}</h3>
+          <ul class="list-unstyled d-grid gap-2 mb-0">
+            <li><i class="bi bi-file-earmark-spreadsheet me-2 text-success"></i>{% trans "Finans KPI şablonu (Excel)" %}</li>
+            <li><i class="bi bi-filetype-pdf me-2 text-danger"></i>{% trans "Haftalık rapor taslağı" %}</li>
+            <li><i class="bi bi-robot me-2 text-primary"></i>{% trans "AI prompt örnekleri" %}</li>
+          </ul>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="d-grid gap-4">
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Ders Hedefleri" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Finans KPI kartlarını yorumlayın" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Nakit akışı senaryosu oluşturun" %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "AI önerilerini etkinleştirin" %}</li>
+            </ul>
+          </div>
+          <div class="card card-body shadow-sm">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "İlgili Modüller" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-graph-up-arrow me-2 text-info"></i>{% trans "Finans Dashboard" %}</li>
+              <li><i class="bi bi-wallet2 me-2 text-warning"></i>{% trans "Bütçe ve Tahmin" %}</li>
+              <li><i class="bi bi-cpu me-2 text-primary"></i>{% trans "AI Finans Asistanı" %}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,251 @@
+{% load static %}
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Sesli Komut Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; }
+    .row { margin-bottom: 12px; }
+    button { padding: 10px 16px; font-size: 14px; }
+    #log { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; background: #f8f9fa; padding: 12px; border-radius: 6px; }
+    .pill { display:inline-block; background:#eef; padding:2px 8px; border-radius:999px; font-size:12px; margin-right:6px; }
+  </style>
+</head>
+<body>
+  <h1>Sesli Komut Demo</h1>
+  <div class="row">
+    <label for="fmt"><strong>Kayıt Formatı:</strong></label>
+    <select id="fmt" style="margin-left:8px">
+      <option value="wav">WAV (önerilir)</option>
+      <option value="browser">Tarayıcı Varsayılanı (webm/ogg)</option>
+    </select>
+  </div>
+  <div class="row">
+    <span class="pill">1</span>
+    <button id="btn">Mikrofonu Başlat / Durdur</button>
+  </div>
+  <div class="row">
+    <span class="pill">2</span>
+    <button id="send" disabled>Kaydı Gönder</button>
+  </div>
+  <div class="row">
+    <strong>Durum:</strong> <span id="status">Hazır</span>
+  </div>
+  <div class="row">
+    <strong>Transkript:</strong>
+    <div id="transcript" style="margin-top:6px"></div>
+  </div>
+  <div class="row">
+    <strong>Sonuç:</strong>
+    <div id="result" style="margin-top:6px"></div>
+  </div>
+  <div class="row">
+    <details>
+      <summary>Açıklama</summary>
+      <p>Mikrofon ile WAV formatında kayıt alır, <code>/ai-assistant/api/voice/recognize/</code> endpoint'ine gönderir. Yanıt olarak metin ve NLP sonucu gösterilir.</p>
+    </details>
+  </div>
+
+  <script>
+    // CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+
+    const btn = document.getElementById('btn');
+    const sendBtn = document.getElementById('send');
+    const statusEl = document.getElementById('status');
+    const transcriptEl = document.getElementById('transcript');
+    const resultEl = document.getElementById('result');
+
+    // WAV kaydı için Web Audio API değişkenleri
+    let audioCtx = null;
+    let mediaStream = null;
+    let sourceNode = null;
+    let processor = null;
+    let pcmChunks = []; // Float32Array parçaları
+    let pcmSampleRate = 16000; // hedef örnekleme (tarayıcı desteklemiyorsa AudioContext'in oranını kullanır)
+
+    async function init() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStream = stream;
+        // MediaRecorder (tarayıcı varsayılanı) için hazırla
+        try {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+          mediaRecorder.onstop = () => { statusEl.textContent = 'Kayıt durdu. Gönderilmeye hazır.'; sendBtn.disabled = false; };
+        } catch(e) { /* MediaRecorder yoksa sadece WAV kullanılır */ }
+
+        // WAV için AudioContext kur
+        try {
+          // 16000 Hz dene, olmazsa tarayıcının varsayılanını kullanır
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: pcmSampleRate });
+        } catch(e) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        pcmSampleRate = audioCtx.sampleRate || pcmSampleRate;
+        sourceNode = audioCtx.createMediaStreamSource(stream);
+        const bufferSize = 4096;
+        processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        processor.onaudioprocess = (e) => {
+          if (!isRecording) return;
+          const input = e.inputBuffer.getChannelData(0);
+          // Kopyayı al (Float32Array paylaşılabilir değil)
+          pcmChunks.push(new Float32Array(input));
+        };
+        sourceNode.connect(processor);
+        processor.connect(audioCtx.destination);
+
+        btn.onclick = () => {
+          if (!isRecording) {
+            audioChunks = [];
+            pcmChunks = [];
+            mediaRecorder.start();
+            isRecording = true;
+            statusEl.textContent = 'Kaydediliyor...';
+            sendBtn.disabled = true;
+            btn.textContent = 'Kaydı Durdur';
+          } else {
+            const fmt = document.getElementById('fmt').value;
+            if (fmt === 'browser' && mediaRecorder && mediaRecorder.state !== 'inactive') {
+              mediaRecorder.stop();
+            } else {
+              // WAV modu: durdurma sadece bayrak ile olur
+              isRecording = false;
+              statusEl.textContent = 'Kayıt durdu. Gönderilmeye hazır.';
+              sendBtn.disabled = false;
+            }
+            isRecording = false;
+            btn.textContent = 'Mikrofonu Başlat / Durdur';
+          }
+        };
+        sendBtn.onclick = sendRecording;
+      } catch (err) {
+        statusEl.textContent = 'Mikrofon erişimi reddedildi: ' + err;
+      }
+    }
+
+    function interleaveFloat32(chunks) {
+      // Tek kanal zaten, sadece ardışıl birleştir
+      let length = 0;
+      for (const c of chunks) length += c.length;
+      const result = new Float32Array(length);
+      let offset = 0;
+      for (const c of chunks) { result.set(c, offset); offset += c.length; }
+      return result;
+    }
+
+    function floatTo16BitPCM(float32Array) {
+      const buffer = new ArrayBuffer(float32Array.length * 2);
+      const view = new DataView(buffer);
+      let offset = 0;
+      for (let i = 0; i < float32Array.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, float32Array[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return view;
+    }
+
+    function encodeWAV(samples, sampleRate) {
+      const bytesPerSample = 2;
+      const blockAlign = bytesPerSample * 1; // mono
+      const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+      const view = new DataView(buffer);
+
+      /* RIFF identifier */
+      writeString(view, 0, 'RIFF');
+      /* file length */
+      view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+      /* RIFF type */
+      writeString(view, 8, 'WAVE');
+      /* format chunk identifier */
+      writeString(view, 12, 'fmt ');
+      /* format chunk length */
+      view.setUint32(16, 16, true);
+      /* sample format (raw) */
+      view.setUint16(20, 1, true);
+      /* channel count */
+      view.setUint16(22, 1, true);
+      /* sample rate */
+      view.setUint32(24, sampleRate, true);
+      /* byte rate (sample rate * block align) */
+      view.setUint32(28, sampleRate * blockAlign, true);
+      /* block align (channel count * bytes per sample) */
+      view.setUint16(32, blockAlign, true);
+      /* bits per sample */
+      view.setUint16(34, 8 * bytesPerSample, true);
+      /* data chunk identifier */
+      writeString(view, 36, 'data');
+      /* data chunk length */
+      view.setUint32(40, samples.length * bytesPerSample, true);
+
+      // write PCM samples
+      const pcm16 = floatTo16BitPCM(samples);
+      for (let i = 0; i < samples.length; i++) {
+        view.setInt16(44 + i * 2, pcm16.getInt16(i * 2, true), true);
+      }
+      return view;
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+
+    async function sendRecording() {
+      try {
+        statusEl.textContent = 'Gönderiliyor...';
+        const fmt = document.getElementById('fmt').value;
+        const form = new FormData();
+
+        if (fmt === 'wav') {
+          // WAV: PCM Float32 birleştir ve RIFF/WAV olarak paketle
+          const samples = interleaveFloat32(pcmChunks);
+          const wavView = encodeWAV(samples, pcmSampleRate);
+          const wavBlob = new Blob([wavView], { type: 'audio/wav' });
+          form.append('file', wavBlob, 'recording.wav');
+        } else {
+          // Tarayıcı varsayılanı: webm/ogg
+          const blob = new Blob(audioChunks, { type: 'audio/webm' });
+          form.append('file', blob, 'recording.webm');
+        }
+
+        const resp = await fetch('/ai-assistant/api/voice/recognize/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrftoken },
+          body: form
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Hata');
+        transcriptEl.textContent = data.text || '(boş)';
+        resultEl.textContent = JSON.stringify(data.result, null, 2);
+        statusEl.textContent = 'Tamamlandı';
+      } catch (err) {
+        statusEl.textContent = 'Hata: ' + err.message;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

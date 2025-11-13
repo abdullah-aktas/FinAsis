@@ -1,0 +1,35 @@
+<!-- Modern Dashboard Widget Componenti -->
+{% load static %}
+
+<div class="dashboard-widget {{ widget_class|default:'' }}" data-widget-type="{{ widget_type|default:'default' }}"
+     style="--widget-accent: {{ accent_color|default:'#0AAE94' }};">
+    <div class="widget-header">
+        <div class="widget-title-section">
+            {% if icon %}
+            <div class="widget-icon">
+                <i class="bi bi-{{ icon }}"></i>
+            </div>
+            {% endif %}
+            <div>
+                <h6 class="widget-title">{{ title }}</h6>
+                {% if subtitle %}
+                <p class="widget-subtitle">{{ subtitle }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if action_url %}
+        <a href="{{ action_url }}" class="widget-action">
+            <i class="bi bi-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    <div class="widget-body">
+        {{ content|safe }}
+    </div>
+    {% if footer %}
+    <div class="widget-footer">
+        {{ footer|safe }}
+    </div>
+    {% endif %}
+</div>
+

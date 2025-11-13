@@ -1,0 +1,788 @@
+{% extends 'core_ui/base.html' %} {% load static %} {% block title %} {% if
+form.instance.pk %}Fatura Düzenle{% else %}Yeni Fatura{% endif %} - FinAsis {%
+endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<style>
+  .invoice-form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .form-section {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .form-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .form-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-section-title {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .form-section-subtitle {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .invoice-items-table {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .invoice-item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 100px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    align-items: end;
+  }
+
+  .invoice-item-row:last-child {
+    border-bottom: none;
+  }
+
+  .invoice-item-header {
+    background: var(--neutral-50);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .invoice-summary {
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .summary-row.total {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--brand-primary);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-md);
+    margin-bottom: 0;
+  }
+
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface-elevated);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) -15px -15px;
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  @media (max-width: 768px) {
+    .invoice-item-row {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-sm);
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+  }
+
+  .add-item-btn {
+    background: var(--brand-success);
+    border: none;
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+    margin-top: var(--spacing-md);
+  }
+
+  .add-item-btn:hover {
+    background: var(--brand-success);
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .remove-item-btn {
+    background: var(--brand-danger);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+  }
+
+  .remove-item-btn:hover {
+    background: var(--brand-danger);
+    opacity: 0.9;
+  }
+
+  .customer-search {
+    position: relative;
+  }
+
+  .customer-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .customer-option {
+    padding: var(--spacing-md);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+  }
+
+  .customer-option:hover {
+    background: var(--neutral-50);
+  }
+
+  .customer-option:last-child {
+    border-bottom: none;
+  }
+
+  .invoice-preview {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    position: sticky;
+    top: 100px;
+  }
+
+  .preview-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .preview-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border-radius: var(--radius-md);
+    margin: 0 auto var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="invoice-form-container">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">
+        {% if form.instance.pk %}Fatura Düzenle{% else %}Yeni Fatura Oluştur{%
+        endif %}
+      </h1>
+      <p class="text-muted mb-0">
+        {% if form.instance.pk %} Fatura #{{ form.instance.invoice_number }}
+        bilgilerini güncelleyin {% else %} Yeni fatura bilgilerini girin ve
+        kaydedin {% endif %}
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn-modern secondary"
+        onclick="previewInvoice()"
+      >
+        <i class="bi bi-eye"></i>Önizle
+      </button>
+      <button
+        type="button"
+        class="btn-modern secondary"
+        onclick="saveAsDraft()"
+      >
+        <i class="bi bi-file-earmark"></i>Taslak Kaydet
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <form method="post" id="invoiceForm" class="form-modern">
+        {% csrf_token %}
+
+        <!-- Company & Customer Information -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="bi bi-building"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Şirket & Müşteri Bilgileri</div>
+              <div class="form-section-subtitle">
+                Faturayı kesen şirket ve müşteri bilgileri
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="{{ form.company.id_for_label }}" class="form-label"
+                >Şirket <span class="text-danger">*</span></label
+              >
+              {{ form.company }} {% if form.company.errors %}
+              <div class="text-danger mt-1">{{ form.company.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.customer.id_for_label }}" class="form-label"
+                >Müşteri <span class="text-danger">*</span></label
+              >
+              <div class="customer-search">
+                {{ form.customer }}
+                <div class="customer-dropdown" id="customerDropdown"></div>
+              </div>
+              {% if form.customer.errors %}
+              <div class="text-danger mt-1">{{ form.customer.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="bi bi-receipt"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Fatura Detayları</div>
+              <div class="form-section-subtitle">
+                Fatura numarası, tarihi ve diğer önemli bilgiler
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label
+                for="{{ form.invoice_number.id_for_label }}"
+                class="form-label"
+                >Fatura No</label
+              >
+              {{ form.invoice_number }} {% if form.invoice_number.errors %}
+              <div class="text-danger mt-1">
+                {{ form.invoice_number.errors.0 }}
+              </div>
+              {% endif %}
+              <small class="text-muted"
+                >Boş bırakılırsa otomatik oluşturulur</small
+              >
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.issue_date.id_for_label }}" class="form-label"
+                >Düzenleme Tarihi <span class="text-danger">*</span></label
+              >
+              {{ form.issue_date }} {% if form.issue_date.errors %}
+              <div class="text-danger mt-1">{{ form.issue_date.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.due_date.id_for_label }}" class="form-label"
+                >Vade Tarihi</label
+              >
+              {{ form.due_date }} {% if form.due_date.errors %}
+              <div class="text-danger mt-1">{{ form.due_date.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="{{ form.currency.id_for_label }}" class="form-label"
+                >Para Birimi</label
+              >
+              {{ form.currency }} {% if form.currency.errors %}
+              <div class="text-danger mt-1">{{ form.currency.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.status.id_for_label }}" class="form-label"
+                >Durum</label
+              >
+              {{ form.status }} {% if form.status.errors %}
+              <div class="text-danger mt-1">{{ form.status.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label
+                for="{{ form.payment_terms.id_for_label }}"
+                class="form-label"
+                >Ödeme Koşulları</label
+              >
+              {{ form.payment_terms }} {% if form.payment_terms.errors %}
+              <div class="text-danger mt-1">
+                {{ form.payment_terms.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Items -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="bi bi-list-ul"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Fatura Kalemleri</div>
+              <div class="form-section-subtitle">
+                Ürün ve hizmetleri ekleyin
+              </div>
+            </div>
+          </div>
+
+          <div class="invoice-items-table">
+            <div class="invoice-item-row invoice-item-header">
+              <div>Ürün/Hizmet</div>
+              <div>Miktar</div>
+              <div>Birim Fiyat</div>
+              <div>Toplam</div>
+              <div>İşlemler</div>
+            </div>
+
+            <div id="invoice-items">
+              <!-- Items will be added dynamically -->
+            </div>
+          </div>
+
+          <button type="button" class="add-item-btn" onclick="addInvoiceItem()">
+            <i class="bi bi-plus-lg"></i>Yeni Kalem Ekle
+          </button>
+        </div>
+
+        <!-- Notes & Additional Info -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="bi bi-chat-text"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Notlar ve Ek Bilgiler</div>
+              <div class="form-section-subtitle">
+                Faturaya ek açıklamalar ekleyin
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.notes.id_for_label }}" class="form-label"
+                >Notlar</label
+              >
+              {{ form.notes }} {% if form.notes.errors %}
+              <div class="text-danger mt-1">{{ form.notes.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <a
+            href="{% url 'accounting:invoice_list' %}"
+            class="btn-modern secondary"
+          >
+            <i class="bi bi-x-circle"></i>İptal
+          </a>
+          <button
+            type="button"
+            class="btn-modern secondary"
+            onclick="saveAsDraft()"
+          >
+            <i class="bi bi-file-earmark"></i>Taslak Kaydet
+          </button>
+          <button type="submit" class="btn-modern primary">
+            <i class="bi bi-check-circle"></i>
+            {% if form.instance.pk %}Güncelle{% else %}Kaydet{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Invoice Preview -->
+    <div class="col-lg-4">
+      <div class="invoice-preview">
+        <div class="preview-header">
+          <div class="preview-logo">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <h5 class="mb-0">Fatura Önizlemesi</h5>
+          <small class="text-muted">Fatura nasıl görünecek</small>
+        </div>
+
+        <div id="invoice-preview-content">
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-eye" style="font-size: 3rem"></i>
+            <p class="mt-3">Bilgileri doldurun, önizleme burada görünecek</p>
+          </div>
+        </div>
+
+        <div class="invoice-summary mt-4">
+          <div class="summary-row">
+            <span>Ara Toplam:</span>
+            <span id="preview-subtotal">₺0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>KDV (%18):</span>
+            <span id="preview-tax">₺0.00</span>
+          </div>
+          <div class="summary-row total">
+            <span>Genel Toplam:</span>
+            <span id="preview-total">₺0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  let invoiceItems = [];
+  let itemCounter = 0;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initializeForm();
+    addInvoiceItem(); // Add first item by default
+  });
+
+  function initializeForm() {
+    // Customer search functionality
+    const customerSelect = document.querySelector(
+      "#{{ form.customer.id_for_label }}"
+    );
+    if (customerSelect) {
+      setupCustomerSearch(customerSelect);
+    }
+
+    // Date pickers
+    const datePickers = document.querySelectorAll('input[type="date"]');
+    datePickers.forEach((picker) => {
+      if (!picker.value) {
+        picker.value = new Date().toISOString().split("T")[0];
+      }
+    });
+
+    // Form validation
+    document
+      .getElementById("invoiceForm")
+      .addEventListener("submit", validateForm);
+  }
+
+  function setupCustomerSearch(select) {
+    const wrapper = select.closest(".customer-search");
+    const dropdown = wrapper.querySelector("#customerDropdown");
+
+    select.addEventListener("focus", function () {
+      loadCustomers(dropdown);
+    });
+
+    select.addEventListener("input", function () {
+      filterCustomers(dropdown, this.value);
+    });
+  }
+
+  function loadCustomers(dropdown) {
+    // Simulate customer data loading
+    const customers = [
+      { id: 1, name: "Ali Veli", email: "ali@example.com" },
+      { id: 2, name: "Ayşe Kaya", email: "ayse@example.com" },
+      { id: 3, name: "Mehmet Özkan", email: "mehmet@example.com" },
+    ];
+
+    dropdown.innerHTML = "";
+    customers.forEach((customer) => {
+      const option = document.createElement("div");
+      option.className = "customer-option";
+      option.innerHTML = `
+      <div class="fw-medium">${customer.name}</div>
+      <small class="text-muted">${customer.email}</small>
+    `;
+      option.onclick = () => selectCustomer(customer);
+      dropdown.appendChild(option);
+    });
+
+    dropdown.style.display = "block";
+  }
+
+  function filterCustomers(dropdown, query) {
+    const options = dropdown.querySelectorAll(".customer-option");
+    options.forEach((option) => {
+      const text = option.textContent.toLowerCase();
+      option.style.display = text.includes(query.toLowerCase())
+        ? "block"
+        : "none";
+    });
+  }
+
+  function selectCustomer(customer) {
+    const select = document.querySelector("#{{ form.customer.id_for_label }}");
+    select.value = customer.id;
+
+    const dropdown = document.getElementById("customerDropdown");
+    dropdown.style.display = "none";
+
+    updatePreview();
+  }
+
+  function addInvoiceItem() {
+    itemCounter++;
+    const itemsContainer = document.getElementById("invoice-items");
+
+    const itemRow = document.createElement("div");
+    itemRow.className = "invoice-item-row";
+    itemRow.id = `item-${itemCounter}`;
+
+    itemRow.innerHTML = `
+    <div>
+      <input type="text" class="form-control" placeholder="Ürün/Hizmet adı" 
+             onchange="updateItemTotal(${itemCounter})" id="item-description-${itemCounter}">
+    </div>
+    <div>
+      <input type="number" class="form-control" placeholder="1" min="1" step="0.01"
+             onchange="updateItemTotal(${itemCounter})" id="item-quantity-${itemCounter}" value="1">
+    </div>
+    <div>
+      <input type="number" class="form-control" placeholder="0.00" min="0" step="0.01"
+             onchange="updateItemTotal(${itemCounter})" id="item-price-${itemCounter}">
+    </div>
+    <div>
+      <input type="number" class="form-control" readonly id="item-total-${itemCounter}" value="0.00">
+    </div>
+    <div>
+      <button type="button" class="remove-item-btn" onclick="removeInvoiceItem(${itemCounter})">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  `;
+
+    itemsContainer.appendChild(itemRow);
+    invoiceItems.push({ id: itemCounter, quantity: 1, price: 0, total: 0 });
+  }
+
+  function removeInvoiceItem(itemId) {
+    const itemRow = document.getElementById(`item-${itemId}`);
+    if (itemRow) {
+      itemRow.remove();
+      invoiceItems = invoiceItems.filter((item) => item.id !== itemId);
+      updateInvoiceTotal();
+    }
+  }
+
+  function updateItemTotal(itemId) {
+    const quantity =
+      parseFloat(document.getElementById(`item-quantity-${itemId}`).value) || 0;
+    const price =
+      parseFloat(document.getElementById(`item-price-${itemId}`).value) || 0;
+    const total = quantity * price;
+
+    document.getElementById(`item-total-${itemId}`).value = total.toFixed(2);
+
+    // Update item in array
+    const itemIndex = invoiceItems.findIndex((item) => item.id === itemId);
+    if (itemIndex !== -1) {
+      invoiceItems[itemIndex] = { id: itemId, quantity, price, total };
+    }
+
+    updateInvoiceTotal();
+  }
+
+  function updateInvoiceTotal() {
+    const subtotal = invoiceItems.reduce((sum, item) => sum + item.total, 0);
+    const tax = subtotal * 0.18; // 18% VAT
+    const total = subtotal + tax;
+
+    document.getElementById(
+      "preview-subtotal"
+    ).textContent = `₺${subtotal.toFixed(2)}`;
+    document.getElementById("preview-tax").textContent = `₺${tax.toFixed(2)}`;
+    document.getElementById("preview-total").textContent = `₺${total.toFixed(
+      2
+    )}`;
+
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const previewContent = document.getElementById("invoice-preview-content");
+    const companySelect = document.querySelector(
+      "#{{ form.company.id_for_label }}"
+    );
+    const customerSelect = document.querySelector(
+      "#{{ form.customer.id_for_label }}"
+    );
+    const invoiceNumber =
+      document.querySelector("#{{ form.invoice_number.id_for_label }}").value ||
+      "AUTO";
+
+    if (companySelect.value && customerSelect.value) {
+      previewContent.innerHTML = `
+      <div class="mb-3">
+        <strong>Fatura No:</strong> ${invoiceNumber}<br>
+        <strong>Tarih:</strong> ${
+          document.querySelector("#{{ form.issue_date.id_for_label }}").value
+        }
+      </div>
+      <div class="mb-3">
+        <strong>Şirket:</strong> ${
+          companySelect.options[companySelect.selectedIndex].text
+        }<br>
+        <strong>Müşteri:</strong> ${
+          customerSelect.options[customerSelect.selectedIndex].text
+        }
+      </div>
+      <div class="small">
+        ${invoiceItems.length} kalem eklendi
+      </div>
+    `;
+    }
+  }
+
+  function previewInvoice() {
+    // Open preview in modal or new tab
+    showToast("Fatura önizlemesi açılıyor...", "info");
+  }
+
+  function saveAsDraft() {
+    const form = document.getElementById("invoiceForm");
+    const statusField = document.querySelector(
+      "#{{ form.status.id_for_label }}"
+    );
+    statusField.value = "draft";
+
+    form.submit();
+  }
+
+  function validateForm(event) {
+    const requiredFields = document.querySelectorAll("[required]");
+    let isValid = true;
+
+    requiredFields.forEach((field) => {
+      if (!field.value.trim()) {
+        field.classList.add("is-invalid");
+        isValid = false;
+      } else {
+        field.classList.remove("is-invalid");
+      }
+    });
+
+    if (invoiceItems.length === 0) {
+      showToast("En az bir fatura kalemi eklemelisiniz", "error");
+      isValid = false;
+    }
+
+    if (!isValid) {
+      event.preventDefault();
+      showToast("Lütfen gerekli alanları doldurun", "error");
+    }
+  }
+
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = "9999";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case "s":
+          e.preventDefault();
+          document.getElementById("invoiceForm").submit();
+          break;
+        case "Enter":
+          e.preventDefault();
+          addInvoiceItem();
+          break;
+      }
+    }
+  });
+
+  // Auto-save draft every 30 seconds
+  setInterval(() => {
+    if (invoiceItems.length > 0) {
+      // Auto-save logic here
+      console.log("Auto-saving draft...");
+    }
+  }, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Grafik Dashboard{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Grafik Dashboard</h2>
+    <div id="chart-area" style="height:300px; background:#f8f9fa; border:1px solid #ddd; display:flex; align-items:center; justify-content:center;">
+        <span>Burada grafik gösterilecek (örnek)</span>
+    </div>
+    <a href="{% url 'accounting:summary_report' %}" class="btn btn-primary mt-3">Özet Rapor</a>
+    <a href="{% url 'accounting:home' %}" class="btn btn-secondary mt-3">Ana Sayfa</a>
+</div>
+{% endblock %} 

@@ -1,0 +1,65 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Blockchain Explorer - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-box me-2"></i>Blockchain Explorer
+    </h1>
+    
+    <!-- Arama -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control" placeholder="Blok numarası veya hash ara..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Ara
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Blok Listesi -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Blok #</th>
+                            <th>Hash</th>
+                            <th>TX Sayısı</th>
+                            <th>Mined By</th>
+                            <th>Zaman</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for block in blocks %}
+                        <tr>
+                            <td><strong>#{{ block.block_number }}</strong></td>
+                            <td><code>{{ block.block_hash|truncatechars:16 }}</code></td>
+                            <td><span class="badge bg-success">{{ block.transactions_count }}</span></td>
+                            <td>{{ block.mined_by.username|default:"-" }}</td>
+                            <td>{{ block.timestamp|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'blockchain:block_detail' block.block_number %}" class="btn btn-sm btn-outline-primary">
+                                    Detay
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Blok bulunamadı</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

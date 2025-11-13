@@ -1,0 +1,12 @@
+{% extends "accounts/base_accounts.html" %}
+{% load i18n %}
+{% block acct_title %}{% trans 'Oyuncu Dashboard' %}{% endblock %}
+{% block acct_subtitle %}{% trans 'Oyunlaştırma ve başarılar özeti' %}{% endblock %}
+{% block acct_content %}
+    <p class="lead">{% blocktrans with name=request.user.first_name|default:request.user.username %}Hoş geldiniz {{ name }}! Burada oyunculara özel içeriklere ulaşabilirsiniz.{% endblocktrans %}</p>
+    <div class="card border-dashed p-5 text-center text-muted">
+        <div class="mb-3 fs-1 text-primary"><i class="bi bi-controller"></i></div>
+        <h5 class="mb-2">{% trans 'Oyuncu Paneli' %}</h5>
+        <p class="mb-0">{% trans 'Oyuncu paneli bileşenleri yakında eklenecek.' %}</p>
+    </div>
+{% endblock %} 

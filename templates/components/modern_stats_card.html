@@ -1,0 +1,96 @@
+<!-- Modern İstatistik Kartı Componenti -->
+{% load static %}
+
+<div class="modern-stat-card" data-aos="fade-up" data-aos-delay="{{ delay|default:'0' }}">
+    <div class="stat-card-inner">
+        <div class="stat-icon-wrapper" style="background: {{ color|default:'#007bff' }}15;">
+            <i class="bi bi-{{ icon|default:'graph-up' }} stat-icon" style="color: {{ color|default:'#007bff' }};"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-label">{{ label }}</div>
+            <div class="stat-value">{{ value }}</div>
+            {% if change %}
+            <div class="stat-change {{ change_class|default:'positive' }}">
+                <i class="bi bi-arrow-{{ change_direction|default:'up' }}"></i>
+                {{ change }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.modern-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.modern-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.stat-card-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.stat-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-change.positive {
+    color: #10b981;
+}
+
+.stat-change.negative {
+    color: #ef4444;
+}
+
+.stat-change.neutral {
+    color: #6c757d;
+}
+</style>
+

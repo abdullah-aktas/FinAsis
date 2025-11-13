@@ -1,0 +1,424 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}Profilim - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .profile-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .profile-hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .profile-hero .text-muted {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 15px;
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .profile-actions .btn {
+    border-radius: 12px;
+    padding: 8px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .profile-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    height: 100%;
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card:nth-child(1) { border-top-color: #10b981; }
+  .stat-card:nth-child(2) { border-top-color: #ef4444; }
+  .stat-card:nth-child(3) { border-top-color: #06b6d4; }
+
+  .stat-card .text-uppercase {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #718096;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .fs-4 {
+    font-size: 32px !important;
+    font-weight: 800;
+    color: #1a202c;
+  }
+
+  .chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    height: 100%;
+  }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .info-section {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .info-section h5 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 20px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .info-row:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 600;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: #1a202c;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .profile-hero h1 {
+      font-size: 24px;
+    }
+    .profile-actions {
+      width: 100%;
+    }
+    .profile-actions .btn {
+      flex: 1;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{# Safely serialize context into JSON for JS consumption #}
+{{ trend_aylar|json_script:"trend-labels" }}
+{{ trend_gelirler|json_script:"trend-incomes" }}
+{{ trend_giderler|json_script:"trend-expenses" }}
+{{ gider_kategori_labels|json_script:"expense-cat-labels" }}
+{{ gider_kategori_data|json_script:"expense-cat-data" }}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const isDark = document.body.classList.contains('dark-theme');
+    const trendEl = document.getElementById('trendChart');
+    if (trendEl) {
+      const _labelsRaw = document.getElementById('trend-labels')?.textContent || '[]';
+      const _incomesRaw = document.getElementById('trend-incomes')?.textContent || '[]';
+      const _expensesRaw = document.getElementById('trend-expenses')?.textContent || '[]';
+      const labels = (() => { try { const v = JSON.parse(_labelsRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const incomes = (() => { try { const v = JSON.parse(_incomesRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const expenses = (() => { try { const v = JSON.parse(_expensesRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      new Chart(trendEl, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "{% trans 'Fatura (Gelir)' %}",
+              data: incomes,
+              borderColor: '#fd7e14',
+              backgroundColor: 'rgba(253,126,20,0.12)',
+              tension: 0.3,
+              fill: true,
+            },
+            {
+              label: "{% trans 'Gider' %}",
+              data: expenses,
+              borderColor: isDark ? '#ffc107' : '#dc3545',
+              backgroundColor: 'rgba(220,53,69,0.1)',
+              tension: 0.3,
+              fill: true,
+            }
+          ]
+        },
+        options: { responsive: true }
+      });
+    }
+    const catEl = document.getElementById('giderKategoriChart');
+    if (catEl) {
+      const _catLabelsRaw = document.getElementById('expense-cat-labels')?.textContent || '[]';
+      const _catDataRaw = document.getElementById('expense-cat-data')?.textContent || '[]';
+      const catLabels = (() => { try { const v = JSON.parse(_catLabelsRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      const catData = (() => { try { const v = JSON.parse(_catDataRaw); return Array.isArray(v) ? v : []; } catch { return []; } })();
+      new Chart(catEl, {
+        type: 'pie',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: ['#fd7e14', '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#0dcaf0', '#6f42c1']
+          }]
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero Header -->
+  <div class="profile-hero">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <h1>Merhaba, {{ request.user.first_name|default:request.user.username }}!</h1>
+          <div class="text-muted">Profil ve hesap özetiniz</div>
+        </div>
+        <div class="profile-actions">
+          <a href="{% url 'accounts:user_settings' %}" class="btn">
+            <i class="bi bi-gear me-2"></i>Ayarlar
+          </a>
+          <a href="{% url 'accounts:company_edit' %}" class="btn">
+            <i class="bi bi-building me-2"></i>Şirket
+          </a>
+              <a href="{% url 'accounts:password_change' %}" class="btn">
+              <i class="bi bi-key me-2"></i>Şifre
+          </a>
+          <a href="{% url 'accounts:otp_setup' %}" class="btn">
+            <i class="bi bi-shield-lock me-2"></i>MFA
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if finans_ozet %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="text-uppercase">Toplam Fatura</div>
+        <div class="fs-4">{{ finans_ozet.toplam_fatura|floatformat:2 }} ₺</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="text-uppercase">Toplam Gider</div>
+        <div class="fs-4">{{ finans_ozet.toplam_gider|floatformat:2 }} ₺</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="text-uppercase">Toplam Bakiye</div>
+        <div class="fs-4">{{ finans_ozet.toplam_bakiye|floatformat:2 }} ₺</div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-warning rounded-3">
+    <i class="bi bi-exclamation-triangle me-2"></i>Hesabınıza bağlı bir şirket bulunamadı. Şirket oluşturup verileri görselleştirebilirsiniz.
+  </div>
+  {% endif %}
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="chart-card">
+        <h5 class="card-title">
+          <i class="bi bi-graph-up-arrow" style="color: #10b981;"></i>
+          6 Aylık Gelir/Gider Trendi
+        </h5>
+        <canvas id="trendChart" height="120"></canvas>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="chart-card">
+        <h5 class="card-title">
+          <i class="bi bi-pie-chart" style="color: #f59e0b;"></i>
+          Gider Kategorileri
+        </h5>
+        <canvas id="giderKategoriChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="info-section">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5><i class="bi bi-receipt me-2" style="color: #06b6d4;"></i>Son Faturalar</h5>
+          <a href="{% url 'accounting:invoice_list' %}" class="btn btn-sm btn-outline-primary">Tümü</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>No</th>
+                <th>Tarih</th>
+                <th class="text-end">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inv in son_faturalar %}
+              <tr>
+                <td>{{ inv.invoice_number }}</td>
+                <td>{{ inv.issue_date|date:'d.m.Y' }}</td>
+                <td class="text-end">{{ inv.total_amount|floatformat:2 }} {{ inv.currency }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted">Kayıt yok</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="info-section">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5><i class="bi bi-cash-coin me-2" style="color: #ef4444;"></i>Son Giderler</h5>
+          <a href="{% url 'accounting:expense_list' %}" class="btn btn-sm btn-outline-primary">Tümü</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Tarih</th>
+                <th>Açıklama</th>
+                <th class="text-end">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ex in son_giderler %}
+              <tr>
+                <td>{{ ex.expense_date|date:'d.m.Y' }}</td>
+                <td>{{ ex.description|default:'-' }}</td>
+                <td class="text-end">{{ ex.amount|floatformat:2 }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted">Kayıt yok</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="info-section">
+        <h5><i class="bi bi-trophy me-2" style="color: #f59e0b;"></i>Başarımlar</h5>
+        <ul class="list-group list-group-flush">
+          {% for a in son_basari %}
+          <li class="list-group-item d-flex align-items-center gap-2">
+            <i class="bi {{ a.icon }} text-warning"></i>
+            <div>
+              <div class="fw-semibold">{{ a.title }}</div>
+              <small class="text-muted">{{ a.date_earned|date:'d.m.Y' }}</small>
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-muted">Henüz başarı yok</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="info-section">
+        <h5><i class="bi bi-bank me-2" style="color: #10b981;"></i>Son Banka Hareketleri</h5>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Hesap</th>
+                <th>Tarih</th>
+                <th>Açıklama</th>
+                <th class="text-end">Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in son_banka %}
+              <tr>
+                <td>{{ t.account.bank_name }}</td>
+                <td>{{ t.date|date:'d.m.Y' }}</td>
+                <td>{{ t.description|default:'-' }}</td>
+                <td class="text-end">
+                  <span class="{% if t.transaction_type == 'in' %}text-success{% else %}text-danger{% endif %}">
+                    {{ t.amount|floatformat:2 }}
+                  </span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">Kayıt yok</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info rounded-4" role="alert" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(59, 130, 246, 0.05)); border-left: 4px solid #06b6d4; border-radius: 16px;">
+    <i class="bi bi-lightbulb me-2"></i>
+    <strong>İpucu:</strong> Hızlı ayarlar için yukarıdaki butonları kullanabilir, detaylar için menüden ilgili sayfalara geçebilirsiniz.
+  </div>
+</div>
+{% endblock %}

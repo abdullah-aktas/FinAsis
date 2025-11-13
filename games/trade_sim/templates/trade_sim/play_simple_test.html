@@ -1,0 +1,77 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}TradeSim Test{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="container mt-5">
+    <h1>🎮 TradeSim - Simple Test</h1>
+    
+    <div class="alert alert-info">
+        <h4>Button Test</h4>
+        <p>Eğer bu butonlar çalışıyorsa, sorun play.html JavaScript'inde.</p>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Test Butonları</h5>
+                    <button class="btn btn-primary" onclick="alert('Button 1 works!')">Test 1</button>
+                    <button class="btn btn-success" onclick="testFunction()">Test 2</button>
+                    <button class="btn btn-warning" onclick="showTestModal()">Test Modal</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Console Output</h5>
+                    <div id="output" style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; min-height: 100px;">
+                        Waiting...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="/games/trade-sim/play/?difficulty=1" class="btn btn-primary">← Back to Play</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function testFunction() {
+        document.getElementById('output').innerHTML = '✅ JavaScript çalışıyor!<br>CSRF: ' + getCSRFToken();
+        alert('Test function works!');
+    }
+    
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 'NOT FOUND';
+    }
+    
+    function showTestModal() {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+        modal.innerHTML = `
+            <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px;">
+                <h3>✅ Modal Works!</h3>
+                <p>JavaScript ve onclick events çalışıyor.</p>
+                <button onclick="this.closest('div').parentElement.remove()" class="btn btn-primary">Close</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Console'a bilgi yazdır
+    console.log('✅ Simple test page loaded!');
+    console.log('CSRF Token:', getCSRFToken());
+</script>
+{% endblock %}
+

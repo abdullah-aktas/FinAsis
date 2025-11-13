@@ -1,0 +1,12 @@
+{% extends "management/base_admin.html" %}
+{% block admin_content %}
+<div class="container my-5">
+    <h2>Şirketi Sil</h2>
+    <p><strong>{{ company.name }}</strong> adlı şirketi silmek istediğinize emin misiniz?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+    <a href="{% url 'management:company_list' %}" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+{% endblock %} 

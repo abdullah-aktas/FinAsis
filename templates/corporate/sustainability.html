@@ -1,0 +1,542 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Sürdürülebilirlik - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .sustainability-hero {
+    position: relative;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .sustainability-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .sustainability-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .sustainability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .sustainability-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .sustainability-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Focus Areas Section */
+  .focus-section {
+    padding: 80px 0 100px;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+  }
+
+  .focus-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .focus-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--focus-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .focus-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .focus-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  }
+
+  .focus-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: var(--focus-bg);
+    color: var(--focus-color);
+  }
+
+  .focus-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .focus-desc {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Metrics Section */
+  .metrics-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--metric-color);
+  }
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .metric-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--metric-color);
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+
+  .metric-label {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+
+  /* Goals Section */
+  .goals-section {
+    padding: 100px 0;
+  }
+
+  .goals-timeline {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .goal-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: center;
+    background: white;
+    border-radius: 20px;
+    padding: 24px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #10b981;
+    transition: all 0.3s ease;
+  }
+
+  .goal-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .goal-year {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .goal-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a202c;
+  }
+
+  .goal-badge {
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .badge-planned {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+  }
+
+  .badge-ongoing {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  .badge-target {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .sustainability-hero h1 {
+      font-size: 36px;
+    }
+
+    .focus-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .goal-item {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .cta-title {
+      font-size: 32px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="sustainability-hero">
+  <div class="container sustainability-hero-content">
+    <span class="sustainability-badge">
+      <i class="bi bi-recycle"></i>
+      Sürdürülebilirlik
+    </span>
+    <h1>Geleceğe Sorumlu Yatırım</h1>
+    <p>
+      FinAsis olarak çevreye, topluma ve yönetişime duyarlı bir yaklaşımla 
+      sürdürülebilir bir gelecek inşa ediyoruz. ESG hedeflerimiz ve ilkelerimiz.
+    </p>
+  </div>
+</section>
+
+<!-- Focus Areas Section -->
+<section class="focus-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge">
+        <i class="bi bi-bullseye me-2"></i>Odak Alanlarımız
+      </span>
+      <h2 class="section-title">ESG Önceliklerimiz</h2>
+      <p class="section-subtitle">
+        Çevresel, sosyal ve yönetişim kriterlerinde üç ana alanda çalışıyoruz
+      </p>
+    </div>
+
+    <div class="focus-grid">
+      <div class="focus-card" style="--focus-color: #10b981; --focus-bg: rgba(16, 185, 129, 0.1);">
+        <div class="focus-icon">
+          <i class="bi bi-lightning-charge"></i>
+        </div>
+        <h3 class="focus-title">Enerji Verimliliği</h3>
+        <p class="focus-desc">
+          Verimli altyapı, optimize edilmiş bulut servisleri ve sürekli enerji 
+          tüketimi izleme ile karbon ayak izimizi minimize ediyoruz.
+        </p>
+      </div>
+
+      <div class="focus-card" style="--focus-color: #06b6d4; --focus-bg: rgba(6, 182, 212, 0.1);">
+        <div class="focus-icon">
+          <i class="bi bi-people"></i>
+        </div>
+        <h3 class="focus-title">Toplumsal Etki</h3>
+        <p class="focus-desc">
+          Erişilebilir ürün tasarımı, finansal okuryazarlık eğitimleri ve 
+          dezavantajlı gruplar için özel programlar ile topluma katkı sağlıyoruz.
+        </p>
+      </div>
+
+      <div class="focus-card" style="--focus-color: #f59e0b; --focus-bg: rgba(245, 158, 11, 0.1);">
+        <div class="focus-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h3 class="focus-title">Etik Yönetişim</h3>
+        <p class="focus-desc">
+          Şeffaf veri kullanımı, etik yapay zeka uygulamaları ve sıfır tolerans 
+          politikamız ile güvenilir bir yapı sağlıyoruz.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Metrics Section -->
+<section class="metrics-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-graph-up me-2"></i>Performans Metrikleri
+      </span>
+      <h2 class="section-title">Sürdürülebilirlik Göstergeleri</h2>
+      <p class="section-subtitle">
+        2024 yılı sürdürülebilirlik performansımızın öne çıkan rakamları
+      </p>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card" style="--metric-color: #10b981;">
+        <div class="metric-value">-20%</div>
+        <div class="metric-label">Yıllık Enerji Tüketiminde Azalma</div>
+      </div>
+
+      <div class="metric-card" style="--metric-color: #06b6d4;">
+        <div class="metric-value">90%</div>
+        <div class="metric-label">Yenilenebilir Enerji Kullanımı</div>
+      </div>
+
+      <div class="metric-card" style="--metric-color: #f59e0b;">
+        <div class="metric-value">100%</div>
+        <div class="metric-label">ESG Uygunluk Denetimleri</div>
+      </div>
+
+      <div class="metric-card" style="--metric-color: #8b5cf6;">
+        <div class="metric-value">0</div>
+        <div class="metric-label">Veri İhlali veya İhlal Girişimi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Goals Section -->
+<section class="goals-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-flag me-2"></i>Hedeflerimiz
+      </span>
+      <h2 class="section-title">Sürdürülebilirlik Yol Haritası</h2>
+      <p class="section-subtitle">
+        Kısa ve uzun vadeli sürdürülebilirlik hedeflerimiz ve ilerleme durumumuz
+      </p>
+    </div>
+
+    <div class="goals-timeline">
+      <div class="goal-item">
+        <div class="goal-year">2025</div>
+        <div class="goal-text">Karbon ayak izinde %25 azaltım ve karbon nötr ofis</div>
+        <span class="goal-badge badge-planned">Planlandı</span>
+      </div>
+
+      <div class="goal-item">
+        <div class="goal-year">2026</div>
+        <div class="goal-text">Tedarik zinciri ESG uyumu ve sürdürülebilir satın alma</div>
+        <span class="goal-badge badge-ongoing">Devam Ediyor</span>
+      </div>
+
+      <div class="goal-item">
+        <div class="goal-year">2027</div>
+        <div class="goal-text">%100 yeşil barındırma ve net-zero emisyon hedefi</div>
+        <span class="goal-badge badge-target">Hedef</span>
+      </div>
+
+      <div class="goal-item">
+        <div class="goal-year">2028</div>
+        <div class="goal-text">Döngüsel ekonomi modeli ve sıfır atık operasyonu</div>
+        <span class="goal-badge badge-target">Hedef</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-icon">
+      <i class="bi bi-envelope-heart"></i>
+    </div>
+    <h2 class="cta-title">Sürdürülebilirlik Yolculuğumuz</h2>
+    <p class="cta-subtitle">
+      ESG çalışmalarımız hakkında daha fazla bilgi almak veya işbirliği yapmak için bize ulaşın
+    </p>
+    <div class="mt-4">
+      <a href="/contact/" class="btn btn-cta-primary">
+        <i class="bi bi-chat-dots me-2"></i>İletişime Geçin
+      </a>
+      <a href="/corporate/" class="btn btn-cta-secondary">
+        <i class="bi bi-building me-2"></i>Kurumsal Sayfalar
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

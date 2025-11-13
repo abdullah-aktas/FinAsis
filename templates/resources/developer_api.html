@@ -1,0 +1,139 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ page_title|default:_("FinAsis Entegrasyon API") }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-8">
+      <div class="d-inline-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-warning text-dark">REST + Webhook</span>
+        <span class="badge bg-light text-dark">v2.1 Beta</span>
+      </div>
+      <h1 class="display-6 fw-bold mb-3">{% trans "FinAsis Entegrasyon API Dokümantasyonu" %}</h1>
+      <p class="lead mb-4">
+        {% trans "FinAsis platformundaki finans, uyumluluk ve eğitim modüllerine güvenli şekilde bağlanın. OAuth2 kimlik doğrulama, olay tabanlı webhooklar ve örnek kodlar bu rehberde." %}
+      </p>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="#auth" class="btn btn-light btn-lg" data-cta="developer-auth">
+          <i class="bi bi-key me-2"></i>{% trans "Kimlik Doğrulama" %}
+        </a>
+        <a href="#endpoints" class="btn btn-outline-light btn-lg" data-cta="developer-endpoints">
+          <i class="bi bi-diagram-3 me-2"></i>{% trans "API Uç Noktaları" %}
+        </a>
+        <a href="#webhooks" class="btn btn-outline-light btn-lg" data-cta="developer-webhooks">
+          <i class="bi bi-broadcast-pin me-2"></i>{% trans "Webhook Senaryoları" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <img src="{% static 'brand/logo-fa.svg' %}" alt="{% trans 'API Dokümantasyonu' %}" class="img-fluid" loading="lazy" style="max-width: 220px;">
+    </div>
+  </div>
+</section>
+
+<section id="auth" class="py-4">
+  <div class="endpoint-card mb-4">
+    <span class="token-chip mb-3">
+      <i class="bi bi-shield-lock"></i>OAuth 2.0 Client Credentials
+    </span>
+    <h2 class="h5 fw-semibold mb-3">{% trans "Token Alma" %}</h2>
+    <p class="text-secondary mb-4">
+      {% trans "Geliştirici portalında oluşturduğunuz istemci kimliği ve gizli anahtar ile erişim token'ı alın. Token süresi varsayılan olarak 1 saattir." %}
+    </p>
+<pre><code>POST /api/oauth/token
+Content-Type: application/json
+
+{
+  "client_id": "YOUR_CLIENT_ID",
+  "client_secret": "YOUR_SECRET",
+  "grant_type": "client_credentials",
+  "scope": "finance.read compliance.read"
+}</code></pre>
+  </div>
+</section>
+
+<section id="endpoints" class="py-4">
+  <div class="row g-4">
+    <div class="col-md-6 col-xl-4">
+      <div class="endpoint-card h-100">
+        <span class="method-badge method-get mb-3"><i class="bi bi-arrow-right-circle"></i>GET</span>
+        <h3 class="h6 fw-semibold mb-3">/api/v1/finance/cashflow</h3>
+        <p class="text-secondary mb-4">
+          {% trans "Nakit akışı özetlerini tarih aralığına göre listeler. Banka entegrasyonundan toplanan veriler günlük olarak güncellenir." %}
+        </p>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Parametreler: start_date, end_date, account_id" %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Desteklenen format: JSON, CSV" %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Örnek cevap: toplam giriş/çıkış, net pozisyon" %}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+      <div class="endpoint-card h-100">
+        <span class="method-badge method-post mb-3"><i class="bi bi-plus-circle"></i>POST</span>
+        <h3 class="h6 fw-semibold mb-3">/api/v1/compliance/cases</h3>
+        <p class="text-secondary mb-4">
+          {% trans "MASAK uyumluluğu kapsamında şüpheli işlem kaydı oluşturun. Finans ekipleri FinAsis panelinden aksiyona geçer." %}
+        </p>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Gerekli alanlar: customer_id, risk_score, description" %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Opsiyonel: supporting_documents[]" %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Webhook tetiklenir: compliance.case.created" %}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+      <div class="endpoint-card h-100">
+        <span class="method-badge method-delete mb-3"><i class="bi bi-x-circle"></i>DELETE</span>
+        <h3 class="h6 fw-semibold mb-3">/api/v1/lms/enrollments/{id}</h3>
+        <p class="text-secondary mb-4">
+          {% trans "FinAsis eğitim modülündeki kurs kayıtlarını siler. KVKK gereklilikleri doğrultusunda talep bazlı işlem yapın." %}
+        </p>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Yetki gereksinimi: lms.manage" %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Audit kaydı blockchain kanıtı ile saklanır." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "İlgili webhook: lms.enrollment.deleted" %}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="webhooks" class="py-5">
+  <div class="endpoint-card">
+    <h2 class="h5 fw-semibold mb-3">{% trans "Webhook Olayları" %}</h2>
+    <p class="text-secondary mb-4">
+      {% trans "FinAsis; finans hareketleri, uyumluluk uyarıları ve eğitim tamamlanma statusu için webhook gönderebilir. HTTPS + HMAC imzalı payload ile doğrulama yapabilirsiniz." %}
+    </p>
+<pre><code>POST https://yourapp.com/webhooks/finasis
+Finasis-Signature: t=1731295200,v1=9460f45...
+
+{
+  "event": "finance.transaction.created",
+  "data": {
+    "id": "txn_10492",
+    "amount": 18500,
+    "currency": "TRY",
+    "account_id": "acc_209",
+    "booking_date": "2025-11-10",
+    "category": "Subscription Revenue"
+  }
+}</code></pre>
+    <div class="mt-4">
+      <a href="{% url 'contact' %}?topic=developer-api" class="btn btn-primary">
+        <i class="bi bi-envelope-arrow-up me-2"></i>{% trans "API Anahtar Talep Et" %}
+      </a>
+      <a href="{% url 'resources_cfo_playbook' %}" class="btn btn-outline-primary ms-2">
+        <i class="bi bi-journal-code me-2"></i>{% trans "Finans Oyun Kitabıyla Devam Et" %}
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Müşteri Listesi" %} - {% trans "Mali Müşavir" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Mükellefi Müşterilerim" %}</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Müşteri" %}
+    </button>
+</div>
+
+<!-- Filtre -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">{% trans "Tüm Durumlar" %}</option>
+                    <option value="COMPLIANT" {% if status_filter == 'COMPLIANT' %}selected{% endif %}>{% trans "Uyumlu" %}</option>
+                    <option value="AT_RISK" {% if status_filter == 'AT_RISK' %}selected{% endif %}>{% trans "Risk Altında" %}</option>
+                    <option value="NON_COMPLIANT" {% if status_filter == 'NON_COMPLIANT' %}selected{% endif %}>{% trans "Uyumsuz" %}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">{% trans "Filtrele" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Müşteri Listesi -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">{% trans "Mükellef" %}</th>
+                        <th>{% trans "Vergi Türü" %}</th>
+                        <th>{% trans "Son Beyanname" %}</th>
+                        <th>{% trans "Uyum Durumu" %}</th>
+                        <th>{% trans "Risk Seviyesi" %}</th>
+                        <th class="pe-4 text-end">{% trans "İşlemler" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td class="ps-4">
+                            <div>
+                                <strong>{{ client.company.name }}</strong><br>
+                                <small class="text-muted">VKN: {{ client.tax_number }}</small>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-info">{{ client.get_tax_type_display }}</span></td>
+                        <td>{{ client.last_declaration_date|date:"d.m.Y"|default:"-" }}</td>
+                        <td>
+                            <span class="badge bg-{% if client.compliance_status == 'COMPLIANT' %}success{% elif client.compliance_status == 'AT_RISK' %}warning{% else %}danger{% endif %}">
+                                {{ client.get_compliance_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if client.risk_level == 'LOW' %}success{% elif client.risk_level == 'MEDIUM' %}warning{% else %}danger{% endif %}">
+                                {{ client.get_risk_level_display }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <a href="{% url 'advisors:client_detail' client.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted d-block mb-3"></i>
+                            <p class="text-muted">{% trans "Henüz müşteri bulunmuyor" %}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

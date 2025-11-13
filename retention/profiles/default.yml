@@ -1,0 +1,21 @@
+- model: security.SecurityAuditLog
+  action: delete
+  older_than_days: 365
+  timestamp_field: occurred_at
+  filters:
+    success: true
+  batch_size: 1000
+
+- model: security.SecurityIncident
+  action: anonymize
+  older_than_days: 730
+  timestamp_field: detected_at
+  filters:
+    is_resolved: true
+  mask_fields:
+    description: '[ANONIM]'
+    resolution_notes: '[ANONIM]'
+    affected_resource: ''
+    user_agent: ''
+  batch_size: 250
+

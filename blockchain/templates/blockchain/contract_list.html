@@ -1,0 +1,83 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Akıllı Sözleşmeler - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-file-earmark-code me-2"></i>Akıllı Sözleşmeler
+        </h1>
+        <a href="{% url 'blockchain:contract_deploy' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Yeni Contract Deploy
+        </a>
+    </div>
+    
+    <!-- Filtreleme -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-10">
+                        <select name="type" class="form-select">
+                            <option value="">Tüm Contract Tipleri</option>
+                            {% for value, label in contract_types %}
+                            <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Contract Grid -->
+    <div class="row">
+        {% for contract in contracts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="bi bi-code-square fs-1 text-primary me-3"></i>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ contract.contract_name }}</h5>
+                            <span class="badge bg-secondary">{{ contract.get_contract_type_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="small text-muted mb-3">
+                        <strong>Address:</strong><br>
+                        <code class="small">{{ contract.contract_address|truncatechars:20 }}</code>
+                    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Deployed by:</small>
+                        <small><strong>{{ contract.deployed_by.username }}</strong></small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">Execution Count:</small>
+                        <span class="badge bg-info">{{ contract.execution_count }}</span>
+                    </div>
+                    
+                    <a href="{% url 'blockchain:contract_detail' contract.contract_address %}" class="btn btn-outline-primary btn-sm w-100">
+                        Detay ve Çalıştır
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                Henüz akıllı sözleşme deploy edilmedi
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

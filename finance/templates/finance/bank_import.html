@@ -1,0 +1,44 @@
+﻿{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% block title %}Banka CSV çe Aktarma{% endblock %}
+{% block content %}
+<h2 class="mb-3">Banka CSV çe Aktarma</h2>
+<form method="post" enctype="multipart/form-data" class="card p-3 mb-4">
+  {% csrf_token %}
+  <div class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">CSV Dosyası</label>
+      <input type="file" name="file" accept=".csv" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Hesap</label>
+      <select name="account_id" class="form-select" required>
+        <option value="">Seçin...</option>
+        {% for acc in accounts %}
+          <option value="{{ acc.id }}">{{ acc.bank.name }} · {{ acc.iban }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-success">Önizle ve çe Aktar</button>
+      <input type="hidden" name="confirm" value="1">
+    </div>
+  </div>
+</form>
+{% if preview %}
+<div class="card p-3">
+  <h5 class="mb-3">Önizleme (ilk {{ preview|length }} satır)</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-striped">
+      <thead>
+        <tr>{% for k,v in preview.0.items %}<th>{{ k }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in preview %}<tr>{% for k,v in row.items %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="text-muted small">pucu: date/tarih, description/açıklama, amount/tutar başlıkları tanınır.</div>
+</div>
+{% endif %}
+{% endblock %}

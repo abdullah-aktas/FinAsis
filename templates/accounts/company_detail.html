@@ -1,0 +1,90 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}{{ company.name }} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .company-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    text-align: center;
+  }
+
+  .info-item {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+  }
+
+  .info-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: #667eea;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="company-header">
+    <i class="bi bi-building" style="font-size: 48px; margin-bottom: 16px;"></i>
+    <h1 style="font-size: 32px; font-weight: 800;">{{ company.name }}</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="info-item">
+        <div class="info-label"><i class="bi bi-briefcase me-2"></i>Sektör</div>
+        <div class="info-value">{{ company.sector }}</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label"><i class="bi bi-hash me-2"></i>Vergi No</div>
+        <div class="info-value">{{ company.tax_number }}</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label"><i class="bi bi-geo-alt me-2"></i>Adres</div>
+        <div class="info-value">{{ company.address }}</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label"><i class="bi bi-telephone me-2"></i>Telefon</div>
+        <div class="info-value">{{ company.phone }}</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label"><i class="bi bi-envelope me-2"></i>E-posta</div>
+        <div class="info-value">{{ company.email }}</div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'accounts:company_edit' company.id %}" class="btn btn-primary btn-lg" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+          <i class="bi bi-pencil me-2"></i>Düzenle
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

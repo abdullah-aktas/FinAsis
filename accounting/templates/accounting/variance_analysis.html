@@ -1,0 +1,27 @@
+{% extends "core_ui/base.html" %}
+{% load common_tags %}
+{% block content %}
+<div class="container py-4">
+  <h3>Sapma Analizi ({{ period }}) {% if scenario %}- Senaryo: {{ scenario.name }}{% endif %}</h3>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        {% for c in df.columns %}
+          <th>{{ c }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in df.itertuples %}
+        <tr>
+          {% for col in df.columns %}
+            <td>{{ row|getattr:col }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+

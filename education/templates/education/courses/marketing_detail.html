@@ -1,0 +1,205 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ page.title }} · FinAsis Eğitim{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="corporate-hero mb-5">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <h1 class="display-4 fw-bold mb-3">{{ page.title }}</h1>
+      <p class="lead mb-4">{{ page.hero_subtitle }}</p>
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <a href="{{ enroll_url }}" class="btn btn-light btn-lg px-4" data-cta="course-apply">
+          <i class="bi bi-person-plus me-2"></i>{% trans "Programa katıl" %}
+        </a>
+        <a href="{{ contact_url }}" class="btn btn-outline-light btn-lg px-4" data-cta="course-contact">
+          <i class="bi bi-chat-left-text me-2"></i>{% trans "Kurumsal teklif al" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="corporate-metric-grid">
+        {% for metric in page.metrics %}
+        <div class="corporate-metric-card">
+          <span class="value">{{ metric.value }}</span>
+          <span class="label">{{ metric.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 d-flex flex-wrap gap-3">
+    {% for item in page.hero_highlights %}
+    <span class="badge bg-light text-dark fw-semibold">{{ item }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="py-5" id="audience">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "Kimler katılmalı?" %}</span>
+        <h2 class="landing-section-title mb-3">{% trans "Program hedef kitlesi" %}</h2>
+        <ul class="list-unstyled d-grid gap-3 fs-5 text-secondary">
+          {% for item in page.audience %}
+          <li><i class="bi bi-star-fill text-primary me-2"></i>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-lg-5 ms-lg-auto">
+        <div class="resource-card h-100">
+          <h3 class="h5 fw-semibold mb-3">{% trans "Teslimat modeli" %}</h3>
+          <ul class="list-unstyled d-grid gap-3 mb-0">
+            <li class="d-flex align-items-center">
+              <div class="icon-wrap me-3"><i class="bi bi-clock-history"></i></div>
+              <div>
+                <div class="fw-semibold">{% trans "Süre" %}</div>
+                <div class="text-secondary">{{ page.delivery.duration }}</div>
+              </div>
+            </li>
+            <li class="d-flex align-items-center">
+              <div class="icon-wrap me-3"><i class="bi bi-display"></i></div>
+              <div>
+                <div class="fw-semibold">{% trans "Format" %}</div>
+                <div class="text-secondary">{{ page.delivery.format }}</div>
+              </div>
+            </li>
+            <li class="d-flex align-items-center">
+              <div class="icon-wrap me-3"><i class="bi bi-translate"></i></div>
+              <div>
+                <div class="fw-semibold">{% trans "Dil" %}</div>
+                <div class="text-secondary">{{ page.delivery.language }}</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light" id="modules">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-7">
+        <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "Müfredat" %}</span>
+        <h2 class="landing-section-title mb-3">{% trans "Temel modüller" %}</h2>
+        <p class="fs-5 text-secondary mb-0">{% trans "Her modül gerçek finansal veriler ve FinAsis LMS görevleri ile desteklenir." %}</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for module in page.modules %}
+      <div class="col-md-6 col-xl-3">
+        <div class="solution-card h-100">
+          <div class="solution-icon">
+            <i class="bi {{ module.icon }}"></i>
+          </div>
+          <h3 class="h5 fw-semibold mb-2">{{ module.title }}</h3>
+          <p class="text-secondary mb-0">{{ module.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="outcomes">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Kazançlar" %}</span>
+        <h2 class="landing-section-title mb-3">{% trans "Program çıktıları" %}</h2>
+        <ul class="segment-module-list">
+          {% for outcome in page.outcomes %}
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ outcome }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-lg-6">
+        <div class="enterprise-highlight-card h-100">
+          <span class="badge bg-light text-dark text-uppercase small mb-2">{% trans "Eğitmen" %}</span>
+          <h3 class="h5 fw-semibold mb-1">{{ page.instructor.name }}</h3>
+          <p class="text-secondary mb-2">{{ page.instructor.title }}</p>
+          <p class="mb-0">{{ page.instructor.bio }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light" id="syllabus">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-7">
+        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Program takvimi" %}</span>
+        <h2 class="landing-section-title mb-3">{% trans "Haftalık ilerleyiş" %}</h2>
+        <p class="fs-5 text-secondary mb-0">{% trans "Her hafta canlı ders, AI destekli quiz ve FinQuest görevleri içerir." %}</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for item in page.syllabus %}
+      <div class="col-md-6 col-xl-4">
+        <div class="journey-card h-100">
+          <span class="badge bg-light text-dark text-uppercase small mb-2">{{ item.week }}</span>
+          <h3 class="h5 fw-semibold mb-1">{{ item.topic }}</h3>
+          <p class="text-secondary small mb-0">{{ item.format }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5" id="faq">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-7">
+        <span class="badge bg-warning-subtle text-warning-emphasis mb-3">{% trans "Sık sorulan sorular" %}</span>
+        <h2 class="landing-section-title mb-3">{% trans "Program hakkında" %}</h2>
+      </div>
+    </div>
+    <div class="accordion" id="courseFaq">
+      {% for faq in page.faqs %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading{{ forloop.counter }}">
+          <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="faqCollapse{{ forloop.counter }}">
+            {{ faq.question }}
+          </button>
+        </h2>
+        <div id="faqCollapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="faqHeading{{ forloop.counter }}" data-bs-parent="#courseFaq">
+          <div class="accordion-body text-secondary">
+            {{ faq.answer }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
+      <div>
+        <h2 class="display-6 fw-bold mb-3">{% trans "Finansal okuryazarlık yolculuğunuzu başlatın." %}</h2>
+        <p class="lead mb-0">{% trans "Kaydolun, FinAsis LMS üzerinde canlı verilerle uygulamalı ilerleyin ve sertifikanızı alın." %}</p>
+      </div>
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <a class="btn btn-light btn-lg px-4" href="{{ enroll_url }}" data-cta="course-bottom-enroll">
+          <i class="bi bi-pencil-square me-2"></i>{% trans "Şimdi kayıt ol" %}
+        </a>
+        <a class="btn btn-outline-light btn-lg px-4" href="{{ contact_url }}" data-cta="course-bottom-contact">
+          {% trans "Kurumsal teklif al" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

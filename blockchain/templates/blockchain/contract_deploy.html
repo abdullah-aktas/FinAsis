@@ -1,0 +1,79 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Smart Contract Deploy - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4">
+        <i class="bi bi-rocket me-2"></i>Akıllı Sözleşme Deploy
+    </h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Contract Adı</label>
+                            <input type="text" name="contract_name" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Contract Tipi</label>
+                            <select name="contract_type" class="form-select" required>
+                                {% for value, label in contract_types %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Contract Kodu (JSON)</label>
+                            <textarea name="code" class="form-control font-monospace" rows="10" required>{
+    "trigger": "event",
+    "conditions": {},
+    "actions": []
+}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Parametreler (JSON)</label>
+                            <textarea name="parameters" class="form-control font-monospace" rows="3">{}</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-rocket me-2"></i>Deploy Contract
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-info-circle me-2"></i>Bilgi</h6>
+                    <p class="small">
+                        Akıllı sözleşmeler otomatik çalışan iş kurallarıdır. Deploy sonrası contract address ile sözleşmeyi çalıştırabilirsiniz.
+                    </p>
+                    <h6 class="mt-3">Örnek Contract:</h6>
+                    <pre class="small">{
+  "trigger": "monthly",
+  "day": 1,
+  "action": "create_invoice",
+  "amount": 1000
+}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

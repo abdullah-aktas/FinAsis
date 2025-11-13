@@ -1,0 +1,2 @@
+"""Prompt konfigürasyon paketinin başlangıcı."""
+

@@ -1,0 +1,15 @@
+{% extends "core_ui/base.html" %}
+{% block title %}E-Faturalar{% endblock %}
+{% block content %}
+<h1>E-Faturalar</h1>
+<a href="{% url 'finance:einvoice_create' %}" class="btn btn-success mb-3">Yeni E-Fatura Ekle</a>
+<ul>
+  {% for einvoice in einvoices %}
+    <li>
+  <a href="{% url 'finance:einvoice_detail' einvoice.pk %}">{{ einvoice.invoice_number }} - {{ einvoice.issue_date }} - {{ einvoice.total }}</a>
+    </li>
+  {% empty %}
+    <li>Hiç e-fatura yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

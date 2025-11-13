@@ -1,0 +1,60 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Trend Analizleri</h5>
+        <a href="{% url 'ai_assistant:trendanalysis_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Analiz
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>Analiz Türü</th>
+                        <th>Başlangıç Tarihi</th>
+                        <th>Bitiş Tarihi</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for analysis in analyses %}
+                    <tr>
+                        <td>{{ analysis.user }}</td>
+                        <td>{{ analysis.get_analysis_type_display }}</td>
+                        <td>{{ analysis.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ analysis.end_date|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if analysis.is_completed %}
+                            <span class="badge bg-success">Tamamlandı</span>
+                            {% else %}
+                            <span class="badge bg-warning">Devam Ediyor</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'ai_assistant:trendanalysis_detail' analysis.pk %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:trendanalysis_update' analysis.pk %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'ai_assistant:trendanalysis_delete' analysis.pk %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Henüz trend analizi kaydı bulunmamaktadır.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

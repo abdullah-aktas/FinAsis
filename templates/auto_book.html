@@ -1,0 +1,50 @@
+{% extends "core_ui/base.html" %}
+{% block content %}
+<div class="container">
+  <h2>Otomatik Fiş Önizleme</h2>
+  <form id="ocrForm" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label class="form-label">Belge (JPG/PNG/PDF)</label>
+      <input type="file" name="file" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Önizle</button>
+  </form>
+  <hr/>
+  <form id="nlpForm">
+    <div class="mb-3">
+      <label class="form-label">Serbest Metin</label>
+      <textarea name="text" class="form-control" rows="3" placeholder="Örn: fatura no X toplam 1.250,00 kdv %20"></textarea>
+    </div>
+    <button type="submit" class="btn btn-secondary">Metinden Önizle</button>
+  </form>
+  <hr/>
+  <div id="preview" class="mt-3"></div>
+</div>
+<script>
+async function handlePreview(url, body, isForm=false){
+  const res = await fetch(url, { method: 'POST', body: isForm? body : JSON.stringify(body), headers: isForm? {} : { 'Content-Type': 'application/json' }});
+  const data = await res.json();
+  const p = data.preview || {};
+  const lines = (p.lines||[]).map(l=>`<tr><td>${l.account}</td><td>${l.account_name||''}</td><td>${l.description||''}</td><td>${l.debit}</td><td>${l.credit}</td></tr>`).join('');
+  document.getElementById('preview').innerHTML = `
+    <div class="card">
+      <div class="card-body">
+        <div><b>Tarih:</b> ${p.date||''} <b>Ref:</b> ${p.reference||''} <b>Toplam:</b> ${p.total||''}</div>
+        <div><b>Tür:</b> ${p.nature||''} <b>Kural:</b> ${p.rule_id||''}</div>
+        <table class="table table-sm mt-2"><thead><tr><th>Kod</th><th>Hesap</th><th>Açıklama</th><th>Borç</th><th>Alacak</th></tr></thead><tbody>${lines}</tbody></table>
+      </div>
+    </div>`;
+}
+document.getElementById('ocrForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  handlePreview('{% url "accounting:api_ocr_preview_voucher" %}', fd, true);
+});
+document.getElementById('nlpForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const text = new FormData(e.target).get('text');
+  handlePreview('{% url "accounting:api_nlp_preview_voucher" %}', {text});
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,134 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ client.company.name }} - {% trans "Mali Müşavir" %}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'advisors:client_list' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Müşteri Listesine Dön" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-building text-primary fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-1">{{ client.company.name }}</h4>
+                    <p class="text-muted small">VKN: {{ client.tax_number }}</p>
+                </div>
+
+                <div class="d-flex justify-content-around text-center mb-3 pb-3 border-bottom">
+                    <div>
+                        <span class="badge bg-{% if client.compliance_status == 'COMPLIANT' %}success{% elif client.compliance_status == 'AT_RISK' %}warning{% else %}danger{% endif %} mb-1">
+                            {{ client.get_compliance_status_display }}
+                        </span>
+                        <p class="small text-muted mb-0">{% trans "Uyum" %}</p>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <span class="badge bg-{% if client.risk_level == 'LOW' %}success{% elif client.risk_level == 'MEDIUM' %}warning{% else %}danger{% endif %} mb-1">
+                            {{ client.get_risk_level_display }}
+                        </span>
+                        <p class="small text-muted mb-0">{% trans "Risk" %}</p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="small mb-2"><strong>{% trans "Vergi Türü" %}:</strong> {{ client.get_tax_type_display }}</p>
+                    <p class="small mb-2"><strong>{% trans "Son Beyanname" %}:</strong> {{ client.last_declaration_date|date:"d.m.Y"|default:"-" }}</p>
+                    <p class="small mb-0"><strong>{% trans "Kayıt Tarihi" %}:</strong> {{ client.registration_date|date:"d.m.Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Beyannameler -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{% trans "Beyannameler" %}</h5>
+                <a href="{% url 'advisors:declaration_create' %}" class="btn btn-sm btn-primary">{% trans "Yeni Beyanname" %}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Tür" %}</th>
+                                <th>{% trans "Dönem" %}</th>
+                                <th>{% trans "Son Tarih" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for declaration in declarations %}
+                            <tr>
+                                <td>{{ declaration.get_tax_type_display }}</td>
+                                <td>{{ declaration.declaration_period }}</td>
+                                <td>{{ declaration.due_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if declaration.declaration_status == 'SUBMITTED' %}success{% elif declaration.declaration_status == 'DRAFT' %}warning{% else %}secondary{% endif %}">
+                                        {{ declaration.get_declaration_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-3 text-muted">{% trans "Beyanname bulunmuyor" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danışmanlık Oturumları -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">{% trans "Danışmanlık Oturumları" %}</h5>
+            </div>
+            <div class="card-body">
+                {% for session in sessions %}
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <h6 class="mb-1">{{ session.get_session_type_display }}</h6>
+                        <p class="text-muted small mb-0">{{ session.scheduled_date|date:"d F Y" }}, {{ session.scheduled_time }}</p>
+                    </div>
+                    <span class="badge bg-info">{{ session.duration_minutes }} dk</span>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">{% trans "Oturum kaydı bulunmuyor" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Dokümanlar -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{% trans "Dokümanlar" %}</h5>
+                <button class="btn btn-sm btn-outline-primary">{% trans "Yükle" %}</button>
+            </div>
+            <div class="card-body">
+                {% for document in documents %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                        <span>{{ document.title }}</span>
+                    </div>
+                    <small class="text-muted">{{ document.uploaded_at|date:"d.m.Y" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">{% trans "Doküman bulunmuyor" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

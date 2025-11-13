@@ -1,0 +1,17 @@
+{% extends "core_ui/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h3>{{ vendor.name }}</h3>
+  <p><strong>Vergi No:</strong> {{ vendor.tax_number }}</p>
+  <p><strong>Telefon:</strong> {{ vendor.phone }}</p>
+  <p><strong>E-posta:</strong> {{ vendor.email }}</p>
+  <p><strong>Adres:</strong> {{ vendor.address }}</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:vendor_update' vendor.id %}">Düzenle</a>
+  <form class="d-inline" method="post" action="{% url 'accounting:vendor_delete' vendor.id %}">{% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+  </form>
+  <a class="btn btn-link btn-sm" href="{% url 'accounting:vendor_list' %}">Geri</a>
+</div>
+{% endblock %}
+
+

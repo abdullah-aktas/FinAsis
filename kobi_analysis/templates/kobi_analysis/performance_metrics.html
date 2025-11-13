@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Performans Metrikleri" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Performans Metrikleri" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{% trans "Performans Metrikleri" %}</h1>
+                <p class="text-gray-600 mt-2">{% trans "KPI'larınızı takip edin ve performansınızı ölçün" %}</p>
+            </div>
+            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                {% trans "Yeni Metrik" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Kategori Bazlı Metrikler -->
+    {% for category, category_metrics in metrics_by_category.items %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">{{ category }}</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for metric in category_metrics %}
+            <div class="border rounded-lg p-6 hover:shadow-lg transition">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-semibold text-gray-800">{{ metric.metric_name }}</h3>
+                    {% if metric.is_target_met %}
+                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    {% else %}
+                    <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-600">{% trans "Mevcut" %}</span>
+                        <span class="font-bold text-2xl text-blue-600">{{ metric.current_value|floatformat:1 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">{% trans "Hedef" %}</span>
+                        <span class="font-semibold text-gray-700">{{ metric.target_value|floatformat:1 }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>{% trans "İlerleme" %}</span>
+                        <span>{{ metric.get_progress_percentage|floatformat:0 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="{% if metric.is_target_met %}bg-green-600{% else %}bg-blue-600{% endif %} h-2 rounded-full transition-all" 
+                            style="width: {{ metric.get_progress_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-500">{{ metric.description|truncatewords:15 }}</p>
+
+                <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                    <span class="text-xs text-gray-500">
+                        {% trans "Son Güncelleme" %}: {{ metric.measurement_date|date:"d.m.Y" }}
+                    </span>
+                    {% if metric.trend == 'UP' %}
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                    </svg>
+                    {% elif metric.trend == 'DOWN' %}
+                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd"/>
+                    </svg>
+                    {% else %}
+                    <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <p class="text-gray-600">{% trans "Henüz performans metriği bulunmuyor" %}</p>
+        <button class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            {% trans "İlk Metriğinizi Ekleyin" %}
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

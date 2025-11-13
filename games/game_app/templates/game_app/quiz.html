@@ -1,0 +1,1256 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Finans Quiz" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tam Ekran Oyun Modu */
+    body.game-fullscreen header,
+    body.game-fullscreen footer,
+    body.game-fullscreen #system-messages,
+    body.game-fullscreen .breadcrumbs {
+      display: none !important;
+    }
+
+    body.game-fullscreen main {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    body.game-fullscreen .container {
+      max-width: 100% !important;
+      padding: 0 !important;
+    }
+
+    /* Toggle & Back Buttons */
+    .ui-toggle-btn, .back-btn {
+      position: fixed;
+      top: 20px;
+      z-index: 9999;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      color: white;
+      font-size: 24px;
+    }
+
+    .ui-toggle-btn {
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .back-btn {
+      left: 20px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .ui-toggle-btn:hover, .back-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .ui-toggle-btn::before, .back-btn::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .ui-toggle-btn::before {
+      right: 60px;
+    }
+
+    .back-btn::before {
+      left: 60px;
+    }
+
+    .ui-toggle-btn:hover::before, .back-btn:hover::before {
+      opacity: 1;
+    }
+
+    /* Full Screen Quiz */
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+    }
+
+    .quiz-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .quiz-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 40px;
+      border-radius: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .quiz-card {
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      border-radius: 24px;
+      padding: 40px;
+      color: white;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .question-number {
+      font-size: 5rem;
+      font-weight: 800;
+      opacity: 0.1;
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+    }
+
+    .answer-option {
+      padding: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .answer-option:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.2);
+      transform: translateX(10px);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .answer-option.correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+      animation: pulse 0.5s ease;
+    }
+
+    .answer-option.incorrect {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .progress-bar-custom {
+      height: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #667eea 100%);
+      transition: width 0.5s ease;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .score-badge {
+      font-size: 5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .quiz-screen-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+    }
+
+    /* Result screen enhancements */
+    #results-screen .stat-box {
+      animation: bounceIn 0.6s ease-out backwards;
+    }
+
+    #results-screen .stat-box:nth-child(1) { animation-delay: 0.1s; }
+    #results-screen .stat-box:nth-child(2) { animation-delay: 0.2s; }
+    #results-screen .stat-box:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+  <div style="width: 100%; max-width: 1200px;">
+    <!-- Hero -->
+    <div class="quiz-hero text-center">
+        <h1 class="fw-bold mb-2" style="font-size: 3rem;">
+            <i class="bi bi-patch-question-fill me-2"></i>
+            {% trans "Finans Quiz" %}
+        </h1>
+        <p class="mb-0" style="font-size: 1.2rem;">{% trans "Finansal bilginizi test edin ve yeni kavramlar öğrenin!" %}</p>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="text-center">
+        <div class="quiz-card mx-auto" style="max-width: 800px;">
+            <div style="font-size: 5rem; margin-bottom: 30px;">💡</div>
+            <h2 class="fw-bold mb-4" style="font-size: 2.5rem;">{% trans "Hazır mısınız?" %}</h2>
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.1rem; margin-bottom: 40px;">
+                <span style="color: #10b981; font-weight: 700;">🤖 AI Destekli</span> adaptif quiz sistemi! 
+                Performansınıza göre sorular zorlaşır veya kolaylaşır.
+            </p>
+
+            <!-- Zorluk Seçimi -->
+            <div class="mb-5">
+              <h4 style="color: white; margin-bottom: 20px;">Soru Sayısı Seçin:</h4>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="stat-box" onclick="selectQuestionCount(10)" style="cursor: pointer;" id="count-10">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">⚡</div>
+                    <div class="fw-bold" style="font-size: 1.3rem;">10 Soru</div>
+                    <small style="color: rgba(255, 255, 255, 0.6);">Hızlı Test</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="stat-box" onclick="selectQuestionCount(15)" style="cursor: pointer;" id="count-15">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📋</div>
+                    <div class="fw-bold" style="font-size: 1.3rem;">15 Soru</div>
+                    <small style="color: rgba(255, 255, 255, 0.6);">Dengeli</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="stat-box" onclick="selectQuestionCount(20)" style="cursor: pointer;" id="count-20">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">🎯</div>
+                    <div class="fw-bold" style="font-size: 1.3rem;">20 Soru</div>
+                    <small style="color: rgba(255, 255, 255, 0.6);">Kapsamlı</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-lg px-5" onclick="startQuiz()" id="start-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 16px; font-weight: 700; font-size: 1.2rem; padding: 16px 48px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);">
+                <i class="bi bi-play-fill me-2"></i>{% trans "Başla" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" style="display: none;">
+        <div class="quiz-card mx-auto" style="max-width: 900px; position: relative;">
+            <div class="question-number" id="question-number">1</div>
+
+            <!-- Progress -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between mb-3">
+                    <span style="color: rgba(255, 255, 255, 0.7); font-size: 1.1rem;">
+                      Soru <span id="current-question" style="color: #667eea; font-weight: 700;">1</span>/<span id="total-questions">25</span>
+                    </span>
+                    <span class="fw-bold" style="font-size: 1.3rem;">
+                      🎯 <span id="current-score" style="color: #10b981;">0</span> puan
+                    </span>
+                </div>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
+                </div>
+            </div>
+
+            <!-- Question -->
+            <h3 class="fw-bold mb-5" id="question-text" style="font-size: 1.8rem; line-height: 1.5; color: white;">Soru metni buraya gelecek</h3>
+
+            <!-- Answers -->
+            <div id="answers-container">
+                <!-- Dynamic answers -->
+            </div>
+
+            <!-- Controls -->
+            <div class="text-center mt-5">
+                <button id="hint-btn" class="btn btn-outline-warning px-4 me-3" onclick="showHint()"
+                    style="border-radius: 12px; font-weight: 600;">
+                    <i class="bi bi-lightbulb me-1"></i>{% trans "İpucu" %}
+                </button>
+                <button id="next-btn" class="btn px-5" onclick="nextQuestion()" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 700; padding: 14px 40px;">
+                    {% trans "Sonraki Soru" %} <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Explanation -->
+            <div id="explanation" class="mt-4" style="display: none; background: rgba(59, 130, 246, 0.15); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px;">
+                <div style="display: flex; gap: 15px; align-items: start;">
+                  <i class="bi bi-info-circle" style="font-size: 24px; color: #3b82f6;"></i>
+                  <span id="explanation-text" style="color: rgba(255, 255, 255, 0.9); line-height: 1.6;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" style="display: none;">
+        <div class="quiz-card mx-auto text-center" style="max-width: 800px;">
+            <div style="font-size: 6rem; margin-bottom: 20px;">🏆</div>
+            <h2 class="fw-bold mb-4" style="font-size: 2.5rem;">{% trans "Quiz Tamamlandı!" %}</h2>
+
+            <div class="score-badge mb-5" id="final-score">0/250</div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="stat-box">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                        <div class="fw-bold" id="correct-count" style="font-size: 2rem; color: #10b981;">0</div>
+                        <small style="color: rgba(255, 255, 255, 0.6);">Doğru</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-box">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">❌</div>
+                        <div class="fw-bold" id="incorrect-count" style="font-size: 2rem; color: #ef4444;">0</div>
+                        <small style="color: rgba(255, 255, 255, 0.6);">Yanlış</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-box">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📊</div>
+                        <div class="fw-bold" id="success-rate" style="font-size: 2rem; color: #667eea;">0%</div>
+                        <small style="color: rgba(255, 255, 255, 0.6);">Başarı</small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-message" class="mb-5" style="padding: 24px; border-radius: 16px; font-size: 1.2rem; font-weight: 600;"></div>
+
+            <div class="d-flex gap-3 justify-content-center">
+              <button class="btn btn-lg px-5" onclick="restartQuiz()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 700; padding: 14px 40px;">
+                  <i class="bi bi-arrow-clockwise me-2"></i>{% trans "Tekrar Dene" %}
+              </button>
+              <a href="/games/hub/" class="btn btn-lg px-5" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; font-weight: 700; padding: 14px 40px; text-decoration: none;">
+                  <i class="bi bi-house me-2"></i>Ana Menü
+              </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Toggle & Back Buttons -->
+    <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+      <span id="toggleIcon">👁️</span>
+    </button>
+    <button class="back-btn" onclick="goBack()" data-tooltip="Geri Dön" aria-label="Geri Dön">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tüm soru havuzu (zorluk etiketli)
+    const allQuestions = [
+        {
+            question: "Enflasyon nedir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Paranın değer kaybetmesi", correct: true },
+                { text: "Paranın değer kazanması", correct: false },
+                { text: "Faiz oranlarının artması", correct: false },
+                { text: "İşsizlik oranının artması", correct: false }
+            ],
+            explanation: "Enflasyon, genel fiyat seviyesinin artması ve paranın satın alma gücünün azalması sürecidir."
+        },
+        {
+            question: "Bileşik faiz nedir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Ana para üzerinden hesaplanan faiz", correct: false },
+                { text: "Ana para ve birikmiş faizler üzerinden hesaplanan faiz", correct: true },
+                { text: "Sadece son ay için hesaplanan faiz", correct: false },
+                { text: "İlk yıl için hesaplanan faiz", correct: false }
+            ],
+            explanation: "Bileşik faiz, hem ana para hem de önceki dönemlerde kazanılan faizler üzerinden hesaplanan faizdir."
+        },
+        {
+            question: "Diversifikasyon (çeşitlendirme) ne anlama gelir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Tüm parayı tek bir yatırıma koymak", correct: false },
+                { text: "Riskleri azaltmak için farklı yatırımlara dağıtmak", correct: true },
+                { text: "Sadece hisse senedi almak", correct: false },
+                { text: "Parayı bankada tutmak", correct: false }
+            ],
+            explanation: "Diversifikasyon, riski azaltmak için yatırımları farklı varlıklar arasında dağıtma stratejisidir."
+        },
+        {
+            question: "Hisse senedi ne demektir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Bir şirkete verilen borç", correct: false },
+                { text: "Bir şirketten alınan maaş", correct: false },
+                { text: "Bir şirketten sahip olunan pay", correct: true },
+                { text: "Devlet tahvili", correct: false }
+            ],
+            explanation: "Hisse senedi, bir şirkete ortaklık payını temsil eden menkul kıymettir."
+        },
+        {
+            question: "Acil durum fonu ne kadarlık giderleri karşılamalıdır?",
+            difficulty: "medium",
+            answers: [
+                { text: "1 aylık", correct: false },
+                { text: "3-6 aylık", correct: true },
+                { text: "1 yıllık", correct: false },
+                { text: "Gerekli değil", correct: false }
+            ],
+            explanation: "Finansal danışmanlar genellikle 3-6 aylık yaşam giderlerini karşılayacak bir acil durum fonu tutulmasını önerir."
+        },
+        {
+            question: "TCMB ne anlama gelir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Türkiye Ticaret Merkez Bankası", correct: false },
+                { text: "Türkiye Cumhuriyet Merkez Bankası", correct: true },
+                { text: "Türkiye Cetveli Müdürlük Bankası", correct: false },
+                { text: "Türkiye Cumhuriyeti Mali Bankası", correct: false }
+            ],
+            explanation: "TCMB, Türkiye Cumhuriyet Merkez Bankası'dır ve para politikasından sorumlu kurumdur."
+        },
+        {
+            question: "Tahvil nedir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Hisse senedi türü", correct: false },
+                { text: "Borçlanma aracı", correct: true },
+                { text: "Emeklilik planı", correct: false },
+                { text: "Sigorta poliçesi", correct: false }
+            ],
+            explanation: "Tahvil, devlet veya şirketlerin belirli bir vade ve faiz oranı ile borçlanma aracıdır."
+        },
+        {
+            question: "50/30/20 kuralı neyi ifade eder?",
+            difficulty: "medium",
+            answers: [
+                { text: "Yatırım stratejisi", correct: false },
+                { text: "Bütçe planlaması yöntemi", correct: true },
+                { text: "Emeklilik hesaplaması", correct: false },
+                { text: "Vergi oranı", correct: false }
+            ],
+            explanation: "50/30/20 kuralı: Gelirin %50'si ihtiyaçlara, %30'u isteklere, %20'si tasarrufa ayrılmalıdır."
+        },
+        {
+            question: "Likidite ne demektir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Varlığın nakde çevrilme hızı", correct: true },
+                { text: "Yatırımın karlılığı", correct: false },
+                { text: "Risk seviyesi", correct: false },
+                { text: "Faiz oranı", correct: false }
+            ],
+            explanation: "Likidite, bir varlığın değer kaybetmeden hızla nakde çevrilebilme özelliğidir."
+        },
+        {
+            question: "Borsa'da ayı piyasası (bear market) ne anlama gelir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Fiyatların yükseldiği piyasa", correct: false },
+                { text: "Fiyatların düştüğü piyasa", correct: true },
+                { text: "Stabil piyasa", correct: false },
+                { text: "Kapalı piyasa", correct: false }
+            ],
+            explanation: "Ayı piyasası, fiyatların genel olarak düştüğü ve yatırımcı güveninin azaldığı piyasa durumudur."
+        },
+        {
+            question: "P/E (Fiyat/Kazanç) oranı neyi gösterir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Şirketin hisse fiyatının kazancına oranı", correct: true },
+                { text: "Şirketin toplam borcu", correct: false },
+                { text: "Pazar kapitalizasyonu", correct: false },
+                { text: "Temettü verimi", correct: false }
+            ],
+            explanation: "P/E oranı, bir hissenin fiyatının şirketin hisse başına kazancına bölünmesiyle bulunur. Değerleme göstergesidir."
+        },
+        {
+            question: "ROI (Return on Investment) ne demektir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Yatırım getirisi", correct: true },
+                { text: "Risk oranı", correct: false },
+                { text: "Borç yükü", correct: false },
+                { text: "İşletme maliyeti", correct: false }
+            ],
+            explanation: "ROI (Yatırım Getirisi), bir yatırımdan elde edilen kazancın yatırılan tutara oranıdır."
+        },
+        {
+            question: "Futures (Vadeli işlem) sözleşmesi nedir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Gelecekte belirli fiyattan alım/satım anlaşması", correct: true },
+                { text: "Hemen alım/satım", correct: false },
+                { text: "Emeklilik planı", correct: false },
+                { text: "Kredi türü", correct: false }
+            ],
+            explanation: "Vadeli işlem, gelecekte belirli bir tarihte, önceden belirlenen fiyattan alım veya satım yapma sözleşmesidir."
+        },
+        {
+            question: "Hedge (Koruma) işlemi neden yapılır?",
+            difficulty: "hard",
+            answers: [
+                { text: "Kar maksimizasyonu için", correct: false },
+                { text: "Riski azaltmak için", correct: true },
+                { text: "Vergi avantajı için", correct: false },
+                { text: "Şirket satın almak için", correct: false }
+            ],
+            explanation: "Hedge, potansiyel kayıpları sınırlamak için yapılan risk yönetimi stratejisidir."
+        },
+        {
+            question: "IBAN nedir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Uluslararası Banka Hesap Numarası", correct: true },
+                { text: "İnternet Bankacılığı Şifresi", correct: false },
+                { text: "Banka Şube Kodu", correct: false },
+                { text: "Kredi Kartı Numarası", correct: false }
+            ],
+            explanation: "IBAN (International Bank Account Number), uluslararası banka hesap numarasıdır."
+        },
+        {
+            question: "Nakit akış tablosu neyi gösterir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Sadece gelirleri", correct: false },
+                { text: "Sadece giderleri", correct: false },
+                { text: "Nakit giriş ve çıkışlarını", correct: true },
+                { text: "Sadece kar/zararı", correct: false }
+            ],
+            explanation: "Nakit akış tablosu, bir dönemde işletmeye giren ve çıkan nakit hareketlerini gösterir."
+        },
+        {
+            question: "EFT ne anlama gelir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Elektronik Fon Transferi", correct: true },
+                { text: "Ekonomik Faaliyet Testi", correct: false },
+                { text: "Eski Finans Takası", correct: false },
+                { text: "Eşdeğer Fiyat Takibi", correct: false }
+            ],
+            explanation: "EFT, Elektronik Fon Transferi'dir. Banka hesapları arası para transferi sistemidir."
+        },
+        {
+            question: "Aktif ve pasif arasındaki fark nedir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Aktif varlık, pasif borçtur", correct: true },
+                { text: "İkisi de aynı şeydir", correct: false },
+                { text: "Aktif borç, pasif varlıktır", correct: false },
+                { text: "Sadece muhasebe terimidir", correct: false }
+            ],
+            explanation: "Aktif, işletmenin sahip olduğu varlıklardır. Pasif ise işletmenin borçları ve öz sermayesidir."
+        },
+        {
+            question: "Temettü (dividend) nedir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Hissedarla paylaşılan kar", correct: true },
+                { text: "Hisse senedi fiyatı", correct: false },
+                { text: "Şirket borcu", correct: false },
+                { text: "Vergi oranı", correct: false }
+            ],
+            explanation: "Temettü, şirketin elde ettiği kardan hissedarlara dağıttığı paydır."
+        },
+        {
+            question: "TCMB faiz oranını neden değiştirir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Enflasyonu kontrol etmek için", correct: true },
+                { text: "Bankalara kar sağlamak için", correct: false },
+                { text: "Vergi toplamak için", correct: false },
+                { text: "İhracatı durdurmak için", correct: false }
+            ],
+            explanation: "Merkez Bankası, enflasyonu kontrol altında tutmak ve ekonomiyi düzenlemek için faiz oranlarını ayarlar."
+        },
+        {
+            question: "GDP (GSYH) neyi ölçer?",
+            difficulty: "medium",
+            answers: [
+                { text: "Bir ülkenin toplam üretimini", correct: true },
+                { text: "Bir ülkenin nüfusunu", correct: false },
+                { text: "Bir ülkenin borcunu", correct: false },
+                { text: "Bir ülkenin ihracatını", correct: false }
+            ],
+            explanation: "GDP (Gayri Safi Yurtiçi Hasıla), bir ülkede belirli dönemde üretilen tüm mal ve hizmetlerin toplam değeridir."
+        },
+        {
+            question: "Forex piyasası nedir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Döviz alım-satım piyasası", correct: true },
+                { text: "Hisse senedi piyasası", correct: false },
+                { text: "Emtia piyasası", correct: false },
+                { text: "Tahvil piyasası", correct: false }
+            ],
+            explanation: "Forex (Foreign Exchange), döviz alım-satımının yapıldığı uluslararası finansal piyasadır."
+        },
+        {
+            question: "KDV ne anlama gelir?",
+            difficulty: "easy",
+            answers: [
+                { text: "Katma Değer Vergisi", correct: true },
+                { text: "Kazanç Dağıtım Vergisi", correct: false },
+                { text: "Kurumlar Dağıtım Vergisi", correct: false },
+                { text: "Kıdem Değer Vergisi", correct: false }
+            ],
+            explanation: "KDV, mal ve hizmetlerin her aşamasında eklenen değer üzerinden alınan dolaylı vergidir."
+        },
+        {
+            question: "Kredi notu (credit score) neyi etkiler?",
+            difficulty: "medium",
+            answers: [
+                { text: "Kredi alabilme ve faiz oranı", correct: true },
+                { text: "Sadece maaş seviyesi", correct: false },
+                { text: "Emeklilik yaşı", correct: false },
+                { text: "Vergi oranı", correct: false }
+            ],
+            explanation: "Kredi notu, kişinin finansal güvenilirliğini gösterir ve kredi alabilme ile faiz oranlarını etkiler."
+        },
+        {
+            question: "Stop-loss emri nedir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Belirli fiyatta otomatik satış emri", correct: true },
+                { text: "Alım emri", correct: false },
+                { text: "Temettü emri", correct: false },
+                { text: "Limit fiyat belirtme", correct: false }
+            ],
+            explanation: "Stop-loss, belirlenen fiyat seviyesine ulaşıldığında otomatik olarak satış yapan koruyucu emirdir."
+        },
+        {
+            question: "Bilanço nedir?",
+            difficulty: "medium",
+            answers: [
+                { text: "Şirketin finansal durum tablosu", correct: true },
+                { text: "Sadece kar/zarar tablosu", correct: false },
+                { text: "Nakit akış raporu", correct: false },
+                { text: "Vergi beyannamesi", correct: false }
+            ],
+            explanation: "Bilanço, belirli bir tarihte işletmenin aktif ve pasif kalemlerini gösteren finansal tablodur."
+        },
+        {
+            question: "ETF (Exchange Traded Fund) nedir?",
+            difficulty: "hard",
+            answers: [
+                { text: "Borsada işlem gören fon", correct: true },
+                { text: "Emeklilik planı", correct: false },
+                { text: "Hazine bonosu", correct: false },
+                { text: "Vadeli mevduat", correct: false }
+            ],
+            explanation: "ETF, hisse senedi gibi borsada işlem gören, içinde birden fazla varlık barındıran yatırım fonudur."
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+    let questions = [];
+    let hintsEnabled = false;
+    let hintUsedForQuestion = false;
+    let correctStreak = 0;  // Ardışık doğru sayısı (rozet için)
+    let selectedQuestionCount = 15;  // Varsayılan
+    let userPerformance = {
+      correctCount: 0,
+      wrongCount: 0,
+      avgResponseTime: 0,
+      difficultyLevel: 'medium'  // Başlangıç seviyesi
+    };
+    let questionStartTime = 0;
+
+    // Soru sayısı seçimi
+    function selectQuestionCount(count) {
+      selectedQuestionCount = count;
+      
+      // Tüm kutuları resetle
+      ['count-10', 'count-15', 'count-20'].forEach(id => {
+        const box = document.getElementById(id);
+        box.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+        box.style.background = 'rgba(255, 255, 255, 0.1)';
+      });
+      
+      // Seçili kutuyu vurgula
+      const selected = document.getElementById(`count-${count}`);
+      selected.style.border = '3px solid #667eea';
+      selected.style.background = 'rgba(102, 126, 234, 0.2)';
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    async function checkBadge(badgeName) {
+        try {
+            const res = await fetch('/games/api/badge/earn/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') || '',
+                },
+                body: JSON.stringify({ badge_code: badgeName }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.badge) {
+                    showBadgeNotification(data.badge);
+                }
+            }
+        } catch (e) { }
+    }
+
+    function showBadgeNotification(badge) {
+        const notif = document.createElement('div');
+        notif.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+        notif.style.zIndex = '9999';
+        notif.innerHTML = `
+        <h5><span style="font-size:2rem;">${badge.icon}</span> ${badge.name}</h5>
+        <p class="mb-0">${badge.points} puan kazandın!</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 5000);
+    }
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        currentQuestion = 0;
+        score = 0;
+        answered = false;
+        correctStreak = 0;
+        userPerformance = {
+          correctCount: 0,
+          wrongCount: 0,
+          avgResponseTime: 0,
+          difficultyLevel: 'medium'
+        };
+        
+        console.log('🤖 AI Adaptif Quiz Sistemi Başlatılıyor...');
+        
+        // AI ile adaptif soru seti oluştur
+        questions = buildAdaptiveQuestionSet(selectedQuestionCount);
+        document.getElementById('total-questions').textContent = questions.length;
+        
+        console.log(`✅ ${questions.length} soru hazırlandı, başlangıç seviyesi: ${userPerformance.difficultyLevel}`);
+        showQuestion();
+    }
+
+    // 🤖 AI ADAPTIF SORU SEÇİMİ
+    function buildAdaptiveQuestionSet(totalCount) {
+        const groups = {
+            easy: allQuestions.filter(q => q.difficulty === 'easy'),
+            medium: allQuestions.filter(q => q.difficulty === 'medium'),
+            hard: allQuestions.filter(q => q.difficulty === 'hard'),
+        };
+        
+        // AI: Başlangıç dağılımı - dengeli başla
+        let questionPool = [];
+        
+        // İlk 3 soru: Kullanıcı seviyesini belirlemek için karma
+        questionPool.push(pickRandom(groups.easy, 1)[0]);
+        questionPool.push(pickRandom(groups.medium, 1)[0]);
+        questionPool.push(pickRandom(groups.hard, 1)[0]);
+        
+        // Geri kalan sorular adaptif olacak (placeholder)
+        // Gerçek zamanlı performansa göre eklenecek
+        const remaining = totalCount - 3;
+        
+        // Başlangıç için dengeli dağıt
+        const easyCount = Math.floor(remaining * 0.3);
+        const mediumCount = Math.floor(remaining * 0.4);
+        const hardCount = remaining - easyCount - mediumCount;
+        
+        questionPool.push(...pickRandom(groups.easy, easyCount));
+        questionPool.push(...pickRandom(groups.medium, mediumCount));
+        questionPool.push(...pickRandom(groups.hard, hardCount));
+        
+        // İlk 3'ten sonrasını karıştır (ilk 3 sabit kalacak - seviye tespiti için)
+        const fixed = questionPool.slice(0, 3);
+        const shuffled = questionPool.slice(3).sort(() => Math.random() - 0.5);
+        
+        return [...fixed, ...shuffled];
+    }
+
+    function pickRandom(arr, n) {
+        const shuffled = arr.slice().sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, Math.min(n, arr.length));
+    }
+
+    // 🤖 AI: Kullanıcı performansına göre zorluk ayarla
+    function adjustDifficultyByAI() {
+        const successRate = userPerformance.correctCount / (userPerformance.correctCount + userPerformance.wrongCount);
+        
+        console.log(`🤖 AI Analizi: Başarı oranı ${(successRate * 100).toFixed(1)}%`);
+        
+        // AI Karar Mekanizması
+        if (successRate >= 0.8 && correctStreak >= 3) {
+          // Kullanıcı çok iyi performans gösteriyor -> zorlaştır
+          userPerformance.difficultyLevel = 'hard';
+          console.log('🤖 AI Kararı: Zorluk artırıldı -> HARD');
+        } else if (successRate >= 0.6 && correctStreak >= 2) {
+          // Orta-iyi performans -> dengeli kal
+          userPerformance.difficultyLevel = 'medium';
+          console.log('🤖 AI Kararı: Zorluk dengelendi -> MEDIUM');
+        } else if (successRate < 0.4 || userPerformance.wrongCount >= 3) {
+          // Düşük performans -> kolaylaştır
+          userPerformance.difficultyLevel = 'easy';
+          console.log('🤖 AI Kararı: Zorluk azaltıldı -> EASY');
+        }
+        
+        return userPerformance.difficultyLevel;
+    }
+
+    // 🤖 AI: Bir sonraki soruyu akıllıca seç
+    function selectNextQuestionByAI() {
+        // Henüz sorulmamış soruları bul
+        const askedQuestions = questions.slice(0, currentQuestion + 1);
+        const remainingQuestions = allQuestions.filter(q => 
+          !askedQuestions.some(asked => asked.question === q.question)
+        );
+        
+        if (remainingQuestions.length === 0) {
+          // Tüm sorular bitti, havuzdan rastgele seç
+          return allQuestions[Math.floor(Math.random() * allQuestions.length)];
+        }
+        
+        // AI: Mevcut zorluk seviyesine göre soru seç
+        const currentDifficulty = adjustDifficultyByAI();
+        let candidates = remainingQuestions.filter(q => q.difficulty === currentDifficulty);
+        
+        if (candidates.length === 0) {
+          // Bu zorlukta soru kalmadı, herhangi birini al
+          candidates = remainingQuestions;
+        }
+        
+        // Rastgele seç
+        return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function showQuestion() {
+        const question = questions[currentQuestion];
+        
+        // Soru başlangıç zamanını kaydet (AI için)
+        questionStartTime = Date.now();
+
+        document.getElementById('question-number').textContent = currentQuestion + 1;
+        document.getElementById('current-question').textContent = currentQuestion + 1;
+        document.getElementById('current-score').textContent = score;
+        document.getElementById('question-text').textContent = question.question;
+        document.getElementById('progress-fill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+        // AI göstergesi ekle
+        const difficultyBadge = {
+          'easy': '🟢 Kolay',
+          'medium': '🟡 Orta',
+          'hard': '🔴 Zor'
+        };
+        
+        const answersContainer = document.getElementById('answers-container');
+        answersContainer.innerHTML = question.answers.map((answer, idx) => `
+        <div class="answer-option" onclick="selectAnswer(${idx})">
+            <div class="d-flex align-items-center">
+                <div class="me-3 fw-bold" style="width: 30px; height: 30px; background: rgba(102, 126, 234, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${String.fromCharCode(65 + idx)}</div>
+                <div style="flex: 1;">${answer.text}</div>
+            </div>
+        </div>
+    `).join('');
+
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation').style.display = 'none';
+        answered = false;
+        hintUsedForQuestion = false;
+        
+        // İpucu düğmesini her zaman göster
+        document.getElementById('hint-btn').style.display = 'inline-block';
+        
+        console.log(`📋 Soru ${currentQuestion + 1}: ${difficultyBadge[question.difficulty]}`);
+    }
+
+    function selectAnswer(idx) {
+        if (answered) return;
+
+        // Yanıt süresini hesapla (AI için)
+        const responseTime = (Date.now() - questionStartTime) / 1000;
+        
+        const question = questions[currentQuestion];
+        const options = document.querySelectorAll('.answer-option');
+
+        options.forEach((option, i) => {
+            option.style.pointerEvents = 'none';
+            if (question.answers[i].correct) {
+                option.classList.add('correct');
+            }
+            if (i === idx && !question.answers[i].correct) {
+                option.classList.add('incorrect');
+            }
+        });
+
+        const wasCorrect = !!question.answers[idx].correct;
+        
+        // 🤖 AI: Performans verilerini güncelle
+        if (wasCorrect) {
+            score += 10;
+            document.getElementById('current-score').textContent = score;
+            correctStreak++;
+            userPerformance.correctCount++;
+            
+            console.log(`✅ Doğru! Yanıt süresi: ${responseTime.toFixed(1)}s, Seri: ${correctStreak}`);
+
+            // İlk soruyu doğru yapınca İlk Adım rozeti
+            if (currentQuestion === 0 && score === 10) {
+                checkBadge('İlk Adım');
+            }
+
+            // 5 doğru üst üste = Quiz Şampiyonu rozeti
+            if (correctStreak >= 5) {
+                checkBadge('Quiz Şampiyonu');
+            }
+        } else {
+            correctStreak = 0;
+            userPerformance.wrongCount++;
+            console.log(`❌ Yanlış! Yanıt süresi: ${responseTime.toFixed(1)}s`);
+        }
+        
+        // AI: Ortalama yanıt süresini güncelle
+        const totalAnswers = userPerformance.correctCount + userPerformance.wrongCount;
+        userPerformance.avgResponseTime = ((userPerformance.avgResponseTime * (totalAnswers - 1)) + responseTime) / totalAnswers;
+        
+        document.getElementById('explanation-text').textContent = question.explanation;
+        document.getElementById('explanation').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'inline-block';
+
+        answered = true;
+        document.getElementById('hint-btn').style.display = 'none';
+        
+        // 🤖 AI: Performans analizi yap (her 3 soruda bir)
+        if ((currentQuestion + 1) % 3 === 0) {
+          adjustDifficultyByAI();
+        }
+
+        // Etkinliği takip et (oturum açılmadıysa sessizce başarısız olabilir)
+        try {
+            fetch('/games/api/track/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') || '',
+                },
+                body: JSON.stringify({
+                    game: 'quiz',
+                    category: 'Eğitim',
+                    outcome: wasCorrect ? 'correct' : 'incorrect',
+                }),
+            });
+        } catch (e) { }
+    }
+
+    function showHint() {
+        if (answered || hintUsedForQuestion) return;
+        
+        const question = questions[currentQuestion];
+        const options = Array.from(document.querySelectorAll('.answer-option'));
+        const wrong = options.filter((_, i) => !question.answers[i].correct);
+        
+        // İki yanlış seçeneği gizle
+        wrong.sort(() => Math.random() - 0.5).slice(0, 2).forEach(el => {
+            el.style.opacity = '0.3';
+            el.style.pointerEvents = 'none';
+            el.innerHTML += ' <span style="color: #ef4444; margin-left: 10px;">❌</span>';
+        });
+        
+        hintUsedForQuestion = true;
+        
+        // Bildirim göster
+        showNotification('💡 İpucu kullanıldı! 2 yanlış seçenek elendi.', 'info');
+        
+        console.log('💡 İpucu kullanıldı');
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+
+        if (currentQuestion < questions.length) {
+            // 🤖 AI: Sonraki soruyu performansa göre dinamik seç
+            if (currentQuestion >= 3) {
+              // İlk 3 soruda sonra AI devreye girer
+              const nextQ = selectNextQuestionByAI();
+              if (nextQ && !questions.some(q => q.question === nextQ.question)) {
+                questions[currentQuestion] = nextQ;
+                console.log('🤖 AI: Yeni soru dinamik olarak eklendi');
+              }
+            }
+            
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showNotification(message, type) {
+      const colors = {
+        'info': 'background: rgba(59, 130, 246, 0.9);',
+        'success': 'background: rgba(16, 185, 129, 0.9);',
+        'warning': 'background: rgba(245, 158, 11, 0.9);',
+        'error': 'background: rgba(239, 68, 68, 0.9);'
+      };
+      
+      const notif = document.createElement('div');
+      notif.style = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        ${colors[type] || colors.info}
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+      `;
+      notif.textContent = message;
+      document.body.appendChild(notif);
+      setTimeout(() => {
+        notif.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notif.remove(), 300);
+      }, 2500);
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+
+        const correctCount = score / 10;
+        const incorrectCount = questions.length - correctCount;
+        const successRate = (score / (questions.length * 10)) * 100;
+        const maxScore = questions.length * 10;
+
+        document.getElementById('final-score').textContent = `${score}/${maxScore}`;
+        document.getElementById('correct-count').textContent = correctCount;
+        document.getElementById('incorrect-count').textContent = incorrectCount;
+        document.getElementById('success-rate').textContent = `${successRate.toFixed(0)}%`;
+
+        const messageDiv = document.getElementById('result-message');
+        let message = '';
+        let bgColor = '';
+
+        if (successRate >= 90) {
+            message = '🌟 Mükemmel! Finansal okuryazarlıkta uzman seviyesiniz!';
+            bgColor = 'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;';
+        } else if (successRate >= 80) {
+            message = '🎉 Harika! Finansal bilginiz çok iyi!';
+            bgColor = 'background: rgba(16, 185, 129, 0.2); color: #10b981; border: 2px solid #10b981;';
+        } else if (successRate >= 70) {
+            message = '👍 İyi! Finansal bilginiz orta-iyi seviyede.';
+            bgColor = 'background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 2px solid #3b82f6;';
+        } else if (successRate >= 50) {
+            message = '📚 Fena değil! Geliştirmeye devam edin.';
+            bgColor = 'background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 2px solid #f59e0b;';
+        } else {
+            message = '💪 Daha fazla çalışma gerekli. Tekrar deneyin!';
+            bgColor = 'background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 2px solid #ef4444;';
+        }
+
+        messageDiv.style = bgColor;
+        messageDiv.textContent = message;
+
+        // Skoru kaydet ve rozet kazandır (oturum açık ise)
+        try {
+            fetch('/games/api/simulation/score/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || ''
+                },
+                body: JSON.stringify({ score })
+            }).then(() => {
+                if (successRate >= 80) {
+                    fetch('/games/api/badge/earn/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || ''
+                        },
+                        body: JSON.stringify({ badge_code: 'quiz_master' })
+                    });
+                }
+            });
+        } catch (e) { }
+    }
+
+    function restartQuiz() {
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+        
+        // Seçimi sıfırla
+        selectQuestionCount(15);
+    }
+
+    // Geri dönüş butonu
+    function goBack() {
+      if (confirm('Quiz\'den çıkmak istediğinize emin misiniz?')) {
+        window.location.href = '/games/hub/';
+      }
+    }
+
+    // Sayfa yüklendiğinde varsayılan seçim
+    window.addEventListener('DOMContentLoaded', function() {
+      selectQuestionCount(15);
+    });
+
+    // Tam Ekran Oyun Modu Toggle
+    (function() {
+      const toggleBtn = document.getElementById('uiToggle');
+      const toggleIcon = document.getElementById('toggleIcon');
+      const body = document.body;
+      
+      const savedMode = localStorage.getItem('finasis_game_fullscreen');
+      
+      if (savedMode === null || savedMode === 'true') {
+        body.classList.add('game-fullscreen');
+        toggleIcon.textContent = '👁️';
+        toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+      } else {
+        body.classList.remove('game-fullscreen');
+        toggleIcon.textContent = '🎮';
+        toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+      }
+      
+      toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        body.classList.toggle('game-fullscreen');
+        const isFullscreen = body.classList.contains('game-fullscreen');
+        
+        if (isFullscreen) {
+          toggleIcon.textContent = '👁️';
+          toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+        } else {
+          toggleIcon.textContent = '🎮';
+          toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+        }
+        
+        localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+        
+        if (!isFullscreen) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+      
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          toggleBtn.click();
+        }
+      });
+    })();
+</script>
+{% endblock %}

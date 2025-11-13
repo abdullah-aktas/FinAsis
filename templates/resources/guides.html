@@ -1,0 +1,93 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}{% trans "Kılavuzlar" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         --resource-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.2), transparent 70%);">
+  <div class="container text-center">
+    <span class="persona-hero-icon mb-3"><i class="bi bi-journal-text"></i></span>
+    <h1 class="display-5 fw-bold mb-2">{% trans "Başlangıç Kılavuzları" %}</h1>
+    <p class="lead mb-4">{% trans "Kurulumdan raporlamaya, tüm modüller için adım adım rehberler." %}</p>
+    <div class="persona-action-group">
+      <a href="{% url 'accounts:register' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-person-plus me-2"></i>{% trans "Ücretsiz Başlayın" %}
+      </a>
+      <a href="{% url 'resources_docs' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-journal me-2"></i>{% trans "Dokümantasyon" %}
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <section aria-labelledby="quickstart" class="mb-5">
+    <div class="persona-section-title" id="quickstart">
+      <i class="bi bi-lightning-charge"></i>{% trans "Hızlı Başlangıç" %}
+    </div>
+    <div class="persona-stat-grid">
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-primary"><i class="bi bi-person-plus"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Kayıt ve Giriş" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Hesap oluşturun, e-postanızı doğrulayın ve giriş yapın." %}</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-arrow-right"></i>{% trans "Başlayın" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-primary"><i class="bi bi-gear"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Profil ve Ayarlar" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Şirket bilgilerini, kullanıcıları ve tercihleri düzenleyin." %}</p>
+        <a href="{% url 'accounts:user_settings' %}" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-sliders"></i>{% trans "Ayarlar" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-primary"><i class="bi bi-graph-up-arrow"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Finans Modülü" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Bütçe, nakit akışı ve KPI raporlarını keşfedin." %}</p>
+        <a href="/products/finans/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-arrow-up-right"></i>{% trans "Keşfet" %}
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="detailed-guides">
+    <div class="persona-section-title" id="detailed-guides">
+      <i class="bi bi-journals"></i>{% trans "Detaylı Kılavuzlar" %}
+    </div>
+    <div class="row g-4">
+      {% for guide in guides %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card">
+          <header class="mb-3">
+            <span class="badge-modern secondary mb-2"><i class="bi {{ guide.icon }} me-1"></i>{{ guide.category }}</span>
+            <h2 class="h6 fw-semibold mb-1">{{ guide.title }}</h2>
+            <p class="text-muted small mb-0">{{ guide.summary }}</p>
+          </header>
+          <footer class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ guide.read_time }}</span>
+            <a href="{{ guide.url }}" class="btn btn-modern btn-modern-outline btn-sm">
+              <i class="bi bi-arrow-right"></i>{% trans "Oku" %}
+            </a>
+          </footer>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="persona-list-card text-center">
+          <h3 class="h6 fw-semibold mb-1">{% trans "Kılavuzlar hazırlanıyor" %}</h3>
+          <p class="text-muted mb-0">{% trans "Yeni içerikler için ekip çalışıyor; yakında burada olacak." %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Müşteri Detayı{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Müşteri Detayı</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ customer.first_name }} {{ customer.last_name }}</h5>
+            <p class="card-text"><strong>Şirket:</strong> {{ customer.company.name }}</p>
+            <p class="card-text"><strong>E-posta:</strong> {{ customer.email }}</p>
+            <p class="card-text"><strong>Telefon:</strong> {{ customer.phone }}</p>
+            <p class="card-text"><strong>Adres:</strong> {{ customer.address }}</p>
+            <p class="card-text"><strong>Vergi No:</strong> {{ customer.tax_number }}</p>
+            <p class="card-text"><strong>Kayıt Tarihi:</strong> {{ customer.created_at|date:'d.m.Y H:i' }}</p>
+        </div>
+    </div>
+    <a href="{% url 'accounting:customer_update' customer.pk %}" class="btn btn-warning mt-3">Düzenle</a>
+    <a href="{% url 'accounting:customer_delete' customer.pk %}" class="btn btn-danger mt-3">Sil</a>
+    <a href="{% url 'accounting:customer_list' %}" class="btn btn-secondary mt-3">Listeye Dön</a>
+</div>
+{% endblock %} 

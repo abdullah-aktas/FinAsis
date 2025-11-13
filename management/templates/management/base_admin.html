@@ -1,0 +1,667 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Super Admin Panel - FinAsis{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Modern Admin Layout - Sabit Sidebar */
+    body {
+        overflow-x: hidden;
+    }
+    
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+        padding-top: 70px; /* Navbar yüksekliği */
+    }
+    
+    .admin-sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 280px;
+        height: calc(100vh - 70px);
+        background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+        color: white;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1.5rem 0;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .admin-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .admin-sidebar::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .admin-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+    
+    .admin-main-content {
+        flex: 1;
+        margin-left: 280px;
+        padding: 2rem;
+        background: #f8f9fa;
+        min-height: calc(100vh - 70px);
+        transition: all 0.3s ease;
+    }
+    
+    .admin-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1040;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-header {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .sidebar-section-title {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255,255,255,0.5);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .sidebar-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border-left-color: #667eea;
+        text-decoration: none;
+    }
+    
+    .sidebar-link.active {
+        background: rgba(102, 126, 234, 0.2);
+        color: white;
+        border-left-color: #667eea;
+    }
+    
+    .sidebar-link i {
+        width: 24px;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+    }
+    
+    .sidebar-badge {
+        margin-left: auto;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.2);
+    }
+    
+    /* Mobile Toggle */
+    .sidebar-toggle {
+        display: none;
+    }
+    
+    @media (max-width: 991px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .admin-sidebar.show {
+            transform: translateX(0);
+        }
+        
+        .admin-main-content {
+            margin-left: 0;
+        }
+        
+        .sidebar-toggle {
+            display: inline-block;
+        }
+    }
+    
+    /* Breadcrumb */
+    .admin-breadcrumb {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* User Profile Dropdown */
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+    }
+    
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+</style>
+{% block extra_styles %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<!-- Admin Navbar -->
+<nav class="navbar navbar-expand-lg admin-navbar">
+    <div class="container-fluid">
+        <button class="btn btn-link text-white sidebar-toggle me-3" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+        
+        <a class="navbar-brand text-white fw-bold" href="{% url 'management:admin_dashboard' %}">
+            <i class="bi bi-shield-fill me-2"></i>
+            FinAsis Super Admin
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="adminNavbar">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <!-- Notifications -->
+                <li class="nav-item dropdown me-2">
+                    <a class="nav-link text-white position-relative" href="#" id="notifDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        {% if request.user.is_authenticated %}
+                            {% with unread_list=request.user.notifications.all %}
+                                {% if unread_list %}
+                                    {% with unread_count=unread_list|length %}
+                                        {% if unread_count > 0 %}
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                {{ unread_count }}
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 320px; max-height: 350px; overflow-y: auto;">
+                        {% if request.user.is_authenticated %}
+                            {% for notif in request.user.notifications.all|slice:":10" %}
+                                <li>
+                                    <a href="{{ notif.link|default:'#' }}" class="dropdown-item {% if not notif.is_read %}fw-bold{% endif %}">
+                                        <i class="bi bi-dot me-1 {% if not notif.is_read %}text-primary{% else %}text-secondary{% endif %}"></i>
+                                        {{ notif.message }}
+                                        <small class="text-muted d-block">{{ notif.created_at|date:'d.m.Y H:i' }}</small>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><span class="dropdown-item text-muted">Bildirim yok</span></li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </li>
+                
+                <!-- User Profile -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" data-bs-toggle="dropdown">
+                        <div class="user-profile">
+                            <div class="user-avatar">
+                                {{ request.user.username|first|upper }}
+                            </div>
+                            <span class="d-none d-md-inline">{{ request.user.username }}</span>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'user_panel' %}">
+                            <i class="bi bi-person me-2"></i>Kişisel Panel
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:user_profile' %}">
+                            <i class="bi bi-gear me-2"></i>Ayarlar
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Yönetim Paneli
+            </div>
+            <small class="text-white-50">Super Admin Kontrolü</small>
+        </div>
+        
+        <!-- Ana Menü -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Ana Menü</div>
+            <a href="{% url 'management:admin_dashboard' %}" class="sidebar-link active">
+                <i class="bi bi-grid"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'management:modules_list' %}" class="sidebar-link">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Tüm Modüller
+            </a>
+        </div>
+        
+        <!-- Kullanıcı Yönetimi -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Kullanıcı Yönetimi</div>
+            <a href="{% url 'management:user_list' %}" class="sidebar-link">
+                <i class="bi bi-people"></i>
+                Kullanıcılar
+            </a>
+            <a href="{% url 'management:user_add' %}" class="sidebar-link">
+                <i class="bi bi-person-plus"></i>
+                Yeni Kullanıcı
+            </a>
+        </div>
+        
+        <!-- Şirket Yönetimi -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Şirket Yönetimi</div>
+            <a href="{% url 'management:company_list' %}" class="sidebar-link">
+                <i class="bi bi-building"></i>
+                Şirketler
+            </a>
+            <a href="{% url 'management:company_add' %}" class="sidebar-link">
+                <i class="bi bi-plus-circle"></i>
+                Yeni Şirket
+            </a>
+        </div>
+        
+        <!-- Fatura Yönetimi -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Fatura Yönetimi</div>
+            <a href="{% url 'management:invoice_list' %}" class="sidebar-link">
+                <i class="bi bi-receipt"></i>
+                Faturalar
+            </a>
+            <a href="{% url 'management:invoice_add' %}" class="sidebar-link">
+                <i class="bi bi-file-earmark-plus"></i>
+                Yeni Fatura
+            </a>
+        </div>
+        
+        <!-- Muhasebe Modülü -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Muhasebe Modülü</div>
+            <a href="{% url 'accounting:home' %}" class="sidebar-link">
+                <i class="bi bi-calculator"></i>
+                Muhasebe Ana Sayfa
+            </a>
+            <a href="{% url 'accounting:invoice_list' %}" class="sidebar-link">
+                <i class="bi bi-file-earmark-text"></i>
+                Faturalar
+            </a>
+            <a href="{% url 'accounting:expense_list' %}" class="sidebar-link">
+                <i class="bi bi-wallet2"></i>
+                Giderler
+            </a>
+            <a href="{% url 'accounting:customer_list' %}" class="sidebar-link">
+                <i class="bi bi-person-badge"></i>
+                Müşteriler
+            </a>
+        </div>
+        
+        <!-- Blockchain Modülü -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Blockchain</div>
+            <a href="{% url 'blockchain:home' %}" class="sidebar-link">
+                <i class="bi bi-link-45deg"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'blockchain:block_list' %}" class="sidebar-link">
+                <i class="bi bi-boxes"></i>
+                Block Explorer
+            </a>
+            <a href="{% url 'blockchain:transaction_list' %}" class="sidebar-link">
+                <i class="bi bi-arrow-left-right"></i>
+                Transactions
+            </a>
+            <a href="{% url 'blockchain:contract_list' %}" class="sidebar-link">
+                <i class="bi bi-file-earmark-code"></i>
+                Smart Contracts
+            </a>
+            <a href="{% url 'blockchain:asset_list' %}" class="sidebar-link">
+                <i class="bi bi-gem"></i>
+                Digital Assets
+            </a>
+        </div>
+        
+        <!-- AI Assistant Modülü -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">AI Assistant</div>
+            <a href="{% url 'ai_assistant:analytics_dashboard' %}" class="sidebar-link">
+                <i class="bi bi-robot"></i>
+                AI Dashboard
+            </a>
+            <a href="{% url 'ai_assistant:sentiment_analyze' %}" class="sidebar-link">
+                <i class="bi bi-emoji-smile"></i>
+                Sentiment Analysis
+            </a>
+            <a href="{% url 'ai_assistant:summarize_document' %}" class="sidebar-link">
+                <i class="bi bi-file-text"></i>
+                Doc Summarization
+            </a>
+            <a href="{% url 'ai_assistant:generate_report' %}" class="sidebar-link">
+                <i class="bi bi-file-earmark-pdf"></i>
+                Auto Reports
+            </a>
+            <a href="{% url 'ai_assistant:run_analytics' %}" class="sidebar-link">
+                <i class="bi bi-graph-up"></i>
+                Advanced Analytics
+            </a>
+        </div>
+        
+        <!-- Audit (Denetim) Modülü -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Audit & GRC</div>
+            <a href="{% url 'audit:landing' %}" class="sidebar-link">
+                <i class="bi bi-shield-check"></i>
+                Audit Dashboard
+            </a>
+            <a href="{% url 'audit:control_dashboard' %}" class="sidebar-link">
+                <i class="bi bi-list-check"></i>
+                Controls
+            </a>
+            <a href="{% url 'audit:trail_report' %}" class="sidebar-link">
+                <i class="bi bi-journal-text"></i>
+                Audit Trail
+            </a>
+            <a href="{% url 'audit:risk_assessment' %}" class="sidebar-link">
+                <i class="bi bi-exclamation-triangle"></i>
+                Risk Assessment
+            </a>
+            <a href="{% url 'audit:compliance_report' %}" class="sidebar-link">
+                <i class="bi bi-clipboard-check"></i>
+                Compliance
+            </a>
+        </div>
+        
+        <!-- Sanal Şirket -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Virtual Company</div>
+            <a href="{% url 'virtual_company:virtual_company_list' %}" class="sidebar-link">
+                <i class="bi bi-building-gear"></i>
+                Şirketler
+            </a>
+            <a href="{% url 'virtual_company:virtual_company_create' %}" class="sidebar-link">
+                <i class="bi bi-plus-circle"></i>
+                Yeni Şirket
+            </a>
+            <a href="{% url 'virtual_company:product_list' %}" class="sidebar-link">
+                <i class="bi bi-box-seam"></i>
+                Ürünler
+            </a>
+        </div>
+        
+        <!-- Danışmanlar (SMMM/YMM) -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Advisors</div>
+            <a href="/admin/advisors/advisorprofile/" class="sidebar-link">
+                <i class="bi bi-person-badge"></i>
+                SMMM/YMM Profilleri
+            </a>
+            <a href="/admin/advisors/clientcontract/" class="sidebar-link">
+                <i class="bi bi-file-earmark-text"></i>
+                Müşteri Sözleşmeleri
+            </a>
+            <a href="/admin/advisors/consultationsession/" class="sidebar-link">
+                <i class="bi bi-calendar-check"></i>
+                Danışmanlık Oturumları
+            </a>
+            <a href="/admin/advisors/advisortask/" class="sidebar-link">
+                <i class="bi bi-list-task"></i>
+                Görevler
+            </a>
+        </div>
+        
+        <!-- Eğitim (LMS) -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Education</div>
+            <a href="/admin/education/course/" class="sidebar-link">
+                <i class="bi bi-book"></i>
+                Dersler
+            </a>
+            <a href="/admin/education/learningpath/" class="sidebar-link">
+                <i class="bi bi-signpost-split"></i>
+                Öğrenme Yolları
+            </a>
+            <a href="/admin/education/certificate/" class="sidebar-link">
+                <i class="bi bi-award"></i>
+                Sertifikalar
+            </a>
+            <a href="/admin/education/announcement/" class="sidebar-link">
+                <i class="bi bi-megaphone"></i>
+                Duyurular
+            </a>
+            <a href="/admin/education/coursereview/" class="sidebar-link">
+                <i class="bi bi-star"></i>
+                Ders Değerlendirmeleri
+            </a>
+            <a href="/admin/education/studentgoal/" class="sidebar-link">
+                <i class="bi bi-bullseye"></i>
+                Öğrenci Hedefleri
+            </a>
+        </div>
+        
+        <!-- Finance Banking -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Finance Banking</div>
+            <a href="/admin/finance_banking/banktransaction/" class="sidebar-link">
+                <i class="bi bi-credit-card"></i>
+                Banka İşlemleri
+            </a>
+            <a href="/admin/finance_banking/banktransfer/" class="sidebar-link">
+                <i class="bi bi-arrow-left-right"></i>
+                Transferler (EFT/FAST)
+            </a>
+            <a href="/admin/finance_banking/checktransaction/" class="sidebar-link">
+                <i class="bi bi-receipt"></i>
+                Çek İşlemleri
+            </a>
+            <a href="/admin/finance_banking/bankstatement/" class="sidebar-link">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                Banka Ekstreleri
+            </a>
+        </div>
+        
+        <!-- Billing & Subscriptions -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Billing</div>
+            <a href="/admin/billing/subscriptionprofile/" class="sidebar-link">
+                <i class="bi bi-person-badge"></i>
+                Abonelikler
+            </a>
+            <a href="/admin/billing/invoice/" class="sidebar-link">
+                <i class="bi bi-receipt-cutoff"></i>
+                Faturalar
+            </a>
+            <a href="/admin/billing/discount/" class="sidebar-link">
+                <i class="bi bi-percent"></i>
+                İndirim Kuponları
+            </a>
+            <a href="/admin/billing/paymentgateway/" class="sidebar-link">
+                <i class="bi bi-credit-card-2-front"></i>
+                Payment Gateways
+            </a>
+        </div>
+        
+        <!-- Integrations -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Entegrasyonlar</div>
+            <a href="/admin/integrator_gib/gibsubmissionlog/" class="sidebar-link">
+                <i class="bi bi-send"></i>
+                GİB Gönderimleri
+            </a>
+            <a href="/admin/integrator_gib/gibcertificate/" class="sidebar-link">
+                <i class="bi bi-shield-lock"></i>
+                E-İmza & Mali Mühür
+            </a>
+            <a href="/admin/submissions/submissiontemplate/" class="sidebar-link">
+                <i class="bi bi-file-earmark-text"></i>
+                Beyan Şablonları
+            </a>
+            <a href="/admin/common/webhook/" class="sidebar-link">
+                <i class="bi bi-arrow-repeat"></i>
+                Webhooks
+            </a>
+        </div>
+        
+        <!-- Security & Monitoring -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Security</div>
+            <a href="/admin/security/securityincident/" class="sidebar-link">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Güvenlik Olayları
+            </a>
+            <a href="/admin/security/ipblacklist/" class="sidebar-link">
+                <i class="bi bi-slash-circle"></i>
+                IP Kara Liste
+            </a>
+            <a href="/admin/security/securitypolicy/" class="sidebar-link">
+                <i class="bi bi-file-lock"></i>
+                Güvenlik Politikaları
+            </a>
+            <a href="/admin/accounts/twofactorauth/" class="sidebar-link">
+                <i class="bi bi-key-fill"></i>
+                2FA Yönetimi
+            </a>
+        </div>
+        
+        <!-- Sistem -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Sistem</div>
+            <a href="{% url 'management:admin_logs' %}" class="sidebar-link">
+                <i class="bi bi-journal-text"></i>
+                Sistem Logları
+            </a>
+            <a href="/admin/management/systemhealth/" class="sidebar-link">
+                <i class="bi bi-heart-pulse"></i>
+                Sistem Sağlığı
+            </a>
+            <a href="/admin/management/errorlog/" class="sidebar-link">
+                <i class="bi bi-bug"></i>
+                Hata Logları
+            </a>
+            <a href="/admin/management/backuplog/" class="sidebar-link">
+                <i class="bi bi-cloud-upload"></i>
+                Yedeklemeler
+            </a>
+            <a href="/admin/management/featureflag/" class="sidebar-link">
+                <i class="bi bi-flag"></i>
+                Feature Flags
+            </a>
+            <a href="/admin/common/systemsetting/" class="sidebar-link">
+                <i class="bi bi-sliders"></i>
+                Sistem Ayarları
+            </a>
+            <a href="/admin/common/apikey/" class="sidebar-link">
+                <i class="bi bi-key"></i>
+                API Anahtarları
+            </a>
+            <a href="/admin/" class="sidebar-link">
+                <i class="bi bi-gear-fill"></i>
+                Django Admin
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="admin-main-content">
+        <!-- Breadcrumb -->
+        <div class="admin-breadcrumb">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'management:admin_dashboard' %}">Dashboard</a></li>
+                    {% block breadcrumb %}{% endblock %}
+                </ol>
+            </nav>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Page Content -->
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('adminSidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+        });
+    }
+    
+    // Active link highlighting
+    const currentPath = window.location.pathname;
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    
+    sidebarLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+</script>
+{% block extra_scripts %}{% endblock %}
+{% endblock %}

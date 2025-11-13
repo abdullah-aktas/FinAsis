@@ -1,0 +1,93 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}{% trans "Eğitim Kaynakları" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+         --resource-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 70%);">
+  <div class="container text-center">
+    <span class="persona-hero-icon mb-3"><i class="bi bi-mortarboard"></i></span>
+    <h1 class="display-5 fw-bold mb-3">{% trans "Eğitim Kaynakları" %}</h1>
+    <p class="lead mb-4">{% trans "Interaktif dersler, video eğitimler ve gamification modülleri." %}</p>
+    <div class="persona-action-group">
+      <a href="/education/" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-journal-text me-2"></i>{% trans "Ders Platformu" %}
+      </a>
+      <a href="/games/hub/" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-controller me-2"></i>{% trans "Finansal Oyunlar" %}
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <section aria-labelledby="courses" class="mb-5">
+    <div class="persona-section-title" id="courses">
+      <i class="bi bi-collection-play"></i>{% trans "Öne Çıkan Eğitimler" %}
+    </div>
+    <div class="persona-stat-grid">
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-warning"><i class="bi bi-person-video"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Finans Okuryazarlığı" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Temel kavramlardan ileri finans analizlerine kadar modüler eğitim." %}</p>
+        <a href="/education/courses/finance-literacy/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-play"></i>{% trans "Başlat" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-warning"><i class="bi bi-easel3"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Uyumluluk Atölyesi" %}</h2>
+        <p class="text-secondary mb-4">{% trans "MASAK ve KVKK gereksinimlerini senaryo tabanlı öğrenin." %}</p>
+        <a href="/education/courses/compliance/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-shield-check"></i>{% trans "Keşfet" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-warning"><i class="bi bi-controller"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Game-Based Learning" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Finansal karar alma becerilerini oyunlaştırılmış modüllerle geliştirin." %}</p>
+        <a href="/games/hub/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-grid"></i>{% trans "Oyun Merkezi" %}
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="videos">
+    <div class="persona-section-title" id="videos">
+      <i class="bi bi-camera-video"></i>{% trans "Video Eğitim Serileri" %}
+    </div>
+    <div class="row g-4">
+      {% for lesson in video_lessons %}
+      <div class="col-md-6 col-xl-4">
+        <article class="resource-card">
+          <header class="mb-3">
+            <span class="badge-modern accent mb-2"><i class="bi bi-play-btn me-1"></i>{{ lesson.level }}</span>
+            <h2 class="h6 fw-semibold mb-1">{{ lesson.title }}</h2>
+            <p class="text-muted small mb-0">{{ lesson.duration }} · {{ lesson.instructor }}</p>
+          </header>
+          <footer class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ lesson.publish_date }}</span>
+            <a href="{{ lesson.url }}" class="btn btn-modern btn-modern-outline btn-sm">
+              <i class="bi bi-play-circle"></i>{% trans "İzle" %}
+            </a>
+          </footer>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="persona-list-card text-center">
+          <h3 class="h6 fw-semibold mb-1">{% trans "Video içerikler yakında" %}</h3>
+          <p class="text-muted mb-0">{% trans "Ekip yeni eğitimleri hazırlıyor." %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

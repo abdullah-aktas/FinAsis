@@ -1,0 +1,167 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}KOBİ Paneli - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <section
+    class="dashboard-hero text-center mb-5"
+    style="
+      --dashboard-hero-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --dashboard-hero-glow: radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.32), transparent 70%);
+    "
+  >
+    <div class="dashboard-hero__icon">
+      <i class="bi bi-shop"></i>
+    </div>
+    <h1 class="dashboard-hero__title">KOBİ Paneli</h1>
+    <p class="dashboard-hero__subtitle mb-0">
+        {% if company %}{{ company.name }}{% else %}Şirketiniz{% endif %} - Finansal özet ve hızlı işlemler
+      </p>
+  </section>
+
+  <!-- KPI Kartları -->
+  <div class="dashboard-kpi-grid mb-5">
+    <div
+      class="dashboard-kpi-card"
+      style="--dashboard-kpi-accent:#10b981; --dashboard-kpi-text:#0f9d7a;"
+    >
+      <div class="dashboard-kpi-label">
+        <i class="bi bi-arrow-up-circle text-success"></i>
+        Toplam Gelir
+      </div>
+      <div class="dashboard-kpi-value">{{ finans_ozet.toplam_gelir|floatformat:0 }} ₺</div>
+      <div class="dashboard-kpi-meta">
+        <i class="bi bi-calendar-week"></i>
+        Bu ay
+      </div>
+    </div>
+
+    <div
+      class="dashboard-kpi-card"
+      style="--dashboard-kpi-accent:#ef4444; --dashboard-kpi-text:#dc2626;"
+    >
+      <div class="dashboard-kpi-label">
+        <i class="bi bi-arrow-down-circle text-danger"></i>
+        Toplam Gider
+      </div>
+      <div class="dashboard-kpi-value">{{ finans_ozet.toplam_gider|floatformat:0 }} ₺</div>
+      <div class="dashboard-kpi-meta">
+        <i class="bi bi-calendar-week"></i>
+        Bu ay
+      </div>
+    </div>
+
+    <div
+      class="dashboard-kpi-card"
+      style="--dashboard-kpi-accent:#667eea; --dashboard-kpi-text:{% if finans_ozet.net_kar >= 0 %}#10b981{% else %}#ef4444{% endif %};"
+    >
+      <div class="dashboard-kpi-label">
+        <i class="bi bi-calculator text-primary"></i>
+        Net Kar
+      </div>
+      <div class="dashboard-kpi-value">{{ finans_ozet.net_kar|floatformat:0 }} ₺</div>
+      <div class="dashboard-kpi-meta">
+        <i class="bi bi-calendar-week"></i>
+        Bu ay
+      </div>
+    </div>
+
+    <div
+      class="dashboard-kpi-card"
+      style="--dashboard-kpi-accent:#f59e0b; --dashboard-kpi-text:#d97706;"
+    >
+      <div class="dashboard-kpi-label">
+        <i class="bi bi-bank text-warning"></i>
+        Banka Bakiyesi
+      </div>
+      <div class="dashboard-kpi-value">{{ finans_ozet.banka_bakiye|floatformat:0 }} ₺</div>
+      <div class="dashboard-kpi-meta">
+        <i class="bi bi-building-check"></i>
+        Toplam
+      </div>
+    </div>
+  </div>
+
+  <!-- Hızlı İşlemler -->
+  <div class="mb-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-lightning me-2" style="color: #10b981;"></i>Hızlı İşlemler</h5>
+    <div class="dashboard-action-grid">
+      <a href="/accounting/otomatik-fis/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#667eea;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-robot"></i></div>
+          <div class="dashboard-action-card__label">Otomatik Fiş</div>
+          <div class="dashboard-action-card__hint">AI ile oluştur</div>
+        </div>
+      </a>
+
+      <a href="/accounting/finansal/bilanco/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#0f9d7a;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-file-bar-graph"></i></div>
+          <div class="dashboard-action-card__label">Bilanço</div>
+          <div class="dashboard-action-card__hint">Finansal durum</div>
+        </div>
+      </a>
+
+      <a href="/accounting/finansal/gelir-tablosu/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#f59e0b;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-cash-coin"></i></div>
+          <div class="dashboard-action-card__label">Gelir Tablosu</div>
+          <div class="dashboard-action-card__hint">Kar / Zarar</div>
+        </div>
+      </a>
+
+      <a href="/accounting/finansal/nakit-akisi/" class="text-decoration-none">
+        <div class="dashboard-action-card" style="--dashboard-action-icon:#0ea5e9;">
+          <div class="dashboard-action-card__icon"><i class="bi bi-arrow-left-right"></i></div>
+          <div class="dashboard-action-card__label">Nakit Akışı</div>
+          <div class="dashboard-action-card__hint">Cash flow</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Son Faturalar -->
+  {% if son_faturalar %}
+  <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-receipt me-2"></i>Son Faturalar</h6>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>Müşteri</th>
+              <th class="text-end">Tutar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fatura in son_faturalar %}
+            <tr>
+              <td><small>{{ fatura.issue_date|date:"d.m.Y" }}</small></td>
+              <td><strong>{{ fatura.customer_name|default:"Müşteri" }}</strong></td>
+              <td class="text-end"><span class="badge bg-success">{{ fatura.total_amount|floatformat:0 }} ₺</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Eğitim Bölümü -->
+  <div class="dashboard-section-card border-0 mb-4">
+    <div class="p-4 text-center">
+      <div class="dashboard-action-card__icon mb-3" style="color:#10b981;">
+        <i class="bi bi-mortarboard" style="font-size:2.2rem;"></i>
+      </div>
+      <h5 class="fw-bold mb-2">KOBİ Eğitimleri</h5>
+      <p class="text-muted mb-3">Finansal okuryazarlığınızı artırın</p>
+      <a href="/education/" class="btn btn-modern btn-modern-primary">
+        <i class="bi bi-play-fill me-2"></i>Eğitimlere Başla
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

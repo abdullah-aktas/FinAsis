@@ -1,0 +1,82 @@
+{
+    "scenarios": [
+        {
+            "id": "yatirim_vs_uretim",
+            "title": "Yatırım mı, Üretim mi?",
+            "description": "Sınırlı kaynaklarınızla en karlı stratejiyi seçin",
+            "duration": 300,
+            "options": [
+                {
+                    "id": "yatirim",
+                    "title": "Yatırım Yap",
+                    "description": "Piyasalara yatırım yaparak hızlı kazanç elde et",
+                    "risk": 0.7,
+                    "potential_reward": 0.5
+                },
+                {
+                    "id": "uretim",
+                    "title": "Üretime Odaklan",
+                    "description": "Üretim kapasitesini artırarak uzun vadeli kazanç sağla",
+                    "risk": 0.3,
+                    "potential_reward": 0.3
+                }
+            ],
+            "correct_answer": "yatirim",
+            "explanation": "Kısa vadede yatırım yapmak daha yüksek getiri sağlar"
+        },
+        {
+            "id": "kriz_yonetimi",
+            "title": "Kriz Yönetimi",
+            "description": "Ani bir ekonomik kriz durumunda nasıl hareket edersiniz?",
+            "duration": 300,
+            "options": [
+                {
+                    "id": "risk_azalt",
+                    "title": "Risk Azalt",
+                    "description": "Varlıklarınızı satarak nakit pozisyonunu güçlendir",
+                    "risk": 0.4,
+                    "potential_reward": 0.2
+                },
+                {
+                    "id": "firsat_kolla",
+                    "title": "Fırsat Kolla",
+                    "description": "Kriz fırsatlarını değerlendirerek ucuz varlıklara yatırım yap",
+                    "risk": 0.8,
+                    "potential_reward": 0.7
+                }
+            ],
+            "correct_answer": "firsat_kolla",
+            "explanation": "Kriz dönemlerinde doğru fırsatları değerlendirmek büyük kazançlar sağlar"
+        },
+        {
+            "id": "borc_yonetimi",
+            "title": "Borç Yönetimi",
+            "description": "Yüksek faizli borçlarınızı nasıl yönetirsiniz?",
+            "duration": 300,
+            "options": [
+                {
+                    "id": "erken_ode",
+                    "title": "Erken Öde",
+                    "description": "Borçları erken ödeyerek faiz yükünden kurtul",
+                    "risk": 0.2,
+                    "potential_reward": 0.1
+                },
+                {
+                    "id": "yeniden_yapilandir",
+                    "title": "Yeniden Yapılandır",
+                    "description": "Borçları yeniden yapılandırarak ödeme planını optimize et",
+                    "risk": 0.5,
+                    "potential_reward": 0.3
+                }
+            ],
+            "correct_answer": "yeniden_yapilandir",
+            "explanation": "Borçları yeniden yapılandırmak uzun vadede daha avantajlıdır"
+        }
+    ],
+    "match_settings": {
+        "initial_money": 10000,
+        "duration": 900,
+        "event_interval": 180,
+        "card_spawn_interval": 60
+    }
+} 

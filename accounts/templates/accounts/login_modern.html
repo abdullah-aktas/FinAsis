@@ -1,0 +1,588 @@
+{% extends 'core_ui/base.html' %} {% load i18n static %} {% block title %}Giriş
+Yap - FinAsis{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<style>
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    position: relative;
+  }
+
+  .auth-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+      repeat;
+  }
+
+  .auth-card {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-3xl);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .auth-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border-radius: var(--radius-xl);
+    margin: 0 auto var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+  }
+
+  .auth-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .auth-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+  }
+
+  .auth-form {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .form-floating {
+    position: relative;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .form-floating > .form-control {
+    height: 60px;
+    padding: 1rem 0.75rem 0.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    transition: all var(--transition-fast);
+  }
+
+  .form-floating > .form-control:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgb(10 174 148 / 0.1);
+  }
+
+  .form-floating > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding: 1rem 0.75rem;
+    pointer-events: none;
+    border: none;
+    transform-origin: 0 0;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+    color: var(--text-muted);
+  }
+
+  .form-floating > .form-control:focus ~ label,
+  .form-floating > .form-control:not(:placeholder-shown) ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  }
+
+  .auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .auth-link {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-fast);
+  }
+
+  .auth-link:hover {
+    color: var(--brand-accent);
+    text-decoration: underline;
+  }
+
+  .auth-submit {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .auth-submit:active {
+    transform: translateY(0);
+  }
+
+  .auth-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .auth-divider {
+    text-align: center;
+    margin: var(--spacing-xl) 0;
+    position: relative;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .auth-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+    z-index: 0;
+  }
+
+  .auth-divider span {
+    background: var(--surface-elevated);
+    padding: 0 var(--spacing-md);
+    position: relative;
+    z-index: 1;
+  }
+
+  .social-login {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+
+  .social-btn {
+    flex: 1;
+    height: 48px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+  }
+
+  .social-btn:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    text-decoration: none;
+  }
+
+  .auth-footer {
+    text-align: center;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .error-message {
+    background: rgb(239 68 68 / 0.1);
+    color: var(--brand-danger);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgb(239 68 68 / 0.2);
+  }
+
+  .success-message {
+    background: rgb(16 185 129 / 0.1);
+    color: var(--brand-success);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgb(16 185 129 / 0.2);
+  }
+
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: var(--spacing-sm);
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .demo-users {
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .demo-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm);
+    margin: var(--spacing-xs) 0;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .demo-user:hover {
+    background: var(--brand-primary);
+    color: white;
+  }
+
+  .password-strength {
+    height: 4px;
+    background: var(--neutral-200);
+    border-radius: 2px;
+    margin-top: var(--spacing-xs);
+    overflow: hidden;
+  }
+
+  .password-strength-bar {
+    height: 100%;
+    transition: all var(--transition-fast);
+    border-radius: 2px;
+  }
+
+  .password-strength-weak {
+    background: var(--brand-danger);
+    width: 25%;
+  }
+  .password-strength-medium {
+    background: var(--brand-warning);
+    width: 50%;
+  }
+  .password-strength-strong {
+    background: var(--brand-success);
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .auth-container {
+      padding: var(--spacing-md);
+    }
+
+    .auth-card {
+      padding: var(--spacing-xl);
+    }
+
+    .auth-options {
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      text-align: center;
+    }
+
+    .social-login {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <i class="bi bi-shield-lock"></i>
+      </div>
+      <h1 class="auth-title">Giriş Yap</h1>
+      <p class="auth-subtitle">FinAsis hesabınıza erişim sağlayın</p>
+    </div>
+
+    {% if messages %} {% for message in messages %}
+    <div
+      class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}"
+    >
+      {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% if form.non_field_errors %}
+    <div class="error-message">
+      {% for error in form.non_field_errors %}
+      <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="auth-form" id="loginForm">
+      {% csrf_token %}
+
+      <div class="form-floating">
+        {{ form.username }}
+        <label for="{{ form.username.id_for_label }}"
+          >{{ form.username.label }}</label
+        >
+        {% if form.username.errors %}
+        <div class="text-danger mt-1">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-floating">
+        {{ form.password }}
+        <label for="{{ form.password.id_for_label }}"
+          >{{ form.password.label }}</label
+        >
+        {% if form.password.errors %}
+        <div class="text-danger mt-1">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="auth-options">
+        <label class="d-flex align-items-center gap-2">
+          <input type="checkbox" name="remember_me" class="form-check-input" />
+          <span class="small">Beni hatırla</span>
+        </label>
+        <a href="{% url 'password_reset' %}" class="auth-link"
+          >Şifremi unuttum</a
+        >
+      </div>
+
+      <button type="submit" class="auth-submit" id="submitBtn">
+        <span class="submit-text">Giriş Yap</span>
+        <div class="loading-spinner d-none"></div>
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      <span>veya</span>
+    </div>
+
+    <div class="social-login">
+      <a href="#" class="social-btn" onclick="socialLogin('google')">
+        <i class="bi bi-google"></i>
+        Google
+      </a>
+      <a href="#" class="social-btn" onclick="socialLogin('microsoft')">
+        <i class="bi bi-microsoft"></i>
+        Microsoft
+      </a>
+    </div>
+
+    <!-- Demo Users for Development -->
+    {% if debug %}
+    <div class="demo-users">
+      <h6 class="small fw-bold mb-2 text-muted">Demo Hesaplar (Geliştirme)</h6>
+      <div class="demo-user" onclick="fillDemoUser('admin', 'admin123')">
+        <span class="small">Admin Kullanıcı</span>
+        <small class="text-muted">admin / admin123</small>
+      </div>
+      <div class="demo-user" onclick="fillDemoUser('kobi', 'kobi123')">
+        <span class="small">KOBİ Kullanıcı</span>
+        <small class="text-muted">kobi / kobi123</small>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="auth-footer">
+      Henüz hesabınız yok mu?
+      <a href="{% url 'accounts:register' %}" class="auth-link fw-semibold"
+        >Ücretsiz kayıt olun</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("loginForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const submitText = submitBtn.querySelector(".submit-text");
+    const loadingSpinner = submitBtn.querySelector(".loading-spinner");
+
+    // Form submission handling
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Show loading state
+      submitBtn.disabled = true;
+      submitText.style.display = "none";
+      loadingSpinner.classList.remove("d-none");
+
+      // Simulate API call delay for better UX
+      setTimeout(() => {
+        form.submit();
+      }, 800);
+    });
+
+    // Input validation and enhancement
+    const inputs = form.querySelectorAll("input");
+    inputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        this.closest(".form-floating").classList.add("focused");
+      });
+
+      input.addEventListener("blur", function () {
+        this.closest(".form-floating").classList.remove("focused");
+        validateInput(this);
+      });
+
+      input.addEventListener("input", function () {
+        clearValidationErrors(this);
+      });
+    });
+
+    // Real-time validation
+    function validateInput(input) {
+      const value = input.value.trim();
+
+      if (input.name === "username") {
+        if (!value) {
+          showInputError(input, "Kullanıcı adı gereklidir");
+          return false;
+        }
+        if (value.length < 3) {
+          showInputError(input, "Kullanıcı adı en az 3 karakter olmalıdır");
+          return false;
+        }
+      }
+
+      if (input.name === "password") {
+        if (!value) {
+          showInputError(input, "Şifre gereklidir");
+          return false;
+        }
+        if (value.length < 6) {
+          showInputError(input, "Şifre en az 6 karakter olmalıdır");
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function showInputError(input, message) {
+      clearValidationErrors(input);
+      input.classList.add("is-invalid");
+
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "text-danger mt-1 small";
+      errorDiv.textContent = message;
+      input.closest(".form-floating").appendChild(errorDiv);
+    }
+
+    function clearValidationErrors(input) {
+      input.classList.remove("is-invalid");
+      const errorDiv = input
+        .closest(".form-floating")
+        .querySelector(".text-danger");
+      if (errorDiv) {
+        errorDiv.remove();
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", function (e) {
+      if (e.ctrlKey && e.key === "Enter") {
+        form.submit();
+      }
+    });
+  });
+
+  // Social login handlers
+  function socialLogin(provider) {
+    showToast(`${provider} ile giriş yapılıyor...`, "info");
+    // Implement actual social login logic here
+  }
+
+  // Demo user fill (development only)
+  function fillDemoUser(username, password) {
+    const usernameField = document.querySelector('input[name="username"]');
+    const passwordField = document.querySelector('input[name="password"]');
+
+    usernameField.value = username;
+    passwordField.value = password;
+
+    // Trigger input events to update floating labels
+    usernameField.dispatchEvent(new Event("input"));
+    passwordField.dispatchEvent(new Event("input"));
+
+    showToast("Demo kullanıcı bilgileri dolduruldu", "success");
+  }
+
+  // Toast notifications
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = "9999";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Auto-focus first empty input
+  window.addEventListener("load", function () {
+    const firstInput = document.querySelector("input:not([value])");
+    if (firstInput) {
+      firstInput.focus();
+    }
+  });
+
+  // Enhanced security: Clear form on back button
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) {
+      document.getElementById("loginForm").reset();
+    }
+  });
+</script>
+{% endblock %}

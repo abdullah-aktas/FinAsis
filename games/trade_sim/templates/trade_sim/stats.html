@@ -1,0 +1,676 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}TradeSim - İstatistikler{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Tam Ekran Oyun Modu */
+  body.game-fullscreen header,
+  body.game-fullscreen footer,
+  body.game-fullscreen #system-messages,
+  body.game-fullscreen .breadcrumbs {
+    display: none !important;
+  }
+
+  body.game-fullscreen main {
+    padding-top: 0 !important;
+  }
+
+  /* Toggle Butonu */
+  .ui-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+  }
+
+  .ui-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(99, 102, 241, 0.7);
+  }
+
+  .ui-toggle-btn::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .ui-toggle-btn:hover::before {
+    opacity: 1;
+  }
+
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+  }
+
+  .stats-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Header */
+  .stats-header {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+    text-align: center;
+    animation: fadeInDown 0.6s ease-out;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stats-header h1 {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .stats-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+  }
+
+  /* Grid Layout */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  /* Stat Card */
+  .stat-card {
+    background: rgba(30, 41, 59, 0.95);
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    animation: fadeIn 0.6s ease-out backwards;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    border-color: #6366f1;
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  }
+
+  .stat-card-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .stat-value {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .stat-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* User Profile Card */
+  .profile-card {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    grid-column: span 2;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 36px;
+    font-weight: 700;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .profile-info {
+    flex: 1;
+  }
+
+  .profile-name {
+    color: white;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .profile-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  .profile-stat-item {
+    text-align: center;
+  }
+
+  .profile-stat-value {
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .profile-stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+  }
+
+  /* Chart Container */
+  .chart-card {
+    background: rgba(30, 41, 59, 0.95);
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .chart-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* Bar Chart */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: 250px;
+    margin-top: 20px;
+  }
+
+  .bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar {
+    width: 100%;
+    background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 8px 8px 0 0;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 10px;
+  }
+
+  .bar:hover {
+    background: linear-gradient(180deg, #818cf8 0%, #a78bfa 100%);
+  }
+
+  .bar-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .bar-value {
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    position: absolute;
+    top: -25px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Recent Games */
+  .recent-games {
+    background: rgba(30, 41, 59, 0.95);
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .game-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .game-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+  }
+
+  .game-result {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .game-result.victory {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .game-result.defeat {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .game-score {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .game-date {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+  }
+
+  /* Top Players */
+  .top-player-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 15px;
+  }
+
+  .top-player-icon {
+    font-size: 36px;
+  }
+
+  .top-player-info h4 {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .top-player-stat {
+    color: #6366f1;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 768px) {
+    .profile-card {
+      grid-column: span 1;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+  <!-- Header -->
+  <div class="stats-header">
+    <h1>📊 İstatistikler</h1>
+    <p class="stats-subtitle">Oyun performansınız ve genel istatistikler</p>
+  </div>
+
+  {% if user_profile %}
+  <!-- User Profile -->
+  <div class="stats-grid">
+    <div class="stat-card profile-card">
+      <div class="stat-card-header">
+        <div class="profile-avatar">
+          {{ user.username|first|upper }}
+        </div>
+        <div class="profile-info">
+          <h2 class="profile-name">{{ user.username }}</h2>
+          <span class="profile-stat-label">{{ user_profile.get_rank_display }}</span>
+        </div>
+      </div>
+      
+      <div class="profile-stats">
+        <div class="profile-stat-item">
+          <div class="profile-stat-value">{{ user_profile.level }}</div>
+          <div class="profile-stat-label">Seviye</div>
+        </div>
+        <div class="profile-stat-item">
+          <div class="profile-stat-value">{{ user_profile.elo_rating }}</div>
+          <div class="profile-stat-label">ELO</div>
+        </div>
+        <div class="profile-stat-item">
+          <div class="profile-stat-value">{{ user_profile.total_score }}</div>
+          <div class="profile-stat-label">Skor</div>
+        </div>
+        <div class="profile-stat-item">
+          <div class="profile-stat-value">{{ user_profile.games_played }}</div>
+          <div class="profile-stat-label">Maç</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon">🏆</div>
+        <div>
+          <h3 class="stat-card-title">Galibiyetler</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ user_profile.games_played|add:"-"|add:user_profile.games_lost }}</div>
+      <div class="stat-label">Toplam Galibiyet</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">💰</div>
+        <div>
+          <h3 class="stat-card-title">Altın</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ user_profile.coins }}</div>
+      <div class="stat-label">Oyun Parası</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">🔥</div>
+        <div>
+          <h3 class="stat-card-title">Seri</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ user_profile.daily_streak }}</div>
+      <div class="stat-label">Günlük Seri</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">🎖️</div>
+        <div>
+          <h3 class="stat-card-title">Rozetler</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ user_profile.badges.count }}</div>
+      <div class="stat-label">Kazanılan Rozet</div>
+    </div>
+  </div>
+
+  <!-- Recent Games -->
+  {% if user_sessions %}
+  <div class="recent-games">
+    <h2 class="chart-title">📅 Son Oyunlar</h2>
+    {% for session in user_sessions %}
+    <div class="game-item">
+      <div>
+        <span class="game-result {% if session.is_victory %}victory{% else %}defeat{% endif %}">
+          {% if session.is_victory %}✓ Zafer{% else %}✗ Mağlubiyet{% endif %}
+        </span>
+      </div>
+      <div class="game-score">{{ session.score }} puan</div>
+      <div class="game-date">{{ session.started_at|date:"d/m/Y H:i" }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="stat-card">
+    <div class="empty-state">
+      <div class="empty-icon">👤</div>
+      <h3 style="color: white; margin-bottom: 10px;">Profil Bulunamadı</h3>
+      <p>İstatistiklerinizi görmek için oyuna başlayın!</p>
+      <a href="{% url 'trade_sim:start_game' %}" class="filter-btn active" style="margin-top: 20px; display: inline-block; text-decoration: none;">
+        Oyuna Başla
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Platform Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">👥</div>
+        <div>
+          <h3 class="stat-card-title">Toplam Oyuncu</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ total_players }}</div>
+      <div class="stat-label">Kayıtlı Oyuncu</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">🎮</div>
+        <div>
+          <h3 class="stat-card-title">Toplam Maç</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ total_sessions }}</div>
+      <div class="stat-label">Oynanan Maç</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">📈</div>
+        <div>
+          <h3 class="stat-card-title">Ortalama Seviye</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ avg_stats.avg_level|floatformat:1|default:"0" }}</div>
+      <div class="stat-label">Oyuncu Ortalaması</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">⚡</div>
+        <div>
+          <h3 class="stat-card-title">Ortalama ELO</h3>
+        </div>
+      </div>
+      <div class="stat-value">{{ avg_stats.avg_elo|floatformat:0|default:"1200" }}</div>
+      <div class="stat-label">Platform Ortalaması</div>
+    </div>
+  </div>
+
+  <!-- Activity Chart -->
+  <div class="chart-card">
+    <h2 class="chart-title">📊 Son 7 Gün Aktivitesi</h2>
+    <div class="bar-chart">
+      {% for day in daily_activity %}
+      <div class="bar-item">
+        <div class="bar" style="height: {% if day.count > 0 %}{{ day.count|add:'0'|stringformat:'d'|slice:':2' }}%{% else %}5%{% endif %};">
+          <div class="bar-value">{{ day.count }}</div>
+        </div>
+        <div class="bar-label">{{ day.date }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Top Players -->
+  {% if top_score or top_elo or top_level %}
+  <div class="chart-card">
+    <h2 class="chart-title">🌟 En İyi Oyuncular</h2>
+    
+    {% if top_score %}
+    <div class="top-player-card">
+      <div class="top-player-icon">👑</div>
+      <div class="top-player-info">
+        <h4>En Yüksek Skor</h4>
+        <p style="color: rgba(255, 255, 255, 0.6);">{{ top_score.user.username }}</p>
+      </div>
+      <div class="top-player-stat">{{ top_score.total_score }}</div>
+    </div>
+    {% endif %}
+
+    {% if top_elo %}
+    <div class="top-player-card">
+      <div class="top-player-icon">⚔️</div>
+      <div class="top-player-info">
+        <h4>En Yüksek ELO</h4>
+        <p style="color: rgba(255, 255, 255, 0.6);">{{ top_elo.user.username }}</p>
+      </div>
+      <div class="top-player-stat">{{ top_elo.elo_rating }}</div>
+    </div>
+    {% endif %}
+
+    {% if top_level %}
+    <div class="top-player-card">
+      <div class="top-player-icon">⭐</div>
+      <div class="top-player-info">
+        <h4>En Yüksek Seviye</h4>
+        <p style="color: rgba(255, 255, 255, 0.6);">{{ top_level.user.username }}</p>
+      </div>
+      <div class="top-player-stat">Lvl {{ top_level.level }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- UI Toggle Button -->
+  <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+    <span id="toggleIcon">👁️</span>
+  </button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tam Ekran Oyun Modu Toggle
+(function() {
+  const toggleBtn = document.getElementById('uiToggle');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const body = document.body;
+  
+  const savedMode = localStorage.getItem('finasis_game_fullscreen');
+  
+  if (savedMode === null || savedMode === 'true') {
+    body.classList.add('game-fullscreen');
+    toggleIcon.textContent = '👁️';
+    toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+  } else {
+    body.classList.remove('game-fullscreen');
+    toggleIcon.textContent = '🎮';
+    toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+  }
+  
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    body.classList.toggle('game-fullscreen');
+    const isFullscreen = body.classList.contains('game-fullscreen');
+    
+    if (isFullscreen) {
+      toggleIcon.textContent = '👁️';
+      toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+    } else {
+      toggleIcon.textContent = '🎮';
+      toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+    }
+    
+    localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    
+    if (!isFullscreen) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      toggleBtn.click();
+    }
+  });
+})();
+</script>
+{% endblock %}
+
+

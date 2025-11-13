@@ -1,0 +1,9 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% block title %}{% trans "TradeSim" %}{% endblock %}
+{% block content %}
+<div class="container py-5"><h1 class="h3">{% trans "TradeSim" %}</h1><p>{% trans "Ticaret simülasyonu sahnesi yakında aktif." %}</p></div>
+{% endblock %}
+{% block extra_js %}
+<script src="/static/js/tradesim.js"></script>
+{% endblock %} 

@@ -1,0 +1,343 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Eğitim Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .education-hero {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .education-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .education-hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .education-hero .lead {
+    font-size: 16px;
+    opacity: 0.95;
+    line-height: 1.6;
+  }
+
+  .ai-help-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 12px;
+    padding: 8px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .ai-help-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: white;
+    color: white;
+  }
+
+  .chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+  }
+
+  .chart-card h5 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .notification-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+  }
+
+  .notification-item {
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+
+  .notification-item:hover {
+    background: rgba(245, 158, 11, 0.02);
+    border-radius: 12px;
+  }
+
+  .dashboard-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    height: 100%;
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-card:nth-child(1) { border-top-color: #10b981; }
+  .dashboard-card:nth-child(2) { border-top-color: #667eea; }
+  .dashboard-card:nth-child(3) { border-top-color: #f59e0b; }
+
+  .dashboard-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+
+  .dashboard-icon-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .dashboard-icon-primary {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    color: #667eea;
+  }
+
+  .dashboard-icon-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    color: #f59e0b;
+  }
+
+  .dashboard-card h6 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .dashboard-card p {
+    font-size: 14px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .dashboard-card .btn {
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .education-hero h1 {
+      font-size: 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Hero Header -->
+  <div class="education-hero">
+    <div class="container hero-content">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h1>Hoş geldiniz, <span style="opacity: 1;">{{ request.user.first_name|default:request.user.username }}</span>!</h1>
+          <p class="lead mb-0">FinAsis Eğitim Modülü ile interaktif derslere katılın, gelişiminizi takip edin ve kendinizi test edin</p>
+        </div>
+        <button class="ai-help-btn" data-bs-toggle="modal" data-bs-target="#aiHelpModal">
+          <i class="bi bi-robot me-2"></i> Bu sayfa hakkında sorum var
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sınav Grafiği -->
+  <div class="chart-card">
+    <h5><i class="bi bi-graph-up-arrow" style="color: #10b981;"></i> Sınav İlerlemeniz</h5>
+    <canvas id="examChart" height="100"></canvas>
+  </div>
+
+  <!-- Son Bildirimler -->
+  <div class="notification-card">
+    <h5><i class="bi bi-megaphone" style="color: #f59e0b;"></i> Eğitmen Bildirimleri</h5>
+    {% if notifications %}
+      <div>
+        {% for note in notifications %}
+          <div class="notification-item d-flex justify-content-between align-items-center">
+            <span>{{ note.message }}</span>
+            <small class="text-muted">{{ note.date|date:"d.m.Y H:i" }}</small>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">Yeni bir bildirim yok.</p>
+    {% endif %}
+  </div>
+
+  <!-- Dashboard Kartları -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="dashboard-card">
+        <div class="dashboard-icon dashboard-icon-success">
+          <i class="bi bi-book"></i>
+        </div>
+        <h6>Derslerim</h6>
+        <p>Katıldığınız tüm dersleri buradan takip edebilirsiniz</p>
+        <a href="{% url 'education' %}" class="btn btn-outline-success">
+          <i class="bi bi-arrow-right me-2"></i>Derslere Git
+        </a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dashboard-card">
+        <div class="dashboard-icon dashboard-icon-primary">
+          <i class="bi bi-bar-chart-line"></i>
+        </div>
+        <h6>Gelişim Raporu</h6>
+        <p>Kendi başarılarınızı dönemsel olarak gözlemleyin</p>
+        <a href="{% url 'education' %}" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-right me-2"></i>Raporlara Git
+        </a>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="dashboard-card">
+        <div class="dashboard-icon dashboard-icon-warning">
+          <i class="bi bi-lightbulb-fill"></i>
+        </div>
+        <h6>Interaktif Egzersizler</h6>
+        <p>Bilginizi ölçün, eğlenerek öğrenin</p>
+        <a href="{% url 'education' %}" class="btn btn-outline-warning">
+          <i class="bi bi-arrow-right me-2"></i>Egzersizlere Git
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilgilendirme Alanı -->
+  <div class="alert alert-info rounded-4 d-flex align-items-start gap-3" role="alert" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(59, 130, 246, 0.05)); border-left: 4px solid #06b6d4;">
+    <i class="bi bi-info-circle-fill fs-4"></i>
+    <div>
+      <strong>Yardıma mı ihtiyacınız var?</strong> 
+      <a href="/help/" class="alert-link">yardım sayfasını</a> ziyaret edin veya 
+      <a href="mailto:destek@finasis.com.tr" class="alert-link">destek hattına</a> yazın.
+    </div>
+  </div>
+
+  <!-- Motivasyon Mesajı -->
+  <div class="text-center mt-5 p-5" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.05)); border-radius: 20px;">
+    <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+      <i class="bi bi-lightbulb-fill" style="font-size: 40px; color: white;"></i>
+    </div>
+    <h4 class="fw-bold mb-2">Öğrenmeye Hazır mısınız?</h4>
+    <p class="text-muted mb-0">Henüz hiç ders eklemediniz mi? Hemen yukarıdan bir ders seçin ve öğrenmeye başlayın!</p>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if chart_labels %}{{ chart_labels|json_script:"examChart-labels" }}{% endif %}
+{% if chart_data %}{{ chart_data|json_script:"examChart-data" }}{% endif %}
+<script>
+  const ctx = document.getElementById('examChart').getContext('2d');
+  let chartLabels = [];
+  let chartData = [];
+  try {
+    const lblEl = document.getElementById('examChart-labels');
+    const dataEl = document.getElementById('examChart-data');
+    chartLabels = lblEl ? JSON.parse(lblEl.textContent) : [];
+    chartData = dataEl ? JSON.parse(dataEl.textContent) : [];
+  } catch (e) {
+    chartLabels = [];
+    chartData = [];
+  }
+  if (!Array.isArray(chartLabels)) chartLabels = [];
+  if (!Array.isArray(chartData)) chartData = [];
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Puan',
+        data: chartData,
+        fill: true,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16,185,129,0.1)',
+        tension: 0.3,
+        pointBackgroundColor: '#10b981',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          padding: 12,
+          borderRadius: 8,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

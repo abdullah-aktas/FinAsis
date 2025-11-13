@@ -1,0 +1,463 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}KOBİ Analiz Dashboard - {{ company.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kobi-dashboard-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 48px 0;
+    border-radius: 24px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kobi-dashboard-hero::before {
+    content: '📊';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.08;
+    top: -40px;
+    right: -30px;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(5deg); }
+  }
+
+  .kpi-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    text-align: center;
+    transition: all 0.3s ease;
+    border-top: 4px solid #10b981;
+    height: 100%;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(16,185,129,0.15);
+  }
+
+  .kpi-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  .health-score-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    text-align: center;
+    position: relative;
+  }
+
+  .score-ring {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .score-ring::before {
+    content: '';
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .alert-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 12px;
+    border-left: 5px solid #ef4444;
+    transition: all 0.3s ease;
+  }
+
+  .alert-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(239,68,68,0.15);
+  }
+
+  .goal-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 12px;
+    border-left: 4px solid #667eea;
+  }
+
+  .progress-bar-custom {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease;
+  }
+
+  .quick-action-card {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    border-top: 3px solid #667eea;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+  }
+
+  .quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="kobi-dashboard-hero">
+    <div class="container" style="position: relative; z-index: 2;">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">
+            📊 KOBİ Analiz Dashboard
+          </h1>
+          <p style="font-size: 18px; opacity: 0.95; margin-bottom: 4px;">
+            {{ company.name }}
+          </p>
+          <small style="opacity: 0.85;">
+            {{ period_start|date:"d M Y" }} - {{ period_end|date:"d M Y" }} (Son 30 Gün)
+          </small>
+        </div>
+        <div class="col-md-4 text-end">
+          <button class="btn btn-light btn-lg" onclick="location.href='{% url 'kobi_analysis:generate_analysis' %}'" style="border-radius: 14px; padding: 14px 28px; font-weight: 700;">
+            <i class="bi bi-plus-circle me-2"></i>Yeni Analiz
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="kpi-card" style="border-top-color: #10b981;">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05)); color: #10b981;">
+          💰
+        </div>
+        <h6 class="text-muted mb-2">Toplam Gelir</h6>
+        <h3 class="fw-bold mb-0" style="color: #10b981;">{{ total_revenue|floatformat:0 }} ₺</h3>
+        <small class="text-muted">Son 30 Gün</small>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="border-top-color: #ef4444;">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.05)); color: #ef4444;">
+          📉
+        </div>
+        <h6 class="text-muted mb-2">Toplam Gider</h6>
+        <h3 class="fw-bold mb-0" style="color: #ef4444;">{{ total_expenses|floatformat:0 }} ₺</h3>
+        <small class="text-muted">Son 30 Gün</small>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="border-top-color: {% if net_profit >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, {% if net_profit >= 0 %}rgba(16,185,129,0.1), rgba(5,150,105,0.05){% else %}rgba(239,68,68,0.1), rgba(220,38,38,0.05){% endif %}; color: {% if net_profit >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+          {% if net_profit >= 0 %}📈{% else %}📉{% endif %}
+        </div>
+        <h6 class="text-muted mb-2">Net Kar/Zarar</h6>
+        <h3 class="fw-bold mb-0" style="color: {% if net_profit >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+          {{ net_profit|floatformat:0 }} ₺
+        </h3>
+        <small class="text-muted">
+          {% if net_profit >= 0 %}
+          <i class="bi bi-arrow-up text-success"></i> Kar
+          {% else %}
+          <i class="bi bi-arrow-down text-danger"></i> Zarar
+          {% endif %}
+        </small>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card" style="border-top-color: #667eea;">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.05)); color: #667eea;">
+          ⚠️
+        </div>
+        <h6 class="text-muted mb-2">Aktif Uyarılar</h6>
+        <h3 class="fw-bold mb-0" style="color: #667eea;">{{ active_alerts.count }}</h3>
+        <small class="text-muted">Kritik/Yüksek</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ana İçerik -->
+  <div class="row g-4 mb-5">
+    <!-- Sol: Sağlık Skoru -->
+    <div class="col-lg-5">
+      <div class="health-score-card">
+        <h5 class="fw-bold mb-4">
+          <i class="bi bi-heart-pulse me-2" style="color: #10b981;"></i>
+          Finansal Sağlık Skoru
+        </h5>
+
+        <div class="score-ring" style="background: conic-gradient(#10b981 0deg, #10b981 {{ kobi_health.overall_score|mul:3.6 }}deg, #e5e7eb {{ kobi_health.overall_score|mul:3.6 }}deg, #e5e7eb 360deg);">
+          <div style="position: relative; z-index: 2; font-size: 52px; font-weight: 800; color: #10b981;">
+            {{ kobi_health.overall_score|floatformat:0 }}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <span style="display: inline-block; padding: 10px 24px; border-radius: 20px; font-weight: 700; font-size: 18px; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+            {{ kobi_health.grade }} Derece
+          </span>
+        </div>
+
+        <p class="fw-bold mb-3" style="font-size: 18px;">{{ kobi_health.status }}</p>
+
+        <div class="row g-3 mt-4">
+          <div class="col-6">
+            <div style="background: rgba(102,126,234,0.1); border-radius: 12px; padding: 14px;">
+              <h6 class="fw-bold mb-0" style="color: #667eea;">{{ kobi_health.breakdown.audit_quality|floatformat:0 }}</h6>
+              <small class="text-muted">Audit Kalitesi</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(59,130,246,0.1); border-radius: 12px; padding: 14px;">
+              <h6 class="fw-bold mb-0" style="color: #3b82f6;">{{ kobi_health.breakdown.compliance|floatformat:0 }}</h6>
+              <small class="text-muted">Uyumluluk</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(245,158,11,0.1); border-radius: 12px; padding: 14px;">
+              <h6 class="fw-bold mb-0" style="color: #f59e0b;">{{ kobi_health.breakdown.operational_efficiency|floatformat:0 }}</h6>
+              <small class="text-muted">Verimlilik</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(139,92,246,0.1); border-radius: 12px; padding: 14px;">
+              <h6 class="fw-bold mb-0" style="color: #8b5cf6;">{{ kobi_health.breakdown.risk_management|floatformat:0 }}</h6>
+              <small class="text-muted">Risk</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a href="{% url 'audit:kobi_health' %}" class="btn btn-outline-success w-100" style="border-radius: 12px; font-weight: 600;">
+            <i class="bi bi-clipboard-data me-2"></i>Detaylı Sağlık Raporu
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ: Uyarılar & Hedefler -->
+    <div class="col-lg-7">
+      <!-- Aktif Uyarılar -->
+      <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-exclamation-triangle me-2" style="color: #ef4444;"></i>
+            Aktif Uyarılar ({{ active_alerts.count }})
+          </h5>
+
+          {% for alert in active_alerts %}
+          <div class="alert-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="mb-2">
+                  <span class="badge bg-danger">{{ alert.get_severity_display }}</span>
+                  <span class="badge bg-secondary">{{ alert.get_alert_type_display }}</span>
+                </div>
+                <h6 class="fw-bold mb-1">{{ alert.alert_message }}</h6>
+                <small class="text-muted">{{ alert.triggered_at|timesince }} önce</small>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-4">
+            <i class="bi bi-check-circle" style="font-size: 48px; color: #10b981;"></i>
+            <p class="text-muted mt-2 mb-0">Aktif uyarı bulunmuyor</p>
+          </div>
+          {% endfor %}
+
+          {% if active_alerts %}
+          <div class="text-center mt-3">
+            <a href="{% url 'kobi_analysis:risk_management' %}" class="btn btn-outline-danger">
+              <i class="bi bi-eye me-2"></i>Tüm Uyarıları Görüntüle
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Aktif Hedefler -->
+      <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-bullseye me-2" style="color: #667eea;"></i>
+            Aktif Hedefler ({{ active_goals.count }})
+          </h5>
+
+          {% for goal in active_goals %}
+          <div class="goal-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-bold mb-0">{{ goal.goal_name }}</h6>
+              <span class="badge bg-primary">{{ goal.get_priority_display }}</span>
+            </div>
+            
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <small class="text-muted d-block">Hedef</small>
+                <strong>{{ goal.target_amount|floatformat:0 }} ₺</strong>
+              </div>
+              <div class="col-6">
+                <small class="text-muted d-block">Termin</small>
+                <strong>{{ goal.deadline|date:"d M Y" }}</strong>
+              </div>
+            </div>
+
+            <div class="progress-bar-custom">
+              <div class="progress-fill" style="width: {{ goal.achievement_percentage|default:0 }}%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+            </div>
+            <small class="text-muted">İlerleme: {{ goal.achievement_percentage|default:0|floatformat:0 }}%</small>
+          </div>
+          {% empty %}
+          <div class="text-center py-4">
+            <i class="bi bi-flag" style="font-size: 48px; color: #cbd5e0;"></i>
+            <p class="text-muted mt-2 mb-0">Henüz hedef belirlenmemiş</p>
+          </div>
+          {% endfor %}
+
+          <div class="text-center mt-3">
+            <a href="{% url 'kobi_analysis:goals_tracking' %}" class="btn btn-outline-primary">
+              <i class="bi bi-plus-circle me-2"></i>Yeni Hedef Ekle
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hızlı Aksiyonlar -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-lightning me-2" style="color: #f59e0b;"></i>
+      Hızlı Aksiyonlar
+    </h4>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <a href="{% url 'kobi_analysis:budget_planning' %}" class="text-decoration-none">
+          <div class="quick-action-card" style="border-top-color: #10b981;">
+            <i class="bi bi-pie-chart" style="font-size: 48px; color: #10b981; margin-bottom: 16px;"></i>
+            <h6 class="fw-bold mb-1">Bütçe Planlama</h6>
+            <p class="text-muted small mb-0">Gelir-gider bütçesi oluştur</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="{% url 'kobi_analysis:cash_flow_forecast' %}" class="text-decoration-none">
+          <div class="quick-action-card" style="border-top-color: #3b82f6;">
+            <i class="bi bi-cash-stack" style="font-size: 48px; color: #3b82f6; margin-bottom: 16px;"></i>
+            <h6 class="fw-bold mb-1">Nakit Akış Tahmini</h6>
+            <p class="text-muted small mb-0">Gelecek nakit durumunu tahmin et</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="{% url 'kobi_analysis:swot_analysis' %}" class="text-decoration-none">
+          <div class="quick-action-card" style="border-top-color: #8b5cf6;">
+            <i class="bi bi-graph-up" style="font-size: 48px; color: #8b5cf6; margin-bottom: 16px;"></i>
+            <h6 class="fw-bold mb-1">SWOT Analizi</h6>
+            <p class="text-muted small mb-0">Güçlü/zayıf yönlerini keşfet</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3">
+        <a href="{% url 'kobi_analysis:competitor_analysis' %}" class="text-decoration-none">
+          <div class="quick-action-card" style="border-top-color: #f59e0b;">
+            <i class="bi bi-people" style="font-size: 48px; color: #f59e0b; margin-bottom: 16px;"></i>
+            <h6 class="fw-bold mb-1">Rakip Analizi</h6>
+            <p class="text-muted small mb-0">Rakiplerinle karşılaştır</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Son Raporlar -->
+  {% if recent_reports %}
+  <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-4">
+        <i class="bi bi-file-earmark-text me-2" style="color: #667eea;"></i>
+        Son Danışmanlık Raporları
+      </h5>
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Rapor Başlığı</th>
+              <th>Tür</th>
+              <th>Tarih</th>
+              <th>Oluşturan</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in recent_reports %}
+            <tr>
+              <td class="fw-bold">{{ report.report_title }}</td>
+              <td><span class="badge bg-info">{{ report.get_report_type_display }}</span></td>
+              <td>{{ report.report_date|date:"d M Y" }}</td>
+              <td>{{ report.generated_by.username }}</td>
+              <td>
+                <a href="{% url 'kobi_analysis:advisory_reports' %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

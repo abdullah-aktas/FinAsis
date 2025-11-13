@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Rakip Analizi" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Rakip Analizi" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{% trans "Rakip Analizi" %}</h1>
+                <p class="text-gray-600 mt-2">{% trans "Rakiplerinizi analiz edin ve pazardaki konumunuzu değerlendirin" %}</p>
+            </div>
+            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                {% trans "Yeni Analiz" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Analiz Listesi -->
+    <div class="space-y-6">
+        {% for analysis in analyses %}
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">{{ analysis.competitor_name }}</h2>
+                    <p class="text-sm text-gray-500">{% trans "Analiz Tarihi" %}: {{ analysis.analysis_date|date:"d.m.Y" }}</p>
+                </div>
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                    {{ analysis.get_market_position_display }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Pazar Payı" %}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ analysis.market_share|floatformat:1 }}%</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Tahmini Gelir" %}</p>
+                    <p class="text-2xl font-bold text-green-600">₺{{ analysis.estimated_revenue|floatformat:0 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">{% trans "Rekabet Skoru" %}</p>
+                    <p class="text-2xl font-bold text-purple-600">{{ analysis.competitive_score|floatformat:0 }}/100</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">{% trans "Güçlü Yönler" %}</h3>
+                    <p class="text-sm text-gray-600">{{ analysis.strengths|truncatewords:30 }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">{% trans "Zayıf Yönler" %}</h3>
+                    <p class="text-sm text-gray-600">{{ analysis.weaknesses|truncatewords:30 }}</p>
+                </div>
+            </div>
+
+            {% if analysis.recommendations %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="font-semibold text-blue-900 mb-2">{% trans "Öneriler" %}</h3>
+                <p class="text-sm text-blue-800">{{ analysis.recommendations|truncatewords:40 }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <p class="text-gray-600">{% trans "Henüz rakip analizi bulunmuyor" %}</p>
+            <button class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                {% trans "İlk Analizinizi Oluşturun" %}
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

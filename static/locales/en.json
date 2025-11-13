@@ -1,0 +1,23 @@
+{
+  "login_title": "Sign In",
+  "login_button": "Sign In",
+  "asistan_tip": "Your daily income & expense report is ready! Log in to see details.",
+  "dashboard_title": "Dashboard",
+  "ai_panel_title": "AI Assistant",
+  "ai_panel_message": "Your suggestion for today is ready!",
+  "kpi_income": "Daily Income",
+  "kpi_expense": "Daily Expense",
+  "kpi_balance": "Balance",
+  "kpi_transactions": "Transactions",
+  "timeline_title": "Today's Timeline",
+  "edu_card_title": "Today's Financial Term: Net Profit Margin",
+  "quick_invoice": "New Invoice",
+  "quick_expense": "New Expense",
+  "quick_stock": "Stock Entry",
+  "footer_copyright": "© 2025 FinAsis. All rights reserved.",
+  "lang_select": "Language",
+  "cookie_message": "This site uses cookies. By continuing, you accept our use of cookies.",
+  "cookie_accept": "Accept",
+  "cookie_decline": "Decline",
+  "contrast_toggle": "High Contrast"
+} 

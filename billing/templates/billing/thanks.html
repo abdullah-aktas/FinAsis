@@ -1,0 +1,10 @@
+{% extends 'common/base.html' %}
+{% block title %}{{ title|default:'Teşekkürler' }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="alert alert-success">
+    {{ message|default:'İşleminiz başarıyla tamamlandı.' }}
+  </div>
+  <a href="{% url 'billing:plans' %}" class="btn btn-outline-primary">Planlara Dön</a>
+</div>
+{% endblock %}

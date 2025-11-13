@@ -1,0 +1,523 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Ekibimiz - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .team-hero {
+    position: relative;
+    background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .team-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .team-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .team-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .team-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .team-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Leadership Section */
+  .leadership-section {
+    padding: 80px 0 100px;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .leader-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+  }
+
+  .leader-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .leader-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b, #fb923c);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .leader-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .leader-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(245, 158, 11, 0.15);
+  }
+
+  .leader-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+    position: relative;
+  }
+
+  .leader-avatar::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #fb923c);
+    opacity: 0.2;
+    z-index: -1;
+  }
+
+  .leader-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+
+  .leader-role {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.1));
+    color: #f59e0b;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .leader-bio {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .leader-social {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .leader-social a {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .leader-social a:hover {
+    background: #f59e0b;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Team Section */
+  .team-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+
+  .team-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .team-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #9ca3af;
+    font-weight: 700;
+  }
+
+  .team-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .team-role {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .team-hero h1 {
+      font-size: 36px;
+    }
+
+    .leader-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .team-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .cta-title {
+      font-size: 32px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="team-hero">
+  <div class="container team-hero-content">
+    <span class="team-badge">
+      <i class="bi bi-people"></i>
+      Ekibimiz
+    </span>
+    <h1>Tutkulu ve Yenilikçi Ekip</h1>
+    <p>
+      FinAsis'i inşa eden, geliştiren ve büyüten alanında uzman kadromuzla tanışın. 
+      Her biri finansın geleceğini şekillendirmek için çalışıyor.
+    </p>
+  </div>
+</section>
+
+<!-- Leadership Section -->
+<section class="leadership-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge">
+        <i class="bi bi-star me-2"></i>Liderlik Ekibi
+      </span>
+      <h2 class="section-title">Vizyonerimiz</h2>
+      <p class="section-subtitle">
+        FinAsis'in stratejik vizyonunu belirleyen ve yönünü şekillendiren liderlik kadromuz
+      </p>
+    </div>
+
+    <div class="leader-grid">
+      <!-- CEO -->
+      <div class="leader-card">
+        <div class="leader-avatar">
+          AA
+        </div>
+        <h3 class="leader-name">Abdullah AKTAŞ</h3>
+        <span class="leader-role">CEO & Kurucu</span>
+        <p class="leader-bio">
+          Strateji, büyüme ve iş geliştirmeden sorumlu. 10+ yıllık finans ve teknoloji deneyimi ile FinAsis'i şekillendiriyor.
+        </p>
+        <div class="leader-social">
+          <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+          <a href="#" aria-label="Email"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+
+      <!-- CTO -->
+      <div class="leader-card">
+        <div class="leader-avatar">
+          BK
+        </div>
+        <h3 class="leader-name">B. Kurucu</h3>
+        <span class="leader-role">CTO & Kurucu Ortak</span>
+        <p class="leader-bio">
+          Ürün ve teknoloji liderliği. Yapay zeka, blockchain ve modern yazılım mimarisi konularında uzman.
+        </p>
+        <div class="leader-social">
+          <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
+          <a href="#" aria-label="Email"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+
+      <!-- COO -->
+      <div class="leader-card">
+        <div class="leader-avatar">
+          CK
+        </div>
+        <h3 class="leader-name">C. Kurucu</h3>
+        <span class="leader-role">COO & Kurucu Ortak</span>
+        <p class="leader-bio">
+          Operasyon ve süreç yönetimi. Verimli iş akışları ve müşteri memnuniyeti konusunda deneyimli.
+        </p>
+        <div class="leader-social">
+          <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+          <a href="#" aria-label="Email"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="team-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-heart me-2"></i>Takım Üyeleri
+      </span>
+      <h2 class="section-title">Yetenekli Kadromuz</h2>
+      <p class="section-subtitle">
+        FinAsis'i her gün daha iyi hale getiren tutkulu profesyonellerimiz
+      </p>
+    </div>
+
+    {% if members %}
+      <div class="team-grid">
+        {% for m in members %}
+          <div class="team-card">
+            <div class="team-avatar">
+              {{ m.name|first|upper }}
+            </div>
+            <h4 class="team-name">{{ m.name }}</h4>
+            <p class="team-role">{{ m.role }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">AY</div>
+          <h4 class="team-name">Ahmet Yılmaz</h4>
+          <p class="team-role">Senior Backend Developer</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">EK</div>
+          <h4 class="team-name">Elif Kaya</h4>
+          <p class="team-role">Frontend Developer</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">MD</div>
+          <h4 class="team-name">Mehmet Demir</h4>
+          <p class="team-role">Data Scientist</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">ZA</div>
+          <h4 class="team-name">Zeynep Arslan</h4>
+          <p class="team-role">Product Designer</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">CT</div>
+          <h4 class="team-name">Can Türk</h4>
+          <p class="team-role">DevOps Engineer</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">SA</div>
+          <h4 class="team-name">Selin Aydın</h4>
+          <p class="team-role">Marketing Manager</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-icon">
+      <i class="bi bi-briefcase"></i>
+    </div>
+    <h2 class="cta-title">Aramıza Katılın</h2>
+    <p class="cta-subtitle">
+      Büyüyen ekibimizin bir parçası olun. Yetenekli, tutkulu ve yenilikçi profesyonellerle çalışın.
+    </p>
+    <div class="mt-4">
+      <a href="/corporate/careers/" class="btn btn-cta-primary">
+        <i class="bi bi-search me-2"></i>Açık Pozisyonlar
+      </a>
+      <a href="/contact/" class="btn btn-cta-secondary">
+        <i class="bi bi-envelope me-2"></i>İletişime Geç
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

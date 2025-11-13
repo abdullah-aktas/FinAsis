@@ -1,0 +1,36 @@
+<!-- Modern Modül Kartı Componenti -->
+{% load static %}
+
+<div class="module-card" data-category="{{ category|default:'general' }}" data-aos="zoom-in" data-aos-delay="{{ delay|default:'0' }}"
+     style="--module-card-accent: {{ color|default:'#0AAE94' }};">
+    <a href="{{ url }}" class="module-card-link">
+        <div class="module-card-header">
+            <div class="module-icon-wrapper">
+                <i class="bi bi-{{ icon|default:'grid' }} module-icon"></i>
+            </div>
+            {% if badge %}
+            <span class="module-badge">{{ badge }}</span>
+            {% endif %}
+        </div>
+        <div class="module-card-body">
+            <h5 class="module-title">{{ name }}</h5>
+            <p class="module-description">{{ description }}</p>
+            {% if stats %}
+            <div class="module-stats">
+                {% for stat in stats %}
+                <div class="module-stat-item">
+                    <i class="bi bi-{{ stat.icon }}"></i>
+                    <span>{{ stat.value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="module-card-footer">
+            <span class="module-cta">
+                Erişim <i class="bi bi-arrow-right ms-1"></i>
+            </span>
+        </div>
+    </a>
+</div>
+

@@ -1,0 +1,15 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Vergiler{% endblock %}
+{% block content %}
+<h1>Vergiler</h1>
+<a href="{% url 'finance:tax_create' %}" class="btn btn-success mb-3">Yeni Vergi Ekle</a>
+<ul>
+  {% for tax in taxes %}
+    <li>
+      <a href="{% url 'finance:tax_detail' tax.pk %}">{{ tax.code }} - {{ tax.name }} ({{ tax.rate }}%)</a>
+    </li>
+  {% empty %}
+    <li>Hiç vergi yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

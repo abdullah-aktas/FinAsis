@@ -1,0 +1,6 @@
+{% extends 'core_ui/base.html' %}
+{# Thin compatibility wrapper. Migrate templates to extend 'core_ui/base.html' directly. #}
+{% block extra_css %}{{ block.super }}{% endblock %}
+{% block content %}
+  {{ block.super }}
+{% endblock %}

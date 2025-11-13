@@ -1,0 +1,248 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Advanced Analytics Dashboard - AI Assistant{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .ai-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .ai-feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-left: 5px solid;
+    }
+    
+    .ai-feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-header">
+    <div class="container">
+        <h1 class="h2 mb-2">
+            <i class="bi bi-robot me-2"></i>
+            AI Advanced Analytics Dashboard
+        </h1>
+        <p class="mb-0 opacity-90">
+            Yapay zeka destekli gelişmiş analitik ve otomasyon merkezi
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- AI Özellikleri Grid -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3 animate-fade-in">
+            <a href="{% url 'ai_assistant:sentiment_analyze' %}" class="text-decoration-none">
+                <div class="ai-feature-card border-primary">
+                    <i class="bi bi-emoji-smile feature-icon text-primary"></i>
+                    <h5 class="fw-bold">Sentiment Analysis</h5>
+                    <div class="stat-value text-primary">{{ sentiment_count }}</div>
+                    <p class="text-muted mb-0">Duygu Analizi</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3 animate-fade-in" style="animation-delay: 0.1s">
+            <a href="{% url 'ai_assistant:summarize_document' %}" class="text-decoration-none">
+                <div class="ai-feature-card border-success">
+                    <i class="bi bi-file-text feature-icon text-success"></i>
+                    <h5 class="fw-bold">Document Summary</h5>
+                    <div class="stat-value text-success">{{ summary_count }}</div>
+                    <p class="text-muted mb-0">Doküman Özeti</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3 animate-fade-in" style="animation-delay: 0.2s">
+            <a href="{% url 'ai_assistant:auto_reports' %}" class="text-decoration-none">
+                <div class="ai-feature-card border-warning">
+                    <i class="bi bi-file-earmark-arrow-down feature-icon text-warning"></i>
+                    <h5 class="fw-bold">Auto Reports</h5>
+                    <div class="stat-value text-warning">{{ report_count }}</div>
+                    <p class="text-muted mb-0">Otomatik Rapor</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3 animate-fade-in" style="animation-delay: 0.3s">
+            <a href="{% url 'ai_assistant:run_analytics' %}" class="text-decoration-none">
+                <div class="ai-feature-card border-danger">
+                    <i class="bi bi-graph-up-arrow feature-icon text-danger"></i>
+                    <h5 class="fw-bold">Advanced Analytics</h5>
+                    <div class="stat-value text-danger">{{ analytics_count }}</div>
+                    <p class="text-muted mb-0">Gelişmiş Analitik</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Sentiment Distribution Chart -->
+    <div class="row mb-4 animate-fade-in" style="animation-delay: 0.4s">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart me-2 text-primary"></i>
+                        Sentiment Dağılımı
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="sentimentChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2 text-success"></i>
+                        Son Aktiviteler
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for sentiment in recent_sentiments|slice:":3" %}
+                    <div class="mb-3 p-2 border-start border-3 border-primary">
+                        <span class="badge bg-{{ sentiment.sentiment|yesno:'success,secondary,danger' }}">
+                            {{ sentiment.get_sentiment_display }}
+                        </span>
+                        <small class="text-muted ms-2">{{ sentiment.created_at|date:"d.m.Y H:i" }}</small>
+                        <p class="mb-0 mt-1 small">{{ sentiment.text_content|truncatechars:100 }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Henüz analiz yok</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Son Raporlar ve Özetler -->
+    <div class="row animate-fade-in" style="animation-delay: 0.5s">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-pdf me-2 text-warning"></i>
+                        Son Otomatik Raporlar
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for report in recent_reports|slice:":5" %}
+                    <div class="mb-2">
+                        <a href="{% url 'ai_assistant:report_detail' report.id %}" class="text-decoration-none">
+                            <strong>{{ report.title|truncatechars:40 }}</strong>
+                            <span class="badge bg-{{ report.status|yesno:'success,warning,danger' }} ms-2">
+                                {{ report.get_status_display }}
+                            </span>
+                            <br>
+                            <small class="text-muted">{{ report.created_at|date:"d.m.Y H:i" }}</small>
+                        </a>
+                    </div>
+                    <hr>
+                    {% empty %}
+                    <p class="text-muted">Henüz rapor yok</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text me-2 text-info"></i>
+                        Son Doküman Özetleri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for summary in recent_summaries|slice:":5" %}
+                    <div class="mb-2">
+                        <a href="{% url 'ai_assistant:summary_detail' summary.id %}" class="text-decoration-none">
+                            <strong>{{ summary.get_document_type_display }}</strong>
+                            <span class="badge bg-info ms-2">{{ summary.compression_ratio|floatformat:1 }}x</span>
+                            <br>
+                            <small class="text-muted">{{ summary.created_at|date:"d.m.Y H:i" }}</small>
+                        </a>
+                    </div>
+                    <hr>
+                    {% empty %}
+                    <p class="text-muted">Henüz özet yok</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sentimentData = {{ sentiment_data|safe }};
+    const ctx = document.getElementById('sentimentChart');
+    
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pozitif', 'Nötr', 'Negatif'],
+                datasets: [{
+                    data: [
+                        sentimentData.positive || 0,
+                        sentimentData.neutral || 0,
+                        sentimentData.negative || 0
+                    ],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+

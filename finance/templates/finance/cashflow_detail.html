@@ -1,0 +1,16 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Nakit Akışı Detayı{% endblock %}
+{% block content %}
+<h1>Nakit Akışı Detayı</h1>
+<p><strong>Dönem:</strong> {{ cashflow.period }}</p>
+<p><strong>Başlangıç:</strong> {{ cashflow.start_date }}</p>
+<p><strong>Bitiş:</strong> {{ cashflow.end_date }}</p>
+<p><strong>Açılış Bakiyesi:</strong> {{ cashflow.opening_balance }}</p>
+<p><strong>Kapanış Bakiyesi:</strong> {{ cashflow.closing_balance }}</p>
+<p><strong>Toplam Gelir:</strong> {{ cashflow.total_income }}</p>
+<p><strong>Toplam Gider:</strong> {{ cashflow.total_expense }}</p>
+<p><strong>Net Nakit Akışı:</strong> {{ cashflow.net_cash_flow }}</p>
+<a href="{% url 'finance:cash_flow_update' cashflow.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:cash_flow_delete' cashflow.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:cash_flow_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

@@ -1,0 +1,106 @@
+{% extends "trade_sim/base.html" %} {% load i18n %} {% block title %}Sistem
+Bakımda - TradeSim{% endblock %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      <div class="error-container p-5">
+        <i class="bi bi-tools text-danger" style="font-size: 5rem"></i>
+
+        <h1 class="mt-4 mb-3">Sistem Geçici Olarak Bakımda</h1>
+
+        <p class="lead text-muted mb-4">
+          {{ error_message|default:"Sistemimiz şu anda bakımda. Teknik ekibimiz
+          sorunu çözmek için çalışıyor." }}
+        </p>
+
+        <div class="alert alert-warning">
+          <i class="bi bi-clock me-2"></i>
+          <strong>Tahmini Süre:</strong> 5-10 dakika
+        </div>
+
+        <div class="mt-4">
+          <button onclick="location.reload()" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-clockwise me-2"></i>Tekrar Dene
+          </button>
+        </div>
+
+        <div class="mt-5">
+          <h6 class="text-muted">Bu sürede yapabileceklerin:</h6>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <div class="card border-0 bg-light">
+                <div class="card-body">
+                  <i
+                    class="bi bi-book text-primary"
+                    style="font-size: 1.5rem"
+                  ></i>
+                  <h6 class="mt-2">Oyun Rehberi</h6>
+                  <small class="text-muted"
+                    >TradeSim'de nasıl başarılı olacağını öğren</small
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-0 bg-light">
+                <div class="card-body">
+                  <i
+                    class="bi bi-people text-success"
+                    style="font-size: 1.5rem"
+                  ></i>
+                  <h6 class="mt-2">Topluluk</h6>
+                  <small class="text-muted">Diğer oyuncularla sohbet et</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-muted">
+          <small>
+            <i class="bi bi-info-circle me-1"></i>
+            Güncellemeler için
+            <a href="https://twitter.com/finasis" target="_blank">@finasis</a>'i
+            takip edin
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .error-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .bi-tools {
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+</style>
+
+<script>
+  // Auto-reload page every 30 seconds
+  setTimeout(function () {
+    location.reload();
+  }, 30000);
+</script>
+{% endblock %}

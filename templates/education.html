@@ -1,0 +1,564 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Eğitim - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .education-hero {
+    position: relative;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .education-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .education-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .education-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .education-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 700px;
+  }
+
+  .stats-banner {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 40px;
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .course-section {
+    padding: 80px 0;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .course-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .course-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+
+  .course-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .course-icon-blue {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
+    color: #06b6d4;
+  }
+
+  .course-icon-purple {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    color: #667eea;
+  }
+
+  .course-icon-orange {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    color: #f59e0b;
+  }
+
+  .course-icon-green {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .course-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .course-description {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .course-progress {
+    margin-bottom: 20px;
+  }
+
+  .progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+  }
+
+  .progress-bar {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 4px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    color: #718096;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .btn-course {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .btn-course:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+    color: white;
+  }
+
+  .gamification-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gamification-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .gamification-icon {
+    font-size: 72px;
+    margin-bottom: 24px;
+  }
+
+  .gamification-title {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .gamification-text {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .btn-gamification {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 48px;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-gamification:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .education-hero h1 {
+      font-size: 36px;
+    }
+    .section-title {
+      font-size: 32px;
+    }
+    .stats-banner {
+      gap: 20px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="education-hero">
+  <div class="container education-hero-content">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <h1>Finansal Eğitim ile Geleceğinizi Şekillendirin</h1>
+        <p>
+          AI destekli eğitim modülleri, interaktif içerikler ve oyunlaştırılmış öğrenme deneyimi ile 
+          finansal okuryazarlığınızı geliştirin.
+        </p>
+        <div class="mt-4">
+          {% if user.is_authenticated %}
+          <a href="/education/student/dashboard/" class="btn btn-hero-primary" style="background: white; color: #f59e0b; padding: 16px 32px; border-radius: 16px; font-weight: 700;">
+            <i class="bi bi-book me-2"></i>Öğrenci Panelim
+          </a>
+          <a href="/education/student/progress/" class="btn btn-outline-light" style="padding: 16px 32px; border-radius: 16px; font-weight: 700; margin-left: 12px;">
+            <i class="bi bi-graph-up me-2"></i>İlerlemem
+          </a>
+          {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn btn-hero-primary" style="background: white; color: #f59e0b; padding: 16px 32px; border-radius: 16px; font-weight: 700;">
+            <i class="bi bi-rocket-takeoff me-2"></i>Ücretsiz Başla
+          </a>
+          <a href="{% url 'accounts:login' %}" class="btn btn-outline-light" style="padding: 16px 32px; border-radius: 16px; font-weight: 700; margin-left: 12px;">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="stats-banner">
+          <div class="stat-item">
+            <span class="stat-value">50+</span>
+            <span class="stat-label">Eğitim Modülü</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">1000+</span>
+            <span class="stat-label">Aktif Öğrenci</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">%95</span>
+            <span class="stat-label">Memnuniyet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Courses Section -->
+<section class="course-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge"><i class="bi bi-book me-2"></i>Eğitim Modülleri</span>
+      <h2 class="section-title">Popüler Kurslar</h2>
+      <p class="section-subtitle">
+        Finansal konularda uzmanlaşmak için tasarlanmış kapsamlı eğitim programları
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-blue">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <h3 class="course-title">Finansal Analiz Temelleri</h3>
+          <p class="course-description">
+            Bilanço okuma, nakit akışı analizi ve temel finansal kavramları öğrenin.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>35%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 35%"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-play-circle me-2"></i>Devam Et
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-purple">
+            <i class="bi bi-receipt"></i>
+          </div>
+          <h3 class="course-title">e-Fatura Uzmanlığı</h3>
+          <p class="course-description">
+            e-Fatura, e-Arşiv ve GİB entegrasyonları hakkında her şeyi öğrenin.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>0%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-play-circle me-2"></i>Başla
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-orange">
+            <i class="bi bi-cpu"></i>
+          </div>
+          <h3 class="course-title">AI ile Finansal Tahminleme</h3>
+          <p class="course-description">
+            Yapay zeka destekli finansal modelleme ve tahminleme tekniklerini keşfedin.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>70%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 70%"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-play-circle me-2"></i>Devam Et
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-green">
+            <i class="bi bi-calculator"></i>
+          </div>
+          <h3 class="course-title">Muhasebe 101</h3>
+          <p class="course-description">
+            Temel muhasebe prensipleri, borç-alacak mantığı ve defter tutma.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>100%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%);"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-check-circle me-2"></i>Tamamlandı
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-blue">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <h3 class="course-title">Bütçe Yönetimi</h3>
+          <p class="course-description">
+            Kişisel ve kurumsal bütçe planlama, takip ve optimizasyon stratejileri.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>45%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 45%"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-play-circle me-2"></i>Devam Et
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="course-card">
+          <div class="course-icon course-icon-purple">
+            <i class="bi bi-link-45deg"></i>
+          </div>
+          <h3 class="course-title">Blockchain Temelleri</h3>
+          <p class="course-description">
+            Blockchain teknolojisi ve finansal uygulamalarını anlamak için kapsamlı rehber.
+          </p>
+          <div class="course-progress">
+            <div class="progress-label">
+              <span>İlerleme</span>
+              <span>0%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+          <a href="/education/student/dashboard/" class="btn btn-course">
+            <i class="bi bi-play-circle me-2"></i>Başla
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gamification Section -->
+<section class="gamification-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="gamification-card">
+          <div class="gamification-icon">
+            <i class="bi bi-controller"></i>
+          </div>
+          <h2 class="gamification-title">Oyunlaştırma ile Öğren</h2>
+          <p class="gamification-text">
+            TradeSim 3D ile sanal şirketinizi kurun, ticaret yapın ve finansal kararların 
+            sonuçlarını gerçek zamanlı olarak görün. Pratik yaparak öğrenmenin en eğlenceli yolu!
+          </p>
+          <a href="/games/hub/" class="btn btn-gamification">
+            <i class="bi bi-joystick me-2"></i>Oyunları Keşfet
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Learning Path -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge"><i class="bi bi-map me-2"></i>Öğrenme Yolu</span>
+      <h2 class="section-title">Seviyenize Göre İlerleyin</h2>
+      <p class="section-subtitle">
+        Başlangıçtan ileri seviyeye kadar yapılandırılmış öğrenme yolu
+      </p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="text-center">
+          <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white;">
+            <i class="bi bi-1-circle"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Başlangıç</h4>
+          <p class="text-muted">Temel finansal kavramlar ve muhasebe prensipleri</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white;">
+            <i class="bi bi-2-circle"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Orta Seviye</h4>
+          <p class="text-muted">Finansal analiz, raporlama ve e-dönüşüm süreçleri</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white;">
+            <i class="bi bi-3-circle"></i>
+          </div>
+          <h4 class="fw-bold mb-3">İleri Seviye</h4>
+          <p class="text-muted">AI destekli tahminleme ve blockchain entegrasyonu</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

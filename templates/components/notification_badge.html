@@ -1,0 +1,229 @@
+<!-- Modern Bildirim Badge Componenti -->
+{% load static %}
+
+<div class="notification-badge-wrapper">
+    <button class="notification-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-bell"></i>
+        {% if count > 0 %}
+        <span class="notification-count">{{ count|default:"0" }}</span>
+        {% endif %}
+    </button>
+    
+    <div class="dropdown-menu notification-dropdown">
+        <div class="notification-header">
+            <h6>Bildirimler</h6>
+            {% if count > 0 %}
+            <button class="mark-all-read">Tümünü okundu işaretle</button>
+            {% endif %}
+        </div>
+        
+        <div class="notification-list">
+            {% if notifications %}
+                {% for notification in notifications %}
+                <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                    <div class="notification-icon {{ notification.type|default:'info' }}">
+                        <i class="bi bi-{{ notification.icon|default:'info-circle' }}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">{{ notification.title }}</div>
+                        <div class="notification-text">{{ notification.message }}</div>
+                        <div class="notification-time">{{ notification.created_at|timesince }} önce</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="notification-empty">
+                    <i class="bi bi-inbox"></i>
+                    <p>Henüz bildirim yok</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if notifications %}
+        <div class="notification-footer">
+            <a href="{% url 'accounts:notifications' %}" class="view-all-link">
+                Tüm bildirimleri görüntüle
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.notification-badge-wrapper {
+    position: relative;
+}
+
+.notification-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.notification-dropdown {
+    width: 380px;
+    max-height: 500px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.notification-header h6 {
+    margin: 0;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.mark-all-read {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.mark-all-read:hover {
+    color: #764ba2;
+}
+
+.notification-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item.unread {
+    background: #667eea05;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon.info {
+    background: #3b82f615;
+    color: #3b82f6;
+}
+
+.notification-icon.success {
+    background: #10b98115;
+    color: #10b981;
+}
+
+.notification-icon.warning {
+    background: #f59e0b15;
+    color: #f59e0b;
+}
+
+.notification-icon.error {
+    background: #ef444415;
+    color: #ef4444;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.notification-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #a0aec0;
+}
+
+.notification-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.notification-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.view-all-link {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.view-all-link:hover {
+    color: #764ba2;
+}
+</style>
+

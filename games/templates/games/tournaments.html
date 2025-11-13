@@ -1,0 +1,196 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Turnuvalar - FinAsis E-Spor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tournament-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    border-radius: 24px;
+    margin-bottom: 40px;
+  }
+
+  .tournament-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    height: 100%;
+    border-top: 4px solid #667eea;
+  }
+
+  .tournament-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(102,126,234,0.15);
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .status-registration { background: #10b981; color: white; }
+  .status-ongoing { background: #ef4444; color: white; animation: pulse 2s infinite; }
+  .status-upcoming { background: #f59e0b; color: white; }
+  .status-finished { background: #6b7280; color: white; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="tournament-hero">
+    <i class="bi bi-trophy" style="font-size: 72px; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">Turnuvalar</h1>
+    <p style="font-size: 20px; opacity: 0.95;">Rekabet et, kazan ve şampiyonluğa uzan!</p>
+  </div>
+
+  <!-- Aktif Turnuvalar -->
+  <div class="mb-5">
+    <h3 class="fw-bold mb-4"><i class="bi bi-play-circle me-2" style="color: #ef4444;"></i>Aktif Turnuvalar</h3>
+    <div class="row g-4">
+      {% for tournament in active_tournaments %}
+      <div class="col-md-6 col-lg-4">
+        <div class="tournament-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="status-badge status-{{ tournament.status }}">{{ tournament.get_status_display }}</span>
+            </div>
+            <span class="badge bg-light text-dark">{{ tournament.game.name }}</span>
+          </div>
+
+          <h5 class="fw-bold mb-2">{{ tournament.name }}</h5>
+          <p class="text-muted small mb-3">{{ tournament.description|truncatewords:15 }}</p>
+
+          <div class="d-flex justify-content-between mb-3">
+            <small><i class="bi bi-people me-1"></i>{{ tournament.participants.count }}/{{ tournament.max_participants }}</small>
+            <small><i class="bi bi-calendar me-1"></i>{{ tournament.start_date|date:"d M" }}</small>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2" style="background: rgba(102,126,234,0.05); border-radius: 8px;">
+            <small class="fw-bold">Ödül Havuzu:</small>
+            <div>
+              <span class="badge bg-warning">{{ tournament.prize_pool_coins|floatformat:0 }} <i class="bi bi-coin"></i></span>
+              {% if tournament.prize_pool_gems > 0 %}
+              <span class="badge bg-info">{{ tournament.prize_pool_gems }} <i class="bi bi-gem"></i></span>
+              {% endif %}
+            </div>
+          </div>
+
+          <a href="{% url 'games:tournament_detail' tournament.id %}" class="btn btn-primary w-100" style="border-radius: 12px; font-weight: 600;">
+            <i class="bi bi-eye me-2"></i>Detaylar
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-calendar-x" style="font-size: 64px; color: #cbd5e0;"></i>
+        <h5 class="mt-3 text-muted">Aktif turnuva bulunmuyor</h5>
+        <p class="text-muted">Yeni turnuvalar için takipte kalın!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Yaklaşan Turnuvalar -->
+  {% if upcoming_tournaments %}
+  <div class="mb-5">
+    <h4 class="fw-bold mb-3"><i class="bi bi-clock me-2" style="color: #f59e0b;"></i>Yaklaşan</h4>
+    <div class="row g-3">
+      {% for tournament in upcoming_tournaments %}
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+          <div class="card-body">
+            <div class="d-flex gap-3">
+              <div style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.1)); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="bi bi-calendar-event" style="font-size: 24px; color: #f59e0b;"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">{{ tournament.name }}</h6>
+                <small class="text-muted">{{ tournament.start_date|date:"d M Y, H:i" }}</small>
+              </div>
+              <a href="{% url 'games:tournament_detail' tournament.id %}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px;">Detay</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Bitmiş Turnuvalar (Leaderboard) -->
+  {% if finished_tournaments %}
+  <div>
+    <h4 class="fw-bold mb-3"><i class="bi bi-trophy me-2" style="color: #6b7280;"></i>Tamamlananlar</h4>
+    <div class="table-responsive" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Turnuva</th>
+            <th>Oyun</th>
+            <th>Tarih</th>
+            <th>Katılımcı</th>
+            <th class="text-end">Sonuç</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tournament in finished_tournaments %}
+          <tr>
+            <td><strong>{{ tournament.name }}</strong></td>
+            <td><span class="badge bg-light text-dark">{{ tournament.game.name }}</span></td>
+            <td><small class="text-muted">{{ tournament.end_date|date:"d M Y" }}</small></td>
+            <td><small>{{ tournament.participants.count }} kişi</small></td>
+            <td class="text-end">
+              <a href="{% url 'games:tournament_detail' tournament.id %}" class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Katıldığım Turnuvalar -->
+  {% if my_tournaments %}
+  <div class="mt-5">
+    <h4 class="fw-bold mb-3"><i class="bi bi-person-check me-2" style="color: #10b981;"></i>Katıldığım Turnuvalar</h4>
+    <div class="row g-3">
+      {% for participation in my_tournaments %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; border-left: 4px solid #10b981;">
+          <div class="card-body">
+            <h6 class="fw-bold mb-2">{{ participation.tournament.name }}</h6>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">{{ participation.tournament.get_status_display }}</small>
+              {% if participation.final_rank %}
+              <span class="badge bg-success">#{{ participation.final_rank }}</span>
+              {% else %}
+              <span class="badge bg-secondary">Devam Ediyor</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

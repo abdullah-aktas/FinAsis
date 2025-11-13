@@ -1,0 +1,214 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "GİB Entegrasyon" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "GİB Entegrasyon Paneli" %}</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'integrator_gib:config_edit' %}" class="btn btn-outline-primary">
+            <i class="bi bi-gear me-2"></i>{% trans "Ayarlar" %}
+        </a>
+        <button class="btn btn-success" onclick="testGibConnection()">
+            <i class="bi bi-plug me-2"></i>{% trans "Bağlantı Testi" %}
+        </button>
+    </div>
+</div>
+
+<!-- Bağlantı Durumu -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                    {% if config and config.is_active %}
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-check-circle text-success fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 fw-bold">{% trans "GİB Bağlantısı Aktif" %}</h5>
+                        <p class="text-muted mb-0">
+                            {% trans "Base URL" %}: <code class="small">{{ config.base_url }}</code>
+                        </p>
+                    </div>
+                    {% else %}
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-exclamation-triangle text-warning fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 fw-bold">{% trans "GİB Entegrasyonu Yapılandırılmamış" %}</h5>
+                        <p class="text-muted mb-0">{% trans "Lütfen entegrasyon ayarlarını yapın" %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'integrator_gib:config_edit' %}" class="btn btn-primary">
+                    {% trans "Yapılandır" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- İstatistikler -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Toplam Gönderim" %}</p>
+                        <h3 class="fw-bold mb-0">{{ total_submissions }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded p-3">
+                        <i class="bi bi-send text-primary fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Başarılı" %}</p>
+                        <h3 class="fw-bold text-success mb-0">{{ successful_submissions }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded p-3">
+                        <i class="bi bi-check-circle text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Bekleyen" %}</p>
+                        <h3 class="fw-bold text-warning mb-0">{{ pending_submissions.count }}</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                        <i class="bi bi-clock text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Sertifikalar" %}</p>
+                        <h3 class="fw-bold text-info mb-0">{{ certificates.count }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded p-3">
+                        <i class="bi bi-shield-check text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Son Gönderimler ve Sertifikalar -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{% trans "Son Gönderimler" %}</h5>
+                <a href="{% url 'integrator_gib:submission_list' %}" class="btn btn-sm btn-outline-primary">{% trans "Tümü" %}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Tarih" %}</th>
+                                <th>{% trans "Doküman Tipi" %}</th>
+                                <th>{% trans "Doküman No" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in recent_submissions %}
+                            <tr>
+                                <td>{{ submission.submitted_at|date:"d.m.Y H:i" }}</td>
+                                <td><span class="badge bg-info">{{ submission.declaration_code }}</span></td>
+                                <td><code>{{ submission.period }}</code></td>
+                                <td>
+                                    <span class="badge bg-{% if submission.status == 'SUCCESS' %}success{% elif submission.status == 'PENDING' %}warning{% elif submission.status == 'FAILED' %}danger{% else %}secondary{% endif %}">
+                                        {{ submission.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'integrator_gib:submission_detail' submission.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3 text-muted">{% trans "Henüz gönderim bulunmuyor" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{% trans "Sertifikalar" %}</h5>
+                <a href="{% url 'integrator_gib:certificate_list' %}" class="btn btn-sm btn-outline-primary">{% trans "Tümü" %}</a>
+            </div>
+            <div class="card-body">
+                {% for cert in certificates %}
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <h6 class="mb-1">{{ cert.certificate_alias }}</h6>
+                        <p class="text-muted small mb-0">{% trans "Geçerlilik" %}: {{ cert.expiry_date|date:"d.m.Y" }}</p>
+                    </div>
+                    <span class="badge bg-{% if cert.is_active %}success{% else %}secondary{% endif %}">
+                        {% if cert.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">{% trans "Sertifika bulunmuyor" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testGibConnection() {
+    fetch('{% url "integrator_gib:ajax_test_connection" %}', { 
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            alert('✅ GİB bağlantısı başarılı!');
+        } else {
+            alert('❌ Bağlantı hatası: ' + (data.error || 'Bilinmeyen hata'));
+        }
+    })
+    .catch(e => alert('❌ Bir hata oluştu'));
+}
+</script>
+{% endblock %}
+

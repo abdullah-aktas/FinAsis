@@ -1,0 +1,13 @@
+{% extends 'core_ui/base_dashboard.html' %}
+{% load static i18n %}
+{% block dashboard_title %}{% block acc_title %}Muhasebe{% endblock %}{% endblock %}
+{% block dashboard_subtitle %}{% block acc_subtitle %}Finansal kayıtlar ve raporlama{% endblock %}{% endblock %}
+{% block sidebar %}
+  {% include 'accounting/partials/_sidebar.html' %}
+{% endblock %}
+{% block dashboard_actions %}
+  {% block acc_actions %}{% endblock %}
+{% endblock %}
+{% block dashboard_content %}
+  {% block acc_content %}{{ block.super }}{% endblock %}
+{% endblock %}

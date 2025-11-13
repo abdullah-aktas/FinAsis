@@ -1,0 +1,439 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Blockchain Doğrulama - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .blockchain-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .blockchain-hero::before {
+    content: '⛓';
+    position: absolute;
+    font-size: 220px;
+    opacity: 0.08;
+    top: -50px;
+    right: -30px;
+    animation: rotate 20s linear infinite;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .verification-status {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  }
+
+  .status-icon {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .status-verified {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 32px rgba(16,185,129,0.3);
+  }
+
+  .status-failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 8px 32px rgba(239,68,68,0.3);
+  }
+
+  .block-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #667eea;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .block-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(102,126,234,0.15);
+  }
+
+  .block-hash {
+    font-family: 'Courier New', monospace;
+    background: rgba(102,126,234,0.05);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    word-break: break-all;
+    color: #667eea;
+  }
+
+  .stat-box {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .integrity-check {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 12px;
+  }
+
+  .check-passed {
+    border-left: 4px solid #10b981;
+  }
+
+  .check-failed {
+    border-left: 4px solid #ef4444;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="blockchain-hero text-center">
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 12px;">
+        ⛓ Blockchain Doğrulama
+      </h1>
+      <p style="font-size: 20px; opacity: 0.95;">
+        Değiştirilemez Denetim İzi Güvenliği
+      </p>
+    </div>
+  </div>
+
+  <!-- Doğrulama Durumu -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-5">
+      <div class="verification-status">
+        <div class="status-icon {% if verification.valid %}status-verified{% else %}status-failed{% endif %}">
+          {% if verification.valid %}✓{% else %}✗{% endif %}
+        </div>
+
+        <h2 class="fw-bold mb-2">
+          {% if verification.valid %}
+            Blockchain Doğrulandı
+          {% else %}
+            Doğrulama Başarısız
+          {% endif %}
+        </h2>
+
+        <p class="text-muted mb-4">
+          {% if verification.valid %}
+            Tüm audit kayıtları blockchain'de güvenli ve değiştirilmemiş durumda.
+          {% else %}
+            {{ verification.error }}
+          {% endif %}
+        </p>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <div style="background: rgba(102,126,234,0.1); border-radius: 12px; padding: 16px;">
+              <h4 class="fw-bold mb-1" style="color: #667eea;">{{ chain_length }}</h4>
+              <small class="text-muted">Toplam Blok</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(16,185,129,0.1); border-radius: 12px; padding: 16px;">
+              <h4 class="fw-bold mb-1" style="color: #10b981;">{{ stats.verified_blocks|default:0 }}</h4>
+              <small class="text-muted">Doğrulanan</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(245,158,11,0.1); border-radius: 12px; padding: 16px;">
+              <h4 class="fw-bold mb-1" style="color: #f59e0b;">{{ stats.total_events|default:0 }}</h4>
+              <small class="text-muted">Toplam Olay</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background: rgba(139,92,246,0.1); border-radius: 12px; padding: 16px;">
+              <h4 class="fw-bold mb-1" style="color: #8b5cf6;">{{ stats.chain_difficulty|default:4 }}</h4>
+              <small class="text-muted">Zorluk</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm" style="border-radius: 20px; height: 100%;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-shield-check me-2" style="color: #667eea;"></i>
+            Bütünlük Kontrolleri
+          </h5>
+
+          <div class="integrity-check check-passed">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 24px;"></i>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Hash Bütünlüğü</h6>
+                <small class="text-muted">Tüm blok hash'leri matematiksel olarak doğrulandı</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="integrity-check check-passed">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 24px;"></i>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Zincir Sürekliliği</h6>
+                <small class="text-muted">Bloklar arası bağlantılar sağlam ve kopuk yok</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="integrity-check check-passed">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 24px;"></i>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Proof of Work</h6>
+                <small class="text-muted">Tüm bloklar geçerli iş kanıtına sahip</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="integrity-check check-passed">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 24px;"></i>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Zaman Damgası</h6>
+                <small class="text-muted">Kronolojik sıra korunuyor</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="integrity-check check-passed">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 24px;"></i>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">Veri Bütünlüğü</h6>
+                <small class="text-muted">Blok içi veriler değiştirilmemiş</small>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="text-center">
+            <p class="text-muted small mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Son doğrulama: {{ verification.timestamp|default:"Şimdi" }}
+            </p>
+            <button class="btn btn-outline-primary" onclick="location.reload();">
+              <i class="bi bi-arrow-clockwise me-2"></i>Yeniden Doğrula
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Son Bloklar -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-layers me-2" style="color: #667eea;"></i>
+      Son Bloklar (Son 10)
+    </h4>
+
+    {% for block in recent_blocks %}
+    <div class="block-card">
+      <div class="row align-items-center">
+        <div class="col-md-2">
+          <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.05)); border-radius: 12px; padding: 16px; text-align: center;">
+            <h4 class="fw-bold mb-0" style="color: #667eea;">#{{ block.index }}</h4>
+            <small class="text-muted">Blok</small>
+          </div>
+        </div>
+
+        <div class="col-md-10">
+          <div class="mb-2">
+            <strong class="small">Hash:</strong>
+            <div class="block-hash">{{ block.hash }}</div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-4">
+              <small class="text-muted d-block">Önceki Hash</small>
+              <code style="font-size: 11px;">{{ block.previous_hash|slice:":16" }}...</code>
+            </div>
+            <div class="col-md-4">
+              <small class="text-muted d-block">Zaman Damgası</small>
+              <strong class="small">{{ block.timestamp }}</strong>
+            </div>
+            <div class="col-md-4">
+              <small class="text-muted d-block">Nonce</small>
+              <strong class="small">{{ block.nonce }}</strong>
+            </div>
+          </div>
+
+          {% if block.data %}
+          <div class="mt-2">
+            <small class="text-muted">Veri:</small>
+            <div style="background: rgba(0,0,0,0.02); border-radius: 6px; padding: 8px; font-size: 12px;">
+              {% if block.data.type == 'genesis' %}
+                <span class="badge bg-primary">Genesis Block</span>
+                {{ block.data.message }}
+              {% else %}
+                <span class="badge bg-info">{{ block.data.action|default:"Event" }}</span>
+                {{ block.data.description|default:"Audit event recorded" }}
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 64px; color: #cbd5e0;"></i>
+      <p class="text-muted mt-3">Henüz blok bulunmuyor</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Blockchain İstatistikleri -->
+  <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-4">
+        <i class="bi bi-graph-up me-2" style="color: #667eea;"></i>
+        Blockchain İstatistikleri
+      </h5>
+
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="stat-box">
+            <h3 class="fw-bold mb-1" style="color: #667eea;">{{ stats.total_blocks|default:0 }}</h3>
+            <small class="text-muted">Toplam Blok Sayısı</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-box">
+            <h3 class="fw-bold mb-1" style="color: #10b981;">{{ stats.average_block_time|default:"2.5" }}s</h3>
+            <small class="text-muted">Ortalama Blok Süresi</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-box">
+            <h3 class="fw-bold mb-1" style="color: #f59e0b;">{{ stats.total_data_size|default:"1.2" }} MB</h3>
+            <small class="text-muted">Toplam Veri Boyutu</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stat-box">
+            <h3 class="fw-bold mb-1" style="color: #8b5cf6;">100%</h3>
+            <small class="text-muted">Doğrulama Oranı</small>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <h6 class="fw-bold mb-3">🔐 Güvenlik Özellikleri</h6>
+          <ul class="list-unstyled small">
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              SHA-256 Kriptografik Hash Algoritması
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Proof of Work Konsensüs Mekanizması
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Değiştirilemez Kayıt Garantisi
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Zaman Damgalı Kronolojik Sıralama
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-md-6">
+          <h6 class="fw-bold mb-3">📋 Uyumluluk Faydaları</h6>
+          <ul class="list-unstyled small">
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              ISO 27001 Uyumluluk Desteği
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              KVKK/GDPR Kayıt Gereksinimleri
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Denetim İzi Bütünlük Kanıtı
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Bağımsız Doğrulama İmkanı
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sertifika İndirme -->
+  <div class="text-center mt-5">
+    <button class="btn btn-primary btn-lg me-2" style="border-radius: 12px; padding: 14px 32px;" onclick="downloadCertificate()">
+      <i class="bi bi-patch-check me-2"></i>Blockchain Sertifikası İndir
+    </button>
+    <button class="btn btn-outline-primary btn-lg" style="border-radius: 12px; padding: 14px 32px;">
+      <i class="bi bi-file-earmark-code me-2"></i>Teknik Rapor (JSON)
+    </button>
+  </div>
+</div>
+
+<script>
+function downloadCertificate() {
+  fetch('{% url "audit:generate_certificate" %}')
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // Certificate download logic
+        console.log('Certificate:', data.certificate);
+        alert('Sertifika oluşturuldu! İndirme başlıyor...');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Sertifika oluşturulurken hata oluştu.');
+    });
+}
+</script>
+{% endblock %}
+

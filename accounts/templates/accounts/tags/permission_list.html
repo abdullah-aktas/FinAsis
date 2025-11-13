@@ -1,0 +1,65 @@
+<!-- accounts/templates/accounts/tags/permission_list.html -->
+<div class="permission-list">
+  {% if permissions %}
+  <h6 class="text-muted mb-3">
+    <i class="fas fa-key me-2"></i>Yetkilendirmeler
+  </h6>
+
+  <div class="row g-2">
+    {% for icon, name, color in permissions %}
+    <div class="col-auto">
+      <span class="badge badge-outline-{{ color }} px-3 py-2">
+        <span class="me-1">{{ icon }}</span>
+        {{ name }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if permissions|length > 6 %}
+  <div class="mt-2">
+    <button
+      class="btn btn-sm btn-outline-secondary"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#allPermissions"
+    >
+      <i class="fas fa-plus me-1"></i>Tümünü Göster
+    </button>
+    <div class="collapse mt-2" id="allPermissions">
+      <!-- Tüm izinler buraya -->
+    </div>
+  </div>
+  {% endif %} {% else %}
+  <div class="text-center text-muted py-3">
+    <i class="fas fa-lock fs-1 mb-2"></i>
+    <p class="mb-0">Henüz yetki tanımlanmamış</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .permission-list .badge-outline-success {
+    color: #198754;
+    border: 1px solid #198754;
+    background: rgba(25, 135, 84, 0.1);
+  }
+
+  .permission-list .badge-outline-info {
+    color: #0dcaf0;
+    border: 1px solid #0dcaf0;
+    background: rgba(13, 202, 240, 0.1);
+  }
+
+  .permission-list .badge-outline-warning {
+    color: #ffc107;
+    border: 1px solid #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+  }
+
+  .permission-list .badge-outline-primary {
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+    background: rgba(13, 110, 253, 0.1);
+  }
+</style>

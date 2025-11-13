@@ -1,0 +1,109 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Otomatik Fiş Önizleme - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auto-book-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    text-align: center;
+  }
+
+  .form-section {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid #667eea;
+  }
+
+  .preview-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 20px;
+    padding: 32px;
+    border: 2px solid #e2e8f0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="auto-book-hero">
+    <i class="bi bi-robot" style="font-size: 48px; margin-bottom: 16px;"></i>
+    <h1 style="font-size: 32px; font-weight: 800;">Otomatik Fiş Önizleme</h1>
+    <p style="opacity: 0.95; margin: 0;">AI destekli belge işleme</p>
+  </div>
+  <div class="form-section">
+    <h5 class="mb-4"><i class="bi bi-file-image me-2"></i>Belge Yükle</h5>
+    <form id="ocrForm" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Belge (JPG/PNG/PDF)</label>
+        <input type="file" name="file" class="form-control" required style="border-radius: 12px; padding: 12px;" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="border-radius: 12px; padding: 10px 28px; font-weight: 600;">
+        <i class="bi bi-search me-2"></i>Önizle
+      </button>
+    </form>
+  </div>
+
+  <div class="form-section">
+    <h5 class="mb-4"><i class="bi bi-chat-text me-2"></i>Serbest Metin</h5>
+    <form id="nlpForm">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Metin Girin</label>
+        <textarea name="text" class="form-control" rows="4" placeholder="Örn: fatura no X toplam 1.250,00 kdv %20" style="border-radius: 12px; padding: 12px;"></textarea>
+      </div>
+      <button type="submit" class="btn btn-secondary" style="border-radius: 12px; padding: 10px 28px; font-weight: 600;">
+        <i class="bi bi-search me-2"></i>Metinden Önizle
+      </button>
+    </form>
+  </div>
+
+  <div id="preview" class="preview-card mt-4" style="display: none;"></div>
+</div>
+<script>
+async function handlePreview(url, body, isForm=false){
+  const res = await fetch(url, { method: 'POST', body: isForm? body : JSON.stringify(body), headers: isForm? {} : { 'Content-Type': 'application/json' }});
+  const data = await res.json();
+  const p = data.preview || {};
+  const lines = (p.lines||[]).map(l=>`<tr><td>${l.account}</td><td>${l.account_name||''}</td><td>${l.description||''}</td><td>${l.debit}</td><td>${l.credit}</td></tr>`).join('');
+  const preview = document.getElementById('preview');
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <h5 class="mb-4"><i class="bi bi-eye me-2"></i>Önizleme</h5>
+    <div class="row mb-3">
+      <div class="col-md-4"><strong>Tarih:</strong> ${p.date||''}</div>
+      <div class="col-md-4"><strong>Referans:</strong> ${p.reference||''}</div>
+      <div class="col-md-4"><strong>Toplam:</strong> ${p.total||''}</div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-md-6"><strong>Tür:</strong> ${p.nature||''}</div>
+      <div class="col-md-6"><strong>Kural:</strong> ${p.rule_id||''}</div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead style="background: #667eea; color: white;">
+          <tr><th>Kod</th><th>Hesap</th><th>Açıklama</th><th class="text-end">Borç</th><th class="text-end">Alacak</th></tr>
+        </thead>
+        <tbody>${lines}</tbody>
+      </table>
+    </div>`;
+}
+document.getElementById('ocrForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  handlePreview('{% url "accounting:api_ocr_preview_voucher" %}', fd, true);
+});
+document.getElementById('nlpForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const text = new FormData(e.target).get('text');
+  handlePreview('{% url "accounting:api_nlp_preview_voucher" %}', {text});
+});
+</script>
+{% endblock %}
+

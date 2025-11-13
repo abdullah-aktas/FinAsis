@@ -1,0 +1,52 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Abonelik Değiştir - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .subscription-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .subscription-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="subscription-header">
+    <i class="bi bi-star" style="font-size: 48px; margin-bottom: 16px;"></i>
+    <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Abonelik Değiştir</h1>
+    <p style="opacity: 0.95; margin: 0;">Planınızı yükseltin veya değiştirin</p>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="subscription-card">
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="mt-4">
+            <button class="btn btn-success btn-lg" type="submit" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+              <i class="bi bi-check-lg me-2"></i>Kaydet
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg" style="border-radius: 12px; padding: 12px 32px; font-weight: 600;">
+              <i class="bi bi-x-lg me-2"></i>İptal
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

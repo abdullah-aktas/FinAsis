@@ -1,0 +1,155 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Blog - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .blog-hero {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .blog-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .blog-hero p {
+    font-size: 20px;
+    opacity: 0.95;
+  }
+
+  .blog-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: -60px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .blog-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-top: 4px solid transparent;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .blog-card-success { border-top-color: #10b981; }
+  .blog-card-warning { border-top-color: #f59e0b; }
+  .blog-card-info { border-top-color: #06b6d4; }
+
+  .blog-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+
+  .blog-icon-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    color: #10b981;
+  }
+
+  .blog-icon-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+    color: #f59e0b;
+  }
+
+  .blog-icon-info {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
+    color: #06b6d4;
+  }
+
+  .blog-card h5 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .blog-card p {
+    font-size: 15px;
+    color: #718096;
+    margin-bottom: 24px;
+  }
+
+  .blog-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .blog-hero h1 { font-size: 32px; }
+    .blog-cards-grid { margin-top: 24px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="blog-hero">
+  <div class="container">
+    <h1>Blog</h1>
+    <p>Finans, teknoloji ve girişimcilik alanında güncel içerikler ve uzman görüşleri</p>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div class="blog-cards-grid">
+    <div class="blog-card blog-card-success">
+      <div class="blog-icon blog-icon-success">
+        <i class="bi bi-newspaper"></i>
+      </div>
+      <span class="blog-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Yeni</span>
+      <h5>Güncel Haberler</h5>
+      <p>Finans ve teknoloji dünyasından son gelişmeler</p>
+      <a href="/blog/news/" class="btn btn-outline-success">
+        <i class="bi bi-arrow-right me-2"></i>Haberleri Oku
+      </a>
+    </div>
+
+    <div class="blog-card blog-card-warning">
+      <div class="blog-icon blog-icon-warning">
+        <i class="bi bi-people"></i>
+      </div>
+      <span class="blog-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Analiz</span>
+      <h5>Uzman Görüşleri</h5>
+      <p>Uzmanlardan finansal analiz ve tavsiyeler</p>
+      <a href="/blog/expert/" class="btn btn-outline-warning">
+        <i class="bi bi-arrow-right me-2"></i>Uzman Görüşleri
+      </a>
+    </div>
+
+    <div class="blog-card blog-card-info">
+      <div class="blog-icon blog-icon-info">
+        <i class="bi bi-rocket-takeoff"></i>
+      </div>
+      <span class="blog-badge" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">İlham</span>
+      <h5>Girişimcilik</h5>
+      <p>Başarı hikayeleri ve girişimcilik ipuçları</p>
+      <a href="/blog/startup/" class="btn btn-outline-info">
+        <i class="bi bi-arrow-right me-2"></i>Hikayeleri Oku
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

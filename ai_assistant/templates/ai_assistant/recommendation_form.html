@@ -1,0 +1,82 @@
+{% extends "ai_assistant/base.html" %}
+
+{% block ai_assistant_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            {% if object %}
+                Öneri Kaydını Düzenle
+            {% else %}
+                Yeni Öneri Kaydı
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label for="{{ form.user.id_for_label }}" class="form-label">Kullanıcı</label>
+                {{ form.user }}
+                {% if form.user.errors %}
+                    <div class="invalid-feedback d-block">{{ form.user.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Başlık</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Kategori</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.priority.id_for_label }}" class="form-label">Öncelik</label>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                    <div class="invalid-feedback d-block">{{ form.priority.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.action_required.id_for_label }}" class="form-label">Aksiyon Gerekli</label>
+                <div class="form-check form-switch">{{ form.action_required }}</div>
+                {% if form.action_required.errors %}
+                    <div class="invalid-feedback d-block">{{ form.action_required.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Öneriler</label>
+                {{ form.recommendations }}
+                <div class="form-text">JSON biçiminde öneri listesi beklenir.</div>
+                {% if form.recommendations.errors %}
+                    <div class="invalid-feedback d-block">{{ form.recommendations.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'ai_assistant:recommendation_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

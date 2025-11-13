@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FinAsis Muhasebe - Akıllı Muhasebe Çözümü{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-accounting {
+        background: linear-gradient(135deg, #667eea 0%, #fd7e14 100%);
+        color: white;
+        padding: 100px 0 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-accounting::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+
+    .feature-card {
+        border: none;
+        border-radius: 16px;
+        padding: 2rem;
+        height: 100%;
+        transition: transform 0.3s, box-shadow 0.3s;
+        background: white;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #fd7e14 100%);
+        color: white;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #fd7e14 100%);
+        color: white;
+        padding: 80px 0;
+        margin-top: 80px;
+    }
+
+    .badge-feature {
+        background: #f0f4ff;
+        color: #667eea;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .btn-primary-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #fd7e14 100%);
+        border: none;
+        padding: 14px 32px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .testimonial-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stats-section {
+        padding: 60px 0;
+        background: #f8f9fa;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #667eea;
+        line-height: 1;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-accounting">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="badge-feature">🚀 Yapay Zeka Destekli</div>
+                <h1 class="display-3 fw-bold mb-4">Muhasebe İşlemlerinizi Otomatikleştirin</h1>
+                <p class="lead mb-4">FinAsis Muhasebe ile faturalarınızı, giderlerinizi ve mali raporlarınızı kolayca
+                    yönetin. Yapay zeka destekli önerilerle zamandan tasarruf edin.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'accounts:register' %}?next=/accounting/home/"
+                        class="btn btn-light btn-lg px-5 py-3 rounded-pill">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill">
+                        <i class="bi bi-play-circle me-2"></i>Daha Fazla Bilgi
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <small class="opacity-75">✓ Güvenli ve hızlı ✓ Kolay entegrasyon ✓ Profesyonel destek</small>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'images/accounting-hero.svg' %}" alt="Muhasebe Dashboard" class="img-fluid"
+                    onerror="this.src='https://via.placeholder.com/600x400/667eea/ffffff?text=Muhasebe+Dashboard'">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Aktif Kullanıcı</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-number">500K+</div>
+                    <div class="stat-label">İşlenen Fatura</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime Garantisi</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Destek</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 my-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Güçlü Özellikler</h2>
+            <p class="lead text-muted">Muhasebe süreçlerinizi hızlandıran akıllı araçlar</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Akıllı Fatura Yönetimi</h4>
+                    <p class="text-muted">e-Fatura entegrasyonu ile faturalarınızı otomatik oluşturun, gönderin ve takip
+                        edin. GİB uyumlu, hızlı ve güvenli.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Banka Entegrasyonu</h4>
+                    <p class="text-muted">Banka hesaplarınızı bağlayın, işlemlerinizi otomatik senkronize edin. Nakit
+                        akışınızı gerçek zamanlı takip edin.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI Destekli Analiz</h4>
+                    <p class="text-muted">Yapay zeka ile harcama önerileri, trend analizleri ve maliyet optimizasyonu.
+                        Akıllı raporlama araçları.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Detaylı Raporlama</h4>
+                    <p class="text-muted">Gelir-gider tablosu, bilanço, KDV beyannamesi ve daha fazlası. Excel, PDF
+                        formatlarında dışa aktarım.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Güvenli & Uyumlu</h4>
+                    <p class="text-muted">256-bit SSL şifreleme, KVKK uyumlu veri saklama, ISO 27001 sertifikalı
+                        altyapı. Verileriniz güvende.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Çok Kullanıcılı</h4>
+                    <p class="text-muted">Ekip üyelerinize farklı yetki seviyeleriyle erişim verin. Muhasebeci, mali
+                        müşavir entegrasyonu.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 my-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Müşterilerimiz Ne Diyor?</h2>
+            <p class="lead text-muted">Binlerce işletme FinAsis'e güveniyor</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="mb-3">"FinAsis sayesinde muhasebe işlemlerim artık çok daha hızlı. e-Fatura entegrasyonu
+                        gerçekten mükemmel çalışıyor."</p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 48px; height: 48px;">
+                            <span class="text-white fw-bold">AY</span>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold">Ahmet Yılmaz</div>
+                            <small class="text-muted">Yılmaz Tekstil</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="mb-3">"Yapay zeka destekli analizler sayesinde gereksiz harcamalarımızı %30 azalttık.
+                        Kesinlikle tavsiye ediyorum!"</p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 48px; height: 48px;">
+                            <span class="text-white fw-bold">ZK</span>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold">Zeynep Kaya</div>
+                            <small class="text-muted">Kaya Danışmanlık</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <p class="mb-3">"Kullanımı çok kolay, ekibim hemen adapte oldu. Destek ekibi de her zaman yardımcı
+                        oluyor."</p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 48px; height: 48px;">
+                            <span class="text-white fw-bold">MD</span>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold">Mehmet Demir</div>
+                            <small class="text-muted">Demir İnşaat</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="display-4 fw-bold mb-4">Hemen Başlayın</h2>
+        <p class="lead mb-5">FinAsis Muhasebe ile finansal işlemlerinizi dijitalleştirin ve zamandan tasarruf edin.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'accounts:register' %}?next=/accounting/home/"
+                class="btn btn-light btn-lg px-5 py-3 rounded-pill">
+                <i class="bi bi-rocket-takeoff me-2"></i>Hemen Başla
+            </a>
+            <a href="{% url 'billing:plans' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill">
+                <i class="bi bi-tag me-2"></i>Paketleri İncele
+            </a>
+        </div>
+        <div class="mt-4">
+            <small class="opacity-75">Sorularınız mı var? <a href="{% url 'support' %}"
+                    class="text-white text-decoration-underline">Destek ekibimizle iletişime geçin</a></small>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 my-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Sıkça Sorulan Sorular</h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq1">
+                                FinAsis Muhasebe'yi kullanmak için muhasebe bilgisi gerekli mi?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Hayır, FinAsis kullanıcı dostu arayüzü ve yapay zeka destekli önerileriyle muhasebe
+                                bilgisi olmayan kullanıcılar için de idealdir. Ancak profesyonel muhasebe desteği için
+                                mali müşavirinizle entegre çalışabilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq2">
+                                Verilerim güvende mi?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Evet, FinAsis 256-bit SSL şifreleme, ISO 27001 sertifikalı sunucular ve KVKK uyumlu veri
+                                saklama politikalarıyla verilerinizin güvenliğini en üst düzeyde sağlar. Verileriniz
+                                düzenli olarak yedeklenir.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq3">
+                                Mevcut muhasebe sistemimden geçiş yapabilir miyim?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Elbette! FinAsis, Excel, CSV ve diğer yaygın formatlardan veri aktarımını destekler.
+                                Kurumsal planda özel entegrasyon ve veri taşıma desteği sağlanır.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq4">
+                                İptal etmek istersem ne olur?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Herhangi bir zamanda iptal edebilirsiniz. Veri dışa aktarım araçlarımızla tüm
+                                bilgilerinizi almanız mümkündür. Sözleşme bağlayıcılığı yoktur.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

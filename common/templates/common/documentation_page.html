@@ -1,0 +1,273 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}{{ title }} - FinAsis Dokümantasyon{% endblock %}
+
+{% block extra_css %}
+<style>
+  .doc-breadcrumb {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    padding: 16px 24px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+  }
+
+  .doc-container {
+    background: white;
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+
+  .doc-container h1 {
+    color: #1a202c;
+    font-weight: 800;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid #667eea;
+  }
+
+  .doc-container h2 {
+    color: #2d3748;
+    font-weight: 700;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-left: 16px;
+    border-left: 4px solid #10b981;
+  }
+
+  .doc-container h3 {
+    color: #4a5568;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+
+  .doc-container p {
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 16px;
+  }
+
+  .doc-container ul, .doc-container ol {
+    line-height: 1.8;
+    color: #4a5568;
+    margin-bottom: 20px;
+  }
+
+  .doc-container li {
+    margin-bottom: 8px;
+  }
+
+  .doc-container code {
+    background: rgba(102,126,234,0.08);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    color: #667eea;
+    font-size: 0.9em;
+  }
+
+  .doc-container pre {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 24px 0;
+  }
+
+  .doc-container pre code {
+    background: transparent;
+    color: #e2e8f0;
+    padding: 0;
+  }
+
+  .doc-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .doc-container th {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .doc-container td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .doc-container tr:hover {
+    background: rgba(102,126,234,0.02);
+  }
+
+  .doc-container blockquote {
+    border-left: 4px solid #f59e0b;
+    background: rgba(245,158,11,0.05);
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 8px;
+  }
+
+  .doc-sidebar {
+    position: sticky;
+    top: 20px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .toc-link {
+    display: block;
+    padding: 8px 12px;
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .toc-link:hover {
+    background: rgba(102,126,234,0.08);
+    color: #667eea;
+    transform: translateX(4px);
+  }
+
+  .toc-link.active {
+    background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.05));
+    color: #667eea;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <div class="doc-breadcrumb">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        {% for crumb in breadcrumbs %}
+        <li class="breadcrumb-item {% if crumb.active %}active{% endif %}">
+          {% if crumb.active %}
+            {{ crumb.title }}
+          {% else %}
+            <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </nav>
+  </div>
+
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-9">
+      <div class="doc-container">
+        {{ content_html|safe }}
+      </div>
+    </div>
+
+    <!-- Sidebar (Table of Contents) -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="doc-sidebar">
+        <h6 class="fw-bold mb-3">
+          <i class="bi bi-list-ul me-2" style="color: #667eea;"></i>
+          Bu Sayfada
+        </h6>
+        <div id="toc">
+          <!-- JavaScript ile doldurulacak -->
+        </div>
+        
+        <hr class="my-4">
+        
+        <h6 class="fw-bold mb-3">
+          <i class="bi bi-link-45deg me-2" style="color: #10b981;"></i>
+          Hızlı Linkler
+        </h6>
+        <a href="/resources/docs/" class="toc-link">
+          <i class="bi bi-house-door me-2"></i>Ana Sayfa
+        </a>
+        <a href="/docs/KULLANICI_KLAVUZU.md" class="toc-link">
+          <i class="bi bi-book me-2"></i>Kullanıcı Klavuzu
+        </a>
+        <a href="/support/" class="toc-link">
+          <i class="bi bi-headset me-2"></i>Destek
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Önceki/Sonraki Navigation -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="d-flex justify-content-between">
+        <a href="/resources/docs/" class="btn btn-outline-secondary btn-lg" style="border-radius: 12px;">
+          <i class="bi bi-arrow-left me-2"></i>Geri
+        </a>
+        <a href="/support/" class="btn btn-outline-primary btn-lg" style="border-radius: 12px;">
+          <i class="bi bi-headset me-2"></i>Yardım Al
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Table of Contents oluştur
+document.addEventListener('DOMContentLoaded', function() {
+  const content = document.querySelector('.doc-container');
+  const toc = document.getElementById('toc');
+  const headings = content.querySelectorAll('h2, h3');
+  
+  headings.forEach((heading, index) => {
+    // ID ekle
+    const id = `heading-${index}`;
+    heading.id = id;
+    
+    // TOC link oluştur
+    const link = document.createElement('a');
+    link.href = `#${id}`;
+    link.className = 'toc-link';
+    link.textContent = heading.textContent;
+    
+    // Indent (h3 için)
+    if (heading.tagName === 'H3') {
+      link.style.paddingLeft = '24px';
+      link.style.fontSize = '14px';
+    }
+    
+    toc.appendChild(link);
+  });
+  
+  // Scroll spy
+  window.addEventListener('scroll', function() {
+    let current = '';
+    
+    headings.forEach(heading => {
+      const sectionTop = heading.offsetTop;
+      if (window.pageYOffset >= sectionTop - 100) {
+        current = heading.id;
+      }
+    });
+    
+    document.querySelectorAll('.toc-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
+

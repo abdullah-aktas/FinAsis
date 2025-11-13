@@ -1,0 +1,271 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Gizlilik Politikası - FinAsis{% endblock %}
+{% block meta_description %}FinAsis gizlilik politikası ve kişisel verilerin korunması hakkında bilgilendirme. KVKK kapsamında veri işleme politikamız.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .legal-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .legal-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .legal-hero p {
+    font-size: 18px;
+    opacity: 0.95;
+  }
+
+  .legal-container {
+    max-width: 900px;
+    margin: -40px auto 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .legal-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .legal-section {
+    margin-bottom: 40px;
+  }
+
+  .legal-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .legal-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 24px 0 12px;
+  }
+
+  .legal-section p {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .legal-section ul {
+    margin-bottom: 20px;
+    padding-left: 24px;
+  }
+
+  .legal-section li {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+    border-left: 4px solid #10b981;
+    padding: 24px;
+    border-radius: 12px;
+    margin: 24px 0;
+  }
+
+  .highlight-box h4 {
+    color: #10b981;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .kvkk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .last-updated {
+    text-align: center;
+    padding: 24px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .legal-hero h1 {
+      font-size: 32px;
+    }
+    .legal-card {
+      padding: 32px 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="legal-hero">
+  <div class="container">
+    <h1>Gizlilik Politikası</h1>
+    <p>Kişisel verilerinizin korunması ve gizliliğiniz bizim için önemlidir</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="legal-container">
+    <div class="legal-card">
+      <span class="kvkk-badge">
+        <i class="bi bi-shield-check"></i>
+        KVKK & GDPR Uyumlu
+      </span>
+
+      <div class="legal-section">
+        <h2>1. Veri Sorumlusu</h2>
+        <p>
+          FinAsis Teknoloji A.Ş. ("FinAsis", "Biz") olarak, 6698 sayılı Kişisel Verilerin Korunması 
+          Kanunu ("KVKK") ve Avrupa Birliği Genel Veri Koruma Yönetmeliği ("GDPR") kapsamında 
+          veri sorumlusuyuz.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Toplanan Veriler</h2>
+        <h3>2.1. Kişisel Bilgiler</h3>
+        <ul>
+          <li>Ad, soyad ve iletişim bilgileri</li>
+          <li>E-posta adresi ve telefon numarası</li>
+          <li>Şirket bilgileri ve vergi numarası</li>
+          <li>Kullanım geçmişi ve tercihler</li>
+        </ul>
+        <h3>2.2. Finansal Veriler</h3>
+        <ul>
+          <li>Fatura ve ödeme bilgileri</li>
+          <li>Banka hesap bilgileri (şifrelenmiş)</li>
+          <li>İşlem geçmişi</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Verilerin Kullanım Amacı</h2>
+        <p>Kişisel verileriniz şu amaçlarla işlenir:</p>
+        <ul>
+          <li>Hizmet sunumu ve platform işleyişinin sağlanması</li>
+          <li>Kullanıcı deneyiminin iyileştirilmesi</li>
+          <li>AI destekli önerilerin kişiselleştirilmesi</li>
+          <li>Yasal yükümlülüklerin yerine getirilmesi</li>
+          <li>Güvenlik ve dolandırıcılık önleme</li>
+          <li>Müşteri desteği ve iletişim</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Veri Güvenliği</h2>
+        <div class="highlight-box">
+          <h4><i class="bi bi-lock-fill me-2"></i>Güvenlik Önlemleri</h4>
+          <p>
+            Verileriniz endüstri standardı şifreleme teknolojileri ile korunur. 
+            Tüm hassas veriler AES-256 ile şifrelenir ve güvenli sunucularda saklanır.
+          </p>
+        </div>
+        <ul>
+          <li>SSL/TLS şifrelemesi ile güvenli veri aktarımı</li>
+          <li>Düzenli güvenlik denetimleri ve penetrasyon testleri</li>
+          <li>Çok faktörlü kimlik doğrulama desteği</li>
+          <li>Erişim kayıtları ve denetim izleri</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Veri Paylaşımı</h2>
+        <p>
+          Kişisel verileriniz, yasal yükümlülükler ve aşağıdaki durumlar dışında 
+          üçüncü kişilerle paylaşılmaz:
+        </p>
+        <ul>
+          <li>GİB ve diğer resmi kurumlarla yasal zorunluluk</li>
+          <li>Ödeme işlemleri için güvenli ödeme sağlayıcıları</li>
+          <li>Hizmet sağlayıcılarımız (gizlilik sözleşmesi ile korunur)</li>
+          <li>Açık rızanızın bulunduğu durumlar</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Haklarınız</h2>
+        <p>KVKK ve GDPR kapsamında aşağıdaki haklara sahipsiniz:</p>
+        <ul>
+          <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+          <li>İşlenmişse bilgi talep etme</li>
+          <li>Verilerin düzeltilmesini veya silinmesini isteme</li>
+          <li>Verilerin aktarıldığı üçüncü kişileri öğrenme</li>
+          <li>Otomatik karar alma süreçlerine itiraz etme</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Çerezler (Cookies)</h2>
+        <p>
+          Platform'umuz kullanıcı deneyimini iyileştirmek için çerezler kullanır. 
+          Çerez ayarlarınızı tarayıcınızdan yönetebilirsiniz.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Değişiklikler</h2>
+        <p>
+          Bu Gizlilik Politikası zaman zaman güncellenebilir. Önemli değişiklikler 
+          hakkında e-posta ile bilgilendirileceksiniz.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. İletişim</h2>
+        <p>
+          Gizlilik politikamız hakkında sorularınız veya haklarınızı kullanmak için:
+        </p>
+        <ul>
+          <li><strong>E-posta:</strong> <a href="mailto:kvkk@finasis.com.tr" style="color: #10b981; font-weight: 600;">kvkk@finasis.com.tr</a></li>
+          <li><strong>Telefon:</strong> +90 212 222 22 22</li>
+          <li><strong>Adres:</strong> İTÜ ARI Teknokent, Sarıyer, İstanbul</li>
+        </ul>
+      </div>
+
+      <div class="last-updated">
+        <div class="last-updated-text" style="color: #718096;">
+          <i class="bi bi-calendar-check me-2"></i>
+          Son Güncelleme: 30 Ekim 2025
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'terms' %}" class="btn btn-outline-primary me-2">
+          <i class="bi bi-file-text me-2"></i>Kullanım Şartları
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-house me-2"></i>Ana Sayfa
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1738 @@
+{% extends "core_ui/base.html" %} {% load static i18n %} {% block title
+%}TradeSim - {% trans "Ticaret Simülasyonu" %}{% endblock %} {% block extra_css
+%}
+<style>
+  :root {
+    --fin-primary: #0aae94;
+    --fin-primary-dark: #007a5e;
+    --fin-secondary: #009873;
+    --fin-success: #10b981;
+    --fin-danger: #ef4444;
+    --fin-warning: #f59e0b;
+    --fin-info: #3b82f6;
+    --game-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+
+  /* Tam Ekran Oyun Modu */
+  body.game-fullscreen header,
+  body.game-fullscreen footer,
+  body.game-fullscreen #system-messages,
+  body.game-fullscreen .breadcrumbs {
+    display: none !important;
+  }
+
+  body.game-fullscreen main {
+    padding: 0 !important;
+  }
+
+  body {
+    background: var(--game-bg);
+    overflow-x: hidden;
+  }
+
+  .game-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    min-height: 100vh;
+  }
+
+  /* Header Bar - Responsive */
+  .game-header {
+    background: linear-gradient(
+      135deg,
+      var(--fin-primary) 0%,
+      var(--fin-secondary) 100%
+    );
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 32px rgba(10, 174, 148, 0.3);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+  }
+
+  .stat-label {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* Mobile-First Main Layout */
+  .game-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .game-grid {
+      grid-template-columns: 250px 1fr;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .game-grid {
+      grid-template-columns: 280px 1fr 300px;
+    }
+  }
+
+  .game-panel {
+    background: rgba(30, 41, 59, 0.95);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .panel-title {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-icon {
+    font-size: 20px;
+  }
+
+  /* Cities Panel */
+  .cities-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  @media (max-width: 767px) {
+    .cities-container {
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+    }
+  }
+
+  .city-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+  }
+
+  .city-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--fin-primary);
+    transform: translateY(-2px);
+  }
+
+  .city-card.active {
+    background: linear-gradient(
+      135deg,
+      var(--fin-primary) 0%,
+      var(--fin-secondary) 100%
+    );
+    border-color: var(--fin-primary);
+    box-shadow: 0 4px 16px rgba(10, 174, 148, 0.4);
+  }
+
+  .city-name {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .city-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+  }
+
+  /* Market Grid - Responsive */
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  @media (max-width: 480px) {
+    .market-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .market-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .market-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--fin-success) 0%,
+      var(--fin-primary) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .market-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--fin-success);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+  }
+
+  .market-card:hover::before {
+    opacity: 1;
+  }
+
+  .item-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+  }
+
+  .item-name {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .item-price {
+    color: var(--fin-success);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .item-stock {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .trade-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .trade-btn {
+    flex: 1;
+    background: var(--fin-primary);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .trade-btn:hover {
+    background: var(--fin-primary-dark);
+    transform: scale(1.05);
+  }
+
+  .trade-btn.sell {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  .trade-btn.sell:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Inventory - Mobile Optimized */
+  .inventory-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .inventory-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .inventory-name {
+    color: white;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .inventory-qty {
+    background: rgba(10, 174, 148, 0.2);
+    color: var(--fin-primary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  /* Bottom Action Bar - Fixed for Mobile */
+  .action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 41, 59, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9997;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (min-width: 768px) {
+    .action-bar {
+      position: relative;
+      border-top: none;
+      border-radius: 16px;
+      margin-bottom: 60px;
+    }
+  }
+
+  .action-btn {
+    background: linear-gradient(
+      135deg,
+      var(--fin-primary) 0%,
+      var(--fin-secondary) 100%
+    );
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 174, 148, 0.4);
+  }
+
+  .action-btn.secondary {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  }
+
+  .action-btn.danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  /* Toggle Button */
+  .ui-toggle-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--fin-primary) 0%,
+      var(--fin-secondary) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(10, 174, 148, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .ui-toggle-btn:hover {
+    transform: scale(1.1);
+  }
+
+  /* Modal - Full Responsive */
+  .trade-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s;
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 480px) {
+    .modal-content {
+      padding: 20px;
+      border-radius: 16px;
+    }
+  }
+
+  .modal-header {
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-body {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+  }
+
+  .trade-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 16px;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .trade-input:focus {
+    outline: none;
+    border-color: var(--fin-primary);
+    box-shadow: 0 0 0 3px rgba(10, 174, 148, 0.1);
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .modal-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .modal-btn.primary {
+    background: linear-gradient(
+      135deg,
+      var(--fin-primary) 0%,
+      var(--fin-secondary) 100%
+    );
+    color: white;
+  }
+
+  .modal-btn.secondary {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+  }
+
+  .modal-btn.sell {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  .modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Notification Toast */
+  .notification {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 9998;
+    max-width: 320px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  @media (max-width: 480px) {
+    .notification {
+      top: auto;
+      bottom: 80px;
+      right: 12px;
+      left: 12px;
+      max-width: none;
+    }
+  }
+
+  .notification.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .notification.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .notification.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(10, 174, 148, 0.5);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(10, 174, 148, 0.7);
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--fin-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Info Box */
+  .info-box {
+    background: rgba(10, 174, 148, 0.1);
+    border-left: 4px solid var(--fin-primary);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Progress Bar */
+  .progress-bar-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--fin-primary) 0%,
+      var(--fin-success) 100%
+    );
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+
+  /* Game Over / Win Screen */
+  .game-result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    z-index: 10001;
+    text-align: center;
+    min-width: 320px;
+    max-width: 90%;
+  }
+
+  .result-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .result-title {
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .result-stats {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 12px;
+    margin: 20px 0;
+  }
+
+  .result-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+  }
+
+  .result-stat strong {
+    color: white;
+    font-weight: 700;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="game-container">
+  {% if not game_session %}
+  <div
+    class="game-panel"
+    style="
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border-color: rgba(255, 255, 255, 0.2);
+    "
+  >
+    <h4 style="color: white; margin-bottom: 12px">
+      ⚠️ {% trans "Oyun Oturumu Bulunamadı" %}
+    </h4>
+    <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 16px">
+      {% trans "Oyuna başlamak için önce zorluk seviyesi seçmelisiniz." %}
+    </p>
+    <a
+      href="{% url 'games:trade_sim:start_game' %}"
+      class="action-btn"
+      style="display: inline-flex"
+    >
+      {% trans "Zorluk Seçimine Dön" %}
+    </a>
+  </div>
+  {% else %}
+
+  <!-- Game Header with Stats -->
+  <div class="game-header">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">{% trans "Sermaye" %}</div>
+        <div class="stat-value" id="moneyDisplay">
+          ₺<span id="moneyValue"
+            >{% if character %}{{ character.money }}{% else %}10000{% endif
+            %}</span
+          >
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{% trans "Kar/Zarar" %}</div>
+        <div class="stat-value" id="profitDisplay" style="color: #10b981">
+          +₺<span id="profitValue">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{% trans "İşlem" %}</div>
+        <div class="stat-value"><span id="tradesValue">0</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{% trans "Zorluk" %}</div>
+        <div class="stat-value">
+          {% if game_session.difficulty_name %} {{ game_session.difficulty_name
+          }} {% else %} Lv.{{ game_session.difficulty|default:"1" }} {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Grid -->
+  <div class="game-grid">
+    <!-- Cities Panel -->
+    <div class="game-panel">
+      <div class="panel-title">
+        <span class="panel-icon">🗺️</span>
+        {% trans "Şehirler" %}
+      </div>
+      <div class="cities-container" id="citiesContainer">
+        <!-- Şehirler dinamik yüklenecek -->
+      </div>
+    </div>
+
+    <!-- Market Panel -->
+    <div class="game-panel">
+      <div class="panel-title">
+        <span class="panel-icon">🏪</span>
+        <span id="currentCityName">{% trans "Pazar" %}</span>
+      </div>
+      <div class="market-grid" id="marketContainer">
+        <!-- Ürünler dinamik yüklenecek -->
+      </div>
+    </div>
+
+    <!-- Inventory Panel (Desktop only, collapsible on mobile) -->
+    <div class="game-panel" id="inventoryPanel">
+      <div class="panel-title">
+        <span class="panel-icon">🎒</span>
+        {% trans "Envanter" %}
+      </div>
+
+      <div style="margin-bottom: 16px">
+        <div
+          style="
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            margin-bottom: 4px;
+          "
+        >
+          {% trans "Kapasite" %}: <span id="capacityText">0 / 1000 kg</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="capacityBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="inventory-grid" id="inventoryGrid">
+        <div class="empty-state" style="padding: 20px">
+          <div class="empty-icon">📦</div>
+          <div style="font-size: 13px">{% trans "Envanter boş" %}</div>
+        </div>
+      </div>
+
+      <div
+        style="
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        "
+      >
+        <button
+          onclick="showStats()"
+          class="action-btn"
+          style="width: 100%; justify-content: center"
+        >
+          📊 {% trans "İstatistikler" %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Action Bar -->
+  <div class="action-bar">
+    <button class="action-btn" onclick="showInventory()">
+      🎒 {% trans "Envanter" %}
+    </button>
+    <button
+      class="action-btn"
+      onclick="window.location.href='{% url 'games:trade_sim:leaderboard' %}'"
+    >
+      🏆 {% trans "Liderlik" %}
+    </button>
+    <button class="action-btn secondary" onclick="saveGame()">
+      💾 {% trans "Kaydet" %}
+    </button>
+    <button class="action-btn danger" onclick="confirmExit()">
+      🚪 {% trans "Çık" %}
+    </button>
+  </div>
+
+  <!-- UI Toggle Button -->
+  <button class="ui-toggle-btn" id="uiToggle" onclick="toggleFullscreen()">
+    <span id="toggleIcon" style="font-size: 20px">👁️</span>
+  </button>
+
+  {% endif %}
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+    // CSRF Token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+
+    // API Base
+    const API_BASE = '/games/trade-sim';
+
+  // Session kontrolü - eğer session yoksa start sayfasına yönlendir
+  {% if not game_session %}
+  console.warn('⚠️ Oyun session bulunamadı! Start sayfasına yönlendiriliyor...');
+  setTimeout(() => {
+    window.location.href = '/games/trade-sim/start/?need_session=1';
+  }, 1000);
+  {% else %}
+
+  // Game State - Backend'den gelen character verisiyle başlat
+  const gameState = {
+    money: {% if character %}{{ character.money }}{% else %}parseFloat({{ game_session.starting_capital|default:"10000" }}){% endif %},
+    inventory: {% if character %}{{ character_inventory_json|safe }}{% else %}{}{% endif %},
+    currentCity: {% if character %}'{{ character.city|lower }}'{% else %}'{{ game_session.current_city|default:"istanbul" }}'{% endif %},
+    currentCityId: null,
+    inventoryWeight: 0,
+    maxWeight: 1000,
+    totalTrades: {{ game_session.total_trades|default:"0" }},
+    profitLoss: {{ game_session.profit_loss|default:"0" }},
+    travelDistance: 0,
+    statistics: {
+      totalItemsBought: 0,
+      totalItemsSold: 0,
+      citiesVisited: new Set(),
+    },
+    cities: [],
+    products: [],
+    cityMarkets: {}
+  };  // Envanter weight'i hesapla (inventory'den)
+    if (gameState.inventory && Object.keys(gameState.inventory).length > 0) {
+      gameState.inventoryWeight = Object.values(gameState.inventory).reduce((sum, amount) => sum + parseFloat(amount || 0), 0);
+    }
+
+    // ==============================================
+    // API Functions
+    // ==============================================
+
+    async function fetchCities() {
+      try {
+        const response = await fetch(`${API_BASE}/cities/`);
+        const data = await response.json();
+        gameState.cities = data.cities || [];
+        renderCities();
+      } catch (error) {
+        console.error('Cities fetch error:', error);
+        showNotification('❌ Şehirler yüklenemedi!', 'error');
+      }
+    }
+
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`${API_BASE}/products/`);
+        const data = await response.json();
+        gameState.products = data.products || [];
+      } catch (error) {
+        console.error('Products fetch error:', error);
+      }
+    }
+
+    async function fetchCityMarket(cityId) {
+      try {
+        const response = await fetch(`${API_BASE}/city-markets/${cityId}/`);
+        const data = await response.json();
+        gameState.cityMarkets[cityId] = data.markets || [];
+        renderMarket();
+      } catch (error) {
+        console.error('Market fetch error:', error);
+        showNotification('❌ Pazar yüklenemedi!', 'error');
+      }
+    }
+
+    async function executeTrade(action, productId, productName, amount, price) {
+        try {
+          const response = await fetch(`${API_BASE}/market-trade/`, {
+          method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+            action: action,
+            product_name: productName,
+              amount: amount,
+              price: price,
+            city: gameState.currentCity
+          })
+          });
+
+          const data = await response.json();
+
+        if (response.ok && data.status === 'ok') {
+          return { success: true, data: data };
+        } else {
+          return { success: false, error: data.error || 'Unknown error' };
+        }
+        } catch (error) {
+        console.error('Trade API error:', error);
+          return { success: false, error: error.message };
+        }
+      }
+
+      // ==============================================
+    // Render Functions
+      // ==============================================
+
+    function renderCities() {
+      const container = document.getElementById('citiesContainer');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      gameState.cities.forEach(city => {
+        const isActive = city.name.toLowerCase() === gameState.currentCity.toLowerCase();
+
+        const cityCard = document.createElement('div');
+        cityCard.className = `city-card ${isActive ? 'active' : ''}`;
+        cityCard.onclick = () => travelToCity(city);
+
+        const emoji = getCityEmoji(city.name);
+
+        cityCard.innerHTML = `
+          <div class="city-name">
+            <span>${emoji}</span>
+            <span>${city.name}</span>
+          </div>
+          <div class="city-info">
+            ${isActive ? '📍 Aktif Lokasyon' : `🚚 ${city.market_size} km`}
+          </div>
+        `;
+
+        container.appendChild(cityCard);
+      });
+    }
+
+    function renderMarket() {
+      const container = document.getElementById('marketContainer');
+      if (!container) return;
+
+      const markets = gameState.cityMarkets[gameState.currentCityId] || [];
+
+      if (markets.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏪</div>
+            <div>{% trans "Bu şehirde pazar bulunmuyor" %}</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      markets.forEach(market => {
+        const hasInInventory = gameState.inventory[market.product] > 0;
+
+        const card = document.createElement('div');
+        card.className = 'market-card';
+
+        const emoji = getProductEmoji(market.product);
+
+        card.innerHTML = `
+          <span class="item-emoji">${emoji}</span>
+          <div class="item-name">${market.product}</div>
+          <div class="item-price">₺${market.price}</div>
+          <div class="item-stock">{% trans "Stok" %}: ${market.supply}</div>
+          <div class="trade-actions">
+            <button class="trade-btn" onclick='openTradeModal("buy", "${market.product}", ${market.product_id}, ${market.price})'>
+              {% trans "Al" %}
+            </button>
+            ${hasInInventory ? `
+              <button class="trade-btn sell" onclick='openTradeModal("sell", "${market.product}", ${market.product_id}, ${market.price})'>
+                {% trans "Sat" %}
+              </button>
+            ` : ''}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderInventory() {
+      const container = document.getElementById('inventoryGrid');
+      if (!container) return;
+
+      // Kapasite güncelle
+      const capacityText = document.getElementById('capacityText');
+      const capacityBar = document.getElementById('capacityBar');
+
+      if (capacityText) {
+        capacityText.textContent = `${Math.floor(gameState.inventoryWeight)} / ${gameState.maxWeight} kg`;
+      }
+
+      if (capacityBar) {
+        const percentage = (gameState.inventoryWeight / gameState.maxWeight) * 100;
+        capacityBar.style.width = `${Math.min(percentage, 100)}%`;
+
+        // Renk değiştir
+        if (percentage > 90) {
+          capacityBar.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+        } else if (percentage > 70) {
+          capacityBar.style.background = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
+        } else {
+          capacityBar.style.background = 'linear-gradient(90deg, var(--fin-primary) 0%, var(--fin-success) 100%)';
+        }
+      }
+
+      // Envanter itemları
+      container.innerHTML = '';
+
+      if (Object.keys(gameState.inventory).length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 20px;">
+            <div class="empty-icon">📦</div>
+            <div style="font-size: 13px;">{% trans "Envanter boş" %}</div>
+          </div>
+        `;
+        return;
+      }
+
+      Object.entries(gameState.inventory).forEach(([productName, amount]) => {
+        const emoji = getProductEmoji(productName);
+
+        const card = document.createElement('div');
+        card.className = 'inventory-card';
+        card.innerHTML = `
+          <span class="inventory-name">
+            <span>${emoji}</span>
+            <span>${productName}</span>
+          </span>
+          <span class="inventory-qty">${amount.toFixed(0)}</span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ==============================================
+    // Trade Modal
+    // ==============================================
+
+    function openTradeModal(action, productName, productId, price) {
+      const markets = gameState.cityMarkets[gameState.currentCityId] || [];
+      const market = markets.find(m => m.product === productName);
+
+      if (!market) {
+        showNotification('❌ Ürün bulunamadı!', 'error');
+        return;
+      }
+
+      const hasInInventory = gameState.inventory[productName] || 0;
+      const emoji = getProductEmoji(productName);
+
+      const modal = document.createElement('div');
+      modal.className = 'trade-modal';
+      modal.id = 'tradeModal';
+
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>${emoji}</span>
+            <span>${productName}</span>
+            </div>
+          <div class="modal-body">
+            <div class="info-box">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>{% trans "Pazar Fiyatı" %}:</span>
+                <strong style="color: var(--fin-success);">₺${price}</strong>
+            </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>{% trans "Stok" %}:</span>
+                <strong>${market.supply}</strong>
+              </div>
+              ${hasInInventory > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>{% trans "Envanterinizde" %}:</span>
+                <strong style="color: #f59e0b;">${hasInInventory.toFixed(0)}</strong>
+              </div>
+              ` : ''}
+            <div style="display: flex; justify-content: space-between;">
+                <span>{% trans "Paranız" %}:</span>
+                <strong style="color: var(--fin-primary);">₺${gameState.money.toFixed(0)}</strong>
+            </div>
+          </div>
+
+            <label style="color: rgba(255,255,255,0.9); font-size: 13px; display: block; margin-bottom: 8px;">
+              {% trans "Miktar" %}:
+            </label>
+            <input type="number" id="tradeAmount" class="trade-input" placeholder="{% trans 'Miktar girin' %}"
+              min="1" ${action === 'sell' ? `max="${hasInInventory}"` : ''} value="1" autofocus>
+
+            <div id="totalCalculation" style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 14px; text-align: center;">
+              <span style="color: rgba(255,255,255,0.7); font-size: 13px;">{% trans "Toplam" %}:</span>
+              <span id="totalAmount" style="color: white; font-size: 18px; font-weight: 700; margin-left: 8px;">₺${price}</span>
+            </div>
+          </div>
+
+          <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="closeModal()">
+              {% trans "İptal" %}
+            </button>
+            ${action === 'buy' ? `
+              <button class="modal-btn primary" onclick='confirmTrade("buy", "${productName}", ${productId}, ${price})'>
+                {% trans "Satın Al" %}
+              </button>
+            ` : `
+              <button class="modal-btn sell" onclick='confirmTrade("sell", "${productName}", ${productId}, ${price})'>
+                {% trans "Sat" %}
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      // Amount input'a event listener
+      const amountInput = document.getElementById('tradeAmount');
+      const totalDisplay = document.getElementById('totalAmount');
+
+      amountInput.addEventListener('input', () => {
+        const amount = parseFloat(amountInput.value) || 0;
+        const total = amount * price;
+        totalDisplay.textContent = `₺${total.toFixed(0)}`;
+      });
+
+      // Enter key ile confirm
+      amountInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          confirmTrade(action, productName, productId, price);
+        }
+      });
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('tradeModal');
+      if (modal) modal.remove();
+    }
+
+    async function confirmTrade(action, productName, productId, price) {
+      const amount = parseFloat(document.getElementById('tradeAmount')?.value || 0);
+
+        if (!amount || amount <= 0) {
+        showNotification('❌ {% trans "Geçersiz miktar!" %}', 'error');
+          return;
+        }
+
+        const totalCost = price * amount;
+
+      // Validations
+      if (action === 'buy') {
+        if (totalCost > gameState.money) {
+          showNotification('❌ {% trans "Yeterli paranız yok!" %}', 'error');
+          return;
+        }
+        if (gameState.inventoryWeight + amount > gameState.maxWeight) {
+          showNotification('❌ {% trans "Envanter kapasitesi yetersiz!" %}', 'error');
+          return;
+        }
+            } else {
+        const hasAmount = gameState.inventory[productName] || 0;
+        if (amount > hasAmount) {
+          showNotification('❌ {% trans "Envanterde yeterli ürün yok!" %}', 'error');
+          return;
+        }
+      }
+
+      // Show loading
+      const modal = document.getElementById('tradeModal');
+      if (modal) {
+        modal.querySelector('.modal-content').innerHTML = `
+          <div style="text-align: center; padding: 40px;">
+            <div class="loading-spinner"></div>
+            <p style="color: white; margin-top: 16px;">{% trans "İşlem yapılıyor..." %}</p>
+          </div>
+        `;
+      }
+
+      // Execute trade via API
+      const result = await executeTrade(action, productId, productName, amount, price);
+
+      closeModal();
+
+            if (result.success) {
+        // Update game state
+        if (action === 'buy') {
+          gameState.money -= totalCost;
+          gameState.inventory[productName] = (gameState.inventory[productName] || 0) + amount;
+          gameState.inventoryWeight += amount;
+          gameState.statistics.totalItemsBought += amount;
+
+          showNotification(`✅ ${amount} ${productName} {% trans "satın aldınız!" %} (-₺${totalCost.toFixed(0)})`, 'success');
+        } else {
+          const totalGain = price * amount;
+              gameState.money += totalGain;
+          gameState.inventory[productName] -= amount;
+              gameState.inventoryWeight -= amount;
+              gameState.profitLoss += totalGain;
+              gameState.statistics.totalItemsSold += amount;
+
+          if (gameState.inventory[productName] <= 0) {
+            delete gameState.inventory[productName];
+          }
+
+          showNotification(`✅ ${amount} ${productName} {% trans "sattınız!" %} (+₺${totalGain.toFixed(0)})`, 'success');
+        }
+
+        gameState.totalTrades++;
+
+        // Update UI
+        updateAllDisplays();
+        saveGame();
+
+        // Refresh market to get updated prices
+        await fetchCityMarket(gameState.currentCityId);
+            } else {
+        showNotification(`❌ {% trans "İşlem hatası" %}: ${result.error}`, 'error');
+      }
+    }
+
+    // ==============================================
+    // City Travel
+    // ==============================================
+
+    function travelToCity(city) {
+      if (city.id === gameState.currentCityId) {
+        showNotification('📍 {% trans "Zaten bu şehirdesiniz!" %}', 'info');
+          return;
+        }
+
+      const emoji = getCityEmoji(city.name);
+      const travelCost = Math.floor(city.market_size / 10); // Basit maliyet hesabı
+
+      if (travelCost > gameState.money) {
+        showNotification('❌ {% trans "Seyahat için yeterli paranız yok!" %}', 'error');
+          return;
+        }
+
+      const modal = document.createElement('div');
+      modal.className = 'trade-modal';
+      modal.id = 'tradeModal';
+
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>${emoji}</span>
+            <span>${city.name}</span>
+          </div>
+          <div class="modal-body">
+            <div style="text-align: center; margin-bottom: 16px; font-size: 14px; color: rgba(255,255,255,0.9);">
+              {% trans "Bu şehre seyahat etmek istiyor musunuz?" %}
+            </div>
+            <div class="info-box">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>{% trans "Mesafe" %}:</span>
+                <strong>${city.market_size} km</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>{% trans "Maliyet" %}:</span>
+                <strong style="color: #ef4444;">₺${travelCost}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="closeModal()">
+              {% trans "İptal" %}
+            </button>
+            <button class="modal-btn primary" onclick='confirmTravel(${JSON.stringify(city)}, ${travelCost})'>
+              ✈️ {% trans "Seyahat Et" %}
+            </button>
+            </div>
+          </div>
+        `;
+
+      document.body.appendChild(modal);
+    }
+
+    async function confirmTravel(city, cost) {
+      closeModal();
+
+      // Show traveling animation
+      showNotification(`✈️ ${city.name} {% trans "şehrine gidiliyor..." %}`, 'info');
+
+      try {
+        // Backend'e şehir değişikliğini gönder
+        const response = await fetch(`${API_BASE}/change-city/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({
+            city_id: city.id,
+            cost: cost
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 'ok') {
+          // Update state
+          gameState.money = data.remaining_money;
+          gameState.currentCity = city.name.toLowerCase();
+          gameState.currentCityId = city.id;
+          gameState.travelDistance += cost;
+          gameState.statistics.citiesVisited.add(city.name);
+
+          // Update UI
+          updateAllDisplays();
+          renderCities();
+
+          // Fetch new market
+          await fetchCityMarket(city.id);
+
+          showNotification(`🎉 ${city.name} {% trans "şehrine vardınız!" %}`, 'success');
+          saveGame();
+        } else {
+          showNotification(`❌ ${data.error || '{% trans "Seyahat başarısız!" %}'}`, 'error');
+        }
+      } catch (error) {
+        console.error('Travel error:', error);
+        showNotification('❌ {% trans "Bağlantı hatası!" %}', 'error');
+      }
+    }
+
+    // ==============================================
+    // UI Updates
+    // ==============================================
+
+    function updateAllDisplays() {
+      // Money
+      const moneyValue = document.getElementById('moneyValue');
+      if (moneyValue) moneyValue.textContent = gameState.money.toFixed(0);
+
+      // Profit/Loss
+      const profitValue = document.getElementById('profitValue');
+      const profitDisplay = document.getElementById('profitDisplay');
+      if (profitValue) {
+        profitValue.textContent = Math.abs(gameState.profitLoss).toFixed(0);
+        if (profitDisplay) {
+          profitDisplay.innerHTML = gameState.profitLoss >= 0
+            ? `+₺<span id="profitValue">${gameState.profitLoss.toFixed(0)}</span>`
+            : `-₺<span id="profitValue">${Math.abs(gameState.profitLoss).toFixed(0)}</span>`;
+          profitDisplay.style.color = gameState.profitLoss >= 0 ? '#10b981' : '#ef4444';
+        }
+      }
+
+      // Trades
+      const tradesValue = document.getElementById('tradesValue');
+      if (tradesValue) tradesValue.textContent = gameState.totalTrades;
+
+      // City name
+      const cityNameEl = document.getElementById('currentCityName');
+      if (cityNameEl) {
+        const currentCity = gameState.cities.find(c => c.id === gameState.currentCityId);
+        if (currentCity) {
+          const emoji = getCityEmoji(currentCity.name);
+          cityNameEl.innerHTML = `${emoji} ${currentCity.name} {% trans "Pazarı" %}`;
+        }
+      }
+
+      // Inventory
+      renderInventory();
+    }
+
+    // ==============================================
+    // Utility Functions
+    // ==============================================
+
+    function showNotification(message, type = 'info') {
+      // Remove existing notifications
+      document.querySelectorAll('.notification').forEach(n => n.remove());
+
+      const notif = document.createElement('div');
+      notif.className = `notification ${type}`;
+      notif.textContent = message;
+      document.body.appendChild(notif);
+
+      setTimeout(() => {
+        notif.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => notif.remove(), 300);
+      }, 3000);
+    }
+
+    function saveGame() {
+      const saveData = {
+        ...gameState,
+        citiesVisited: Array.from(gameState.statistics.citiesVisited)
+      };
+      localStorage.setItem('tradesim_save', JSON.stringify(saveData));
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem('tradesim_save');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          gameState.money = data.money || gameState.money;
+          gameState.inventory = data.inventory || {};
+          gameState.inventoryWeight = data.inventoryWeight || 0;
+          gameState.totalTrades = data.totalTrades || 0;
+          gameState.profitLoss = data.profitLoss || 0;
+          gameState.travelDistance = data.travelDistance || 0;
+
+          if (data.citiesVisited) {
+            gameState.statistics.citiesVisited = new Set(data.citiesVisited);
+          }
+
+          console.log('{% trans "Oyun kaydı yüklendi" %}');
+        } catch (e) {
+          console.error('{% trans "Kayıt yüklenemedi" %}:', e);
+        }
+      }
+    }
+
+    function getCityEmoji(cityName) {
+      const emojis = {
+        'İstanbul': '🏙️',
+        'Ankara': '🏛️',
+        'İzmir': '🌊',
+        'Bursa': '🏔️',
+        'Antalya': '🏖️',
+      };
+      return emojis[cityName] || '🏙️';
+    }
+
+    function getProductEmoji(productName) {
+      const emojis = {
+        'Buğday': '🌾',
+        'Elma': '🍎',
+        'Ekmek': '🥖',
+        'Peynir': '🧀',
+        'Kahve': '☕',
+        'Balık': '🐟',
+        'Zeytin': '🫒',
+        'Üzüm': '🍇',
+        'Şeftali': '🍑',
+        'Domates': '🍅',
+        'Portakal': '🍊',
+        'Limon': '🍋',
+        'Bal': '🍯',
+      };
+      return emojis[productName] || '📦';
+    }
+
+    function showStats() {
+      const modal = document.createElement('div');
+      modal.className = 'trade-modal';
+      modal.id = 'tradeModal';
+
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>📊</span>
+            <span>{% trans "İstatistikler" %}</span>
+          </div>
+          <div class="modal-body">
+            <div class="info-box">
+              <div class="result-stat">
+                <span>{% trans "Toplam İşlem" %}:</span>
+                <strong>${gameState.totalTrades}</strong>
+              </div>
+              <div class="result-stat">
+                <span>{% trans "Alınan Ürün" %}:</span>
+                <strong>${gameState.statistics.totalItemsBought.toFixed(0)}</strong>
+              </div>
+              <div class="result-stat">
+                <span>{% trans "Satılan Ürün" %}:</span>
+                <strong>${gameState.statistics.totalItemsSold.toFixed(0)}</strong>
+              </div>
+              <div class="result-stat">
+                <span>{% trans "Ziyaret Edilen Şehir" %}:</span>
+                <strong>${gameState.statistics.citiesVisited.size}</strong>
+              </div>
+              <div class="result-stat">
+                <span>{% trans "Toplam Seyahat" %}:</span>
+                <strong>${gameState.travelDistance} km</strong>
+              </div>
+              <div class="result-stat">
+                <span>{% trans "Net Kar/Zarar" %}:</span>
+                <strong style="color: ${gameState.profitLoss >= 0 ? 'var(--fin-success)' : 'var(--fin-danger)'};">
+                  ${gameState.profitLoss >= 0 ? '+' : ''}₺${gameState.profitLoss.toFixed(0)}
+                </strong>
+              </div>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn primary" onclick="closeModal()">
+              {% trans "Kapat" %}
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    }
+
+    function showInventory() {
+      // Mobile'de envanteri modal olarak göster
+      const modal = document.createElement('div');
+      modal.className = 'trade-modal';
+      modal.id = 'tradeModal';
+
+      let inventoryHTML = '';
+
+      if (Object.keys(gameState.inventory).length === 0) {
+        inventoryHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <div>{% trans "Envanteriniz boş" %}</div>
+          </div>
+        `;
+      } else {
+        inventoryHTML = Object.entries(gameState.inventory).map(([name, amount]) => {
+          const emoji = getProductEmoji(name);
+          return `
+            <div class="inventory-card">
+              <span class="inventory-name">
+                <span>${emoji}</span>
+                <span>${name}</span>
+              </span>
+              <span class="inventory-qty">${amount.toFixed(0)}</span>
+          </div>
+        `;
+        }).join('');
+      }
+
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>🎒</span>
+            <span>{% trans "Envanter" %}</span>
+          </div>
+          <div class="modal-body">
+            <div style="margin-bottom: 14px;">
+              <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-bottom: 6px;">
+                {% trans "Kapasite" %}: ${Math.floor(gameState.inventoryWeight)} / ${gameState.maxWeight} kg
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${(gameState.inventoryWeight / gameState.maxWeight * 100)}%"></div>
+              </div>
+            </div>
+            <div class="inventory-grid">
+              ${inventoryHTML}
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn primary" onclick="closeModal()">
+              {% trans "Kapat" %}
+            </button>
+          </div>
+          </div>
+        `;
+
+      document.body.appendChild(modal);
+    }
+
+    function confirmExit() {
+      const modal = document.createElement('div');
+      modal.className = 'trade-modal';
+      modal.id = 'tradeModal';
+
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>🚪</span>
+            <span>{% trans "Oyundan Çık" %}</span>
+              </div>
+          <div class="modal-body">
+            <p style="text-align: center; margin-bottom: 16px; color: rgba(255,255,255,0.9);">
+              {% trans "Oyundan çıkmak istediğinize emin misiniz?" %}
+            </p>
+            <div style="background: rgba(245,158,11,0.15); padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b; font-size: 13px;">
+              💾 {% trans "Oyununuz otomatik olarak kaydedilecek" %}
+            </div>
+                </div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary" onclick="closeModal()">
+              {% trans "İptal" %}
+            </button>
+            <button class="modal-btn danger" onclick="saveGame(); window.location.href='{% url 'games:player_hub' %}'">
+              {% trans "Çık" %}
+            </button>
+          </div>
+              </div>
+            `;
+
+      document.body.appendChild(modal);
+    }
+
+    // Toggle Fullscreen
+    function toggleFullscreen() {
+      document.body.classList.toggle('game-fullscreen');
+      const isFullscreen = document.body.classList.contains('game-fullscreen');
+
+      const toggleIcon = document.getElementById('toggleIcon');
+      if (toggleIcon) {
+        toggleIcon.textContent = isFullscreen ? '👁️' : '🎮';
+      }
+
+      localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    }
+
+    // ==============================================
+    // Initialization
+    // ==============================================
+
+    window.addEventListener('DOMContentLoaded', async function () {
+      console.log('🎮 TradeSim {% trans "başlatılıyor..." %}');
+
+      // Set fullscreen mode from localStorage
+      const savedMode = localStorage.getItem('finasis_game_fullscreen');
+      if (savedMode === null || savedMode === 'true') {
+        document.body.classList.add('game-fullscreen');
+        document.getElementById('toggleIcon').textContent = '👁️';
+      }
+
+      // Load saved game
+      loadGame();
+
+      // Fetch data from backend
+      await fetchCities();
+      await fetchProducts();
+
+      // Set initial city
+      if (gameState.cities.length > 0) {
+        const initialCity = gameState.cities.find(c => c.name.toLowerCase() === gameState.currentCity.toLowerCase()) || gameState.cities[0];
+        gameState.currentCityId = initialCity.id;
+        gameState.statistics.citiesVisited.add(initialCity.name);
+        await fetchCityMarket(initialCity.id);
+      }
+
+      // Update displays
+      updateAllDisplays();
+
+      // Welcome message
+      setTimeout(() => {
+        showNotification('🎮 {% trans "TradeSim\'e hoş geldiniz! Ticaret yaparak zengin olun!" %}', 'info');
+      }, 500);
+
+      console.log('✅ TradeSim {% trans "hazır!" %}');
+    });
+
+    // ESC to close modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+  {% endif %} <!-- endif game_session -->
+</script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ page_title|default:_("SaaS CFO Oyun Kitabı") }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero mb-5"
+  style="--resource-hero-gradient: linear-gradient(135deg, rgba(13, 59, 102, 0.92), rgba(10, 174, 148, 0.85));
+         --resource-hero-glow: radial-gradient(circle, rgba(255, 179, 0, 0.4), transparent 70%);">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <div class="d-inline-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-warning text-dark">{% trans "Çıktı Odaklı CFO Rehberi" %}</span>
+        <span class="badge bg-light text-dark">{% trans "BETA 2.1" %}</span>
+      </div>
+      <h1 class="display-5 fw-bold mb-3">{% trans "SaaS CFO Oyun Kitabı" %}</h1>
+      <p class="lead mb-4">
+        {% trans "Büyüyen SaaS şirketleri için haftalık finans ritüelleri, KPI panosu önerileri ve yatırımcı raporlama şablonları." %}
+      </p>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="#weekly-rituals" class="btn btn-light btn-lg" data-cta="playbook-weekly">
+          <i class="bi bi-calendar-week me-2"></i>{% trans "Haftalık Ritüeller" %}
+        </a>
+        <a href="#investor-kit" class="btn btn-outline-light btn-lg" data-cta="playbook-investor">
+          <i class="bi bi-bar-chart-line me-2"></i>{% trans "Yatırımcı Kiti" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-5 text-lg-end">
+      <img src="{% static 'common/dashboard_illustration.svg' %}" alt="{% trans 'CFO Oyun Kitabı' %}" class="img-fluid" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section id="weekly-rituals" class="py-4">
+  <div class="row g-4">
+    {% for week in [
+      {
+        "title": _("Pazartesi · Nakit ve Tahsilat"),
+        "pill": _("Hafta Başlangıcı"),
+        "bullets": [
+          _("Bankalar, POS ve çek hareketlerini FinAsis bankacılık entegrasyonu ile senkronize edin."),
+          _("Tahsilat gecikme listesi ve en riskli müşteri segmentlerini gözden geçirin."),
+          _("AI finans asistanının önerdiği tahsilat aksiyon planını paylaşın.")
+        ]
+      },
+      {
+        "title": _("Çarşamba · KPI Panosu"),
+        "pill": _("Hafta Ortası"),
+        "bullets": [
+          _("MRR, net gelir tutma, brüt kâr ve işletme gideri (OpEx) sapmalarını kontrol edin."),
+          _("Blokzincir denetim kanıtı gerektiren yüksek tutarlı sözleşmeleri işaretleyin."),
+          _("Uyumluluk motoru tarafından oluşturulan AML uyarılarını revize edin.")
+        ]
+      },
+      {
+        "title": _("Cuma · Yönetici Özeti"),
+        "pill": _("Hafta Sonu"),
+        "bullets": [
+          _("Hafta içi gerçekleşen KPI sapmalarını yönetim kuruluna raporlayın."),
+          _("Finans & uyumluluk görevlerinin kapanma durumlarını FinAsis görev panelinden ihrac edin."),
+          _("Varsa yeni yatırımcı taleplerini FinAsis veri odasına yükleyin.")
+        ]
+      }
+    ] %}
+    <div class="col-md-6 col-xl-4">
+      <div class="resource-card playbook-card h-100">
+        <div class="resource-pill teal mb-3">
+          <i class="bi bi-clock-history"></i>{{ week.pill }}
+        </div>
+        <h3 class="h5 fw-semibold mb-3">{{ week.title }}</h3>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          {% for bullet in week.bullets %}
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ bullet }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="investor-kit" class="py-5">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-6">
+        <div class="resource-card playbook-card">
+          <span class="resource-pill amber mb-3 d-inline-flex align-items-center gap-2">
+          <i class="bi bi-graph-up-arrow"></i>{% trans "Yatırımcı İletişimi" %}
+        </span>
+        <h2 class="h4 fw-bold mb-3">{% trans "Yatırımcı Sunumu İçin Hazır Şablonlar" %}</h2>
+        <p class="text-secondary mb-4">
+          {% trans "FinAsis yönetici raporlama modülü, yatırımcı güncellemeleri için otomatik özetler üretir. Aşağıdaki dosya ve kontrol listelerini düzenleyerek sunumunuzu hızlandırın." %}
+        </p>
+        <ul class="list-unstyled d-grid gap-2 text-secondary mb-4">
+          <li><i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>{% trans "Aylık MRR & Nakit Akışı rapor şablonu" %}</li>
+          <li><i class="bi bi-diagram-3 text-primary me-2"></i>{% trans "OKR ve roadmap durumu için kanban çıktısı" %}</li>
+          <li><i class="bi bi-people text-primary me-2"></i>{% trans "Kurumsal müşteriler için churn / expansion notları" %}</li>
+        </ul>
+        <a href="{% static 'common/FinAsis_Investor_Deck.pdf' %}" class="btn btn-primary" download>
+          <i class="bi bi-download me-2"></i>{% trans "Yatırımcı Sunumunu İndir" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="resource-card playbook-card h-100">
+        <span class="badge bg-success-subtle text-success mb-3">
+          <i class="bi bi-shield-check me-1"></i>{% trans "Uyumluluk & Politika" %}
+        </span>
+        <h3 class="h5 fw-semibold mb-3">{% trans "Politika Kontrol Listesi" %}</h3>
+        <p class="text-secondary mb-4">
+          {% trans "Uyumluluk modülü ile MASAK ve KVKK süreçlerinizi güncel tutun. Haftalık gözden geçirme için bu maddelerle başlayın." %}
+        </p>
+        <ol class="text-secondary d-grid gap-2">
+          <li>{% trans "Kritik kayıtların FinAsis blockchain kanıtıyla arşivlenmesi" %}</li>
+          <li>{% trans "Riskli işlemler için AML senaryoları ve aksiyon kayıtları" %}</li>
+          <li>{% trans "Üçüncü taraf tedarikçi risk değerlendirme formunun güncellenmesi" %}</li>
+          <li>{% trans "Regülasyon değişikliği duyurularının FinAsis yardım merkezine işlenmesi" %}</li>
+        </ol>
+        <div class="mt-4">
+        <a href="{% url 'resources_compliance_checklist' %}" class="btn btn-outline-primary">
+            <i class="bi bi-list-check me-2"></i>{% trans "Uyumluluk Checklist'ine git" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

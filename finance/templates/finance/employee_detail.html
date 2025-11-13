@@ -1,0 +1,11 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Çalışan Detayı{% endblock %}
+{% block content %}
+<h1>Çalışan Detayı</h1>
+<p><strong>Kullanıcı:</strong> {{ employee.user }}</p>
+<p><strong>Bölüm:</strong> {{ employee.department }}</p>
+<p><strong>Çalışan No:</strong> {{ employee.employee_id }}</p>
+<a href="{% url 'finance:employee_update' employee.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:employee_delete' employee.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:employee_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

@@ -1,0 +1,219 @@
+{% load static i18n %}
+
+<!-- Modern Stats Card Component -->
+<div class="modern-stats-card" data-stat-type="{{ type|default:'default' }}">
+  <div class="modern-stats-card-header">
+    <div class="modern-stats-card-icon {{ icon_class|default:'bg-primary' }}">
+      <i class="bi {{ icon|default:'bi-graph-up' }}"></i>
+    </div>
+    {% if has_actions %}
+    <div class="modern-stats-card-actions">{{ actions_content|safe }}</div>
+    {% endif %}
+  </div>
+
+  <div class="modern-stats-card-content">
+    <div class="modern-stats-card-value">
+      {% if prefix %}{{ prefix }}{% endif %}{{
+      value|floatformat:decimal_places|default:"0" }}{% if suffix %}{{ suffix
+      }}{% endif %}
+    </div>
+    <div class="modern-stats-card-label">{{ label }}</div>
+
+    {% if change_value %}
+    <div class="modern-stats-card-change {{ change_type|default:'neutral' }}">
+      <i
+        class="bi {% if change_type == 'positive' %}bi-arrow-up{% elif change_type == 'negative' %}bi-arrow-down{% else %}bi-dash{% endif %}"
+      ></i>
+      <span
+        >{{ change_value }}{% if change_period %} {{ change_period }}{% endif
+        %}</span
+      >
+    </div>
+    {% endif %} {% if progress %}
+    <div class="modern-stats-card-progress">
+      <div class="progress">
+        <div
+          class="progress-bar bg-{{ progress_color|default:'primary' }}"
+          style="width: {{ progress }}%"
+        ></div>
+      </div>
+      <small class="text-muted">{{ progress_label|default:'Progress' }}</small>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if footer_content %}
+  <div class="modern-stats-card-footer">{{ footer_content|safe }}</div>
+  {% endif %}
+</div>
+
+<style>
+  .modern-stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .modern-stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .modern-stats-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .modern-stats-card:hover::before {
+    opacity: 1;
+  }
+
+  .modern-stats-card-header {
+    display: flex;
+    justify-content: between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .modern-stats-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .modern-stats-card-icon.bg-primary {
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--bs-primary);
+  }
+  .modern-stats-card-icon.bg-success {
+    background: rgba(var(--bs-success-rgb), 0.1);
+    color: var(--bs-success);
+  }
+  .modern-stats-card-icon.bg-danger {
+    background: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger);
+  }
+  .modern-stats-card-icon.bg-warning {
+    background: rgba(var(--bs-warning-rgb), 0.1);
+    color: var(--bs-warning);
+  }
+  .modern-stats-card-icon.bg-info {
+    background: rgba(var(--bs-info-rgb), 0.1);
+    color: var(--bs-info);
+  }
+
+  .modern-stats-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--bs-dark), var(--bs-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .modern-stats-card-label {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .modern-stats-card-change {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .modern-stats-card-change.positive {
+    color: var(--bs-success);
+  }
+  .modern-stats-card-change.negative {
+    color: var(--bs-danger);
+  }
+  .modern-stats-card-change.neutral {
+    color: var(--bs-secondary);
+  }
+
+  .modern-stats-card-progress {
+    margin-top: 1rem;
+  }
+
+  .modern-stats-card-progress .progress {
+    height: 6px;
+    border-radius: 3px;
+    background: #f1f5f9;
+    margin-bottom: 0.5rem;
+  }
+
+  .modern-stats-card-progress .progress-bar {
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  .modern-stats-card-actions {
+    margin-left: auto;
+  }
+
+  .modern-stats-card-footer {
+    border-top: 1px solid #f1f5f9;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  /* Data-driven variations */
+  .modern-stats-card[data-stat-type="revenue"] {
+    border-left: 4px solid var(--bs-success);
+  }
+  .modern-stats-card[data-stat-type="expense"] {
+    border-left: 4px solid var(--bs-danger);
+  }
+  .modern-stats-card[data-stat-type="profit"] {
+    border-left: 4px solid var(--bs-primary);
+  }
+  .modern-stats-card[data-stat-type="pending"] {
+    border-left: 4px solid var(--bs-warning);
+  }
+
+  @media (max-width: 768px) {
+    .modern-stats-card {
+      padding: 1.25rem;
+    }
+
+    .modern-stats-card-value {
+      font-size: 1.75rem;
+    }
+
+    .modern-stats-card-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+    }
+  }
+</style>

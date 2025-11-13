@@ -1,0 +1,69 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "MFA Yönetimi" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4 p-lg-5">
+          <h1 class="h4 fw-bold mb-3">{% trans "Çok Faktörlü Doğrulama" %}</h1>
+          {% if confirmed_device %}
+            <div class="alert alert-success mb-4">
+              <i class="bi bi-shield-check me-2"></i>
+              {% trans "Hesabınız MFA ile korunuyor." %}
+            </div>
+            <p class="text-muted">
+              {% trans "Authenticator uygulamanızla giriş yapmaya devam edebilirsiniz. Eğer cihazınızı kaybettiyseniz yeni cihaz kurmak için önce mevcut MFA'yı devre dışı bırakın." %}
+            </p>
+            <form method="post" action="{% url 'accounts:otp_disable' %}" onsubmit="return confirm('{% trans "MFA'yı devre dışı bırakmak istediğinize emin misiniz?" %}');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger">{% trans "MFA\'yı devre dışı bırak" %}</button>
+            </form>
+          {% else %}
+            <ol class="text-muted mb-4">
+              <li>{% trans "Telefonunuzdaki Google Authenticator veya Authy uygulamasını açın." %}</li>
+              <li>{% trans "Aşağıdaki QR kodunu tarayın ya da gizli anahtarı manuel ekleyin." %}</li>
+              <li>{% trans "Uygulamada görünen 6 haneli kodu doğrulama alanına girin." %}</li>
+            </ol>
+            {% if provisioning_uri %}
+              <div class="mb-3">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ provisioning_uri|urlencode }}" alt="{% trans 'Authenticator QR kodu' %}" class="img-fluid mx-auto d-block rounded-3 shadow-sm">
+              </div>
+            {% endif %}
+            {% if secret_key %}
+              <div class="alert alert-secondary text-center">
+                <div class="fw-semibold mb-1">{% trans "Gizli Anahtar" %}</div>
+                <code class="fs-5">{{ secret_key }}</code>
+              </div>
+            {% endif %}
+            <form method="post" class="mt-4">
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                  {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+              {% endif %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ form.token.id_for_label }}">{{ form.token.label }}</label>
+                {{ form.token }}
+                {% if form.token.errors %}
+                  <div class="text-danger small mt-1">{{ form.token.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+              <button type="submit" class="btn btn-primary">{% trans "MFA\'yı etkinleştir" %}</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        {% trans "MFA'yı etkinleştirdikten sonra girişlerinizde kullanıcı adı ve şifrenizin yanı sıra bu uygulamadaki kodu girmeniz istenir." %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

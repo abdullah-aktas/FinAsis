@@ -1,0 +1,388 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Yönetim Girişi' %} | FinAsis{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+  body {
+    background: #f8f9fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .admin-auth-hero {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    border-radius: 0;
+    margin: -20px -20px 60px -20px;
+    overflow: hidden;
+  }
+
+  .admin-auth-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: 18px;
+    opacity: 0.95;
+    line-height: 1.6;
+  }
+
+  .login-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .login-card h5 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #1a202c;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .login-card .subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 32px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+  }
+
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background: white;
+  }
+
+  .btn-admin-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-admin-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+    color: white;
+  }
+
+  .btn-outline-secondary {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #4b5563;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-outline-secondary:hover {
+    border-color: #9ca3af;
+    background: #f9fafb;
+    color: #1a202c;
+    transform: translateY(-2px);
+  }
+
+  .alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    color: #dc2626;
+    font-weight: 500;
+    padding: 12px 16px;
+  }
+
+  /* Feature Cards */
+  .features-section {
+    margin-top: 60px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a202c;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    border: 2px solid #f3f4f6;
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--feature-color), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .feature-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--feature-color);
+  }
+
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--feature-bg);
+    color: var(--feature-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .feature-card h6 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .feature-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--feature-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .feature-link:hover {
+    gap: 10px;
+    color: var(--feature-color);
+  }
+
+  @media (max-width: 992px) {
+    .admin-auth-hero {
+      padding: 60px 20px;
+    }
+
+    .hero-title {
+      font-size: 32px;
+    }
+
+    .login-card {
+      padding: 32px 24px;
+      margin-top: 40px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 28px;
+    }
+
+    .hero-description {
+      font-size: 16px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-lg-5">
+  <!-- Hero -->
+  <section class="admin-auth-hero">
+    <div class="hero-content">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <span class="hero-badge">
+            <i class="bi bi-stars"></i>
+            AI • Blockchain • e-Dönüşüm
+          </span>
+          <h1 class="hero-title">FinAsis Yönetim Paneline Hoş Geldiniz</h1>
+          <p class="hero-description mb-0">
+            Tek ekrandan finans, muhasebe, AI asistan ve e-dönüşüm süreçlerinizi yönetin. 
+            Tamamen yerel, gizlilik odaklı ve KOBİ'ler için tasarlandı.
+          </p>
+        </div>
+        <div class="col-lg-6">
+          <div class="login-card">
+            <h5>
+              <i class="bi bi-shield-lock"></i>
+              {% trans 'Yönetici Girişi' %}
+            </h5>
+            <p class="subtitle">Yönetim panelinize güvenli giriş yapın</p>
+            {% if form.errors %}
+              <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>{% trans 'Kullanıcı adı veya şifre hatalı.' %}
+              </div>
+            {% endif %}
+            <form action="{{ app_path }}" method="post" id="login-form">
+              {% csrf_token %}
+              <div class="mb-4">
+                <label class="form-label" for="id_username">
+                  <i class="bi bi-person-circle"></i>
+                  {% trans 'Kullanıcı adı' %}
+                </label>
+                <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required class="form-control" id="id_username" placeholder="Kullanıcı adınızı girin">
+              </div>
+              <div class="mb-4">
+                <label class="form-label" for="id_password">
+                  <i class="bi bi-lock-fill"></i>
+                  {% trans 'Şifre' %}
+                </label>
+                <input type="password" name="password" autocomplete="current-password" required class="form-control" id="id_password" placeholder="••••••••">
+              </div>
+              {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+              <div class="d-grid gap-3">
+                <button type="submit" class="btn btn-admin-primary">
+                  <i class="bi bi-box-arrow-in-right"></i>
+                  {% trans 'Giriş Yap' %}
+                </button>
+                <a class="btn btn-outline-secondary" href="{% url 'accounts:password_reset' %}">
+                  <i class="bi bi-key"></i>
+                  {% trans 'Şifremi Unuttum' %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature highlights -->
+  <section class="features-section">
+    <h2 class="section-title">Platform Özellikleri</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card" style="--feature-color: #06b6d4; --feature-bg: rgba(6, 182, 212, 0.1);">
+          <div class="feature-icon">
+            <i class="bi bi-robot"></i>
+          </div>
+          <h6>Yerel AI Asistan</h6>
+          <p>Doğal dilde raporlar, finansal oranlar ve akıllı öneriler. Verileriniz tamamen gizli kalır.</p>
+          <a href="{% url 'ai_assistant:home' %}" class="feature-link">
+            Daha fazlası <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card" style="--feature-color: #667eea; --feature-bg: rgba(102, 126, 234, 0.1);">
+          <div class="feature-icon">
+            <i class="bi bi-link-45deg"></i>
+          </div>
+          <h6>Blockchain Kanıtlama</h6>
+          <p>Fatura, fiş ve e-Defter için değiştirilemez bütünlük kontrolleri ve zaman damgası.</p>
+          <a href="{% url 'blockchain:home' %}" class="feature-link">
+            İncele <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card" style="--feature-color: #10b981; --feature-bg: rgba(16, 185, 129, 0.1);">
+          <div class="feature-icon">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+          </div>
+          <h6>e-Dönüşüm & Raporlama</h6>
+          <p>KDV, Muhtasar, BA/BS ve resmi defterler. Otomatik hesaplama ve GİB uyumlu.</p>
+          <a href="{% url 'finance:reports_index' %}" class="feature-link">
+            Raporlar <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

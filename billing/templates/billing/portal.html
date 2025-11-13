@@ -1,0 +1,468 @@
+{% extends 'core_ui/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Abonelik Portalı - FinAsis{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Modern Billing Portal Stilleri */
+    .portal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .subscription-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .subscription-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .plan-info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .plan-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+    
+    .transaction-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+        border-left: 4px solid;
+    }
+    
+    .transaction-card:hover {
+        transform: translateX(3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    
+    .transaction-paid {
+        border-left-color: #28a745;
+    }
+    
+    .transaction-pending {
+        border-left-color: #ffc107;
+    }
+    
+    .transaction-failed {
+        border-left-color: #dc3545;
+    }
+    
+    .info-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        opacity: 0.3;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Modern Portal Header -->
+<div class="portal-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">
+                    <i class="bi bi-credit-card-2-front me-2"></i>
+                    {% trans "Abonelik Portalı" %}
+                </h1>
+                <p class="mb-0 opacity-90">
+                    {% trans "Aboneliğinizi yönetin ve ödeme geçmişinizi görüntüleyin" %}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'billing:plans' %}" class="btn btn-light btn-lg action-btn">
+                    <i class="bi bi-arrow-repeat me-2"></i>{% trans "Planı Değiştir" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Mevcut Abonelik Durumu -->
+    <div class="row animate-fade-in">
+        <div class="col-lg-8 mb-4">
+            <div class="subscription-card">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="info-box">
+                            <div class="info-label">
+                                <i class="bi bi-box me-1"></i>{% trans "Mevcut Plan" %}
+                            </div>
+                            <div class="info-value">
+                                {% if profile.plan %}
+                                    {{ profile.plan.name }}
+                                {% else %}
+                                    {% trans "Aktif plan yok" %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="info-box">
+                            <div class="info-label">
+                                <i class="bi bi-circle-fill me-1"></i>{% trans "Durum" %}
+                            </div>
+                            <div class="info-value">
+                                {% if profile.status == 'active' %}
+                                    <span class="status-badge status-active">
+                                        <i class="bi bi-check-circle me-1"></i>{% trans "Aktif" %}
+                                    </span>
+                                {% elif profile.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="bi bi-clock me-1"></i>{% trans "Beklemede" %}
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">
+                                        <i class="bi bi-x-circle me-1"></i>{% trans "İnaktif" %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="info-box">
+                            <div class="info-label">
+                                <i class="bi bi-calendar-event me-1"></i>{% trans "Dönem Sonu" %}
+                            </div>
+                            <div class="info-value">
+                                {% if profile.current_period_end %}
+                                    {{ profile.current_period_end|date:"d.m.Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="info-box">
+                            <div class="info-label">
+                                <i class="bi bi-calendar-check me-1"></i>{% trans "Kayıt Tarihi" %}
+                            </div>
+                            <div class="info-value">
+                                {% if profile.created_at %}
+                                    {{ profile.created_at|date:"d.m.Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if profile.plan %}
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6 class="mb-2"><i class="bi bi-info-circle me-2"></i>{% trans "Plan Detayları" %}</h6>
+                    <p class="mb-0 small text-muted">
+                        {{ profile.plan.description|default:"Modern finansal yönetim araçlarına tam erişim" }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Hızlı Aksiyonlar -->
+        <div class="col-lg-4 mb-4">
+            <div class="plan-info-card text-center">
+                <i class="bi bi-star-fill plan-icon"></i>
+                <h5 class="mb-3">{% trans "Premium Özellikler" %}</h5>
+                <p class="small opacity-90 mb-3">
+                    {% trans "Daha fazla özelliğe erişmek için planınızı yükseltin" %}
+                </p>
+                <a href="{% url 'billing:plans' %}" class="btn btn-light btn-sm">
+                    {% trans "Planları İncele" %}
+                </a>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-headset me-2 text-primary"></i>{% trans "Destek" %}
+                    </h6>
+                    <p class="small text-muted mb-3">
+                        {% trans "Aboneliğinizle ilgili sorularınız için" %}
+                    </p>
+                    <a href="{% url 'support' %}" class="btn btn-sm btn-outline-primary w-100">
+                        {% trans "Destek Merkezi" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ödeme İşlemleri -->
+    <div class="row animate-fade-in" style="animation-delay: 0.1s">
+        <div class="col-12 mb-4">
+            <h2 class="section-title">
+                <i class="bi bi-receipt me-2"></i>{% trans "Ödeme Geçmişi" %}
+            </h2>
+            
+            {% if transactions %}
+                {% for t in transactions %}
+                <div class="transaction-card transaction-{{ t.status }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <div class="text-muted small">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                {{ t.created_at|date:"d.m.Y" }}
+                            </div>
+                            <div class="text-muted small">
+                                {{ t.created_at|date:"H:i" }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <span class="badge bg-secondary">
+                                {{ t.get_method_display|default:"Ödeme" }}
+                            </span>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            {% if t.plan %}
+                                <strong>{{ t.plan.name }}</strong>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-2">
+                            {% if t.price %}
+                                <span class="badge bg-info">
+                                    {{ t.price.get_period_display }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-2 text-end">
+                            <strong class="text-dark">
+                                {{ t.amount }} {{ t.currency }}
+                            </strong>
+                        </div>
+                        
+                        <div class="col-md-1 text-end">
+                            {% if t.status == 'paid' %}
+                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                            {% elif t.status == 'failed' %}
+                                <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                            {% else %}
+                                <i class="bi bi-clock-fill text-warning fs-4"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h5 class="text-muted">{% trans "Henüz ödeme işleminiz yok" %}</h5>
+                    <p class="text-muted small">{% trans "İlk ödemenizi yaparak premium özelliklere erişin" %}</p>
+                    <a href="{% url 'billing:plans' %}" class="btn btn-primary mt-2">
+                        {% trans "Planları Görüntüle" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Havale İşlemleri -->
+    <div class="row animate-fade-in" style="animation-delay: 0.2s">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="bi bi-bank me-2"></i>{% trans "Havale Talepleri" %}
+            </h2>
+            
+            {% if bank_transfers %}
+                {% for b in bank_transfers %}
+                <div class="transaction-card {% if b.is_confirmed %}transaction-paid{% else %}transaction-pending{% endif %}">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                {{ b.created_at|date:"d.m.Y H:i" }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <strong class="text-primary">
+                                <i class="bi bi-tag me-1"></i>
+                                {{ b.reference_code }}
+                            </strong>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            {% if b.plan %}
+                                {{ b.plan.name }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-2 text-end">
+                            <strong class="text-dark">
+                                {{ b.amount }} {{ b.currency }}
+                            </strong>
+                        </div>
+                        
+                        <div class="col-md-1 text-end">
+                            {% if b.is_confirmed %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>{% trans "Onaylandı" %}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock me-1"></i>{% trans "Bekliyor" %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if not b.is_confirmed %}
+                    <div class="mt-2 p-2 bg-warning bg-opacity-10 rounded">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            {% trans "Havale işleminiz onaylandığında aboneliğiniz aktif hale gelecektir." %}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-bank"></i>
+                    <h5 class="text-muted">{% trans "Havale kaydı bulunamadı" %}</h5>
+                    <p class="text-muted small">{% trans "Banka havalesi ile ödeme yapmak için plan seçin" %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

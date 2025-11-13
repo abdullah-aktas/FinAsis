@@ -1,0 +1,827 @@
+{% extends "core_ui/base.html" %} {% load static %} {% block title %}Panel -
+FinAsis{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css"
+/>
+<style>
+  .bg-gradient-primary {
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+  }
+  .dashboard-hero {
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    position: relative;
+    overflow: hidden;
+  }
+  .dashboard-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+      repeat;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Dashboard Hero Section -->
+<div class="dashboard-hero text-white py-5 mb-4">
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2 animate-fade-in-up">
+          Hoş Geldin, {{ user.first_name|default:user.username }}! 👋
+        </h1>
+        <p class="lead mb-0 animate-fade-in-up" style="animation-delay: 0.2s">
+          İşte bugünkü finansal özetiniz ve AI önerileriniz
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div
+          class="d-flex flex-column align-items-md-end animate-fade-in-up"
+          style="animation-delay: 0.4s"
+        >
+          <span
+            class="badge bg-white bg-opacity-20 px-3 py-2 rounded-pill mb-2"
+          >
+            <i class="bi bi-calendar me-2"></i>{{ today|date:"d F Y" }}
+          </span>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-light btn-sm" onclick="refreshDashboard()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Yenile
+            </button>
+            <a
+              href="{% url 'accounts:user_profile' %}"
+              class="btn btn-outline-light btn-sm"
+            >
+              <i class="bi bi-gear me-1"></i>Ayarlar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- KPI Stats - Modern Design -->
+  <div class="stats-grid animate-fade-in-up">
+    {% if stats %}
+    <!-- Gelir Kartı -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon success">
+          <i class="bi bi-trend-up"></i>
+        </div>
+        <div class="dropdown">
+          <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            Bu Ay
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('today')"
+                >Bugün</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('week')"
+                >Bu Hafta</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('month')"
+                >Bu Ay</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('year')"
+                >Bu Yıl</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.total_income|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Toplam Gelir</div>
+      <div class="stat-card-change positive">
+        <i class="bi bi-arrow-up"></i>
+        <span>+12.5% önceki aya göre</span>
+      </div>
+    </div>
+
+    <!-- Gider Kartı -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon danger">
+          <i class="bi bi-trend-down"></i>
+        </div>
+        <button
+          class="btn btn-sm btn-outline-primary"
+          onclick="showExpenseDetails()"
+        >
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.total_expenses|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Toplam Gider</div>
+      <div class="stat-card-change negative">
+        <i class="bi bi-arrow-down"></i>
+        <span>-5.2% önceki aya göre</span>
+      </div>
+    </div>
+
+    <!-- Bakiye Kartı -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon info">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <span class="badge bg-success">Pozitif</span>
+      </div>
+      <div class="stat-card-value">
+        {{ stats.net_balance|default:"₺0"|floatformat:0 }}
+      </div>
+      <div class="stat-card-label">Net Bakiye</div>
+      <div class="progress mt-2" style="height: 4px">
+        <div class="progress-bar bg-success" style="width: 75%"></div>
+      </div>
+    </div>
+
+    <!-- Bekleyen Faturalar -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon warning">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <a
+          href="{% url 'accounting:invoice_list' %}"
+          class="btn btn-sm btn-outline-warning"
+        >
+          <i class="bi bi-list"></i>
+        </a>
+      </div>
+      <div class="stat-card-value">{{ stats.pending_invoices|default:0 }}</div>
+      <div class="stat-card-label">Bekleyen Fatura</div>
+      {% if stats.pending_invoices > 0 %}
+      <div class="text-warning mt-2">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        <small>Acil işlem gerekiyor</small>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="col-12">
+      <div class="card-modern text-center py-5">
+        <div class="mb-4">
+          <div
+            class="stat-card-icon info mx-auto mb-3"
+            style="width: 80px; height: 80px; font-size: 2rem"
+          >
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <h3 class="text-primary">Hoş geldiniz!</h3>
+          <p class="text-muted">
+            İlk işlemlerinizi yapmaya başlayın ve istatistikleriniz burada
+            görünecek.
+          </p>
+        </div>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <a
+            href="{% url 'accounting:invoice_create' %}"
+            class="btn-modern primary"
+          >
+            <i class="bi bi-plus-lg"></i>İlk Faturanızı Oluşturun
+          </a>
+          <button class="btn-modern secondary" onclick="startTour()">
+            <i class="bi bi-play-circle"></i>Tura Başla
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Main Dashboard Grid -->
+  <div class="dashboard-container">
+    <!-- Left Column - Main Content -->
+    <div class="dashboard-main">
+      <!-- Financial Trend Chart -->
+      <div class="card-modern">
+        <div class="card-modern-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="h5 mb-0">
+              <i class="bi bi-bar-chart-line me-2 text-primary"></i>
+              Finansal Trend
+            </h3>
+            <div class="btn-group btn-group-sm">
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart7d"
+                checked
+              />
+              <label class="btn btn-outline-primary" for="chart7d">7G</label>
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart30d"
+              />
+              <label class="btn btn-outline-primary" for="chart30d">30G</label>
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart90d"
+              />
+              <label class="btn btn-outline-primary" for="chart90d">90G</label>
+            </div>
+          </div>
+        </div>
+        <div class="card-modern-body">
+          <canvas id="financialTrendChart" height="300"></canvas>
+        </div>
+      </div>
+
+      <!-- AI Assistant Panel -->
+      <div
+        class="card-modern animate-slide-in-right"
+        style="animation-delay: 0.4s"
+      >
+        <div class="card-modern-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="h5 mb-0">
+              <i class="bi bi-robot me-2"></i>
+              AI Asistan Önerileri
+              <span class="badge bg-gradient-primary ms-2">Beta</span>
+            </h3>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              onclick="refreshAISuggestions()"
+            >
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-modern-body">
+          {% if ai_suggestions and ai_suggestions|length > 0 %}
+          <div class="ai-suggestions-container">
+            {% for suggestion in ai_suggestions %}
+            <div class="ai-suggestion-card p-3 border rounded-3 mb-3 bg-light">
+              <div class="d-flex align-items-start gap-3">
+                <div class="ai-suggestion-icon">
+                  <span class="fs-4">{{ suggestion.icon }}</span>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="fw-semibold text-primary mb-1">
+                    {{ suggestion.title }}
+                  </h6>
+                  <p class="text-muted mb-2 small">{{ suggestion.text }}</p>
+                  <div class="d-flex gap-2">
+                    <button
+                      class="btn btn-sm btn-primary"
+                      onclick="applySuggestion('{{ suggestion.id }}')"
+                    >
+                      <i class="bi bi-check me-1"></i>Uygula
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      onclick="dismissSuggestion('{{ suggestion.id }}')"
+                    >
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <div class="ai-suggestion-icon mb-3">
+              <i
+                class="bi bi-lightbulb text-warning"
+                style="font-size: 3rem"
+              ></i>
+            </div>
+            <h6 class="text-muted">
+              AI asistanınız verilerinizi analiz ediyor
+            </h6>
+            <p class="text-muted small mb-3">
+              Öneriler yakında burada görünecek.
+            </p>
+            <div class="skeleton skeleton-text mb-2"></div>
+            <div class="skeleton skeleton-text mb-2" style="width: 80%"></div>
+            <div class="skeleton skeleton-text" style="width: 60%"></div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-modern-footer">
+          <div class="d-flex gap-2">
+            <a href="/ai-assistant/" class="btn-modern primary">
+              <i class="bi bi-chat-dots"></i>Asistan ile Konuş
+            </a>
+            <button class="btn-modern secondary" onclick="toggleAIWidget()">
+              <i class="bi bi-robot"></i>Widget Aç
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities Timeline -->
+      <div class="card-modern">
+        <div class="card-modern-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="h5 mb-0">
+              <i class="bi bi-clock-history me-2 text-info"></i>
+              Son İşlemler
+            </h3>
+            <a href="#" class="text-decoration-none small">Tümünü Gör</a>
+          </div>
+        </div>
+        <div class="card-modern-body">
+          {% if recent_activities and recent_activities|length > 0 %}
+          <div class="timeline">
+            {% for activity in recent_activities %}
+            <div class="timeline-item">
+              <div class="timeline-content">
+                <div
+                  class="d-flex justify-content-between align-items-start mb-2"
+                >
+                  <div class="timeline-time">
+                    {{ activity.time|date:"H:i" }}
+                  </div>
+                  <span class="badge bg-{{ activity.badge_type }}"
+                    >{{ activity.status }}</span
+                  >
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-{{ activity.icon }} text-primary"></i>
+                  <span class="timeline-text">{{ activity.description }}</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem"></i>
+            <h6 class="text-muted mt-2">Henüz işlem bulunmuyor</h6>
+            <p class="text-muted small">İlk işleminizi yapmaya başlayın!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Sidebar -->
+    <div class="dashboard-sidebar">
+      <!-- Quick Actions -->
+      <div class="card-modern">
+        <div class="card-modern-header">
+          <h3 class="h6 mb-0">
+            <i class="bi bi-lightning-charge me-2 text-warning"></i>
+            Hızlı İşlemler
+          </h3>
+        </div>
+        <div class="card-modern-body">
+          <div class="quick-actions">
+            <a
+              href="{% url 'accounting:invoice_create' %}"
+              class="quick-action"
+            >
+              <div class="quick-action-icon">
+                <i class="bi bi-receipt"></i>
+              </div>
+              <div class="quick-action-label">Yeni Fatura</div>
+            </a>
+            <a
+              href="{% url 'accounting:expense_create' %}"
+              class="quick-action"
+            >
+              <div class="quick-action-icon">
+                <i class="bi bi-cash-coin"></i>
+              </div>
+              <div class="quick-action-label">Yeni Gider</div>
+            </a>
+            <a
+              href="{% url 'accounting:purchase_invoice_create' %}"
+              class="quick-action"
+            >
+              <div class="quick-action-icon">
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <div class="quick-action-label">Stok Girişi</div>
+            </a>
+            <a
+              href="/ai-assistant/"
+              class="quick-action"
+              style="border-color: rgba(102, 126, 234, 0.3)"
+            >
+              <div
+                class="quick-action-icon"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    var(--brand-secondary),
+                    var(--brand-accent)
+                  );
+                "
+              >
+                <i class="bi bi-robot"></i>
+              </div>
+              <div class="quick-action-label">AI Asistan</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Health Score -->
+      <div class="card-modern">
+        <div class="card-modern-header">
+          <h3 class="h6 mb-0">
+            <i class="bi bi-heart-pulse me-2 text-success"></i>
+            Finansal Sağlık Skoru
+          </h3>
+        </div>
+        <div class="card-modern-body text-center">
+          <div class="position-relative mb-3">
+            <svg width="120" height="120" viewBox="0 0 120 120" class="mx-auto">
+              <circle
+                cx="60"
+                cy="60"
+                r="50"
+                fill="none"
+                stroke="var(--neutral-200)"
+                stroke-width="8"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="50"
+                fill="none"
+                stroke="var(--brand-success)"
+                stroke-width="8"
+                stroke-dasharray="251.2"
+                stroke-dashoffset="75.36"
+                transform="rotate(-90 60 60)"
+              />
+            </svg>
+            <div class="position-absolute top-50 start-50 translate-middle">
+              <div class="fs-4 fw-bold text-success">85</div>
+              <div class="small text-muted">Mükemmel</div>
+            </div>
+          </div>
+          <p class="text-muted small mb-3">
+            Finansal durumunuz çok iyi! Tasarruf oranınızı artırmaya odaklanın.
+          </p>
+          <button
+            class="btn btn-sm btn-outline-success"
+            onclick="showFinancialTips()"
+          >
+            <i class="bi bi-lightbulb me-1"></i>Öneriler
+          </button>
+        </div>
+      </div>
+
+      <!-- Learning Card -->
+      <div
+        class="card-modern"
+        style="
+          background: linear-gradient(
+            135deg,
+            var(--brand-secondary),
+            var(--brand-accent)
+          );
+          color: white;
+        "
+      >
+        <div class="card-modern-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <i class="bi bi-mortarboard" style="font-size: 2rem"></i>
+            <span class="badge bg-white bg-opacity-25">Öğren & Kazan</span>
+          </div>
+          <h6 class="fw-semibold mb-2">📘 Bugünün Finansal Terimi</h6>
+          <p class="small mb-3">
+            <strong>Net Kar Marjı:</strong> Şirketin net karının toplam gelire
+            oranı. Karlılığı ölçmek için kullanılan temel göstergelerden
+            biridir.
+          </p>
+          <a href="{% url 'education:courses' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-book me-2"></i>Daha Fazla Öğren
+          </a>
+        </div>
+      </div>
+
+      <!-- News & Updates -->
+      <div class="card-modern">
+        <div class="card-modern-header">
+          <h3 class="h6 mb-0">
+            <i class="bi bi-newspaper me-2 text-info"></i>
+            Haberler & Güncellemeler
+          </h3>
+        </div>
+        <div class="card-modern-body">
+          <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+            <div class="flex-shrink-0">
+              <div class="bg-primary bg-opacity-10 rounded p-2">
+                <i class="bi bi-bullseye text-primary"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-semibold mb-1">Yeni KDV Oranları</h6>
+              <p class="text-muted small mb-2">
+                2024 yılı KDV oranları güncellendi. Sisteminizi kontrol edin.
+              </p>
+              <span class="badge bg-primary bg-opacity-10 text-primary"
+                >Önemli</span
+              >
+            </div>
+          </div>
+          <div class="d-flex gap-3">
+            <div class="flex-shrink-0">
+              <div class="bg-success bg-opacity-10 rounded p-2">
+                <i class="bi bi-star text-success"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-semibold mb-1">AI Özellikler</h6>
+              <p class="text-muted small mb-2">
+                Yeni AI analiz araçları devreye alındı.
+              </p>
+              <span class="badge bg-success bg-opacity-10 text-success"
+                >Yeni</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Chat Widget -->
+<div class="ai-widget">
+  <button class="ai-chat-button" onclick="toggleAIChat()" id="aiChatButton">
+    <i class="bi bi-robot"></i>
+  </button>
+  <div class="ai-chat-panel" id="aiChatPanel">
+    <div class="ai-chat-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-robot me-2"></i>AI Asistan</h6>
+        <button class="btn btn-sm btn-outline-light" onclick="toggleAIChat()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    </div>
+    <div class="ai-chat-messages" id="aiChatMessages">
+      <div class="ai-message assistant">
+        Merhaba! Size nasıl yardımcı olabilirim? Finansal sorularınızı
+        sorabilir, işlemlerinizi analiz etmemi isteyebilirsiniz.
+      </div>
+    </div>
+    <div class="ai-chat-input">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Mesajınızı yazın..."
+          id="aiChatInput"
+        />
+        <button class="btn btn-primary" onclick="sendAIMessage()">
+          <i class="bi bi-send"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+<script>
+  // Dashboard functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    initializeChart();
+    setupEventListeners();
+  });
+
+  function initializeChart() {
+    const ctx = document.getElementById("financialTrendChart");
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"],
+        datasets: [
+          {
+            label: "Gelir",
+            data: [120000, 150000, 130000, 180000, 160000, 190000],
+            borderColor: "rgb(16, 185, 129)",
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
+            tension: 0.4,
+          },
+          {
+            label: "Gider",
+            data: [80000, 90000, 85000, 110000, 95000, 105000],
+            borderColor: "rgb(239, 68, 68)",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return "₺" + value.toLocaleString("tr-TR");
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function setupEventListeners() {
+    // Chart period change
+    document.querySelectorAll('input[name="chartPeriod"]').forEach((radio) => {
+      radio.addEventListener("change", function () {
+        updateChartData(this.id.replace("chart", ""));
+      });
+    });
+
+    // AI Chat input
+    const chatInput = document.getElementById("aiChatInput");
+    if (chatInput) {
+      chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          sendAIMessage();
+        }
+      });
+    }
+  }
+
+  // Dashboard functions
+  function refreshDashboard() {
+    const btn = event.target.closest("button");
+    const icon = btn.querySelector("i");
+    icon.classList.add("fa-spin");
+
+    setTimeout(() => {
+      icon.classList.remove("fa-spin");
+      showToast("Dashboard yenilendi", "success");
+    }, 1000);
+  }
+
+  function updatePeriod(period) {
+    console.log("Period updated to:", period);
+    // Update stats based on period
+  }
+
+  function updateChartData(period) {
+    console.log("Chart period updated to:", period);
+    // Update chart data
+  }
+
+  function showExpenseDetails() {
+    // Show expense breakdown modal
+    console.log("Showing expense details");
+  }
+
+  function refreshAISuggestions() {
+    const btn = event.target.closest("button");
+    const icon = btn.querySelector("i");
+    icon.classList.add("fa-spin");
+
+    setTimeout(() => {
+      icon.classList.remove("fa-spin");
+      showToast("AI önerileri yenilendi", "info");
+    }, 1500);
+  }
+
+  function applySuggestion(id) {
+    console.log("Applying suggestion:", id);
+    showToast("Öneri uygulandı", "success");
+  }
+
+  function dismissSuggestion(id) {
+    console.log("Dismissing suggestion:", id);
+    event.target.closest(".ai-suggestion-card").style.display = "none";
+  }
+
+  function startTour() {
+    showToast("Tur başlatılıyor...", "info");
+  }
+
+  function showFinancialTips() {
+    showToast("Finansal ipuçları gösteriliyor", "info");
+  }
+
+  // AI Chat functions
+  function toggleAIChat() {
+    const panel = document.getElementById("aiChatPanel");
+    const button = document.getElementById("aiChatButton");
+
+    if (panel.style.display === "flex") {
+      panel.style.display = "none";
+      button.innerHTML = '<i class="bi bi-robot"></i>';
+    } else {
+      panel.style.display = "flex";
+      button.innerHTML = '<i class="bi bi-x"></i>';
+    }
+  }
+
+  function sendAIMessage() {
+    const input = document.getElementById("aiChatInput");
+    const messages = document.getElementById("aiChatMessages");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Add user message
+    const userMessage = document.createElement("div");
+    userMessage.className = "ai-message user";
+    userMessage.textContent = message;
+    messages.appendChild(userMessage);
+
+    // Clear input
+    input.value = "";
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage = document.createElement("div");
+      aiMessage.className = "ai-message assistant";
+      aiMessage.textContent =
+        "Anladım! Bu konuda size yardımcı olabilirim. Verilerinizi analiz ediyorum...";
+      messages.appendChild(aiMessage);
+      messages.scrollTop = messages.scrollHeight;
+    }, 1000);
+
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function toggleAIWidget() {
+    toggleAIChat();
+  }
+
+  // Utility functions
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = "9999";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1";
+        entry.target.style.transform = "translateY(0)";
+      }
+    });
+  });
+
+  document.querySelectorAll(".card-modern").forEach((card) => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(20px)";
+    card.style.transition = "all 0.6s ease-out";
+    observer.observe(card);
+  });
+</script>
+{% endblock %}

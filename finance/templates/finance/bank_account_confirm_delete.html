@@ -1,0 +1,10 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Banka Hesabını Sil{% endblock %}
+{% block content %}
+<h1>Banka Hesabını Sil</h1>
+<p>Bu banka hesabını silmek istediğinize emin misiniz?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-danger">Evet, Sil</button>
+  <a href="{% url 'finance:bank_account_list' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
+</form>
+{% endblock %} 

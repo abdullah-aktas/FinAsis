@@ -1,0 +1,155 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Kurumsal Yönetim Paneli" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Kurumsal Yönetim Paneli" %}</h1>
+    <a href="{% url 'corporate:client_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Müşteri" %}
+    </a>
+</div>
+
+<!-- İstatistik Kartları -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Toplam Müşteri" %}</p>
+                        <h3 class="fw-bold mb-0">{{ total_clients }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded p-3">
+                        <i class="bi bi-building text-primary fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Aktif Projeler" %}</p>
+                        <h3 class="fw-bold mb-0">{{ total_projects }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded p-3">
+                        <i class="bi bi-kanban text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Aktif Sözleşmeler" %}</p>
+                        <h3 class="fw-bold mb-0">{{ total_contracts }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded p-3">
+                        <i class="bi bi-file-earmark-text text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">{% trans "Bu Ay" %}</p>
+                        <h3 class="fw-bold mb-0">{{ active_projects.count }}</h3>
+                        <small class="text-success"><i class="bi bi-arrow-up"></i> +12%</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                        <i class="bi bi-graph-up text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Müşteriler ve Projeler -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">{% trans "Son Müşteriler" %}</h5>
+                <a href="{% url 'corporate:client_list' %}" class="btn btn-sm btn-outline-primary">{% trans "Tümünü Gör" %}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Şirket Adı" %}</th>
+                                <th>{% trans "Sektör" %}</th>
+                                <th>{% trans "Proje Sayısı" %}</th>
+                                <th>{% trans "Durum" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients|slice:":5" %}
+                            <tr>
+                                <td class="fw-semibold">{{ client.company_name }}</td>
+                                <td><span class="badge bg-light text-dark">{{ client.get_industry_sector_display }}</span></td>
+                                <td>{{ client.corporateproject_set.count }}</td>
+                                <td><span class="badge bg-success">{% trans "Aktif" %}</span></td>
+                                <td>
+                                    <a href="{% url 'corporate:client_detail' client.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    {% trans "Henüz müşteri bulunmuyor" %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">{% trans "Aktif Projeler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% for project in active_projects|slice:":5" %}
+                <div class="d-flex align-items-start mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 rounded p-2">
+                            <i class="bi bi-folder text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">{{ project.project_name|truncatewords:4 }}</h6>
+                        <p class="text-muted small mb-0">{{ project.client.company_name }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">{% trans "Aktif proje bulunmuyor" %}</p>
+                {% endfor %}
+                <a href="{% url 'corporate:project_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                    {% trans "Tüm Projeleri Gör" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

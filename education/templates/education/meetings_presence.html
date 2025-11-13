@@ -1,0 +1,79 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% block title %}{% trans 'Katılım Raporu' %} - {{ meeting.title }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h5">{% trans 'Katılım Raporu' %} - {{ meeting.title }}</h1>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'education:meetings_detail' meeting.pk %}">{% trans 'Geri' %}</a>
+      <a class="btn btn-primary" href="{% url 'education:meetings_presence_csv' meeting.pk %}">CSV</a>
+      <a class="btn btn-outline-primary" href="{% url 'education:meetings_presence_totals_csv' meeting.pk %}">{% trans 'Toplamlar CSV' %}</a>
+    </div>
+  </div>
+
+  {% if summary %}
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <div class="alert alert-info py-2 mb-0">
+        <span class="me-3"><strong>{% trans 'Katılımcı Sayısı' %}:</strong> {{ summary.total_participants }}</span>
+        <span class="me-3"><strong>{% trans 'Oturum Sayısı' %}:</strong> {{ summary.total_sessions }}</span>
+        <span class="me-3"><strong>{% trans 'Toplam Süre' %}:</strong> {{ summary.total_hms }}</span>
+        {% if summary.ongoing_sessions %}
+          <span class="text-warning"><strong>{% trans 'Devam Eden Oturum' %}:</strong> {{ summary.ongoing_sessions }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>{% trans 'Kullanıcı' %}</th>
+          <th>{% trans 'Katılım' %}</th>
+          <th>{% trans 'Ayrılış' %}</th>
+          <th>{% trans 'Süre' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in presence_rows %}
+        <tr>
+          <td>{{ r.user_display }}</td>
+          <td>{{ r.joined_at|date:'Y-m-d H:i:s' }}</td>
+          <td>{% if r.left_at %}{{ r.left_at|date:'Y-m-d H:i:s' }}{% else %}-{% endif %}</td>
+          <td>{{ r.duration_hms }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted">{% trans 'Henüz kayıt yok.' %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if per_user_totals %}
+  <hr class="my-4" />
+  <h2 class="h6 mb-2">{% trans 'Kullanıcı Bazlı Toplamlar' %}</h2>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>{% trans 'Kullanıcı' %}</th>
+          <th>{% trans 'Oturum' %}</th>
+          <th>{% trans 'Toplam Süre' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in per_user_totals %}
+        <tr>
+          <td>{{ row.user_display }}</td>
+          <td>{{ row.sessions }}</td>
+          <td>{{ row.total_hms }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

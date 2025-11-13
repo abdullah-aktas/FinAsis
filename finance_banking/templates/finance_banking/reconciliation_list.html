@@ -1,0 +1,58 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Banka Mutabakatları" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Banka Mutabakatları" %}</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Mutabakat" %}
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">{% trans "Tarih" %}</th>
+                        <th>{% trans "Hesap" %}</th>
+                        <th>{% trans "Defter Bakiyesi" %}</th>
+                        <th>{% trans "Banka Bakiyesi" %}</th>
+                        <th>{% trans "Fark" %}</th>
+                        <th class="pe-4">{% trans "Durum" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reconciliation in reconciliations %}
+                    <tr>
+                        <td class="ps-4">{{ reconciliation.reconciliation_date|date:"d.m.Y" }}</td>
+                        <td>{{ reconciliation.account.account_name }}</td>
+                        <td>₺{{ reconciliation.book_balance|floatformat:2 }}</td>
+                        <td>₺{{ reconciliation.bank_balance|floatformat:2 }}</td>
+                        <td class="fw-bold {% if reconciliation.difference != 0 %}text-danger{% else %}text-success{% endif %}">
+                            ₺{{ reconciliation.difference|floatformat:2 }}
+                        </td>
+                        <td class="pe-4">
+                            <span class="badge bg-{% if reconciliation.is_reconciled %}success{% else %}warning{% endif %}">
+                                {% if reconciliation.is_reconciled %}{% trans "Mutabık" %}{% else %}{% trans "Bekliyor" %}{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-check2-square display-4 text-muted d-block mb-3"></i>
+                            <p class="text-muted">{% trans "Mutabakat kaydı bulunmuyor" %}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

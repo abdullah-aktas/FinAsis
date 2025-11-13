@@ -1,0 +1,566 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load accounts_user_extras %}
+
+{% block title %}{{ panel_title }} - FinAsis{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js for graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    /* Modern Panel Stilleri */
+    .panel-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .welcome-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .role-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+        margin: 0.2rem;
+    }
+    
+    .module-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .module-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .module-card .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .module-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+    
+    .module-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff6b6b;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .category-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .category-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .category-title::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .quick-action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .quick-action-card:hover {
+        background: #f7fafc;
+        transform: translateX(3px);
+    }
+    
+    .insight-card {
+        border-left: 4px solid;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%); }
+    .bg-gradient-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .bg-gradient-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .bg-gradient-dark { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); }
+    .bg-gradient-purple { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+    .bg-gradient-secondary { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Modern Panel Header -->
+<div class="panel-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">
+                    <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+                    {% trans "Hoş Geldiniz" %}, {{ user.get_full_name|default:user.username }}!
+                </h1>
+                <p class="mb-0 opacity-90">
+                    {% if company %}
+                        <i class="bi bi-building me-1"></i>{{ company.name }}
+                    {% else %}
+                        {% trans "Size özel kişisel paneliniz" %}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                {% if user_roles %}
+                    {% for role in user_roles %}
+                        <span class="role-badge">{{ role|upper }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Önemli Bildirimler ve İçgörüler -->
+    {% if role_insights %}
+    <div class="row mb-4 animate-fade-in">
+        {% for insight in role_insights %}
+        <div class="col-md-4 mb-3">
+            <div class="insight-card border-{{ insight.color }}">
+                <div class="d-flex align-items-start">
+                    <i class="bi {{ insight.icon }} fs-3 me-3 text-{{ insight.color }}"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1 fw-bold">{{ insight.title }}</h6>
+                        <p class="mb-0 small text-muted">{{ insight.message }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Ana İstatistikler -->
+    {% if invoice_count or expense_count or transaction_count or ai_interaction_count %}
+    <div class="row mb-4 animate-fade-in" style="animation-delay: 0.1s">
+        {% if invoice_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="stat-card border-primary">
+                <i class="bi bi-file-earmark-text stat-icon text-primary"></i>
+                <div class="stat-value text-primary">{{ invoice_count }}</div>
+                <div class="stat-label">{% trans "Faturalar" %}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if expense_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="stat-card border-danger">
+                <i class="bi bi-receipt stat-icon text-danger"></i>
+                <div class="stat-value text-danger">{{ expense_count }}</div>
+                <div class="stat-label">{% trans "Giderler" %}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transaction_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="stat-card border-success">
+                <i class="bi bi-bank stat-icon text-success"></i>
+                <div class="stat-value text-success">{{ transaction_count }}</div>
+                <div class="stat-label">{% trans "Banka İşlemleri" %}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if ai_interaction_count is not None %}
+        <div class="col-md-3 mb-3">
+            <div class="stat-card border-info">
+                <i class="bi bi-robot stat-icon text-info"></i>
+                <div class="stat-value text-info">{{ ai_interaction_count }}</div>
+                <div class="stat-label">{% trans "AI Etkileşimleri" %}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Erişilebilir Modüller (Kategori Bazlı) -->
+    <div class="animate-fade-in" style="animation-delay: 0.2s">
+        <h2 class="h4 mb-4">
+            <i class="bi bi-app-indicator me-2"></i>
+            {% trans "Sizin İçin Hazırlanan Modüller" %}
+        </h2>
+        
+        {% for category, modules in modules_by_category.items %}
+        <div class="category-section">
+            <div class="category-title">
+                {{ category_labels|get_item:category|default:category }}
+            </div>
+            <div class="row">
+                {% for module in modules %}
+                <div class="col-md-4 col-lg-3 mb-3">
+                    <a href="{{ module.url }}" class="text-decoration-none">
+                        <div class="module-card">
+                            {% if module.badge %}
+                            <span class="module-badge">{{ module.badge }}</span>
+                            {% endif %}
+                            <div class="card-body text-white bg-gradient-{{ module.color }}">
+                                <i class="bi {{ module.icon }} module-icon"></i>
+                                <h5 class="card-title fw-bold mb-2">{{ module.name }}</h5>
+                                <p class="card-text small opacity-90 mb-0">
+                                    {{ module.description }}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Grafikler -->
+    {% if invoice_trend_json or expense_trend_json %}
+    <div class="row mb-4 mt-5 animate-fade-in" style="animation-delay: 0.3s">
+        <div class="col-12 mb-3">
+            <h4 class="category-title">
+                <i class="bi bi-graph-up-arrow me-2"></i>
+                {% trans "Finansal Trendler" %}
+            </h4>
+        </div>
+        
+        {% if invoice_trend_json %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+                <div class="card-header bg-gradient-primary text-white" style="border-radius: 12px 12px 0 0;">
+                    <i class="bi bi-graph-up me-2"></i>{% trans "Gelir Trendi (Son 6 Ay)" %}
+                </div>
+                <div class="card-body">
+                    <canvas id="incomeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if expense_trend_json %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+                <div class="card-header bg-gradient-danger text-white" style="border-radius: 12px 12px 0 0;">
+                    <i class="bi bi-graph-down me-2"></i>{% trans "Gider Trendi (Son 6 Ay)" %}
+                </div>
+                <div class="card-body">
+                    <canvas id="expenseChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Alt Bölüm: Hızlı Erişim ve Son İşlemler -->
+    <div class="row mb-5 animate-fade-in" style="animation-delay: 0.4s">
+        <!-- Hızlı Erişim -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+                <div class="card-header bg-gradient-primary text-white" style="border-radius: 12px 12px 0 0;">
+                    <i class="bi bi-lightning-fill me-2"></i>{% trans "Hızlı Erişim" %}
+                </div>
+                <div class="card-body p-0">
+                    <a href="{% url 'accounts:user_profile' %}" class="quick-action-card text-decoration-none text-dark d-block">
+                        <i class="bi bi-person text-primary me-2"></i>{% trans "Profilim" %}
+                    </a>
+                    {% if company %}
+                    <a href="{% url 'accounts:company_detail' %}" class="quick-action-card text-decoration-none text-dark d-block">
+                        <i class="bi bi-building text-success me-2"></i>{% trans "Şirket Bilgileri" %}
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'ai_assistant:home' %}" class="quick-action-card text-decoration-none text-dark d-block">
+                        <i class="bi bi-robot text-info me-2"></i>{% trans "AI Asistan" %}
+                    </a>
+                    <a href="{% url 'accounts:user_settings' %}" class="quick-action-card text-decoration-none text-dark d-block">
+                        <i class="bi bi-gear text-secondary me-2"></i>{% trans "Ayarlar" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son İşlemler -->
+        {% if recent_transactions %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+                <div class="card-header bg-gradient-info text-white" style="border-radius: 12px 12px 0 0;">
+                    <i class="bi bi-clock-history me-2"></i>{% trans "Son İşlemler" %}
+                </div>
+                <div class="card-body p-0">
+                    {% for txn in recent_transactions %}
+                    <div class="quick-action-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi {% if txn.type == 'income' %}bi-arrow-up text-success{% else %}bi-arrow-down text-danger{% endif %} me-2"></i>
+                                <small class="fw-medium">{{ txn.description|truncatechars:25 }}</small>
+                                <br>
+                                <small class="text-muted">{{ txn.date|date:"d.m.Y" }}</small>
+                            </div>
+                            <span class="badge {% if txn.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ txn.amount }} ₺
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- AI Önerileri -->
+        {% if ai_recommendations %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+                <div class="card-header bg-gradient-warning text-white" style="border-radius: 12px 12px 0 0;">
+                    <i class="bi bi-lightbulb me-2"></i>{% trans "AI Önerileri" %}
+                </div>
+                <div class="card-body p-0">
+                    {% for rec in ai_recommendations %}
+                    <div class="quick-action-card">
+                        <small class="text-muted d-block mb-1">{{ rec.created_at|date:"d.m.Y H:i" }}</small>
+                        <p class="mb-0 small">{{ rec.ai_response|truncatechars:80 }}</p>
+                    </div>
+                    {% endfor %}
+                    <div class="p-3">
+                        <a href="{% url 'ai_assistant:home' %}" class="btn btn-sm btn-outline-warning w-100">
+                            {% trans "Daha Fazla Öneri" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Yardım Kartı -->
+    <div class="row mb-5 animate-fade-in" style="animation-delay: 0.5s">
+        <div class="col-12">
+            <div class="card shadow-sm" style="background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%); border: none; border-radius: 12px;">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-question-circle fs-1 text-primary mb-3"></i>
+                    <h5 class="fw-bold">{% trans "Yardıma mı ihtiyacınız var?" %}</h5>
+                    <p class="text-muted mb-3">
+                        {% trans "AI Asistanımız her sayfada yanınızda. Sorularınız için sohbet başlatabilirsiniz." %}
+                    </p>
+                    <a href="{% url 'ai_assistant:home' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-chat-dots me-2"></i>{% trans "AI ile Sohbet Başlat" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gelir Grafiği
+    try {
+        const invoiceDataRaw = '{{ invoice_trend_json|safe|escapejs }}';
+        if (invoiceDataRaw && invoiceDataRaw !== 'None') {
+            const invoiceData = JSON.parse(invoiceDataRaw);
+            const incomeCtx = document.getElementById('incomeChart');
+            if (incomeCtx && Array.isArray(invoiceData)) {
+                new Chart(incomeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: invoiceData.map(function(d) { return d.month; }),
+                        datasets: [{
+                            label: 'Gelir (TL)',
+                            data: invoiceData.map(function(d) { return d.total; }),
+                            borderColor: 'rgb(102, 126, 234)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3,
+                            pointBackgroundColor: 'rgb(102, 126, 234)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                padding: 12,
+                                titleFont: { size: 14 },
+                                bodyFont: { size: 13 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Gelir grafiği yüklenemedi:', e);
+    }
+
+    // Gider Grafiği
+    try {
+        const expenseDataRaw = '{{ expense_trend_json|safe|escapejs }}';
+        if (expenseDataRaw && expenseDataRaw !== 'None') {
+            const expenseData = JSON.parse(expenseDataRaw);
+            const expenseCtx = document.getElementById('expenseChart');
+            if (expenseCtx && Array.isArray(expenseData)) {
+                new Chart(expenseCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: expenseData.map(function(d) { return d.month; }),
+                        datasets: [{
+                            label: 'Gider (TL)',
+                            data: expenseData.map(function(d) { return d.total; }),
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderColor: 'rgb(239, 68, 68)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                padding: 12,
+                                titleFont: { size: 14 },
+                                bodyFont: { size: 13 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Gider grafiği yüklenemedi:', e);
+    }
+});
+</script>
+{% endblock %}

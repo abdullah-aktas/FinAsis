@@ -1,0 +1,9 @@
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+
+{# Bridge base: legacy accounting templates can extend this and get the global UI #}
+{% block title %}{% block accounting_title %}Muhasebe{% endblock %}{% endblock %}
+
+{% block content %}
+  {% block accounting_content %}{% endblock %}
+{% endblock %}

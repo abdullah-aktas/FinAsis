@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <h1 class="h2 mb-4">{{ page_title }}</h1>
+
+      <form class="mb-4" role="search" method="get">
+        <div class="input-group input-group-lg">
+          <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+          <input type="search"
+                 class="form-control"
+                 name="q"
+                 value="{{ query }}"
+                 placeholder="{% trans 'Aramak istediğiniz anahtar kelimeyi yazın' %}"
+                 aria-label="{% trans 'Arama kutusu' %}">
+          <button class="btn btn-primary" type="submit">{% trans 'Ara' %}</button>
+        </div>
+      </form>
+
+      {% if query %}
+        {% if results %}
+          <p class="text-muted mb-4">
+            {% blocktrans count result_count=result_count %}
+              {{ result_count }} sonuç bulundu.
+            {% plural %}
+              {{ result_count }} sonuç bulundu.
+            {% endblocktrans %}
+          </p>
+
+          <div class="list-group">
+            {% for item in results %}
+              <a href="{{ item.url }}" class="list-group-item list-group-item-action py-3">
+                <div class="d-flex w-100 justify-content-between">
+                  <h2 class="h5 mb-1">{{ item.title }}</h2>
+                  <span class="badge bg-primary-subtle text-primary">{{ item.category }}</span>
+                </div>
+                {% if item.snippet %}
+                  <p class="mb-1 text-muted">{{ item.snippet }}</p>
+                {% endif %}
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-warning" role="alert">
+            {% trans 'Aramanızla eşleşen bir sonuç bulunamadı.' %}
+          </div>
+          {% if suggestions %}
+            <ul class="list-unstyled">
+              {% for suggestion in suggestions %}
+                <li class="mb-2">
+                  <i class="bi bi-lightbulb me-2 text-primary" aria-hidden="true"></i>{{ suggestion }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endif %}
+      {% else %}
+        <p class="text-muted mb-4">
+          {% trans 'Son aramalarınıza ve popüler içeriklere göre bazı öneriler hazırladık.' %}
+        </p>
+        <div class="row g-3">
+          {% for item in results %}
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                  <span class="badge bg-secondary-subtle text-secondary mb-2">{{ item.category }}</span>
+                  <h2 class="h5">{{ item.title }}</h2>
+                  <p class="text-muted">{{ item.snippet }}</p>
+                  <a href="{{ item.url }}" class="stretched-link">{% trans 'İncele' %}</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+

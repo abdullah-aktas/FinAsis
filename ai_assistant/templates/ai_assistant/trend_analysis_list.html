@@ -1,0 +1,62 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">{% trans 'TrendAnalysis Listesi' %}</h1>
+            
+            <div class="mb-3">
+                <a href="{% url 'ai_assistant:trend_analysis_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> {% trans 'Yeni Ekle' %}
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>{% trans 'Ad' %}</th>
+                                    <th>{% trans 'Oluşturulma Tarihi' %}</th>
+                                    <th>{% trans 'İşlemler' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in object_list %}
+                                <tr>
+                                    <td>{{ object.id }}</td>
+                                    <td>{{ object }}</td>
+                                    <td>{{ object.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'ai_assistant:trend_analysis_detail' object.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'ai_assistant:trend_analysis_update' object.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'ai_assistant:trend_analysis_delete' object.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">{% trans 'Kayıt bulunamadı' %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

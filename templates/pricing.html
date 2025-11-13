@@ -1,0 +1,516 @@
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+
+{% block title %}Fiyatlandırma - FinAsis{% endblock %}
+{% block meta_description %}FinAsis için esnek ve şeffaf fiyatlandırma. Bireysel, profesyonel ve kurumsal ihtiyaçlarınıza özel planları keşfedin.{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pricing-hero {
+    position: relative;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 80px 0;
+    overflow: hidden;
+  }
+
+  .pricing-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .pricing-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .pricing-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .pricing-hero p {
+    font-size: 20px;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .pricing-cards {
+    margin-top: -60px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .pricing-card {
+    background: white;
+    border-radius: 32px;
+    padding: 48px 32px;
+    height: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15);
+  }
+
+  .pricing-card.featured {
+    border-color: #667eea;
+    transform: scale(1.05);
+  }
+
+  .pricing-card.featured:hover {
+    transform: scale(1.05) translateY(-12px);
+  }
+
+  .pricing-badge {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  }
+
+  .pricing-plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+
+  .pricing-plan-desc {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 24px;
+  }
+
+  .pricing-amount {
+    margin-bottom: 32px;
+  }
+
+  .pricing-price {
+    font-size: 56px;
+    font-weight: 900;
+    color: #1a202c;
+    line-height: 1;
+  }
+
+  .pricing-period {
+    font-size: 16px;
+    color: #718096;
+    font-weight: 600;
+  }
+
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 32px;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #4a5568;
+  }
+
+  .pricing-features i {
+    font-size: 20px;
+    color: #10b981;
+  }
+
+  .btn-pricing {
+    width: 100%;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-pricing-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+  }
+
+  .btn-pricing-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    color: white;
+  }
+
+  .btn-pricing-outline {
+    background: white;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    color: #667eea;
+  }
+
+  .btn-pricing-outline:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-color: #667eea;
+    color: #667eea;
+  }
+
+  .faq-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+    margin-top: 60px;
+  }
+
+  .faq-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1a202c;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .accordion-item {
+    border: none;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .accordion-button {
+    border-radius: 16px;
+    font-weight: 600;
+    color: #1a202c;
+    background: white;
+  }
+
+  .accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    color: #667eea;
+  }
+
+  .guarantee-section {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    margin-top: 40px;
+  }
+
+  .guarantee-icon {
+    font-size: 64px;
+    color: #10b981;
+    margin-bottom: 24px;
+  }
+
+  .guarantee-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 12px;
+  }
+
+  .guarantee-text {
+    font-size: 16px;
+    color: #718096;
+    line-height: 1.7;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="pricing-hero">
+  <div class="container pricing-hero-content">
+    <h1>Persona Bazlı FinAsis Planları</h1>
+    <p>
+      Giriş seviyesinden kurumsala kadar tüm finans ekipleri için şeffaf, persona odaklı paketler.
+    </p>
+  </div>
+</section>
+
+<!-- Pricing Cards -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4 pricing-cards">
+      <!-- Freemium Planı -->
+      <div class="col-lg-4 col-md-6">
+        <div class="pricing-card">
+          <h3 class="pricing-plan-name">Freemium</h3>
+          <p class="pricing-plan-desc">KOBİ, öğrenci ve giriş seviyesi CFO’lar için temel modüller</p>
+          <div class="pricing-amount">
+            <span class="pricing-price">₺0</span>
+            <div class="pricing-period">Her zaman ücretsiz</div>
+          </div>
+          <ul class="pricing-features">
+            <li><i class="bi bi-check-circle-fill"></i> Temel muhasebe ve raporlama (ayda 100 belge)</li>
+            <li><i class="bi bi-check-circle-fill"></i> Öğrenci görev paketi & Play görev motoru</li>
+            <li><i class="bi bi-check-circle-fill"></i> 3 kullanıcıya kadar persona desteği</li>
+            <li><i class="bi bi-check-circle-fill"></i> Topluluk & e-posta desteği</li>
+            <li><i class="bi bi-check-circle-fill"></i> API key önizlemesi (read-only)</li>
+          </ul>
+          <a href="{% url 'accounts:register' %}" class="btn btn-pricing-outline">
+            <i class="bi bi-rocket-takeoff me-2"></i>Ücretsiz Başla
+          </a>
+        </div>
+      </div>
+
+      <!-- Professional Planı -->
+      <div class="col-lg-4 col-md-6">
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Popüler Seçim</div>
+          <h3 class="pricing-plan-name" style="color: #667eea;">Profesyonel</h3>
+          <p class="pricing-plan-desc">Mali müşavirler, danışmanlar ve büyüyen KOBİ ekipleri için</p>
+          <div class="pricing-amount">
+            <span class="pricing-price" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">₺3.999</span>
+            <div class="pricing-period">/ay · €199 · $219<br><small>Yıllık ödemede 2 ay hediye</small></div>
+          </div>
+          <ul class="pricing-features">
+            <li><i class="bi bi-check-circle-fill"></i> Gelişmiş finans raporları, KPI ve nakit akış panosu</li>
+            <li><i class="bi bi-check-circle-fill"></i> AI Assistant (ayda 500 sorgu) + rol bazlı prompt kütüphanesi</li>
+            <li><i class="bi bi-check-circle-fill"></i> e-Fatura / e-Arşiv ve uyumluluk checklist otomasyonu</li>
+            <li><i class="bi bi-check-circle-fill"></i> Developer portal: 1 API key · 100 istek/dk, webhook test konsolu</li>
+            <li><i class="bi bi-check-circle-fill"></i> Öncelikli destek (48 saat SLA)</li>
+            <li><i class="bi bi-check-circle-fill"></i> LMS öğretmen modülü ve danışman paneli</li>
+          </ul>
+          <a href="{% url 'billing:plans' %}" class="btn btn-pricing-primary">
+            <i class="bi bi-star me-2"></i>Planı Seç
+          </a>
+        </div>
+      </div>
+
+      <!-- Enterprise Planı -->
+      <div class="col-lg-4 col-md-6">
+        <div class="pricing-card">
+          <h3 class="pricing-plan-name">Enterprise</h3>
+          <p class="pricing-plan-desc">Holding CFO’ları ve çoklu şirket yapıları için uçtan uca çözüm</p>
+          <div class="pricing-amount">
+            <span class="pricing-price" style="font-size: 40px;">Özelleştirilmiş</span>
+            <div class="pricing-period">İhtiyaçlarınıza göre</div>
+          </div>
+          <ul class="pricing-features">
+            <li><i class="bi bi-check-circle-fill"></i> Professional paket + multi-tenant, holding KPI kütüphanesi</li>
+            <li><i class="bi bi-check-circle-fill"></i> Blockchain audit, global vergi motoru, CI/CD entegrasyonu</li>
+            <li><i class="bi bi-check-circle-fill"></i> Sınırsız API key, SSO (Keycloak/Azure AD), özel rate-limit</li>
+            <li><i class="bi bi-check-circle-fill"></i> Özel CSM, 4 saat SLA, 7/24 kritik destek</li>
+            <li><i class="bi bi-check-circle-fill"></i> Yerinde kurulum, eğitim ve danışmanlık</li>
+            <li><i class="bi bi-check-circle-fill"></i> Marketplace entegrasyonları ve partner yönetimi</li>
+          </ul>
+          <a href="{% url 'contact' %}" class="btn btn-pricing-outline">
+            <i class="bi bi-envelope me-2"></i>Teklif Al
+          </a>
+        </div>
+      </div>
+
+      <!-- Academy Add-on -->
+      <div class="col-lg-4 col-md-6">
+        <div class="pricing-card">
+          <h3 class="pricing-plan-name">FinAsis Academy</h3>
+          <p class="pricing-plan-desc">Okullar, üniversiteler ve kurumsal eğitim ekipleri için modüler paket</p>
+          <div class="pricing-amount">
+            <span class="pricing-price">₺1.250</span>
+            <div class="pricing-period">/kurum-ay · €69 · $79</div>
+          </div>
+          <ul class="pricing-features">
+            <li><i class="bi bi-check-circle-fill"></i> Öğretmen rol scriptleri & ders bazlı prompt kütüphanesi</li>
+            <li><i class="bi bi-check-circle-fill"></i> Görev motoru ile oyun & finans müfredatı entegrasyonu</li>
+            <li><i class="bi bi-check-circle-fill"></i> 200 öğrenci + 20 eğitmen lisansı (ek paket alınabilir)</li>
+            <li><i class="bi bi-check-circle-fill"></i> Sertifikalı kariyer rotaları ve canlı atölyeler</li>
+            <li><i class="bi bi-check-circle-fill"></i> Eğitim danışmanı ve aylık canlı rehberlik oturumları</li>
+          </ul>
+          <a href="{% url 'resources_academy' %}" class="btn btn-pricing-outline">
+            <i class="bi bi-mortarboard me-2"></i>Detayları Gör
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h2 class="h4 fw-bold mb-3 text-center">Rol Bazlı Modül Haritası</h2>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Rol / Persona</th>
+              <th>Freemium</th>
+              <th>Professional</th>
+              <th>Enterprise</th>
+              <th>Academy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CFO & Finans Yöneticisi</strong></td>
+              <td>Temel dashboard, KPI önizleme</td>
+              <td>Gelişmiş raporlar, AI skriptleri</td>
+              <td>Holding düzeyi rapor & vergi motoru</td>
+              <td>Mentor oturumları, vaka kütüphanesi</td>
+            </tr>
+            <tr>
+              <td><strong>Muhasebeci / Mali Müşavir</strong></td>
+              <td>—</td>
+              <td>Uyumluluk checklist, AI otomasyonu</td>
+              <td>Blockchain audit, bölgesel vergi paketleri</td>
+              <td>Canlı vaka eğitimleri</td>
+            </tr>
+            <tr>
+              <td><strong>Öğretmen / Danışman</strong></td>
+              <td>Kısıtlı LMS + oyun modülü</td>
+              <td>Tam LMS + danışman raporları</td>
+              <td>Kurumsal eğitim portalı</td>
+              <td>Ders scriptleri, görev motoru, sertifikasyon</td>
+            </tr>
+            <tr>
+              <td><strong>Öğrenci / Stajyer</strong></td>
+              <td>Öğrenme içerikleri, temel görevler</td>
+              <td>Sandbox, oyun görevleri, AI çalışma planı</td>
+              <td>Global program, kariyer koçluğu</td>
+              <td>Sertifikalı kariyer rotaları & hackathonlar</td>
+            </tr>
+            <tr>
+              <td><strong>Geliştirici / Partner</strong></td>
+              <td>API önizleme</td>
+              <td>Developer portal, webhook testi</td>
+              <td>Marketplace, sınırsız key, SLA</td>
+              <td>Sandbox API, akademi hackathonları</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Guarantee Box -->
+    <div class="guarantee-section">
+      <div class="guarantee-icon">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <h3 class="guarantee-title">30 Gün Memnuniyet Garantisi</h3>
+      <p class="guarantee-text">
+        Verileriniz KVKK uyumlu olarak güvenli bir şekilde saklanır. Memnun kalmazsanız, 
+        ilk 30 gün içinde sorgusuz sualsiz iade garantisi sunuyoruz. Hiçbir risk yok!
+      </p>
+      <div class="mt-4">
+        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+          <i class="bi bi-patch-check me-1"></i>KVKK Uyumlu
+        </span>
+        <span class="badge ms-2" style="background: rgba(102, 126, 234, 0.1); color: #667eea; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+          <i class="bi bi-shield-lock me-1"></i>Güvenli Ödeme
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+  <div class="container">
+    <h2 class="faq-title">Sık Sorulan Sorular</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                Deneme sürümü var mı?
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Evet! Profesyonel planımız için 14 günlük tamamen ücretsiz deneme sunuyoruz. 
+                Kredi kartı bilgisi gerekmez, otomatik yenileme yoktur.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                Planımı istediğim zaman değiştirebilir miyim?
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Kesinlikle! Planınızı istediğiniz zaman yükseltebilir veya düşürebilirsiniz. 
+                Değişiklikler bir sonraki fatura döneminizde yansıtılır. Kalan süreniz için orantılı iade alırsınız.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                Kurumsal plan neleri içeriyor?
+              </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Kurumsal plan, işletmenizin özel ihtiyaçlarına göre şekillendirilir. 
+                Özel entegrasyonlar, yerinde eğitim, size özel danışman ve SLA garantisi gibi 
+                avantajlar sunar. Detaylı bilgi için bizimle iletişime geçin.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                Ödeme yöntemleri nelerdir?
+              </button>
+            </h2>
+            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Kredi kartı, banka kartı ve havale/EFT ile ödeme alıyoruz. 
+                Kurumsal müşterilerimiz için özel fatura ve ödeme koşulları sunuyoruz.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                İptal politikanız nasıl?
+              </button>
+            </h2>
+            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Aboneliğinizi istediğiniz zaman iptal edebilirsiniz. İlk 30 gün içinde 
+                iptal ederseniz tam iade alırsınız. Sonrasında kalan süre için orantılı iade yapılır.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center">
+      <h3 class="h3 fw-bold mb-3">Hala kararsız mısınız?</h3>
+      <p class="lead text-muted mb-4">Ekibimizle görüşün, size en uygun planı bulalım.</p>
+      <a href="{% url 'contact' %}" class="btn btn-pricing-primary" style="padding: 16px 48px;">
+        <i class="bi bi-chat-dots me-2"></i>Bizimle İletişime Geçin
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

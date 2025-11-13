@@ -1,0 +1,92 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Banka İşlemleri" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Banka İşlemleri" %}</h1>
+</div>
+
+<!-- Filtre -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="account" class="form-select">
+                    <option value="">{% trans "Tüm Hesaplar" %}</option>
+                    {% for acc in accounts %}
+                    <option value="{{ acc.id }}" {% if account_filter == acc.id|stringformat:"s" %}selected{% endif %}>
+                        {{ acc.account_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">{% trans "Tüm İşlemler" %}</option>
+                    <option value="CREDIT" {% if transaction_type_filter == 'CREDIT' %}selected{% endif %}>{% trans "Gelen" %}</option>
+                    <option value="DEBIT" {% if transaction_type_filter == 'DEBIT' %}selected{% endif %}>{% trans "Giden" %}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">{% trans "Filtrele" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- İşlemler -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">{% trans "Tarih" %}</th>
+                        <th>{% trans "Açıklama" %}</th>
+                        <th>{% trans "Hesap" %}</th>
+                        <th>{% trans "Kategori" %}</th>
+                        <th class="text-end pe-4">{% trans "Tutar" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td class="ps-4">
+                            {{ transaction.transaction_date|date:"d.m.Y" }}<br>
+                            <small class="text-muted">{{ transaction.transaction_date|time:"H:i" }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ transaction.description|truncatewords:10 }}</strong><br>
+                            {% if transaction.reference_number %}
+                            <small class="text-muted">Ref: {{ transaction.reference_number }}</small>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-light text-dark">{{ transaction.account.account_name }}</span></td>
+                        <td>
+                            <span class="badge bg-{% if transaction.transaction_type == 'CREDIT' %}success{% else %}danger{% endif %}">
+                                {{ transaction.get_transaction_type_display }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <strong class="{% if transaction.transaction_type == 'CREDIT' %}text-success{% else %}text-danger{% endif %}">
+                                {% if transaction.transaction_type == 'CREDIT' %}+{% else %}-{% endif %}₺{{ transaction.amount|floatformat:2 }}
+                            </strong>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-receipt display-4 text-muted d-block mb-3"></i>
+                            <p class="text-muted">{% trans "İşlem bulunmuyor" %}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

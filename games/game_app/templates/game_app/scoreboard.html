@@ -1,0 +1,33 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Skor Tablosu{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4">Skor Tablosu</h1>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kullanıcı</th>
+            <th>Skor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in scores %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ row.user }}</td>
+            <td>{{ row.score }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center py-4 text-muted">Henüz skor yok.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

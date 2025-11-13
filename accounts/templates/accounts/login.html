@@ -1,0 +1,305 @@
+{% extends 'core_ui/base.html' %} {% load i18n static %} {% block title %}{%
+trans 'Giriş Yap' %} - FinAsis{% endblock %} {% block extra_css %}
+<style>
+  .auth-container {
+    min-height: 100vh;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary) 0%,
+      var(--brand-accent) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .auth-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+      repeat;
+  }
+  .auth-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .auth-logo {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  .form-floating-modern {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .form-floating-modern .form-control {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+  .form-floating-modern .form-control:focus {
+    background: white;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.1);
+  }
+  .form-floating-modern label {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    background: transparent;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    color: #64748b;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  .form-floating-modern .form-control:focus + label,
+  .form-floating-modern .form-control:not(:placeholder-shown) + label {
+    top: 0;
+    font-size: 0.75rem;
+    color: var(--brand-primary);
+    background: white;
+  }
+  .btn-auth {
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border: none;
+    border-radius: 12px;
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--brand-primary-rgb), 0.4);
+    color: white;
+  }
+  .btn-auth:active {
+    transform: translateY(0);
+  }
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+  .auth-divider::before,
+  .auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+  }
+  .auth-divider span {
+    margin: 0 1rem;
+    background: white;
+    padding: 0 0.5rem;
+  }
+  .auth-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.5rem 0;
+  }
+  .auth-links a {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  .auth-links a:hover {
+    color: var(--brand-accent);
+  }
+  .alert-modern {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+</style>
+{% endblock %} {% block main_class %} d-none{% endblock %} {% block content %}
+<div class="auth-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5 col-xl-4">
+        <div class="auth-card">
+          <div class="p-4 p-md-5">
+            <div class="auth-header">
+              <div class="auth-logo">
+                <img
+                  src="{% static 'brand/logo-fa.svg' %}"
+                  alt="FinAsis"
+                  width="32"
+                  height="32"
+                  class="text-white"
+                />
+              </div>
+              <h1 class="h4 fw-bold mb-2">{% trans 'Tekrar Hoş Geldiniz' %}</h1>
+              <p class="text-muted small mb-0">
+                {% trans 'Hesabınıza giriş yapın' %}
+              </p>
+            </div>
+
+            <form method="post" novalidate>
+              {% csrf_token %} {% if form.non_field_errors %}
+              <div class="alert-modern">
+                {% for error in form.non_field_errors %}
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  {{ error }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %} {% for field in form %}
+              <div class="form-floating-modern">
+                {{ field }}
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.errors %}
+                <div class="invalid-feedback d-block mt-1">
+                  {% for error in field.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %} {% if field.help_text %}
+                <div class="form-text small mt-1">{{ field.help_text }}</div>
+                {% endif %}
+              </div>
+              {% endfor %}
+
+              <div class="auth-links">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="rememberMe"
+                  />
+                  <label
+                    class="form-check-label small text-muted"
+                    for="rememberMe"
+                  >
+                    {% trans 'Beni hatırla' %}
+                  </label>
+                </div>
+                <a href="{% url 'password_reset' %}"
+                  >{% trans 'Şifremi Unuttum?' %}</a
+                >
+              </div>
+
+              <button type="submit" class="btn btn-auth w-100 mb-3">
+                <i class="bi bi-box-arrow-in-right me-2"></i>{% trans 'Giriş
+                Yap' %}
+              </button>
+            </form>
+
+            <div class="auth-divider">
+              <span>{% trans 'veya' %}</span>
+            </div>
+
+            <div class="text-center">
+              <p class="text-muted small mb-3">
+                {% trans 'Henüz hesabınız yok mu?' %}
+              </p>
+              <a
+                href="{% url 'accounts:register' %}"
+                class="btn btn-outline-primary w-100"
+              >
+                <i class="bi bi-person-plus me-2"></i>{% trans 'Ücretsiz Hesap
+                Oluştur' %}
+              </a>
+            </div>
+
+            <div class="text-center mt-4">
+              <small class="text-muted">
+                {% trans 'Giriş yaparak' %}
+                <a href="{% url 'terms' %}" class="text-decoration-none"
+                  >{% trans 'Kullanım Şartları' %}</a
+                >
+                {% trans 've' %}
+                <a href="{% url 'privacy' %}" class="text-decoration-none"
+                  >{% trans 'Gizlilik Politikası' %}</a
+                >{% trans 'nı kabul etmiş olursunuz.' %}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Badge -->
+        <div class="text-center mt-4">
+          <div
+            class="d-inline-flex align-items-center gap-2 px-3 py-2 bg-white bg-opacity-20 rounded-pill text-white"
+          >
+            <i class="bi bi-shield-check"></i>
+            <small>{% trans '256-bit SSL ile güvende' %}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Enhanced form interactions
+  document.addEventListener("DOMContentLoaded", function () {
+    // Auto-focus first input
+    const firstInput = document.querySelector(".form-control");
+    if (firstInput) firstInput.focus();
+
+    // Add loading state on form submit
+    const form = document.querySelector("form");
+    const submitBtn = document.querySelector(".btn-auth");
+
+    form.addEventListener("submit", function () {
+      submitBtn.innerHTML =
+        '<i class="bi bi-hourglass-split me-2"></i>{% trans "Giriş yapılıyor..." %}';
+      submitBtn.disabled = true;
+    });
+
+    // Handle Enter key
+    document.addEventListener("keydown", function (e) {
+      if (
+        e.key === "Enter" &&
+        document.activeElement.matches(".form-control")
+      ) {
+        form.submit();
+      }
+    });
+  });
+</script>
+{% endblock %}

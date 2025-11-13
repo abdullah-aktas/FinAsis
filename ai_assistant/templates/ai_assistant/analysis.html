@@ -1,0 +1,155 @@
+{% extends "ai_assistant/base_ai_assistant.html" %}
+{% load i18n %}
+{% block ai_title %}{% trans 'Finansal Analiz' %}{% endblock %}
+{% block ai_subtitle %}{% trans 'Finansal metrikleri girin, hızlı oran ve öneri üretin' %}{% endblock %}
+{% block ai_content %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-ai mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-ai">Finansal Veri Girişi</h5>
+                <form id="analysis-form">
+                    <div class="mb-3">
+                        <label for="company-name" class="form-label">Şirket Adı</label>
+                        <input type="text" class="form-control" id="company-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="revenue" class="form-label">Gelir (TL)</label>
+                        <input type="number" class="form-control" id="revenue" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenses" class="form-label">Giderler (TL)</label>
+                        <input type="number" class="form-control" id="expenses" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assets" class="form-label">Varlıklar (TL)</label>
+                        <input type="number" class="form-control" id="assets" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="liabilities" class="form-label">Yükümlülükler (TL)</label>
+                        <input type="number" class="form-control" id="liabilities" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-chart-line"></i> {% trans 'Analiz Et' %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-ai mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-ai">{% trans 'Analiz Sonuçları' %}</h5>
+                <div id="analysis-results">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                        <p>{% trans 'Analiz sonuçları burada görüntülenecek' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-ai">
+            <div class="card-body">
+                <h5 class="card-title text-ai">{% trans 'Öneriler' %}</h5>
+                <div id="recommendations">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-lightbulb fa-3x mb-3"></i>
+                        <p>{% trans 'Finansal öneriler burada görüntülenecek' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('analysis-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Form verilerini al
+    const formData = {
+        companyName: document.getElementById('company-name').value,
+        revenue: parseFloat(document.getElementById('revenue').value),
+        expenses: parseFloat(document.getElementById('expenses').value),
+        assets: parseFloat(document.getElementById('assets').value),
+        liabilities: parseFloat(document.getElementById('liabilities').value)
+    };
+    
+    // Backend'e veri gönder
+    fetch('/ai-assistant/api/financial-analysis/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            company_name: formData.companyName,
+            revenue: formData.revenue,
+            expenses: formData.expenses,
+            assets: formData.assets,
+            liabilities: formData.liabilities
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        // Başarılı dönüş varsayımıyla temel göstergeleri oluştur
+        const profit = formData.revenue - formData.expenses;
+        const equity = formData.assets - formData.liabilities;
+    
+    // i18n message constants to avoid template parsing issues
+    const MSG_PROFIT_POS = "{% trans 'Şirketiniz karlı bir dönem geçiriyor.' %}";
+    const MSG_PROFIT_NEG = "{% trans 'Şirketiniz zarar ediyor, giderleri azaltmayı düşünebilirsiniz.' %}";
+    const MSG_EQUITY_POS = "{% trans 'Finansal yapınız sağlıklı görünüyor.' %}";
+    const MSG_EQUITY_NEG = "{% trans 'Yükümlülükleriniz varlıklarınızdan fazla, acil önlem alınmalı.' %}";
+
+    document.getElementById('analysis-results').innerHTML = `
+        <div class="mb-4">
+            <h6 class="text-ai">{% trans 'Temel Finansal Göstergeler' %}</h6>
+            <div class="row">
+                <div class="col-6">
+                    <p class="mb-1">{% trans 'Net Kar' %}:</p>
+                    <h4 class="${profit >= 0 ? 'text-success' : 'text-danger'}">${profit.toLocaleString('tr-TR')} TL</h4>
+                </div>
+                <div class="col-6">
+                    <p class="mb-1">{% trans 'Özsermaye' %}:</p>
+                    <h4 class="${equity >= 0 ? 'text-success' : 'text-danger'}">${equity.toLocaleString('tr-TR')} TL</h4>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h6 class="text-ai">{% trans 'Finansal Oranlar' %}</h6>
+            <div class="row">
+                <div class="col-6">
+                    <p class="mb-1">{% trans 'Kar Marjı' %}:</p>
+                    <h4>${((profit / formData.revenue) * 100).toFixed(2)}%</h4>
+                </div>
+                <div class="col-6">
+                    <p class="mb-1">{% trans 'Borç/Özsermaye' %}:</p>
+                    <h4>${(formData.liabilities / equity).toFixed(2)}</h4>
+                </div>
+            </div>
+        </div>
+    `;
+    
+        document.getElementById('recommendations').innerHTML = `
+        <div class="alert ${profit >= 0 ? 'alert-success' : 'alert-warning'}">
+            <h6 class="alert-heading">{% trans 'Genel Değerlendirme' %}</h6>
+            <p>${profit >= 0 ? MSG_PROFIT_POS : MSG_PROFIT_NEG}</p>
+        </div>
+        <div class="alert ${equity >= 0 ? 'alert-success' : 'alert-danger'}">
+            <h6 class="alert-heading">{% trans 'Finansal Yapı' %}</h6>
+            <p>${equity >= 0 ? MSG_EQUITY_POS : MSG_EQUITY_NEG}</p>
+        </div>
+    `;
+    })
+    .catch(() => {
+        // Hata durumunda local hesapla göster
+        const profit = formData.revenue - formData.expenses;
+        const equity = formData.assets - formData.liabilities;
+    document.getElementById('analysis-results').innerHTML = `<div class="alert alert-warning">{% trans 'Sunucuya bağlanılamadı, yerel hesaplama gösteriliyor.' %}</div>`;
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

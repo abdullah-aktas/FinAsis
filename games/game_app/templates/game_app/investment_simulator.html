@@ -1,0 +1,452 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Yatırım Simülatörü" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.invest-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+.investment-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+.investment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+.asset-item {
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.asset-item:hover {
+    background: #f8f9fa;
+}
+.risk-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+.portfolio-chart {
+    height: 300px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero -->
+    <div class="invest-hero text-center">
+        <h1 class="fw-bold mb-2">
+            <i class="bi bi-currency-dollar me-2"></i>
+            {% trans "Yatırım Simülatörü" %}
+        </h1>
+        <p class="mb-0">{% trans "Yatırım stratejilerini test et ve portföyünü büyüt!" %}</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Portfolio Summary -->
+        <div class="col-12">
+            <div class="card investment-card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h6 class="text-muted">{% trans "Toplam Değer" %}</h6>
+                            <h3 class="fw-bold" id="total-value">₺100,000</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted">{% trans "Kar/Zarar" %}</h6>
+                            <h3 class="fw-bold" id="profit-loss">₺0</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted">{% trans "Getiri" %}</h6>
+                            <h3 class="fw-bold" id="return-rate">0%</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted">{% trans "Risk Seviyesi" %}</h6>
+                            <h3 class="fw-bold" id="risk-level">Düşük</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Assets -->
+        <div class="col-lg-8">
+            <div class="card investment-card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        {% trans "Yatırım Araçları" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="assets-list">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Chart -->
+            <div class="card investment-card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart me-2"></i>
+                        {% trans "Portföy Dağılımı" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="portfolio-chart" class="portfolio-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Portfolio -->
+        <div class="col-lg-4">
+            <div class="card investment-card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase me-2"></i>
+                        {% trans "Portföyüm" %}
+                    </h5>
+                </div>
+                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                    <div id="my-portfolio">
+                        <p class="text-muted text-center">{% trans "Henüz yatırım yok" %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card investment-card mt-3">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>
+                        {% trans "İstatistikler" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{% trans "Hisse Senedi" %}</span>
+                            <span id="stock-percentage">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div id="stock-bar" class="progress-bar bg-primary" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{% trans "Tahvil" %}</span>
+                            <span id="bond-percentage">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div id="bond-bar" class="progress-bar bg-success" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{% trans "Altın" %}</span>
+                            <span id="gold-percentage">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div id="gold-bar" class="progress-bar bg-warning" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{% trans "Kripto" %}</span>
+                            <span id="crypto-percentage">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div id="crypto-bar" class="progress-bar bg-danger" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const assets = [
+    { id: 1, name: 'Hisse Senedi (BIST)', type: 'stock', risk: 'Orta', return: 15, price: 100, icon: 'graph-up' },
+    { id: 2, name: 'Devlet Tahvili', type: 'bond', risk: 'Düşük', return: 8, price: 1000, icon: 'shield-check' },
+    { id: 3, name: 'Altın', type: 'gold', risk: 'Düşük', return: 10, price: 1500, icon: 'gem' },
+    { id: 4, name: 'Kripto Para (BTC)', type: 'crypto', risk: 'Yüksek', return: 25, price: 500, icon: 'currency-bitcoin' },
+    { id: 5, name: 'Yatırım Fonu', type: 'fund', risk: 'Orta', return: 12, price: 200, icon: 'pie-chart' },
+    { id: 6, name: 'Gayrimenkul Fonu', type: 'realestate', risk: 'Orta', return: 14, price: 5000, icon: 'building' }
+];
+
+let capital = 100000;
+let portfolio = {};
+let chartInstance = null;
+let marketNoise = 1.0;
+
+function init() {
+    // Kişiselleştirme: market_noise'i çek
+    fetch('/games/api/personalize/?game=investment-simulator')
+        .then(r => r.json())
+        .then(data => {
+            const p = (data && data.data && data.data.params) || {};
+            if (typeof p.market_noise === 'number') {
+                marketNoise = p.market_noise;
+            }
+        })
+        .finally(() => {
+            renderAssets();
+            updatePortfolio();
+            renderChart();
+        });
+}
+
+function renderAssets() {
+    const container = document.getElementById('assets-list');
+    container.innerHTML = assets.map(asset => {
+        const riskColor = asset.risk === 'Düşük' ? 'success' : asset.risk === 'Orta' ? 'warning' : 'danger';
+        return `
+            <div class="asset-item" onclick="showInvestModal(${asset.id})">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-${asset.icon} display-6 text-primary"></i>
+                        <div>
+                            <h6 class="mb-1">${asset.name}</h6>
+                            <div class="d-flex gap-2">
+                                <span class="risk-badge bg-${riskColor} text-white">
+                                    Risk: ${asset.risk}
+                                </span>
+                                <span class="risk-badge bg-info text-white">
+                                    Getiri: %${asset.return}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">₺${asset.price.toLocaleString('tr-TR')}</div>
+                        <button class="btn btn-sm btn-primary mt-1" onclick="invest(${asset.id}, event)">
+                            <i class="bi bi-plus-circle"></i> Yatırım Yap
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function invest(assetId, event) {
+    if (event) event.stopPropagation();
+    
+    const asset = assets.find(a => a.id === assetId);
+    const amount = prompt(`${asset.name} için kaç adet almak istersiniz?\n(Fiyat: ₺${asset.price})`);
+    
+    if (!amount || amount <= 0) return;
+    
+    const totalCost = asset.price * amount;
+    
+    if (totalCost > capital) {
+        alert('Yetersiz sermaye!');
+        return;
+    }
+    
+    capital -= totalCost;
+    
+    if (!portfolio[assetId]) {
+        portfolio[assetId] = { asset: asset, quantity: 0, cost: 0 };
+    }
+    
+    portfolio[assetId].quantity += parseInt(amount);
+    portfolio[assetId].cost += totalCost;
+    
+    updatePortfolio();
+    showNotification(`${amount} adet ${asset.name} satın alındı!`, 'success');
+}
+
+function updatePortfolio() {
+    let totalValue = capital;
+    let profitLoss = 0;
+    
+    // Calculate portfolio value
+    for (const key in portfolio) {
+        const item = portfolio[key];
+        const currentValue = item.asset.price * item.quantity;
+        totalValue += currentValue;
+        profitLoss += (currentValue - item.cost);
+    }
+    
+    const returnRate = ((totalValue - 100000) / 100000 * 100).toFixed(2);
+    
+    // Update UI
+    document.getElementById('total-value').textContent = `₺${totalValue.toLocaleString('tr-TR')}`;
+    document.getElementById('profit-loss').textContent = `₺${profitLoss.toLocaleString('tr-TR')}`;
+    document.getElementById('profit-loss').className = `fw-bold ${profitLoss >= 0 ? 'text-success' : 'text-danger'}`;
+    document.getElementById('return-rate').textContent = `${returnRate}%`;
+    document.getElementById('return-rate').className = `fw-bold ${returnRate >= 0 ? 'text-success' : 'text-danger'}`;
+    
+    // Calculate risk level
+    let riskScore = 0;
+    let totalInvested = 0;
+    for (const key in portfolio) {
+        const item = portfolio[key];
+        const value = item.asset.price * item.quantity;
+        totalInvested += value;
+        const riskValue = item.asset.risk === 'Düşük' ? 1 : item.asset.risk === 'Orta' ? 2 : 3;
+        riskScore += (value / totalInvested) * riskValue;
+    }
+    
+    const riskLevel = riskScore < 1.5 ? 'Düşük' : riskScore < 2.5 ? 'Orta' : 'Yüksek';
+    document.getElementById('risk-level').textContent = riskLevel;
+    
+    // Render portfolio items
+    renderPortfolioItems();
+    
+    // Update distribution bars
+    updateDistributionBars();
+    
+    // Update chart
+    if (chartInstance) {
+        updateChart();
+    }
+}
+
+function renderPortfolioItems() {
+    const container = document.getElementById('my-portfolio');
+    
+    if (Object.keys(portfolio).length === 0) {
+        container.innerHTML = '<p class="text-muted text-center">Henüz yatırım yok</p>';
+        return;
+    }
+    
+    container.innerHTML = Object.values(portfolio).map(item => {
+        const currentValue = item.asset.price * item.quantity;
+        const profit = currentValue - item.cost;
+        const profitPercent = ((profit / item.cost) * 100).toFixed(2);
+        
+        return `
+            <div class="asset-item mb-2">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">${item.asset.name}</h6>
+                        <small class="text-muted">${item.quantity} adet</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">₺${currentValue.toLocaleString('tr-TR')}</div>
+                        <small class="${profit >= 0 ? 'text-success' : 'text-danger'}">
+                            ${profit >= 0 ? '+' : ''}₺${profit.toFixed(0)} (${profitPercent}%)
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateDistributionBars() {
+    let totalValue = capital;
+    const distribution = { stock: 0, bond: 0, gold: 0, crypto: 0 };
+    
+    for (const key in portfolio) {
+        const item = portfolio[key];
+        const value = item.asset.price * item.quantity;
+        totalValue += value;
+        distribution[item.asset.type] = (distribution[item.asset.type] || 0) + value;
+    }
+    
+    for (const type in distribution) {
+        const percentage = totalValue > 0 ? (distribution[type] / totalValue * 100).toFixed(1) : 0;
+        document.getElementById(`${type}-percentage`).textContent = `${percentage}%`;
+        document.getElementById(`${type}-bar`).style.width = `${percentage}%`;
+    }
+}
+
+function renderChart() {
+    const ctx = document.getElementById('portfolio-chart').getContext('2d');
+    
+    chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Nakit'],
+            datasets: [{
+                data: [100],
+                backgroundColor: ['#6c757d']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function updateChart() {
+    const labels = ['Nakit'];
+    const data = [capital];
+    const colors = ['#6c757d'];
+    
+    for (const key in portfolio) {
+        const item = portfolio[key];
+        const value = item.asset.price * item.quantity;
+        labels.push(item.asset.name);
+        data.push(value);
+        
+        const colorMap = {
+            stock: '#0d6efd',
+            bond: '#198754',
+            gold: '#ffc107',
+            crypto: '#dc3545',
+            fund: '#0dcaf0',
+            realestate: '#6f42c1'
+        };
+        colors.push(colorMap[item.asset.type] || '#6c757d');
+    }
+    
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = data;
+    chartInstance.data.datasets[0].backgroundColor = colors;
+    chartInstance.update();
+}
+
+function showNotification(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+// Simulate market changes
+setInterval(() => {
+    assets.forEach(asset => {
+        const volatility = asset.risk === 'Düşük' ? 0.02 : asset.risk === 'Orta' ? 0.05 : 0.1;
+        asset.price *= (1 + (Math.random() - 0.5) * volatility * marketNoise);
+    });
+    renderAssets();
+    updatePortfolio();
+}, 5000);
+
+init();
+</script>
+{% endblock %}
+{% endblock %}

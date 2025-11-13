@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Nakit Akış Tahmini" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Nakit Akış Tahmini" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">{% trans "Nakit Akış Tahminleri" %}</h1>
+        <p class="text-gray-600">{% trans "Gelecek dönem nakit akışlarınızı planlayın ve yönetin" %}</p>
+    </div>
+
+    <!-- Uyarı Kartları -->
+    {% if at_risk_forecasts %}
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+        <div class="flex items-start">
+            <svg class="w-6 h-6 text-red-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <h3 class="text-red-900 font-semibold mb-1">{% trans "Nakit Sıkışıklığı Riski!" %}</h3>
+                <p class="text-red-700">
+                    {% blocktrans count counter=at_risk_forecasts.count %}
+                    {{ counter }} dönem için nakit sıkışıklığı riski tespit edildi.
+                    {% plural %}
+                    {{ counter }} dönem için nakit sıkışıklığı riski tespit edildi.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tahmin Tablosu -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Dönemsel Tahminler" %}</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Dönem" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Giriş" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Çıkış" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Net" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Bakiye" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Durum" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for forecast in forecasts %}
+                    <tr {% if forecast.cash_shortage_risk %}class="bg-red-50"{% endif %}>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ forecast.forecast_date|date:"F Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">
+                            ₺{{ forecast.expected_inflows|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                            ₺{{ forecast.expected_outflows|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold {% if forecast.net_cash_flow >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ₺{{ forecast.net_cash_flow|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₺{{ forecast.ending_cash_balance|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if forecast.cash_shortage_risk %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                {% trans "Risk" %}
+                            </span>
+                            {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                {% trans "Sağlıklı" %}
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            {% trans "Henüz nakit akış tahmini bulunmuyor" %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

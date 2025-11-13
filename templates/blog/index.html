@@ -1,0 +1,64 @@
+{% extends 'core_ui/base.html' %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "FinAsis Blog" %}{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg, #0d3b66 0%, #0aae94 100%);">
+  <div class="container text-white">
+    <span class="badge bg-light text-primary mb-3 px-3 py-2">{% trans "Blog & İçgörüler" %}</span>
+    <h1 class="display-5 fw-bold mb-3">{% trans "Finansal dönüşüm için uzman yazılar" %}</h1>
+    <p class="lead mb-0">
+      {% blocktrans %}
+      FinAsis ürün, güvenlik ve veri yönetişimi ekiplerinden makalelerle; finans, uyumluluk, yapay zeka ve oyunlaştırma
+      trendlerini keşfedin.
+      {% endblocktrans %}
+    </p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <article class="card-modern p-4 h-100">
+          <h2 class="h4 fw-semibold text-primary mb-3">{% trans "Öne çıkan konu başlıkları" %}</h2>
+          <ul class="list-unstyled fs-6">
+            <li class="mb-3"><i class="bi bi-robot text-success me-2"></i>{% trans "Finansal raporlamada yapay zeka kullanımı" %}</li>
+            <li class="mb-3"><i class="bi bi-shield-check text-success me-2"></i>{% trans "MASAK ve KVKK için pratik uyumluluk rehberleri" %}</li>
+            <li class="mb-3"><i class="bi bi-columns-gap text-success me-2"></i>{% trans "Çok şirketli yapıların konsolide dashboard tasarımları" %}</li>
+            <li class="mb-3"><i class="bi bi-controller text-success me-2"></i>{% trans "Oyunlaştırma ile çalışan finansal farkındalığını artırma" %}</li>
+          </ul>
+          <p class="text-muted">
+            {% blocktrans %}
+            Yakında tüm makaleleri RSS ve e-posta bülteni üzerinden paylaşacağız. Abone olarak yeni içeriklerden haberdar olabilirsiniz.
+            {% endblocktrans %}
+          </p>
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="card-modern p-4 h-100">
+          <h3 class="h5 fw-semibold text-primary mb-3">{% trans "Bültene kayıt" %}</h3>
+          <p class="text-muted">
+            {% blocktrans %}Yeni içerikler yayınlandığında e-posta almak için bültene kaydolun.{% endblocktrans %}
+          </p>
+          <form action="{% url 'contact' %}" method="get">
+            <div class="input-group mb-3">
+              <input type="email" name="email" class="form-control" placeholder="ornek@firma.com" required>
+              <button class="btn btn-primary" type="submit">{% trans "Gönder" %}</button>
+            </div>
+          </form>
+          <h4 class="h6 fw-semibold text-primary mt-4 mb-2">{% trans "Popüler etiketler" %}</h4>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge text-bg-light text-primary px-3 py-2">#finans</span>
+            <span class="badge text-bg-light text-primary px-3 py-2">#uyumluluk</span>
+            <span class="badge text-bg-light text-primary px-3 py-2">#yapayzeka</span>
+            <span class="badge text-bg-light text-primary px-3 py-2">#oyunlaştırma</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

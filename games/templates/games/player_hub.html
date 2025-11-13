@@ -1,0 +1,572 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Oyuncu Merkezi - FinAsis E-Spor{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Tam Ekran Oyun Modu */
+  body.game-fullscreen header,
+  body.game-fullscreen footer,
+  body.game-fullscreen #system-messages,
+  body.game-fullscreen .breadcrumbs {
+    display: none !important;
+  }
+
+  body.game-fullscreen main {
+    padding-top: 0 !important;
+  }
+
+  /* Toggle Butonu */
+  .ui-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+  }
+
+  .ui-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(236, 72, 153, 0.7);
+  }
+
+  .ui-toggle-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Tooltip */
+  .ui-toggle-btn::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .ui-toggle-btn:hover::before {
+    opacity: 1;
+  }
+
+  .esport-hero {
+    background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .esport-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 60%);
+  }
+
+  .profile-card {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(190, 24, 93, 0.05));
+    border-radius: 20px;
+    padding: 24px;
+    border: 2px solid rgba(236, 72, 153, 0.2);
+  }
+
+  .xp-bar {
+    height: 24px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    transition: width 0.5s ease;
+    position: relative;
+  }
+
+  .quest-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #f59e0b;
+    transition: all 0.3s ease;
+  }
+
+  .quest-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(245,158,11,0.15);
+  }
+
+  .tournament-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border-top: 3px solid #667eea;
+  }
+
+  .tournament-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+  }
+
+  .match-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .rank-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .rank-bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; }
+  .rank-silver { background: linear-gradient(135deg, #C0C0C0, #808080); color: white; }
+  .rank-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+  .rank-platinum { background: linear-gradient(135deg, #E5E4E2, #BCC6CC); color: #1a202c; }
+  .rank-diamond { background: linear-gradient(135deg, #B9F2FF, #00C6FF); color: #1a202c; }
+  .rank-master { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+  .rank-grandmaster { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+  .rank-challenger { background: linear-gradient(135deg, #FFD700, #FF6B6B); color: white; animation: glow 2s infinite; }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Hero -->
+  <div class="esport-hero">
+    <div class="container" style="position: relative; z-index: 2;">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 8px;">
+            <i class="bi bi-controller me-2"></i>Oyuncu Merkezi
+          </h1>
+          <p style="font-size: 16px; opacity: 0.95; margin-bottom: 16px;">
+            Hoşgeldin, <strong>{{ request.user.username }}</strong>! Bugün {{ profile.daily_streak }} günlük serinde!
+          </p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="rank-badge rank-{{ profile.rank }}">
+            <i class="bi bi-award me-1"></i>{{ profile.get_rank_display }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Oyuncu Profil Kartı -->
+  <div class="profile-card mb-4">
+    <div class="row align-items-center g-3">
+      <div class="col-md-2 text-center">
+        <div style="width: 80px; height: 80px; margin: 0 auto; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; font-weight: 800;">
+          {{ profile.level }}
+        </div>
+        <small class="text-muted d-block mt-2">Seviye</small>
+      </div>
+
+      <div class="col-md-10">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h5 class="fw-bold mb-0">{{ profile.xp|floatformat:0 }} / {{ profile.xp_to_next_level|floatformat:0 }} XP</h5>
+            <small class="text-muted">Sonraki seviyeye {{ profile.xp_to_next_level|add:"-"|add:profile.xp|floatformat:0 }} XP kaldı</small>
+          </div>
+          <div class="text-end">
+            <div class="mb-1">
+              <i class="bi bi-coin text-warning me-1"></i>
+              <strong>{{ profile.coins|floatformat:0 }}</strong> Altın
+            </div>
+            <div>
+              <i class="bi bi-gem text-info me-1"></i>
+              <strong>{{ profile.gems|floatformat:0 }}</strong> Elmas
+            </div>
+          </div>
+        </div>
+        <div class="xp-bar">
+          <div class="xp-fill" style="width: {{ xp_percentage }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ana İstatistikler -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm" style="border-radius: 16px; border-top: 3px solid #667eea;">
+        <div class="card-body text-center">
+          <i class="bi bi-trophy" style="font-size: 32px; color: #667eea; margin-bottom: 8px;"></i>
+          <h4 class="fw-bold mb-1">{{ profile.games_won }}</h4>
+          <small class="text-muted">Kazanılan Oyun</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm" style="border-radius: 16px; border-top: 3px solid #10b981;">
+        <div class="card-body text-center">
+          <i class="bi bi-graph-up" style="font-size: 32px; color: #10b981; margin-bottom: 8px;"></i>
+          <h4 class="fw-bold mb-1">{{ profile.elo_rating }}</h4>
+          <small class="text-muted">ELO Rating</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm" style="border-radius: 16px; border-top: 3px solid #f59e0b;">
+        <div class="card-body text-center">
+          <i class="bi bi-fire" style="font-size: 32px; color: #f59e0b; margin-bottom: 8px;"></i>
+          <h4 class="fw-bold mb-1">{{ profile.daily_streak }}</h4>
+          <small class="text-muted">Günlük Seri</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm" style="border-radius: 16px; border-top: 3px solid #ec4899;">
+        <div class="card-body text-center">
+          <i class="bi bi-hash" style="font-size: 32px; color: #ec4899; margin-bottom: 8px;"></i>
+          <h4 class="fw-bold mb-1">{% if global_rank %}#{{ global_rank }}{% else %}-{% endif %}</h4>
+          <small class="text-muted">Global Sıralama</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sol Kolon: Quests ve Oyunlar -->
+    <div class="col-lg-8">
+      <!-- Günlük Görevler -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-list-check me-2" style="color: #f59e0b;"></i>Günlük Görevler</h5>
+          <a href="{% url 'games:quests' %}" class="btn btn-sm btn-outline-warning" style="border-radius: 10px;">Tümünü Gör</a>
+        </div>
+
+        {% for pq in daily_quests %}
+        <div class="quest-card mb-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h6 class="fw-bold mb-1">{{ pq.quest.title }}</h6>
+              <small class="text-muted">{{ pq.quest.description }}</small>
+            </div>
+            <span class="badge bg-warning">{{ pq.current_value }}/{{ pq.quest.target_value }}</span>
+          </div>
+          <div class="progress" style="height: 8px; border-radius: 4px;">
+            <div class="progress-bar bg-warning" style="width: {% widthratio pq.current_value pq.quest.target_value 100 %}%;"></div>
+          </div>
+          <div class="mt-2 d-flex gap-2">
+            <small><i class="bi bi-star text-success me-1"></i>{{ pq.quest.reward_xp }} XP</small>
+            <small><i class="bi bi-coin text-warning me-1"></i>{{ pq.quest.reward_coins }} Altın</small>
+            {% if pq.quest.reward_gems > 0 %}
+            <small><i class="bi bi-gem text-info me-1"></i>{{ pq.quest.reward_gems }} Elmas</small>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4" style="background: rgba(245,158,11,0.05); border-radius: 12px;">
+          <i class="bi bi-check-circle" style="font-size: 32px; color: #10b981;"></i>
+          <p class="text-muted mt-2 mb-0">Tüm günlük görevler tamamlandı!</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Hızlı Oyun Erişimi -->
+      <div class="mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-controller me-2" style="color: #ec4899;"></i>Hızlı Oyna</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <a href="/game-app/stock-market/" class="text-decoration-none">
+              <div class="card border-0 shadow-sm" style="border-radius: 16px; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card-body">
+                  <div class="d-flex gap-3">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1)); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <i class="bi bi-graph-up-arrow" style="font-size: 28px; color: #10b981;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">Borsa Simülasyonu</h6>
+                      <small class="text-muted">Rekabetçi • ELO: {{ profile.elo_rating }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-md-6">
+            <a href="/games/trade-sim/start/" class="text-decoration-none">
+              <div class="card border-0 shadow-sm" style="border-radius: 16px; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card-body">
+                  <div class="d-flex gap-3">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <i class="bi bi-shop" style="font-size: 28px; color: #667eea;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">TradeSim</h6>
+                      <small class="text-muted">Popüler • Ticaret</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-md-6">
+            <a href="/game-app/quiz/" class="text-decoration-none">
+              <div class="card border-0 shadow-sm" style="border-radius: 16px; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card-body">
+                  <div class="d-flex gap-3">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.1)); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <i class="bi bi-patch-question" style="font-size: 28px; color: #f59e0b;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">Finans Quiz</h6>
+                      <small class="text-muted">Hızlı • Eğitici</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-md-6">
+            <a href="/game-app/games/" class="text-decoration-none">
+              <div class="card border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, rgba(236,72,153,0.05), rgba(190,24,93,0.05)); transition: all 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="card-body">
+                  <div class="d-flex gap-3">
+                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <i class="bi bi-grid-3x3" style="font-size: 28px; color: white;"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">Tüm Oyunlar</h6>
+                      <small class="text-muted">6+ Oyun Keşfet</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ Kolon: Turnuvalar ve Aktivite -->
+    <div class="col-lg-4">
+      <!-- Aktif Turnuvalar -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-trophy me-2" style="color: #667eea;"></i>Turnuvalar</h6>
+          <a href="{% url 'games:tournaments' %}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">Tümü</a>
+        </div>
+
+        {% for tournament in active_tournaments %}
+        <a href="{% url 'games:tournament_detail' tournament.id %}" class="text-decoration-none">
+          <div class="tournament-card mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-1">{{ tournament.name }}</h6>
+                <small class="text-muted">{{ tournament.game.name }}</small>
+              </div>
+              <span class="badge bg-{% if tournament.status == 'registration' %}success{% elif tournament.status == 'ongoing' %}danger{% else %}secondary{% endif %}">
+                {{ tournament.get_status_display }}
+              </span>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+              <small><i class="bi bi-people me-1"></i>{{ tournament.participants.count }}/{{ tournament.max_participants }}</small>
+              <small><i class="bi bi-coin text-warning me-1"></i>{{ tournament.prize_pool_coins|floatformat:0 }}</small>
+            </div>
+          </div>
+        </a>
+        {% empty %}
+        <div class="text-center py-4" style="background: rgba(102,126,234,0.05); border-radius: 12px;">
+          <i class="bi bi-calendar-x" style="font-size: 24px; color: #cbd5e0;"></i>
+          <p class="text-muted small mt-2 mb-0">Aktif turnuva yok</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Son Maçlar -->
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2" style="color: #10b981;"></i>Son Maçlar</h6>
+          <a href="{% url 'games:match_history' %}" class="btn btn-sm btn-outline-success" style="border-radius: 8px;">Geçmiş</a>
+        </div>
+
+        {% for match in recent_matches|slice:":3" %}
+        <div class="match-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="fw-semibold">{{ match.player1.username }}</small>
+                <span class="badge bg-light text-dark">{{ match.player1_score }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-1">
+                <small class="fw-semibold">{% if match.player2 %}{{ match.player2.username }}{% else %}BOT{% endif %}</small>
+                <span class="badge bg-light text-dark">{{ match.player2_score }}</span>
+              </div>
+            </div>
+            <div class="ms-3 text-center">
+              {% if match.winner == request.user %}
+                <i class="bi bi-trophy-fill" style="color: #10b981; font-size: 20px;"></i>
+                <small class="text-success d-block fw-bold">Zafer</small>
+              {% else %}
+                <i class="bi bi-x-circle" style="color: #ef4444; font-size: 20px;"></i>
+                <small class="text-danger d-block fw-bold">Mağlup</small>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4" style="background: rgba(16,185,129,0.05); border-radius: 12px;">
+          <i class="bi bi-joystick" style="font-size: 24px; color: #cbd5e0;"></i>
+          <p class="text-muted small mt-2 mb-0">Henüz maç yok</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Butonları -->
+  <div class="row g-3 mt-4">
+    <div class="col-md-3">
+      <a href="{% url 'games:store' %}" class="btn btn-lg w-100" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-shop me-2"></i>Mağaza
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'games:rankings' %}" class="btn btn-outline-primary btn-lg w-100" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-bar-chart-steps me-2"></i>Sıralamalar
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'games:friends' %}" class="btn btn-outline-success btn-lg w-100" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-people me-2"></i>Arkadaşlar
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'games:teams' %}" class="btn btn-outline-danger btn-lg w-100" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-shield me-2"></i>Takımlar
+      </a>
+    </div>
+  </div>
+
+  <!-- UI Toggle Button -->
+  <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+    <span id="toggleIcon">👁️</span>
+  </button>
+</div>
+
+<script>
+// Tam Ekran Oyun Modu Toggle
+(function() {
+  const toggleBtn = document.getElementById('uiToggle');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const body = document.body;
+  
+  // LocalStorage'dan tercihi oku
+  const savedMode = localStorage.getItem('finasis_game_fullscreen');
+  
+  // Sayfa yüklendiğinde varsayılan olarak tam ekran modda başlat
+  if (savedMode === null || savedMode === 'true') {
+    body.classList.add('game-fullscreen');
+    toggleIcon.textContent = '👁️';
+    toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+  } else {
+    body.classList.remove('game-fullscreen');
+    toggleIcon.textContent = '🎮';
+    toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+  }
+  
+  // Toggle butonu tıklama
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    body.classList.toggle('game-fullscreen');
+    const isFullscreen = body.classList.contains('game-fullscreen');
+    
+    // İkon değiştir
+    if (isFullscreen) {
+      toggleIcon.textContent = '👁️';
+      toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+    } else {
+      toggleIcon.textContent = '🎮';
+      toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+    }
+    
+    // Tercihi kaydet
+    localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    
+    // Smooth scroll to top when showing UI
+    if (!isFullscreen) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+  
+  // ESC tuşu ile toggle
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      toggleBtn.click();
+    }
+  });
+  
+  // F tuşu ile toggle
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'f' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+      if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        toggleBtn.click();
+      }
+    }
+  });
+})();
+
+// XP bar animasyonu
+document.addEventListener('DOMContentLoaded', function() {
+  const xpFill = document.querySelector('.xp-fill');
+  if (xpFill) {
+    const targetWidth = xpFill.style.width;
+    xpFill.style.width = '0%';
+    setTimeout(() => {
+      xpFill.style.width = targetWidth;
+    }, 300);
+  }
+});
+</script>
+{% endblock %}
+

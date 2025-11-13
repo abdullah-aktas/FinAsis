@@ -1,0 +1,99 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Transaction {{ transaction.transaction_id|truncatechars:12 }} - Blockchain{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{% url 'blockchain:transaction_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Tüm Transaction'lar
+        </a>
+    </div>
+    
+    <!-- Transaction Header -->
+    <div class="card mb-4 {% if is_valid %}border-success{% else %}border-warning{% endif %}">
+        <div class="card-header {% if is_valid %}bg-success{% else %}bg-warning{% endif %} text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-receipt me-2"></i>
+                Transaction Detayı
+                {% if is_valid %}
+                <i class="bi bi-patch-check float-end"></i>
+                {% endif %}
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <strong>Transaction ID:</strong>
+                    <div class="hash-display mt-1">{{ transaction.transaction_id }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Tip:</strong> <span class="badge bg-primary">{{ transaction.get_transaction_type_display }}</span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Durum:</strong> 
+                    {% if transaction.status == 'confirmed' %}
+                    <span class="badge bg-success">Onaylandı</span>
+                    {% elif transaction.status == 'pending' %}
+                    <span class="badge bg-warning">Bekliyor</span>
+                    {% else %}
+                    <span class="badge bg-danger">{{ transaction.get_status_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>From:</strong> {{ transaction.from_address }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>To:</strong> {{ transaction.to_address }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Tutar:</strong> {{ transaction.amount }} TL
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Gas Fee:</strong> {{ transaction.gas_fee }} TL
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Timestamp:</strong> {{ transaction.timestamp }}
+                </div>
+                {% if transaction.block %}
+                <div class="col-md-12 mb-3">
+                    <strong>Blok:</strong> 
+                    <a href="{% url 'blockchain:block_detail' transaction.block.block_number %}" class="btn btn-sm btn-outline-primary">
+                        Block #{{ transaction.block.block_number }}
+                    </a>
+                </div>
+                {% endif %}
+                <div class="col-md-12 mb-3">
+                    <strong>Payload Hash:</strong>
+                    <div class="hash-display mt-1">{{ transaction.payload_hash }}</div>
+                </div>
+                <div class="col-md-12">
+                    <strong>Payload:</strong>
+                    <pre class="bg-light p-3 mt-1 rounded">{{ transaction.payload|pprint }}</pre>
+                </div>
+            </div>
+            
+            <!-- Doğrulama Durumu -->
+            <div class="alert {% if is_valid %}alert-success{% else %}alert-warning{% endif %} mt-3">
+                <strong>
+                    {% if is_valid %}✅{% else %}⚠️{% endif %}
+                    {{ verification_message }}
+                </strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hash-display {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+</style>
+{% endblock %}
+

@@ -1,0 +1,53 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Öğrenci Modülü - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .module-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    border-radius: 24px;
+  }
+
+  .coming-soon {
+    background: white;
+    border-radius: 24px;
+    padding: 60px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    margin-top: 32px;
+  }
+
+  .icon-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #667eea;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="module-hero">
+    <i class="bi bi-mortarboard" style="font-size: 72px; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">Öğrenci Modülü</h1>
+    <p style="font-size: 20px; opacity: 0.95;">Öğrenciler için ders ve sınav merkezi</p>
+  </div>
+
+  <div class="coming-soon">
+    <div class="icon-circle"><i class="bi bi-book"></i></div>
+    <h3 class="fw-bold mb-3">Geliştirme Aşamasında</h3>
+    <p class="text-muted">Öğrenciler için interaktif dersler, ödevler ve sınavlar yakında!</p>
+  </div>
+</div>
+{% endblock %}

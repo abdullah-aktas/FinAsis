@@ -1,0 +1,19 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Banka Hareketi Detayı{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Banka Hareketi Detayı</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ transaction.account.bank_name }} - {{ transaction.amount }}₺</h5>
+            <p class="card-text"><strong>Hesap:</strong> {{ transaction.account.iban }}</p>
+            <p class="card-text"><strong>Tür:</strong> {{ transaction.get_transaction_type_display }}</p>
+            <p class="card-text"><strong>Açıklama:</strong> {{ transaction.description }}</p>
+            <p class="card-text"><strong>Tarih:</strong> {{ transaction.date|date:'d.m.Y H:i' }}</p>
+        </div>
+    </div>
+    <a href="{% url 'accounting:banktransaction_update' transaction.pk %}" class="btn btn-warning mt-3">Düzenle</a>
+    <a href="{% url 'accounting:banktransaction_delete' transaction.pk %}" class="btn btn-danger mt-3">Sil</a>
+    <a href="{% url 'accounting:banktransaction_list' %}" class="btn btn-secondary mt-3">Listeye Dön</a>
+</div>
+{% endblock %} 

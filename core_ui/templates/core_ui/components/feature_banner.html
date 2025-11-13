@@ -1,0 +1,19 @@
+{% if guest_features %}
+<section class="py-4 bg-white border-bottom">
+  <div class="container">
+    <div class="row g-3">
+      {% for f in guest_features %}
+      <div class="col-6 col-lg-3 d-flex">
+        <div class="card shadow-sm flex-fill h-100 border-0">
+          <div class="card-body p-3">
+            <div class="d-flex align-items-center gap-2 mb-2"><i class="bi {{ f.icon }} text-success"></i><h6 class="mb-0 small fw-semibold">{{ f.title }}</h6></div>
+            <p class="small text-secondary mb-2">{{ f.text }}</p>
+            <a class="small fw-semibold" href="{{ f.cta_url }}">{{ f.cta_text }} →</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

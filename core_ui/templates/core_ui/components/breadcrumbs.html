@@ -1,0 +1,14 @@
+{# Reusable breadcrumb component #}
+{% if items %}
+<nav aria-label="breadcrumb" class="mb-3 small">
+  <ol class="breadcrumb mb-0">
+    {% for bc in items %}
+      {% if bc.url and not forloop.last %}
+        <li class="breadcrumb-item"><a href="{{ bc.url }}">{{ bc.label }}</a></li>
+      {% else %}
+        <li class="breadcrumb-item active" aria-current="page">{{ bc.label }}</li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>
+{% endif %}

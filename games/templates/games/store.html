@@ -1,0 +1,199 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Mağaza - FinAsis E-Spor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .store-hero {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    border-radius: 24px;
+    margin-bottom: 40px;
+  }
+
+  .balance-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: inline-block;
+  }
+
+  .item-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .item-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%);
+  }
+
+  .item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(245,158,11,0.15);
+  }
+
+  .rarity-common { border-top: 4px solid #9ca3af; }
+  .rarity-rare { border-top: 4px solid #3b82f6; }
+  .rarity-epic { border-top: 4px solid #a855f7; }
+  .rarity-legendary { border-top: 4px solid #f59e0b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="store-hero">
+    <i class="bi bi-shop" style="font-size: 72px; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">Oyun Mağazası</h1>
+    <p style="font-size: 20px; opacity: 0.95; margin-bottom: 24px;">Özel eşyalar, boost'lar ve görünümler</p>
+    
+    <div class="balance-card">
+      <div class="row g-3">
+        <div class="col-auto">
+          <i class="bi bi-coin" style="font-size: 24px;"></i>
+          <strong style="font-size: 24px; margin-left: 8px;">{{ profile.coins|floatformat:0 }}</strong>
+          <small style="opacity: 0.8; margin-left: 4px;">Altın</small>
+        </div>
+        <div class="col-auto">
+          <i class="bi bi-gem" style="font-size: 24px;"></i>
+          <strong style="font-size: 24px; margin-left: 8px;">{{ profile.gems|floatformat:0 }}</strong>
+          <small style="opacity: 0.8; margin-left: 4px;">Elmas</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eşya Kategorileri -->
+  <div class="mb-4">
+    <div class="btn-group" role="group">
+      <button class="btn btn-outline-primary active" data-filter="all">
+        <i class="bi bi-grid-3x3 me-1"></i>Tümü
+      </button>
+      <button class="btn btn-outline-primary" data-filter="boost">
+        <i class="bi bi-lightning me-1"></i>Boost'lar
+      </button>
+      <button class="btn btn-outline-primary" data-filter="badge">
+        <i class="bi bi-award me-1"></i>Rozetler
+      </button>
+      <button class="btn btn-outline-primary" data-filter="avatar">
+        <i class="bi bi-person me-1"></i>Avatarlar
+      </button>
+      <button class="btn btn-outline-primary" data-filter="effect">
+        <i class="bi bi-stars me-1"></i>Efektler
+      </button>
+    </div>
+  </div>
+
+  <!-- Eşyalar Grid -->
+  <div class="row g-4">
+    {% for item in items %}
+    <div class="col-md-6 col-lg-4 item-element" data-type="{{ item.item_type }}">
+      <div class="item-card rarity-{{ item.rarity }}">
+        <div class="text-center mb-3" style="position: relative;">
+          <div style="width: 80px; height: 80px; margin: 0 auto; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-{% if item.item_type == 'boost' %}lightning{% elif item.item_type == 'badge' %}award{% elif item.item_type == 'avatar' %}person-circle{% else %}stars{% endif %}" style="font-size: 40px; color: #f59e0b;"></i>
+          </div>
+          <span class="badge bg-{% if item.rarity == 'legendary' %}warning{% elif item.rarity == 'epic' %}danger{% elif item.rarity == 'rare' %}primary{% else %}secondary{% endif %} mt-2">
+            {{ item.get_rarity_display }}
+          </span>
+        </div>
+
+        <h6 class="fw-bold text-center mb-2">{{ item.name }}</h6>
+        <p class="text-muted text-center small mb-3">{{ item.description }}</p>
+
+        {% if item.duration_hours > 0 %}
+        <div class="text-center mb-3">
+          <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ item.duration_hours }} saat</small>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 justify-content-center mb-3">
+          {% if item.price_coins > 0 %}
+          <span class="badge bg-warning" style="font-size: 14px;">
+            <i class="bi bi-coin me-1"></i>{{ item.price_coins }}
+          </span>
+          {% endif %}
+          {% if item.price_gems > 0 %}
+          <span class="badge bg-info" style="font-size: 14px;">
+            <i class="bi bi-gem me-1"></i>{{ item.price_gems }}
+          </span>
+          {% endif %}
+        </div>
+
+        <form method="post" action="{% url 'games:buy_item' item.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success w-100" style="border-radius: 12px; font-weight: 600;"
+            {% if profile.coins < item.price_coins or profile.gems < item.price_gems %}disabled{% endif %}>
+            <i class="bi bi-cart-plus me-2"></i>Satın Al
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Envanter -->
+  {% if my_inventory %}
+  <div class="mt-5">
+    <h4 class="fw-bold mb-3"><i class="bi bi-bag me-2" style="color: #10b981;"></i>Envanterim</h4>
+    <div class="row g-3">
+      {% for inv in my_inventory %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 3px solid #10b981;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold mb-1">{{ inv.item.name }}</h6>
+                <small class="text-muted">x{{ inv.quantity }}</small>
+              </div>
+              {% if inv.is_equipped %}
+              <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+              {% endif %}
+            </div>
+            {% if inv.expires_at %}
+            <small class="text-danger"><i class="bi bi-clock me-1"></i>{{ inv.expires_at|timeuntil }} kaldı</small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Kategori filtreleme
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const filter = this.dataset.filter;
+    
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    
+    document.querySelectorAll('.item-element').forEach(item => {
+      if (filter === 'all' || item.dataset.type === filter) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
+

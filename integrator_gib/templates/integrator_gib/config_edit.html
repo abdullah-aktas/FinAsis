@@ -1,0 +1,107 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "GİB Yapılandırması" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            <a href="{% url 'integrator_gib:dashboard' %}" class="text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>{% trans "GİB Paneline Dön" %}
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h4 class="mb-0 fw-bold">{% trans "GİB Entegrasyon Ayarları" %}</h4>
+                <p class="text-muted small mb-0 mt-1">{% trans "Gelir İdaresi Başkanlığı e-Fatura/e-Arşiv entegrasyonu" %}</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="alert alert-info border-0 mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>{% trans "Güvenlik Uyarısı" %}:</strong> {% trans "GİB kullanıcı bilgileriniz güvenli bir şekilde şifrelenerek saklanır." %}
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "GİB Kullanıcı Adı" %} <span class="text-danger">*</span></label>
+                            <input type="text" name="gib_username" class="form-control" 
+                                value="{{ config.gib_username }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "GİB Şifre" %} <span class="text-danger">*</span></label>
+                            <input type="password" name="gib_password" class="form-control" 
+                                value="{{ config.gib_password }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Base URL" %}</label>
+                            <input type="url" name="base_url" class="form-control" 
+                                value="{{ config.base_url }}" placeholder="https://efatura.gov.tr">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Durum" %}</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="is_active" 
+                                    {% if config.is_active %}checked{% endif %}>
+                                <label class="form-check-label">{% trans "Entegrasyon Aktif" %}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-4 border-top">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-2"></i>{% trans "Kaydet" %}
+                        </button>
+                        <a href="{% url 'integrator_gib:dashboard' %}" class="btn btn-outline-secondary px-4">
+                            {% trans "İptal" %}
+                        </a>
+                        <button type="button" class="btn btn-outline-success ms-auto" onclick="testConnection()">
+                            <i class="bi bi-plug me-2"></i>{% trans "Bağlantıyı Test Et" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Yardım Kartı -->
+        <div class="card border-0 bg-light mt-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">{% trans "Nasıl Yapılandırılır?" %}</h6>
+                <ol class="small mb-0">
+                    <li>{% trans "GİB Portal'dan e-Fatura kullanıcı adı ve şifrenizi alın" %}</li>
+                    <li>{% trans "Test ortamında deneme yapın, sorunsuz çalıştığından emin olun" %}</li>
+                    <li>{% trans "Canlı ortama geçmeden önce sertifikalarınızı yükleyin" %}</li>
+                    <li>{% trans "İlk gönderimleri test edin" %}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testConnection() {
+    if(!confirm('{% trans "Bağlantı testi yapılsın mı?" %}')) return;
+    
+    fetch('{% url "integrator_gib:ajax_test_connection" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            alert('✅ ' + data.message);
+        } else {
+            alert('❌ ' + data.error);
+        }
+    });
+}
+</script>
+{% endblock %}
+

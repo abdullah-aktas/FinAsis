@@ -1,0 +1,220 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block feature_banner %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Dijital Denetim & Uyumluluk Merkezi' %}{% endblock %}
+{% block meta_description %}{% trans 'Blockchain tabanlı immutable kayıtlar, AI destekli anomali tespiti, 7/24 otomatik kontrol. Denetim süresini %80 kısaltma.' %}{% endblock %}
+{% block extra_css %}
+<style>
+  :root {
+    --edenetim-primary: #dc2626;
+    --edenetim-secondary: #f97316;
+    --edenetim-gradient: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+  }
+
+  .hero-section {
+    background: var(--edenetim-gradient);
+    color: white;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      circle at 20% 80%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+  }
+  .hero-subtitle {
+    font-size: 1.15rem;
+  }
+
+  .metric-card {
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .feature-card {
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .btn-primary-custom {
+    background: var(--edenetim-gradient);
+    border: none;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.2rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="hero-section">
+  <div class="container text-center hero-content">
+    <h1 class="hero-title">🔍 Dijital Denetim & Uyumluluk Merkezi</h1>
+    <p class="hero-subtitle">
+      FinAsis ile denetim süreçlerinizi hızlandırın: blockchain tabanlı
+      immutable kayıtlar ve AI destekli anomali tespiti ile uyumluluğu sağlayın.
+      Denetim sürelerini haftalardan günlere indirin.
+    </p>
+    <div class="mt-4">
+      {% if user.is_authenticated %}
+      <a href="/audit/" class="btn btn-light btn-lg px-5 py-3 me-3">
+        🔎 Denetim Paneli
+      </a>
+      <a href="/panel/" class="btn btn-outline-light btn-lg px-5 py-3">
+        📊 Panelim
+      </a>
+      {% else %}
+      <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3 me-3">
+        🚀 Hemen Kullanın
+      </a>
+      <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+        🔐 Özellikler
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-3 col-6">
+        <div class="metric-card text-center">
+          <div class="metric-value">%80</div>
+          <div class="metric-label">Denetim Süresi Azaltma</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="metric-card text-center">
+          <div class="metric-value">7/24</div>
+          <div class="metric-label">Otomatik Kontroller</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="metric-card text-center">
+          <div class="metric-value">%0</div>
+          <div class="metric-label">Manipülasyon Riski</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="metric-card text-center">
+          <div class="metric-value">AI</div>
+          <div class="metric-label">Anomali Tespiti</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">🎯 Neden FinAsis e-Denetim?</h2>
+      <p class="text-muted">
+        Şeffaflık, kanıtlanabilirlik ve otomasyon birleşiyor.
+      </p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>Blockchain Denetim İzi</h3>
+          <p>
+            Her işlem immutable bir kayıtla blockchain'e eklenir. Denetçiler tek
+            tuşla orijinal kanıtı doğrulayabilir.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>AI Anomali Tespiti</h3>
+          <p>
+            Muhasebe ve işlem verilerini analiz eden modellerimiz şüpheli
+            aktiviteleri otomatik işaretler, yanlış/çifte kayıtları tespit eder.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>Uyumluluk Yönetimi</h3>
+          <p>
+            Regülasyon değişiklikleri izlenir, süreçler otomatik güncellenir.
+            KVKK, GİB ve diğer düzenlemelere uygunluk sağlanır.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>Yetkilendirme ve Erişim</h3>
+          <p>
+            Rol bazlı erişim ile sadece yetkili kişiler denetim kanıtlarına
+            ulaşır. Detaylı audit log'lar saklanır.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>Raporlama & Export</h3>
+          <p>
+            Denetim raporlarını PDF/PPT/CSV olarak dışarı aktarın ve kolayca
+            paylaşın.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <h3>Entegrasyonlar</h3>
+          <p>
+            Muhasebe, banka ve e-dönüşüm sistemleriyle entegre çalışır; veri
+            kaynağı doğrulanmış olur.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container text-center">
+    <div class="cta-box p-4 bg-white rounded-3 shadow-sm">
+      <h3 class="mb-3">🔎 Denetim süreçlerinizi güvence altına alın</h3>
+      <p class="text-muted mb-3">
+        14 gün ücretsiz deneyin. Denetim kanıtlarınızı blockchain ile
+        sağlamlaştırın.
+      </p>
+      {% if user.is_authenticated %}
+      <a href="/audit/" class="btn btn-primary-custom px-4 py-2">
+        🔎 Denetim Sistemine Git
+      </a>
+      <a href="/panel/" class="btn btn-outline-primary px-4 py-2 ms-2">
+        📊 Panelim
+      </a>
+      {% else %}
+      <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom px-4 py-2">
+        🚀 Başla
+      </a>
+      <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary px-4 py-2 ms-2">
+        🔑 Giriş Yap
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

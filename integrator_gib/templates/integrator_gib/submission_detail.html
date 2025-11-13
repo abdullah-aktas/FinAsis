@@ -1,0 +1,93 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Gönderim Detayı" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'integrator_gib:submission_list' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Gönderim Listesine Dön" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    {% if submission.status == 'SUCCESS' %}
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                        <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    {% elif submission.status == 'FAILED' %}
+                    <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                        <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    {% else %}
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                        <i class="bi bi-clock text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <span class="badge bg-{% if submission.status == 'ACCEPTED' %}success{% elif submission.status == 'ERROR' or submission.status == 'REJECTED' %}danger{% else %}warning{% endif %} fs-6 mb-3">
+                    {{ submission.get_status_display }}
+                </span>
+
+                <h5 class="fw-bold mb-1">{{ submission.period }}</h5>
+                <p class="text-muted small">{{ submission.declaration_code }}</p>
+
+                <hr class="my-3">
+
+                <div class="text-start small">
+                    <p class="mb-2"><strong>{% trans "Gönderim Tarihi" %}:</strong><br>{{ submission.submitted_at|date:"d F Y, H:i:s" }}</p>
+                    <p class="mb-2"><strong>{% trans "Takip ID" %}:</strong><br><code class="small">{{ submission.gib_tracking_id|default:"-" }}</code></p>
+                    {% if submission.gib_reference_number %}
+                    <p class="mb-0"><strong>{% trans "GİB Referans" %}:</strong> {{ submission.gib_reference_number }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Gönderim Logları -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">{% trans "Gönderim Logları" %}</h5>
+            </div>
+            <div class="card-body">
+                {% if logs %}
+                <div class="timeline">
+                    {% for log in logs %}
+                    <div class="timeline-item mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="bg-{% if log.log_level == 'ERROR' %}danger{% elif log.log_level == 'WARNING' %}warning{% else %}primary{% endif %} bg-opacity-10 rounded-circle p-2">
+                                    <i class="bi bi-{% if log.log_level == 'ERROR' %}x-circle{% elif log.log_level == 'WARNING' %}exclamation-triangle{% else %}info-circle{% endif %} text-{% if log.log_level == 'ERROR' %}danger{% elif log.log_level == 'WARNING' %}warning{% else %}primary{% endif %}"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ log.log_message }}</h6>
+                                    <small class="text-muted">{{ log.timestamp|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                {% if log.log_details %}
+                                <div class="bg-light rounded p-2">
+                                    <pre class="mb-0 small"><code>{{ log.log_details }}</code></pre>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">{% trans "Log kaydı bulunmuyor" %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

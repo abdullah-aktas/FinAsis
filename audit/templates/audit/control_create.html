@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni Kontrol Oluştur" %} - {% trans "İç Denetim" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'audit:control_dashboard' %}" class="hover:text-blue-600">{% trans "Denetim Paneli" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Yeni Kontrol Oluştur" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">{% trans "Yeni Kontrol Faaliyeti Oluştur" %}</h1>
+            <p class="text-gray-600">{% trans "İç kontrol sistemine yeni bir kontrol faaliyeti ekleyin" %}</p>
+        </div>
+
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} bg-{{ message.tags }}-100 border border-{{ message.tags }}-400 text-{{ message.tags }}-700 px-4 py-3 rounded mb-2">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'audit:control_create' %}" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Kontrol Kimliği -->
+            <div class="form-group">
+                <label for="control_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Kimliği" %}
+                    <span class="text-gray-400 text-xs">({% trans "opsiyonel, otomatik oluşturulacak" %})</span>
+                </label>
+                <input type="text" name="control_id" id="control_id" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="{% trans 'Örnek: CTRL-001' %}">
+            </div>
+
+            <!-- Kontrol Adı -->
+            <div class="form-group">
+                <label for="control_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Adı" %} <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="control_name" id="control_name" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="{% trans 'Örnek: Nakit Sayımı Kontrolü' %}">
+            </div>
+
+            <!-- Kontrol Açıklaması -->
+            <div class="form-group">
+                <label for="control_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Açıklaması" %}
+                </label>
+                <textarea name="control_description" id="control_description" rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="{% trans 'Kontrolün amacı ve kapsamı hakkında detaylı açıklama' %}"></textarea>
+            </div>
+
+            <!-- Kontrol Hedefi -->
+            <div class="form-group">
+                <label for="control_objective" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Hedefi" %}
+                </label>
+                <textarea name="control_objective" id="control_objective" rows="2"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="{% trans 'Bu kontrolün hedeflediği sonuçlar' %}"></textarea>
+            </div>
+
+            <!-- Kontrol Tipi -->
+            <div class="form-group">
+                <label for="control_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Tipi" %} <span class="text-red-500">*</span>
+                </label>
+                <select name="control_type" id="control_type" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    {% for value, label in control_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Kontrol Yapısı -->
+            <div class="form-group">
+                <label for="control_nature" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Yapısı" %} <span class="text-red-500">*</span>
+                </label>
+                <select name="control_nature" id="control_nature" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    {% for value, label in control_natures %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Frekans -->
+            <div class="form-group">
+                <label for="frequency" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Frekansı" %} <span class="text-red-500">*</span>
+                </label>
+                <select name="frequency" id="frequency" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    {% for value, label in frequencies %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Kontrol Prosedürü -->
+            <div class="form-group">
+                <label for="control_procedure" class="block text-sm font-medium text-gray-700 mb-2">
+                    {% trans "Kontrol Prosedürü" %}
+                </label>
+                <textarea name="control_procedure" id="control_procedure" rows="4"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="{% trans 'Kontrolün nasıl uygulanacağına dair adım adım talimatlar' %}"></textarea>
+            </div>
+
+            <!-- Butonlar -->
+            <div class="flex items-center justify-between pt-4 border-t">
+                <a href="{% url 'audit:control_dashboard' %}" 
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    {% trans "İptal" %}
+                </a>
+                <button type="submit" 
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    {% trans "Kontrolü Oluştur" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Yardım Kutusu -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 class="font-semibold text-blue-900 mb-2">{% trans "Kontrol Tipleri Hakkında" %}</h3>
+        <ul class="text-sm text-blue-800 space-y-1">
+            <li><strong>{% trans "Önleyici" %}:</strong> {% trans "Hataların oluşmasını önleyen kontroller" %}</li>
+            <li><strong>{% trans "Tespit Edici" %}:</strong> {% trans "Hataları tespit eden kontroller" %}</li>
+            <li><strong>{% trans "Düzeltici" %}:</strong> {% trans "Hataları düzelten kontroller" %}</li>
+            <li><strong>{% trans "Yönlendirici" %}:</strong> {% trans "İş süreçlerini yönlendiren kontroller" %}</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+.alert-success { @apply bg-green-100 border-green-400 text-green-700; }
+.alert-error { @apply bg-red-100 border-red-400 text-red-700; }
+.alert-warning { @apply bg-yellow-100 border-yellow-400 text-yellow-700; }
+.alert-info { @apply bg-blue-100 border-blue-400 text-blue-700; }
+</style>
+{% endblock %}
+

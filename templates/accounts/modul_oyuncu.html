@@ -1,0 +1,53 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Oyuncu Modülü - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .module-hero {
+    background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    border-radius: 24px;
+  }
+
+  .coming-soon {
+    background: white;
+    border-radius: 24px;
+    padding: 60px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    margin-top: 32px;
+  }
+
+  .icon-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(190, 24, 93, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #ec4899;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="module-hero">
+    <i class="bi bi-joystick" style="font-size: 72px; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px;">Oyuncu Modülü</h1>
+    <p style="font-size: 20px; opacity: 0.95;">Oyun özellikleri ve sosyal modüller</p>
+  </div>
+
+  <div class="coming-soon">
+    <div class="icon-circle"><i class="bi bi-controller"></i></div>
+    <h3 class="fw-bold mb-3">Geliştirme Aşamasında</h3>
+    <p class="text-muted">Oyunlaştırma, rozetler ve sosyal özellikler yakında!</p>
+  </div>
+</div>
+{% endblock %}

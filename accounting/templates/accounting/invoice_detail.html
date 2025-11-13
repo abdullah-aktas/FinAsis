@@ -1,0 +1,28 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Fatura Detayı{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Fatura Detayı</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Fatura No: {{ invoice.invoice_number }}</h5>
+            <p class="card-text"><strong>Şirket:</strong> {{ invoice.company.name }}</p>
+            <p class="card-text"><strong>Müşteri:</strong> {{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</p>
+            <p class="card-text"><strong>Tarih:</strong> {{ invoice.issue_date|date:'d.m.Y' }}</p>
+            <p class="card-text"><strong>Vade:</strong> {{ invoice.due_date|date:'d.m.Y' }}</p>
+            <p class="card-text"><strong>Tutar:</strong> {{ invoice.total_amount }} {{ invoice.currency }}</p>
+            <p class="card-text"><strong>Açıklama:</strong> {{ invoice.description }}</p>
+            <p class="card-text"><strong>Kayıt Tarihi:</strong> {{ invoice.created_at|date:'d.m.Y H:i' }}</p>
+        </div>
+    </div>
+    <a href="{% url 'accounting:invoice_update' invoice.pk %}" class="btn btn-warning mt-3">Düzenle</a>
+    <a href="{% url 'accounting:invoice_delete' invoice.pk %}" class="btn btn-danger mt-3">Sil</a>
+    <a href="{% url 'accounting:invoice_list' %}" class="btn btn-secondary mt-3">Listeye Dön</a>
+    <hr>
+    <h5>GİB e-Fatura İşlemleri</h5>
+    <a href="{% url 'accounting:invoice_send_gib' invoice.pk %}" class="btn btn-success mt-2">GİB'e Gönder</a>
+    <a href="{% url 'accounting:invoice_check_gib_status' invoice.pk %}" class="btn btn-info mt-2">GİB Durumunu Sorgula</a>
+    <a href="{% url 'accounting:invoice_cancel_gib' invoice.pk %}" class="btn btn-danger mt-2">GİB'de İptal Et</a>
+    <p class="mt-2"><strong>GİB Durumu:</strong> {{ invoice.gib_status }}<br><strong>GİB Yanıtı:</strong> {{ invoice.gib_response }}</p>
+</div>
+{% endblock %} 

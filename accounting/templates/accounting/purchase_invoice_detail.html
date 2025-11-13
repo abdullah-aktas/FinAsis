@@ -1,0 +1,18 @@
+{% extends "core_ui/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h3>{{ invoice.invoice_number }}</h3>
+  <p><strong>Tedarikçi:</strong> {{ invoice.vendor.name }}</p>
+  <p><strong>Tarih:</strong> {{ invoice.issue_date }}</p>
+  <p><strong>Vade:</strong> {{ invoice.due_date }}</p>
+  <p><strong>Tutar:</strong> {{ invoice.total_amount }} {{ invoice.currency }}</p>
+  <p><strong>Durum:</strong> {{ invoice.status }}</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:purchase_invoice_update' invoice.id %}">Düzenle</a>
+  <form class="d-inline" method="post" action="{% url 'accounting:purchase_invoice_delete' invoice.id %}">{% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+  </form>
+  <a class="btn btn-link btn-sm" href="{% url 'accounting:purchase_invoice_list' %}">Geri</a>
+</div>
+{% endblock %}
+
+

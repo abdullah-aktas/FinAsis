@@ -1,0 +1,1055 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "İç Denetim Kontrol Paneli" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+.audit-container {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.audit-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.audit-header {
+    background: linear-gradient(45deg, #2c3e50, #34495e);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.control-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 25px;
+}
+
+.control-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--status-color);
+}
+
+.control-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.control-card.effective {
+    --status-color: #27ae60;
+}
+
+.control-card.needs-improvement {
+    --status-color: #f39c12;
+}
+
+.control-card.ineffective {
+    --status-color: #e74c3c;
+}
+
+.control-card.not-implemented {
+    --status-color: #95a5a6;
+}
+
+.control-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+}
+
+.control-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.control-description {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-effective {
+    background: #d5f4e6;
+    color: #27ae60;
+}
+
+.status-needs-improvement {
+    background: #fef9e7;
+    color: #f39c12;
+}
+
+.status-ineffective {
+    background: #fdf2f2;
+    color: #e74c3c;
+}
+
+.status-not-implemented {
+    background: #f8f9fa;
+    color: #95a5a6;
+}
+
+.compliance-score {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#27ae60 0deg, #27ae60 var(--score-deg), #ffffff30 var(--score-deg), #ffffff30 360deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.score-circle::before {
+    content: '';
+    width: 90px;
+    height: 90px;
+    background: #667eea;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.score-text {
+    font-size: 2rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.risk-matrix {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.risk-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.risk-item:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.risk-level-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.risk-critical {
+    background: #e74c3c;
+}
+
+.risk-high {
+    background: #e67e22;
+}
+
+.risk-medium {
+    background: #f39c12;
+}
+
+.risk-low {
+    background: #27ae60;
+}
+
+.audit-timeline {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    padding-bottom: 30px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3498db;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.workflow-status {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.workflow-step.completed {
+    background: #d5f4e6;
+    border-left: 4px solid #27ae60;
+}
+
+.workflow-step.pending {
+    background: #fef9e7;
+    border-left: 4px solid #f39c12;
+}
+
+.workflow-step.blocked {
+    background: #fdf2f2;
+    border-left: 4px solid #e74c3c;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.audit-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.audit-btn-primary {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+}
+
+.audit-btn-success {
+    background: linear-gradient(45deg, #27ae60, #229954);
+    color: white;
+}
+
+.audit-btn-warning {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.audit-btn-danger {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.audit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.control-details-modal {
+    max-width: 800px;
+}
+
+.compliance-checklist {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.checklist-item:last-child {
+    border-bottom: none;
+}
+
+.checklist-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.checklist-completed {
+    background: #27ae60;
+    color: white;
+}
+
+.checklist-pending {
+    background: #f39c12;
+    color: white;
+}
+
+.checklist-failed {
+    background: #e74c3c;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .control-status-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .audit-header {
+        padding: 20px 15px;
+    }
+    
+    .control-card {
+        padding: 20px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="audit-container">
+    <div class="container-fluid">
+        <!-- Ana Başlık -->
+        <div class="audit-card">
+            <div class="audit-header">
+                <h1 class="h2 mb-3">
+                    <i class="fas fa-shield-alt me-3"></i>
+                    {% trans "İç Denetim ve Kontrol Sistemi" %}
+                </h1>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">{{ company.name }}</div>
+                        <small class="opacity-75">{% trans "Şirket" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1">{{ active_controls_count }}</div>
+                        <small class="opacity-75">{% trans "Aktif Kontrol" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1" data-counter="pending-audits">{{ pending_audits_count }}</div>
+                        <small class="opacity-75">{% trans "Bekleyen Denetim" %}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 mb-1" data-counter="open-risks">{{ open_risks_count }}</div>
+                        <small class="opacity-75">{% trans "Açık Risk" %}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Genel Uyumluluk Skoru -->
+        <div class="audit-card">
+            <div class="compliance-score">
+                <h3 class="mb-4">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    {% trans "Genel Uyumluluk Skoru" %}
+                </h3>
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="score-circle" style="--score-deg: {{ compliance_score.percentage }}deg">
+                            <div class="score-text">{{ compliance_score.score|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-start">
+                        <h4 class="mb-3">{{ compliance_score.status_text }}</h4>
+                        <p class="mb-3 opacity-75">{{ compliance_score.description }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <strong>{% trans "Etkili Kontroller:" %}</strong>
+                                    <span class="ms-2">{{ compliance_score.effective_controls }}/{{ compliance_score.total_controls }}</span>
+                                </div>
+                                <div>
+                                    <strong>{% trans "Tamamlanan Denetimler:" %}</strong>
+                                    <span class="ms-2">{{ compliance_score.completed_audits }}/{{ compliance_score.total_audits }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <strong>{% trans "Risk Seviyesi:" %}</strong>
+                                    <span class="ms-2 risk-level-indicator risk-{{ compliance_score.risk_level }}"></span>
+                                    {{ compliance_score.risk_level_text }}
+                                </div>
+                                <div>
+                                    <strong>{% trans "Son Güncelleme:" %}</strong>
+                                    <span class="ms-2">{{ compliance_score.last_updated|date:"d M Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kontrol Durumları -->
+        <div class="audit-card">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>
+                        <i class="fas fa-tasks text-primary me-2"></i>
+                        {% trans "Kontrol Aktiviteleri Durumu" %}
+                    </h4>
+                    <div class="action-buttons">
+                        <a href="{% url 'audit:control_create' %}" class="audit-btn audit-btn-primary">
+                            <i class="fas fa-plus me-1"></i>{% trans "Yeni Kontrol" %}
+                        </a>
+                        <a href="{% url 'audit:assessment_create' %}" class="audit-btn audit-btn-success">
+                            <i class="fas fa-clipboard-check me-1"></i>{% trans "Risk Değerlendirme" %}
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="control-status-grid">
+                    {% for control in control_activities %}
+                    <div class="control-card {{ control.effectiveness_level }}">
+                        <div class="control-icon">
+                            <i class="fas fa-{{ control.icon }}"></i>
+                        </div>
+                        <div class="control-title">{{ control.name }}</div>
+                        <div class="control-description">{{ control.description|truncatechars:100 }}</div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="status-indicator status-{{ control.effectiveness_level }}">
+                                <i class="fas fa-{{ control.status_icon }} me-1"></i>
+                                {{ control.effectiveness_text }}
+                            </span>
+                            <small class="text-muted">{{ control.last_tested|date:"d M" }}</small>
+                        </div>
+                        
+                        <!-- Kontrol Metrikleri -->
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="h6 mb-1">{{ control.test_frequency }}</div>
+                                <small class="text-muted">{% trans "Test Sıklığı" %}</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h6 mb-1">{{ control.deficiency_count }}</div>
+                                <small class="text-muted">{% trans "Açık Eksiklik" %}</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="h6 mb-1">{{ control.effectiveness_score|floatformat:0 }}%</div>
+                                <small class="text-muted">{% trans "Etkinlik" %}</small>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    {% trans "Sonraki Test:" %}
+                                    {% if control.next_test_due %}{{ control.next_test_due|date:"d M Y" }}{% else %}-{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons mt-3">
+                            <button class="audit-btn audit-btn-primary show-control-btn" data-control-id="{{ control.id }}">
+                                <i class="fas fa-eye me-1"></i>{% trans "Detay" %}
+                            </button>
+                            <a href="{% url 'audit:control_test' control.id %}" class="audit-btn audit-btn-warning">
+                                <i class="fas fa-vial me-1"></i>{% trans "Test Et" %}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Risk Matrisi -->
+            <div class="col-lg-6">
+                <div class="audit-card">
+                    <div class="p-4">
+                        <h4 class="mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            {% trans "Risk Matrisi" %}
+                        </h4>
+                        <!-- Risk Summary Pills -->
+                        {% if risk_summary.total %}
+                        <div class="mb-3">
+                            <span class="badge bg-danger me-1">{% trans "Yüksek/Kritik" %}: {{ risk_summary.high_critical }}</span>
+                            {% for r in risk_summary.by_level %}
+                                <span class="badge bg-secondary me-1">{{ r.overall_risk_level }}: {{ r.count }}</span>
+                            {% endfor %}
+                            <span class="badge bg-primary">{% trans "Toplam" %}: {{ risk_summary.total }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="risk-matrix">
+                            {% for risk in risk_assessments %}
+                            <div class="risk-item">
+                                <div class="risk-level-indicator risk-{{ risk.risk_level }}"></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ risk.risk_description }}</div>
+                                    <div class="text-muted small">
+                                        {% trans "Olasılık:" %} {{ risk.likelihood }}/5 | 
+                                        {% trans "Etki:" %} {{ risk.impact }}/5 | 
+                                        {% trans "Skor:" %} {{ risk.risk_score }}
+                                    </div>
+                                    {% if risk.mitigation_plan %}
+                                    <div class="text-info small mt-1">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        {{ risk.mitigation_plan|truncatechars:60 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">{{ risk.assessment_date|date:"d M" }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if not risk_assessments %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-shield-check fa-3x text-success mb-3"></i>
+                                <h6 class="text-success">{% trans "Risk değerlendirmesi yapılmamış" %}</h6>
+                                <a href="{% url 'audit:assessment_create' %}" class="audit-btn audit-btn-primary mt-2">
+                                    {% trans "Risk Analizi Başlat" %}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Denetim Zaman Çizelgesi -->
+            <div class="col-lg-6">
+                <div class="audit-card">
+                    <div class="p-4">
+                        <h4 class="mb-4">
+                            <i class="fas fa-clock text-info me-2"></i>
+                            {% trans "Denetim Zaman Çizelgesi" %}
+                        </h4>
+                        <div class="audit-timeline">
+                            {% for audit in recent_audits %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ audit.audit_type }}</h6>
+                                            <p class="text-muted small mb-1">{{ audit.description }}</p>
+                                            <div class="d-flex align-items-center">
+                                                <span class="status-indicator status-{{ audit.status }}">
+                                                    {{ audit.status_text }}
+                                                </span>
+                                                <small class="text-muted ms-2">
+                                                    {% trans "Denetmen:" %} {{ audit.auditor.get_full_name }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ audit.audit_date|date:"d M Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if not recent_audits %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">{% trans "Henüz denetim kaydı bulunmuyor." %}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onay İş Akışları -->
+        <div class="audit-card">
+            <div class="p-4">
+                <h4 class="mb-4">
+                    <i class="fas fa-route text-success me-2"></i>
+                    {% trans "Bekleyen Onay İş Akışları" %}
+                </h4>
+                
+                <div class="workflow-status">
+                    {% for workflow in pending_workflows %}
+                    <div class="workflow-step {{ workflow.status }}">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ workflow.workflow_name }}</h6>
+                                    <p class="text-muted mb-1">{{ workflow.description }}</p>
+                                    <div class="small">
+                                        <strong>{% trans "Başlatıcı:" %}</strong> {{ workflow.initiator.get_full_name }} |
+                                        <strong>{% trans "Tarih:" %}</strong> {{ workflow.created_at|date:"d M Y H:i" }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    {% if workflow.status == 'pending' %}
+                                    <a href="{% url 'audit:workflow_approve' workflow.id %}" class="audit-btn audit-btn-success me-2">
+                                        <i class="fas fa-check me-1"></i>{% trans "Onayla" %}
+                                    </a>
+                                    <a href="{% url 'audit:workflow_reject' workflow.id %}" class="audit-btn audit-btn-danger">
+                                        <i class="fas fa-times me-1"></i>{% trans "Reddet" %}
+                                    </a>
+                                    {% else %}
+                                    <span class="status-indicator status-{{ workflow.status }}">
+                                        {{ workflow.status_text }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- İş akışı adımları -->
+                            <div class="workflow-steps mt-3">
+                                <div class="d-flex align-items-center">
+                                    {% for step in workflow.steps %}
+                                    <div class="step-indicator step-{{ step.status }} me-2">
+                                        <i class="fas fa-{{ step.icon }}"></i>
+                                    </div>
+                                    {% if not forloop.last %}
+                                    <div class="step-connector"></div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not pending_workflows %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5 class="text-success">{% trans "Tüm onaylar tamamlanmış!" %}</h5>
+                        <p class="text-muted">{% trans "Şu anda bekleyen onay işlemi bulunmuyor." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Uyumluluk Kontrol Listesi -->
+        <div class="audit-card">
+            <div class="p-4">
+                <h4 class="mb-4">
+                    <i class="fas fa-clipboard-check text-primary me-2"></i>
+                    {% trans "Uyumluluk Kontrol Listesi" %}
+                </h4>
+                
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="compliance-checklist">
+                            <h6 class="mb-3">{% trans "Mali Mevzuat Uyumu" %}</h6>
+                            {% for item in financial_compliance %}
+                            <div class="checklist-item">
+                                <div class="checklist-icon checklist-{{ item.status }}">
+                                    <i class="fas fa-{{ item.icon }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ item.requirement }}</div>
+                                    <div class="text-muted small">{{ item.description }}</div>
+                                    {% if item.due_date %}
+                                    <div class="text-warning small">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {% trans "Son tarih:" %} {{ item.due_date|date:"d M Y" }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="compliance-checklist">
+                            <h6 class="mb-3">{% trans "Operasyonel Kontroller" %}</h6>
+                            {% for item in operational_compliance %}
+                            <div class="checklist-item">
+                                <div class="checklist-icon checklist-{{ item.status }}">
+                                    <i class="fas fa-{{ item.icon }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ item.requirement }}</div>
+                                    <div class="text-muted small">{{ item.description }}</div>
+                                    {% if item.responsible_person %}
+                                    <div class="text-info small">
+                                        <i class="fas fa-user me-1"></i>
+                                        {% trans "Sorumlu:" %} {{ item.responsible_person }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hızlı Aksiyonlar -->
+        <div class="audit-card">
+            <div class="p-4 text-center">
+                <h4 class="mb-4">
+                    <i class="fas fa-lightning-bolt text-warning me-2"></i>
+                    {% trans "Hızlı Aksiyonlar" %}
+                </h4>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'audit:trail_report' %}" class="audit-btn audit-btn-primary d-block">
+                            <i class="fas fa-history me-2"></i>
+                            {% trans "Denetim İzi Raporu" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'audit:control_test_all' %}" class="audit-btn audit-btn-warning d-block">
+                            <i class="fas fa-vial me-2"></i>
+                            {% trans "Tüm Kontrolleri Test Et" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'audit:risk_assessment' %}" class="audit-btn audit-btn-danger d-block">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {% trans "Risk Değerlendirmesi" %}
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'audit:compliance_report' %}" class="audit-btn audit-btn-success d-block">
+                            <i class="fas fa-file-alt me-2"></i>
+                            {% trans "Uyumluluk Raporu" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kontrol Detay Modal -->
+<div class="modal fade" id="controlDetailModal" tabindex="-1">
+    <div class="modal-dialog control-details-modal modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Kontrol Detayları" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="controlDetailContent">
+                <!-- AJAX ile yüklenecek -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Kapat" %}</button>
+                <button type="button" class="btn btn-primary" id="editControlBtn">{% trans "Düzenle" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Compliance score animation
+    const scoreCircle = document.querySelector('.score-circle');
+    if (scoreCircle) {
+        const score = parseInt(scoreCircle.querySelector('.score-text').textContent);
+        const degrees = (score / 100) * 360;
+        scoreCircle.style.setProperty('--score-deg', degrees + 'deg');
+    }
+
+    // Auto refresh for real-time updates
+    setInterval(function() {
+        updatePendingCounts();
+    }, 30000); // Her 30 saniyede bir güncelle
+
+    // Delegated click for control detail buttons
+    document.body.addEventListener('click', function(e){
+        const btn = e.target.closest('.show-control-btn');
+        if(btn){
+            const cid = btn.getAttribute('data-control-id');
+            if(cid){
+                showControlDetails(cid);
+            }
+        }
+    });
+});
+
+function showControlDetails(controlId) {
+    fetch(`{% url 'audit:ajax_control_detail' 0 %}`.replace('0', controlId))
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('controlDetailContent').innerHTML = data.html;
+            new bootstrap.Modal(document.getElementById('controlDetailModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('{% trans "Kontrol detayları yüklenirken hata oluştu" %}', 'error');
+        });
+}
+
+function updatePendingCounts() {
+    fetch('{% url "audit:ajax_pending_counts" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Update counters
+            document.querySelector('[data-counter="pending-audits"]').textContent = data.pending_audits;
+            document.querySelector('[data-counter="open-risks"]').textContent = data.open_risks;
+            document.querySelector('[data-counter="pending-workflows"]').textContent = data.pending_workflows;
+        })
+        .catch(error => console.error('Error updating counts:', error));
+}
+
+function approveWorkflow(workflowId) {
+    if (confirm('{% trans "Bu iş akışını onaylamak istediğinizden emin misiniz?" %}')) {
+        fetch(`{% url 'audit:ajax_workflow_approve' 0 %}`.replace('0', workflowId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                location.reload();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('{% trans "Onay işlemi sırasında hata oluştu" %}', 'error');
+        });
+    }
+}
+
+function rejectWorkflow(workflowId) {
+    const reason = prompt('{% trans "Ret sebebini belirtiniz:" %}');
+    if (reason) {
+        fetch(`{% url 'audit:ajax_workflow_reject' 0 %}`.replace('0', workflowId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                location.reload();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('{% trans "Ret işlemi sırasında hata oluştu" %}', 'error');
+        });
+    }
+}
+
+function testControl(controlId) {
+    fetch(`{% url 'audit:ajax_test_control' 0 %}`.replace('0', controlId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            // Update control card status
+            updateControlStatus(controlId, data.test_result);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('{% trans "Kontrol testi sırasında hata oluştu" %}', 'error');
+    });
+}
+
+function updateControlStatus(controlId, testResult) {
+    const controlCard = document.querySelector(`[data-control-id="${controlId}"]`);
+    if (controlCard) {
+        const statusIndicator = controlCard.querySelector('.status-indicator');
+        const lastTested = controlCard.querySelector('.last-tested');
+        
+        statusIndicator.className = `status-indicator status-${testResult.status}`;
+        statusIndicator.innerHTML = `<i class="fas fa-${testResult.icon} me-1"></i>${testResult.text}`;
+        lastTested.textContent = 'Şimdi';
+    }
+}
+
+function showNotification(message, type) {
+    // Toast notification implementation
+    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+    toast.setAttribute('role', 'alert');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+N: New Control
+    if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        window.location.href = '{% url "audit:control_create" %}';
+    }
+    
+    // Ctrl+R: Risk Assessment
+    if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault();
+        window.location.href = '{% url "audit:assessment_create" %}';
+    }
+    
+    // Ctrl+T: Test All Controls
+    if (e.ctrlKey && e.key === 't') {
+        e.preventDefault();
+        window.location.href = '{% url "audit:control_test_all" %}';
+    }
+});
+
+// Periodic updates for real-time dashboard
+setInterval(() => {
+    // Update pending notifications
+    fetch('{% url "audit:ajax_notifications" %}')
+        .then(response => response.json())
+        .then(data => {
+            updateNotificationBadges(data);
+        })
+        .catch(error => console.error('Notification update error:', error));
+}, 60000); // Her dakika güncelle
+
+function updateNotificationBadges(data) {
+    const badges = {
+        'pending-audits': data.pending_audits,
+        'open-risks': data.open_risks,
+        'pending-workflows': data.pending_workflows
+    };
+    
+    Object.keys(badges).forEach(key => {
+        const element = document.querySelector(`[data-notification="${key}"]`);
+        if (element) {
+            element.textContent = badges[key];
+            element.style.display = badges[key] > 0 ? 'inline' : 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

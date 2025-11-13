@@ -1,0 +1,10 @@
+{% extends "core_ui/base.html" %}
+{% block title %}E-Fatura Kalemini Sil{% endblock %}
+{% block content %}
+<h1>E-Fatura Kalemini Sil</h1>
+<p>Bu e-fatura kalemini silmek istediğinize emin misiniz?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-danger">Evet, Sil</button>
+  <a href="{% url 'finance:e_invoice_item_list' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
+</form>
+{% endblock %} 

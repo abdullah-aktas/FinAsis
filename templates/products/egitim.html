@@ -1,0 +1,387 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block feature_banner %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Finansal Eğitim Akademisi' %}{% endblock %}
+{% block meta_description %}{% trans 'CFO ve CFA uzmanlarından 100+ sertifikalı kurs. 15K+ mezun öğrenci, %92 tamamlama oranı. Interactive öğrenme deneyimi.' %}{% endblock %}
+{% block extra_css %}
+<style>
+  :root {
+    --egitim-primary: #8b5cf6;
+    --egitim-secondary: #a855f7;
+    --egitim-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  }
+
+  .hero-section {
+    background: var(--egitim-gradient);
+    color: white;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.12) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.25);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--egitim-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-label {
+    color: #6c757d;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    height: 100%;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--egitim-gradient);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 0;
+  }
+
+  .feature-card:hover::before {
+    opacity: 0.05;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--egitim-primary);
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--egitim-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--egitim-primary);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-text {
+    color: #495057;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 5rem 0;
+    margin-top: 4rem;
+  }
+
+  .cta-box {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .btn-primary-custom {
+    background: var(--egitim-gradient);
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title">🎓 Finansal Eğitim Akademisi</h1>
+      <p class="hero-subtitle">
+        <strong>CFO'lar ve CFA uzmanlarından profesyonel eğitim!</strong> 100+
+        sertifikalı kurs, interactive içerik ve gamification ile eğlenerek
+        öğrenin. <strong>15,000+ mezun öğrenci</strong>,
+        <strong>4.9/5 ortalama puan</strong> ve
+        <strong>%92 tamamlama oranı</strong> ile sektörün en başarılı eğitim
+        platformu! 🏆 Kariyerinizi bir üst seviyeye taşıyın!
+      </p>
+      <div class="mt-4">
+        {% if user.is_authenticated %}
+        <a href="/education/student/dashboard/" class="btn btn-light btn-lg px-5 py-3 me-3">
+          📚 Öğrenci Paneli
+        </a>
+        <a href="/education/home/" class="btn btn-outline-light btn-lg px-5 py-3">
+          🎓 Tüm Kurslar
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 py-3 me-3">
+          🚀 Eğitimlere Başla
+        </a>
+        <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+          📚 Kursları İncele
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Metrics Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">100+</div>
+          <div class="metric-label">Kurs & Sertifika</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">15K+</div>
+          <div class="metric-label">Mezun Öğrenci</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">4.9/5</div>
+          <div class="metric-label">Ortalama Puan</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">%92</div>
+          <div class="metric-label">Tamamlama Oranı</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">🎯 Neden FinAsis Eğitim?</h2>
+      <p class="lead text-muted">
+        Kariyerinizi geliştiren profesyonel finansal eğitimler
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">👨‍🏫</div>
+          <h3 class="feature-title">Uzman Eğitmenler</h3>
+          <p class="feature-text">
+            <strong>CFO, CFA ve sertifikalı mali müşavirlerden</strong> eğitim
+            alın. 20+ yıl deneyime sahip sektör profesyonelleri kendi bilgi ve
+            tecrübelerini paylaşır. 🎓 <strong>Gerçek dünya deneyimi</strong> +
+            akademik bilgi = Başarı!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-title">100+ Sertifikalı Kurs</h3>
+          <p class="feature-text">
+            Temel muhasebe, finansal analiz, yatırım stratejileri, vergi
+            planlaması, Excel finans modelleme ve daha fazlası!
+            <strong>Her seviyeye uygun</strong>
+            (başlangıç, orta, ileri) kurslar. 🏅 Tamamlayınca uluslararası
+            geçerli sertifika!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🎮</div>
+          <h3 class="feature-title">Interactive Öğrenme</h3>
+          <p class="feature-text">
+            Video dersleri, interaktif quizler, gerçek vaka çalışmaları, canlı
+            webinarlar ve
+            <strong>gamification</strong> ile öğrenmek hiç bu kadar eğlenceli
+            olmamıştı! 🏆 Rozet kazan, liderlik tablosunda yüksel, ödüller al!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3 class="feature-title">Esnek Öğrenme</h3>
+          <p class="feature-text">
+            <strong>Kendi hızınızda öğrenin!</strong> İstediğiniz zaman,
+            istediğiniz yerden erişin. Mobil uyumlu platform sayesinde yolda,
+            evde veya iş yerinde öğrenin. 📱 Video hızını ayarlayın, not alın,
+            istediğiniz yeri tekrar izleyin!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">💼</div>
+          <h3 class="feature-title">Kariyer Desteği</h3>
+          <p class="feature-text">
+            Kurs tamamladıktan sonra <strong>kariyer danışmanlığı</strong>, CV
+            hazırlama, iş görüşmesi simülasyonu ve network etkinliklerine
+            erişin. 🤝 Binlerce finans profesyoneli ile bağlantı kurun, iş
+            fırsatlarını yakalayın!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🌍</div>
+          <h3 class="feature-title">Uluslararası Geçerlilik</h3>
+          <p class="feature-text">
+            Sertifikalarımız <strong>ACCA, CFA Institute</strong> ve diğer
+            global kuruluşlar tarafından tanınır. LinkedIn'de paylaşın, CV'nize
+            ekleyin, işverenlere gösterin! ✅
+            <strong>Global standartlarda eğitim</strong>, yerel içerik!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2 class="display-5 fw-bold mb-4">🎓 Kariyerinize Yatırım Yapın</h2>
+      <p class="lead mb-4">
+        <strong>İlk 3 kursa ücretsiz</strong> erişin! Sertifika alın,
+        kariyerinizi geliştirin. Kredi kartı gerektirmez. 🎉
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if user.is_authenticated %}
+        <a href="/education/student/dashboard/" class="btn btn-primary-custom">
+          🎓 Öğrenci Paneli
+        </a>
+        <a href="/education/home/" class="btn btn-outline-primary btn-lg">
+          📚 Kurslar
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom">
+          🚀 Ücretsiz Kayıt Ol
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg">
+          🔑 Giriş Yap
+        </a>
+        {% endif %}
+      </div>
+      <p class="text-muted mt-4 mb-0">
+        <small
+          >✅ İlk 3 kurs ücretsiz • ✅ Sertifika dahil • ✅ İstediğiniz zaman
+          iptal</small
+        >
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

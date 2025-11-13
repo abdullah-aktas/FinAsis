@@ -1,0 +1,82 @@
+{% extends "management/base_admin.html" %}
+{% load static %}
+{% block admin_content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="font-weight: 800; color: #1a202c;"><i class="bi bi-people me-2"></i>Kullanıcılar</h2>
+        <a href="/yonetim/kullanicilar/ekle/" class="btn btn-success" style="border-radius: 12px; padding: 10px 24px; font-weight: 600;">
+            <i class="bi bi-plus-lg me-2"></i>Yeni Kullanıcı
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+        <div class="card-body p-4">
+            <form method="get">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0" style="border-radius: 12px 0 0 12px;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0" placeholder="Kullanıcı adı veya email ara..." value="{{ query }}" style="border-radius: 0 12px 12px 0;">
+                    <button class="btn btn-primary ms-2" type="submit" style="border-radius: 12px; font-weight: 600;">Ara</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-bottom: 2px solid #dee2e6;">
+                    <tr>
+                        <th class="px-4 py-3" style="font-weight: 700;">ID</th>
+                        <th class="py-3" style="font-weight: 700;">Kullanıcı Adı</th>
+                        <th class="py-3" style="font-weight: 700;">Email</th>
+                        <th class="py-3" style="font-weight: 700;">Yetki</th>
+                        <th class="py-3" style="font-weight: 700;">Kayıt Tarihi</th>
+                        <th class="py-3 text-end pe-4" style="font-weight: 700;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="px-4"><span class="badge bg-light text-dark" style="font-weight: 600;">{{ user.id }}</span></td>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td><small class="text-muted">{{ user.email }}</small></td>
+                        <td>
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger">Süper Admin</span>
+                            {% elif user.is_staff %}
+                                <span class="badge bg-warning">Admin</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Kullanıcı</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ user.date_joined|date:'d.m.Y H:i' }}</small></td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group" role="group">
+                                <a href="/yonetim/kullanicilar/{{ user.id }}/" class="btn btn-sm btn-info" style="border-radius: 8px 0 0 8px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="/yonetim/kullanicilar/{{ user.id }}/duzenle/" class="btn btn-sm btn-warning" style="border-radius: 0;">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="/yonetim/kullanicilar/{{ user.id }}/sil/" class="btn btn-sm btn-danger" style="border-radius: 0 8px 8px 0;">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 48px; color: #cbd5e0;"></i>
+                            <p class="text-muted mt-3 mb-0">Kullanıcı bulunamadı.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

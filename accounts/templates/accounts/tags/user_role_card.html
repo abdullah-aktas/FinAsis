@@ -1,0 +1,70 @@
+<!-- accounts/templates/accounts/tags/user_role_card.html -->
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body p-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <!-- Rol Rozeti -->
+        <div class="me-3">
+          {% load role_tags %}
+          <span class="badge {% role_badge_color role.name %} fs-6 px-3 py-2">
+            {{ role.display_name }}
+          </span>
+        </div>
+
+        <!-- Kullanıcı Bilgileri -->
+        <div>
+          <h6 class="mb-1 fw-bold">
+            {{ user.get_full_name|default:user.username }}
+          </h6>
+          <small class="text-muted">
+            {% if user.profile.company_name %} 🏢 {{ user.profile.company_name
+            }} {% endif %} {% if user.profile.job_title %} • {{
+            user.profile.job_title }} {% endif %}
+          </small>
+        </div>
+      </div>
+
+      <!-- Abonelik Durumu -->
+      <div class="text-end">
+        {% if subscription %}
+        <small
+          class="{% subscription_status_color subscription.status %} fw-bold"
+        >
+          {{ subscription.plan.display_name }}
+        </small>
+        <div>
+          {% if subscription.is_active %}
+          <small class="text-muted">
+            {% if subscription.days_remaining <= 7 %} ⚠️ {{
+            subscription.days_remaining }} gün kaldı {% else %} ✅ {{
+            subscription.days_remaining }} gün {% endif %}
+          </small>
+          {% else %}
+          <small class="text-danger">
+            ❌ {{ subscription.get_status_display }}
+          </small>
+          {% endif %}
+        </div>
+        {% else %}
+        <small class="text-warning"> ❓ Abonelik bilgisi yok </small>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Uyarılar -->
+    {% if expires_soon %}
+    <div class="alert alert-warning alert-sm mt-2 mb-0 py-2">
+      <i class="fas fa-exclamation-triangle me-1"></i>
+      <small>Aboneliğiniz yakında sona erecek. Yenilemeyi unutmayın!</small>
+    </div>
+    {% endif %} {% if can_upgrade %}
+    <div class="alert alert-info alert-sm mt-2 mb-0 py-2">
+      <i class="fas fa-info-circle me-1"></i>
+      <small>
+        Daha fazla özellik için
+        <a href="/billing/upgrade/" class="alert-link">planınızı yükseltin</a>
+      </small>
+    </div>
+    {% endif %}
+  </div>
+</div>

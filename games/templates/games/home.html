@@ -1,0 +1,265 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Finansal Oyunlar" %} - FinAsis{% endblock %}
+{% block meta_description %}{% trans "FinAsis ile eğlenceli ve öğretici finansal oyunlar oynayın. Borsa simülasyonu,
+ticaret oyunları, bütçe yönetimi ve daha fazlası." %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .game-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    border-radius: 0 0 50px 50px;
+  }
+
+  .game-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .game-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .game-category-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+  }
+
+  .game-thumb {
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-thumb i {
+    font-size: 4rem;
+    opacity: 0.3;
+    position: absolute;
+    bottom: -20px;
+    right: -10px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="game-hero">
+  <div class="container text-center">
+    <h1 class="display-4 fw-bold mb-3">
+      <i class="bi bi-controller me-2"></i>
+      {% trans "Finansal Oyun Dünyası" %}
+    </h1>
+    <p class="lead mb-4">{% trans "Oynarken öğren, deneyimle kazan!" %}</p>
+    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+      <a href="#games-list" class="btn btn-light btn-lg px-5">
+        <i class="bi bi-play-fill me-2"></i>{% trans "Oyunları Keşfet" %}
+      </a>
+      <a href="{% url 'games:leaderboard' %}" class="btn btn-outline-light btn-lg px-5">
+        <i class="bi bi-trophy me-2"></i>{% trans "Liderlik Tablosu" %}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <i class="bi bi-joystick display-4 mb-2"></i>
+          <h3 class="fw-bold">5+</h3>
+          <p class="mb-0">{% trans "Oyun" %}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <i class="bi bi-people-fill display-4 mb-2"></i>
+          <h3 class="fw-bold">1000+</h3>
+          <p class="mb-0">{% trans "Oyuncu" %}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <i class="bi bi-trophy-fill display-4 mb-2"></i>
+          <h3 class="fw-bold">50+</h3>
+          <p class="mb-0">{% trans "Başarım" %}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <i class="bi bi-star-fill display-4 mb-2"></i>
+          <h3 class="fw-bold">4.8</h3>
+          <p class="mb-0">{% trans "Ortalama Puan" %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Games List -->
+<section id="games-list" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">{% trans "Oyunlar" %}</h2>
+      <p class="text-muted">{% trans "En sevdiğin oyunu seç ve hemen oynamaya başla!" %}</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- TradeSim -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-primary d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-shop"></i>
+            <span class="badge game-category-badge bg-success">{% trans "Ticaret" %}</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">TradeSim</h5>
+            <p class="card-text text-muted">{% trans "Şehirler arası ticaret yap, şirket yönet, finansal okuryazarlık
+              kazan!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">{% trans "Ticaret" %}</span>
+              <span class="badge bg-light text-dark">{% trans "Strateji" %}</span>
+            </div>
+            <a href="{% url 'games:trade_sim:start_game' %}" class="btn btn-primary w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- FinQuest 3D -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-success d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-box"></i>
+            <span class="badge game-category-badge bg-danger">3D</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">FinQuest 3D</h5>
+            <p class="card-text text-muted">{% trans "3D dünyada ticaret ve finansı deneyimle!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">3D</span>
+              <span class="badge bg-light text-dark">{% trans "Macera" %}</span>
+            </div>
+            <a href="{% url 'finquest:game' %}" class="btn btn-success w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Borsa Simülasyonu -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-info d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span class="badge game-category-badge bg-primary">{% trans "Borsa" %}</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">{% trans "Borsa Simülasyonu" %}</h5>
+            <p class="card-text text-muted">{% trans "Sanal borsada alım-satım yaparak yatırım deneyimi kazan!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">{% trans "Yatırım" %}</span>
+              <span class="badge bg-light text-dark">{% trans "Analiz" %}</span>
+            </div>
+            <a href="{% url 'game_app:stock_market' %}" class="btn btn-info w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bütçe Mücadelesi -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-warning d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-piggy-bank-fill"></i>
+            <span class="badge game-category-badge bg-secondary">{% trans "Bütçe" %}</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">{% trans "Bütçe Mücadelesi" %}</h5>
+            <p class="card-text text-muted">{% trans "Gerçek hayat senaryolarıyla bütçe yönetimini öğren!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">{% trans "Bütçe" %}</span>
+              <span class="badge bg-light text-dark">{% trans "Planlama" %}</span>
+            </div>
+            <a href="{% url 'game_app:budget_challenge' %}" class="btn btn-warning w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yatırım Simülatörü -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-danger d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-currency-dollar"></i>
+            <span class="badge game-category-badge bg-warning">{% trans "Yatırım" %}</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">{% trans "Yatırım Simülatörü" %}</h5>
+            <p class="card-text text-muted">{% trans "Yatırım stratejilerini test et ve deneyim kazan!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">{% trans "Portföy" %}</span>
+              <span class="badge bg-light text-dark">{% trans "Risk" %}</span>
+            </div>
+            <a href="{% url 'game_app:investment_simulator' %}" class="btn btn-danger w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card game-card h-100">
+          <div class="game-thumb bg-secondary d-flex align-items-center justify-content-center text-white">
+            <i class="bi bi-patch-question-fill"></i>
+            <span class="badge game-category-badge bg-info">Quiz</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title fw-bold">{% trans "Finans Quiz" %}</h5>
+            <p class="card-text text-muted">{% trans "Finansal bilgini test et, yeni kavramlar öğren!" %}</p>
+            <div class="d-flex gap-2 mb-3">
+              <span class="badge bg-light text-dark">{% trans "Eğitim" %}</span>
+              <span class="badge bg-light text-dark">Quiz</span>
+            </div>
+            <a href="{% url 'game_app:quiz' %}" class="btn btn-secondary w-100">
+              <i class="bi bi-play-fill me-2"></i>{% trans "Oyna" %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white text-center">
+  <div class="container">
+    <h2 class="fw-bold mb-3">{% trans "Hemen Başla!" %}</h2>
+    <p class="lead mb-4">{% trans "Oyunlarımızla finansal okuryazarlığını geliştir ve eğlenceli bir şekilde öğren." %}
+    </p>
+    <a href="{% url 'game_app:games' %}" class="btn btn-light btn-lg px-5">
+      <i class="bi bi-rocket-takeoff-fill me-2"></i>{% trans "Tüm Oyunlar" %}
+    </a>
+  </div>
+</section>
+{% endblock %}

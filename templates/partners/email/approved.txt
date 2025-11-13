@@ -1,0 +1,17 @@
+Merhaba {{ application.contact_name }},
+
+FinAsis Partner Programı başvurunuz için teşekkür ederiz.
+
+Başvurunuz onaylandı ve profiliniz marketplace üzerinde yayına alındı.
+
+Şirket Adı: {{ application.company_name }}
+Partner Tipi: {{ application.get_partner_type_display }}
+Hizmet Bölgeleri: {{ application.regions|default:"Belirtilmedi" }}
+
+Profilinizi inceleyebilir ve güncelleme taleplerinizi iletebilirsiniz:
+{{ profile_url }}
+
+Herhangi bir sorunuz olursa bize {{ support_email }} adresinden ulaşabilirsiniz.
+
+FinAsis Partner Ekibi
+

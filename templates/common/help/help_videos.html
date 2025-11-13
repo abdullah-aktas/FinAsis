@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Video Eğitimler - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1>
+            <i class="bi-play-circle text-danger me-2"></i>
+            Video Eğitimler
+        </h1>
+        <p class="lead text-muted">İzleyerek öğrenin</p>
+    </div>
+    
+    <!-- Filtreler -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'common:help_videos' %}" 
+                   class="btn {% if not level_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    Tümü
+                </a>
+                <a href="{% url 'common:help_videos' %}?level=Başlangıç" 
+                   class="btn {% if level_filter == 'Başlangıç' %}btn-success{% else %}btn-outline-success{% endif %}">
+                    Başlangıç
+                </a>
+                <a href="{% url 'common:help_videos' %}?level=Orta" 
+                   class="btn {% if level_filter == 'Orta' %}btn-info{% else %}btn-outline-info{% endif %}">
+                    Orta
+                </a>
+                <a href="{% url 'common:help_videos' %}?level=İleri" 
+                   class="btn {% if level_filter == 'İleri' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                    İleri
+                </a>
+            </div>
+            
+            <span class="ms-3 text-muted">
+                <i class="bi-clock me-1"></i>
+                Toplam {{ total_duration }} dakika içerik
+            </span>
+        </div>
+    </div>
+    
+    <!-- Video Grid -->
+    <div class="row">
+        {% for video in videos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <!-- Video Thumbnail -->
+                <div class="position-relative">
+                    <img src="{{ video.thumbnail }}" 
+                         class="card-img-top" 
+                         alt="{{ video.title }}"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='/static/common/video-placeholder.png'">
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <button class="btn btn-danger btn-lg rounded-circle" 
+                                onclick="playVideo('{{ video.video_url }}')">
+                            <i class="bi-play-fill fs-3"></i>
+                        </button>
+                    </div>
+                    <span class="position-absolute bottom-0 end-0 m-2 badge bg-dark">
+                        {{ video.duration }}
+                    </span>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="badge bg-{{ video.level|lower }}-subtle text-{{ video.level|lower }}">
+                            {{ video.level }}
+                        </span>
+                        <span class="badge bg-light text-dark">
+                            {{ video.category_display }}
+                        </span>
+                    </div>
+                    <h5 class="card-title">{{ video.title }}</h5>
+                    <p class="card-text text-muted">{{ video.description }}</p>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent">
+                    <div class="d-grid">
+                        <button class="btn btn-outline-danger" onclick="playVideo('{{ video.video_url }}')">
+                            <i class="bi-play-circle me-2"></i>İzle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi-info-circle me-2"></i>
+                Video bulunamadı. Farklı filtre deneyin.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Video Eğitim</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <video id="videoPlayer" class="w-100" controls>
+                    <source src="" type="video/mp4">
+                    Tarayıcınız video oynatmayı desteklemiyor.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+}
+.bg-Başlangıç-subtle { background-color: #d1e7dd !important; }
+.text-Başlangıç { color: #0f5132 !important; }
+.bg-Orta-subtle { background-color: #cfe2ff !important; }
+.text-Orta { color: #084298 !important; }
+.bg-İleri-subtle { background-color: #fff3cd !important; }
+.text-İleri { color: #997404 !important; }
+</style>
+
+<script>
+function playVideo(videoUrl) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+    
+    videoPlayer.querySelector('source').src = videoUrl;
+    videoPlayer.load();
+    videoModal.show();
+    
+    // Modal kapanınca video'yu durdur
+    document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+        videoPlayer.pause();
+    });
+}
+</script>
+{% endblock %}
+

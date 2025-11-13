@@ -1,0 +1,17 @@
+{% extends "core_ui/base.html" %}
+
+{% block title %}Nakit Akışları{% endblock %}
+
+{% block content %}
+<h1>Nakit Akışları</h1>
+<a href="{% url 'finance:cash_flow_create' %}" class="btn btn-success mb-3">Yeni Nakit Akışı Ekle</a>
+<ul>
+  {% for cashflow in cashflows %}
+    <li>
+      <a href="{% url 'finance:cash_flow_detail' cashflow.pk %}">{{ cashflow.period }} - {{ cashflow.start_date }} - {{ cashflow.end_date }}</a>
+    </li>
+  {% empty %}
+    <li>Hiç nakit akışı yok.</li>
+  {% endfor %}
+</ul>
+{% endblock %} 

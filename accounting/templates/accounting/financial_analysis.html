@@ -1,0 +1,72 @@
+{% extends "accounting/base.html" %}
+{% load common_tags %}
+{% block content %}
+<h2>Finansal Analiz &amp; AI Öneriler ({{ year }}/{{ month }})</h2>
+<p><strong>Şirket:</strong> {{ company.name }}</p>
+<h4>Temel Finansal Oranlar</h4>
+<table class="table table-bordered w-50">
+    <tbody>
+        {% for key, val in ratios.items %}
+        <tr>
+            <th>{{ key }}</th>
+            <td>{{ val }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h4>Trend Analizi</h4>
+<canvas id="trendChart" width="600" height="300"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="trend-data" type="application/json">
+{
+  "sales": {{ trends|getattr:'Satış Trend'|default:'[]'|safe }},
+  "profit": {{ trends|getattr:'Kar Trend'|default:'[]'|safe }}
+}
+</script>
+<script>
+const trendEl = document.getElementById('trend-data');
+const trendParsed = trendEl ? JSON.parse(trendEl.textContent) : { sales: [], profit: [] };
+const salesTrend = Array.isArray(trendParsed.sales) ? trendParsed.sales : [];
+const profitTrend = Array.isArray(trendParsed.profit) ? trendParsed.profit : [];
+const trendLabels = Array.from({length: salesTrend.length}, (_, i) => `Dönem ${i+1}`);
+const ctx = document.getElementById('trendChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [
+            {
+                label: 'Satış',
+                data: salesTrend,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: false,
+                tension: 0.2
+            },
+            {
+                label: 'Kâr',
+                data: profitTrend,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: false,
+                tension: 0.2
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Satış ve Kâr Trendleri' }
+        }
+    }
+});
+</script>
+<h4>Yapay Zeka Destekli Öneriler</h4>
+<ul>
+    {% for item in advice %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'accounting:declaration_report_list' %}?company={{ company.id }}" class="btn btn-secondary">Geri</a>
+{% endblock %} 

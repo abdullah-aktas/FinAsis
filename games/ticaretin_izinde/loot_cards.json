@@ -1,0 +1,68 @@
+{
+    "cards": [
+        {
+            "id": "vergi_indirimi",
+            "title": "Vergi İndirimi",
+            "description": "3 dakika boyunca vergi oranınız %20 düşer",
+            "effect": {
+                "type": "tax_reduction",
+                "value": 0.2,
+                "duration": 180
+            },
+            "rarity": "rare"
+        },
+        {
+            "id": "yatirim_firsati",
+            "title": "Yatırım Fırsatı",
+            "description": "Bir sonraki yatırımınızdan %30 daha fazla kazanç elde edersiniz",
+            "effect": {
+                "type": "investment_bonus",
+                "value": 0.3,
+                "duration": 300
+            },
+            "rarity": "epic"
+        },
+        {
+            "id": "kriz_onleme",
+            "title": "Kriz Önleme",
+            "description": "Bir sonraki kriz olayından etkilenmezsiniz",
+            "effect": {
+                "type": "crisis_immunity",
+                "value": 1,
+                "duration": 0
+            },
+            "rarity": "legendary"
+        },
+        {
+            "id": "musteri_akini",
+            "title": "Müşteri Akını",
+            "description": "2 dakika boyunca satışlarınız %50 artar",
+            "effect": {
+                "type": "sales_boost",
+                "value": 0.5,
+                "duration": 120
+            },
+            "rarity": "rare"
+        },
+        {
+            "id": "stok_firsati",
+            "title": "Stok Fırsatı",
+            "description": "Bir sonraki stok alımınızda %40 indirim",
+            "effect": {
+                "type": "stock_discount",
+                "value": 0.4,
+                "duration": 300
+            },
+            "rarity": "epic"
+        }
+    ],
+    "spawn_points": [
+        {"x": 10, "y": 5, "z": 15},
+        {"x": -8, "y": 5, "z": 12},
+        {"x": 5, "y": 5, "z": -10},
+        {"x": -12, "y": 5, "z": -8},
+        {"x": 0, "y": 5, "z": 0}
+    ],
+    "spawn_interval": 60,
+    "max_cards": 5
+} 

@@ -1,0 +1,83 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Uyarılar" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Sistem Uyarıları" %}</h1>
+    <button class="btn btn-success">
+        <i class="bi bi-check2-all me-2"></i>{% trans "Tümünü Okundu İşaretle" %}
+    </button>
+</div>
+
+<!-- Filtre -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="severity" class="form-select">
+                    <option value="">{% trans "Tüm Öncelikler" %}</option>
+                    <option value="LOW">{% trans "Düşük" %}</option>
+                    <option value="MEDIUM">{% trans "Orta" %}</option>
+                    <option value="HIGH">{% trans "Yüksek" %}</option>
+                    <option value="CRITICAL">{% trans "Kritik" %}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="resolved" class="form-select">
+                    <option value="">{% trans "Tümü" %}</option>
+                    <option value="no">{% trans "Aktif" %}</option>
+                    <option value="yes">{% trans "Çözüldü" %}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">{% trans "Filtrele" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Uyarı Listesi -->
+<div class="row g-3">
+    {% for alert in alerts %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm border-start border-{% if alert.severity == 'CRITICAL' %}danger{% elif alert.severity == 'HIGH' %}warning{% elif alert.severity == 'MEDIUM' %}info{% else %}secondary{% endif %} border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-{% if alert.severity == 'CRITICAL' %}danger{% elif alert.severity == 'HIGH' %}warning{% elif alert.severity == 'MEDIUM' %}info{% else %}secondary{% endif %} me-2">
+                                {{ alert.get_severity_display }}
+                            </span>
+                            <h5 class="mb-0 fw-bold">{{ alert.alert_title }}</h5>
+                        </div>
+                        <p class="text-muted mb-2">{{ alert.alert_message }}</p>
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>{{ alert.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                    <div>
+                        {% if not alert.is_resolved %}
+                        <button class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-check-lg"></i> {% trans "Çöz" %}
+                        </button>
+                        {% else %}
+                        <span class="badge bg-success">{% trans "Çözüldü" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle display-3 text-success mb-3"></i>
+            <h5 class="text-muted">{% trans "Tüm uyarılar çözüldü" %}</h5>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

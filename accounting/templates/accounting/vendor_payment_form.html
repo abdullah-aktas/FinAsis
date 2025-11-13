@@ -1,0 +1,13 @@
+{% extends "core_ui/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h3>Tedarikçi Ödemesi</h3>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary btn-sm">Kaydet</button>
+    <a class="btn btn-link" href="{% url 'accounting:vendor_payment_list' %}">Geri</a>
+  </form>
+</div>
+{% endblock %}
+
+

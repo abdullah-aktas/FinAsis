@@ -1,0 +1,132 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Developer Portal" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-5 fw-bold">{% trans "Developer Portal" %}</h1>
+      <p class="lead text-muted">{% trans "API anahtarlarını yönetin, dokümantasyona erişin ve entegrasyonları test edin." %}</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-key me-2"></i>{% trans "API Anahtarları" %}
+          </h5>
+          <p class="card-text text-muted">{% trans "Anahtar oluştur, döndür ve kullanım özetlerini izle." %}</p>
+          <a href="{% url 'developer_portal:api_keys' %}" class="btn btn-modern btn-modern-outline btn-sm">
+            {% trans "Yönet" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-journal-code me-2"></i>{% trans "Dokümantasyon" %}
+          </h5>
+          <p class="card-text text-muted">{% trans "Swagger, Redoc ve kod kütüphaneleri." %}</p>
+          <a href="{% url 'developer_portal:docs' %}" class="btn btn-modern btn-modern-outline btn-sm">
+            {% trans "Görüntüle" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-diagram-3 me-2"></i>{% trans "Webhook Test" %}
+          </h5>
+          <p class="card-text text-muted">{% trans "Örnek olayları hedef URL'nize gönderin ve yanıtları inceleyin." %}</p>
+          <a href="{% url 'developer_portal:webhook_console' %}" class="btn btn-modern btn-modern-outline btn-sm">
+            {% trans "Konsola Git" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-graph-up me-2"></i>{% trans "Kullanım Analizi" %}
+          </h5>
+          <p class="card-text text-muted">{% trans "Anahtarlarınızın son 24 saatteki aktiviteleri." %}</p>
+          <span class="badge bg-info text-dark">{% trans "Beta" %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">{% trans "Son API Anahtarları" %}</h2>
+          <a href="{% url 'developer_portal:api_keys' %}" class="btn btn-outline-secondary btn-sm">
+            {% trans "Tümünü Gör" %}
+          </a>
+        </div>
+        <div class="card-body">
+          {% if api_keys %}
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>{% trans "Ad" %}</th>
+                  <th>{% trans "Plan" %}</th>
+                  <th>{% trans "Durum" %}</th>
+                  <th>{% trans "Son Kullanım" %}</th>
+                  <th class="text-end">{% trans "İşlem" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key in api_keys %}
+                <tr>
+                  <td>
+                    <strong>{{ key.name }}</strong><br>
+                    <small class="text-muted">{{ key.masked_key }}</small>
+                  </td>
+                  <td>{{ key.rate_limit_plan|title }}</td>
+                  <td>
+                    <span class="badge bg-{% if key.is_active %}success{% else %}secondary{% endif %}">
+                      {{ key.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if key.last_used_at %}
+                      {{ key.last_used_at|date:"SHORT_DATE_FORMAT" }} {{ key.last_used_at|time:"H:i" }}
+                    {% else %}
+                      <span class="text-muted">{% trans "Kullanım yok" %}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <a href="{% url 'developer_portal:api_key_detail' key.pk %}" class="btn btn-sm btn-outline-primary">
+                      {% trans "Detay" %}
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">{% trans "Henüz bir API anahtarı oluşturmadınız." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

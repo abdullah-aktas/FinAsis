@@ -1,0 +1,485 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Blockchain Dashboard - FinAsis{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    /* Modern Blockchain Dashboard Styles */
+    .blockchain-header {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .blockchain-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    }
+    
+    .chain-stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chain-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+    
+    .block-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+        border-left: 3px solid #667eea;
+    }
+    
+    .block-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    
+    .tx-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        transition: all 0.2s ease;
+    }
+    
+    .tx-card:hover {
+        background: #f8f9fa;
+        transform: translateX(3px);
+    }
+    
+    .chain-health {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chain-healthy {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+    }
+    
+    .chain-error {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .hash-display {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .quick-action-btn {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        color: #2d3748;
+    }
+    
+    .quick-action-btn:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(102,126,234,0.3);
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Blockchain Header -->
+<div class="blockchain-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">
+                    <i class="bi bi-link-45deg me-2"></i>
+                    Blockchain Dashboard
+                </h1>
+                <p class="mb-0 opacity-90">
+                    Merkezi olmayan, güvenli ve şeffaf finansal kayıt sistemi
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'blockchain:block_list' %}" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-box me-1"></i>Explorer
+                </a>
+                <a href="{% url 'blockchain:transaction_create' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-1"></i>Yeni TX
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Zincir Sağlığı -->
+    <div class="row mb-4 animate-fade-in">
+        <div class="col-12">
+            <div class="chain-health {% if chain_valid %}chain-healthy{% else %}chain-error{% endif %}">
+                <div class="d-flex align-items-center">
+                    <i class="bi {% if chain_valid %}bi-check-circle{% else %}bi-exclamation-triangle{% endif %} fs-3 me-3"></i>
+                    <div>
+                        <strong>
+                            {% if chain_valid %}
+                                ✅ Blockchain Sağlıklı
+                            {% else %}
+                                ⚠️ Blockchain'de Sorun Tespit Edildi
+                            {% endif %}
+                        </strong>
+                        <p class="mb-0 small mt-1">
+                            {% if chain_valid %}
+                                Tüm bloklar doğrulandı, zincir bütünlüğü korunuyor.
+                            {% else %}
+                                {% for error in chain_errors %}
+                                    {{ error }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- İstatistikler -->
+    <div class="row mb-4 animate-fade-in" style="animation-delay: 0.1s">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="chain-stat-card border-primary">
+                <i class="bi bi-box stat-icon text-primary"></i>
+                <div class="stat-value text-primary">{{ total_blocks }}</div>
+                <div class="stat-label">Toplam Blok</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="chain-stat-card border-success">
+                <i class="bi bi-arrow-left-right stat-icon text-success"></i>
+                <div class="stat-value text-success">{{ total_transactions }}</div>
+                <div class="stat-label">Toplam Transaction</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="chain-stat-card border-warning">
+                <i class="bi bi-clock stat-icon text-warning"></i>
+                <div class="stat-value text-warning">{{ pending_transactions }}</div>
+                <div class="stat-label">Bekleyen TX</div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="chain-stat-card border-info">
+                <i class="bi bi-file-earmark-code stat-icon text-info"></i>
+                <div class="stat-value text-info">{{ total_contracts }}</div>
+                <div class="stat-label">Aktif Contract</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div class="row">
+        <!-- Sol Taraf - Son Bloklar ve Grafik -->
+        <div class="col-lg-8 mb-4 animate-fade-in" style="animation-delay: 0.2s">
+            <!-- Grafik -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>
+                        Son 7 Günlük Transaction Aktivitesi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="txChart" height="80"></canvas>
+                </div>
+            </div>
+            
+            <!-- Son Bloklar -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-boxes me-2 text-dark"></i>
+                        Son Bloklar
+                    </h5>
+                    <a href="{% url 'blockchain:block_list' %}" class="btn btn-sm btn-outline-primary">
+                        Tümünü Gör
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if latest_blocks %}
+                        {% for block in latest_blocks %}
+                        <a href="{% url 'blockchain:block_detail' block.block_number %}" class="block-card text-decoration-none">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <strong class="text-primary">#{{ block.block_number }}</strong>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="hash-display">
+                                        {{ block.block_hash|truncatechars:16 }}
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span class="badge bg-success">{{ block.transactions_count }} TX</span>
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <small class="text-muted">{{ block.timestamp|date:"d.m.Y H:i" }}</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">Henüz blok oluşturulmadı</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sağ Taraf - Hızlı Aksiyonlar ve Son TX -->
+        <div class="col-lg-4 mb-4 animate-fade-in" style="animation-delay: 0.3s">
+            <!-- Hızlı Aksiyonlar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightning-fill me-2"></i>
+                        Hızlı Aksiyonlar
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    <a href="{% url 'blockchain:block_list' %}" class="quick-action-btn">
+                        <i class="bi bi-boxes me-2 text-primary"></i>
+                        Blockchain Explorer
+                    </a>
+                    <a href="{% url 'blockchain:transaction_list' %}" class="quick-action-btn">
+                        <i class="bi bi-arrow-left-right me-2 text-success"></i>
+                        Transaction'lar
+                    </a>
+                    <a href="{% url 'blockchain:contract_list' %}" class="quick-action-btn">
+                        <i class="bi bi-file-earmark-code me-2 text-info"></i>
+                        Akıllı Sözleşmeler
+                    </a>
+                    <a href="{% url 'blockchain:asset_list' %}" class="quick-action-btn">
+                        <i class="bi bi-gem me-2 text-warning"></i>
+                        Dijital Varlıklar
+                    </a>
+                    <a href="{% url 'blockchain:my_assets' %}" class="quick-action-btn">
+                        <i class="bi bi-wallet2 me-2 text-danger"></i>
+                        Varlıklarım
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Son Transaction'lar -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0">
+                        <i class="bi bi-clock-history me-2 text-success"></i>
+                        Son Transaction'lar
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    {% if latest_transactions %}
+                        {% for tx in latest_transactions|slice:":5" %}
+                        <a href="{% url 'blockchain:transaction_detail' tx.transaction_id %}" class="tx-card text-decoration-none">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <span class="badge bg-{{ tx.status|yesno:'success,warning,danger' }} mb-1">
+                                        {{ tx.get_transaction_type_display }}
+                                    </span>
+                                    <div class="hash-display small">
+                                        {{ tx.transaction_id|truncatechars:12 }}
+                                    </div>
+                                </div>
+                                <div class="text-end ms-2">
+                                    <strong>{{ tx.amount }} TL</strong>
+                                    <small class="text-muted d-block">{{ tx.timestamp|date:"H:i" }}</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                        <a href="{% url 'blockchain:transaction_list' %}" class="btn btn-sm btn-outline-success w-100 mt-2">
+                            Tüm Transaction'lar
+                        </a>
+                    {% else %}
+                        <p class="text-muted text-center py-3 small">Henüz transaction yok</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blockchain Özellikler -->
+    <div class="row mb-5 animate-fade-in" style="animation-delay: 0.4s">
+        <div class="col-12 mb-3">
+            <h4 class="fw-bold">
+                <i class="bi bi-stars me-2 text-warning"></i>
+                Blockchain Özellikleri
+            </h4>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check fs-1 text-success mb-3"></i>
+                    <h6 class="fw-bold">Değiştirilemez Kayıtlar</h6>
+                    <p class="small text-muted mb-0">
+                        Tüm işlemler kriptografik hash'lerle korunur
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-eye fs-1 text-info mb-3"></i>
+                    <h6 class="fw-bold">Tam Şeffaflık</h6>
+                    <p class="small text-muted mb-0">
+                        Her işlem izlenebilir ve denetlenebilir
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-lightning-charge fs-1 text-warning mb-3"></i>
+                    <h6 class="fw-bold">Akıllı Sözleşmeler</h6>
+                    <p class="small text-muted mb-0">
+                        Otomatik iş süreçleri ve kurallar
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cpu fs-1 text-danger mb-3"></i>
+                    <h6 class="fw-bold">Dijital Varlıklar</h6>
+                    <p class="small text-muted mb-0">
+                        Token'lar ve NFT'ler oluşturun
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Transaction Chart
+    const ctx = document.getElementById('txChart').getContext('2d');
+    const labels = {{ chart_labels|safe }};
+    const data = {{ chart_data|safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Transaction Sayısı',
+                data: data,
+                borderColor: 'rgb(102, 126, 234)',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointBackgroundColor: 'rgb(102, 126, 234)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 13 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

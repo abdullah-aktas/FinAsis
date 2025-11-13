@@ -1,0 +1,13 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Vergi Detayı{% endblock %}
+{% block content %}
+<h1>Vergi Detayı</h1>
+<p><strong>Kod:</strong> {{ tax.code }}</p>
+<p><strong>Ad:</strong> {{ tax.name }}</p>
+<p><strong>Oran:</strong> {{ tax.rate }}%</p>
+<p><strong>Tip:</strong> {{ tax.get_type_display }}</p>
+<p><strong>Açıklama:</strong> {{ tax.description }}</p>
+<a href="{% url 'finance:tax_update' tax.pk %}" class="btn btn-primary">Düzenle</a>
+<a href="{% url 'finance:tax_delete' tax.pk %}" class="btn btn-danger">Sil</a>
+<a href="{% url 'finance:tax_list' %}" class="btn btn-secondary">Listeye Dön</a>
+{% endblock %} 

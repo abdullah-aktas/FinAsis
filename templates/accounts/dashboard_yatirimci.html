@@ -1,0 +1,86 @@
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+{% block title %}{% trans "Yatırımcı Paneli" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/dashboards.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <section class="persona-hero mb-5"
+    style="--persona-hero-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+           --persona-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.2), transparent 70%);">
+    <span class="persona-hero-icon"><i class="bi bi-graph-up-arrow"></i></span>
+    <h1 class="display-5 fw-bold mb-2">{% trans "Yatırımcı Paneli" %}</h1>
+    <p class="lead mb-0">{% trans "Portföyünüzü takip edin ve veri odasına erişerek bilgi paylaşın." %}</p>
+    <div class="persona-action-group mt-4">
+      <a href="/finance/reports-index/" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-file-earmark-text me-2"></i>{% trans "Finansal Raporlar" %}
+      </a>
+      <a href="/corporate/investors/" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-building me-2"></i>{% trans "Yatırımcı İlişkileri" %}
+      </a>
+      <a href="/games/leaderboard/" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-bar-chart me-2"></i>{% trans "Simülasyon" %}
+      </a>
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="portfolio-overview">
+    <div class="persona-section-title" id="portfolio-overview">
+      <i class="bi bi-pie-chart"></i>{% trans "Portföy Özeti" %}
+    </div>
+    <div class="persona-stat-grid">
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-success"><i class="bi bi-currency-exchange"></i></div>
+        <h2 class="h5 fw-semibold mb-2">{% trans "Portföy Değeri" %}</h2>
+        <p class="display-6 fw-bold text-success mb-0">{{ portfolio_value|default:0|floatformat:0 }} ₺</p>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-success"><i class="bi bi-graph-up"></i></div>
+        <h2 class="h5 fw-semibold mb-2">{% trans "Günlük Değişim" %}</h2>
+        <p class="display-6 fw-bold {% if today_change >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">{% if today_change >= 0 %}+{% endif %}{{ today_change|default:0|floatformat:2 }}%</p>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-success"><i class="bi bi-rocket"></i></div>
+        <h2 class="h5 fw-semibold mb-2">{% trans "Toplam Getiri" %}</h2>
+        <p class="display-6 fw-bold {% if total_return >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">{% if total_return >= 0 %}+{% endif %}{{ total_return|default:0|floatformat:2 }}%</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="invest-tools">
+    <div class="persona-section-title" id="invest-tools">
+      <i class="bi bi-lightbulb"></i>{% trans "Yatırım Araçları" %}
+    </div>
+    <div class="persona-stat-grid">
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-primary"><i class="bi bi-graph-up"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Borsa Simülasyonu" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Sanal portföy oluşturun ve stratejinizi test edin." %}</p>
+        <a href="/game-app/stock-market/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-play-fill"></i>{% trans "Başlat" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-success"><i class="bi bi-currency-dollar"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Yatırım Simülatörü" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Senaryo tabanlı finansal modelleri deneyimleyin." %}</p>
+        <a href="/game-app/investment-simulator/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-rocket"></i>{% trans "Deneyin" %}
+        </a>
+      </article>
+      <article class="persona-stat-card text-center">
+        <div class="persona-stat-icon text-warning"><i class="bi bi-file-text"></i></div>
+        <h2 class="h6 fw-semibold mb-2">{% trans "Finansal Raporlar" %}</h2>
+        <p class="text-secondary mb-4">{% trans "Detaylı raporlar ve veri odası dokümanlarına erişin." %}</p>
+        <a href="/finance/reports-index/" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-arrow-up-right"></i>{% trans "İncele" %}
+        </a>
+      </article>
+    </div>
+  </section>
+</div>
+{% endblock %}
+

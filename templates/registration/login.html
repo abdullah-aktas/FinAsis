@@ -1,0 +1,654 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block title %}Giriş Yap{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Modern Animated Background */
+  .auth-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+    padding: 60px 0;
+  }
+
+  .auth-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%);
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+
+  /* Floating shapes animation */
+  .floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: float 20s infinite ease-in-out;
+  }
+
+  .shape-1 {
+    width: 300px;
+    height: 300px;
+    background: white;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .shape-2 {
+    width: 200px;
+    height: 200px;
+    background: white;
+    bottom: 20%;
+    right: 15%;
+    animation-delay: 5s;
+  }
+
+  .shape-3 {
+    width: 150px;
+    height: 150px;
+    background: white;
+    top: 60%;
+    left: 70%;
+    animation-delay: 10s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -30px) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) rotate(240deg); }
+  }
+
+  /* Glassmorphism Card */
+  .auth-card {
+    position: relative;
+    border: 0;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+      0 16px 48px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  }
+
+  /* Logo animation */
+  .auth-logo {
+    height: 50px;
+    animation: logoFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Form Controls */
+  .auth-card .form-control,
+  .auth-card .form-select {
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .auth-card .form-control:focus,
+  .auth-card .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background: #fff;
+    transform: translateY(-2px);
+  }
+
+  .auth-card .form-control.is-invalid {
+    border-color: #dc3545;
+    animation: shake 0.5s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  /* Submit Button */
+  .auth-card .btn-auth {
+    position: relative;
+    border-radius: 16px;
+    padding: 16px 24px;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .auth-card .btn-auth::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .auth-card .btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  .auth-card .btn-auth:hover::before {
+    left: 100%;
+  }
+
+  .auth-card .btn-auth:active {
+    transform: translateY(0);
+  }
+
+  /* Benefit Items */
+  .benefit-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    animation: slideInRight 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .benefit-item:nth-child(1) { animation-delay: 0.1s; }
+  .benefit-item:nth-child(2) { animation-delay: 0.2s; }
+  .benefit-item:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .benefit-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateX(5px);
+  }
+
+  .benefit-badge {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .benefit-item:hover .benefit-badge {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .benefit-content strong {
+    color: #fff;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .benefit-content .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 14px;
+  }
+
+  /* Links */
+  .text-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .text-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #667eea;
+    transition: width 0.3s ease;
+  }
+
+  .text-link:hover {
+    color: #764ba2;
+  }
+
+  .text-link:hover::after {
+    width: 100%;
+  }
+
+  /* Password Toggle */
+  .password-toggle {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #667eea;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  .password-toggle:hover {
+    color: #764ba2;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  /* Title styles */
+  .auth-title {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: slideInLeft 0.8s ease;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .auth-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 20px;
+    line-height: 1.6;
+    animation: slideInLeft 0.8s ease 0.2s backwards;
+  }
+
+  .lead-small {
+    color: #6c757d;
+  }
+
+  /* Card title */
+  .card-title-main {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Alert styles */
+  .alert {
+    border-radius: 12px;
+    border: none;
+    animation: slideDown 0.5s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Form labels */
+  .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .auth-title {
+      font-size: 36px;
+      text-align: center;
+    }
+    
+    .auth-subtitle {
+      text-align: center;
+    }
+    
+    .auth-hero {
+      padding: 40px 0;
+    }
+  }
+
+  /* Loading animation for form submission */
+  .btn-auth.loading {
+    pointer-events: none;
+    position: relative;
+    color: transparent;
+  }
+
+  .btn-auth.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-hero">
+  <!-- Animated floating shapes -->
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+  
+  <div class="container" style="position: relative; z-index: 1;">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6 order-2 order-lg-1">
+        <div class="card auth-card p-4 p-md-5">
+          <div class="text-center mb-4">
+            <img src="{% static 'common/FinAsis_logo.png' %}" alt="FinAsis" class="auth-logo">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+              <h1 class="card-title-main mt-3 mb-0">Hoş Geldiniz</h1>
+              <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 10px; padding: 4px 8px; border-radius: 8px; margin-top: 12px;">BETA</span>
+            </div>
+            <p class="lead-small">Hesabınıza giriş yapın ve finansal dönüşümü başlatın.</p>
+          </div>
+          <form method="post" novalidate id="loginForm">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next|default:'' }}">
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle me-2"></i>{{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            {% if request.GET.timeout %}
+            <div class="alert alert-warning">
+              <i class="bi bi-hourglass-split me-2"></i>{% trans "Oturumunuz zaman aşımına uğradı. Lütfen yeniden giriş yapın." %}
+            </div>
+            {% endif %}
+            {% if request.GET.mfa == 'required' %}
+            <div class="alert alert-info">
+              <i class="bi bi-shield-lock me-2"></i>{% trans "Hesabınız ek doğrulama gerektiriyor. Girişten sonra MFA kodu istenecektir." %}
+            </div>
+            {% endif %}
+
+            {# Modern kullanıcı türü seçici: form.user_type veya form.audience mevcutsa #}
+            {% if form.user_type %}
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.user_type.id_for_label }}">
+                <i class="bi bi-person-badge me-2"></i>Kullanıcı Türü
+              </label>
+              {{ form.user_type }}
+              {% if form.user_type.help_text %}
+              <div class="form-text">{{ form.user_type.help_text }}</div>
+              {% endif %}
+              {{ form.user_type.errors }}
+            </div>
+            {% elif form.audience %}
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.audience.id_for_label }}">
+                <i class="bi bi-person-badge me-2"></i>Kullanıcı Türü
+              </label>
+              {{ form.audience }}
+              {% if form.audience.help_text %}
+              <div class="form-text">{{ form.audience.help_text }}</div>
+              {% endif %}
+              {{ form.audience.errors }}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+            {% if field.name != 'user_type' and field.name != 'audience' %}
+            {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="mb-4 form-check">
+              {{ field }}
+              <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            {% else %}
+            <div class="mb-4 position-relative">
+              <label for="{{ field.id_for_label }}" class="form-label">
+                {% if field.name == 'username' or field.name == 'email' %}
+                  <i class="bi bi-person me-2"></i>
+                {% elif field.field.widget.input_type == 'password' %}
+                  <i class="bi bi-lock me-2"></i>
+                {% endif %}
+                {{ field.label }}
+              </label>
+              {{ field }}
+              {% if field.field.widget.input_type == 'password' %}
+              <span class="password-toggle" data-target="{{ field.id_for_label }}" title="Göster/Gizle">
+                <i class="bi bi-eye"></i>
+              </span>
+              {% endif %}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+
+            <div id="captcha-area" class="mb-4">
+              {% if form.recaptcha %}{{ form.recaptcha }}
+              {% elif form.captcha %}{{ form.captcha }}
+              {% elif form.hcaptcha %}{{ form.hcaptcha }}
+              {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-auth mt-2">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap
+            </button>
+          </form>
+          <script>
+            // Bootstrap sınıflarını otomatik uygula
+            (function () {
+              const form = document.getElementById('loginForm');
+              if (!form) return;
+              const inputs = form.querySelectorAll('input:not([type=checkbox]):not([type=radio]), textarea');
+              inputs.forEach(el => el.classList.add('form-control'));
+              const selects = form.querySelectorAll('select');
+              selects.forEach(el => el.classList.add('form-select'));
+              const checks = form.querySelectorAll('input[type=checkbox]');
+              checks.forEach(el => el.classList.add('form-check-input'));
+            })();
+
+            // Şifre göster/gizle
+            document.querySelectorAll('.password-toggle').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-target');
+                const input = document.getElementById(id);
+                if (!input) return;
+                const eye = btn.querySelector('i');
+                if (input.type === 'password') {
+                  input.type = 'text';
+                  eye.classList.remove('bi-eye');
+                  eye.classList.add('bi-eye-slash');
+                } else {
+                  input.type = 'password';
+                  eye.classList.remove('bi-eye-slash');
+                  eye.classList.add('bi-eye');
+                }
+              });
+            });
+
+            // Form gönderim animasyonu
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+              const btn = this.querySelector('.btn-auth');
+              btn.classList.add('loading');
+            });
+
+            // Form validasyonu için gerçek zamanlı feedback
+            document.querySelectorAll('.form-control').forEach(input => {
+              input.addEventListener('blur', function() {
+                if (this.value.trim() === '' && this.hasAttribute('required')) {
+                  this.classList.add('is-invalid');
+                } else {
+                  this.classList.remove('is-invalid');
+                }
+              });
+              input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+                  this.classList.remove('is-invalid');
+                }
+              });
+            });
+          </script>
+          <div class="d-flex justify-content-between mt-4 small">
+            <a href="{% url 'accounts:password_reset' %}" class="text-link">
+              <i class="bi bi-key me-1"></i>Şifremi Unuttum
+            </a>
+            <a href="{% url 'accounts:register' %}" class="text-link">
+              <i class="bi bi-person-plus me-1"></i>Hesap Oluştur
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 order-1 order-lg-2">
+        <div class="px-lg-4">
+          <!-- Beta Badge -->
+          <div class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-2" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 20px;">
+            <i class="bi bi-stars text-white" style="font-size: 20px;"></i>
+            <span class="text-white fw-bold" style="font-size: 14px; letter-spacing: 0.5px;">BETA SÜRÜMÜ YAYINDA</span>
+          </div>
+          
+          <h2 class="auth-title">FinAsis Beta'ya Hoş Geldiniz!</h2>
+          <p class="auth-subtitle mb-4">Giriş yapın ve beta kullanıcı avantajlarından yararlanın. Henüz hesabınız yoksa, şimdi kayıt olun!</p>
+          
+          <!-- Beta Benefits -->
+          <div class="d-flex flex-column gap-3">
+            <div class="benefit-item" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2)); border: 2px solid rgba(255, 215, 0, 0.3);">
+              <div class="benefit-badge" style="background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%); color: #fff;">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div class="benefit-content">
+                <strong style="color: #fff;">🎁 Şirket Hissesi Hediye!</strong>
+                <div class="text-muted">Beta kullanıcıları şirket ortağı olur. Büyümeye birlikte devam edin.</div>
+              </div>
+            </div>
+            
+            <div class="benefit-item">
+              <div class="benefit-badge"><i class="bi bi-gift"></i></div>
+              <div class="benefit-content">
+                <strong>2 Ay Ücretsiz Pro Paket</strong>
+                <div class="text-muted">Tüm premium özelliklere tam erişim. Kredi kartı gerektirmez.</div>
+              </div>
+            </div>
+            
+            <div class="benefit-item">
+              <div class="benefit-badge"><i class="bi bi-percent"></i></div>
+              <div class="benefit-content">
+                <strong>%50 İndirim Garantisi</strong>
+                <div class="text-muted">Tam sürüm lansmanında kalıcı %50 indirim hakkınız saklı.</div>
+              </div>
+            </div>
+            
+            <div class="benefit-item">
+              <div class="benefit-badge"><i class="bi bi-trophy-fill"></i></div>
+              <div class="benefit-content">
+                <strong>Beta Pioneer Rozeti</strong>
+                <div class="text-muted">Profilde özel rozet ve toplulukta öncelikli statü.</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CTA for Non-Users -->
+          <div class="mt-4 p-4" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.2);">
+            <div class="text-center">
+              <div class="text-white fw-bold mb-2" style="font-size: 18px;">
+                <i class="bi bi-rocket-takeoff me-2"></i>Hesabınız yok mu?
+              </div>
+              <p class="text-white mb-3" style="font-size: 14px; opacity: 0.9;">
+                Hemen kayıt olun ve tüm beta avantajlarından yararlanın!
+              </p>
+              <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-4" style="border-radius: 12px; font-weight: 700;">
+                <i class="bi bi-person-plus me-2"></i>Ücretsiz Kayıt Ol
+              </a>
+            </div>
+          </div>
+          
+          <!-- Trust Indicators -->
+          <div class="mt-4 pt-4" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+            <div class="d-flex flex-wrap gap-4 justify-content-center justify-content-lg-start">
+              <div class="text-center">
+                <div class="text-white fw-bold" style="font-size: 24px;">500+</div>
+                <div class="text-muted small">Aktif İşletme</div>
+              </div>
+              <div class="text-center">
+                <div class="text-white fw-bold" style="font-size: 24px;">%98</div>
+                <div class="text-muted small">Müşteri Memnuniyeti</div>
+              </div>
+              <div class="text-center">
+                <div class="text-white fw-bold" style="font-size: 24px;">24/7</div>
+                <div class="text-muted small">Teknik Destek</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

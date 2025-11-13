@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Risk Yönetimi" %} - {% trans "KOBİ Analiz" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <nav class="text-sm breadcrumbs">
+            <ul class="flex space-x-2 text-gray-600">
+                <li><a href="{% url 'kobi_analysis:dashboard' %}" class="hover:text-blue-600">{% trans "KOBİ Dashboard" %}</a></li>
+                <li class="before:content-['/'] before:mx-2">{% trans "Risk Yönetimi" %}</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">{% trans "Risk Yönetimi" %}</h1>
+                <p class="text-gray-600 mt-2">{% trans "Şirketinizin risklerini tanımlayın ve yönetin" %}</p>
+            </div>
+            <button class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                {% trans "Yeni Risk Ekle" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Kritik Riskler -->
+    {% if critical_risks %}
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-red-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            {% trans "Kritik Riskler" %}
+        </h2>
+        <div class="space-y-4">
+            {% for risk in critical_risks %}
+            <div class="bg-white rounded-lg p-4 border border-red-300">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900">{{ risk.risk_title }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">{{ risk.risk_description|truncatewords:20 }}</p>
+                        <div class="flex items-center mt-2 space-x-4">
+                            <span class="text-xs text-gray-500">
+                                <strong>{% trans "Kategori" %}:</strong> {{ risk.get_risk_category_display }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                <strong>{% trans "Olasılık" %}:</strong> {{ risk.get_likelihood_display }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                <strong>{% trans "Etki" %}:</strong> {{ risk.get_impact_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ml-4 text-right">
+                        <div class="text-2xl font-bold text-red-600">{{ risk.risk_score }}</div>
+                        <div class="text-xs text-gray-500">{% trans "Risk Skoru" %}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Risk Kategorileri -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {% for category, count in risk_by_category.items %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-sm font-medium text-gray-600 mb-2">{{ category }}</h3>
+            <p class="text-3xl font-bold text-gray-900">{{ count }}</p>
+            <p class="text-xs text-gray-500 mt-1">{% trans "risk" %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Tüm Riskler -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Tüm Riskler" %}</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Risk" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Kategori" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Skor" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "Durum" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{% trans "İşlem" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for risk in all_risks %}
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ risk.risk_title }}</div>
+                            <div class="text-sm text-gray-500">{{ risk.risk_description|truncatewords:15 }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ risk.get_risk_category_display }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-lg font-bold {% if risk.risk_score >= 70 %}text-red-600{% elif risk.risk_score >= 40 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                                {{ risk.risk_score }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if risk.status == 'IDENTIFIED' %}bg-yellow-100 text-yellow-800
+                                {% elif risk.status == 'MITIGATED' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ risk.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-blue-600 hover:text-blue-900">{% trans "Detay" %}</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            {% trans "Risk bulunmuyor" %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mitigasyon Planları -->
+    {% if mitigation_plans %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">{% trans "Aktif Mitigasyon Planları" %}</h2>
+        <div class="space-y-4">
+            {% for plan in mitigation_plans %}
+            <div class="border rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900">{{ plan.mitigation_title }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ plan.description }}</p>
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-xs text-gray-500">
+                        {% trans "Sorumlu" %}: {{ plan.responsible_person }}
+                    </span>
+                    <span class="px-2 py-1 text-xs rounded-full
+                        {% if plan.status == 'PLANNED' %}bg-blue-100 text-blue-800
+                        {% elif plan.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-green-100 text-green-800{% endif %}">
+                        {{ plan.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

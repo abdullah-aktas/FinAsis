@@ -1,0 +1,14 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+{% block title %}{% trans 'Toplantı Oluştur' %}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">{% trans 'Toplantı' %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">{% trans 'Kaydet' %}</button>
+    <a class="btn btn-secondary" href="{% url 'education:meetings_list' %}">{% trans 'İptal' %}</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Proje Listesi" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold">{% trans "Projeler" %}</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "Yeni Proje" %}
+    </button>
+</div>
+
+<!-- Filtre -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">{% trans "Tüm Durumlar" %}</option>
+                    <option value="PLANNING" {% if status_filter == 'PLANNING' %}selected{% endif %}>{% trans "Planlama" %}</option>
+                    <option value="IN_PROGRESS" {% if status_filter == 'IN_PROGRESS' %}selected{% endif %}>{% trans "Devam Ediyor" %}</option>
+                    <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>{% trans "Tamamlandı" %}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">{% trans "Filtrele" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Proje Grid -->
+<div class="row g-4">
+    {% for project in projects %}
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="fw-bold mb-0">{{ project.project_name }}</h5>
+                    <span class="badge bg-{% if project.status == 'IN_PROGRESS' %}primary{% elif project.status == 'COMPLETED' %}success{% else %}secondary{% endif %}">
+                        {{ project.get_status_display }}
+                    </span>
+                </div>
+                <p class="text-muted small mb-3">{{ project.client.company_name }}</p>
+                <p class="text-muted small mb-3">{{ project.description|truncatewords:15 }}</p>
+                <div class="d-flex justify-content-between text-muted small">
+                    <span><i class="bi bi-calendar3 me-1"></i>{{ project.start_date }}</span>
+                    <span><i class="bi bi-arrow-right mx-2"></i></span>
+                    <span>{{ project.end_date|default:"Devam ediyor" }}</span>
+                </div>
+                <a href="{% url 'corporate:project_detail' project.id %}" class="btn btn-outline-primary btn-sm w-100 mt-3">
+                    {% trans "Detayları Gör" %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-kanban display-3 text-muted mb-3"></i>
+            <h5 class="text-muted">{% trans "Proje bulunmuyor" %}</h5>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

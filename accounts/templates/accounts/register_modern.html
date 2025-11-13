@@ -1,0 +1,1034 @@
+{% extends 'core_ui/base.html' %} {% load i18n static %} {% block title %}Kayıt
+Ol - FinAsis{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<style>
+  .register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      135deg,
+      var(--brand-secondary),
+      var(--brand-accent)
+    );
+    position: relative;
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .register-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 0h80v80H0z'/%3E%3Cpath d='M20 20h40v40H20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+      repeat;
+  }
+
+  .register-card {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-3xl);
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .register-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .register-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-secondary),
+      var(--brand-accent)
+    );
+    border-radius: var(--radius-xl);
+    margin: 0 auto var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+  }
+
+  .register-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .register-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+  }
+
+  .form-step {
+    display: none;
+  }
+
+  .form-step.active {
+    display: block;
+  }
+
+  .step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .step-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--neutral-200);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin: 0 var(--spacing-sm);
+    transition: all var(--transition-fast);
+    position: relative;
+  }
+
+  .step-item.completed {
+    background: var(--brand-success);
+    color: white;
+  }
+
+  .step-item.active {
+    background: var(--brand-primary);
+    color: white;
+  }
+
+  .step-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 40px;
+    height: 2px;
+    background: var(--neutral-200);
+    transform: translateY(-50%);
+    z-index: -1;
+  }
+
+  .step-item.completed:not(:last-child)::after {
+    background: var(--brand-success);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .form-field {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .form-field.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .form-control-modern {
+    width: 100%;
+    height: 56px;
+    padding: var(--spacing-md);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+  }
+
+  .form-control-modern:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgb(10 174 148 / 0.1);
+  }
+
+  .form-control-modern.is-invalid {
+    border-color: var(--brand-danger);
+  }
+
+  .form-control-modern.is-valid {
+    border-color: var(--brand-success);
+  }
+
+  .password-field {
+    position: relative;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+  }
+
+  .password-toggle:hover {
+    color: var(--brand-primary);
+  }
+
+  .password-strength {
+    height: 4px;
+    background: var(--neutral-200);
+    border-radius: 2px;
+    margin-top: var(--spacing-xs);
+    overflow: hidden;
+  }
+
+  .password-strength-bar {
+    height: 100%;
+    transition: all var(--transition-fast);
+    border-radius: 2px;
+  }
+
+  .password-strength-weak {
+    background: var(--brand-danger);
+    width: 25%;
+  }
+  .password-strength-medium {
+    background: var(--brand-warning);
+    width: 60%;
+  }
+  .password-strength-strong {
+    background: var(--brand-success);
+    width: 100%;
+  }
+
+  .password-requirements {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+  }
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-xs) 0;
+  }
+
+  .requirement.met {
+    color: var(--brand-success);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+  }
+
+  .btn-step {
+    flex: 1;
+    height: 56px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+    border: 2px solid var(--border-color);
+    background: var(--surface);
+    color: var(--text-primary);
+  }
+
+  .btn-step.primary {
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  .btn-step.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-step:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .terms-checkbox input {
+    margin-top: 2px;
+  }
+
+  .terms-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .terms-text a {
+    color: var(--brand-primary);
+    text-decoration: none;
+  }
+
+  .terms-text a:hover {
+    text-decoration: underline;
+  }
+
+  .social-signup {
+    text-align: center;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .social-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+
+  .social-btn {
+    flex: 1;
+    height: 48px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+  }
+
+  .social-btn:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    text-decoration: none;
+  }
+
+  .plan-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .plan-card {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--surface);
+  }
+
+  .plan-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .plan-card.selected {
+    border-color: var(--brand-primary);
+    background: rgb(10 174 148 / 0.05);
+  }
+
+  .plan-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .plan-price {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .plan-features li {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .error-message {
+    background: rgb(239 68 68 / 0.1);
+    color: var(--brand-danger);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgb(239 68 68 / 0.2);
+    font-size: var(--font-size-sm);
+  }
+
+  .success-message {
+    background: rgb(16 185 129 / 0.1);
+    color: var(--brand-success);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgb(16 185 129 / 0.2);
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .register-container {
+      padding: var(--spacing-md);
+    }
+
+    .register-card {
+      padding: var(--spacing-xl);
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .social-buttons {
+      flex-direction: column;
+    }
+
+    .plan-selection {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <div class="register-logo">
+        <i class="bi bi-person-plus"></i>
+      </div>
+      <h1 class="register-title">FinAsis'e Katılın</h1>
+      <p class="register-subtitle">
+        Finansal yönetimi kolaylaştıran yapay zeka destekli platform
+      </p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step-item active" id="step-1-indicator">1</div>
+      <div class="step-item" id="step-2-indicator">2</div>
+      <div class="step-item" id="step-3-indicator">3</div>
+    </div>
+
+    {% if messages %} {% for message in messages %}
+    <div
+      class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}"
+    >
+      {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% if form.non_field_errors %}
+    <div class="error-message">
+      {% for error in form.non_field_errors %}
+      <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="registrationForm">
+      {% csrf_token %}
+
+      <!-- Step 1: Basic Information -->
+      <div class="form-step active" id="step-1">
+        <h3 class="mb-4">Temel Bilgiler</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label" for="{{ form.first_name.id_for_label }}"
+              >Ad</label
+            >
+            {{ form.first_name }} {% if form.first_name.errors %}
+            <div class="text-danger mt-1 small">
+              {{ form.first_name.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="{{ form.last_name.id_for_label }}"
+              >Soyad</label
+            >
+            {{ form.last_name }} {% if form.last_name.errors %}
+            <div class="text-danger mt-1 small">
+              {{ form.last_name.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-field full-width">
+            <label class="form-label" for="{{ form.email.id_for_label }}"
+              >E-posta Adresi</label
+            >
+            {{ form.email }} {% if form.email.errors %}
+            <div class="text-danger mt-1 small">{{ form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-field full-width">
+            <label class="form-label" for="{{ form.username.id_for_label }}"
+              >Kullanıcı Adı</label
+            >
+            {{ form.username }} {% if form.username.errors %}
+            <div class="text-danger mt-1 small">
+              {{ form.username.errors.0 }}
+            </div>
+            {% endif %}
+            <small class="text-muted">Bu isim ile giriş yapacaksınız</small>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-step primary" onclick="nextStep(1)">
+            Devam Et <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Security & Account Type -->
+      <div class="form-step" id="step-2">
+        <h3 class="mb-4">Güvenlik ve Hesap Türü</h3>
+
+        <div class="form-grid">
+          <div class="form-field full-width">
+            <label class="form-label" for="{{ form.password1.id_for_label }}"
+              >Şifre</label
+            >
+            <div class="password-field">
+              {{ form.password1 }}
+              <button
+                type="button"
+                class="password-toggle"
+                onclick="togglePassword('{{ form.password1.id_for_label }}')"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="password-strength">
+              <div
+                class="password-strength-bar"
+                id="password-strength-bar"
+              ></div>
+            </div>
+            <div class="password-requirements" id="password-requirements">
+              <div class="requirement" id="length-req">
+                <i class="bi bi-circle"></i>
+                <span>En az 8 karakter</span>
+              </div>
+              <div class="requirement" id="uppercase-req">
+                <i class="bi bi-circle"></i>
+                <span>En az 1 büyük harf</span>
+              </div>
+              <div class="requirement" id="number-req">
+                <i class="bi bi-circle"></i>
+                <span>En az 1 rakam</span>
+              </div>
+            </div>
+            {% if form.password1.errors %}
+            <div class="text-danger mt-1 small">
+              {{ form.password1.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-field full-width">
+            <label class="form-label" for="{{ form.password2.id_for_label }}"
+              >Şifre Tekrarı</label
+            >
+            <div class="password-field">
+              {{ form.password2 }}
+              <button
+                type="button"
+                class="password-toggle"
+                onclick="togglePassword('{{ form.password2.id_for_label }}')"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            {% if form.password2.errors %}
+            <div class="text-danger mt-1 small">
+              {{ form.password2.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Account Type Selection -->
+        <div class="form-field">
+          <label class="form-label">Hesap Türü</label>
+          <div class="plan-selection">
+            <div class="plan-card selected" data-plan="individual">
+              <div class="plan-title">Bireysel</div>
+              <div class="plan-price">Ücretsiz</div>
+              <ul class="plan-features">
+                <li>Temel muhasebe özellikleri</li>
+                <li>5 faturaya kadar</li>
+                <li>Temel raporlar</li>
+              </ul>
+            </div>
+            <div class="plan-card" data-plan="business">
+              <div class="plan-title">İşletme</div>
+              <div class="plan-price">₺99/ay</div>
+              <ul class="plan-features">
+                <li>Sınırsız fatura</li>
+                <li>Gelişmiş raporlar</li>
+                <li>AI analizler</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-step" onclick="prevStep(2)">
+            <i class="bi bi-arrow-left me-2"></i> Geri
+          </button>
+          <button type="button" class="btn-step primary" onclick="nextStep(2)">
+            Devam Et <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Terms and Confirmation -->
+      <div class="form-step" id="step-3">
+        <h3 class="mb-4">Son Adım</h3>
+
+        <div class="text-center mb-4">
+          <div
+            class="register-logo mx-auto mb-3"
+            style="width: 60px; height: 60px"
+          >
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <h5>Neredeyse tamamlandı!</h5>
+          <p class="text-muted">Son olarak kullanım koşullarını onaylayın</p>
+        </div>
+
+        <div class="terms-checkbox">
+          <input
+            type="checkbox"
+            id="accept-terms"
+            required
+            class="form-check-input"
+          />
+          <label for="accept-terms" class="terms-text">
+            <a href="#" target="_blank">Kullanım Koşulları</a>'nı ve
+            <a href="#" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul
+            ediyorum.
+          </label>
+        </div>
+
+        <div class="terms-checkbox">
+          <input
+            type="checkbox"
+            id="marketing-emails"
+            class="form-check-input"
+          />
+          <label for="marketing-emails" class="terms-text">
+            FinAsis'ten güncellemeler ve özel teklifler hakkında e-posta almak
+            istiyorum.
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-step" onclick="prevStep(3)">
+            <i class="bi bi-arrow-left me-2"></i> Geri
+          </button>
+          <button type="submit" class="btn-step primary" id="submit-btn">
+            <i class="bi bi-rocket-takeoff me-2"></i> Hesap Oluştur
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="social-signup">
+      <p class="text-muted small">veya hızlı kayıt için</p>
+      <div class="social-buttons">
+        <a href="#" class="social-btn" onclick="socialSignup('google')">
+          <i class="bi bi-google"></i>
+          Google ile Kayıt Ol
+        </a>
+        <a href="#" class="social-btn" onclick="socialSignup('microsoft')">
+          <i class="bi bi-microsoft"></i>
+          Microsoft ile Kayıt Ol
+        </a>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <p class="small text-muted">
+        Zaten hesabınız var mı?
+        <a
+          href="{% url 'accounts:login' %}"
+          class="text-decoration-none fw-semibold"
+          >Giriş yapın</a
+        >
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  let currentStep = 1;
+  let selectedPlan = "individual";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initializeForm();
+    setupPasswordValidation();
+    setupPlanSelection();
+  });
+
+  function initializeForm() {
+    // Add modern classes to form controls
+    const inputs = document.querySelectorAll(
+      'input[type="text"], input[type="email"], input[type="password"]'
+    );
+    inputs.forEach((input) => {
+      input.classList.add("form-control-modern");
+
+      // Real-time validation
+      input.addEventListener("input", function () {
+        validateField(this);
+      });
+
+      input.addEventListener("blur", function () {
+        validateField(this);
+      });
+    });
+  }
+
+  function setupPasswordValidation() {
+    const passwordInput = document.querySelector(
+      "#{{ form.password1.id_for_label }}"
+    );
+
+    if (passwordInput) {
+      passwordInput.addEventListener("input", function () {
+        validatePasswordStrength(this.value);
+      });
+    }
+  }
+
+  function setupPlanSelection() {
+    document.querySelectorAll(".plan-card").forEach((card) => {
+      card.addEventListener("click", function () {
+        document
+          .querySelectorAll(".plan-card")
+          .forEach((c) => c.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedPlan = this.dataset.plan;
+      });
+    });
+  }
+
+  function nextStep(step) {
+    if (validateCurrentStep(step)) {
+      currentStep = step + 1;
+      showStep(currentStep);
+      updateStepIndicator();
+    }
+  }
+
+  function prevStep(step) {
+    currentStep = step - 1;
+    showStep(currentStep);
+    updateStepIndicator();
+  }
+
+  function showStep(step) {
+    document
+      .querySelectorAll(".form-step")
+      .forEach((s) => s.classList.remove("active"));
+    document.getElementById(`step-${step}`).classList.add("active");
+  }
+
+  function updateStepIndicator() {
+    for (let i = 1; i <= 3; i++) {
+      const indicator = document.getElementById(`step-${i}-indicator`);
+      indicator.classList.remove("active", "completed");
+
+      if (i < currentStep) {
+        indicator.classList.add("completed");
+        indicator.innerHTML = '<i class="bi bi-check"></i>';
+      } else if (i === currentStep) {
+        indicator.classList.add("active");
+        indicator.textContent = i;
+      } else {
+        indicator.textContent = i;
+      }
+    }
+  }
+
+  function validateCurrentStep(step) {
+    const currentStepElement = document.getElementById(`step-${step}`);
+    const inputs = currentStepElement.querySelectorAll(
+      'input[required], input[type="email"]'
+    );
+    let isValid = true;
+
+    inputs.forEach((input) => {
+      if (!validateField(input)) {
+        isValid = false;
+      }
+    });
+
+    if (step === 2) {
+      // Validate password match
+      const password1 = document.querySelector(
+        "#{{ form.password1.id_for_label }}"
+      ).value;
+      const password2 = document.querySelector(
+        "#{{ form.password2.id_for_label }}"
+      ).value;
+
+      if (password1 !== password2) {
+        showFieldError(
+          document.querySelector("#{{ form.password2.id_for_label }}"),
+          "Şifreler eşleşmiyor"
+        );
+        isValid = false;
+      }
+    }
+
+    return isValid;
+  }
+
+  function validateField(field) {
+    const value = field.value.trim();
+    clearFieldError(field);
+
+    // Required field validation
+    if (field.hasAttribute("required") && !value) {
+      showFieldError(field, "Bu alan zorunludur");
+      return false;
+    }
+
+    // Email validation
+    if (field.type === "email" && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        showFieldError(field, "Geçerli bir e-posta adresi girin");
+        return false;
+      }
+    }
+
+    // Username validation
+    if (field.name === "username" && value) {
+      if (value.length < 3) {
+        showFieldError(field, "Kullanıcı adı en az 3 karakter olmalıdır");
+        return false;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+        showFieldError(
+          field,
+          "Kullanıcı adı sadece harf, rakam ve alt çizgi içerebilir"
+        );
+        return false;
+      }
+    }
+
+    // Password validation
+    if (field.name === "password1" && value) {
+      if (value.length < 8) {
+        showFieldError(field, "Şifre en az 8 karakter olmalıdır");
+        return false;
+      }
+    }
+
+    field.classList.remove("is-invalid");
+    field.classList.add("is-valid");
+    return true;
+  }
+
+  function validatePasswordStrength(password) {
+    const strengthBar = document.getElementById("password-strength-bar");
+    const requirements = {
+      length: document.getElementById("length-req"),
+      uppercase: document.getElementById("uppercase-req"),
+      number: document.getElementById("number-req"),
+    };
+
+    let score = 0;
+
+    // Length check
+    if (password.length >= 8) {
+      requirements.length.classList.add("met");
+      requirements.length.querySelector("i").className =
+        "bi bi-check-circle-fill";
+      score++;
+    } else {
+      requirements.length.classList.remove("met");
+      requirements.length.querySelector("i").className = "bi bi-circle";
+    }
+
+    // Uppercase check
+    if (/[A-Z]/.test(password)) {
+      requirements.uppercase.classList.add("met");
+      requirements.uppercase.querySelector("i").className =
+        "bi bi-check-circle-fill";
+      score++;
+    } else {
+      requirements.uppercase.classList.remove("met");
+      requirements.uppercase.querySelector("i").className = "bi bi-circle";
+    }
+
+    // Number check
+    if (/\d/.test(password)) {
+      requirements.number.classList.add("met");
+      requirements.number.querySelector("i").className =
+        "bi bi-check-circle-fill";
+      score++;
+    } else {
+      requirements.number.classList.remove("met");
+      requirements.number.querySelector("i").className = "bi bi-circle";
+    }
+
+    // Update strength bar
+    strengthBar.className = "password-strength-bar";
+    if (score === 1) {
+      strengthBar.classList.add("password-strength-weak");
+    } else if (score === 2) {
+      strengthBar.classList.add("password-strength-medium");
+    } else if (score === 3) {
+      strengthBar.classList.add("password-strength-strong");
+    }
+  }
+
+  function showFieldError(field, message) {
+    clearFieldError(field);
+    field.classList.add("is-invalid");
+    field.classList.remove("is-valid");
+
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "text-danger mt-1 small";
+    errorDiv.textContent = message;
+    field.closest(".form-field").appendChild(errorDiv);
+  }
+
+  function clearFieldError(field) {
+    field.classList.remove("is-invalid");
+    const errorDiv = field.closest(".form-field").querySelector(".text-danger");
+    if (errorDiv) {
+      errorDiv.remove();
+    }
+  }
+
+  function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = field.nextElementSibling;
+    const icon = button.querySelector("i");
+
+    if (field.type === "password") {
+      field.type = "text";
+      icon.className = "bi bi-eye-slash";
+    } else {
+      field.type = "password";
+      icon.className = "bi bi-eye";
+    }
+  }
+
+  function socialSignup(provider) {
+    showToast(`${provider} ile kayıt olma işlemi başlatılıyor...`, "info");
+  }
+
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = "9999";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Form submission
+  document
+    .getElementById("registrationForm")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const termsAccepted = document.getElementById("accept-terms").checked;
+      if (!termsAccepted) {
+        showToast("Lütfen kullanım koşullarını kabul edin", "error");
+        return;
+      }
+
+      const submitBtn = document.getElementById("submit-btn");
+      submitBtn.disabled = true;
+      submitBtn.innerHTML =
+        '<div class="loading-spinner"></div> Hesap oluşturuluyor...';
+
+      // Add selected plan to form data
+      const planInput = document.createElement("input");
+      planInput.type = "hidden";
+      planInput.name = "selected_plan";
+      planInput.value = selectedPlan;
+      this.appendChild(planInput);
+
+      // Submit the form
+      setTimeout(() => {
+        this.submit();
+      }, 1000);
+    });
+
+  // Keyboard navigation
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.target.matches("textarea")) {
+      e.preventDefault();
+      const nextBtn = document.querySelector(
+        `#step-${currentStep} .btn-step.primary`
+      );
+      if (nextBtn && currentStep < 3) {
+        nextBtn.click();
+      } else if (currentStep === 3) {
+        document.getElementById("submit-btn").click();
+      }
+    }
+  });
+</script>
+{% endblock %}

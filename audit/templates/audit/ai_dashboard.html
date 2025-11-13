@@ -1,0 +1,347 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}AI Audit Dashboard - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ai-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 50px 0;
+    border-radius: 24px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .ai-hero::before {
+    content: '🤖';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.1;
+    top: -50px;
+    right: -30px;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .risk-gauge {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    position: relative;
+  }
+  
+  .risk-low { background: linear-gradient(135deg, #10b981, #059669); }
+  .risk-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .risk-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  
+  .anomaly-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-left: 4px solid #ef4444;
+    transition: all 0.3s ease;
+  }
+  
+  .anomaly-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(239,68,68,0.15);
+  }
+  
+  .recommendation-card {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    border-radius: 16px;
+    padding: 24px;
+    border-top: 3px solid #667eea;
+    margin-bottom: 16px;
+  }
+  
+  .blockchain-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  
+  .blockchain-verified {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+  
+  .blockchain-failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+  
+  .health-score-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    position: relative;
+  }
+  
+  .metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="ai-hero text-center">
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 12px;">
+        🤖 AI-Destekli Audit Dashboard
+      </h1>
+      <p style="font-size: 18px; opacity: 0.95;">
+        Yapay Zeka ve Blockchain ile Güçlendirilmiş Denetim Sistemi
+      </p>
+    </div>
+  </div>
+
+  <!-- Ana Metrikler -->
+  <div class="row g-4 mb-4">
+    <!-- Risk Skoru -->
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="risk-gauge {% if risk_score < 40 %}risk-low{% elif risk_score < 70 %}risk-medium{% else %}risk-high{% endif %}">
+          {{ risk_score }}
+        </div>
+        <h6 class="fw-bold mt-3 mb-1">Risk Skoru</h6>
+        <small class="text-muted">
+          {% if risk_score < 40 %}Düşük Risk{% elif risk_score < 70 %}Orta Risk{% else %}Yüksek Risk{% endif %}
+        </small>
+      </div>
+    </div>
+
+    <!-- KOBİ Sağlık Skoru -->
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div class="health-score-ring" style="background: conic-gradient(#10b981 {{ kobi_health.overall_score }}%, #e5e7eb 0);">
+          <div style="position: absolute; width: 90px; height: 90px; background: white; border-radius: 50%;"></div>
+          <div style="position: relative; z-index: 2; color: #667eea;">{{ kobi_health.overall_score|floatformat:0 }}</div>
+        </div>
+        <h6 class="fw-bold mt-3 mb-1">Sağlık Skoru</h6>
+        <small class="text-muted">{{ kobi_health.grade }} - {{ kobi_health.status }}</small>
+      </div>
+    </div>
+
+    <!-- Toplam Olaylar -->
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div style="width: 80px; height: 80px; margin: 0 auto 12px; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.05)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="bi bi-activity" style="font-size: 40px; color: #667eea;"></i>
+        </div>
+        <h3 class="fw-bold mb-1" style="color: #667eea;">{{ total_events }}</h3>
+        <h6 class="fw-bold mb-1">Toplam Olay</h6>
+        <small class="text-muted">Son {{ period_days }} gün</small>
+      </div>
+    </div>
+
+    <!-- Anomaliler -->
+    <div class="col-md-3">
+      <div class="metric-card">
+        <div style="width: 80px; height: 80px; margin: 0 auto 12px; background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.05)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="bi bi-exclamation-triangle" style="font-size: 40px; color: #ef4444;"></i>
+        </div>
+        <h3 class="fw-bold mb-1" style="color: #ef4444;">{{ total_anomalies }}</h3>
+        <h6 class="fw-bold mb-1">Anomali Tespit</h6>
+        <small class="text-muted">AI Analizi</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blockchain Doğrulama -->
+  <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-shield-check me-2" style="color: #667eea;"></i>
+          Blockchain Doğrulama
+        </h5>
+        <span class="blockchain-badge {% if blockchain_verified %}blockchain-verified{% else %}blockchain-failed{% endif %}">
+          {% if blockchain_verified %}
+            <i class="bi bi-check-circle me-1"></i>DOĞRULANDI
+          {% else %}
+            <i class="bi bi-x-circle me-1"></i>BAŞARISIZ
+          {% endif %}
+        </span>
+      </div>
+      
+      <div class="row g-3">
+        <div class="col-md-3">
+          <small class="text-muted d-block">Toplam Blok</small>
+          <strong>{{ blockchain_stats.total_blocks|default:0 }}</strong>
+        </div>
+        <div class="col-md-3">
+          <small class="text-muted d-block">Doğrulanan Olay</small>
+          <strong>{{ blockchain_stats.total_events|default:0 }}</strong>
+        </div>
+        <div class="col-md-3">
+          <small class="text-muted d-block">Benzersiz Kullanıcı</small>
+          <strong>{{ blockchain_stats.unique_users|default:0 }}</strong>
+        </div>
+        <div class="col-md-3">
+          <a href="{% url 'audit:blockchain_verification' %}" class="btn btn-sm btn-outline-primary" style="border-radius: 12px;">
+            <i class="bi bi-search me-1"></i>Detaylar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Breakdown -->
+  <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-4">
+        <i class="bi bi-bar-chart me-2" style="color: #f59e0b;"></i>
+        Risk Dağılımı
+      </h5>
+      <div class="row g-3">
+        {% for key, value in risk_breakdown.items %}
+        <div class="col-md-3">
+          <div class="p-3" style="background: rgba(102,126,234,0.05); border-radius: 12px;">
+            <small class="text-muted text-uppercase d-block mb-1">{{ key }}</small>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" style="width: {{ value }}%; background: {% if value < 40 %}#10b981{% elif value < 70 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+            </div>
+            <strong class="d-block mt-1">{{ value|floatformat:0 }}/100</strong>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Tespit Edilen Anomaliler -->
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">
+              <i class="bi bi-exclamation-triangle me-2" style="color: #ef4444;"></i>
+              Tespit Edilen Anomaliler
+            </h5>
+            <a href="{% url 'audit:anomaly_detection' %}" class="btn btn-sm btn-outline-danger" style="border-radius: 12px;">
+              Tümünü Gör ({{ total_anomalies }})
+            </a>
+          </div>
+
+          {% if anomalies %}
+            {% for anomaly in anomalies %}
+            <div class="anomaly-card mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="badge {% if anomaly.severity == 'high' %}bg-danger{% elif anomaly.severity == 'medium' %}bg-warning{% else %}bg-secondary{% endif %} mb-2">
+                    {{ anomaly.severity|upper }}
+                  </span>
+                  <h6 class="fw-bold mb-1">{{ anomaly.type|title }} Anomalisi</h6>
+                  <p class="text-muted small mb-2">{{ anomaly.description }}</p>
+                  {% if anomaly.user %}
+                  <small class="text-muted">
+                    <i class="bi bi-person me-1"></i>{{ anomaly.user }}
+                  </small>
+                  {% endif %}
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold" style="color: #ef4444; font-size: 24px;">{{ anomaly.risk_score }}</div>
+                  <small class="text-muted">Risk</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-5">
+              <i class="bi bi-check-circle" style="font-size: 64px; color: #10b981;"></i>
+              <h6 class="mt-3 text-muted">Anomali tespit edilmedi</h6>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Önerileri -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-lightbulb me-2" style="color: #f59e0b;"></i>
+            AI Önerileri
+          </h5>
+
+          {% if recommendations %}
+            {% for rec in recommendations %}
+            <div class="recommendation-card">
+              <div class="d-flex gap-2 mb-2">
+                <span class="badge {% if rec.priority == 'critical' %}bg-danger{% elif rec.priority == 'high' %}bg-warning{% else %}bg-info{% endif %}">
+                  {{ rec.priority|upper }}
+                </span>
+                <span class="badge bg-light text-dark">{{ rec.category }}</span>
+              </div>
+              <h6 class="fw-bold mb-2">{{ rec.title }}</h6>
+              <p class="small text-muted mb-2">{{ rec.description }}</p>
+              <details>
+                <summary class="small fw-bold" style="cursor: pointer; color: #667eea;">
+                  Aksiyon Adımları ({{ rec.actions|length }})
+                </summary>
+                <ul class="small mt-2 mb-0">
+                  {% for action in rec.actions %}
+                  <li>{{ action }}</li>
+                  {% endfor %}
+                </ul>
+              </details>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-4">
+              <i class="bi bi-emoji-smile" style="font-size: 48px; color: #10b981;"></i>
+              <p class="mt-2 text-muted small">Şu an için öneri yok</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hızlı Linkler -->
+  <div class="text-center mt-4">
+    <div class="btn-group" role="group">
+      <a href="{% url 'audit:kobi_health' %}" class="btn btn-outline-primary" style="border-radius: 12px 0 0 12px;">
+        <i class="bi bi-heart-pulse me-1"></i>KOBİ Sağlık
+      </a>
+      <a href="{% url 'audit:anomaly_detection' %}" class="btn btn-outline-danger">
+        <i class="bi bi-search me-1"></i>Anomali Analizi
+      </a>
+      <a href="{% url 'audit:blockchain_verification' %}" class="btn btn-outline-success" style="border-radius: 0 12px 12px 0;">
+        <i class="bi bi-shield-check me-1"></i>Blockchain Doğrulama
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

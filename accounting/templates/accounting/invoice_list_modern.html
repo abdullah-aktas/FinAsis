@@ -1,0 +1,650 @@
+{% extends 'core_ui/base.html' %}
+{% load i18n static %}
+
+{% block title %}Faturalar - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}">
+<style>
+.invoice-filters {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.invoice-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.invoice-stat {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.invoice-stat:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.invoice-stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.invoice-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.invoice-table-container {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.invoice-table-header {
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-lg);
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.table-modern {
+  margin: 0;
+}
+
+.table-modern th {
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  padding: var(--spacing-md);
+}
+
+.table-modern td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(var(--border-color), 0.5);
+  vertical-align: middle;
+}
+
+.table-modern tbody tr:hover {
+  background: var(--neutral-50);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.status-badge.paid {
+  background: rgb(16 185 129 / 0.1);
+  color: var(--brand-success);
+}
+
+.status-badge.pending {
+  background: rgb(245 158 11 / 0.1);
+  color: var(--brand-warning);
+}
+
+.status-badge.draft {
+  background: rgb(100 116 139 / 0.1);
+  color: var(--neutral-600);
+}
+
+.status-badge.cancelled {
+  background: rgb(239 68 68 / 0.1);
+  color: var(--brand-danger);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+}
+
+.action-btn:hover {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+  text-decoration: none;
+}
+
+.action-btn.edit:hover {
+  background: var(--brand-warning);
+  border-color: var(--brand-warning);
+}
+
+.action-btn.delete:hover {
+  background: var(--brand-danger);
+  border-color: var(--brand-danger);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.5;
+}
+
+.pagination-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: var(--neutral-50);
+}
+
+.bulk-actions {
+  background: var(--brand-primary);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: -1px -1px var(--spacing-md) -1px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bulk-actions.show {
+  display: flex;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">Faturalar</h1>
+      <p class="text-muted mb-0">Fatura kayıtları ve işlemlerinizi yönetin</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn-modern secondary" onclick="exportInvoices()">
+        <i class="bi bi-download"></i>Dışa Aktar
+      </button>
+      <a href="{% url 'accounting:invoice_create' %}" class="btn-modern primary">
+        <i class="bi bi-plus-lg"></i>Yeni Fatura
+      </a>
+    </div>
+  </div>
+
+  <!-- Invoice Statistics -->
+  <div class="invoice-stats">
+    <div class="invoice-stat">
+      <div class="invoice-stat-value">{{ total_invoices|default:0 }}</div>
+      <div class="invoice-stat-label">Toplam Fatura</div>
+    </div>
+    <div class="invoice-stat">
+      <div class="invoice-stat-value text-success">{{ paid_invoices|default:0 }}</div>
+      <div class="invoice-stat-label">Ödenmiş</div>
+    </div>
+    <div class="invoice-stat">
+      <div class="invoice-stat-value text-warning">{{ pending_invoices|default:0 }}</div>
+      <div class="invoice-stat-label">Bekleyen</div>
+    </div>
+    <div class="invoice-stat">
+      <div class="invoice-stat-value">₺{{ total_amount|default:0|floatformat:0 }}</div>
+      <div class="invoice-stat-label">Toplam Tutar</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="invoice-filters">
+    <form method="get" class="form-modern" role="search" aria-label="Fatura arama formu">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="q" class="form-label">Ara (No / Müşteri)</label>
+          <input type="text" name="q" id="q" value="{{ request.GET.q }}" 
+                 class="form-control" placeholder="Fatura no veya müşteri adı" />
+        </div>
+        <div class="col-md-2">
+          <label for="company" class="form-label">Şirket</label>
+          <select name="company" id="company" class="form-control">
+            <option value="">Tüm Şirketler</option>
+            {% for c in companies %}
+              <option value="{{ c.id }}" {% if request.GET.company == c.id|stringformat:'s' %}selected{% endif %}>
+                {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="customer" class="form-label">Müşteri</label>
+          <select name="customer" id="customer" class="form-control">
+            <option value="">Tüm Müşteriler</option>
+            {% for cust in customers %}
+              <option value="{{ cust.id }}" {% if request.GET.customer == cust.id|stringformat:'s' %}selected{% endif %}>
+                {{ cust.first_name }} {{ cust.last_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="status" class="form-label">Durum</label>
+          <select name="status" id="status" class="form-control">
+            <option value="">Tüm Durumlar</option>
+            {% for key,label in status_choices %}
+              <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="date_range" class="form-label">Tarih Aralığı</label>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-modern primary">
+              <i class="bi bi-search"></i>Ara
+            </button>
+            <a href="?" class="btn-modern secondary">
+              <i class="bi bi-x-circle"></i>Sıfırla
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Invoice Table -->
+  <div class="invoice-table-container">
+    <!-- Bulk Actions Bar -->
+    <div class="bulk-actions" id="bulkActions">
+      <div class="d-flex align-items-center gap-3">
+        <span id="selectedCount">0</span> fatura seçildi
+        <button class="btn btn-sm btn-outline-light" onclick="sendBulkInvoices()">
+          <i class="bi bi-send me-1"></i>Toplu Gönder
+        </button>
+        <button class="btn btn-sm btn-outline-light" onclick="markBulkPaid()">
+          <i class="bi bi-check-circle me-1"></i>Ödendi İşaretle
+        </button>
+        <button class="btn btn-sm btn-outline-light" onclick="exportSelected()">
+          <i class="bi bi-download me-1"></i>Dışa Aktar
+        </button>
+      </div>
+      <button class="btn btn-sm btn-outline-light" onclick="clearSelection()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Table Header -->
+    <div class="invoice-table-header">
+      <div class="d-flex align-items-center gap-2">
+        <input type="checkbox" id="selectAll" class="form-check-input" onchange="toggleSelectAll()">
+        <h5 class="mb-0">Fatura Listesi</h5>
+        <span class="badge bg-secondary">{{ page_obj.paginator.count }} kayıt</span>
+      </div>
+      <div class="d-flex gap-2">
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-funnel me-1"></i>Görünüm
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" onclick="toggleColumn('company')">
+              <i class="bi bi-check text-success"></i>Şirket
+            </a></li>
+            <li><a class="dropdown-item" href="#" onclick="toggleColumn('customer')">
+              <i class="bi bi-check text-success"></i>Müşteri
+            </a></li>
+            <li><a class="dropdown-item" href="#" onclick="toggleColumn('date')">
+              <i class="bi bi-check text-success"></i>Tarih
+            </a></li>
+            <li><a class="dropdown-item" href="#" onclick="toggleColumn('amount')">
+              <i class="bi bi-check text-success"></i>Tutar
+            </a></li>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-sort-down me-1"></i>Sırala
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="?order=invoice_number">Fatura No</a></li>
+            <li><a class="dropdown-item" href="?order=issue_date">Tarih</a></li>
+            <li><a class="dropdown-item" href="?order=total_amount">Tutar</a></li>
+            <li><a class="dropdown-item" href="?order=status">Durum</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    {% if invoices %}
+    <div class="table-responsive">
+      <table class="table table-modern">
+        <thead>
+          <tr>
+            <th width="40">
+              <input type="checkbox" class="form-check-input" id="headerCheckbox">
+            </th>
+            <th>Fatura No</th>
+            <th class="column-company">Şirket</th>
+            <th class="column-customer">Müşteri</th>
+            <th class="column-date">Tarih</th>
+            <th class="column-amount text-end">Tutar</th>
+            <th class="text-center">Durum</th>
+            <th class="text-end">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for invoice in invoices %}
+          <tr>
+            <td>
+              <input type="checkbox" class="form-check-input invoice-checkbox" 
+                     value="{{ invoice.id }}" onchange="updateBulkActions()">
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'accounting:invoice_detail' invoice.pk %}" 
+                   class="fw-semibold text-decoration-none text-primary">
+                  {{ invoice.invoice_number }}
+                </a>
+                {% if invoice.is_overdue %}
+                  <i class="bi bi-exclamation-triangle text-warning" title="Vadesi geçmiş"></i>
+                {% endif %}
+              </div>
+            </td>
+            <td class="column-company">
+              <div class="text-truncate" style="max-width: 150px;" title="{{ invoice.company.name }}">
+                {{ invoice.company.name }}
+              </div>
+            </td>
+            <td class="column-customer">
+              <div class="d-flex align-items-center gap-2">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" 
+                     style="width: 32px; height: 32px;">
+                  <span class="small fw-semibold text-primary">
+                    {{ invoice.customer.first_name|first }}{{ invoice.customer.last_name|first }}
+                  </span>
+                </div>
+                <div class="text-truncate" style="max-width: 120px;">
+                  <div class="fw-medium">{{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</div>
+                  {% if invoice.customer.email %}
+                    <small class="text-muted">{{ invoice.customer.email }}</small>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+            <td class="column-date">
+              <div>{{ invoice.issue_date|date:'d.m.Y' }}</div>
+              {% if invoice.due_date %}
+                <small class="text-muted">Vade: {{ invoice.due_date|date:'d.m.Y' }}</small>
+              {% endif %}
+            </td>
+            <td class="column-amount text-end">
+              <div class="fw-semibold">{{ invoice.total_amount|floatformat:2 }} {{ invoice.currency }}</div>
+              {% if invoice.paid_amount %}
+                <small class="text-muted">Ödenen: {{ invoice.paid_amount|floatformat:2 }}</small>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if invoice.status == 'paid' %}
+                <span class="status-badge paid">Ödendi</span>
+              {% elif invoice.status == 'draft' %}
+                <span class="status-badge draft">Taslak</span>
+              {% elif invoice.status == 'cancelled' %}
+                <span class="status-badge cancelled">İptal</span>
+              {% else %}
+                <span class="status-badge pending">Bekliyor</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <div class="action-buttons">
+                <a href="{% url 'accounting:invoice_detail' invoice.pk %}" 
+                   class="action-btn" title="Detayları Görüntüle">
+                  <i class="bi bi-eye"></i>
+                </a>
+                {% if invoice.status != 'paid' and invoice.status != 'cancelled' %}
+                  <a href="{% url 'accounting:invoice_update' invoice.pk %}" 
+                     class="action-btn edit" title="Düzenle">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                {% endif %}
+                <a href="#" class="action-btn" title="PDF İndir" onclick="downloadPDF('{{ invoice.id }}')">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </a>
+                {% if invoice.status == 'draft' %}
+                  <a href="{% url 'accounting:invoice_delete' invoice.pk %}" 
+                     class="action-btn delete" title="Sil">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <h5 class="text-muted mb-2">Henüz fatura bulunmuyor</h5>
+      <p class="text-muted mb-3">İlk faturanızı oluşturarak başlayın.</p>
+      <a href="{% url 'accounting:invoice_create' %}" class="btn-modern primary">
+        <i class="bi bi-plus-lg"></i>İlk Faturanızı Oluşturun
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination-modern">
+      <div class="small text-muted">
+        Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 
+        ({{ page_obj.start_index }}-{{ page_obj.end_index }} / {{ page_obj.paginator.count }})
+      </div>
+      <nav aria-label="Sayfalama">
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{{ request.GET.urlencode|add:'&' }}">İlk</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ request.GET.urlencode|add:'&' }}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+          {% endif %}
+          
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{{ request.GET.urlencode|add:'&' }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}{{ request.GET.urlencode|add:'&' }}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{{ request.GET.urlencode|add:'&' }}">Son</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedInvoices = new Set();
+
+function toggleSelectAll() {
+  const headerCheckbox = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.invoice-checkbox');
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = headerCheckbox.checked;
+    if (headerCheckbox.checked) {
+      selectedInvoices.add(checkbox.value);
+    } else {
+      selectedInvoices.delete(checkbox.value);
+    }
+  });
+  
+  updateBulkActions();
+}
+
+function updateBulkActions() {
+  const checkboxes = document.querySelectorAll('.invoice-checkbox:checked');
+  const bulkActions = document.getElementById('bulkActions');
+  const selectedCount = document.getElementById('selectedCount');
+  
+  selectedInvoices.clear();
+  checkboxes.forEach(checkbox => selectedInvoices.add(checkbox.value));
+  
+  if (selectedInvoices.size > 0) {
+    bulkActions.classList.add('show');
+    selectedCount.textContent = selectedInvoices.size;
+  } else {
+    bulkActions.classList.remove('show');
+  }
+}
+
+function clearSelection() {
+  selectedInvoices.clear();
+  document.querySelectorAll('.invoice-checkbox').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  document.getElementById('selectAll').checked = false;
+  updateBulkActions();
+}
+
+function toggleColumn(column) {
+  const elements = document.querySelectorAll(`.column-${column}`);
+  elements.forEach(el => {
+    el.style.display = el.style.display === 'none' ? '' : 'none';
+  });
+}
+
+function exportInvoices() {
+  showToast('Faturalar dışa aktarılıyor...', 'info');
+}
+
+function downloadPDF(invoiceId) {
+  showToast('PDF indiriliyor...', 'info');
+}
+
+function sendBulkInvoices() {
+  if (selectedInvoices.size === 0) return;
+  showToast(`${selectedInvoices.size} fatura gönderiliyor...`, 'info');
+}
+
+function markBulkPaid() {
+  if (selectedInvoices.size === 0) return;
+  showToast(`${selectedInvoices.size} fatura ödendi olarak işaretlendi`, 'success');
+}
+
+function exportSelected() {
+  if (selectedInvoices.size === 0) return;
+  showToast(`${selectedInvoices.size} fatura dışa aktarılıyor...`, 'info');
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+  toast.style.zIndex = '9999';
+  toast.textContent = message;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+// Auto-save search filters
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form[role="search"]');
+  const inputs = form.querySelectorAll('input, select');
+  
+  inputs.forEach(input => {
+    input.addEventListener('change', function() {
+      // Debounce form submission for text inputs
+      if (this.type === 'text') {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+          form.submit();
+        }, 500);
+      } else {
+        form.submit();
+      }
+    });
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey || e.metaKey) {
+    switch(e.key) {
+      case 'n':
+        e.preventDefault();
+        window.location.href = "{% url 'accounting:invoice_create' %}";
+        break;
+      case 'a':
+        e.preventDefault();
+        document.getElementById('selectAll').click();
+        break;
+      case 'e':
+        e.preventDefault();
+        exportInvoices();
+        break;
+    }
+  }
+  
+  if (e.key === 'Escape') {
+    clearSelection();
+  }
+});
+</script>
+{% endblock %}

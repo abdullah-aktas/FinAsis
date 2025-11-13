@@ -1,0 +1,75 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ project.project_name }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'corporate:project_list' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Proje Listesine Dön" %}
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2 class="fw-bold mb-2">{{ project.project_name }}</h2>
+                <p class="text-muted mb-0"><i class="bi bi-building me-2"></i>{{ project.client.company_name }}</p>
+            </div>
+            <span class="badge bg-{% if project.status == 'IN_PROGRESS' %}primary{% elif project.status == 'COMPLETED' %}success{% else %}secondary{% endif %} fs-6">
+                {{ project.get_status_display }}
+            </span>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 rounded p-2 me-3">
+                        <i class="bi bi-calendar-event text-primary"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">{% trans "Başlangıç Tarihi" %}</small>
+                        <strong>{{ project.start_date|date:"d F Y" }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 rounded p-2 me-3">
+                        <i class="bi bi-calendar-check text-success"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">{% trans "Bitiş Tarihi" %}</small>
+                        <strong>{{ project.end_date|date:"d F Y"|default:"Devam ediyor" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if project.description %}
+        <div class="mb-3">
+            <h6 class="fw-bold mb-2">{% trans "Proje Açıklaması" %}</h6>
+            <p class="text-muted">{{ project.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if project.budget %}
+        <div>
+            <h6 class="fw-bold mb-2">{% trans "Bütçe" %}</h6>
+            <p class="text-success fs-5 fw-bold">₺{{ project.budget|floatformat:2 }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-bold">{% trans "Proje Detayları" %}</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">{% trans "Proje ile ilgili detaylı bilgiler burada gösterilecek" %}</p>
+    </div>
+</div>
+{% endblock %}
+

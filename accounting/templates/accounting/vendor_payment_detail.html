@@ -1,0 +1,16 @@
+{% extends "core_ui/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h3>{{ payment.vendor.name }} - {{ payment.amount }}</h3>
+  <p><strong>Yöntem:</strong> {{ payment.payment_method }}</p>
+  <p><strong>Tarih:</strong> {{ payment.payment_date }}</p>
+  <p><strong>Fatura:</strong> {{ payment.related_invoice.invoice_number }}</p>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounting:vendor_payment_update' payment.id %}">Düzenle</a>
+  <form class="d-inline" method="post" action="{% url 'accounting:vendor_payment_delete' payment.id %}">{% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+  </form>
+  <a class="btn btn-link btn-sm" href="{% url 'accounting:vendor_payment_list' %}">Geri</a>
+</div>
+{% endblock %}
+
+

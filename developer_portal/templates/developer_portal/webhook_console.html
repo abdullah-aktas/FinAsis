@@ -1,0 +1,167 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Webhook Test Konsolu" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h1 class="display-6 fw-bold mb-2">{% trans "Webhook Test Konsolu" %}</h1>
+      <p class="text-muted lead mb-0">
+        {% trans "Hedef sistemlere örnek FinAsis webhook olaylarını gönderin, imzalama ve yanıtları analiz edin." %}
+      </p>
+    </div>
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+      <a href="{% url 'developer_portal:dashboard' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Portala Dön" %}
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <h2 class="h5 mb-0"><i class="bi bi-send-check me-2 text-primary"></i>{% trans "Webhook Gönderimi" %}</h2>
+        </div>
+        <div class="card-body">
+          <form method="post" class="d-grid gap-3">
+            {% csrf_token %}
+            <div>
+              <label class="form-label fw-semibold text-muted small text-uppercase">{% trans "Olay" %}</label>
+              {{ form.event_type }}
+              {% if form.event_type.errors %}
+                <div class="invalid-feedback d-block">{{ form.event_type.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <label class="form-label fw-semibold text-muted small text-uppercase">{% trans "Hedef URL" %}</label>
+              {{ form.target_url }}
+              <div class="form-text">{{ form.target_url.help_text }}</div>
+              {% if form.target_url.errors %}
+                <div class="invalid-feedback d-block">{{ form.target_url.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <label class="form-label fw-semibold text-muted small text-uppercase">{% trans "İmza Gizli Anahtarı" %}</label>
+              {{ form.signature_secret }}
+              <div class="form-text">{{ form.signature_secret.help_text }}</div>
+              {% if form.signature_secret.errors %}
+                <div class="invalid-feedback d-block">{{ form.signature_secret.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <label class="form-label fw-semibold text-muted small text-uppercase">{% trans "Ek HTTP Başlıkları" %}</label>
+              {{ form.custom_headers }}
+              <div class="form-text">{{ form.custom_headers.help_text }}</div>
+              {% if form.custom_headers.errors %}
+                <div class="invalid-feedback d-block">{{ form.custom_headers.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <label class="form-label fw-semibold text-muted small text-uppercase">{% trans "Özel Payload" %}</label>
+              {{ form.payload_override }}
+              <div class="form-text">{{ form.payload_override.help_text }}</div>
+              {% if form.payload_override.errors %}
+                <div class="invalid-feedback d-block">{{ form.payload_override.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-modern btn-modern-primary">
+                <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Webhook Gönder" %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0"><i class="bi bi-collection me-2 text-success"></i>{% trans "Örnek Olaylar" %}</h2>
+          <span class="badge bg-success-subtle text-success">{% trans "Hazır JSON" %}</span>
+        </div>
+        <div class="card-body">
+          <div class="accordion" id="webhookEvents">
+            {% for definition in event_definitions %}
+            <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+              <h2 class="accordion-header" id="eventHeading{{ forloop.counter }}">
+                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#eventCollapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="eventCollapse{{ forloop.counter }}">
+                  <span class="fw-semibold">{{ definition.title }}</span>
+                  <span class="badge bg-light text-dark ms-3">{{ definition.key }}</span>
+                </button>
+              </h2>
+              <div id="eventCollapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="eventHeading{{ forloop.counter }}" data-bs-parent="#webhookEvents">
+                <div class="accordion-body">
+                  <p class="text-muted mb-3">{{ definition.summary }}</p>
+                  <pre class="bg-dark text-white p-3 rounded-3 small mb-0"><code>{{ definition.payload_json|safe }}</code></pre>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>{% trans "Son Gönderimler" %}</h2>
+        </div>
+        <div class="card-body">
+          {% if webhook_logs %}
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>{% trans "Tarih" %}</th>
+                  <th>{% trans "Olay" %}</th>
+                  <th>{% trans "Durum" %}</th>
+                  <th>{% trans "Süre (ms)" %}</th>
+                  <th>{% trans "Hedef" %}</th>
+                  <th>{% trans "Not" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in webhook_logs %}
+                <tr>
+                  <td>{{ log.created_at|date:"SHORT_DATE_FORMAT" }} {{ log.created_at|time:"H:i:s" }}</td>
+                  <td><span class="badge bg-light text-dark">{{ log.event_type }}</span></td>
+                  <td>
+                    {% if log.error %}
+                      <span class="badge bg-danger"><i class="bi bi-exclamation-octagon me-1"></i>{% trans "Hata" %}</span>
+                    {% elif log.response_status %}
+                      <span class="badge bg-success">{{ log.response_status }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{% trans "Yanıt Yok" %}</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ log.duration_ms|default:"-" }}</td>
+                  <td class="text-break small">{{ log.target_url }}</td>
+                  <td class="small text-muted">
+                    {% if log.error %}
+                      {{ log.error|truncatechars:80 }}
+                    {% else %}
+                      {% trans "Gönderildi" %}
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">{% trans "Henüz webhook gönderimi yapmadınız." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

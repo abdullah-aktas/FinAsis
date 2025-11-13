@@ -1,0 +1,619 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Basın - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .press-hero {
+    position: relative;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .press-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  .press-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .press-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .press-hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .press-hero p {
+    font-size: 22px;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Press Releases Section */
+  .releases-section {
+    padding: 80px 0;
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 18px;
+    color: #718096;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto 60px;
+  }
+
+  .releases-timeline {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .release-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: center;
+    background: white;
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #3b82f6;
+    transition: all 0.3s ease;
+  }
+
+  .release-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .release-date {
+    font-size: 16px;
+    font-weight: 700;
+    color: #3b82f6;
+  }
+
+  .release-content h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .release-content p {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+  }
+
+  .release-badge {
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    white-space: nowrap;
+  }
+
+  .release-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .release-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    color: white;
+  }
+
+  /* Media Kit Section */
+  .mediakit-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+  }
+
+  .mediakit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+  }
+
+  .mediakit-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mediakit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #06b6d4);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .mediakit-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .mediakit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  }
+
+  .mediakit-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+    color: #3b82f6;
+  }
+
+  .mediakit-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .mediakit-desc {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .mediakit-downloads {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: #1a202c;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .download-btn:hover {
+    background: #e5e7eb;
+    transform: translateX(4px);
+    color: #1a202c;
+  }
+
+  .download-btn i {
+    color: #3b82f6;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    padding: 80px 0;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .stat-card {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 16px;
+    color: #718096;
+    font-weight: 600;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .cta-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .cta-subtitle {
+    font-size: 20px;
+    opacity: 0.95;
+    margin-bottom: 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    color: #667eea;
+  }
+
+  .btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+  }
+
+  .btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .press-hero h1 {
+      font-size: 36px;
+    }
+
+    .release-item {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .mediakit-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .cta-title {
+      font-size: 32px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="press-hero">
+  <div class="container press-hero-content">
+    <span class="press-badge">
+      <i class="bi bi-megaphone"></i>
+      Basın & Medya
+    </span>
+    <h1>Haberler ve Medya Kiti</h1>
+    <p>
+      FinAsis'in en son gelişmeleri, basın bültenleri ve medya materyallerine 
+      buradan ulaşabilirsiniz. Medya iş birlikleri için iletişime geçin.
+    </p>
+  </div>
+</section>
+
+<!-- Press Releases Section -->
+<section class="releases-section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-badge">
+        <i class="bi bi-newspaper me-2"></i>Basın Bültenleri
+      </span>
+      <h2 class="section-title">Son Gelişmeler</h2>
+      <p class="section-subtitle">
+        FinAsis'in yeni ürünleri, ortaklıkları ve önemli duyuruları
+      </p>
+    </div>
+
+    <div class="releases-timeline">
+      {% if press_releases %}
+        {% for pr in press_releases %}
+          <div class="release-item">
+            <div class="release-date">{{ pr.date }}</div>
+            <div class="release-content">
+              <h3>{{ pr.title }}</h3>
+              {% if pr.description %}<p>{{ pr.description }}</p>{% endif %}
+            </div>
+            {% if pr.url %}
+              <a href="{{ pr.url }}" class="release-link">
+                <i class="bi bi-arrow-right"></i>
+                Oku
+              </a>
+            {% else %}
+              <span class="release-badge">Yakında</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="release-item">
+          <div class="release-date">Kasım 2025</div>
+          <div class="release-content">
+            <h3>FinAsis BETA sürümü Lansmanı</h3>
+            <p>Kurumsal müşterilerimiz için özel olarak tasarlanan yeni paket lansmanı</p>
+          </div>
+          <span class="release-badge">Bülten</span>
+        </div>
+
+        <div class="release-item">
+          <div class="release-date">Aralık 2025</div>
+          <div class="release-content">
+            <h3>Ticaret Meslek Liseleriyle Eğitim İş Birliği</h3>
+            <p>Finansal okuryazarlık eğitimleri için yeni iş birlikleri başlatıyoruz</p>
+          </div>
+          <span class="release-badge">Haber</span>
+        </div>
+
+        <div class="release-item">
+          <div class="release-date">Ocak 2026</div>
+          <div class="release-content">
+            <h3>AI Asistan Özellikleri Genişletiliyor - FinAsis BETA sürümü</h3>
+            <p>Yapay zeka destekli finansal analiz özellikleri güncelliyoruz</p>
+          </div>
+          <span class="release-badge">Güncelleme</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Media Kit Section -->
+<section class="mediakit-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-folder-fill me-2"></i>Medya Kiti
+      </span>
+      <h2 class="section-title">Marka Materyalleri</h2>
+      <p class="section-subtitle">
+        Logo, renk paleti ve kullanım kılavuzları - medya yayınları için hazır içerikler
+      </p>
+    </div>
+
+    <div class="mediakit-grid">
+      <!-- Logo Pack -->
+      <div class="mediakit-card">
+        <div class="mediakit-icon">
+          <i class="bi bi-image"></i>
+        </div>
+        <h3 class="mediakit-title">Logo Paketi</h3>
+        <p class="mediakit-desc">
+          Farklı formatlarda FinAsis logoları (PNG, SVG, PDF)
+        </p>
+        <div class="mediakit-downloads">
+          <a href="/static/common/logo.svg" class="download-btn" download>
+            <span>Logo (SVG)</span>
+            <i class="bi bi-download"></i>
+          </a>
+          <a href="/static/common/FinAsis_logo.png" class="download-btn" download>
+            <span>Logo (PNG)</span>
+            <i class="bi bi-download"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Brand Guidelines -->
+      <div class="mediakit-card">
+        <div class="mediakit-icon">
+          <i class="bi bi-palette"></i>
+        </div>
+        <h3 class="mediakit-title">Marka Kılavuzu</h3>
+        <p class="mediakit-desc">
+          Renk paleti, tipografi ve logo kullanım kuralları
+        </p>
+        <div class="mediakit-downloads">
+          <a href="#" class="download-btn">
+            <span>Marka Kılavuzu (PDF)</span>
+            <i class="bi bi-download"></i>
+          </a>
+          <a href="#" class="download-btn">
+            <span>Renk Kodları (TXT)</span>
+            <i class="bi bi-download"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Screenshots -->
+      <div class="mediakit-card">
+        <div class="mediakit-icon">
+          <i class="bi bi-camera"></i>
+        </div>
+        <h3 class="mediakit-title">Ekran Görüntüleri</h3>
+        <p class="mediakit-desc">
+          Ürün ekran görüntüleri ve kullanıcı arayüzü görselleri
+        </p>
+        <div class="mediakit-downloads">
+          <a href="#" class="download-btn">
+            <span>Tüm Görseller (ZIP)</span>
+            <i class="bi bi-download"></i>
+          </a>
+          <a href="#" class="download-btn">
+            <span>Yüksek Çözünürlük</span>
+            <i class="bi bi-download"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-badge">
+        <i class="bi bi-graph-up me-2"></i>Hızlı Bilgiler
+      </span>
+      <h2 class="section-title">FinAsis Rakamlarla</h2>
+      <p class="section-subtitle">
+        Platformumuzun büyüme ve etki göstergeleri
+      </p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">2023</div>
+        <div class="stat-label">Kuruluş Yılı</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">500+</div>
+        <div class="stat-label">Aktif Kullanıcı</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">50+</div>
+        <div class="stat-label">Kurumsal Müşteri</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">15+</div>
+        <div class="stat-label">Takım Üyesi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-icon">
+      <i class="bi bi-chat-square-quote"></i>
+    </div>
+    <h2 class="cta-title">Basın İletişimi</h2>
+    <p class="cta-subtitle">
+      Röportaj talepleri, medya iş birlikleri veya daha fazla bilgi için bizimle iletişime geçin
+    </p>
+    <div class="mt-4">
+      <a href="/contact/" class="btn btn-cta-primary">
+        <i class="bi bi-envelope me-2"></i>İletişime Geçin
+      </a>
+      <a href="/corporate/" class="btn btn-cta-secondary">
+        <i class="bi bi-building me-2"></i>Kurumsal Sayfalar
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

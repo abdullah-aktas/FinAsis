@@ -1,0 +1,85 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Kampanya Yönetimi | FinAsis{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container" aria-labelledby="campTitle">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-lg-5">
+                        <h1 id="campTitle" class="h3 fw-bold mb-3">Kampanya Yönetimi</h1>
+                        <p class="text-muted">Bu sayfadan global kampanya kodunu tanımlayabilir veya kaldırabilirsiniz.
+                            Tanımlanan kod, sitedeki CTA linklerine otomatik olarak uygulanır.</p>
+                        <div class="alert alert-info d-flex align-items-center" role="status">
+                            <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+                            <div>Geçerli anahtar: <code>fa_campaign_code</code>. Header bileşeni, bu anahtarı
+                                <em>localStorage</em> üzerinde okur.
+                            </div>
+                        </div>
+
+                        <form class="vstack gap-3" onsubmit="return false" aria-describedby="campHelp">
+                            <div>
+                                <label for="campCode" class="form-label">Kampanya Kodu</label>
+                                <input type="text" id="campCode" class="form-control" placeholder="ör: fall-25">
+                                <div id="campHelp" class="form-text">Örn. harf/rakam ve kısa çizgi kullanın. Boş bırakıp
+                                    Kaydet derseniz kampanya temizlenir.</div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary" onclick="saveCamp()">
+                                    <i class="bi bi-save me-1" aria-hidden="true"></i> Kaydet
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" onclick="clearCamp()">
+                                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i> Temizle
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-muted">Aktif kampanya:</span>
+                                <span id="campCurrent" class="badge bg-secondary ms-1">Yok</span>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+                        <h2 class="h5 fw-semibold mb-2">Hızlı bağlantılar</h2>
+                        <p class="text-muted">Aşağıdaki bağlantılar, aktif kampanya kodunu otomatik ekler.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a id="lnkPlans" class="btn btn-outline-primary"
+                                href="{% url 'billing:plans' %}">Paketler</a>
+                            <a id="lnkRegister" class="btn btn-outline-success"
+                                href="{% url 'accounts:register' %}">Kayıt</a>
+                            <a id="lnkContact" class="btn btn-outline-secondary" href="{% url 'contact' %}">İletişim</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        var KEY = 'fa_campaign_code';
+        var input = document.getElementById('campCode');
+        var badge = document.getElementById('campCurrent');
+
+        function refresh() {
+            var v = localStorage.getItem(KEY) || '';
+            input.value = v;
+            if (v) { badge.textContent = v; badge.className = 'badge bg-success'; }
+            else { badge.textContent = 'Yok'; badge.className = 'badge bg-secondary'; }
+            // Update quick links
+            ['lnkPlans', 'lnkRegister', 'lnkContact'].forEach(function (id) {
+                var a = document.getElementById(id); if (!a) return;
+                try { var url = new URL(a.href, window.location.origin); if (v) { url.searchParams.set('campaign', v); } else { url.searchParams.delete('campaign'); } a.href = url.toString(); } catch (_) { }
+            });
+        }
+
+        window.saveCamp = function () {
+            var v = (input.value || '').trim();
+            if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY);
+            refresh();
+        }
+        window.clearCamp = function () { localStorage.removeItem(KEY); refresh(); }
+        document.addEventListener('DOMContentLoaded', refresh);
+    })();
+</script>
+{% endblock %}

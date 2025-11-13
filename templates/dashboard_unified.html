@@ -1,0 +1,770 @@
+{% extends "core_ui/base.html" %} {% load static i18n humanize role_tags %} {%
+block title %}{% trans "Dashboard" %} - {{ user_role_display|default:"Kullanıcı"
+}} - FinAsis{% endblock %} block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css"
+/>
+<style>
+  .dashboard-hero {
+    background: linear-gradient(
+      135deg,
+      var(--brand-primary),
+      var(--brand-accent)
+    );
+    position: relative;
+    overflow: hidden;
+  }
+  .dashboard-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+      repeat;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 768px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+  .card-modern {
+    background: white;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+  .quick-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border: 2px solid #f1f5f9;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    color: inherit;
+  }
+  .quick-action:hover {
+    border-color: var(--brand-primary);
+    background: var(--brand-primary);
+    color: white;
+    transform: translateY(-2px);
+  }
+  .timeline-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+  .timeline-item:hover {
+    background: #f8fafc;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Dashboard Hero Section -->
+<div class="dashboard-hero text-white py-5 mb-4">
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2 animate-fade-in-up">
+          {% blocktrans with name=user.get_full_name|default:user.username %}
+          Hoş Geldin, {{ name }}! 👋 {% endblocktrans %}
+        </h1>
+        <p class="lead mb-0 animate-fade-in-up" style="animation-delay: 0.2s">
+          {% trans "İşte bugünkü finansal özetiniz ve AI önerileriniz" %}
+        </p>
+        <div class="d-flex align-items-center gap-2 mt-3">
+          {% if user_role %}{% show_role_badge user %}{% endif %}
+          <span class="text-white-50">•</span>
+          <small class="text-white-50">
+            <i class="bi bi-calendar3 me-1"></i>{% now "l, j F Y" %}
+          </small>
+        </div>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div
+          class="d-flex flex-column align-items-md-end animate-fade-in-up"
+          style="animation-delay: 0.4s"
+        >
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-light btn-sm" onclick="refreshDashboard()">
+              <i class="bi bi-arrow-clockwise me-1"></i>{% trans "Yenile" %}
+            </button>
+            <a
+              href="{% url 'accounts:user_profile' %}"
+              class="btn btn-outline-light btn-sm"
+            >
+              <i class="bi bi-gear me-1"></i>{% trans "Ayarlar" %}
+            </a>
+            {% if user|has_role:'admin' %}
+            <a
+              href="{% url 'management:dashboard' %}"
+              class="btn btn-outline-danger btn-sm"
+            >
+              <i class="bi bi-shield-lock me-1"></i>{% trans "Yönetim" %}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- KPI Stats - Conditional based on permissions -->
+  {% can_user user 'CAN_VIEW_FINANCE' as can_view_finance %} {% if
+  can_view_finance and stats %}
+  <div class="stats-grid animate-fade-in-up">
+    <!-- Gelir Kartı -->
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div
+          class="stat-card-icon success bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 48px; height: 48px"
+        >
+          <i class="bi bi-trend-up text-success fs-5"></i>
+        </div>
+        <div class="dropdown">
+          <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            {% trans "Bu Ay" %}
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('today')"
+                >{% trans "Bugün" %}</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('week')"
+                >{% trans "Bu Hafta" %}</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('month')"
+                >{% trans "Bu Ay" %}</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="updatePeriod('year')"
+                >{% trans "Bu Yıl" %}</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="fs-2 fw-bold text-success mb-1">
+        ₺{{ stats.total_income|default:"0"|floatformat:0|intcomma }}
+      </div>
+      <div class="text-muted small mb-2">{% trans "Toplam Gelir" %}</div>
+      <div class="d-flex align-items-center text-success">
+        <i class="bi bi-arrow-up me-1"></i>
+        <span class="small">+12.5% {% trans "önceki aya göre" %}</span>
+      </div>
+    </div>
+
+    <!-- Gider Kartı -->
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div
+          class="stat-card-icon danger bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 48px; height: 48px"
+        >
+          <i class="bi bi-trend-down text-danger fs-5"></i>
+        </div>
+        <button
+          class="btn btn-sm btn-outline-primary"
+          onclick="showExpenseDetails()"
+        >
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+      <div class="fs-2 fw-bold text-danger mb-1">
+        ₺{{ stats.total_expenses|default:"0"|floatformat:0|intcomma }}
+      </div>
+      <div class="text-muted small mb-2">{% trans "Toplam Gider" %}</div>
+      <div class="d-flex align-items-center text-warning">
+        <i class="bi bi-arrow-down me-1"></i>
+        <span class="small">-5.2% {% trans "önceki aya göre" %}</span>
+      </div>
+    </div>
+
+    <!-- Net Kar/Bakiye -->
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div
+          class="stat-card-icon info bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 48px; height: 48px"
+        >
+          <i class="bi bi-wallet2 text-primary fs-5"></i>
+        </div>
+        <span class="badge bg-success">{% trans "Pozitif" %}</span>
+      </div>
+      <div class="fs-2 fw-bold text-primary mb-1">
+        ₺{{ stats.net_balance|default:"0"|floatformat:0|intcomma }}
+      </div>
+      <div class="text-muted small mb-2">{% trans "Net Bakiye" %}</div>
+      <div class="progress mt-2" style="height: 4px">
+        <div class="progress-bar bg-success" style="width: 75%"></div>
+      </div>
+    </div>
+
+    <!-- Bekleyen İşlemler -->
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div
+          class="stat-card-icon warning bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 48px; height: 48px"
+        >
+          <i class="bi bi-clock-history text-warning fs-5"></i>
+        </div>
+        <a
+          href="{% url 'accounting:invoice_list' %}"
+          class="btn btn-sm btn-outline-warning"
+        >
+          <i class="bi bi-list"></i>
+        </a>
+      </div>
+      <div class="fs-2 fw-bold text-warning mb-1">
+        {{ stats.pending_invoices|default:0 }}
+      </div>
+      <div class="text-muted small mb-2">{% trans "Bekleyen Fatura" %}</div>
+      {% if stats.pending_invoices > 0 %}
+      <div class="text-warning">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        <small>{% trans "Acil işlem gerekiyor" %}</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% elif not stats %}
+  <!-- Empty State for New Users -->
+  <div class="card-modern text-center py-5 mb-4">
+    <div class="mb-4">
+      <div
+        class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+        style="width: 80px; height: 80px"
+      >
+        <i class="bi bi-graph-up text-primary" style="font-size: 2rem"></i>
+      </div>
+      <h3 class="text-primary mb-2">{% trans "Hoş geldiniz!" %}</h3>
+      <p class="text-muted mb-4">
+        {% trans "İlk işlemlerinizi yapmaya başlayın ve istatistikleriniz burada
+        görünecek." %}
+      </p>
+    </div>
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+      <a href="{% url 'accounting:invoice_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>{% trans "İlk Faturanızı Oluşturun" %}
+      </a>
+      <button class="btn btn-outline-secondary" onclick="startTour()">
+        <i class="bi bi-play-circle me-2"></i>{% trans "Tura Başla" %}
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Main Grid Layout -->
+  <div class="main-grid">
+    <!-- Left Column - Main Content -->
+    <div class="main-content">
+      <!-- Financial Chart (if finance access) -->
+      {% if can_view_finance %}
+      <div class="card-modern mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0">
+              <i class="bi bi-bar-chart-line me-2 text-primary"></i>
+              {% trans "Finansal Trend" %}
+            </h5>
+            <div class="btn-group btn-group-sm" role="group">
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart7d"
+                checked
+              />
+              <label class="btn btn-outline-primary" for="chart7d"
+                >7{% trans "G" %}</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart30d"
+              />
+              <label class="btn btn-outline-primary" for="chart30d"
+                >30{% trans "G" %}</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartPeriod"
+                id="chart90d"
+              />
+              <label class="btn btn-outline-primary" for="chart90d"
+                >90{% trans "G" %}</label
+              >
+            </div>
+          </div>
+          <canvas id="financialTrendChart" height="300"></canvas>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- AI Assistant Suggestions -->
+      {% can_user user 'CAN_USE_AI' as can_use_ai %} {% if can_use_ai %}
+      <div class="card-modern mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0">
+              <i class="bi bi-robot me-2"></i>
+              {% trans "AI Asistan Önerileri" %}
+              <span class="badge bg-primary ms-2">Beta</span>
+            </h5>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              onclick="refreshAISuggestions()"
+            >
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+          {% if ai_suggestions and ai_suggestions|length > 0 %}
+          <div class="ai-suggestions-container">
+            {% for suggestion in ai_suggestions %}
+            <div class="alert alert-info border-0 mb-3">
+              <div class="d-flex align-items-start gap-3">
+                <span class="fs-4">{{ suggestion.icon }}</span>
+                <div class="flex-grow-1">
+                  <h6 class="fw-semibold mb-1">{{ suggestion.title }}</h6>
+                  <p class="mb-2 small">{{ suggestion.text }}</p>
+                  <div class="d-flex gap-2">
+                    <button
+                      class="btn btn-sm btn-primary"
+                      onclick="applySuggestion('{{ suggestion.id }}')"
+                    >
+                      <i class="bi bi-check me-1"></i>{% trans "Uygula" %}
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      onclick="dismissSuggestion('{{ suggestion.id }}')"
+                    >
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-lightbulb text-warning" style="font-size: 3rem"></i>
+            <h6 class="text-muted mt-2">
+              {% trans "AI asistanınız verilerinizi analiz ediyor" %}
+            </h6>
+            <p class="text-muted small mb-3">
+              {% trans "Öneriler yakında burada görünecek." %}
+            </p>
+          </div>
+          {% endif %}
+          <div class="mt-3">
+            <a
+              href="{% url 'ai_assistant:home' %}"
+              class="btn btn-outline-primary"
+            >
+              <i class="bi bi-chat-dots me-2"></i>{% trans "Asistan ile Konuş"
+              %}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Timeline Activities -->
+      <div class="card-modern">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0">
+              <i class="bi bi-clock-history me-2 text-info"></i>
+              {% trans "Son İşlemler" %}
+            </h5>
+            <a href="#" class="text-decoration-none small"
+              >{% trans "Tümünü Gör" %}</a
+            >
+          </div>
+          {% if recent_activities and recent_activities|length > 0 %}
+          <div class="timeline">
+            {% for activity in recent_activities %}
+            <div class="timeline-item">
+              <div class="d-flex align-items-center gap-3 flex-grow-1">
+                <div
+                  class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                  style="width: 32px; height: 32px"
+                >
+                  <i class="bi bi-{{ activity.icon }} text-primary small"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-medium">{{ activity.description }}</div>
+                  <div class="text-muted small">
+                    {{ activity.time|date:"H:i" }}
+                  </div>
+                </div>
+                <span class="badge bg-{{ activity.badge_type }}"
+                  >{{ activity.status }}</span
+                >
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem"></i>
+            <h6 class="text-muted mt-2">
+              {% trans "Henüz işlem bulunmuyor" %}
+            </h6>
+            <p class="text-muted small">
+              {% trans "İlk işleminizi yapmaya başlayın!" %}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-content">
+      <!-- Quick Actions -->
+      <div class="card-modern mb-4">
+        <div class="card-body">
+          <h6 class="mb-3">
+            <i class="bi bi-lightning-charge me-2 text-warning"></i>
+            {% trans "Hızlı İşlemler" %}
+          </h6>
+          <div class="quick-actions">
+            {% if user_modules and 'accounting' in user_modules %}
+            <a
+              href="{% url 'accounting:invoice_create' %}"
+              class="quick-action"
+            >
+              <div class="quick-action-icon mb-2">
+                <i class="bi bi-receipt fs-4"></i>
+              </div>
+              <div class="quick-action-label small">
+                {% trans "Yeni Fatura" %}
+              </div>
+            </a>
+            <a
+              href="{% url 'accounting:expense_create' %}"
+              class="quick-action"
+            >
+              <div class="quick-action-icon mb-2">
+                <i class="bi bi-cash-coin fs-4"></i>
+              </div>
+              <div class="quick-action-label small">
+                {% trans "Yeni Gider" %}
+              </div>
+            </a>
+            {% endif %} {% if can_use_ai %}
+            <a href="{% url 'ai_assistant:home' %}" class="quick-action">
+              <div class="quick-action-icon mb-2">
+                <i class="bi bi-robot fs-4"></i>
+              </div>
+              <div class="quick-action-label small">
+                {% trans "AI Asistan" %}
+              </div>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- User Modules -->
+      <div class="card-modern mb-4">
+        <div class="card-body">
+          <h6 class="mb-3">
+            <i class="bi bi-grid text-primary me-2"></i>{% trans "Modülleriniz"
+            %}
+          </h6>
+          <div class="d-grid gap-2">
+            {% for module in user_modules %} {% if module == 'accounting' %}
+            <a
+              href="{% url 'accounting:home' %}"
+              class="btn btn-outline-primary btn-sm text-start"
+            >
+              <i class="bi bi-calculator me-2"></i>{% trans "Muhasebe" %}
+            </a>
+            {% elif module == 'finance' %}
+            <a
+              href="{% url 'finance:home' %}"
+              class="btn btn-outline-success btn-sm text-start"
+            >
+              <i class="bi bi-graph-up me-2"></i>{% trans "Finans" %}
+            </a>
+            {% elif module == 'education' %}
+            <a
+              href="{% url 'education:index' %}"
+              class="btn btn-outline-info btn-sm text-start"
+            >
+              <i class="bi bi-mortarboard me-2"></i>{% trans "Eğitim" %}
+            </a>
+            {% elif module == 'games' %}
+            <a
+              href="{% url 'games:home' %}"
+              class="btn btn-outline-warning btn-sm text-start"
+            >
+              <i class="bi bi-controller me-2"></i>{% trans "Oyunlar" %}
+            </a>
+            {% elif module == 'ai_assistant' %}
+            <a
+              href="{% url 'ai_assistant:home' %}"
+              class="btn btn-outline-secondary btn-sm text-start"
+            >
+              <i class="bi bi-robot me-2"></i>{% trans "AI Asistan" %}
+            </a>
+            {% endif %} {% empty %}
+            <p class="text-muted small mb-0">
+              {% trans "Erişilebilir modül yok" %}
+            </p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Card -->
+      <div
+        class="card-modern"
+        style="
+          background: linear-gradient(
+            135deg,
+            var(--brand-secondary),
+            var(--brand-accent)
+          );
+          color: white;
+        "
+      >
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <i class="bi bi-mortarboard" style="font-size: 1.5rem"></i>
+            <span class="badge bg-white bg-opacity-25"
+              >{% trans "Öğren & Kazan" %}</span
+            >
+          </div>
+          <h6 class="fw-semibold mb-2">
+            📘 {% trans "Bugünün Finansal Terimi" %}
+          </h6>
+          <p class="small mb-3">
+            <strong>{% trans "Net Kar Marjı:" %}</strong> {% trans "Şirketin net
+            karının toplam gelire oranı. Karlılığı ölçmek için kullanılan temel
+            göstergelerden biridir." %}
+          </p>
+          <a href="{% url 'education:courses' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-book me-2"></i>{% trans "Daha Fazla Öğren" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+<script>
+  // Dashboard functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    initializeChart();
+    setupEventListeners();
+  });
+
+  function initializeChart() {
+    const ctx = document.getElementById("financialTrendChart");
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [
+          "{% trans 'Ocak' %}",
+          "{% trans 'Şubat' %}",
+          "{% trans 'Mart' %}",
+          "{% trans 'Nisan' %}",
+          "{% trans 'Mayıs' %}",
+          "{% trans 'Haziran' %}",
+        ],
+        datasets: [
+          {
+            label: "{% trans 'Gelir' %}",
+            data: [120000, 150000, 130000, 180000, 160000, 190000],
+            borderColor: "rgb(16, 185, 129)",
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
+            tension: 0.4,
+          },
+          {
+            label: "{% trans 'Gider' %}",
+            data: [80000, 90000, 85000, 110000, 95000, 105000],
+            borderColor: "rgb(239, 68, 68)",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return "₺" + value.toLocaleString("tr-TR");
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function setupEventListeners() {
+    // Chart period change
+    document.querySelectorAll('input[name="chartPeriod"]').forEach((radio) => {
+      radio.addEventListener("change", function () {
+        updateChartData(this.id.replace("chart", ""));
+      });
+    });
+  }
+
+  // Dashboard functions
+  function refreshDashboard() {
+    const btn = event.target.closest("button");
+    const icon = btn.querySelector("i");
+    icon.classList.add("fa-spin");
+
+    setTimeout(() => {
+      icon.classList.remove("fa-spin");
+      showToast("{% trans 'Dashboard yenilendi' %}", "success");
+    }, 1000);
+  }
+
+  function updatePeriod(period) {
+    console.log("Period updated to:", period);
+    // Update stats based on period
+    showToast(`{% trans 'Dönem güncellendi' %}: ${period}`, "info");
+  }
+
+  function updateChartData(period) {
+    console.log("Chart period updated to:", period);
+    // Update chart data based on period
+  }
+
+  function showExpenseDetails() {
+    showToast("{% trans 'Gider detayları gösteriliyor' %}", "info");
+  }
+
+  function refreshAISuggestions() {
+    const btn = event.target.closest("button");
+    const icon = btn.querySelector("i");
+    icon.classList.add("fa-spin");
+
+    setTimeout(() => {
+      icon.classList.remove("fa-spin");
+      showToast("{% trans 'AI önerileri yenilendi' %}", "info");
+    }, 1500);
+  }
+
+  function applySuggestion(id) {
+    console.log("Applying suggestion:", id);
+    showToast("{% trans 'Öneri uygulandı' %}", "success");
+  }
+
+  function dismissSuggestion(id) {
+    console.log("Dismissing suggestion:", id);
+    event.target.closest(".alert").style.display = "none";
+  }
+
+  function startTour() {
+    showToast("{% trans 'Tur başlatılıyor...' %}", "info");
+  }
+
+  // Utility functions
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = "9999";
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+
+  // Smooth animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1";
+        entry.target.style.transform = "translateY(0)";
+      }
+    });
+  });
+
+  document.querySelectorAll(".card-modern").forEach((card) => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(20px)";
+    card.style.transition = "all 0.6s ease-out";
+    observer.observe(card);
+  });
+</script>
+{% endblock %}

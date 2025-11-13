@@ -1,0 +1,167 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Partner Başvurusu" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modern-ui.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/resources.css' %}">
+<style>
+  .application-card{border-radius:24px}
+  .field-help{font-size:.85rem;color:#6b7280}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="resource-hero">
+  <div class="container">
+    <span class="badge badge-accent">{% trans "Partner Ekosistemi" %}</span>
+    <h1>{% trans "FinAsis Partner Başvurusu" %}</h1>
+    <p class="lead">
+      {% trans "Entegrasyon ve go-to-market planınızı paylaşın, ekibimiz sizi 3 iş günü içinde değerlendirsin." %}
+    </p>
+    <div class="resource-meta">
+      <div><i class="bi bi-clock me-2"></i>{% trans "Form Süresi" %}: 5 dk</div>
+      <div><i class="bi bi-shield-lock me-2"></i>{% trans "KVKK uyumlu veri işleme" %}</div>
+      <div><i class="bi bi-people me-2"></i>{% trans "Öncelik" %}: {% trans "Finans, uyumluluk ve eğitim ekosistemi" %}</div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card application-card shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <h2 class="h4 fw-semibold mb-4">{% trans "Başvuru Formu" %}</h2>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+              {% endif %}
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.company_name.label }}*</label>
+                  {{ form.company_name }}
+                  {% if form.company_name.help_text %}
+                  <div class="field-help">{{ form.company_name.help_text }}</div>
+                  {% endif %}
+                  {{ form.company_name.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.partner_type.label }}*</label>
+                  {{ form.partner_type }}
+                  {{ form.partner_type.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.integration_focus.label }}*</label>
+                  {{ form.integration_focus }}
+                  {% if form.integration_focus.help_text %}
+                  <div class="field-help">{{ form.integration_focus.help_text }}</div>
+                  {% endif %}
+                  {{ form.integration_focus.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.target_customer_segments.label }}</label>
+                  {{ form.target_customer_segments }}
+                  {{ form.target_customer_segments.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.regions.label }}</label>
+                  {{ form.regions }}
+                  {{ form.regions.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.website_url.label }}</label>
+                  {{ form.website_url }}
+                  {{ form.website_url.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.contact_name.label }}*</label>
+                  {{ form.contact_name }}
+                  {{ form.contact_name.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.contact_email.label }}*</label>
+                  {{ form.contact_email }}
+                  {{ form.contact_email.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.contact_phone.label }}</label>
+                  {{ form.contact_phone }}
+                  {{ form.contact_phone.errors }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">{{ form.sandbox_url.label }}</label>
+                  {{ form.sandbox_url }}
+                  {{ form.sandbox_url.errors }}
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">{{ form.compliance_notes.label }}</label>
+                  {{ form.compliance_notes }}
+                  {% if form.compliance_notes.help_text %}
+                  <div class="field-help">{{ form.compliance_notes.help_text }}</div>
+                  {% endif %}
+                  {{ form.compliance_notes.errors }}
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">{{ form.go_to_market_plan.label }}</label>
+                  {{ form.go_to_market_plan }}
+                  {% if form.go_to_market_plan.help_text %}
+                  <div class="field-help">{{ form.go_to_market_plan.help_text }}</div>
+                  {% endif %}
+                  {{ form.go_to_market_plan.errors }}
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">{{ form.additional_notes.label }}</label>
+                  {{ form.additional_notes }}
+                  {{ form.additional_notes.errors }}
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    {{ form.consent_marketing }}
+                    <label class="form-check-label fw-semibold">{{ form.consent_marketing.label }}</label>
+                  </div>
+                  {{ form.consent_marketing.errors }}
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                <small class="text-muted">{% trans "* zorunlu alanları ifade eder." %}</small>
+                <button type="submit" class="btn btn-modern btn-modern-primary">
+                  <i class="bi bi-send me-2"></i>{% trans "Başvuruyu Gönder" %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Değerlendirme Süreci" %}</h3>
+            <ul class="list-unstyled d-grid gap-2 mb-0">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Başvurular 3 iş gününde değerlendirilir." %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Uygun adaylara sandbox erişimi verilir." %}</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Uyumluluk ve SLA süreçleri ortak hazırlanır." %}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h3 class="h6 text-uppercase text-muted mb-3">{% trans "Sık Sorulanlar" %}</h3>
+            <p class="small text-muted mb-2">{% trans "Partner programı gelir paylaşımı, pazarlama desteği ve teknik enablement içerir." %}</p>
+            <p class="small text-muted mb-2">{% trans "Headless entegrasyonlar için FinAsis API anahtarları ve webhook test konsolu sağlanır." %}</p>
+            <p class="small text-muted mb-0">
+              {% blocktrans %}Sorularınız için <a href="mailto:partners@finasis.com">partners@finasis.com</a> adresine yazabilirsiniz.{% endblocktrans %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

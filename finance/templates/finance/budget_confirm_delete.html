@@ -1,0 +1,10 @@
+{% extends "core_ui/base.html" %}
+{% block title %}Bütçeyi Sil{% endblock %}
+{% block content %}
+<h1>Bütçeyi Sil</h1>
+<p>Bu bütçeyi silmek istediğinize emin misiniz?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-danger">Evet, Sil</button>
+  <a href="{% url 'finance:budget_list' %}" class="btn btn-secondary">Hayır, Vazgeç</a>
+</form>
+{% endblock %} 

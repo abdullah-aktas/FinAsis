@@ -1,0 +1,161 @@
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+{% block title %}Mali Müşavir Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/dashboards.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <section class="persona-hero mb-5"
+    style="--persona-hero-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           --persona-hero-glow: radial-gradient(circle at top right, rgba(255,255,255,0.2), transparent 70%);">
+    <span class="persona-hero-icon"><i class="bi bi-briefcase"></i></span>
+    <h1 class="display-5 fw-bold mb-2">{% trans "Mali Müşavir Paneli" %}</h1>
+    <p class="lead mb-0">{% trans "Müşterilerinizin finansal performansını izleyin, uyumluluk aksiyonlarını planlayın ve danışmanlık hizmetini hızlandırın." %}</p>
+    <div class="persona-action-group mt-4">
+      <a href="{% url 'accounting:dashboard' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-speedometer2 me-2"></i>{% trans "Muhasebe Kokpiti" %}
+      </a>
+      <a href="{% url 'finance:reports_index' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-graph-up me-2"></i>{% trans "Finans Raporları" %}
+      </a>
+      <a href="{% url 'audit:landing' %}" class="btn btn-modern btn-modern-outline">
+        <i class="bi bi-shield-lock me-2"></i>{% trans "Uyumluluk Merkezi" %}
+      </a>
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="advisor-kpis">
+    <div class="persona-section-title" id="advisor-kpis">
+      <i class="bi bi-speedometer2"></i>{% trans "Portföy KPI'ları" %}
+    </div>
+    <div class="dashboard-kpi-grid">
+      {% for kpi in advisor_kpis %}
+      <article class="dashboard-kpi-card" style="--dashboard-kpi-accent: {{ kpi.accent }}; --dashboard-kpi-text: {{ kpi.accent }};">
+        <div class="dashboard-kpi-label">
+          <i class="bi {{ kpi.icon }}"></i>{{ kpi.label }}
+        </div>
+        <div class="dashboard-kpi-value">{{ kpi.value }}</div>
+        <div class="dashboard-kpi-meta">
+          <i class="bi bi-info-circle"></i>{{ kpi.meta }}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mb-5" aria-labelledby="summary">
+    <div class="persona-section-title" id="summary">
+      <i class="bi bi-people"></i>{% trans "Müşteri Özeti" %}
+    </div>
+
+    {% for summary in company_summaries %}
+    <article class="persona-list-card">
+      <header class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-2">
+        <div>
+          <h2 class="h5 fw-semibold mb-1">{{ summary.company.name }}</h2>
+          <p class="text-muted mb-0 small">{{ summary.company.sector|default:_("Sektör bilgisi yok") }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="persona-metric-badge persona-metric-positive">
+            <i class="bi bi-arrow-up-right"></i>{{ summary.gelir|floatformat:0 }} ₺
+          </span>
+          <span class="persona-metric-badge persona-metric-negative">
+            <i class="bi bi-arrow-down-right"></i>{{ summary.gider|floatformat:0 }} ₺
+          </span>
+          <span class="persona-metric-badge {% if summary.kar >= 0 %}persona-metric-positive{% else %}persona-metric-negative{% endif %}">
+            <i class="bi bi-currency-exchange"></i>{{ summary.kar|floatformat:0 }} ₺
+          </span>
+        </div>
+      </header>
+      <footer class="d-flex gap-2">
+        <a href="/accounting/finansal/bilanco/?company={{ summary.company.id }}" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-file-bar-graph me-1"></i>{% trans "Analiz" %}
+        </a>
+        <a href="/accounting/finansal/gelir-tablosu/?company={{ summary.company.id }}" class="btn btn-modern btn-modern-outline btn-sm">
+          <i class="bi bi-cash-coin me-1"></i>{% trans "Gelir Tablosu" %}
+        </a>
+      </footer>
+    </article>
+    {% empty %}
+    <div class="persona-list-card text-center">
+      <i class="bi bi-building" style="font-size: 2.5rem; color: #667eea;"></i>
+      <h3 class="h5 fw-semibold mt-3">{% trans "Henüz müşteri yok" %}</h3>
+      <p class="text-muted mb-0">{% trans "Yeni müşteriler eklendiğinde bu liste otomatik güncellenecek." %}</p>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="mb-5" aria-labelledby="advisor-tasks">
+    <div class="persona-section-title" id="advisor-tasks">
+      <i class="bi bi-check2-circle"></i>{% trans "Güncel Görevler" %}
+    </div>
+    <div class="dashboard-onboarding">
+      {% for task in advisor_tasks %}
+      <article class="dashboard-onboarding__item">
+        <span class="dashboard-onboarding__icon" style="background: rgba(102,126,234,0.12); color: {{ task.icon_color|default:'#4c5fd4' }};">
+          <i class="bi {{ task.icon }}"></i>
+        </span>
+        <div>
+          <h3 class="fw-semibold mb-1">{{ task.title }}</h3>
+          <p class="text-muted mb-0 small"><i class="bi bi-calendar-event me-1"></i>{{ task.due }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="quick-access">
+    <div class="persona-section-title" id="quick-access">
+      <i class="bi bi-lightning"></i>{% trans "Hızlı Erişim" %}
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a href="/accounting/finansal/bilanco/" class="text-decoration-none">
+          <div class="persona-stat-card h-100 text-center">
+            <div class="persona-stat-icon text-primary"><i class="bi bi-file-earmark-bar-graph"></i></div>
+            <h3 class="h6 fw-semibold mb-0">{% trans "Bilanço Raporları" %}</h3>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/accounting/finansal/gelir-tablosu/" class="text-decoration-none">
+          <div class="persona-stat-card h-100 text-center">
+            <div class="persona-stat-icon text-success"><i class="bi bi-cash-coin"></i></div>
+            <h3 class="h6 fw-semibold mb-0">{% trans "Gelir Tablosu" %}</h3>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/accounting/otomatik-fis/" class="text-decoration-none">
+          <div class="persona-stat-card h-100 text-center">
+            <div class="persona-stat-icon text-warning"><i class="bi bi-robot"></i></div>
+            <h3 class="h6 fw-semibold mb-0">{% trans "Otomatik Fiş" %}</h3>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-5" aria-labelledby="ai-suggestions">
+    <div class="persona-section-title" id="ai-suggestions">
+      <i class="bi bi-robot"></i>{% trans "AI Asistan Önerileri" %}
+    </div>
+    <div class="ai-suggestion-grid">
+      {% for suggestion in ai_cards %}
+      <article class="ai-suggestion-card">
+        <div class="ai-suggestion-card__icon"><i class="bi {{ suggestion.icon }}"></i></div>
+        <h3 class="ai-suggestion-card__title">{{ suggestion.title }}</h3>
+        <p class="ai-suggestion-card__body mb-0">{{ suggestion.body }}</p>
+        <a href="{{ suggestion.cta_href }}" class="ai-suggestion-card__cta">
+          {{ suggestion.cta_label }} <i class="bi bi-arrow-right-short"></i>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+

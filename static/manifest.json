@@ -1,0 +1,23 @@
+{
+  "name": "FinAsis Platformu",
+  "short_name": "FinAsis",
+  "description": "Finans, uyum ve yapay zeka modüllerini tek platformda birleştiren FinAsis.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0AAE94",
+  "theme_color": "#0AAE94",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/static/common/finasis_logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/common/finasis_logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
+

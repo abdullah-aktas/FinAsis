@@ -1,0 +1,80 @@
+{% extends "common/base.html" %}
+{% block title %}Yardım & Kullanıcı Kılavuzu{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Yardım & Kullanıcı Kılavuzu</h1>
+    <p>FinAsis platformunu daha verimli kullanabilmeniz için hazırlanan bu sayfada sıkça sorulan sorulara, temel kullanım adımlarına ve destek bilgilerine ulaşabilirsiniz.</p>
+    
+    <hr>
+
+    <h2 class="mt-4">Sıkça Sorulan Sorular (SSS)</h2>
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                    FinAsis'e nasıl kayıt olabilirim?
+                </button>
+            </h2>
+            <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Ana sayfadaki <strong>Kayıt Ol</strong> butonuna tıklayarak gerekli bilgileri doldurup hesabınızı oluşturabilirsiniz.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                    Şifremi unuttum, ne yapmalıyım?
+                </button>
+            </h2>
+            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Giriş ekranındaki <strong>Şifremi Unuttum</strong> bağlantısına tıklayarak şifrenizi sıfırlayabilirsiniz.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                    Hesabımı nasıl silebilirim?
+                </button>
+            </h2>
+            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Hesap ayarları bölümünden <strong>Hesabımı Sil</strong> seçeneğini kullanabilirsiniz. Kalıcı olarak silinecektir.
+                </div>
+            </div>
+        </div>
+        <!-- Daha fazla SSS eklenebilir -->
+    </div>
+
+    <hr>
+
+    <h2 class="mt-4">Temel Kullanım Adımları</h2>
+    <ol>
+        <li><strong>Hesap Oluşturma:</strong> Kayıt formunu doldurun ve e-posta adresinizi doğrulayın.</li>
+        <li><strong>Profilinizi Tamamlayın:</strong> Kişisel bilgilerinizi ve tercihleriniz güncelleyin.</li>
+        <li><strong>İlgili Modülleri Kullanın:</strong> Finans, muhasebe, eğitim ve diğer modüllere menüden erişebilirsiniz.</li>
+        <li><strong>Destek Alın:</strong> Herhangi bir sorun yaşarsanız bu sayfadaki destek kanallarını kullanın.</li>
+    </ol>
+
+    <hr>
+
+    <h2 class="mt-4">Destek & İletişim</h2>
+    <ul>
+        <li><strong>E-posta:</strong> <a href="mailto:destek@finasis.com.tr">destek@finasis.com.tr</a></li>
+        <li><strong>Canlı Destek:</strong> Sağ alt köşedeki canlı destek butonunu kullanabilirsiniz.</li>
+        <li><strong>SSS:</strong> Yukarıdaki sıkça sorulan sorular bölümünü inceleyin.</li>
+    </ul>
+
+    <hr>
+
+    <h2 class="mt-4">Ek Kaynaklar</h2>
+    <ul>
+    <li><a href="{% url 'privacy_policy' %}">Gizlilik Politikası</a></li>
+    <li><a href="{% url 'terms' %}">Kullanım Şartları</a></li>
+    <li><a href="{% url 'education' %}">Eğitim Modülü</a></li>
+    </ul>
+</div>
+{% endblock %}

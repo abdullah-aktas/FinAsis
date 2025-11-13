@@ -1,0 +1,101 @@
+{% extends "management/base_admin.html" %}
+{% load static %}
+{% block admin_content %}
+<div class="container my-5">
+    <div class="mb-5 text-center" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05)); padding: 40px; border-radius: 20px;">
+        <i class="bi bi-speedometer2" style="font-size: 48px; color: #10b981; margin-bottom: 16px;"></i>
+        <h1 class="mb-2" style="font-weight: 800;">Yönetim Paneli</h1>
+        <p class="text-muted mb-0">Platform istatistikleri ve hızlı erişim</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; border-top: 4px solid #667eea;">
+                <div class="card-body text-center p-4">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-people" style="font-size: 32px; color: #667eea;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Kullanıcılar</h5>
+                    <p class="display-4 mb-3" style="font-weight: 800; color: #667eea;">{{ user_count }}</p>
+                    <a href="/yonetim/kullanicilar/" class="btn btn-outline-primary btn-sm" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-arrow-right me-2"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; border-top: 4px solid #10b981;">
+                <div class="card-body text-center p-4">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-building" style="font-size: 32px; color: #10b981;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Şirketler</h5>
+                    <p class="display-4 mb-3" style="font-weight: 800; color: #10b981;">{{ company_count }}</p>
+                    <a href="/yonetim/sirketler/" class="btn btn-outline-success btn-sm" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-arrow-right me-2"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; border-top: 4px solid #f59e0b;">
+                <div class="card-body text-center p-4">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-receipt" style="font-size: 32px; color: #f59e0b;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Faturalar</h5>
+                    <p class="display-4 mb-3" style="font-weight: 800; color: #f59e0b;">{{ invoice_count }}</p>
+                    <a href="/yonetim/faturalar/" class="btn btn-outline-warning btn-sm" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-arrow-right me-2"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-lightning me-2" style="color: #10b981;"></i>Hızlı İşlemler</h5>
+                    <div class="d-grid gap-3">
+                        <a href="/yonetim/kullanicilar/ekle/" class="btn btn-outline-primary text-start" style="border-radius: 12px;">
+                            <i class="bi bi-person-plus me-2"></i>Yeni Kullanıcı Ekle
+                        </a>
+                        <a href="/yonetim/sirketler/ekle/" class="btn btn-outline-success text-start" style="border-radius: 12px;">
+                            <i class="bi bi-building-add me-2"></i>Yeni Şirket Ekle
+                        </a>
+                        <a href="/yonetim/faturalar/ekle/" class="btn btn-outline-warning text-start" style="border-radius: 12px;">
+                            <i class="bi bi-receipt-cutoff me-2"></i>Yeni Fatura Ekle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-info-circle me-2" style="color: #667eea;"></i>Sistem Bilgisi</h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Platform Durumu:</span>
+                            <span class="badge bg-success">Aktif</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Son Güncelleme:</span>
+                            <span class="fw-semibold">Bugün</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Versiyon:</span>
+                            <span class="fw-semibold">2.0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Hızlı Başlangıç - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1>
+            <i class="bi-rocket text-primary me-2"></i>
+            Hızlı Başlangıç
+        </h1>
+        <p class="lead text-muted">5 dakikada FinAsis'i kullanmaya başlayın!</p>
+    </div>
+    
+    <!-- İlerleme Göstergesi -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>İlerlemeniz</strong>
+                        <span class="text-primary">{{ completion_percentage|floatformat:0 }}%</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {{ completion_percentage }}%"
+                             aria-valuenow="{{ completion_percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ completion_percentage|floatformat:0 }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Onboarding Checklist -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi-check2-square me-2"></i>
+                        Başlangıç Adımları
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for item in checklist %}
+                        <div class="list-group-item d-flex align-items-center {% if item.completed %}bg-success-subtle{% endif %}">
+                            <div class="me-3">
+                                {% if item.completed %}
+                                <i class="bi-check-circle-fill text-success fs-3"></i>
+                                {% else %}
+                                <i class="bi-circle text-muted fs-3"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 {% if item.completed %}text-decoration-line-through{% endif %}">
+                                    {{ item.title }}
+                                </h6>
+                            </div>
+                            {% if not item.completed %}
+                            <a href="#" class="btn btn-sm btn-outline-primary">Başla</a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hızlı Videolar -->
+    <div class="row mt-5">
+        <div class="col-12 mb-3">
+            <h3>
+                <i class="bi-play-circle text-danger me-2"></i>
+                Hızlı Başlangıç Videoları
+            </h3>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi-play-circle-fill text-danger display-1 mb-3"></i>
+                    <h5>İlk Faturanızı Oluşturun</h5>
+                    <p class="text-muted">3 dakikada ilk faturanızı kesin</p>
+                    <a href="{% url 'common:help_videos' %}" class="btn btn-outline-danger">
+                        <i class="bi-play me-2"></i>İzle (3:45)
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi-mic-fill text-success display-1 mb-3"></i>
+                    <h5>AI Asistan Kullanımı</h5>
+                    <p class="text-muted">Sesli komutla işlem yapın</p>
+                    <a href="{% url 'common:help_videos' %}" class="btn btn-outline-success">
+                        <i class="bi-play me-2"></i>İzle (2:30)
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi-graph-up text-info display-1 mb-3"></i>
+                    <h5>Dashboard Kullanımı</h5>
+                    <p class="text-muted">KPI'larınızı takip edin</p>
+                    <a href="{% url 'common:help_videos' %}" class="btn btn-outline-info">
+                        <i class="bi-play me-2"></i>İzle (4:00)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yardım Butonları -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h4 class="mb-4">Başka neye ihtiyacınız var?</h4>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{% url 'common:help_faq' %}" class="btn btn-lg btn-outline-success">
+                    <i class="bi-question-circle me-2"></i>SSS
+                </a>
+                <a href="{% url 'common:help_videos' %}" class="btn btn-lg btn-outline-danger">
+                    <i class="bi-play-circle me-2"></i>Tüm Videolar
+                </a>
+                <a href="{% url 'common:help_center' %}" class="btn btn-lg btn-outline-primary">
+                    <i class="bi-house me-2"></i>Yardım Merkezi
+                </a>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+

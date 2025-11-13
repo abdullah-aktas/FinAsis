@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Klavye Kısayolları - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1>
+            <i class="bi-keyboard text-info me-2"></i>
+            Klavye Kısayolları
+        </h1>
+        <p class="lead text-muted">Daha hızlı çalışmak için kısayolları öğrenin</p>
+    </div>
+    
+    <!-- Kısayollar -->
+    <div class="row">
+        {% for category, shortcuts_list in shortcuts.items %}
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi-keyboard me-2"></i>
+                        {{ category|title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Kısayol</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shortcut in shortcuts_list %}
+                            <tr>
+                                <td>
+                                    <kbd class="bg-dark text-white px-3 py-2">{{ shortcut.key }}</kbd>
+                                </td>
+                                <td>{{ shortcut.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- İpuçları -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <h5>
+                        <i class="bi-lightbulb text-warning me-2"></i>
+                        Kısayol İpuçları
+                    </h5>
+                    <ul class="mb-0">
+                        <li>Kısayollar her sayfada çalışır (global kısayollar)</li>
+                        <li><kbd>Alt+H</kbd> ile bu yardım widget'ını açabilirsiniz</li>
+                        <li><kbd>Esc</kbd> ile modal ve dropdown'ları kapatabilirsiniz</li>
+                        <li><kbd>Ctrl+K</kbd> ile komut paletini açabilirsiniz</li>
+                        <li>Kısayollar tarayıcınızın dili ile uyumludur</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yazdırma Butonu -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="bi-printer me-2"></i>Yazdır
+            </button>
+            <a href="{% url 'common:help_center' %}" class="btn btn-outline-primary">
+                <i class="bi-arrow-left me-2"></i>Yardım Merkezine Dön
+            </a>
+        </div>
+    </div>
+    
+</div>
+
+<style>
+kbd {
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    font-family: 'Courier New', monospace;
+}
+
+@media print {
+    .btn, nav, .breadcrumb {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
+

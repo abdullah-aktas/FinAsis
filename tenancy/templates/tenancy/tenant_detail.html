@@ -1,0 +1,122 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ tenant.name }} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'tenancy:tenant_list' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>{% trans "Tenant Listesine Dön" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                    <i class="bi bi-building text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ tenant.name }}</h4>
+                <p class="text-muted mb-3"><code>{{ tenant.slug }}</code></p>
+                
+                <span class="badge bg-{% if tenant.is_active %}success{% else %}secondary{% endif %} fs-6 mb-3">
+                    {% if tenant.is_active %}{% trans "Aktif" %}{% else %}{% trans "Pasif" %}{% endif %}
+                </span>
+
+                <hr class="my-3">
+                
+                <div class="text-start">
+                    <p class="small mb-2"><strong>{% trans "Plan" %}:</strong> {{ tenant.get_subscription_plan_display }}</p>
+                    <p class="small mb-2"><strong>{% trans "Domain" %}:</strong> {{ tenant.domain|default:"-" }}</p>
+                    <p class="small mb-0"><strong>{% trans "Oluşturulma" %}:</strong> {{ tenant.created_at|date:"d F Y" }}</p>
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{% url 'tenancy:tenant_settings' tenant.id %}" class="btn btn-primary">
+                        <i class="bi bi-gear me-2"></i>{% trans "Ayarlar" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- İstatistikler -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted small mb-1">{% trans "Toplam Kullanıcı" %}</p>
+                        <h4 class="fw-bold mb-0">-</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted small mb-1">{% trans "Aktif Kullanıcı" %}</p>
+                        <h4 class="fw-bold mb-0">-</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted small mb-1">{% trans "Son 7 Gün Aktivite" %}</p>
+                        <h4 class="fw-bold mb-0">{{ audits.count }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ayarlar -->
+        {% if settings %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">{% trans "Tenant Ayarları" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">{% trans "Max Kullanıcı" %}</p>
+                        <p class="fw-bold mb-0">{{ settings.max_users }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">{% trans "Max Depolama" %}</p>
+                        <p class="fw-bold mb-0">{{ settings.max_storage_gb }} GB</p>
+                    </div>
+                    {% if settings.custom_domain %}
+                    <div class="col-12">
+                        <p class="text-muted small mb-1">{% trans "Özel Domain" %}</p>
+                        <p class="fw-bold mb-0">{{ settings.custom_domain }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Son Aktiviteler -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-bold">{% trans "Son Aktiviteler" %}</h5>
+            </div>
+            <div class="card-body">
+                {% for audit in audits|slice:":10" %}
+                <div class="d-flex justify-between align-items-start mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <h6 class="mb-1">{{ audit.action }}</h6>
+                        <p class="text-muted small mb-0">{{ audit.description|truncatewords:15 }}</p>
+                    </div>
+                    <small class="text-muted">{{ audit.timestamp|date:"d.m H:i" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">{% trans "Aktivite bulunmuyor" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

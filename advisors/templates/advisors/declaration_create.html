@@ -1,0 +1,70 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Yeni Beyanname" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            <a href="{% url 'advisors:declaration_list' %}" class="text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>{% trans "Beyanname Listesine Dön" %}
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h4 class="mb-0 fw-bold">{% trans "Yeni Beyanname Oluştur" %}</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Mükellef" %} <span class="text-danger">*</span></label>
+                            <select name="client_id" class="form-select" required>
+                                <option value="">{% trans "Seçiniz" %}</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.company.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Vergi Türü" %} <span class="text-danger">*</span></label>
+                            <select name="tax_type" class="form-select" required>
+                                {% for value, label in tax_types %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Beyanname Dönemi" %} <span class="text-danger">*</span></label>
+                            <input type="text" name="declaration_period" class="form-control" placeholder="2024-11" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{% trans "Son Tarih" %} <span class="text-danger">*</span></label>
+                            <input type="date" name="due_date" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{% trans "Beyanname Verileri (JSON)" %}</label>
+                            <textarea name="declaration_data" class="form-control font-monospace" rows="6" placeholder="{}">{}</textarea>
+                            <small class="text-muted">{% trans "JSON formatında beyanname verileri" %}</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-2"></i>{% trans "Kaydet" %}
+                        </button>
+                        <a href="{% url 'advisors:declaration_list' %}" class="btn btn-outline-secondary px-4">
+                            {% trans "İptal" %}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

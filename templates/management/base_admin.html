@@ -1,0 +1,81 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Yönetim Paneli - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .admin-nav {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 16px 0;
+    margin: -2rem -2rem 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .admin-nav .navbar-brand {
+    font-weight: 800;
+    font-size: 20px;
+  }
+
+  .admin-nav .nav-link {
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 0 4px;
+    transition: all 0.2s ease;
+  }
+
+  .admin-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .admin-nav .nav-link.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981 !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark admin-nav">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/yonetim/">
+      <i class="bi bi-shield-lock me-2"></i>FinAsis Yönetim
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="adminNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/yonetim/' %}active{% endif %}" href="/yonetim/">
+            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if '/yonetim/kullanicilar' in request.path %}active{% endif %}" href="/yonetim/kullanicilar/">
+            <i class="bi bi-people me-1"></i>Kullanıcılar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if '/yonetim/sirketler' in request.path %}active{% endif %}" href="/yonetim/sirketler/">
+            <i class="bi bi-building me-1"></i>Şirketler
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if '/yonetim/faturalar' in request.path %}active{% endif %}" href="/yonetim/faturalar/">
+            <i class="bi bi-receipt me-1"></i>Faturalar
+          </a>
+        </li>
+      </ul>
+      <a href="/yonetim/kullanicilar/ekle/" class="btn btn-success me-2" style="border-radius: 10px; font-weight: 600;">
+        <i class="bi bi-plus-lg me-1"></i>Kullanıcı
+      </a>
+      <span class="navbar-text">
+        <i class="bi bi-person-circle me-1"></i>{{ request.user.username }}
+      </span>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  {% block admin_content %}{% endblock %}
+</div>
+{% endblock %}

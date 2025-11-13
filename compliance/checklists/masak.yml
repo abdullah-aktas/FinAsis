@@ -1,0 +1,24 @@
+- id: masak-session-secure
+  title: "Session cookie secure flag aktif"
+  description: "Production ortamlarında SESSION_COOKIE_SECURE ayarı zorunlu olmalıdır."
+  severity: medium
+  type: setting_equals
+  path: SESSION_COOKIE_SECURE
+  expected: true
+  skip_if_debug: true
+
+- id: masak-idle-timeout
+  title: "Oturum zaman aşımı middleware'i etkin"
+  description: "İşlemlerin MASAK beklentilerine uygun olarak inaktif oturumları kapatması gerekir."
+  severity: medium
+  type: setting_contains
+  path: MIDDLEWARE
+  expected: security.middleware.SessionIdleTimeoutMiddleware
+
+- id: masak-audit-log
+  title: "SecurityAuditLog modeli mevcut"
+  description: "Kritik aksiyonların kayda alınması için SecurityAuditLog modelinin şeması oluşturulmuş olmalı."
+  severity: medium
+  type: model_exists
+  model: security.SecurityAuditLog
+

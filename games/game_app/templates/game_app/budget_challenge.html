@@ -1,0 +1,1309 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Bütçe Mücadelesi" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Tam Ekran Modu */
+  body.game-fullscreen header,
+  body.game-fullscreen footer,
+  body.game-fullscreen #system-messages,
+  body.game-fullscreen .breadcrumbs {
+    display: none !important;
+  }
+
+  body.game-fullscreen main {
+    padding-top: 0 !important;
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+
+  /* UI Toggle & Back Buttons */
+  .ui-toggle-btn, .back-btn {
+    position: fixed;
+    top: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(240, 147, 251, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+  }
+
+  .ui-toggle-btn {
+    right: 20px;
+  }
+
+  .back-btn {
+    left: 20px;
+  }
+
+  .ui-toggle-btn:hover, .back-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(240, 147, 251, 0.7);
+  }
+
+  .budget-hero {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 40px rgba(240, 147, 251, 0.3);
+    animation: slideDown 0.6s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .scenario-card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    animation: fadeIn 0.6s ease-out backwards;
+  }
+
+  .scenario-card:nth-child(2) { animation-delay: 0.1s; }
+  .scenario-card:nth-child(3) { animation-delay: 0.2s; }
+  .scenario-card:nth-child(4) { animation-delay: 0.3s; }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .scenario-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+  }
+
+  .scenario-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .budget-meter {
+    height: 40px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .budget-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+    transition: width 0.5s ease;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    position: relative;
+  }
+
+  .budget-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+  }
+
+  .expense-item {
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #ef4444;
+    transition: all 0.3s ease;
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .expense-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .decision-btn {
+    border-radius: 25px;
+    padding: 14px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  }
+
+  .decision-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .game-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+
+  .achievement-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .notification {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 9998;
+    animation: slideInRight 0.4s ease-out;
+    max-width: 400px;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Stat Box */
+  .stat-box {
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .stat-box .stat-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 12px;
+    font-size: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-box .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+
+  .stat-box .stat-label {
+    font-size: 12px;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Achievements */
+  .achievement-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 10001;
+    text-align: center;
+    animation: achievementPop 0.6s ease-out forwards;
+  }
+
+  @keyframes achievementPop {
+    0% {
+      transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    70% {
+      transform: translate(-50%, -50%) scale(1.1) rotate(10deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .achievement-popup .trophy {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* XP Bar */
+  .xp-bar {
+    height: 24px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .xp-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  /* Badges */
+  .badge-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .badge-item {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .badge-item:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.5);
+  }
+
+  .badge-item.locked {
+    background: #cbd5e0;
+    filter: grayscale(1);
+    opacity: 0.5;
+  }
+
+  .badge-tooltip {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .badge-item:hover .badge-tooltip {
+    opacity: 1;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero with AI Stats -->
+    <div class="budget-hero text-center">
+        <h1 class="fw-bold mb-2">
+            <i class="bi bi-piggy-bank-fill me-2"></i>
+            {% trans "Bütçe Mücadelesi" %}
+        </h1>
+        <p class="mb-3">{% trans "AI destekli kişisel finans eğitimi!" %}</p>
+        
+        <!-- User Stats Bar -->
+        <div class="row g-3 mt-4" id="user-stats" style="display: none;">
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="user-level">1</div>
+                    <div class="stat-label">Seviye</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="user-xp">0/100</div>
+                    <div class="stat-label">XP</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="user-score">0</div>
+                    <div class="stat-label">Toplam Puan</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="user-streak">0</div>
+                    <div class="stat-label">Günlük Seri</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Coach Panel -->
+    <div id="ai-coach" class="card mb-4" style="display: none; background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); border: 2px solid rgba(102,126,234,0.3);">
+        <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0;">
+                    🤖
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-bold mb-2" style="color: #667eea;">AI Finans Koçu</h5>
+                    <p class="mb-0" id="ai-message" style="color: #1a202c; line-height: 1.6;">
+                        Merhaba! Ben senin kişisel finans koçunum. Performansına göre özelleştirilmiş senaryolar sunacağım! 🎯
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Area -->
+    <div id="scenario-selection" class="row g-4 mb-4">
+        <div class="col-12">
+            <h3 class="text-center mb-4">{% trans "Bir Senaryo Seç" %}</h3>
+        </div>
+        <div class="col-md-4">
+            <div id="scenario-student" class="card scenario-card" onclick="startScenario('student')">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-mortarboard-fill display-3 text-primary mb-3"></i>
+                    <h5 class="fw-bold">{% trans "Üniversite Öğrencisi" %}</h5>
+                    <p class="text-muted">{% trans "Harçlık bütçesi: ₺5,000/ay" %}</p>
+                    <span class="badge bg-success">{% trans "Kolay" %}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div id="scenario-worker" class="card scenario-card" onclick="startScenario('worker')">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-briefcase-fill display-3 text-info mb-3"></i>
+                    <h5 class="fw-bold">{% trans "Genç Profesyonel" %}</h5>
+                    <p class="text-muted">{% trans "Aylık gelir: ₺15,000" %}</p>
+                    <span class="badge bg-warning">{% trans "Orta" %}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div id="scenario-family" class="card scenario-card" onclick="startScenario('family')">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-people-fill display-3 text-danger mb-3"></i>
+                    <h5 class="fw-bold">{% trans "Aile Reisi" %}</h5>
+                    <p class="text-muted">{% trans "Aile bütçesi: ₺30,000/ay" %}</p>
+                    <span class="badge bg-danger">{% trans "Zor" %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Play Area -->
+    <div id="game-play" style="display: none;">
+        <div class="row g-4">
+            <!-- Budget Summary -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <h6 class="text-muted">{% trans "Toplam Bütçe" %}</h6>
+                                <h4 class="fw-bold" id="total-budget">₺0</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-muted">{% trans "Harcanan" %}</h6>
+                                <h4 class="fw-bold text-danger" id="spent-amount">₺0</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-muted">{% trans "Kalan" %}</h6>
+                                <h4 class="fw-bold text-success" id="remaining-budget">₺0</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-muted">{% trans "Gün" %}</h6>
+                                <h4 class="fw-bold" id="current-day">1/30</h4>
+                            </div>
+                        </div>
+                        <div class="budget-meter mt-3">
+                            <div class="budget-fill" id="budget-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event/Decision -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3" id="event-title">{% trans "Olay" %}</h5>
+                        <p id="event-description">{% trans "Açıklama" %}</p>
+                        <div id="decision-buttons" class="d-flex gap-2 flex-wrap">
+                            <!-- Dynamic buttons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses List -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt me-2"></i>
+                            {% trans "Harcamalar" %}
+                        </h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <div id="expenses-list">
+                            <p class="text-muted text-center">{% trans "Henüz harcama yok" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-secondary decision-btn" onclick="resetGame()">
+                <i class="bi bi-arrow-clockwise me-2"></i>{% trans "Yeniden Başla" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- UI Toggle & Back Buttons -->
+    <button class="ui-toggle-btn" id="uiToggle" data-tooltip="Menüleri Aç/Kapat" aria-label="Menüleri Aç/Kapat">
+      <span id="toggleIcon">👁️</span>
+    </button>
+    <button class="back-btn" onclick="goBack()" data-tooltip="Geri Dön" aria-label="Geri Dön">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ========================================
+// AI DESTEKLI OYUN SİSTEMİ
+// ========================================
+
+// Kullanıcı verileri
+let userData = {
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 100,
+    totalScore: 0,
+    streak: 0,
+    lastPlayed: null,
+    badges: [],
+    completedScenarios: {},
+    performance: {
+        correctDecisions: 0,
+        totalDecisions: 0,
+        avgScore: 0
+    }
+};
+
+// Oyun durumu
+let currentScenario = null;
+let budget = 0;
+let spent = 0;
+let day = 1;
+let expenses = [];
+let currentScore = 0;
+
+// AI Mesajları
+const aiMessages = {
+    welcome: [
+        'Harika! Bütçe yönetimi öğrenmeye hazır mısın? 💪',
+        'Merhaba! Bugün finansal zekânı geliştireceğiz! 🎯',
+        'Hoş geldin! Sana özel senaryolar hazırladım! ✨'
+    ],
+    goodChoice: [
+        'Mükemmel karar! Finansal zekân gelişiyor! 🌟',
+        'Harika seçim! Böyle devam et! 💪',
+        'Çok iyi! Akıllı bir seçim yaptın! 🎯'
+    ],
+    badChoice: [
+        'Dikkat! Bu seçim bütçeni zorlayabilir. 💡',
+        'Bir dahaki sefere daha dikkatli ol! 🤔',
+        'Bu kararı gözden geçir, daha iyi seçenekler var! 📊'
+    ],
+    levelUp: [
+        'TEBRİKLER! Seviye atladın! 🎉',
+        'Harika! Yeni seviyeye ulaştın! 🚀',
+        'Süpersin! Bir üst seviyeye çıktın! ⭐'
+    ],
+    achievement: [
+        'BAŞARI KILIDI AÇILDI! 🏆',
+        'Yeni rozet kazandın! 🎖️',
+        'Tebrikler! Özel bir başarı elde ettin! 🌟'
+    ]
+};
+
+// Rozetler sistemi
+const badges = [
+    { id: 'first_game', emoji: '🎮', name: 'İlk Oyun', description: 'İlk senaryonu tamamla', condition: (data) => Object.keys(data.completedScenarios).length >= 1 },
+    { id: 'smart_saver', emoji: '💰', name: 'Akıllı Tasarrufçu', description: 'Bütçenin %30\'unu biriktir', condition: (data) => data.performance.avgScore >= 80 },
+    { id: 'budget_master', emoji: '👑', name: 'Bütçe Ustası', description: '10 senaryo tamamla', condition: (data) => Object.keys(data.completedScenarios).length >= 10 },
+    { id: 'perfect_score', emoji: '💯', name: 'Mükemmel', description: '100 puan al', condition: (data) => data.performance.avgScore >= 95 },
+    { id: 'streak_3', emoji: '🔥', name: '3 Günlük Seri', description: '3 gün üst üste oyna', condition: (data) => data.streak >= 3 },
+    { id: 'level_5', emoji: '⭐', name: '5. Seviye', description: '5. seviyeye ulaş', condition: (data) => data.level >= 5 },
+    { id: 'level_10', emoji: '🌟', name: '10. Seviye', description: '10. seviyeye ulaş', condition: (data) => data.level >= 10 },
+    { id: 'decision_master', emoji: '🎯', name: 'Karar Ustası', description: '50 karar ver', condition: (data) => data.performance.totalDecisions >= 50 }
+];
+
+// LocalStorage'dan verileri yükle
+function loadUserData() {
+    const saved = localStorage.getItem('budget_challenge_user_data');
+    if (saved) {
+        try {
+            userData = JSON.parse(saved);
+            
+            // Günlük seri kontrolü
+            const today = new Date().toDateString();
+            if (userData.lastPlayed) {
+                const lastPlayed = new Date(userData.lastPlayed).toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                
+                if (lastPlayed === yesterday) {
+                    userData.streak++;
+                } else if (lastPlayed !== today) {
+                    userData.streak = 0;
+                }
+            }
+            userData.lastPlayed = new Date().toISOString();
+        } catch (e) {
+            console.error('Veri yükleme hatası:', e);
+        }
+    }
+    saveUserData();
+    updateUserStats();
+    checkBadges();
+}
+
+// Verileri kaydet
+function saveUserData() {
+    localStorage.setItem('budget_challenge_user_data', JSON.stringify(userData));
+}
+
+// Kullanıcı istatistiklerini güncelle
+function updateUserStats() {
+    document.getElementById('user-stats').style.display = 'flex';
+    document.getElementById('user-level').textContent = userData.level;
+    document.getElementById('user-xp').textContent = `${userData.xp}/${userData.xpToNextLevel}`;
+    document.getElementById('user-score').textContent = userData.totalScore;
+    document.getElementById('user-streak').textContent = userData.streak;
+}
+
+// XP ekle
+function addXP(amount) {
+    userData.xp += amount;
+    userData.totalScore += amount;
+    
+    // Seviye atlama kontrolü
+    while (userData.xp >= userData.xpToNextLevel) {
+        userData.xp -= userData.xpToNextLevel;
+        userData.level++;
+        userData.xpToNextLevel = Math.floor(userData.xpToNextLevel * 1.5);
+        
+        showLevelUp();
+        updateAIMessage(getRandomMessage('levelUp'));
+    }
+    
+    updateUserStats();
+    saveUserData();
+    checkBadges();
+}
+
+// Seviye atlama animasyonu
+function showLevelUp() {
+    const popup = document.createElement('div');
+    popup.className = 'achievement-popup';
+    popup.innerHTML = `
+        <div class="trophy">🎉</div>
+        <h2 style="color: #667eea; font-size: 32px; font-weight: 800; margin-bottom: 16px;">Seviye Atladın!</h2>
+        <p style="font-size: 24px; color: #1a202c; font-weight: 600;">Seviye ${userData.level}</p>
+        <p style="color: #718096; margin-top: 12px;">+50 Bonus XP kazandın!</p>
+    `;
+    document.body.appendChild(popup);
+    
+    addXP(50);
+    
+    setTimeout(() => {
+        popup.style.animation = 'fadeOut 0.3s ease-out forwards';
+        setTimeout(() => popup.remove(), 300);
+    }, 3000);
+}
+
+// Rozet kontrolü
+function checkBadges() {
+    badges.forEach(badge => {
+        if (!userData.badges.includes(badge.id) && badge.condition(userData)) {
+            userData.badges.push(badge.id);
+            showBadgeUnlocked(badge);
+            saveUserData();
+        }
+    });
+}
+
+// Rozet kilidi açıldı
+function showBadgeUnlocked(badge) {
+    const popup = document.createElement('div');
+    popup.className = 'achievement-popup';
+    popup.innerHTML = `
+        <div class="trophy">${badge.emoji}</div>
+        <h2 style="color: #667eea; font-size: 28px; font-weight: 800; margin-bottom: 12px;">${getRandomMessage('achievement')}</h2>
+        <h3 style="color: #1a202c; font-size: 24px; font-weight: 600; margin-bottom: 8px;">${badge.name}</h3>
+        <p style="color: #718096;">${badge.description}</p>
+    `;
+    document.body.appendChild(popup);
+    
+    setTimeout(() => {
+        popup.style.animation = 'fadeOut 0.3s ease-out forwards';
+        setTimeout(() => popup.remove(), 300);
+    }, 3500);
+}
+
+// Random AI mesajı
+function getRandomMessage(type) {
+    const messages = aiMessages[type] || [];
+    return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// AI mesajını güncelle
+function updateAIMessage(message) {
+    const aiCoach = document.getElementById('ai-coach');
+    const aiMessage = document.getElementById('ai-message');
+    aiCoach.style.display = 'block';
+    aiMessage.textContent = message;
+    
+    // Animasyon
+    aiCoach.style.animation = 'slideDown 0.5s ease-out';
+}
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserData();
+    updateAIMessage(getRandomMessage('welcome'));
+    
+    // Kişiselleştirilmiş öneri: Senaryo vurgulama
+    fetch('/games/api/personalize/?game=budget-challenge')
+        .then(r => r.json())
+        .then(data => {
+            const level = (data && data.data && data.data.params && data.data.params.scenario_level) || 'standard';
+            const map = { beginner: 'student', standard: 'worker', advanced: 'family' };
+            const recommended = map[level] || 'worker';
+            const el = document.getElementById(`scenario-${recommended}`);
+            if (el) {
+                el.classList.add('border', 'border-primary', 'shadow');
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary position-absolute m-2';
+                badge.textContent = 'AI Önerisi';
+                el.style.position = 'relative';
+                el.appendChild(badge);
+            }
+        })
+        .catch(() => {});
+});
+
+
+const scenarios = {
+    student: {
+        name: 'Üniversite Öğrencisi',
+        budget: 5000,
+        events: [
+            {
+                title: 'Hafta Sonu Eğlencesi',
+                description: 'Arkadaşların seni dışarı çıkmaya davet etti. Ne yapacaksın?',
+                choices: [
+                    { text: 'Gidiyorum! (₺300)', cost: 300, score: -1 },
+                    { text: 'Evde film izlerim (₺0)', cost: 0, score: 2 },
+                    { text: 'Bir şeyler içmeye giderim (₺100)', cost: 100, score: 1 }
+                ]
+            },
+            {
+                title: 'Yemek Seçimi',
+                description: 'Öğle yemeği zamanı. Ne yiyeceksin?',
+                choices: [
+                    { text: 'Restorana git (₺150)', cost: 150, score: -1 },
+                    { text: 'Yemekhanede ye (₺50)', cost: 50, score: 2 },
+                    { text: 'Evden getirdiğimi yerim (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Kitap İhtiyacı',
+                description: 'Ders kitabı almanız gerekiyor.',
+                choices: [
+                    { text: 'Yeni kitap al (₺500)', cost: 500, score: 0 },
+                    { text: 'İkinci el al (₺200)', cost: 200, score: 2 },
+                    { text: 'Kütüphaneden ödünç al (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Kıyafet Alışverişi',
+                description: 'Kışlık mont alman gerekiyor.',
+                choices: [
+                    { text: 'Marka mağazadan al (₺800)', cost: 800, score: -1 },
+                    { text: 'İndirimli mağazadan al (₺350)', cost: 350, score: 2 },
+                    { text: 'İkinci el bul (₺150)', cost: 150, score: 3 }
+                ]
+            },
+            {
+                title: 'Internet Paketi',
+                description: 'Aylık internet paketini yenilemelisin.',
+                choices: [
+                    { text: 'Sınırsız paket (₺200)', cost: 200, score: -1 },
+                    { text: 'Orta paket (₺100)', cost: 100, score: 2 },
+                    { text: 'WiFi\'den yararlan (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Telefon Arızası',
+                description: 'Telefonunun ekranı çatladı!',
+                choices: [
+                    { text: 'Yeni telefon al (₺1200)', cost: 1200, score: -2 },
+                    { text: 'Ekranı değiştir (₺400)', cost: 400, score: 1 },
+                    { text: 'Böyle kullan (₺0)', cost: 0, score: 2 }
+                ]
+            }
+        ]
+    },
+    worker: {
+        name: 'Genç Profesyonel',
+        budget: 15000,
+        events: [
+            {
+                title: 'Ulaşım Kararı',
+                description: 'İşe nasıl gideceksin?',
+                choices: [
+                    { text: 'Kendi arabamla (₺800/ay)', cost: 800, score: -1 },
+                    { text: 'Toplu taşıma (₺300/ay)', cost: 300, score: 2 },
+                    { text: 'Bisikletle (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Kira Ödemesi',
+                description: 'Ev kirası ödeme zamanı.',
+                choices: [
+                    { text: 'Merkezi daire (₺7000)', cost: 7000, score: -1 },
+                    { text: 'Uygun daire (₺4500)', cost: 4500, score: 2 },
+                    { text: 'Ailemle kalırım (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Spor Salonu Üyeliği',
+                description: 'Sağlıklı kalmak için spor yapmak istiyorsun.',
+                choices: [
+                    { text: 'Premium salon (₺500/ay)', cost: 500, score: -1 },
+                    { text: 'Standart salon (₺200/ay)', cost: 200, score: 1 },
+                    { text: 'Parkta koşarım (₺0)', cost: 0, score: 3 }
+                ]
+            },
+            {
+                title: 'Yemek Siparişi',
+                description: 'İşten yorgun geldin, yemek yapmak istemiyorsun.',
+                choices: [
+                    { text: 'Her gün sipariş (₺2000/ay)', cost: 2000, score: -2 },
+                    { text: 'Haftada 2-3 kez (₺800/ay)', cost: 800, score: 0 },
+                    { text: 'Kendim pişiririm (₺600/ay)', cost: 600, score: 3 }
+                ]
+            },
+            {
+                title: 'Yatırım Fırsatı',
+                description: 'Bankada yüksek faizli hesap açabilirsin.',
+                choices: [
+                    { text: '₺3000 yatır', cost: 3000, score: 3 },
+                    { text: '₺1000 yatır', cost: 1000, score: 2 },
+                    { text: 'Yatırım yapmam', cost: 0, score: 0 }
+                ]
+            }
+        ]
+    },
+    family: {
+        name: 'Aile Reisi',
+        budget: 30000,
+        events: [
+            {
+                title: 'Market Alışverişi',
+                description: 'Aylık market alışverişi yapacaksınız.',
+                choices: [
+                    { text: 'Premium market (₺8000)', cost: 8000, score: -1 },
+                    { text: 'Normal market (₺5000)', cost: 5000, score: 2 },
+                    { text: 'İndirimli ürünler (₺3500)', cost: 3500, score: 3 }
+                ]
+            },
+            {
+                title: 'Çocukların Okul İhtiyaçları',
+                description: 'Okul başladı, malzeme almanız gerek.',
+                choices: [
+                    { text: 'Her şey yeni (₺2000)', cost: 2000, score: 0 },
+                    { text: 'Gerekli olanlar (₺1000)', cost: 1000, score: 2 },
+                    { text: 'Eski olanları kullan (₺300)', cost: 300, score: 3 }
+                ]
+            },
+            {
+                title: 'Faturalar',
+                description: 'Elektrik, su, doğalgaz faturaları geldi.',
+                choices: [
+                    { text: 'Kullanımı azaltmadan öde (₺2500)', cost: 2500, score: -1 },
+                    { text: 'Dikkatli kullan (₺1500)', cost: 1500, score: 2 },
+                    { text: 'Çok tasarruflu ol (₺1000)', cost: 1000, score: 3 }
+                ]
+            },
+            {
+                title: 'Tatil Planı',
+                description: 'Aile tatile çıkmak istiyor.',
+                choices: [
+                    { text: 'Yurtdışı tatil (₺15000)', cost: 15000, score: -2 },
+                    { text: 'Yurtiçi tatil (₺6000)', cost: 6000, score: 0 },
+                    { text: 'Günübirlik geziler (₺1000)', cost: 1000, score: 2 }
+                ]
+            },
+            {
+                title: 'Araç Bakımı',
+                description: 'Arabanın bakım zamanı geldi.',
+                choices: [
+                    { text: 'Yetkili serviste (₺3000)', cost: 3000, score: 1 },
+                    { text: 'Normal tamircide (₺1500)', cost: 1500, score: 2 },
+                    { text: 'Sadece zorunlu olanlar (₺800)', cost: 800, score: 3 }
+                ]
+            },
+            {
+                title: 'Acil Durum Fonu',
+                description: 'Acil durumlar için para biriktirmelisiniz.',
+                choices: [
+                    { text: '₺5000 ayır', cost: 5000, score: 3 },
+                    { text: '₺2000 ayır', cost: 2000, score: 2 },
+                    { text: 'Para ayırmam', cost: 0, score: -1 }
+                ]
+            }
+        ]
+    }
+};
+
+function startScenario(type) {
+    currentScenario = scenarios[type];
+    budget = currentScenario.budget;
+    spent = 0;
+    day = 1;
+    expenses = [];
+    currentScore = 0;
+    
+    document.getElementById('scenario-selection').style.display = 'none';
+    document.getElementById('game-play').style.display = 'block';
+    
+    // AI mesajı
+    const startMessages = [
+        `${currentScenario.name} senaryosuna hoş geldin! ${currentScenario.events.length} karar seni bekliyor! 🎯`,
+        `Hazır mısın? Bütçen ₺${budget.toLocaleString('tr-TR')}. Akıllı kararlar al! 💡`,
+        `Başlıyoruz! Sana bu senaryoda yardımcı olacağım! 🚀`
+    ];
+    updateAIMessage(startMessages[Math.floor(Math.random() * startMessages.length)]);
+    
+    updateUI();
+    showNextEvent();
+}
+
+function showNextEvent() {
+    if (day > currentScenario.events.length) {
+        endGame();
+        return;
+    }
+
+    const event = currentScenario.events[day - 1];
+    document.getElementById('event-title').textContent = `Gün ${day}: ${event.title}`;
+    document.getElementById('event-description').textContent = event.description;
+    
+    const buttonsContainer = document.getElementById('decision-buttons');
+    buttonsContainer.innerHTML = event.choices.map((choice, idx) => `
+        <button class="btn btn-primary decision-btn" onclick="makeDecision(${idx})">
+            ${choice.text}
+        </button>
+    `).join('');
+}
+
+function makeDecision(choiceIdx) {
+    const event = currentScenario.events[day - 1];
+    const choice = event.choices[choiceIdx];
+    
+    spent += choice.cost;
+    if (choice.cost > 0) {
+        expenses.push({
+            day: day,
+            item: event.title,
+            amount: choice.cost
+        });
+    }
+    
+    // AI destekli puan ve XP hesaplama
+    userData.performance.totalDecisions++;
+    const decisionScore = Math.max(0, (choice.score + 2) * 5);
+    currentScore += decisionScore;
+    
+    // XP kazanımı
+    const xpGain = choice.score >= 2 ? 15 : (choice.score >= 0 ? 10 : 5);
+    addXP(xpGain);
+    
+    // AI geri bildirimi
+    if (choice.score >= 2) {
+        userData.performance.correctDecisions++;
+        updateAIMessage(getRandomMessage('goodChoice') + ` +${xpGain} XP kazandın!`);
+    } else if (choice.score < 0) {
+        updateAIMessage(getRandomMessage('badChoice') + ` Sadece ${xpGain} XP kazandın.`);
+    } else {
+        updateAIMessage(`İyi bir seçim! +${xpGain} XP kazandın.`);
+    }
+    
+    day++;
+    updateUI();
+
+    // Takip: Bütçe kategorisi için doğru kabulü (score >=2)
+    try {
+        fetch('/games/api/track/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || ''
+            },
+            body: JSON.stringify({
+                game: 'budget-challenge',
+                category: 'Bütçe',
+                outcome: (choice.score >= 2) ? 'correct' : 'incorrect'
+            })
+        });
+    } catch (e) {}
+    
+    // Bütçe aşımı uyarısı
+    if (spent > budget) {
+        const warningEl = document.createElement('div');
+        warningEl.className = 'notification';
+        warningEl.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        warningEl.style.color = 'white';
+        warningEl.innerHTML = `
+            <h5 style="margin-bottom: 8px;">⚠️ Dikkat!</h5>
+            <p style="margin: 0;">Bütçeyi aştınız! Daha dikkatli olmalısınız.</p>
+        `;
+        document.body.appendChild(warningEl);
+        setTimeout(() => warningEl.remove(), 3000);
+    }
+    
+    setTimeout(() => {
+        showNextEvent();
+    }, 800);
+}
+
+function updateUI() {
+    const remaining = budget - spent;
+    const percentage = (spent / budget) * 100;
+    
+    document.getElementById('total-budget').textContent = `₺${budget.toLocaleString('tr-TR')}`;
+    document.getElementById('spent-amount').textContent = `₺${spent.toLocaleString('tr-TR')}`;
+    document.getElementById('remaining-budget').textContent = `₺${remaining.toLocaleString('tr-TR')}`;
+    document.getElementById('current-day').textContent = `${day}/${currentScenario.events.length}`;
+    document.getElementById('budget-fill').style.width = `${percentage}%`;
+    
+    // Render expenses
+    const expensesList = document.getElementById('expenses-list');
+    if (expenses.length === 0) {
+        expensesList.innerHTML = '<p class="text-muted text-center">Henüz harcama yok</p>';
+    } else {
+        expensesList.innerHTML = expenses.map(exp => `
+            <div class="expense-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>Gün ${exp.day}</strong>
+                        <div class="small text-muted">${exp.item}</div>
+                    </div>
+                    <div class="text-danger fw-bold">₺${exp.amount}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function endGame() {
+    const remaining = budget - spent;
+    const percentage = ((budget - spent) / budget * 100).toFixed(1);
+    
+    // Senaryo tamamlandı işaretle
+    const scenarioKey = `${currentScenario.name}_${Date.now()}`;
+    userData.completedScenarios[scenarioKey] = {
+        score: currentScore,
+        percentage: parseFloat(percentage),
+        date: new Date().toISOString()
+    };
+    
+    // Performans güncelleme
+    userData.performance.avgScore = 
+        (userData.performance.avgScore * (Object.keys(userData.completedScenarios).length - 1) + parseFloat(percentage)) 
+        / Object.keys(userData.completedScenarios).length;
+    
+    // Bonus XP (performansa göre)
+    const bonusXP = Math.floor(parseFloat(percentage));
+    addXP(bonusXP);
+    
+    saveUserData();
+    checkBadges();
+    
+    let message = '';
+    let emoji = '';
+    let aiMessage = '';
+    
+    if (percentage >= 30) {
+        message = 'Mükemmel! Bütçenizi harika yönettiniz!';
+        emoji = '🎉';
+        aiMessage = 'İnanılmaz! Finansal zekanı geliştirdin! Bonus XP kazandın!';
+    } else if (percentage >= 20) {
+        message = 'Harika! Bütçenizi çok iyi yönettiniz!';
+        emoji = '👏';
+        aiMessage = 'Çok iyi! Akıllı kararlar aldın!';
+    } else if (percentage > 0) {
+        message = 'İyi! Bütçeniz içinde kaldınız.';
+        emoji = '👍';
+        aiMessage = 'Güzel! Gelişmeye devam et!';
+    } else {
+        message = 'Dikkat! Bütçenizi aştınız. Daha dikkatli olmalısınız.';
+        emoji = '⚠️';
+        aiMessage = 'Üzgünüm! Bir dahaki sefere daha dikkatli ol. Her oyunda öğreniyorsun!';
+    }
+    
+    updateAIMessage(aiMessage);
+    
+    document.getElementById('event-title').textContent = `Oyun Bitti! ${emoji}`;
+    document.getElementById('event-description').innerHTML = `
+        <div style="background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); padding: 24px; border-radius: 16px; margin-bottom: 20px;">
+            <h4 style="color: #667eea; margin-bottom: 16px;">${message}</h4>
+            <div class="row g-3 text-center mb-3">
+                <div class="col-4">
+                    <div style="font-size: 14px; color: #718096; margin-bottom: 4px;">Kalan Bütçe</div>
+                    <div style="font-size: 24px; font-weight: 800; color: ${remaining >= 0 ? '#10b981' : '#ef4444'};">
+                        ₺${remaining.toLocaleString('tr-TR')}
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div style="font-size: 14px; color: #718096; margin-bottom: 4px;">Tasarruf Oranı</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #667eea;">${percentage}%</div>
+                </div>
+                <div class="col-4">
+                    <div style="font-size: 14px; color: #718096; margin-bottom: 4px;">Kazanılan XP</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #10b981;">+${bonusXP}</div>
+                </div>
+            </div>
+            <div style="font-size: 14px; color: #1a202c;">
+                <strong>📊 Özet:</strong><br>
+                • Toplam Kararlar: ${userData.performance.totalDecisions}<br>
+                • Doğru Kararlar: ${userData.performance.correctDecisions}<br>
+                • Başarı Oranı: ${((userData.performance.correctDecisions / userData.performance.totalDecisions) * 100).toFixed(1)}%<br>
+                • Tamamlanan Senaryolar: ${Object.keys(userData.completedScenarios).length}
+            </div>
+        </div>
+        <p style="font-size: 16px; color: #667eea; font-weight: 600; text-align: center;">🎮 Yeni bir senaryo dene ve daha fazla XP kazan!</p>
+    `;
+    document.getElementById('decision-buttons').innerHTML = '';
+}
+
+function resetGame() {
+    document.getElementById('scenario-selection').style.display = 'flex';
+    document.getElementById('game-play').style.display = 'none';
+    currentScore = 0;
+    updateAIMessage(getRandomMessage('welcome'));
+}
+
+// Back Button
+function goBack() {
+    window.location.href = '/games/hub/';
+}
+
+// UI Toggle
+(function() {
+  const toggleBtn = document.getElementById('uiToggle');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const body = document.body;
+  
+  const savedMode = localStorage.getItem('finasis_game_fullscreen');
+  
+  if (savedMode === null || savedMode === 'true') {
+    body.classList.add('game-fullscreen');
+    toggleIcon.textContent = '👁️';
+    toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+  } else {
+    body.classList.remove('game-fullscreen');
+    toggleIcon.textContent = '🎮';
+    toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+  }
+  
+  toggleBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    body.classList.toggle('game-fullscreen');
+    const isFullscreen = body.classList.contains('game-fullscreen');
+    
+    if (isFullscreen) {
+      toggleIcon.textContent = '👁️';
+      toggleBtn.setAttribute('data-tooltip', 'Menüleri Göster');
+    } else {
+      toggleIcon.textContent = '🎮';
+      toggleBtn.setAttribute('data-tooltip', 'Tam Ekran Modu');
+    }
+    
+    localStorage.setItem('finasis_game_fullscreen', isFullscreen);
+    
+    if (!isFullscreen) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  });
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleBtn.click();
+    }
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}KOBİ Eğitimleri - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .kobi-hero {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    border-radius: 24px;
+  }
+
+  .kobi-hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  .coming-soon-card {
+    background: white;
+    border-radius: 24px;
+    padding: 60px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    margin-top: 32px;
+  }
+
+  .coming-soon-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #10b981;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="kobi-hero">
+    <i class="bi bi-shop" style="font-size: 64px; margin-bottom: 20px;"></i>
+    <h1>KOBİ Eğitimleri</h1>
+    <p style="font-size: 18px; opacity: 0.95; margin-bottom: 0;">Küçük ve orta ölçekli işletmeler için pratik eğitim içerikleri</p>
+  </div>
+
+  <div class="coming-soon-card">
+    <div class="coming-soon-icon">
+      <i class="bi bi-hourglass-split"></i>
+    </div>
+    <h3 style="font-weight: 800; margin-bottom: 16px;">Çok Yakında!</h3>
+    <p style="color: #718096; font-size: 16px; line-height: 1.8; max-width: 600px; margin: 0 auto;">
+      Bu sayfa zengin içeriklerle yakında güncellenecek. KOBİ'ler için özel hazırlanmış 
+      finans, muhasebe ve yönetim eğitimlerimiz çok yakında burada olacak!
+    </p>
+  </div>
+</div>
+{% endblock %}

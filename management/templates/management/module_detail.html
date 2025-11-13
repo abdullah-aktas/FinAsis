@@ -1,0 +1,260 @@
+{% extends "management/base_admin.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ metadata.name }} - Modül Detayı{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'management:modules_list' %}">Modüller</a></li>
+<li class="breadcrumb-item active">{{ metadata.name }}</li>
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    .module-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .hero-icon {
+        font-size: 5rem;
+        opacity: 0.9;
+    }
+    
+    .model-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+        border-left: 4px solid;
+    }
+    
+    .model-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    
+    .action-button {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        color: #2d3748;
+    }
+    
+    .action-button:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        text-decoration: none;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Hero Section -->
+<div class="module-hero animate-fade-in">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi {{ metadata.icon }} hero-icon me-4"></i>
+                <div>
+                    <h1 class="h2 mb-2 fw-bold">{{ metadata.name }}</h1>
+                    <p class="mb-0 opacity-90">{{ module_name }} modülü</p>
+                </div>
+            </div>
+            <p class="lead opacity-90 mb-0">
+                {{ metadata.description }}
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'management:modules_list' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-arrow-left me-2"></i>Tüm Modüller
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sol Taraf - Modeller -->
+    <div class="col-lg-8 mb-4 animate-fade-in" style="animation-delay: 0.1s">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-database me-2 text-{{ metadata.color }}"></i>
+                    Veri Modelleri
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if model_info %}
+                    {% for model in model_info %}
+                    <div class="model-card border-{{ metadata.color }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-1 fw-bold">{{ model.verbose_name }}</h6>
+                                <small class="text-muted">{{ model.name }}</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <span class="badge bg-{{ metadata.color }} fs-6">
+                                    {{ model.count }} kayıt
+                                </span>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <i class="bi bi-table text-{{ metadata.color }} fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
+                        <p class="text-muted mt-3">Bu modülde model tanımı bulunmamaktadır.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- İstatistikler -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2 text-primary"></i>
+                    Modül İstatistikleri
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="bi bi-layers fs-2 text-primary mb-2"></i>
+                            <h3 class="mb-1">{{ model_info|length }}</h3>
+                            <small class="text-muted">Toplam Model</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="bi bi-check-circle fs-2 text-success mb-2"></i>
+                            <h3 class="mb-1">Aktif</h3>
+                            <small class="text-muted">Durum</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="bi bi-shield-check fs-2 text-warning mb-2"></i>
+                            <h3 class="mb-1">{{ module_name }}</h3>
+                            <small class="text-muted">Modül Kodu</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Taraf - Hızlı Aksiyonlar -->
+    <div class="col-lg-4 mb-4 animate-fade-in" style="animation-delay: 0.2s">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-{{ metadata.color }} text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning-fill me-2"></i>
+                    Hızlı Aksiyonlar
+                </h6>
+            </div>
+            <div class="card-body p-2">
+                {% if module_name == 'accounts' %}
+                    <a href="{% url 'management:user_list' %}" class="action-button">
+                        <i class="bi bi-people me-2 text-primary"></i>
+                        Kullanıcı Listesi
+                    </a>
+                    <a href="{% url 'management:user_add' %}" class="action-button">
+                        <i class="bi bi-person-plus me-2 text-success"></i>
+                        Yeni Kullanıcı Ekle
+                    </a>
+                {% elif module_name == 'accounting' %}
+                    <a href="{% url 'accounting:home' %}" class="action-button">
+                        <i class="bi bi-house me-2 text-primary"></i>
+                        Muhasebe Ana Sayfa
+                    </a>
+                    <a href="{% url 'accounting:invoice_list' %}" class="action-button">
+                        <i class="bi bi-receipt me-2 text-success"></i>
+                        Fatura Listesi
+                    </a>
+                    <a href="{% url 'accounting:expense_list' %}" class="action-button">
+                        <i class="bi bi-wallet2 me-2 text-warning"></i>
+                        Gider Listesi
+                    </a>
+                    <a href="{% url 'accounting:customer_list' %}" class="action-button">
+                        <i class="bi bi-person-badge me-2 text-info"></i>
+                        Müşteri Listesi
+                    </a>
+                {% elif module_name == 'finance' %}
+                    <a href="{% url 'finance:finance_home' %}" class="action-button">
+                        <i class="bi bi-bank me-2 text-primary"></i>
+                        Finans Ana Sayfa
+                    </a>
+                    <a href="{% url 'finance:bank_account_list' %}" class="action-button">
+                        <i class="bi bi-wallet me-2 text-success"></i>
+                        Banka Hesapları
+                    </a>
+                {% elif module_name == 'management' %}
+                    <a href="{% url 'management:admin_dashboard' %}" class="action-button">
+                        <i class="bi bi-speedometer2 me-2 text-primary"></i>
+                        Admin Dashboard
+                    </a>
+                    <a href="{% url 'management:admin_logs' %}" class="action-button">
+                        <i class="bi bi-journal-text me-2 text-warning"></i>
+                        Sistem Logları
+                    </a>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-1 opacity-25"></i>
+                        <p class="mt-2 small">Bu modül için hızlı aksiyon tanımlı değil</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Bilgi Kutusu -->
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-info-circle fs-1 text-primary mb-3"></i>
+                <h6 class="fw-bold">Modül Bilgisi</h6>
+                <p class="small text-muted mb-3">
+                    Bu sayfa {{ metadata.name }} modülünün tüm veri modellerini ve istatistiklerini gösterir.
+                </p>
+                <a href="/admin/" class="btn btn-sm btn-primary">
+                    <i class="bi bi-gear me-1"></i>Django Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+- id: kvkk-http-only
+  title: "Session cookie HTTPOnly"
+  description: "Tarayıcıda script erişimini engellemek KVKK kapsamında tavsiye edilir."
+  severity: high
+  type: setting_equals
+  path: SESSION_COOKIE_HTTPONLY
+  expected: true
+
+- id: kvkk-concurrent-middleware
+  title: "Eşzamanlı oturum kontrolü etkin"
+  description: "Birden fazla oturum açmayı sınırlamak kişisel veri güvenliğini artırır."
+  severity: medium
+  type: setting_contains
+  path: MIDDLEWARE
+  expected: security.middleware.ConcurrentSessionControlMiddleware
+
+- id: kvkk-otp-enabled
+  title: "MFA altyapısı kurulu"
+  description: "MFA zorlanması KVKK güvenlik tedbirleri kapsamında önerilir."
+  severity: medium
+  type: app_installed
+  app: django_otp
+

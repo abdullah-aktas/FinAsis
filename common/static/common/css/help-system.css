@@ -1,0 +1,376 @@
+/**
+ * FinAsis Help System CSS
+ * Tooltip, Guided Tour ve Help Widget stilleri
+ */
+
+/* ============================================================================
+   HELP WIDGET
+   ============================================================================ */
+
+.help-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.help-widget-minimized button {
+    width: 60px;
+    height: 60px;
+    animation: helpPulse 2s infinite;
+}
+
+@keyframes helpPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5);
+    }
+}
+
+.help-widget-expanded {
+    width: 350px;
+}
+
+/* ============================================================================
+   GUIDED TOUR
+   ============================================================================ */
+
+.help-tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.help-tour-highlight {
+    position: relative;
+    z-index: 10001 !important;
+    box-shadow: 0 0 0 4px #0d6efd, 0 0 20px rgba(13, 110, 253, 0.5) !important;
+    border-radius: 4px;
+    animation: highlightPulse 1.5s infinite;
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px #0d6efd, 0 0 20px rgba(13, 110, 253, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 0 6px #0d6efd, 0 0 30px rgba(13, 110, 253, 0.7);
+    }
+}
+
+.help-tour-popover {
+    position: fixed;
+    z-index: 10002;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.help-tour-header {
+    background: #0d6efd;
+    color: white;
+    padding: 15px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.help-tour-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.help-tour-body {
+    padding: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.help-tour-footer {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+}
+
+/* ============================================================================
+   HELP BOX (Sayfa içi yardım)
+   ============================================================================ */
+
+.help-box {
+    background: #cfe2ff;
+    border-left: 4px solid #0d6efd;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.help-box.bg-info-subtle {
+    background: #d1ecf1;
+    border-left-color: #0dcaf0;
+}
+
+.help-box.bg-warning-subtle {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.help-box.bg-success-subtle {
+    background: #d1e7dd;
+    border-left-color: #198754;
+}
+
+.help-box h6 {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.help-box ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+/* ============================================================================
+   QUICK TIP BANNER
+   ============================================================================ */
+
+.quick-tip-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-tip-banner::before {
+    content: '💡';
+    position: absolute;
+    right: 20px;
+    font-size: 3rem;
+    opacity: 0.2;
+}
+
+.quick-tip-banner h6 {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.quick-tip-banner p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.quick-tip-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: white;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.quick-tip-close:hover {
+    opacity: 1;
+}
+
+/* ============================================================================
+   ONBOARDING PROGRESS
+   ============================================================================ */
+
+.onboarding-badge {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1040;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.onboarding-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+   SEARCH RESULTS
+   ============================================================================ */
+
+.help-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 5px;
+    z-index: 1000;
+}
+
+.help-search-result-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.help-search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.help-search-result-item:last-child {
+    border-bottom: none;
+}
+
+/* ============================================================================
+   CONTEXTUAL HELP PANEL
+   ============================================================================ */
+
+.contextual-help-panel {
+    position: fixed;
+    right: -350px;
+    top: 100px;
+    width: 350px;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px 0 0 8px;
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 1040;
+}
+
+.contextual-help-panel.active {
+    right: 0;
+}
+
+.contextual-help-toggle {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 576px) {
+    .help-widget {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .help-widget-expanded {
+        width: calc(100vw - 20px);
+    }
+    
+    .help-widget-minimized button {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .help-tour-popover {
+        max-width: calc(100vw - 40px);
+        left: 20px !important;
+    }
+    
+    .onboarding-badge {
+        display: none;
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.help-icon {
+    cursor: help;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.help-icon:hover {
+    color: #0d6efd;
+}
+
+.help-badge {
+    background: #0d6efd;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.help-badge:hover {
+    background: #0b5ed7;
+}
+

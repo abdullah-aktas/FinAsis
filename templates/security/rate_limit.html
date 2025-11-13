@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çok Fazla İstek - FinAsis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #d53f8c;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .countdown {
+            font-size: 48px;
+            font-weight: bold;
+            color: #d53f8c;
+            margin: 30px 0;
+        }
+        .info-box {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 14px;
+        }
+        .info-box strong {
+            color: #d68910;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⏱️</div>
+        <h1>Çok Fazla İstek Gönderildi</h1>
+        <p>
+            Güvenlik nedeniyle çok fazla istek gönderildiği tespit edildi. 
+            Lütfen biraz bekleyip tekrar deneyin.
+        </p>
+        
+        <div class="countdown" id="countdown">60</div>
+        
+        <div class="info-box">
+            <strong>Bilgi:</strong> Bu koruma, sistemimizi otomatik saldırılara karşı 
+            güvende tutmak için tasarlanmıştır. Normal kullanımda bu ekranı görmemeniz gerekir.
+        </div>
+        
+        <p style="font-size: 14px; color: #718096;">
+            Sorun devam ederse lütfen <a href="mailto:destek@finasis.com.tr" style="color: #d53f8c;">destek ekibimizle</a> iletişime geçin.
+        </p>
+    </div>
+    
+    <script>
+        let seconds = 60;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            seconds--;
+            countdownEl.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                countdownEl.textContent = '✓';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

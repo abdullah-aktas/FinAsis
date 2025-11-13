@@ -1,0 +1,927 @@
+{% load static i18n %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --home-ink: var(--brand-ink);
+    --home-primary: var(--brand-primary);
+    --home-primary-strong: var(--brand-primary-strong);
+    --home-accent: var(--brand-accent);
+    --home-muted: var(--brand-muted);
+    --home-surface: var(--brand-surface);
+    --home-surface-alt: var(--brand-surface-alt);
+    --home-border: var(--brand-border);
+  }
+
+  .home-section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-hero {
+    background: radial-gradient(circle at 0% 0%, rgba(255, 179, 0, 0.16), transparent 55%),
+      radial-gradient(circle at 90% 10%, rgba(13, 59, 102, 0.15), transparent 60%),
+      linear-gradient(135deg, color-mix(in srgb, var(--home-ink) 45%, var(--home-primary) 55%) 0%, var(--home-primary-strong) 100%);
+    color: #fff;
+    border-radius: 0 0 3rem 3rem;
+    padding: clamp(4rem, 6vw, 6.5rem) 0 clamp(3rem, 5vw, 5rem);
+    box-shadow: 0 26px 68px rgba(13, 59, 102, 0.28);
+  }
+
+  .home-hero__grid {
+    display: grid;
+    gap: 3.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: center;
+  }
+
+  .home-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    color: var(--home-ink);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 12px 32px rgba(10, 174, 148, 0.25);
+  }
+
+  .home-hero__title {
+    margin-top: 1.65rem;
+    margin-bottom: 1.25rem;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.12;
+  }
+
+  .home-hero__title span {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .home-hero__title strong {
+    color: #fef08a;
+  }
+
+  .home-hero__subtitle {
+    font-size: 1.05rem;
+    max-width: 540px;
+    margin-bottom: 2.2rem;
+    line-height: 1.7;
+  }
+
+  .home-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.95rem 1.75rem;
+    border-radius: 0.95rem;
+    font-weight: 600;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+    text-decoration: none;
+  }
+
+  .home-btn--primary {
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.85) 100%);
+    color: var(--home-ink);
+    box-shadow: 0 16px 38px rgba(255, 255, 255, 0.22);
+  }
+
+  .home-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 46px rgba(255, 255, 255, 0.28);
+  }
+
+  .home-btn--secondary {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .home-btn--secondary:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .home-hero__stats {
+    margin-top: 2.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+  }
+
+  .home-hero__stat {
+    min-width: 150px;
+    padding: 1.15rem 1.4rem;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(12px);
+  }
+
+  .home-hero__stat strong {
+    display: block;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+
+  .home-hero__stat span {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 600;
+  }
+
+  .home-hero__card {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--home-ink);
+    border-radius: 1.35rem;
+    padding: clamp(1.75rem, 3vw, 2.4rem);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 28px 54px rgba(13, 59, 102, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  .home-hero__card::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -12%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle at center, rgba(255, 179, 0, 0.2), transparent 65%);
+    pointer-events: none;
+  }
+
+  .home-hero__card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: var(--home-ink);
+  }
+
+  .home-hero__list {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .home-hero__list li {
+    list-style: none;
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    color: color-mix(in srgb, var(--home-ink) 72%, white 28%);
+  }
+
+  .home-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--home-accent);
+    background: rgba(255, 179, 0, 0.12);
+    margin-top: 1.75rem;
+  }
+
+  .home-wave {
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 60px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+  }
+
+  .home-section--light {
+    background: var(--home-surface);
+    padding: clamp(3.5rem, 6vw, 5.5rem) 0;
+  }
+
+  .home-section__header {
+    text-align: center;
+    margin-bottom: clamp(2.8rem, 5vw, 4rem);
+  }
+
+  .home-section__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--home-primary-strong);
+    background: rgba(10, 174, 148, 0.1);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+  }
+
+  .home-section__title {
+    margin-top: 1.4rem;
+    margin-bottom: 1rem;
+    font-size: clamp(2.1rem, 4.5vw, 3rem);
+    font-weight: 800;
+    color: var(--home-ink);
+  }
+
+  .home-section__subtitle {
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 1rem;
+    color: var(--home-muted);
+  }
+
+  .home-feature-grid {
+    display: grid;
+    gap: 1.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .home-feature-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(248, 250, 252, 0.95) 100%);
+    border: 1px solid color-mix(in srgb, var(--home-border) 80%, transparent);
+    border-radius: 1.4rem;
+    padding: 2rem;
+    box-shadow: 0 18px 42px rgba(13, 59, 102, 0.08);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-feature-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% auto auto -20%;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(10, 174, 148, 0.12), transparent 70%);
+  }
+
+  .home-feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 28px 56px rgba(13, 59, 102, 0.12);
+  }
+
+  .home-feature-card__icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--home-primary);
+    background: rgba(10, 174, 148, 0.12);
+    margin-bottom: 1.35rem;
+  }
+
+  .home-feature-card__title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--home-ink);
+    margin-bottom: 0.6rem;
+  }
+
+  .home-feature-card__text {
+    font-size: 0.95rem;
+    color: color-mix(in srgb, var(--home-ink) 70%, white 30%);
+    line-height: 1.6;
+  }
+
+  .home-value-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: clamp(2.5rem, 4vw, 3.75rem);
+  }
+
+  .home-value-card {
+    border-radius: 1.6rem;
+    padding: 2.4rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 58px rgba(13, 59, 102, 0.22);
+  }
+
+  .home-value-card[data-tone="primary"] {
+    background: linear-gradient(135deg, var(--home-ink) 0%, color-mix(in srgb, var(--home-ink) 60%, var(--home-primary) 40%) 100%);
+  }
+
+  .home-value-card[data-tone="accent"] {
+    background: linear-gradient(135deg, var(--home-accent) 0%, color-mix(in srgb, var(--home-accent) 80%, white 20%) 100%);
+    color: #111827;
+  }
+
+  .home-value-card[data-tone="surface"] {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--home-primary) 30%, #0f172a 70%) 0%, #0f172a 100%);
+  }
+
+  .home-value-card h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .home-value-card p {
+    color: rgba(255, 255, 255, 0.88);
+    margin-bottom: 1.4rem;
+    line-height: 1.65;
+  }
+
+  .home-value-card[data-tone="accent"] p {
+    color: color-mix(in srgb, #111827 70%, white 30%);
+  }
+
+  .home-value-list {
+    display: grid;
+    gap: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .home-value-list li {
+    list-style: none;
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+  }
+
+  .home-value-list i {
+    margin-top: 0.15rem;
+  }
+
+  .home-steps {
+    background: var(--home-surface-alt);
+    padding: clamp(3.5rem, 5vw, 5rem) 0;
+    border-radius: 2.4rem;
+    border: 1px solid color-mix(in srgb, var(--home-border) 75%, transparent);
+    box-shadow: 0 16px 42px rgba(13, 59, 102, 0.12);
+  }
+
+  .home-steps__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    padding: 0 clamp(1.2rem, 3vw, 2.5rem);
+  }
+
+  .home-step {
+    background: var(--home-surface);
+    border-radius: 1.4rem;
+    padding: 1.8rem;
+    border: 1px solid color-mix(in srgb, var(--home-border) 75%, transparent);
+    box-shadow: 0 10px 28px rgba(13, 59, 102, 0.08);
+    position: relative;
+  }
+
+  .home-step__number {
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--home-primary);
+    background: rgba(10, 174, 148, 0.12);
+    margin-bottom: 1rem;
+  }
+
+  .home-step h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--home-ink);
+    margin-bottom: 0.6rem;
+  }
+
+  .home-step p {
+    font-size: 0.9rem;
+    color: var(--home-muted);
+    margin: 0;
+  }
+
+  .home-stats-band {
+    padding: clamp(3.2rem, 5vw, 4.5rem) 0;
+    background: linear-gradient(135deg, rgba(10, 174, 148, 0.12) 0%, rgba(255, 179, 0, 0.08) 100%);
+    border-radius: 2rem;
+    border: 1px solid color-mix(in srgb, var(--home-border) 65%, transparent);
+  }
+
+  .home-stats {
+    display: grid;
+    gap: 1.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .home-stat-card {
+    background: #fff;
+    border-radius: 1.2rem;
+    padding: 1.8rem;
+    border: 1px solid color-mix(in srgb, var(--home-border) 70%, transparent);
+    box-shadow: 0 16px 36px rgba(13, 59, 102, 0.08);
+    text-align: left;
+  }
+
+  .home-stat-card strong {
+    display: block;
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: var(--home-ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .home-stat-card span {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--home-muted);
+    font-weight: 600;
+  }
+
+  .home-cta {
+    margin-top: clamp(4rem, 6vw, 5.5rem);
+    background: linear-gradient(135deg, var(--home-accent) 0%, color-mix(in srgb, var(--home-accent) 50%, white 50%) 100%);
+    border-radius: 1.8rem;
+    padding: clamp(3rem, 4.5vw, 4.4rem);
+    color: #111827;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-cta::after {
+    content: "";
+    position: absolute;
+    inset: auto -10% -40% 35%;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.18), transparent 70%);
+    pointer-events: none;
+  }
+
+  .home-cta__content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 2.2rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: center;
+  }
+
+  .home-cta h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+
+  .home-cta p {
+    margin: 0;
+    font-size: 1rem;
+    color: color-mix(in srgb, #111827 70%, white 30%);
+    line-height: 1.6;
+  }
+
+  .home-cta__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.2rem;
+  }
+
+  .home-cta__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .home-cta__actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .home-cta .home-btn--primary {
+    background: linear-gradient(135deg, var(--home-ink) 0%, #0a2746 100%);
+    color: #fff;
+    box-shadow: 0 16px 36px rgba(13, 59, 102, 0.25);
+  }
+
+  .home-cta .home-btn--primary:hover {
+    box-shadow: 0 24px 48px rgba(13, 59, 102, 0.3);
+  }
+
+  .home-cta .home-btn--secondary {
+    background: rgba(17, 24, 39, 0.1);
+    color: #111827;
+    border: 1px solid rgba(17, 24, 39, 0.25);
+  }
+
+  .counting {
+    animation: pulseCount 0.5s ease;
+  }
+
+  @keyframes pulseCount {
+    0% { transform: scale(0.94); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @media (max-width: 992px) {
+    .home-hero {
+      border-radius: 0 0 2.2rem 2.2rem;
+    }
+
+    .home-hero__subtitle {
+      max-width: 100%;
+    }
+
+    .home-hero__card {
+      order: -1;
+    }
+
+    .home-hero__stats {
+      gap: 1rem;
+    }
+
+    .home-cta__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .home-cta .home-btn {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .home-hero__stats {
+      flex-direction: column;
+    }
+
+    .home-hero__stat {
+      width: 100%;
+    }
+
+    .home-value-card {
+      padding: 2rem;
+    }
+
+    .home-cta__content {
+      grid-template-columns: 1fr;
+      text-align: left;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    function animateStat(el, value, suffix) {
+      const formatted = value >= 1000 ? (Math.round(value / 100) / 10) + 'K' : value;
+      el.textContent = formatted + suffix;
+      el.classList.add('counting');
+      setTimeout(() => el.classList.remove('counting'), 400);
+    }
+
+    function updateStats() {
+      fetch('/api/v1/stats/')
+        .then((res) => res.ok ? res.json() : null)
+        .then((data) => {
+          if (!data) return;
+          [
+            { selector: '[data-stat="companies"]', value: data.active_companies },
+            { selector: '[data-stat="invoices"]', value: data.monthly_invoices },
+            { selector: '[data-stat="users"]', value: data.total_users }
+          ].forEach(({ selector, value }) => {
+            if (!Number(value)) return;
+            const el = document.querySelector(selector);
+            if (el) animateStat(el, Number(value), '+');
+          });
+        })
+        .catch(() => {});
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateStats, 1800);
+      setInterval(updateStats, 30000);
+    });
+  })();
+</script>
+{% endblock %}
+
+<section class="home-section home-hero">
+  <div class="container home-hero__grid">
+    <div>
+      <span class="home-pill">
+        <i class="bi bi-rocket-takeoff"></i>
+        BETA v2.0 · Yerel AI Güvencesi
+      </span>
+      <h1 class="home-hero__title">
+        <strong>FinAsis</strong> ile finans ve e-dönüşüm süreçleriniz
+        <span>tek panelde birleşsin.</span>
+      </h1>
+      <p class="home-hero__subtitle">
+        Muhasebeden e-Fatura'ya, eğitimden blockchain kanıta kadar tüm operasyonlarınız
+        yerel ve güvenilir yapay zekâ ile akıllanır. Veriniz kurumunuzda kalır, kararlarınız hızlanır.
+      </p>
+      <div class="home-hero__cta">
+        <a href="{% url 'accounts:register' %}" class="home-btn home-btn--primary" data-cta="hero-register">
+          14 Gün Ücretsiz Deneyin
+          <i class="bi bi-arrow-right-short"></i>
+        </a>
+        <a href="#features" class="home-btn home-btn--secondary" data-cta="hero-how">
+          Canlı Demo İzle
+        </a>
+      </div>
+      <div class="home-hero__stats">
+        {% if stats.active_companies > 0 %}
+          <div class="home-hero__stat">
+            <strong data-stat="companies">{{ stats.active_companies }}+</strong>
+            <span>Aktif Şirket</span>
+          </div>
+        {% endif %}
+        {% if stats.total_users > 0 %}
+          <div class="home-hero__stat">
+            <strong data-stat="users">{{ stats.total_users }}+</strong>
+            <span>Kullanıcı</span>
+          </div>
+        {% endif %}
+        {% if stats.monthly_invoices > 0 %}
+          <div class="home-hero__stat">
+            <strong data-stat="invoices">
+              {% if stats.monthly_invoices > 1000 %}
+                {{ stats.monthly_invoices|floatformat:0|slice:":2" }}K+
+              {% else %}
+                {{ stats.monthly_invoices }}+
+              {% endif %}
+            </strong>
+            <span>Aylık İşlem</span>
+          </div>
+        {% endif %}
+        <div class="home-hero__stat">
+          <strong>99.9%</strong>
+          <span>Uptime Garantisi</span>
+        </div>
+      </div>
+    </div>
+    <aside class="home-hero__card">
+      <h3>FinAsis ne kazandırır?</h3>
+      <ul class="home-hero__list">
+        <li>
+          <i class="bi bi-check-circle-fill text-success"></i>
+          Yerel AI ile finansal analiz, risk tahmini ve otomatik raporlama
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill text-success"></i>
+          e-Fatura, e-Arşiv, e-Defter ve blockchain kanıtı tek entegrasyonla yönetim
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill text-success"></i>
+          Ekibiniz için oyunlaştırılmış finansal eğitim (LMS) ve belge otomasyonu
+        </li>
+      </ul>
+      <span class="home-hero__badge">
+        <i class="bi bi-shield-lock"></i>
+        Tüm veriler Türkiye'de saklanır.
+      </span>
+    </aside>
+  </div>
+</section>
+
+<section class="home-section home-section--light" id="features">
+  <div class="container">
+    <header class="home-section__header">
+      <span class="home-section__eyebrow">
+        <i class="bi bi-stars"></i>
+        Platform Modülleri
+      </span>
+      <h2 class="home-section__title">Finans ekosisteminiz için tek panel</h2>
+      <p class="home-section__subtitle">
+        Operasyonel yükü azaltan, karar hızını artıran ve regülasyon uyumunu kolaylaştıran modüler yapıyı seçerek
+        kurum kültürünüze göre ölçekleyin.
+      </p>
+    </header>
+    <div class="home-feature-grid">
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-graph-up-arrow"></i></span>
+        <h3 class="home-feature-card__title">AI Finansal Analitik</h3>
+        <p class="home-feature-card__text">
+          Gelir-gider, nakit akışı ve KPI takibini yapay zekâ destekli yorumlarla birleştirir. CFO ve finans ekiplerine
+          eylem önerileri sunar.
+        </p>
+      </article>
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-receipt-cutoff"></i></span>
+        <h3 class="home-feature-card__title">e-Dönüşüm Otomasyonu</h3>
+        <p class="home-feature-card__text">
+          e-Fatura, e-Arşiv, e-Defter, e-İrsaliye ve GİB entegrasyonunu tek API ile yönetin. Uyum raporları dakikalar içinde hazır.
+        </p>
+      </article>
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-robot"></i></span>
+        <h3 class="home-feature-card__title">Akıllı Otomasyon</h3>
+        <p class="home-feature-card__text">
+          OCR tabanlı belge okuma, otomatik kategorilendirme, görev atamaları ve hatırlatıcılarla muhasebe ritminizi hızlandırın.
+        </p>
+      </article>
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-mortarboard-fill"></i></span>
+        <h3 class="home-feature-card__title">Finansal Eğitim LMS</h3>
+        <p class="home-feature-card__text">
+          Sertifikalı eğitim içerikleri, oyunlaştırma ve canlı oturumlarla ekibinizin finansal okuryazarlığını yükseltin.
+        </p>
+      </article>
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-shield-check"></i></span>
+        <h3 class="home-feature-card__title">Blockchain Kanıt</h3>
+        <p class="home-feature-card__text">
+          Finansal kayıtlarınızı blockchain üzerinde doğrulayın. Değiştirilemez kayıtlar, denetime hazır raporlar.
+        </p>
+      </article>
+      <article class="home-feature-card">
+        <span class="home-feature-card__icon"><i class="bi bi-controller"></i></span>
+        <h3 class="home-feature-card__title">TradeSim 3D Oyun</h3>
+        <p class="home-feature-card__text">
+          Gerçek veriye dayalı simülasyonlarla yatırım ve finans deneyimi kazandıran oyunlaştırılmış senaryolar.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="home-section home-section--light">
+  <div class="container">
+    <header class="home-section__header">
+      <span class="home-section__eyebrow">
+        <i class="bi bi-shield-lock"></i>
+        Yerel AI Güvencesi
+      </span>
+      <h2 class="home-section__title">Gizlilikten ödün vermeyen yapay zekâ</h2>
+      <p class="home-section__subtitle">
+        FinAsis, finansal verilerinizi üçüncü parti bulutlara göndermeden, şirket içinde çalışan modellerle analiz eder.
+        Böylece hem regülasyon hem de hız hedeflerinizi aynı anda yakalarsınız.
+      </p>
+    </header>
+    <div class="home-value-grid">
+      <article class="home-value-card" data-tone="primary">
+        <h3>Yerel veri işleme</h3>
+        <p>Finansal dokümanlarınız, faturalarınız ve raporlarınız Türkiye sınırları dışına çıkmadan işlenir.</p>
+        <ul class="home-value-list">
+          <li><i class="bi bi-check2-circle"></i> KVKK ve regülasyon uyumlu AI pipeline</li>
+          <li><i class="bi bi-check2-circle"></i> Kapalı devre model eğitimi ve raporlama</li>
+          <li><i class="bi bi-check2-circle"></i> Rollere göre erişim ve iz kayıtları</li>
+        </ul>
+      </article>
+      <article class="home-value-card" data-tone="accent">
+        <h3>Karar destek katmanı</h3>
+        <p>AI, finans ekiplerinize aksiyon planı önerir, manuel iş yükünü %60 azaltır.</p>
+        <ul class="home-value-list">
+          <li><i class="bi bi-lightning-charge-fill"></i> Nakit akışı tahmini ve risk uyarıları</li>
+          <li><i class="bi bi-lightning-charge-fill"></i> Yönetim sunumu için hazır rapor şablonları</li>
+          <li><i class="bi bi-lightning-charge-fill"></i> KPI takibi için otomatik dashboardlar</li>
+        </ul>
+      </article>
+      <article class="home-value-card" data-tone="surface">
+        <h3>Esnek entegrasyon</h3>
+        <p>Var olan ERP, muhasebe ve insan kaynakları yazılımlarınızla REST API veya dosya entegrasyonları kurun.</p>
+        <ul class="home-value-list">
+          <li><i class="bi bi-box-arrow-in-right"></i> SAP, Logo, Netsis ve Mikro hazır adaptörler</li>
+          <li><i class="bi bi-box-arrow-in-right"></i> Webhook ile gerçek zamanlı veri akışı</li>
+          <li><i class="bi bi-box-arrow-in-right"></i> SSO, OAuth2 ve MFA desteği</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="home-section home-section--light">
+  <div class="container">
+    <div class="home-steps">
+      <header class="home-section__header" style="margin-bottom: 2.5rem;">
+        <span class="home-section__eyebrow">
+          <i class="bi bi-lightbulb"></i>
+          Başlarken
+        </span>
+        <h2 class="home-section__title">3 adımda FinAsis'e geçiş</h2>
+        <p class="home-section__subtitle">
+          Kurulum mühendislerimiz ve AI destek ekibimizle sıfırdan entegrasyon süreçlerini 10 iş gününün altında tamamlayın.
+        </p>
+      </header>
+      <div class="home-steps__grid">
+        <article class="home-step">
+          <span class="home-step__number">1</span>
+          <h4>Başlangıç oturumu</h4>
+          <p>İhtiyaç analizi, veri temizlik planı ve yol haritası. Kredi kartı gerekmez, 14 gün deneme hemen açılır.</p>
+        </article>
+        <article class="home-step">
+          <span class="home-step__number">2</span>
+          <h4>Veri ve entegrasyon</h4>
+          <p>ERP ve e-dönüşüm servisleri bağlanır, AI modelleri işletme türünüze göre yeniden ayarlanır.</p>
+        </article>
+        <article class="home-step">
+          <span class="home-step__number">3</span>
+          <h4>Canlıya geçiş</h4>
+          <p>Ekibiniz eğitimleri tamamlar, dashboard ve raporlar özelleştirilir. AI önerileri ilk günden devrede.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if stats.active_companies > 0 or stats.monthly_invoices > 0 or stats.total_users > 0 %}
+<section class="home-section home-section--light">
+  <div class="container">
+    <div class="home-stats-band">
+      <header class="home-section__header" style="margin-bottom: 2rem;">
+        <span class="home-section__eyebrow">
+          <i class="bi bi-activity"></i>
+          Canlı Platform Verisi
+        </span>
+        <h2 class="home-section__title" style="margin-bottom: 0.6rem;">Güvenli büyümeyi tercih eden ekipler</h2>
+        <p class="home-section__subtitle">
+          FinAsis ile çalışan şirketler süreçlerini ortalama %42 daha hızlı kapatıyor, manuel raporlama süresini yarıya indiriyor.
+        </p>
+      </header>
+      <div class="home-stats">
+        {% if stats.active_companies > 0 %}
+          <article class="home-stat-card">
+            <strong data-stat="companies">{{ stats.active_companies }}+</strong>
+            <span>KOBİ ve Scale-up</span>
+          </article>
+        {% endif %}
+        {% if stats.monthly_invoices > 0 %}
+          <article class="home-stat-card">
+            <strong data-stat="invoices">
+              {% if stats.monthly_invoices > 1000 %}
+                {{ stats.monthly_invoices|floatformat:0|slice:":2" }}K+
+              {% else %}
+                {{ stats.monthly_invoices }}+
+              {% endif %}
+            </strong>
+            <span>Aylık İşlenen Belge</span>
+          </article>
+        {% endif %}
+        {% if stats.total_users > 0 %}
+          <article class="home-stat-card">
+            <strong data-stat="users">{{ stats.total_users }}+</strong>
+            <span>Aktif Kullanıcı</span>
+          </article>
+        {% endif %}
+        <article class="home-stat-card">
+          <strong>4.8/5</strong>
+          <span>Müşteri Memnuniyeti</span>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="home-section home-section--light">
+  <div class="container">
+    <div class="home-cta">
+      <div class="home-cta__content">
+        <div>
+          <h2>Beta topluluğuna katılın, avantajları kaçırmayın.</h2>
+          <p>
+            2 ay ücretsiz kullanım, ürün yol haritasında söz hakkı ve erken yatırımcı hissesi fırsatı.
+            Ekibimiz tüm geçiş sürecinde yanınızda.
+          </p>
+          <div class="home-cta__badges">
+            <span class="home-cta__badge"><i class="bi bi-graph-up"></i> Şirket hissesi çekilişi</span>
+            <span class="home-cta__badge"><i class="bi bi-gift"></i> 2 ay ücretsiz</span>
+            <span class="home-cta__badge"><i class="bi bi-headset"></i> 7/24 VIP destek</span>
+          </div>
+        </div>
+        <div class="home-cta__actions">
+          <a href="{% url 'accounts:register' %}" class="home-btn home-btn--primary" data-cta="cta-register">
+            Hemen Ücretsiz Başlayın
+            <i class="bi bi-arrow-right-short"></i>
+          </a>
+          <a href="{% url 'contact' %}" class="home-btn home-btn--secondary" data-cta="cta-contact">
+            Satış ekibiyle görüşün
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

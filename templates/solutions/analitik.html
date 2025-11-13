@@ -1,0 +1,764 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+
+{% block title %}Advanced Analytics & Intelligence - Enterprise Analytics Hub - FinAsis{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+  /* Enterprise Analytics Hub Styles */
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .analytics-hero {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-radius: 0 0 50px 50px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  }
+
+  .analytics-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+
+  .analytics-hero p {
+    font-size: 1.25rem;
+    opacity: 0.95;
+  }
+
+  .analytics-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  /* Analytics Cards */
+  .analytics-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    height: 100%;
+  }
+
+  .analytics-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: #3b82f6;
+  }
+
+  .analytics-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+  }
+
+  .analytics-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #2d3748;
+  }
+
+  .analytics-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .analytics-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .analytics-features li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #4a5568;
+    font-size: 0.875rem;
+  }
+
+  .analytics-features li i {
+    color: #3b82f6;
+    font-size: 1rem;
+  }
+
+  .analytics-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .badge-ai {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .badge-ml {
+    background: #ede9fe;
+    color: #5b21b6;
+  }
+
+  .badge-realtime {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .badge-predictive {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  /* Action Buttons */
+  .analytics-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .analytics-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    color: white;
+  }
+
+  .analytics-btn.secondary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .analytics-btn.outline {
+    background: transparent;
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+  }
+
+  .analytics-btn.outline:hover {
+    background: #3b82f6;
+    color: white;
+  }
+
+  /* Category Tabs */
+  .category-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .category-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .category-tab:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  .category-tab.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    border-color: transparent;
+  }
+
+  /* KPI Dashboard */
+  .kpi-dashboard {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+
+  .kpi-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .kpi-item:hover {
+    background: #f8f9fa;
+    transform: scale(1.05);
+  }
+
+  .kpi-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .kpi-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2d3748;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .kpi-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 600;
+  }
+
+  .kpi-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .kpi-change.positive {
+    color: #10b981;
+  }
+
+  .kpi-change.negative {
+    color: #ef4444;
+  }
+
+  /* Chart Preview */
+  .chart-preview {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chart-placeholder {
+    text-align: center;
+    color: #6c757d;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .analytics-hero h1 {
+      font-size: 2rem;
+    }
+
+    .analytics-stats {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+
+    .kpi-dashboard {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="analytics-hero">
+  <div class="container text-center">
+    <h1 data-aos="fade-up">📈 Kurumsal Analitik & İş Zekası Merkezi</h1>
+    <p data-aos="fade-up" data-aos-delay="100">
+      Yapay Zeka Destekli İçgörüler, Tahmine Dayalı Analitik, Gerçek Zamanlı Panolar
+    </p>
+    <div class="analytics-stats" data-aos="fade-up" data-aos-delay="200">
+      <div class="stat-item">
+        <span class="stat-number">30+</span>
+        <span class="stat-label">Analitik Modeli</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100+</span>
+        <span class="stat-label">Takip Edilen KPI</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">Gerçek Zamanlı</span>
+        <span class="stat-label">Veri İşleme</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- KPI Dashboard -->
+  <div class="kpi-dashboard" data-aos="fade-up">
+    <div class="kpi-item">
+      <span class="kpi-icon">💰</span>
+      <span class="kpi-value">₺125K</span>
+      <span class="kpi-label">Aylık Gelir</span>
+      <div class="kpi-change positive">
+        <i class="bi bi-arrow-up"></i> +12.5%
+      </div>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-icon">📊</span>
+      <span class="kpi-value">95.2%</span>
+      <span class="kpi-label">Müşteri Memnuniyeti</span>
+      <div class="kpi-change positive">
+        <i class="bi bi-arrow-up"></i> +2.3%
+      </div>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-icon">👥</span>
+      <span class="kpi-value">1,234</span>
+      <span class="kpi-label">Aktif Müşteri</span>
+      <div class="kpi-change positive">
+        <i class="bi bi-arrow-up"></i> +8.7%
+      </div>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-icon">⚡</span>
+      <span class="kpi-value">2.3s</span>
+      <span class="kpi-label">Ort. Yanıt Süresi</span>
+      <div class="kpi-change negative">
+        <i class="bi bi-arrow-down"></i> -15%
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="category-tabs" data-aos="fade-up">
+    <button class="category-tab active" data-category="all">
+      <i class="bi bi-grid-fill me-2"></i>Tüm Analitikler
+    </button>
+    <button class="category-tab" data-category="predictive">
+      <i class="bi bi-graph-up-arrow me-2"></i>Tahmine Dayalı
+    </button>
+    <button class="category-tab" data-category="ai">
+      <i class="bi bi-robot me-2"></i>Yapay Zeka
+    </button>
+    <button class="category-tab" data-category="dashboard">
+      <i class="bi bi-speedometer2 me-2"></i>Panolar
+    </button>
+    <button class="category-tab" data-category="customer">
+      <i class="bi bi-people me-2"></i>Müşteri
+    </button>
+  </div>
+
+  <!-- Analytics Cards -->
+  <div class="row g-4">
+    <!-- Predictive Analytics -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="predictive ai">
+      <div class="analytics-card">
+        <div class="analytics-icon">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+        <h3 class="analytics-title">Tahmine Dayalı Analitik</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ai">Yapay Zeka</span>
+          <span class="analytics-badge badge-predictive">Tahminleme</span>
+          <span class="analytics-badge badge-ml">Makine Öğrenimi</span>
+        </div>
+        <p class="analytics-description">
+          Gelecek tahminleri, trend analizi, anomali tespiti. Gelir, gider ve nakit akışı öngörüsü.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Gelir Tahmini (30-90 gün)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Gider Deseni Analizi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Nakit Akışı Tahmini</li>
+          <li><i class="bi bi-check-circle-fill"></i> Anomali Tespiti</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/forecast/" class="analytics-btn">
+            <i class="bi bi-graph-up"></i> Yapay Zeka Tahmini
+          </a>
+          <a href="/ai-assistant/advanced/run/" class="analytics-btn outline">
+            <i class="bi bi-cpu"></i> Gelişmiş
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Analytics -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="customer ai">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <h3 class="analytics-title">Müşteri Analitiği</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ai">Segmentasyon</span>
+          <span class="analytics-badge badge-ml">RFM Analizi</span>
+          <span class="analytics-badge badge-predictive">Kayıp Tahmini</span>
+        </div>
+        <p class="analytics-description">
+          Müşteri segmentasyonu, RFM analizi, müşteri kaybı tahmini, yaşam boyu değer hesaplama.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Müşteri Segmentasyonu (RFM)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Müşteri Kaybı Tahmini</li>
+          <li><i class="bi bi-check-circle-fill"></i> Yaşam Boyu Değer (CLV)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Kohort Analizi</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/advanced/run/" class="analytics-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <i class="bi bi-bullseye"></i> Müşteri İçgörüleri
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentiment Analysis -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="ai customer">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+          <i class="bi bi-emoji-smile"></i>
+        </div>
+        <h3 class="analytics-title">Duygu Analizi</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ai">NLP</span>
+          <span class="analytics-badge badge-realtime">Gerçek Zamanlı</span>
+        </div>
+        <p class="analytics-description">
+          Müşteri geri bildirimi, e-posta, doküman analizi. Pozitif/Nötr/Negatif duygu tespiti.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Türkçe Duygu Tespiti</li>
+          <li><i class="bi bi-check-circle-fill"></i> Güven Skorlaması (0-1)</li>
+          <li><i class="bi bi-check-circle-fill"></i> Anahtar Kelime Çıkarma</li>
+          <li><i class="bi bi-check-circle-fill"></i> Varlık Tanıma</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/sentiment/" class="analytics-btn" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+            <i class="bi bi-emoji-heart-eyes"></i> Duygu Analizi Yap
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Dashboards -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="dashboard">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <h3 class="analytics-title">Finansal Panolar</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-realtime">Gerçek Zamanlı</span>
+          <span class="analytics-badge badge-predictive">KPI'lar</span>
+        </div>
+        <p class="analytics-description">
+          Gerçek zamanlı finansal KPI'lar, trend grafikleri, performans izleme.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Gelir/Gider Trendleri</li>
+          <li><i class="bi bi-check-circle-fill"></i> Nakit Akışı İzleme</li>
+          <li><i class="bi bi-check-circle-fill"></i> Kârlılık Metrikleri</li>
+          <li><i class="bi bi-check-circle-fill"></i> Bütçe vs Gerçekleşen</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          {% url 'accounting:dashboard' as acc_dashboard %}
+          <a href="{{ acc_dashboard }}" class="analytics-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <i class="bi bi-graph-up"></i> Finans KPI'ları
+          </a>
+          <a href="/yonetim/" class="analytics-btn outline">
+            <i class="bi bi-shield"></i> Yönetim Paneli
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABC Analysis -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="ai">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+          <i class="bi bi-bar-chart-fill"></i>
+        </div>
+        <h3 class="analytics-title">ABC & Pareto Analizi</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ml">Sınıflandırma</span>
+          <span class="analytics-badge badge-predictive">80/20 Kuralı</span>
+        </div>
+        <p class="analytics-description">
+          Ürün, müşteri, hizmet bazlı ABC sınıflandırması. Pareto prensibi analizi.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Ürün ABC Sınıflandırması</li>
+          <li><i class="bi bi-check-circle-fill"></i> Müşteri Değer Sıralaması</li>
+          <li><i class="bi bi-check-circle-fill"></i> Gelir Dağılımı</li>
+          <li><i class="bi bi-check-circle-fill"></i> Pareto Grafikleri</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/advanced/run/" class="analytics-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+            <i class="bi bi-pie-chart"></i> ABC Analizi
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Summarization -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="ai">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+          <i class="bi bi-file-text"></i>
+        </div>
+        <h3 class="analytics-title">Doküman Özetleme</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ai">NLP</span>
+          <span class="analytics-badge badge-ml">Çıkarımsal</span>
+        </div>
+        <p class="analytics-description">
+          Uzun dokümanları otomatik özetleme. Çıkarımsal özetleme, ana nokta çıkarma.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Çıkarımsal Özetleme</li>
+          <li><i class="bi bi-check-circle-fill"></i> Sıkıştırma Oranı Kontrolü</li>
+          <li><i class="bi bi-check-circle-fill"></i> Ana Noktaların Çıkarılması</li>
+          <li><i class="bi bi-check-circle-fill"></i> Varlık Tanıma</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/summarize/" class="analytics-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+            <i class="bi bi-file-earmark-text"></i> Özetle
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto Report Generation -->
+    <div class="col-lg-6" data-aos="fade-up" data-category="ai">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+          <i class="bi bi-file-earmark-bar-graph"></i>
+        </div>
+        <h3 class="analytics-title">Otomatik Rapor Oluşturma</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-ai">Otomatik</span>
+          <span class="analytics-badge badge-predictive">Zamanlanmış</span>
+        </div>
+        <p class="analytics-description">
+          Otomatik rapor oluşturma. Günlük, haftalık, aylık finansal raporlar yapay zeka ile hazırlanır.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Günlük/Haftalık/Aylık Raporlar</li>
+          <li><i class="bi bi-check-circle-fill"></i> Nakit Akış Raporları</li>
+          <li><i class="bi bi-check-circle-fill"></i> Kar-Zarar Raporları</li>
+          <li><i class="bi bi-check-circle-fill"></i> Müşteri İçgörüleri</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/ai-assistant/reports/generate/" class="analytics-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <i class="bi bi-magic"></i> Rapor Oluştur
+          </a>
+          <a href="/ai-assistant/reports/" class="analytics-btn outline">
+            <i class="bi bi-list"></i> Tümünü Gör
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- KOBI Dashboard -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100" data-category="dashboard">
+      <div class="analytics-card">
+        <div class="analytics-icon" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+          <i class="bi bi-building-gear"></i>
+        </div>
+        <h3 class="analytics-title">KOBİ Analitik Paneli</h3>
+        <div class="mb-3">
+          <span class="analytics-badge badge-predictive">Derecelendirme</span>
+          <span class="analytics-badge badge-ml">Değerleme</span>
+        </div>
+        <p class="analytics-description">
+          KOBİ finansal sağlık, derecelendirme (AAA-D), işletme değerlemesi, rasyo analizi, risk yönetimi.
+        </p>
+        <ul class="analytics-features">
+          <li><i class="bi bi-check-circle-fill"></i> Finansal Sağlık Skoru</li>
+          <li><i class="bi bi-check-circle-fill"></i> Finansal Derecelendirme (AAA-D)</li>
+          <li><i class="bi bi-check-circle-fill"></i> İşletme Değerlemesi</li>
+          <li><i class="bi bi-check-circle-fill"></i> Risk Değerlendirmesi</li>
+        </ul>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/kobi-analysis/" class="analytics-btn" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+            <i class="bi bi-speedometer"></i> KOBİ Paneli
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics API Section -->
+  <div class="mt-5" data-aos="fade-up">
+    <div class="analytics-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+      <h3 class="analytics-title text-center mb-4">
+        <i class="bi bi-code-slash me-2"></i>
+        Analitik API Uç Noktaları
+      </h3>
+      <p class="text-center text-muted mb-4">
+        Tüm analitik özelliklere programatik erişim
+      </p>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded">
+            <code class="text-primary">POST /ai-assistant/api/sentiment/analyze/</code>
+            <p class="mb-0 mt-2 small text-muted">Duygu analizi API'si</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded">
+            <code class="text-success">POST /ai-assistant/api/summarize/</code>
+            <p class="mb-0 mt-2 small text-muted">Doküman özetleme</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded">
+            <code class="text-warning">POST /ai-assistant/api/report/generate/</code>
+            <p class="mb-0 mt-2 small text-muted">Otomatik rapor oluşturma</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded">
+            <code class="text-danger">POST /accounting/api/ai/analyze-finance/</code>
+            <p class="mb-0 mt-2 small text-muted">Finansal analiz yapay zekası</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a href="/solutions/entegrasyon/" class="analytics-btn secondary">
+          <i class="bi bi-plug"></i> Tüm API'leri Gör
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documentation CTA -->
+  <div class="mt-5 text-center" data-aos="fade-up">
+    <div class="analytics-card" style="max-width: 800px; margin: 0 auto;">
+      <h3 class="analytics-title">📚 Analitik Dokümantasyonu</h3>
+      <p class="analytics-description">
+        Tüm analitik modeller, algoritma detayları ve kullanım kılavuzları için dokümantasyonu inceleyin.
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/ai-assistant/analytics/" class="analytics-btn">
+          <i class="bi bi-graph-up"></i> Analitik Paneli
+        </a>
+        <a href="/docs/analytics/" class="analytics-btn secondary">
+          <i class="bi bi-book"></i> Dokümantasyon
+        </a>
+        <a href="/support/" class="analytics-btn outline">
+          <i class="bi bi-headset"></i> Destek
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+// Initialize AOS
+AOS.init({
+  duration: 600,
+  easing: 'ease-out-cubic',
+  once: true
+});
+
+// Category Filter
+document.querySelectorAll('.category-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    // Update active tab
+    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    
+    const category = this.dataset.category;
+    const cards = document.querySelectorAll('[data-category]');
+    
+    cards.forEach(card => {
+      if (category === 'all' || card.dataset.category.includes(category)) {
+        card.style.display = 'block';
+        AOS.refresh();
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+});
+
+// Animate KPI values
+function animateKPIs() {
+  document.querySelectorAll('.kpi-item').forEach((item, index) => {
+    setInterval(() => {
+      item.style.transform = 'scale(1.08)';
+      setTimeout(() => {
+        item.style.transform = 'scale(1)';
+      }, 300);
+    }, 3000 + (index * 500));
+  });
+}
+
+// Update KPI change indicators
+function updateKPIChanges() {
+  const changes = document.querySelectorAll('.kpi-change');
+  changes.forEach(change => {
+    setInterval(() => {
+      const isPositive = change.classList.contains('positive');
+      change.style.opacity = '0.5';
+      setTimeout(() => {
+        change.style.opacity = '1';
+      }, 200);
+    }, 2000);
+  });
+}
+
+// Call on load
+window.addEventListener('load', function() {
+  animateKPIs();
+  updateKPIChanges();
+});
+</script>
+{% endblock %}

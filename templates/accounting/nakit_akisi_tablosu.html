@@ -1,0 +1,100 @@
+{% extends "core_ui/base.html" %}
+{% load dict_extras static %}
+{% block title %}Nakit Akışı - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .report-hero {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color: white;
+    padding: 40px 0;
+    margin: -2rem -2rem 2rem;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .filter-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="report-hero">
+    <div class="container text-center">
+      <i class="bi bi-arrow-left-right" style="font-size: 48px; margin-bottom: 16px;"></i>
+      <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Nakit Akışı</h1>
+      <p style="opacity: 0.95; margin: 0;">Nakit giriş ve çıkış raporu</p>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">Nakit Akışı Tablosu</h3>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary rounded-3" href="?company={{ company.id }}&year={{ year }}&month={{ month }}&excel=1">
+        <i class="bi bi-file-excel me-2"></i>Excel
+      </a>
+      <a class="btn btn-outline-secondary rounded-3" href="?company={{ company.id }}&year={{ year }}&month={{ month }}&pdf=1">
+        <i class="bi bi-file-pdf me-2"></i>PDF
+      </a>
+    </div>
+  </div>
+
+  <div class="filter-card">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label fw-semibold">Şirket</label>
+      <select class="form-select rounded-3" name="company">
+        {% for c in companies %}
+          <option value="{{ c.id }}" {% if c.id == company.id %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Yıl</label>
+      <input class="form-control rounded-3" type="number" name="year" value="{{ year }}" />
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Ay</label>
+      <input class="form-control rounded-3" type="number" name="month" value="{{ month }}" />
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-success w-100" type="submit" style="border-radius: 12px; font-weight: 600;">
+        <i class="bi bi-search me-2"></i>Getir
+      </button>
+    </div>
+  </form>
+  </div>
+
+  {% if rows %}
+  <div class="table-responsive" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);">
+    <table class="table table-hover align-middle mb-0">
+      <thead style="background: #06b6d4; color: white;">
+        <tr>
+          {% for col in columns %}
+            <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for col in columns %}
+              <td>{{ row|get_item:col }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info rounded-4">
+      <i class="bi bi-info-circle me-2"></i>Veri bulunamadı. Lütfen farklı tarih aralığı deneyin.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,418 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+{% block feature_banner %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Finansal Oyunlar & Simülasyonlar' %}{% endblock %}
+{% block meta_description %}{% trans 'Eğlenerek öğren, oynayarak kazan! Borsa simülasyonu, ticaret oyunları, rozet sistemi. Risk almadan deneyim kazan.' %}{% endblock %}
+{% block extra_css %}
+<style>
+  :root {
+    --oyunlar-primary: #8b5cf6;
+    --oyunlar-secondary: #ec4899;
+    --oyunlar-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  }
+
+  .hero-section {
+    background: var(--oyunlar-gradient);
+    color: white;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: "🎮🏆💰📈🎯⭐💎🚀";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 3rem;
+    opacity: 0.08;
+    word-spacing: 40px;
+    line-height: 80px;
+    animation: gameIcons 30s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gameIcons {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-100%);
+    }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+  }
+
+  .metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-8px) rotate(2deg);
+    box-shadow: 0 20px 50px rgba(236, 72, 153, 0.25);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--oyunlar-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-label {
+    color: #6c757d;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    height: 100%;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--oyunlar-gradient);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 0;
+  }
+
+  .feature-card:hover::before {
+    opacity: 0.08;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px) rotate(-1deg);
+    border-color: var(--oyunlar-primary);
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--oyunlar-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    position: relative;
+    z-index: 1;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--oyunlar-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-text {
+    color: #495057;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 5rem 0;
+    margin-top: 4rem;
+  }
+
+  .cta-box {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .btn-primary-custom {
+    background: var(--oyunlar-gradient);
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(236, 72, 153, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title">🎮 Finansal Oyunlar & Simülasyonlar</h1>
+      <p class="hero-subtitle">
+        <strong>Eğlenerek Öğren, Oynayarak Kazan!</strong> Risk almadan yatırım
+        stratejilerini test edin, <strong>gerçek verilerle</strong> hisse
+        alım-satımı yapın. Borsa simülasyonu, ticaret oyunları ve
+        <strong>rozet sistemi</strong> ile finans dünyasını keşfedin! 🏆
+        Liderlik tablosunda zirveye tırmanın, ödüller kazanın!
+      </p>
+      <div class="mt-4">
+        {% if user.is_authenticated %}
+        <a
+          href="{% url 'games:player_hub' %}"
+          class="btn btn-light btn-lg px-5 py-3 me-3"
+        >
+          🎮 Oyun Merkezine Git
+        </a>
+        <a href="/game-app/games/" class="btn btn-outline-light btn-lg px-5 py-3">
+          🎯 Tüm Oyunlar
+        </a>
+        {% else %}
+        <a
+          href="{% url 'accounts:register' %}"
+          class="btn btn-light btn-lg px-5 py-3 me-3"
+        >
+          🚀 Oynamaya Başla
+        </a>
+        <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+          🎯 Oyunları Keşfet
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Metrics Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">50K+</div>
+          <div class="metric-label">Aktif Oyuncu</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">20+</div>
+          <div class="metric-label">Oyun Senaryosu</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">₺10M</div>
+          <div class="metric-label">Sanal Portföy</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="metric-card">
+          <div class="metric-value">100+</div>
+          <div class="metric-label">Rozet & Ödül</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">🎯 Neden FinAsis Oyunlar?</h2>
+      <p class="lead text-muted">
+        Risk almadan finans dünyasını keşfedin, gerçek deneyim kazanın
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">📈</div>
+          <h3 class="feature-title">Borsa Simülasyonu</h3>
+          <p class="feature-text">
+            <strong>Gerçek BIST verileri</strong> ile borsa simülasyonu! ₺10M
+            sanal para ile başlayın, hisse alın-satın, portföy oluşturun.
+            <strong>Risk yok, öğrenme var!</strong>
+            🎯 Yatırım stratejilerini test edin, piyasa dinamiklerini öğrenin.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🏢</div>
+          <h3 class="feature-title">İşletme Yönetimi Oyunu</h3>
+          <p class="feature-text">
+            Kendi şirketinizi kurun, ürünler geliştirin, pazarlama yapın,
+            çalışan işe alın!
+            <strong>Bütçe yönetimi, fiyatlandırma, rekabet</strong> - tüm
+            zorlukları yaşayın. 💼
+            <strong>CEO olmak nasıl bir duygu?</strong> Şimdi keşfedin!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h3 class="feature-title">Ticaret ve Döviz Oyunları</h3>
+          <p class="feature-text">
+            Forex piyasası, emtia ticareti, kripto alım-satımı simülasyonları.
+            <strong>Gerçek zamanlı veriler</strong>, teknik analiz araçları,
+            stop-loss emirleri! 💰
+            <strong>Trader olmadan önce burada pratik yapın!</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3 class="feature-title">Rozet & Liderlik Sistemi</h3>
+          <p class="feature-text">
+            Her başarıda <strong>rozet kazan</strong>, liderlik tablosunda
+            yüksel! "Hızlı Karar Verici", "Risk Yöneticisi", "Portföy Ustası"
+            gibi özel rozetler. 🎖️
+            <strong>Aylık ve haftalık turnuvalar</strong>, ödüller kazan!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🎓</div>
+          <h3 class="feature-title">Öğrenirken Oyna</h3>
+          <p class="feature-text">
+            Her oyun bir <strong>eğitim fırsatı</strong>! İpuçları, anında geri
+            bildirim, hata analizi ve öneriler. Oyun bittikten sonra
+            <strong>detaylı rapor</strong> alın. 📚
+            <strong>%80'den fazla öğrenme oranı</strong> - oyun + eğitim =
+            FinAsis!
+          </p>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 class="feature-title">Çok Oyunculu Mod</h3>
+          <p class="feature-text">
+            Arkadaşlarınızla veya rastgele oyuncularla
+            <strong>gerçek zamanlı yarışın</strong>! Takım kurun, stratejiler
+            geliştirin, lig oluşturun. 🤝 <strong>Sosyal finans</strong> -
+            birlikte öğrenmek daha eğlenceli!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2 class="display-5 fw-bold mb-4">🎮 Finansı Eğlenceli Hale Getirin</h2>
+      <p class="lead mb-4">
+        <strong>Ücretsiz</strong> oynamaya başlayın! ₺10M sanal para ile ilk
+        yatırımınızı yapın. 🎉
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if user.is_authenticated %}
+        <a href="{% url 'games:player_hub' %}" class="btn btn-primary-custom">
+          🎮 Oyun Merkezine Git
+        </a>
+        <a href="/games/trade-sim/leaderboard/" class="btn btn-outline-primary btn-lg">
+          🏆 Liderlik Tablosu
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary-custom">
+          🚀 Hemen Oyna
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg">
+          🔑 Giriş Yap
+        </a>
+        {% endif %}
+      </div>
+      <p class="text-muted mt-4 mb-0">
+        <small
+          >✅ Tamamen ücretsiz • ✅ Gerçek veriler • ✅ Sınırsız oynama</small
+        >
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

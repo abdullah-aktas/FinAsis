@@ -1,0 +1,378 @@
+{% extends "core_ui/base.html" %}
+{% load static %}
+{% block title %}Sanal Şirket Yönetimi - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .virtual-hero {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    padding: 60px 0;
+    border-radius: 24px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .virtual-hero::before {
+    content: '🏢';
+    position: absolute;
+    font-size: 220px;
+    opacity: 0.08;
+    top: -50px;
+    right: -30px;
+    animation: float 10s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+  }
+
+  .company-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    border-top: 4px solid #8b5cf6;
+    height: 100%;
+    position: relative;
+  }
+
+  .company-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(139,92,246,0.15);
+  }
+
+  .company-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(124,58,237,0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .balance-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .balance-positive {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+
+  .balance-negative {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .stat-box {
+    background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(124,58,237,0.02));
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .ai-suggestion-card {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.02));
+    border-radius: 16px;
+    padding: 24px;
+    border-left: 4px solid #667eea;
+    margin-bottom: 16px;
+  }
+
+  .module-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #f59e0b;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .module-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(245,158,11,0.15);
+  }
+
+  .module-completed {
+    border-left-color: #10b981;
+    opacity: 0.7;
+  }
+
+  .progress-ring {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .progress-ring::before {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .create-company-btn {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 8px 24px rgba(139,92,246,0.3);
+    transition: all 0.3s ease;
+  }
+
+  .create-company-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(139,92,246,0.4);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div class="virtual-hero text-center">
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 12px;">
+        🏢 Sanal Şirket Yönetimi
+      </h1>
+      <p style="font-size: 20px; opacity: 0.95; margin-bottom: 8px;">
+        Eğitim Amaçlı Interaktif Şirket Simülasyonu
+      </p>
+      <small style="opacity: 0.85;">
+        AI destekli muhasebe öğrenimi ve pratik deneyim
+      </small>
+    </div>
+  </div>
+
+  <!-- Eğer şirket yoksa -->
+  {% if not companies %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <div style="font-size: 120px; margin-bottom: 24px; opacity: 0.3;">🏭</div>
+      <h3 class="fw-bold mb-3">Henüz Sanal Şirketiniz Yok</h3>
+      <p class="text-muted mb-4" style="font-size: 18px;">
+        Kendi sanal şirketinizi oluşturun ve muhasebe süreçlerini gerçek gibi yönetin!
+      </p>
+
+      <div class="row g-3 mb-5">
+        <div class="col-md-4">
+          <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div style="font-size: 48px; margin-bottom: 12px;">💰</div>
+            <h6 class="fw-bold mb-1">Finansal Yönetim</h6>
+            <p class="text-muted small mb-0">Gelir, gider ve nakit akışını yönet</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div style="font-size: 48px; margin-bottom: 12px;">📊</div>
+            <h6 class="fw-bold mb-1">Analiz & Raporlama</h6>
+            <p class="text-muted small mb-0">Bilanço, gelir tablosu oluştur</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div style="font-size: 48px; margin-bottom: 12px;">🤖</div>
+            <h6 class="fw-bold mb-1">AI Asistan</h6>
+            <p class="text-muted small mb-0">Akıllı öneriler ve rehberlik</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="create-company-btn" onclick="location.href='{% url 'virtual_company:virtual_company_create' %}'">
+        <i class="bi bi-plus-circle me-2"></i>İlk Şirketimi Oluştur
+      </button>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Şirket Listesi -->
+  <div class="row g-4 mb-5">
+    {% for company in companies %}
+    <div class="col-md-6 col-lg-4">
+      <div class="company-card">
+        <span class="balance-badge {% if company.balance >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+          {{ company.balance|floatformat:0 }} ₺
+        </span>
+
+        <div class="company-logo">
+          🏢
+        </div>
+
+        <h5 class="fw-bold text-center mb-2">{{ company.name }}</h5>
+        <p class="text-muted text-center small mb-4">{{ company.description|truncatewords:15 }}</p>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="stat-box">
+              <h6 class="fw-bold mb-0" style="color: #8b5cf6;">{{ company.products.count }}</h6>
+              <small class="text-muted">Ürün</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box">
+              <h6 class="fw-bold mb-0" style="color: #10b981;">{{ company.transactions.count|default:0 }}</h6>
+              <small class="text-muted">İşlem</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-box" style="background: rgba(245,158,11,0.05);">
+          <small class="text-muted d-block">Stok Değeri</small>
+          <h6 class="fw-bold mb-0" style="color: #f59e0b;">{{ company.total_stock_value|floatformat:0 }} ₺</h6>
+        </div>
+
+        <div class="d-grid gap-2 mt-3">
+          <a href="{% url 'virtual_company:virtual_company_detail' company.id %}" class="btn btn-primary" style="border-radius: 12px; font-weight: 600;">
+            <i class="bi bi-eye me-2"></i>Yönet
+          </a>
+          <a href="{% url 'virtual_company:virtual_company_update' company.id %}" class="btn btn-outline-secondary" style="border-radius: 12px;">
+            <i class="bi bi-pencil me-2"></i>Düzenle
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Yeni Şirket Ekle -->
+  <div class="text-center">
+    <button class="btn btn-lg btn-outline-primary" onclick="location.href='{% url 'virtual_company:virtual_company_create' %}'" style="border-radius: 14px; padding: 14px 32px; font-weight: 600;">
+      <i class="bi bi-plus-circle me-2"></i>Yeni Şirket Oluştur
+    </button>
+  </div>
+  {% endif %}
+
+  <!-- Eğitim Modülleri -->
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-mortarboard me-2" style="color: #f59e0b;"></i>
+      Eğitim Modülleri
+    </h4>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="module-card">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.05)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #f59e0b;">
+              📝
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-bold mb-1">Temel Muhasebe</h6>
+              <small class="text-muted">10 Ders • 50 XP</small>
+            </div>
+            <i class="bi bi-arrow-right" style="font-size: 24px; color: #8b5cf6;"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="module-card module-completed">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #10b981;">
+              ✓
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-bold mb-1">Fatura Oluşturma</h6>
+              <small class="text-success">Tamamlandı • +30 XP</small>
+            </div>
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 24px;"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="module-card">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(29,78,216,0.05)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #3b82f6;">
+              📊
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-bold mb-1">Finansal Raporlama</h6>
+              <small class="text-muted">8 Ders • 60 XP</small>
+            </div>
+            <i class="bi bi-lock-fill" style="font-size: 20px; color: #cbd5e0;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Önerileri -->
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4">
+      <i class="bi bi-lightbulb me-2" style="color: #667eea;"></i>
+      AI Destekli Öneriler
+    </h4>
+
+    <div class="ai-suggestion-card">
+      <div class="d-flex gap-3">
+        <div style="font-size: 48px;">🤖</div>
+        <div class="flex-grow-1">
+          <h6 class="fw-bold mb-2">Stok Optimizasyonu Önerisi</h6>
+          <p class="text-muted mb-3">
+            Analizlerimize göre "Elektronik" kategorisindeki ürünlerinizin stok seviyesi düşük. 
+            Satış hızınızı göz önüne alarak 15 gün içinde stok tükenmesi bekleniyor.
+          </p>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-primary">Yüksek Öncelik</span>
+            <span class="text-muted small">
+              <i class="bi bi-stars me-1"></i>%92 Güven Skoru
+            </span>
+            <button class="btn btn-sm btn-outline-primary ms-auto" style="border-radius: 8px;">
+              <i class="bi bi-check-lg me-1"></i>Uygula
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-suggestion-card">
+      <div class="d-flex gap-3">
+        <div style="font-size: 48px;">💡</div>
+        <div class="flex-grow-1">
+          <h6 class="fw-bold mb-2">Maliyet Azaltma Fırsatı</h6>
+          <p class="text-muted mb-3">
+            Son 30 günlük analiz sonucunda, operasyonel giderlerinizde %15 tasarruf potansiyeli tespit edildi.
+            Tedarikçi sözleşmelerini yeniden müzakere etmenizi öneriyoruz.
+          </p>
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-success">Orta Öncelik</span>
+            <span class="text-muted small">
+              <i class="bi bi-stars me-1"></i>%85 Güven Skoru
+            </span>
+            <button class="btn btn-sm btn-outline-success ms-auto" style="border-radius: 8px;">
+              <i class="bi bi-info-circle me-1"></i>Detaylar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

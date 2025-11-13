@@ -1,0 +1,123 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "FinAsis Academy" %}{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="badge bg-success-subtle text-success fw-semibold px-3 py-2 rounded-pill mb-3">{% trans "Öğretmen & Öğrenci" %}</span>
+        <h1 class="display-5 fw-bold mb-3">{% trans "FinAsis Academy ile Finansal Okuryazarlığı Güçlendirin" %}</h1>
+        <p class="lead text-muted mb-0">
+          {% trans "Rol bazlı ders scriptleri, görev motoru ve oyunlaştırılmış içerikler ile öğretmenler ve öğrenciler aynı platformda buluşuyor." %}
+        </p>
+      </div>
+      <div class="col-lg-5 text-lg-end">
+        <a href="{% url 'resources_training' %}" class="btn btn-modern btn-modern-primary me-2">
+          <i class="bi bi-play-circle me-2"></i>{% trans "Video Eğitimleri Aç" %}
+        </a>
+        <a href="{% url 'resources_partner_marketplace' %}" class="btn btn-modern btn-modern-outline">
+          <i class="bi bi-shop-window me-2"></i>{% trans "Partner Programı" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>{% trans "Öğretmen Rol Scriptleri" %}</h2>
+            <ul class="list-unstyled d-grid gap-3 m-0">
+              {% for prompt in teacher_prompts %}
+              <li>
+                <h3 class="h6 mb-1">{{ prompt.title }}</h3>
+                <p class="text-muted small mb-2">{{ prompt.body }}</p>
+                <a href="{{ prompt.cta_href }}" class="link-primary small">{{ prompt.cta_label }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-rocket-takeoff me-2 text-warning"></i>{% trans "Öğrenci Destekli Öneriler" %}</h2>
+            <ul class="list-unstyled d-grid gap-3 m-0">
+              {% for prompt in student_prompts %}
+              <li>
+                <h3 class="h6 mb-1">{{ prompt.title }}</h3>
+                <p class="text-muted small mb-2">{{ prompt.body }}</p>
+                <a href="{{ prompt.cta_href }}" class="link-primary small">{{ prompt.cta_label }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-award me-2 text-success"></i>{% trans "Öğretmen Görevleri" %}</h2>
+            <div class="list-group list-group-flush">
+              {% for task in teacher_tasks %}
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <span class="badge bg-light text-dark me-2"><i class="bi {{ task.icon }}"></i></span>
+                    <span class="fw-semibold">{{ task.title }}</span>
+                  </div>
+                  {% if task.reward_xp %}
+                    <span class="badge bg-success-subtle text-success">{{ task.reward_xp }} XP</span>
+                  {% endif %}
+                </div>
+                <p class="small text-muted mb-1 ms-4">{{ task.description }}</p>
+                {% if task.cta_href %}
+                <a href="{{ task.cta_href }}" class="small link-primary ms-4">{{ task.cta_label }}</a>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3"><i class="bi bi-controller me-2 text-danger"></i>{% trans "Öğrenci Görevleri" %}</h2>
+            <div class="list-group list-group-flush">
+              {% for task in student_tasks %}
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <span class="badge bg-light text-dark me-2"><i class="bi {{ task.icon }}"></i></span>
+                    <span class="fw-semibold">{{ task.title }}</span>
+                  </div>
+                  {% if task.reward_xp %}
+                    <span class="badge bg-primary-subtle text-primary">{{ task.reward_xp }} XP</span>
+                  {% endif %}
+                </div>
+                <p class="small text-muted mb-1 ms-4">{{ task.description }}</p>
+                {% if task.cta_href %}
+                <a href="{{ task.cta_href }}" class="small link-primary ms-4">{{ task.cta_label }}</a>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

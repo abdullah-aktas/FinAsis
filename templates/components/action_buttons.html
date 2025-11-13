@@ -1,0 +1,31 @@
+<!-- Modern Action Buttons Componenti -->
+{% load static %}
+
+<div class="brand-action-group" data-action-count="{{ buttons|length|default:2 }}">
+    {% if buttons %}
+        {% for button in buttons %}
+        <a href="{{ button.url }}"
+           class="brand-action-btn brand-action-btn--{{ button.type|default:'primary' }} {{ button.size|default:'' }} {% if button.icon_only %}brand-action-btn--icon{% endif %}"
+           {% if button.target %}target="{{ button.target }}"{% endif %}
+           {% if button.disabled %}aria-disabled="true" tabindex="-1"{% endif %}
+           {% if button.id %}id="{{ button.id }}"{% endif %}
+           {% if button.data_cta %}data-cta="{{ button.data_cta }}"{% endif %}>
+            {% if button.icon %}
+            <i class="bi bi-{{ button.icon }}" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ button.label }}</span>
+        </a>
+        {% endfor %}
+    {% else %}
+        <!-- Varsayılan iki aksiyon -->
+        <a href="#" class="brand-action-btn brand-action-btn--primary">
+            <i class="bi bi-plus-circle" aria-hidden="true"></i>
+            <span>Yeni Ekle</span>
+        </a>
+        <a href="#" class="brand-action-btn brand-action-btn--outline">
+            <i class="bi bi-filter" aria-hidden="true"></i>
+            <span>Filtrele</span>
+        </a>
+    {% endif %}
+</div>
+
