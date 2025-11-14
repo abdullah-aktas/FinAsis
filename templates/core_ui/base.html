@@ -219,15 +219,16 @@
       {% include 'components/messages.html' %}
     </div>
     <main id="main" class="flex-grow-1{% block main_class %}{% endblock %}">
-      {% block breadcrumbs %}{% include 'core_ui/partials/_breadcrumbs.html'
-      %}{% endblock %}
+      {% block breadcrumbs %}
+        {% include 'core_ui/partials/_breadcrumbs.html' %}
+      {% endblock %}
       <div class="container py-4">{% block content %}{% endblock %}</div>
     </main>
-    {% block footer %}{% include 'components/footer.html' %}{% endblock %} {%
-    include 'components/ai_chat_widget.html' %} {% include
-    'components/beta_feedback_button.html' %} {% include
-    'components/pwa_install_prompt.html' %} {% include
-    'core_ui/partials/_cookie_consent.html' %}
+    {% block footer %}{% include 'components/footer.html' %}{% endblock %}
+    {% include 'components/ai_chat_widget.html' %}
+    {% include 'components/beta_feedback_button.html' %}
+    {% include 'components/pwa_install_prompt.html' %}
+    {% include 'core_ui/partials/_cookie_consent.html' %}
     <script>
       const STORAGE_KEY_THEME = "finasis_pref_theme";
       (function () {

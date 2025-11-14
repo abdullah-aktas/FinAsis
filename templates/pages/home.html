@@ -4,9 +4,7 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block title %}{{ page_title }}{% endblock %}
-{% block meta_description %}
-  {% trans "FinAsis finansal şirket yönetimi platformu: gerçek müşteri verileriyle dinamik finans, uyumluluk ve eğitim çözümü." %}
-{% endblock %}
+{% block meta_description %}{{ hero.description }}{% endblock %}
 {% block og_description %}{{ hero.description }}{% endblock %}
 {% block tw_desc %}{{ hero.description }}{% endblock %}
 
@@ -14,113 +12,305 @@
 {% with colors=brand_identity.colors %}
 <style>
   :root {
-    --brand-primary: {{ colors.primary }};
-    --brand-primary-strong: {{ colors.primary_strong }};
-    --brand-accent: {{ colors.accent }};
-    --brand-ink: {{ colors.ink }};
-    --brand-surface: {{ colors.surface }};
-    --brand-surface-alt: {{ colors.surface_alt }};
+    --home-primary: {{ colors.primary }};
+    --home-primary-strong: {{ colors.primary_strong }};
+    --home-accent: {{ colors.accent }};
+    --home-ink: {{ colors.ink }};
+    --home-surface: {{ colors.surface }};
+    --home-surface-alt: {{ colors.surface_alt }};
   }
-  .landing-hero {
-    background:
-      radial-gradient(circle at top left, {{ colors.ink }}E6, transparent 65%),
-      radial-gradient(circle at top right, {{ colors.primary }}CC, transparent 55%),
-      linear-gradient(140deg, {{ colors.ink }}, {{ colors.primary_strong }});
+  .home-hero {
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 55%),
+      radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.08), transparent 60%),
+      linear-gradient(135deg, var(--home-ink), var(--home-primary-strong));
+    color: rgba(255, 255, 255, 0.92);
+    padding: clamp(3rem, 8vw, 6rem) 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero h1 {
+    color: #fff;
+  }
+  .home-hero .lead {
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .home-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.5rem;
+  }
+  .signal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+  }
+  .home-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 0.85rem;
+    letter-spacing: 0.2rem;
+  }
+  .home-hero__card {
+    background: #fff;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 30px 60px rgba(2, 25, 21, 0.18);
+  }
+  .home-metric-card {
+    border-radius: 1rem;
+    background: var(--home-surface-alt);
+    padding: 1rem 1.25rem;
+  }
+  .home-metric-card .label {
+    font-size: 0.85rem;
+    color: var(--home-ink);
+    opacity: 0.7;
+  }
+  .home-metric-card .value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--home-ink);
+  }
+  .home-hero__ai {
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+  }
+  .home-hero__ai-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  }
+  .home-section {
+    padding: clamp(3rem, 6vw, 5.5rem) 0;
+  }
+  .home-section--muted {
+    background: var(--home-surface);
+  }
+  .home-section--soft {
+    background: var(--home-surface-alt);
+  }
+  .section-heading {
+    margin-bottom: 2.5rem;
+  }
+  .section-heading .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.3rem;
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+  .journey-card,
+  .solution-card,
+  .module-card,
+  .plan-card,
+  .resource-card,
+  .ai-card,
+  .media-card {
+    border-radius: 1.25rem;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 1.75rem;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .journey-card .journey-xp {
+    font-weight: 600;
+    color: var(--home-primary);
+  }
+  .journey-tags,
+  .home-chip-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .home-chip {
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(10, 174, 148, 0.12);
+    color: var(--home-primary);
+  }
+  .home-chip--soft {
+    background: rgba(100, 116, 139, 0.12);
+    color: #475569;
+  }
+  .solution-card__icon,
+  .module-card__icon,
+  .ai-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(10, 174, 148, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--home-primary);
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .home-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .home-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.92rem;
+    color: #475569;
+  }
+  .module-card .badge {
+    border-radius: 999px;
+  }
+  .plan-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .plan-card--highlight {
+    border: 1.5px solid var(--home-primary);
+    box-shadow: 0 25px 45px rgba(10, 174, 148, 0.12);
+  }
+  .plan-card__price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--home-primary);
+  }
+  .plan-card__price small {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: block;
+  }
+  .resource-card__list,
+  .media-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .resource-card__list a,
+  .media-card__list a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--home-ink);
+  }
+  .resource-card__list small,
+  .media-card__list small {
+    display: block;
+    color: #94a3b8;
+  }
+  .home-cta-panel {
+    border-radius: 2rem;
+    background: linear-gradient(120deg, var(--home-primary), var(--home-accent));
+    color: #fff;
+    padding: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 991.98px) {
+    .home-hero__card {
+      margin-top: 2rem;
+    }
   }
 </style>
 {% endwith %}
-<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
 {% endblock %}
 
 {% block hero %}
-<section class="landing-hero position-relative overflow-hidden py-5">
-  <div class="container py-lg-5">
-    <div class="row align-items-end g-5">
-      <div class="col-lg-7">
-        <div class="hero-badge d-inline-flex align-items-center gap-3 mb-3">
-          <span class="hero-logo-mark">
-            <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo">
+<section class="home-hero" id="hero">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <p class="text-uppercase text-white-50 small fw-semibold mb-2">{{ hero.eyebrow }}</p>
+        <h1 class="display-4 fw-semibold mb-3">{{ hero.title }}</h1>
+        <p class="lead mb-4">{{ hero.description }}</p>
+        <div class="home-hero__chips">
+          <span class="signal-chip">
+            <i class="bi bi-calendar-event"></i>
+            {% trans "Raporlanan dönem" %}: {{ hero.month_range.start }} — {{ hero.month_range.end }}
           </span>
-          <span class="hero-badge-pill">{{ hero.eyebrow }}</span>
-        </div>
-        <div class="text-white-50 text-uppercase small fw-semibold mb-3">
-          {{ brand_identity.tagline }}
-        </div>
-        <h1 class="display-4 fw-bold mb-4">{{ hero.title }}</h1>
-        <p class="hero-subtext lead mb-3">{{ hero.description }}</p>
-        <div class="hero-values mb-4">
-          {% for value in brand_identity.values %}
-          <span class="hero-value-chip">
-            <i class="bi bi-{{ value.icon }}"></i>{{ value.label }}
+          <span class="signal-chip">
+            <i class="bi bi-cpu"></i>
+            {% trans "Tamamen kurum içi AI" %}
           </span>
-          {% endfor %}
         </div>
-        <div class="hero-meta mb-4 text-white-50 small">
-          {% trans "Raporlanan dönem" %} · {{ hero.month_range.start }} — {{ hero.month_range.end }}
-        </div>
-        {% if primary_navigation %}
-        <nav class="hero-nav mb-4" aria-label="{% trans "Hero navigasyonu" %}">
-          <ul class="hero-nav-list">
-            {% for item in primary_navigation %}
-            <li><a href="{{ item.href }}" class="hero-nav-link" data-cta="hero-nav">{{ item.label }}</a></li>
-            {% endfor %}
-          </ul>
-        </nav>
-        {% endif %}
-        {% if secondary_navigation %}
-        <div class="hero-secondary-nav mb-4">
-          {% for item in secondary_navigation %}
-          <a href="{{ item.href }}" class="hero-secondary-link" data-cta="hero-secondary">{{ item.label }}</a>
-          {% endfor %}
-        </div>
-        {% endif %}
-        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
-          <a class="btn landing-btn-accent btn-modern btn-lg px-4" href="{{ hero.primary_cta.href }}" data-cta="{{ hero.primary_cta.cta_id }}">
+        <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+          <a class="btn btn-light btn-lg text-dark px-4" href="{{ hero.primary_cta.href }}" data-cta="{{ hero.primary_cta.cta_id }}">
             <i class="bi bi-{{ hero.primary_cta.icon }} me-2"></i>{{ hero.primary_cta.label }}
           </a>
           <a class="btn btn-outline-light btn-lg px-4" href="{{ hero.secondary_cta.href }}" data-cta="{{ hero.secondary_cta.cta_id }}">
             <i class="bi bi-{{ hero.secondary_cta.icon }} me-2"></i>{{ hero.secondary_cta.label }}
           </a>
         </div>
-      </div>
-      <div class="col-lg-5">
-        <div class="hero-snapshot-card p-4 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
-          <h2 class="h5 text-uppercase text-white-50 mb-4">{% trans "FinAsis ekosistem özeti" %}</h2>
-          {% if has_metrics_activity %}
-          <div class="hero-stats-grid">
-            {% for metric in hero_stats %}
-            <div class="hero-stat">
-              <span class="hero-stat-value">{{ metric.value }}</span>
-              <span class="hero-stat-label">{{ metric.label }}</span>
-            </div>
+        {% if brand_identity.values %}
+          <div class="home-hero__chips mt-4">
+            {% for value in brand_identity.values|slice:":3" %}
+              <span class="signal-chip">
+                <i class="bi bi-{{ value.icon }}"></i> {{ value.label }}
+              </span>
             {% endfor %}
           </div>
-          {% else %}
-          <div class="hero-empty-state">
-            <i class="bi bi-activity"></i>
-            <p class="mb-0">{% trans "Platform verileri ilk şirket ve bağlantılarınızı eklediğinizde burada görünür." %}</p>
-          </div>
+        {% endif %}
+        <div class="home-hero__badge mt-4">
+          <i class="bi bi-lightning-charge-fill"></i> {{ brand_identity.version.label }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="home-hero__card">
+          <p class="text-uppercase small text-muted fw-semibold mb-3">{% trans "Gerçek zamanlı göstergeler" %}</p>
+          {% if metrics %}
+            <div class="row g-3">
+              {% for metric in metrics|slice:":4" %}
+                <div class="col-6">
+                  <div class="home-metric-card">
+                    <span class="label">{{ metric.label }}</span>
+                    <span class="value">{{ metric.value }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
           {% endif %}
-          <div class="hero-ecosystem mt-4 small text-white-50">
-            {% if ecosystem.partner_count %}
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-people-fill"></i>
-              <span>{% blocktrans with count=ecosystem.partner_count %}{{ count }} yayınlanan partner{% endblocktrans %}</span>
+          {% if ai_spotlight %}
+            <div class="home-hero__ai">
+              <span class="badge bg-light text-dark mb-2">{% trans "AI Spotlight" %}</span>
+              <ul class="list-unstyled m-0">
+                {% for prompt in ai_spotlight|slice:":2" %}
+                  <li class="home-hero__ai-item">
+                    <div>
+                      <strong>{{ prompt.title|default:_("Rol bazlı öneri") }}</strong>
+                      <p class="text-muted small mb-0">{{ prompt.body|default:prompt.intent }}</p>
+                    </div>
+                    {% if prompt.cta_href %}
+                      <a class="btn btn-sm btn-outline-primary" href="{{ prompt.cta_href }}" data-cta="hero-ai">
+                        {{ prompt.cta_label|default:_("Kartı aç") }}
+                      </a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
             </div>
-            {% endif %}
-            {% if ecosystem.press_release_count %}
-            <div class="d-flex align-items-center gap-2 mt-1">
-              <i class="bi bi-megaphone"></i>
-              <span>{% blocktrans with count=ecosystem.press_release_count %}{{ count }} basın duyurusu{% endblocktrans %}</span>
-            </div>
-            {% endif %}
-            {% if ecosystem.document_count %}
-            <div class="d-flex align-items-center gap-2 mt-1">
-              <i class="bi bi-folder2-open"></i>
-              <span>{% blocktrans with count=ecosystem.document_count %}{{ count }} yatırımcı dokümanı{% endblocktrans %}</span>
-            </div>
-            {% endif %}
-          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -129,411 +319,318 @@
 {% endblock %}
 
 {% block content %}
-<section class="py-5" id="snapshot">
-  <div class="container">
-    <div class="row align-items-center mb-4">
-      <div class="col-lg-7">
-        <h2 class="landing-section-title mb-3">{% trans "Gerçek zamanlı finansal göstergeler" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "FinAsis platformunda tutulan şirket, kullanıcı ve fatura hareketleri canlı olarak güncellenir." %}
-        </p>
-      </div>
-    </div>
-    {% if has_metrics_activity %}
-    <div class="metric-grid">
-      {% for metric in metrics %}
-      <div class="metric-card">
-        <div class="metric-icon">
-          <i class="bi {{ metric.icon }}"></i>
-        </div>
-        <div class="metric-body">
-          <span class="metric-value">{{ metric.value }}</span>
-          <span class="metric-label">{{ metric.label }}</span>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="metric-empty-state">
-      <i class="bi bi-clipboard-data"></i>
-      <p class="lead mb-2">{% trans "Henüz raporlanacak finansal veri bulunmuyor." %}</p>
-      <p class="text-secondary mb-0">{% trans "İlk şirketinizi ekleyip banka entegrasyonlarını kurduğunuzda göstergeler otomatik olarak güncellenecek." %}</p>
-    </div>
-    {% endif %}
-  </div>
-</section>
-
-{% if journeys %}
-<section class="py-5 bg-light" id="journeys">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Kullanım akışları" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Ekipler FinAsis'te nasıl ilerliyor?" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "FinQuest görev motoru ve AI asistanı, rol bazlı görev sayıları ve XP hedefleriyle gerçek veriye dayanır." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for journey in journeys %}
-      <div class="col-md-6 col-xl-4">
-        <div class="journey-card h-100">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-              <span class="badge bg-light text-dark text-uppercase small">{{ journey.audience }}</span>
-              <h3 class="h5 fw-semibold mb-1">{{ journey.title }}</h3>
-            </div>
-            <span class="journey-xp fw-semibold"><i class="bi bi-stars me-1"></i>{{ journey.total_xp }} XP</span>
-          </div>
-          <p class="text-secondary small mb-3">
-            {% blocktrans with count=journey.task_count %}{{ count }} görev{% endblocktrans %}
-          </p>
-          {% if journey.tags %}
-          <div class="journey-tags mb-3">
-            {% for tag in journey.tags %}
-            <span class="journey-tag">{{ tag }}</span>
-            {% endfor %}
-          </div>
-          {% endif %}
-          {% if journey.href %}
-          <a href="{{ journey.href }}" class="journey-link fw-semibold small" data-cta="journey-link">
-            {% trans "Akışı görüntüle" %} <i class="bi bi-arrow-up-right"></i>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if modules %}
-<section class="py-5 bg-light" id="modules">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "Modül kataloğu" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Ekip bazlı modüller tek platformda" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Aktif modüller FinAsis planlarına göre otomatik atanır. İçerik ve yetkilendirme tamamen gerçek kullanıma göre kurgulanır." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for module in modules %}
-      <div class="col-md-6 col-xl-4">
-        <div class="module-card h-100">
-          <div class="module-icon">
-            <i class="bi {{ module.icon }}"></i>
-          </div>
-          <div class="d-flex flex-column gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-primary-subtle text-primary fw-semibold text-uppercase small">{{ module.code }}</span>
-            </div>
-            <h3 class="h5 fw-semibold mb-0">{{ module.name }}</h3>
-            {% if module.description %}
-            <p class="text-secondary mb-0">{{ module.description }}</p>
-            {% endif %}
+<div class="home-sections">
+  {% if journeys %}
+    <section class="home-section home-section--muted" id="journeys">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Ekip akışları" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Öğretmen, öğrenci ve finans ekipleri aynı AI motoru üzerinde buluşur." %}</h2>
+            <p class="text-muted mb-0">{% trans "FinQuest görev motoru ve KPI panoları gerçek müşteri verisiyle beslenir." %}</p>
           </div>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if solutions %}
-<section class="py-5" id="solutions">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-warning-subtle text-warning-emphasis mb-3">{% trans "Çözüm paketleri" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "FinAsis ekosistemindeki hizmet alanları" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Her çözüm, ilgili FinAsis modüllerinden ve canlı verilerden beslenir. Performans metrikleri gerçek zamanlı güncellenir." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for solution in solutions %}
-      <div class="col-md-6 col-xl-4">
-        <div class="solution-card h-100">
-          <div class="solution-icon">
-            <i class="bi {{ solution.icon }}"></i>
-          </div>
-          <div class="d-flex flex-column gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-light text-dark fw-semibold text-uppercase small">{{ solution.code }}</span>
-            </div>
-            <h3 class="h5 fw-semibold mb-0">{{ solution.title }}</h3>
-            <p class="text-secondary mb-3">{{ solution.description }}</p>
-            <div class="solution-stats">
-              {% for stat in solution.stats %}
-              <div class="solution-stat">
-                <span class="solution-stat-value">{{ stat.value }}</span>
-                <span class="solution-stat-label">{{ stat.label }}</span>
-              </div>
-              {% endfor %}
-            </div>
-            {% if solution.href %}
-            <a href="{{ solution.href }}" class="solution-link fw-semibold small" data-cta="solution-link">
-              {% trans "Detayları görüntüle" %} <i class="bi bi-arrow-up-right"></i>
-            </a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if plans or customer_segments %}
-<section class="py-5" id="plans">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "Fiyatlandırma planları" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Canlı plan ve fiyat bilgileri" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Plan kartları, FinAsis fiyatlandırma motorunda tanımlanan gerçek plan açıklamaları ve aktif fiyatlarla oluşturulur." %}
-        </p>
-      </div>
-    </div>
-    {% if plans %}
-    <div class="row g-4 mb-4">
-      {% for plan in plans|slice:":4" %}
-      <div class="col-md-6 col-xl-3">
-        <div class="plan-card h-100">
-          <span class="badge bg-secondary-subtle text-secondary-emphasis text-uppercase small mb-2">{{ plan.audience }}</span>
-          <h3 class="h5 fw-semibold mb-1">{{ plan.name }}</h3>
-          {% if plan.description %}
-          <p class="text-secondary small mb-3">{{ plan.description }}</p>
-          {% endif %}
-          {% if plan.price %}
-          <div class="plan-price">
-            <span class="display-6 fw-bold">{{ plan.price }}</span>
-            <span class="text-secondary ms-2">{{ plan.currency }} / {{ plan.price_period|default:_("periyot") }}</span>
-          </div>
-          {% else %}
-          <div class="text-secondary small mb-3">{% trans "Fiyatlandırma bu plan için isteğe göre yapılandırılıyor." %}</div>
-          {% endif %}
-          <a href="{% url 'billing:plans' %}?focus={{ plan.code }}" class="stretched-link" data-cta="plan-card">
-            <span class="visually-hidden">{% blocktrans %}{{ plan.name }} planı detaylarını görüntüle{% endblocktrans %}</span>
-          </a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-    {% if customer_segments %}
-    <div class="row mb-4">
-      <div class="col-lg-7">
-        <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Müşteri segmentleri" %}</span>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Planlara göre modül ve destek kombinasyonlarını aşağıdan inceleyebilirsiniz." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for segment in customer_segments %}
-      <div class="col-md-6 col-xl-4">
-        <div class="segment-card h-100">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-              <span class="badge bg-light text-dark text-uppercase small">{{ segment.audience }}</span>
-              <h3 class="h5 fw-semibold mb-1">{{ segment.name }}</h3>
-            </div>
-            {% if segment.monthly_price or segment.yearly_price %}
-            <span class="segment-price fw-semibold">
-              {% if segment.monthly_price %}
-                {{ segment.monthly_price }} {{ segment.currency }}/ {% trans "ay" %}
-              {% elif segment.yearly_price %}
-                {{ segment.yearly_price }} {{ segment.currency }}/ {% trans "yıl" %}
-              {% endif %}
-            </span>
-            {% endif %}
-          </div>
-          {% if segment.description %}
-          <p class="text-secondary small mb-3">{{ segment.description }}</p>
-          {% endif %}
-          {% if segment.modules %}
-          <ul class="segment-module-list">
-            {% for module_name in segment.modules %}
-            <li><i class="bi bi-check-lg text-success me-2"></i>{{ module_name }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-          <a href="{% url 'billing:plans' %}?focus={{ segment.code }}" class="segment-link fw-semibold small" data-cta="segment-link">
-            {% trans "Plan detaylarına git" %} <i class="bi bi-arrow-up-right"></i>
-          </a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</section>
-{% endif %}
-
-{% if achievements %}
-<section class="py-5" id="achievements">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Başarı hikayeleri" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "FinAsis ile ölçülen çıktılar" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Platformu kullanan ekiplerin kaydettiği başarımlar ve kazandıkları sertifikalar." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for achievement in achievements %}
-      <div class="col-md-6 col-xl-4">
-        <div class="achievement-card h-100">
-          <div class="achievement-icon">
-            <i class="bi {{ achievement.icon }}"></i>
-          </div>
-          <h3 class="h5 fw-semibold mb-1">{{ achievement.title }}</h3>
-          <div class="text-secondary small mb-2">{{ achievement.company }} · {{ achievement.date }}</div>
-          {% if achievement.description %}
-          <p class="mb-0 text-secondary">{{ achievement.description }}</p>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% if resource_cards %}
-<section class="py-5 bg-light" id="resources">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Kaynaklar" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Ekiplerinizi güçlendirecek içerikler" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Basın duyurularından AI asistan kartlarına kadar FinAsis içerik kütüphanesi." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for card in resource_cards %}
-      <div class="col-md-6 col-xl-4">
-        <div class="resource-card h-100">
-          <h3 class="h5 fw-semibold mb-3">{{ card.title }}</h3>
-          <ul class="list-unstyled resource-list d-grid gap-3">
-            {% for item in card.items %}
-            <li>
-              <a href="{{ item.href|default:'#' }}" class="resource-link" {% if item.href %}target="_blank" rel="noopener"{% endif %} data-cta="resource-card">
-                <span class="resource-label">{{ item.label }}</span>
-                {% if item.meta %}
-                <span class="resource-meta text-secondary small">{{ item.meta }}</span>
+        <div class="row g-4">
+          {% for journey in journeys %}
+            <div class="col-md-6 col-xl-4">
+              <article class="journey-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <span class="badge text-bg-light text-dark text-uppercase mb-2">{{ journey.audience }}</span>
+                    <h3 class="h5">{{ journey.title }}</h3>
+                  </div>
+                  <span class="journey-xp">{{ journey.total_xp }} XP</span>
+                </div>
+                <p class="text-muted small mb-3">
+                  {% blocktrans with count=journey.task_count %}{{ count }} görev{% endblocktrans %}
+                </p>
+                {% if journey.tags %}
+                  <div class="journey-tags mb-3">
+                    {% for tag in journey.tags|slice:":3" %}
+                      <span class="home-chip home-chip--soft">{{ tag }}</span>
+                    {% endfor %}
+                  </div>
                 {% endif %}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-          {% if card.cta %}
-          <a href="{{ card.cta.href|default:'#' }}" class="fw-semibold small mt-3 d-inline-flex align-items-center gap-1" data-cta="resource-card-cta">
-            {{ card.cta.label }} <i class="bi bi-arrow-up-right"></i>
-          </a>
-          {% endif %}
+                {% if journey.href %}
+                  <a class="stretched-link text-decoration-none fw-semibold" href="{{ journey.href }}" data-cta="journey-card">
+                    {% trans "Akışı incele" %} <i class="bi bi-arrow-up-right ms-1"></i>
+                  </a>
+                {% endif %}
+              </article>
+            </div>
+          {% endfor %}
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
+    </section>
+  {% endif %}
 
-{% if ai_spotlight or missions %}
-<section class="py-5" id="intelligence">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-warning-subtle text-warning-emphasis mb-3">{% trans "AI & görev motoru" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Asistan promptları ve oyunlaştırılmış görevler" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Kartlar, FinAsis AI asistanı prompt kayıtları ve FinQuest görev motoru kataloglarından gerçek verilerle doldurulur." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for prompt in ai_spotlight %}
-      <div class="col-md-6 col-xl-4">
-        <div class="insight-card h-100">
-          <div class="insight-icon">
-            <i class="bi {{ prompt.icon }}"></i>
-          </div>
-          <span class="badge bg-light text-dark fw-semibold small">{{ prompt.intent }}</span>
-          <h3 class="h6 fw-semibold mt-2 mb-1">{{ prompt.title }}</h3>
-          {% if prompt.body %}
-          <p class="text-secondary small mb-3">{{ prompt.body }}</p>
-          {% endif %}
-          {% if prompt.cta_href %}
-          <a href="{{ prompt.cta_href }}" class="text-decoration-none fw-semibold small" data-cta="ai-prompt">
-            {{ prompt.cta_label|default:_("İncele") }} <i class="bi bi-arrow-up-right"></i>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-      {% for mission in missions %}
-      <div class="col-md-6 col-xl-4">
-        <div class="mission-card h-100">
-          <div class="mission-icon">
-            <i class="bi {{ mission.icon }}"></i>
-          </div>
-          <span class="badge bg-success-subtle text-success-emphasis small fw-semibold">{{ mission.id }}</span>
-          <h3 class="h6 fw-semibold mt-2 mb-1">{{ mission.title }}</h3>
-          {% if mission.description %}
-          <p class="text-secondary small mb-3">{{ mission.description }}</p>
-          {% endif %}
-          <div class="d-flex align-items-center justify-content-between">
-            {% if mission.reward_xp %}
-            <span class="text-secondary small"><i class="bi bi-stars me-1"></i>{{ mission.reward_xp }} XP</span>
-            {% endif %}
-            {% if mission.cta_href %}
-            <a href="{{ mission.cta_href }}" class="fw-semibold small text-decoration-none" data-cta="mission-card">
-              {{ mission.cta_label|default:_("Göreve git") }} <i class="bi bi-arrow-up-right"></i>
-            </a>
-            {% endif %}
+  {% if solutions %}
+    <section class="home-section" id="solutions">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Çözümler" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Finans, uyum ve eğitim modüllerini tek kanvasta birleştirin." %}</h2>
+            <p class="text-muted mb-0">{% trans "Her çözüm doğrulanabilir metrikler ve otomasyon önerileri ile geliyor." %}</p>
           </div>
         </div>
+        <div class="row g-4">
+          {% for solution in solutions %}
+            <div class="col-md-6 col-xl-4">
+              <article class="solution-card h-100">
+                <div class="solution-card__icon"><i class="bi {{ solution.icon }}"></i></div>
+                <h3 class="h5">{{ solution.title }}</h3>
+                <p class="text-muted">{{ solution.description }}</p>
+                {% if solution.stats %}
+                  <ul class="home-list">
+                    {% for stat in solution.stats %}
+                      <li>
+                        <span>{{ stat.label }}</span>
+                        <strong>{{ stat.value }}</strong>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+                {% if solution.href %}
+                  <a class="btn btn-link px-0 mt-3 fw-semibold" href="{{ solution.href }}" data-cta="solution-card">
+                    {% trans "Detayları görüntüle" %} <i class="bi bi-arrow-up-right"></i>
+                  </a>
+                {% endif %}
+              </article>
+            </div>
+          {% endfor %}
+        </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
+    </section>
+  {% endif %}
 
-<section class="py-5">
-  <div class="container">
-    <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
-      <div>
-        <h2 class="display-6 fw-bold mb-3">{% trans "FinAsis ile verinizi tek yerden yönetin." %}</h2>
-        <p class="lead mb-0">
-          {% trans "Aktif planlar, modüller ve entegrasyonlar FinAsis üzerinde gerçek zamanlı çalışır. Ekibiniz için demo talep edin veya doğrudan kayıt oluşturun." %}
-        </p>
+  {% if modules %}
+    <section class="home-section home-section--soft" id="modules">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Modüller" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Görev motoru, AI asistan ve finans modülleri aynı veri katmanında." %}</h2>
+            <p class="text-muted mb-0">{% trans "Rol tabanlı erişim ile her kullanıcıya ihtiyaç duyduğu kartlar gösterilir." %}</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          {% for module in modules %}
+            <div class="col-md-6 col-xl-4">
+              <article class="module-card h-100">
+                <div class="module-card__icon">
+                  <i class="bi {{ module.icon }}"></i>
+                </div>
+                <h3 class="h5">{{ module.name }}</h3>
+                <p class="text-muted">{{ module.description }}</p>
+                {% if module.badge %}
+                  <span class="badge text-bg-light text-primary">{{ module.badge }}</span>
+                {% endif %}
+                {% if module.url %}
+                  <a class="btn btn-sm btn-outline-primary mt-3" href="{{ module.url }}" data-cta="module-card">
+                    {% trans "Modülü aç" %}
+                  </a>
+                {% endif %}
+              </article>
+            </div>
+          {% endfor %}
+        </div>
       </div>
-      <div class="d-flex flex-column flex-md-row gap-3">
-        <a class="btn btn-light btn-lg px-4" href="{% url 'contact' %}" data-cta="cta-contact">
-          <i class="bi bi-telephone-forward me-2"></i>{% trans "Satış ile görüş" %}
-        </a>
-        <a class="btn btn-outline-light btn-lg px-4" href="{% url 'accounts:register' %}" data-cta="cta-start">
-          {% trans "Platforma katıl" %}
-        </a>
+    </section>
+  {% endif %}
+
+  {% if ai_spotlight %}
+    <section class="home-section" id="intelligence">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "AI Asistan" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Rol bazlı Türkçe prompt kütüphanesi" %}</h2>
+            <p class="text-muted mb-0">{% trans "Muhasebe, KOBİ ve eğitim ekipleri için öneriler tek kartta." %}</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          {% for prompt in ai_spotlight %}
+            <div class="col-md-6 col-xl-4">
+              <article class="ai-card h-100">
+                <div class="ai-card__icon">
+                  <i class="bi {{ prompt.icon|default:'bi-robot' }}"></i>
+                </div>
+                <h3 class="h5">{{ prompt.title|default:_("AI kartı") }}</h3>
+                <p class="text-muted">{{ prompt.body|default:prompt.intent }}</p>
+                {% if prompt.cta_href %}
+                  <a class="btn btn-outline-primary mt-auto" href="{{ prompt.cta_href }}" data-cta="ai-card">
+                    {{ prompt.cta_label|default:_("Kartı aç") }} <i class="bi bi-arrow-up-right ms-1"></i>
+                  </a>
+                {% endif %}
+              </article>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if plans %}
+    <section class="home-section home-section--muted" id="plans">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Planlar" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "KOBİ, eğitim kurumu ve danışman ekipleri için ölçeklenebilir lisanslama." %}</h2>
+            <p class="text-muted mb-0">{% trans "Plan fiyatları canlı veri ile güncellenir, kampanya kodları header üzerinden yayılır." %}</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          {% for plan in plans %}
+            <div class="col-md-6 col-xl-3">
+              <article class="plan-card {% if forloop.first %}plan-card--highlight{% endif %}">
+                <div>
+                  <p class="text-uppercase text-muted small mb-1">{{ plan.audience }}</p>
+                  <h3 class="h5">{{ plan.name }}</h3>
+                  <p class="text-muted">{{ plan.description }}</p>
+                </div>
+                {% if plan.price %}
+                  <div class="plan-card__price">
+                    {{ plan.price }} {{ plan.currency }}
+                    <small>{{ plan.price_period }}</small>
+                  </div>
+                {% else %}
+                  <div class="plan-card__price text-muted">
+                    {% trans "Özel fiyatlandırma" %}
+                  </div>
+                {% endif %}
+                {% if plan.modules %}
+                  <ul class="home-list">
+                    {% for module_name in plan.modules|slice:":3" %}
+                      <li>
+                        <span>{{ module_name }}</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+                <a class="btn btn-outline-primary w-100 mt-auto" href="{% url 'billing:plans' %}?highlight={{ plan.code }}" data-cta="plan-select">
+                  {% trans "Planı incele" %}
+                </a>
+              </article>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if resource_cards %}
+    <section class="home-section" id="resources">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Kaynak Merkezi" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Bültenler, teknik dökümanlar ve eğitim kartları tek listede." %}</h2>
+            <p class="text-muted mb-0">{% trans "Guidelar AI destekli eylem adımlarıyla eşleşir." %}</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          {% for card in resource_cards %}
+            <div class="col-md-6 col-xl-4">
+              <article class="resource-card h-100">
+                <p class="text-uppercase small text-primary fw-semibold mb-2">{{ card.title }}</p>
+                <ul class="resource-card__list">
+                  {% for item in card.items|slice:":4" %}
+                    <li>
+                      <a href="{{ item.href|default:item.url }}" data-cta="resource-card">{{ item.label|default:item.title }}</a>
+                      {% if item.meta %}
+                        <small>{{ item.meta }}</small>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+                {% if card.cta %}
+                  <a class="btn btn-sm btn-outline-primary mt-3" href="{{ card.cta.href }}" data-cta="resource-card-cta">
+                    {{ card.cta.label }} <i class="bi bi-arrow-up-right ms-1"></i>
+                  </a>
+                {% endif %}
+              </article>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if press_releases or investor_documents %}
+    <section class="home-section home-section--soft" id="ecosystem">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">{% trans "Ekosistem" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Partner güncellemeleri ve yatırımcı dokümanları" %}</h2>
+            {% if ecosystem %}
+              <p class="text-muted mb-0">
+                {% blocktrans with partners=ecosystem.partner_count documents=ecosystem.document_count %}
+                  {{ partners }} partner · {{ documents }} doküman
+                {% endblocktrans %}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="row g-4">
+          {% if press_releases %}
+            <div class="col-lg-6">
+              <article class="media-card h-100">
+                <h3 class="h5">{% trans "Basın & duyurular" %}</h3>
+                <ul class="media-card__list">
+                  {% for press in press_releases %}
+                    <li>
+                      <a href="{{ press.url|default:'#' }}">{{ press.title }}</a>
+                      <small>{{ press.date }}</small>
+                      <p class="text-muted small mb-0">{{ press.summary }}</p>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </article>
+            </div>
+          {% endif %}
+          {% if investor_documents %}
+            <div class="col-lg-6">
+              <article class="media-card h-100">
+                <h3 class="h5">{% trans "Yatırımcı dokümanları" %}</h3>
+                <ul class="media-card__list">
+                  {% for doc in investor_documents %}
+                    <li>
+                      <a href="{{ doc.url|default:'#' }}">{{ doc.title }}</a>
+                      <small>{{ doc.published_at }}</small>
+                      <p class="text-muted small mb-0">{{ doc.kind }}</p>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </article>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="home-section">
+    <div class="container">
+      <div class="home-cta-panel">
+        <div class="flex-grow-1">
+          <p class="eyebrow mb-2">{% trans "Hazırsanız" %}</p>
+          <h2 class="h3 mb-2">{% trans "Kurum içi AI ile finansal süreçlerinizi hızlandırın" %}</h2>
+          <p class="mb-0 text-white-75">{% trans "Başlangıçta ücretsiz danışmanlık, rol bazlı onboarding ve yerel destek." %}</p>
+        </div>
+        <div class="d-flex flex-column flex-sm-row gap-3">
+          <a class="btn btn-light text-dark btn-lg" href="{{ hero.primary_cta.href }}" data-cta="cta-primary">
+            <i class="bi bi-{{ hero.primary_cta.icon }}"></i> {{ hero.primary_cta.label }}
+          </a>
+          <a class="btn btn-outline-light btn-lg" href="{{ hero.secondary_cta.href }}" data-cta="cta-secondary">
+            {{ hero.secondary_cta.label }}
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 {% endblock %}
 

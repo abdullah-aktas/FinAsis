@@ -9,10 +9,12 @@ from config import oidc as oidc_config
 
 from corporate import views as corporate_views
 from core_ui import views as core_ui_views
+from accounts.views_panel import user_panel
 from locale.views import set_language
 
 urlpatterns = [
     path('', core_ui_views.landing_home, name='home'),
+    path('panel/', user_panel, name='user_panel'),
     path('admin/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
