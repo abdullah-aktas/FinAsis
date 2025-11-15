@@ -107,6 +107,9 @@ urlpatterns += [
     path('cash-flows/create/', CashFlowCreateView.as_view(), name='cash_flow_create'),
     path('cash-flows/<int:pk>/edit/', CashFlowUpdateView.as_view(), name='cash_flow_update'),
     path('cash-flows/<int:pk>/delete/', CashFlowDeleteView.as_view(), name='cash_flow_delete'),
+    # SEO/marketing friendly aliases for cash flow reports
+    path('reports/cashflow/', CashFlowListView.as_view(), name='reports_cashflow'),
+    path('reports/nakit-akisi/', CashFlowListView.as_view(), name='reports_cashflow_tr'),
 ]
 
 # Income Statement

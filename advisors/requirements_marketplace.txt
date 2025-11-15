@@ -1,0 +1,41 @@
+# Mali Müşavir Marketplace - Ek Gereksinimler
+# Bu paketler marketplace sistemi için gereklidir
+
+# JWT Token Support
+PyJWT>=2.8.0
+
+# HTTP Requests (Video konferans API'leri için)
+requests>=2.31.0
+
+# Timezone Support
+pytz>=2023.3
+
+# Django REST Framework (zaten sistemde varsa atlanabilir)
+djangorestframework>=3.14.0
+
+# Django Filter (API filtreleme için)
+django-filter>=23.3
+
+# Google API (Google Meet için - opsiyonel)
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.1.1
+google-auth-oauthlib>=1.1.0
+
+# Image Processing (Profil fotoğrafları için)
+Pillow>=10.0.0
+
+# Pagination
+django-rest-framework-pagination>=1.0.0
+
+# CORS Headers (Frontend entegrasyonu için - opsiyonel)
+django-cors-headers>=4.3.0
+
+# Celery (Asenkron görevler için - opsiyonel)
+# celery>=5.3.0
+# redis>=5.0.0
+
+# Email (Bildirimler için - gelecek)
+# django-templated-email>=3.0.0
+
+# SMS (Bildirimler için - gelecek)
+# twilio>=8.9.0

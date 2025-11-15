@@ -1,0 +1,27 @@
+timeout: "1800s"
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _PYTHON_VERSION: "3.11"
+
+steps:
+  - name: "python:${_PYTHON_VERSION}"
+    id: "Install dependencies and run readiness check"
+    entrypoint: "bash"
+    env:
+      - "DJANGO_SETTINGS_MODULE=config.settings"
+      - "DJANGO_SECRET_KEY=test-secret-key-for-cloud-build"
+      - "DJANGO_DEBUG=False"
+      - "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        python manage.py migrate --noinput
+        python project_readiness_check.py
+
+images: []
+

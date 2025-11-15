@@ -228,6 +228,7 @@ urlpatterns += [
     # Auto Report Generation
     path('reports/', auto_reports, name='auto_reports'),
     path('reports/generate/', generate_report, name='generate_report'),
+    path('reports/portfolio-health/', auto_reports, name='portfolio_health_report'),
     path('reports/<int:pk>/', report_detail, name='report_detail'),
     
     # Advanced Analytics

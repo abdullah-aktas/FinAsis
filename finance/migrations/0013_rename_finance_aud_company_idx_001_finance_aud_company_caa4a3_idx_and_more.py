@@ -9,30 +9,4 @@ class Migration(migrations.Migration):
         ("finance", "0012_add_internal_control_models"),
     ]
 
-    operations = [
-        migrations.RenameIndex(
-            model_name="audittrail",
-            new_name="finance_aud_company_caa4a3_idx",
-            old_name="finance_aud_company_idx_001",
-        ),
-        migrations.RenameIndex(
-            model_name="audittrail",
-            new_name="finance_aud_user_id_fc822e_idx",
-            old_name="finance_aud_user_idx_001",
-        ),
-        migrations.RenameIndex(
-            model_name="audittrail",
-            new_name="finance_aud_table_n_27c0f1_idx",
-            old_name="finance_aud_table_idx_001",
-        ),
-        migrations.RenameIndex(
-            model_name="audittrail",
-            new_name="finance_aud_action__3dec66_idx",
-            old_name="finance_aud_action_idx_001",
-        ),
-        migrations.RenameIndex(
-            model_name="audittrail",
-            new_name="finance_aud_risk_le_6adac6_idx",
-            old_name="finance_aud_risk_idx_001",
-        ),
-    ]
+    operations = []

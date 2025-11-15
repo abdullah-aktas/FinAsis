@@ -3,7 +3,7 @@
 Advisors URLs
 Mali Müşavir ve Vergi Danışmanlığı URL Yapılandırması
 """
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'advisors'
@@ -35,5 +35,8 @@ urlpatterns = [
     # AJAX endpoints
     path('ajax/client-compliance/<int:client_id>/', views.ajax_client_compliance, name='ajax_client_compliance'),
     path('ajax/dashboard-stats/', views.ajax_dashboard_stats, name='ajax_dashboard_stats'),
+    
+    # Mali Müşavir Marketplace
+    path('marketplace/', include('advisors.urls.marketplace_urls')),
 ]
 

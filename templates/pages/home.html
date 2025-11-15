@@ -2,6 +2,7 @@
 {% load static i18n %}
 
 {% block breadcrumbs %}{% endblock %}
+{% block main_class %}p-0{% endblock %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ hero.description }}{% endblock %}
@@ -12,225 +13,281 @@
 {% with colors=brand_identity.colors %}
 <style>
   :root {
-    --home-primary: {{ colors.primary }};
-    --home-primary-strong: {{ colors.primary_strong }};
-    --home-accent: {{ colors.accent }};
-    --home-ink: {{ colors.ink }};
-    --home-surface: {{ colors.surface }};
-    --home-surface-alt: {{ colors.surface_alt }};
+    --landing-ink: {{ colors.ink }};
+    --landing-primary: {{ colors.primary }};
+    --landing-accent: {{ colors.accent }};
+    --landing-muted: {{ colors.surface }};
+    --landing-muted-alt: {{ colors.surface_alt }};
   }
-  .home-hero {
-    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 55%),
-      radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.08), transparent 60%),
-      linear-gradient(135deg, var(--home-ink), var(--home-primary-strong));
-    color: rgba(255, 255, 255, 0.92);
-    padding: clamp(3rem, 8vw, 6rem) 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .home-hero h1 {
+  .landing-hero {
+    background: radial-gradient(circle at 15% 10%, rgba(10, 78, 118, 0.35), transparent 55%),
+      radial-gradient(circle at 85% 0%, rgba(255, 140, 58, 0.35), transparent 65%),
+      linear-gradient(130deg, #03121c, #073034 55%, #062823);
     color: #fff;
+    padding: clamp(3rem, 7vw, 6rem) 0;
   }
-  .home-hero .lead {
-    color: rgba(255, 255, 255, 0.82);
+  .hero-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    align-items: center;
   }
-  .home-hero__chips {
+  .hero-pills {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .hero-pills li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.65rem 0.9rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 500;
+  }
+  .hero-ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.7rem;
-    margin-top: 1.5rem;
+    gap: 0.8rem;
   }
-  .signal-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.9rem;
+  .hero-ctas .btn {
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.85rem;
+    font-weight: 600;
+    padding-inline: 1.4rem;
   }
-  .home-hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.85rem;
-    border-radius: 0.85rem;
-    background: rgba(255, 255, 255, 0.12);
-    font-size: 0.85rem;
+  .stat-card {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.25);
+    padding: 1.2rem;
+  }
+  .stat-card small {
+    text-transform: uppercase;
     letter-spacing: 0.2rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
   }
-  .home-hero__card {
-    background: #fff;
-    border-radius: 1.5rem;
-    padding: 2rem;
-    box-shadow: 0 30px 60px rgba(2, 25, 21, 0.18);
+  .stat-card strong {
+    display: block;
+    font-size: 1.8rem;
+    color: #fff;
   }
-  .home-metric-card {
-    border-radius: 1rem;
-    background: var(--home-surface-alt);
-    padding: 1rem 1.25rem;
+  .value-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
   }
-  .home-metric-card .label {
-    font-size: 0.85rem;
-    color: var(--home-ink);
-    opacity: 0.7;
+  .value-strip span {
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.12);
   }
-  .home-metric-card .value {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--home-ink);
+  .trust-band {
+    background: #020b11;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 1.25rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .home-hero__ai {
-    border-top: 1px solid rgba(15, 23, 42, 0.08);
-    margin-top: 1.5rem;
-    padding-top: 1.25rem;
+  .trust-band__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    font-size: 0.92rem;
   }
-  .home-hero__ai-item {
+  .trust-band__item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    gap: 0.5rem;
   }
-  .home-section {
-    padding: clamp(3rem, 6vw, 5.5rem) 0;
+  .landing-section {
+    padding: clamp(3rem, 5vw, 5.5rem) 0;
   }
-  .home-section--muted {
-    background: var(--home-surface);
+  .landing-section--muted {
+    background: var(--landing-muted);
   }
-  .home-section--soft {
-    background: var(--home-surface-alt);
+  .landing-section--alt {
+    background: var(--landing-muted-alt);
+  }
+  .section-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.35rem;
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-bottom: 0.6rem;
   }
   .section-heading {
     margin-bottom: 2.5rem;
   }
-  .section-heading .eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.3rem;
-    font-size: 0.82rem;
-    color: #64748b;
+  .grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
   }
-  .journey-card,
-  .solution-card,
-  .module-card,
-  .plan-card,
-  .resource-card,
-  .ai-card,
-  .media-card {
-    border-radius: 1.25rem;
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .service-card {
+    border-radius: 1.4rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
     background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.06);
     padding: 1.75rem;
     height: 100%;
-    position: relative;
-    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
   }
-  .journey-card .journey-xp {
-    font-weight: 600;
-    color: var(--home-primary);
-  }
-  .journey-tags,
-  .home-chip-group {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .home-chip {
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    background: rgba(10, 174, 148, 0.12);
-    color: var(--home-primary);
-  }
-  .home-chip--soft {
-    background: rgba(100, 116, 139, 0.12);
-    color: #475569;
-  }
-  .solution-card__icon,
-  .module-card__icon,
-  .ai-card__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+  .service-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
     background: rgba(10, 174, 148, 0.12);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--home-primary);
-    font-size: 1.4rem;
+    font-size: 1.6rem;
+    color: var(--landing-primary);
     margin-bottom: 1rem;
   }
-  .home-list {
+  .service-card ul {
     list-style: none;
-    margin: 1rem 0 0;
     padding: 0;
+    margin: 1rem 0 0;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
-  .home-list li {
+  .service-card ul li {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    color: #475569;
+    font-size: 0.92rem;
+  }
+  .service-card__meta {
+    margin-top: 1rem;
     display: flex;
     justify-content: space-between;
-    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--landing-primary);
+    font-weight: 600;
+  }
+  .card {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+    padding: 1.5rem;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
+    height: 100%;
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
+  .card ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 0.4rem;
+    font-size: 0.92rem;
+  }
+  .card ul li {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    color: #475569;
+  }
+  .list-plain {
+    list-style: none;
+    padding: 0;
+    margin: 0.8rem 0 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .list-plain li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.92rem;
     color: #475569;
   }
-  .module-card .badge {
-    border-radius: 999px;
-  }
-  .plan-card {
-    display: flex;
-    flex-direction: column;
+  .hero-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
+    margin-top: 1.5rem;
   }
-  .plan-card--highlight {
-    border: 1.5px solid var(--home-primary);
-    box-shadow: 0 25px 45px rgba(10, 174, 148, 0.12);
+  .hero-tiles article {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
   }
-  .plan-card__price {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--home-primary);
+  .audience-card {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 1.4rem;
+    background: #fff;
   }
-  .plan-card__price small {
-    font-size: 0.85rem;
-    color: #64748b;
-    display: block;
+  .audience-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--landing-primary);
+    background: rgba(10, 174, 148, 0.12);
   }
-  .resource-card__list,
-  .media-card__list {
+  .resource-card {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+    padding: 1.5rem;
+  }
+  .resource-card__list {
     list-style: none;
     padding: 0;
     margin: 1rem 0 0;
     display: grid;
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
-  .resource-card__list a,
-  .media-card__list a {
+  .resource-card__list a {
     text-decoration: none;
     font-weight: 600;
-    color: var(--home-ink);
+    color: var(--landing-ink);
   }
-  .resource-card__list small,
-  .media-card__list small {
-    display: block;
-    color: #94a3b8;
-  }
-  .home-cta-panel {
+  .cta-panel {
     border-radius: 2rem;
-    background: linear-gradient(120deg, var(--home-primary), var(--home-accent));
+    background: linear-gradient(120deg, var(--landing-primary), var(--landing-accent));
     color: #fff;
     padding: clamp(2rem, 4vw, 3rem);
     display: flex;
-    justify-content: space-between;
-    gap: 2rem;
     flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cta-panel .btn {
+    border-radius: 999px;
+    padding-inline: 1.6rem;
+    font-weight: 600;
   }
   @media (max-width: 991.98px) {
-    .home-hero__card {
-      margin-top: 2rem;
+    .hero-layout {
+      grid-template-columns: 1fr;
+    }
+    .hero-ctas {
+      flex-direction: column;
     }
   }
 </style>
@@ -238,80 +295,76 @@
 {% endblock %}
 
 {% block hero %}
-<section class="home-hero" id="hero">
+<section class="landing-hero" id="hero">
   <div class="container">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
-        <p class="text-uppercase text-white-50 small fw-semibold mb-2">{{ hero.eyebrow }}</p>
+    <div class="hero-layout">
+      <div>
+        <span class="section-eyebrow">{{ hero.eyebrow }}</span>
         <h1 class="display-4 fw-semibold mb-3">{{ hero.title }}</h1>
-        <p class="lead mb-4">{{ hero.description }}</p>
-        <div class="home-hero__chips">
-          <span class="signal-chip">
-            <i class="bi bi-calendar-event"></i>
-            {% trans "Raporlanan dönem" %}: {{ hero.month_range.start }} — {{ hero.month_range.end }}
-          </span>
-          <span class="signal-chip">
-            <i class="bi bi-cpu"></i>
-            {% trans "Tamamen kurum içi AI" %}
-          </span>
-        </div>
-        <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
-          <a class="btn btn-light btn-lg text-dark px-4" href="{{ hero.primary_cta.href }}" data-cta="{{ hero.primary_cta.cta_id }}">
+        <p class="lead text-white-75 mb-4">{{ hero.description }}</p>
+        <ul class="hero-pills">
+          <li><i class="bi bi-building"></i>{% trans "KOBİ finans akışları ve muhasebe operasyonları tek kanvasta." %}</li>
+          <li><i class="bi bi-briefcase"></i>{% trans "Mali müşavir marketplace’i, e-fatura ve uyum otomasyonu." %}</li>
+          <li><i class="bi bi-mortarboard"></i>{% trans "Öğretmen, öğrenci ve trader’lar için FinQuest görev motoru." %}</li>
+        </ul>
+        <div class="hero-ctas mt-4">
+          <a class="btn btn-light text-dark btn-lg" href="{{ hero.primary_cta.href }}" data-cta="{{ hero.primary_cta.cta_id }}">
             <i class="bi bi-{{ hero.primary_cta.icon }} me-2"></i>{{ hero.primary_cta.label }}
           </a>
-          <a class="btn btn-outline-light btn-lg px-4" href="{{ hero.secondary_cta.href }}" data-cta="{{ hero.secondary_cta.cta_id }}">
+          <a class="btn btn-outline-light btn-lg" href="{{ hero.secondary_cta.href }}" data-cta="{{ hero.secondary_cta.cta_id }}">
             <i class="bi bi-{{ hero.secondary_cta.icon }} me-2"></i>{{ hero.secondary_cta.label }}
           </a>
         </div>
-        {% if brand_identity.values %}
-          <div class="home-hero__chips mt-4">
-            {% for value in brand_identity.values|slice:":3" %}
-              <span class="signal-chip">
-                <i class="bi bi-{{ value.icon }}"></i> {{ value.label }}
-              </span>
-            {% endfor %}
-          </div>
-        {% endif %}
-        <div class="home-hero__badge mt-4">
-          <i class="bi bi-lightning-charge-fill"></i> {{ brand_identity.version.label }}
+        <p class="text-white-50 small mt-2 mb-0">
+          {% trans "FinAsis Meeting, FinQuest ve Ledger Engine; mali müşavir, finans ve eğitim ekiplerini aynı CTA akışında buluşturur." %}
+        </p>
+        <div class="value-strip">
+          <span><i class="bi bi-stars me-1"></i>{% trans "BETA: Her üyelik 1 hisse + 2 ay ücretsiz kullanım" %}</span>
+          <span><i class="bi bi-link-45deg me-1"></i>{% trans "Blockchain yatırımcı sözleşmesi otomatik üretilir" %}</span>
+          <span><i class="bi bi-camera-video me-1"></i>{% trans "FinAsis toplantıları kurum içi altyapıda" %}</span>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="home-hero__card">
-          <p class="text-uppercase small text-muted fw-semibold mb-3">{% trans "Gerçek zamanlı göstergeler" %}</p>
-          {% if metrics %}
-            <div class="row g-3">
-              {% for metric in metrics|slice:":4" %}
-                <div class="col-6">
-                  <div class="home-metric-card">
-                    <span class="label">{{ metric.label }}</span>
-                    <span class="value">{{ metric.value }}</span>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-          {% if ai_spotlight %}
-            <div class="home-hero__ai">
-              <span class="badge bg-light text-dark mb-2">{% trans "AI Spotlight" %}</span>
-              <ul class="list-unstyled m-0">
-                {% for prompt in ai_spotlight|slice:":2" %}
-                  <li class="home-hero__ai-item">
-                    <div>
-                      <strong>{{ prompt.title|default:_("Rol bazlı öneri") }}</strong>
-                      <p class="text-muted small mb-0">{{ prompt.body|default:prompt.intent }}</p>
-                    </div>
-                    {% if prompt.cta_href %}
-                      <a class="btn btn-sm btn-outline-primary" href="{{ prompt.cta_href }}" data-cta="hero-ai">
-                        {{ prompt.cta_label|default:_("Kartı aç") }}
-                      </a>
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-        </div>
+      <div>
+        {% with highlight_stats=hero_stats|default:metrics|slice:":3" %}
+          <div class="hero-tiles">
+            {% for stat in highlight_stats %}
+              <article class="stat-card">
+                <small>{{ stat.label }}</small>
+                <strong>{{ stat.value }}</strong>
+                {% if stat.icon %}
+                  <span class="text-white-50"><i class="bi {{ stat.icon }}"></i></span>
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        {% endwith %}
+        <article class="stat-card mt-3">
+          <small>{% trans "FinAsis toplantı mimarisi" %}</small>
+          <strong>{% trans "Finasis Meeting" %}</strong>
+          <p class="mb-0 text-white-75">{% trans "Danışman, öğretmen ve öğrenci görüşmeleri education.Meeting ile senkron; Zoom / Jitsi / Meet yalnızca opsiyonel." %}</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="trust-band home-full-bleed">
+  <div class="container">
+    <div class="trust-band__grid">
+      <div class="trust-band__item">
+        <i class="bi bi-shield-lock text-success"></i>
+        <span>{% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}</span>
+      </div>
+      <div class="trust-band__item">
+        <i class="bi bi-cpu text-success"></i>
+        <span>{% trans "Yerel GPU üzerinde çalışan FinAsis AI" %}</span>
+      </div>
+      <div class="trust-band__item">
+        <i class="bi bi-link-45deg text-success"></i>
+        <span>{% trans "Her üyelik için blockchain yatırımcı sözleşmesi" %}</span>
+      </div>
+      <div class="trust-band__item">
+        <i class="bi bi-star text-success"></i>
+        <span>{% trans "Beta kontenjanı sınırlı · 1 hisse + 2 ay ücretsiz" %}</span>
       </div>
     </div>
   </div>
@@ -319,85 +372,132 @@
 {% endblock %}
 
 {% block content %}
-<div class="home-sections">
-  {% if journeys %}
-    <section class="home-section home-section--muted" id="journeys">
-      <div class="container">
-        <div class="section-heading">
-          <p class="eyebrow">{% trans "Ekip akışları" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Öğretmen, öğrenci ve finans ekipleri aynı AI motoru üzerinde buluşur." %}</h2>
-            <p class="text-muted mb-0">{% trans "FinQuest görev motoru ve KPI panoları gerçek müşteri verisiyle beslenir." %}</p>
-          </div>
-        </div>
-        <div class="row g-4">
-          {% for journey in journeys %}
-            <div class="col-md-6 col-xl-4">
-              <article class="journey-card h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <span class="badge text-bg-light text-dark text-uppercase mb-2">{{ journey.audience }}</span>
-                    <h3 class="h5">{{ journey.title }}</h3>
-                  </div>
-                  <span class="journey-xp">{{ journey.total_xp }} XP</span>
-                </div>
-                <p class="text-muted small mb-3">
-                  {% blocktrans with count=journey.task_count %}{{ count }} görev{% endblocktrans %}
-                </p>
-                {% if journey.tags %}
-                  <div class="journey-tags mb-3">
-                    {% for tag in journey.tags|slice:":3" %}
-                      <span class="home-chip home-chip--soft">{{ tag }}</span>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-                {% if journey.href %}
-                  <a class="stretched-link text-decoration-none fw-semibold" href="{{ journey.href }}" data-cta="journey-card">
-                    {% trans "Akışı incele" %} <i class="bi bi-arrow-up-right ms-1"></i>
-                  </a>
-                {% endif %}
-              </article>
-            </div>
-          {% endfor %}
+<div class="landing-shell">
+  <section class="landing-section" id="capabilities">
+    <div class="container">
+      <div class="section-heading">
+        <p class="section-eyebrow">{% trans "FinAsis hizmet haritası" %}</p>
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+          <h2 class="h2">{% trans "Her hizmetimiz FinAsis’in kendi akışına sahiptir." %}</h2>
+          <p class="text-muted mb-0">{% trans "Muhasebeden oyunlaştırmaya kadar tüm katmanlar aynı veri modeli ve FinAsis toplantı altyapısında ilerler." %}</p>
         </div>
       </div>
-    </section>
-  {% endif %}
+      <div class="service-grid">
+        <article class="service-card">
+          <div class="service-card__icon"><i class="bi bi-calculator"></i></div>
+          <h3 class="h5">{% trans "Muhasebe Otomasyonu" %}</h3>
+          <p class="text-muted">{% trans "Defter, e-belge ve banka uzlaştırmalarını FinAsis veri modeli üzerinde yönetin." %}</p>
+          <ul>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "e-Fatura, e-Arşiv, e-Mutabakat akışları" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Banka ve ERP entegrasyonları anlık çalışır" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Blockchain yatırımcı sözleşmesi tetiklenir" %}</li>
+          </ul>
+          <div class="service-card__meta">
+            <span>{% trans "FinAsis Meeting + Ledger" %}</span>
+            <a href="{% url 'products_muhasebe' %}" class="text-decoration-none" data-cta="service-accounting">
+              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <h3 class="h5">{% trans "Finans Yönetimi" %}</h3>
+          <p class="text-muted">{% trans "Nakit akışı, bütçe, KPI ve risk senaryoları tek kanvasta." %}</p>
+          <ul>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Gerçek zamanlı KPI ve panolar" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Senaryo ve duyarlılık analizleri" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Yerel AI ile otomatik raporlar" %}</li>
+          </ul>
+          <div class="service-card__meta">
+            <span>{% trans "FinQuest veri modeli" %}</span>
+            <a href="{% url 'products_finans' %}" class="text-decoration-none" data-cta="service-finance">
+              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon"><i class="bi bi-briefcase"></i></div>
+          <h3 class="h5">{% trans "Mali Müşavirlik Platformu" %}</h3>
+          <p class="text-muted">{% trans "Müşteri onboarding, sözleşme ve video toplantılar FinAsis içinde gerçekleşir." %}</p>
+          <ul>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Danışman marketplace ve FinAsis Meeting" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Blockchain sözleşme + uyum izleri" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Beta: her müşteri kaydına 1 hisse" %}</li>
+          </ul>
+          <div class="service-card__meta">
+            <span>{% trans "Yerel toplantı + zincir" %}</span>
+            <a href="{% url 'resources_partner_marketplace' %}" class="text-decoration-none" data-cta="service-advisor">
+              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon"><i class="bi bi-mortarboard"></i></div>
+          <h3 class="h5">{% trans "Eğitim & FinQuest" %}</h3>
+          <p class="text-muted">{% trans "Öğretmen ve öğrenciler için oyunlaştırılmış görev motoru, quiz ve sertifika akışı." %}</p>
+          <ul>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Rol bazlı LMS ve canlı ders raporları" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Öğrenci XP, rozet ve zincir kayıtları" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "FinAsis Meeting ile hibrit sınıf" %}</li>
+          </ul>
+          <div class="service-card__meta">
+            <span>{% trans "FinQuest motoru" %}</span>
+            <a href="{% url 'products_egitim' %}" class="text-decoration-none" data-cta="service-education">
+              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        <article class="service-card">
+          <div class="service-card__icon"><i class="bi bi-controller"></i></div>
+          <h3 class="h5">{% trans "Oyunlar & Trader Simülasyonları" %}</h3>
+          <p class="text-muted">{% trans "Finansal okuryazarlığı ligler, görevler ve gerçek zamanlı simülasyonlarla güçlendirin." %}</p>
+          <ul>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "Gerçek zamanlı portföy ligleri" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "XP ve ödül ekonomisi FinQuest ile entegre" %}</li>
+            <li><i class="bi bi-check-circle text-success"></i>{% trans "AI destekli taktik önerileri" %}</li>
+          </ul>
+          <div class="service-card__meta">
+            <span>{% trans "FinAsis Games" %}</span>
+            <a href="{% url 'products_oyunlar' %}" class="text-decoration-none" data-cta="service-games">
+              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
 
   {% if solutions %}
-    <section class="home-section" id="solutions">
+    <section class="landing-section landing-section--muted home-full-bleed" id="solutions">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">{% trans "Çözümler" %}</p>
+          <p class="section-eyebrow">{% trans "Çözümler" %}</p>
           <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Finans, uyum ve eğitim modüllerini tek kanvasta birleştirin." %}</h2>
-            <p class="text-muted mb-0">{% trans "Her çözüm doğrulanabilir metrikler ve otomasyon önerileri ile geliyor." %}</p>
+            <h2 class="h2">{% trans "Tüm hizmetlerimiz kurumsal kartlar halinde." %}</h2>
+            <p class="text-muted mb-0">{% trans "Finans, uyum, eğitim ve AI alanlarındaki kataloğumuzu inceleyin." %}</p>
           </div>
         </div>
-        <div class="row g-4">
+        <div class="grid-responsive">
           {% for solution in solutions %}
-            <div class="col-md-6 col-xl-4">
-              <article class="solution-card h-100">
-                <div class="solution-card__icon"><i class="bi {{ solution.icon }}"></i></div>
-                <h3 class="h5">{{ solution.title }}</h3>
-                <p class="text-muted">{{ solution.description }}</p>
-                {% if solution.stats %}
-                  <ul class="home-list">
-                    {% for stat in solution.stats %}
-                      <li>
-                        <span>{{ stat.label }}</span>
-                        <strong>{{ stat.value }}</strong>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-                {% if solution.href %}
-                  <a class="btn btn-link px-0 mt-3 fw-semibold" href="{{ solution.href }}" data-cta="solution-card">
-                    {% trans "Detayları görüntüle" %} <i class="bi bi-arrow-up-right"></i>
-                  </a>
-                {% endif %}
-              </article>
-            </div>
+            <article class="card h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h3 class="h5 mb-0">{{ solution.title }}</h3>
+                <span class="badge text-bg-light text-dark"><i class="bi {{ solution.icon }}"></i></span>
+              </div>
+              <p class="text-muted">{{ solution.description }}</p>
+              {% if solution.stats %}
+                <ul class="list-plain">
+                  {% for stat in solution.stats %}
+                    <li><i class="bi bi-dot"></i><span class="text-muted">{{ stat.label }}</span><strong class="ms-auto">{{ stat.value }}</strong></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              {% if solution.href %}
+                <a class="stretched-link text-decoration-none fw-semibold mt-3 d-inline-flex align-items-center gap-1" href="{{ solution.href }}" data-cta="solution-card">
+                  {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
+                </a>
+              {% endif %}
+            </article>
           {% endfor %}
         </div>
       </div>
@@ -405,66 +505,25 @@
   {% endif %}
 
   {% if modules %}
-    <section class="home-section home-section--soft" id="modules">
+    <section class="landing-section" id="modules">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">{% trans "Modüller" %}</p>
+          <p class="section-eyebrow">{% trans "Modüller" %}</p>
           <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Görev motoru, AI asistan ve finans modülleri aynı veri katmanında." %}</h2>
-            <p class="text-muted mb-0">{% trans "Rol tabanlı erişim ile her kullanıcıya ihtiyaç duyduğu kartlar gösterilir." %}</p>
+            <h2 class="h2">{% trans "Aktif modüller FinAsis tasarım sistemiyle sunulur." %}</h2>
+            <p class="text-muted mb-0">{% trans "Her modül aynı veri modeli ve erişim politikası üzerinde çalışır." %}</p>
           </div>
         </div>
-        <div class="row g-4">
+        <div class="grid-responsive">
           {% for module in modules %}
-            <div class="col-md-6 col-xl-4">
-              <article class="module-card h-100">
-                <div class="module-card__icon">
-                  <i class="bi {{ module.icon }}"></i>
-                </div>
-                <h3 class="h5">{{ module.name }}</h3>
-                <p class="text-muted">{{ module.description }}</p>
-                {% if module.badge %}
-                  <span class="badge text-bg-light text-primary">{{ module.badge }}</span>
-                {% endif %}
-                {% if module.url %}
-                  <a class="btn btn-sm btn-outline-primary mt-3" href="{{ module.url }}" data-cta="module-card">
-                    {% trans "Modülü aç" %}
-                  </a>
-                {% endif %}
-              </article>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  {% if ai_spotlight %}
-    <section class="home-section" id="intelligence">
-      <div class="container">
-        <div class="section-heading">
-          <p class="eyebrow">{% trans "AI Asistan" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Rol bazlı Türkçe prompt kütüphanesi" %}</h2>
-            <p class="text-muted mb-0">{% trans "Muhasebe, KOBİ ve eğitim ekipleri için öneriler tek kartta." %}</p>
-          </div>
-        </div>
-        <div class="row g-4">
-          {% for prompt in ai_spotlight %}
-            <div class="col-md-6 col-xl-4">
-              <article class="ai-card h-100">
-                <div class="ai-card__icon">
-                  <i class="bi {{ prompt.icon|default:'bi-robot' }}"></i>
-                </div>
-                <h3 class="h5">{{ prompt.title|default:_("AI kartı") }}</h3>
-                <p class="text-muted">{{ prompt.body|default:prompt.intent }}</p>
-                {% if prompt.cta_href %}
-                  <a class="btn btn-outline-primary mt-auto" href="{{ prompt.cta_href }}" data-cta="ai-card">
-                    {{ prompt.cta_label|default:_("Kartı aç") }} <i class="bi bi-arrow-up-right ms-1"></i>
-                  </a>
-                {% endif %}
-              </article>
-            </div>
+            <article class="card h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge text-bg-light text-dark">{{ module.code|upper }}</span>
+                <i class="bi {{ module.icon }}"></i>
+              </div>
+              <h3 class="h5">{{ module.name }}</h3>
+              <p class="text-muted">{{ module.description }}</p>
+            </article>
           {% endfor %}
         </div>
       </div>
@@ -472,160 +531,114 @@
   {% endif %}
 
   {% if plans %}
-    <section class="home-section home-section--muted" id="plans">
+    <section class="landing-section landing-section--alt home-full-bleed" id="plans">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">{% trans "Planlar" %}</p>
+          <p class="section-eyebrow">{% trans "Planlar" %}</p>
           <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "KOBİ, eğitim kurumu ve danışman ekipleri için ölçeklenebilir lisanslama." %}</h2>
-            <p class="text-muted mb-0">{% trans "Plan fiyatları canlı veri ile güncellenir, kampanya kodları header üzerinden yayılır." %}</p>
+            <h2 class="h2">{% trans "KOBİ’den kurumsal yapıya kadar ölçeklenir." %}</h2>
+            <p class="text-muted mb-0">{% trans "Yerinde kurulum, yönetilen hizmet ve destek katmanlarını seçin." %}</p>
           </div>
         </div>
-        <div class="row g-4">
+        <div class="grid-responsive">
           {% for plan in plans %}
-            <div class="col-md-6 col-xl-3">
-              <article class="plan-card {% if forloop.first %}plan-card--highlight{% endif %}">
-                <div>
-                  <p class="text-uppercase text-muted small mb-1">{{ plan.audience }}</p>
-                  <h3 class="h5">{{ plan.name }}</h3>
-                  <p class="text-muted">{{ plan.description }}</p>
+            <article class="card h-100">
+              <span class="badge text-bg-light text-dark mb-2">{{ plan.audience }}</span>
+              <h3 class="h5 mb-1">{{ plan.name }}</h3>
+              <p class="text-muted small mb-3">{{ plan.description }}</p>
+              {% if plan.price %}
+                <div class="fs-2 fw-semibold text-primary">
+                  {{ plan.price }}
+                  {% if plan.price_period %}
+                    <small class="text-muted">/ {{ plan.price_period }}</small>
+                  {% endif %}
                 </div>
-                {% if plan.price %}
-                  <div class="plan-card__price">
-                    {{ plan.price }} {{ plan.currency }}
-                    <small>{{ plan.price_period }}</small>
-                  </div>
-                {% else %}
-                  <div class="plan-card__price text-muted">
-                    {% trans "Özel fiyatlandırma" %}
-                  </div>
-                {% endif %}
-                {% if plan.modules %}
-                  <ul class="home-list">
-                    {% for module_name in plan.modules|slice:":3" %}
-                      <li>
-                        <span>{{ module_name }}</span>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-                <a class="btn btn-outline-primary w-100 mt-auto" href="{% url 'billing:plans' %}?highlight={{ plan.code }}" data-cta="plan-select">
-                  {% trans "Planı incele" %}
-                </a>
-              </article>
-            </div>
+              {% else %}
+                <div class="text-muted fw-semibold">{% trans "Özel fiyat" %}</div>
+              {% endif %}
+              <a class="btn btn-outline-primary mt-3" href="{% url 'billing:plans' %}" data-cta="plan-card">
+                {% trans "Planı incele" %}
+              </a>
+            </article>
           {% endfor %}
         </div>
       </div>
     </section>
   {% endif %}
 
-  {% if resource_cards %}
-    <section class="home-section" id="resources">
+  {% if audience_tiles %}
+    <section class="landing-section" id="audiences">
       <div class="container">
         <div class="section-heading">
-          <p class="eyebrow">{% trans "Kaynak Merkezi" %}</p>
+          <p class="section-eyebrow">{% trans "Hedef kitle" %}</p>
           <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Bültenler, teknik dökümanlar ve eğitim kartları tek listede." %}</h2>
-            <p class="text-muted mb-0">{% trans "Guidelar AI destekli eylem adımlarıyla eşleşir." %}</p>
+            <h2 class="h2">{% trans "Tüm hizmetlerimizi kullanan topluluklar." %}</h2>
+            <p class="text-muted mb-0">{% trans "KOBİ, mali müşavir, finans profesyoneli, eğitimci, öğrenci ve gamer akışları aynı veri modeli üzerinde buluşur." %}</p>
           </div>
         </div>
-        <div class="row g-4">
+        <div class="grid-responsive">
+          {% for audience in audience_tiles %}
+            <article class="audience-card">
+              <span class="audience-badge"><i class="bi {{ audience.icon }}"></i>{{ audience.title }}</span>
+              <p class="text-muted mt-3 mb-3">{{ audience.summary }}</p>
+              <small class="text-primary fw-semibold">{% trans "Beta: 1 hisse + 2 ay ücretsiz + blockchain sözleşmesi" %}</small>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if resource_cards or press_releases %}
+    <section class="landing-section landing-section--muted home-full-bleed" id="resources">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-eyebrow">{% trans "Kaynaklar" %}</p>
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+            <h2 class="h2">{% trans "Kurumsal dokümanlar, basın ve AI kütüphanesi." %}</h2>
+            <p class="text-muted mb-0">{% trans "Yatırımcı dosyaları, basın haberleri ve AI kartları tek merkezde." %}</p>
+          </div>
+        </div>
+        <div class="grid-responsive">
           {% for card in resource_cards %}
-            <div class="col-md-6 col-xl-4">
-              <article class="resource-card h-100">
-                <p class="text-uppercase small text-primary fw-semibold mb-2">{{ card.title }}</p>
-                <ul class="resource-card__list">
-                  {% for item in card.items|slice:":4" %}
-                    <li>
-                      <a href="{{ item.href|default:item.url }}" data-cta="resource-card">{{ item.label|default:item.title }}</a>
-                      {% if item.meta %}
-                        <small>{{ item.meta }}</small>
-                      {% endif %}
-                    </li>
-                  {% endfor %}
-                </ul>
-                {% if card.cta %}
-                  <a class="btn btn-sm btn-outline-primary mt-3" href="{{ card.cta.href }}" data-cta="resource-card-cta">
-                    {{ card.cta.label }} <i class="bi bi-arrow-up-right ms-1"></i>
-                  </a>
-                {% endif %}
-              </article>
-            </div>
+            <article class="resource-card">
+              <span class="badge text-bg-light text-dark mb-2">{{ card.title }}</span>
+              <ul class="resource-card__list">
+                {% for item in card.items|slice:":4" %}
+                  <li>
+                    <a href="{{ item.href }}" data-cta="resource-item">{{ item.label }}</a>
+                    <small class="d-block text-muted">{{ item.meta }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+              {% if card.cta %}
+                <a class="btn btn-link px-0 mt-3 fw-semibold text-decoration-none" href="{{ card.cta.href }}" data-cta="resource-cta">
+                  {{ card.cta.label }} <i class="bi bi-arrow-right"></i>
+                </a>
+              {% endif %}
+            </article>
           {% endfor %}
         </div>
       </div>
     </section>
   {% endif %}
 
-  {% if press_releases or investor_documents %}
-    <section class="home-section home-section--soft" id="ecosystem">
-      <div class="container">
-        <div class="section-heading">
-          <p class="eyebrow">{% trans "Ekosistem" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Partner güncellemeleri ve yatırımcı dokümanları" %}</h2>
-            {% if ecosystem %}
-              <p class="text-muted mb-0">
-                {% blocktrans with partners=ecosystem.partner_count documents=ecosystem.document_count %}
-                  {{ partners }} partner · {{ documents }} doküman
-                {% endblocktrans %}
-              </p>
-            {% endif %}
-          </div>
-        </div>
-        <div class="row g-4">
-          {% if press_releases %}
-            <div class="col-lg-6">
-              <article class="media-card h-100">
-                <h3 class="h5">{% trans "Basın & duyurular" %}</h3>
-                <ul class="media-card__list">
-                  {% for press in press_releases %}
-                    <li>
-                      <a href="{{ press.url|default:'#' }}">{{ press.title }}</a>
-                      <small>{{ press.date }}</small>
-                      <p class="text-muted small mb-0">{{ press.summary }}</p>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </article>
-            </div>
-          {% endif %}
-          {% if investor_documents %}
-            <div class="col-lg-6">
-              <article class="media-card h-100">
-                <h3 class="h5">{% trans "Yatırımcı dokümanları" %}</h3>
-                <ul class="media-card__list">
-                  {% for doc in investor_documents %}
-                    <li>
-                      <a href="{{ doc.url|default:'#' }}">{{ doc.title }}</a>
-                      <small>{{ doc.published_at }}</small>
-                      <p class="text-muted small mb-0">{{ doc.kind }}</p>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </article>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  <section class="home-section">
+  <section class="landing-section" id="cta">
     <div class="container">
-      <div class="home-cta-panel">
-        <div class="flex-grow-1">
-          <p class="eyebrow mb-2">{% trans "Hazırsanız" %}</p>
-          <h2 class="h3 mb-2">{% trans "Kurum içi AI ile finansal süreçlerinizi hızlandırın" %}</h2>
-          <p class="mb-0 text-white-75">{% trans "Başlangıçta ücretsiz danışmanlık, rol bazlı onboarding ve yerel destek." %}</p>
+      <div class="cta-panel">
+        <div>
+          <p class="text-uppercase small fw-semibold mb-2 text-white-50">{% trans "BETA KAMPANYASI" %}</p>
+          <h2 class="h3 mb-2 text-white">{% trans "FinAsis'e katıl, 1 hisse + 2 ay ücretsiz ve blockchain sözleşmesi kazan." %}</h2>
+          <p class="mb-0 text-white-75">
+            {% trans "FinAsis Meeting, FinQuest ve Blockchain Ledger Engine aynı kurumsal tasarım sistemiyle sunulur; veriniz Türkiye’de kalır, MASAK denetim izi ve ISO 27001 kontrolleri hazırdır." %}
+          </p>
         </div>
-        <div class="d-flex flex-column flex-sm-row gap-3">
-          <a class="btn btn-light text-dark btn-lg" href="{{ hero.primary_cta.href }}" data-cta="cta-primary">
-            <i class="bi bi-{{ hero.primary_cta.icon }}"></i> {{ hero.primary_cta.label }}
+        <div class="d-flex flex-column flex-md-row gap-3">
+          <a class="btn btn-light text-dark btn-lg" href="{% url 'accounts:register' %}" data-cta="cta-register">
+            <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Ücretsiz başla" %}
           </a>
-          <a class="btn btn-outline-light btn-lg" href="{{ hero.secondary_cta.href }}" data-cta="cta-secondary">
-            {{ hero.secondary_cta.label }}
+          <a class="btn btn-outline-light btn-lg" href="{% url 'contact' %}" data-cta="cta-contact">
+            <i class="bi bi-chat-dots me-2"></i>{% trans "Kurumsal demo planla" %}
           </a>
         </div>
       </div>

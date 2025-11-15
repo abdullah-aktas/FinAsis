@@ -712,10 +712,15 @@ def landing_home(request):
         {"label": _("Başarı Hikayeleri"), "href": "#achievements"},
     ]
 
+    hero_description = _(
+        "KOBİ sahipleri, muhasebeciler, mali müşavirler, öğretmenler, öğrenciler ve finansı oyunlaştırarak öğrenmek isteyenler için "
+        "yerel AI destekli tek platform; beta kampanyasında her kayıt 1 hisse + 2 ay ücretsiz erişim ve blockchain yatırımcı sözleşmesi kazanır."
+    )
+
     hero = {
         "eyebrow": _("Yerel AI finans platformu"),
         "title": _("Finans, uyum ve eğitim ekipleri için tek ekosistem."),
-        "description": BRAND_IDENTITY["description"],
+        "description": hero_description,
         "primary_cta": {
             "label": _(primary_cta_config["label"]),
             "href": reverse(primary_cta_config["url_name"]),
@@ -740,6 +745,39 @@ def landing_home(request):
         "document_count": InvestorDocument.objects.count(),
     }
 
+    audience_tiles = [
+        {
+            "icon": "bi-briefcase",
+            "title": _("KOBİ Sahipleri"),
+            "summary": _("Nakit akışı, banka entegrasyonu ve gerçek zamanlı raporlarla şirket finansını tek ekrandan yönetin."),
+        },
+        {
+            "icon": "bi-calculator",
+            "title": _("Muhasebeciler & Mali Müşavirler"),
+            "summary": _("Marketplace üzerinden müşteri yönetin, e-Fatura ve beyannameleri AI destekli kontrol edin."),
+        },
+        {
+            "icon": "bi-mortarboard",
+            "title": _("Öğretmenler"),
+            "summary": _("FinQuest görev motoru ile muhasebe-finans derslerini oyunlaştırarak aktarın."),
+        },
+        {
+            "icon": "bi-person-workspace",
+            "title": _("Öğrenciler"),
+            "summary": _("Canlı görevler, quizler ve rapor simülasyonlarıyla uygulamalı öğrenme."),
+        },
+        {
+            "icon": "bi-graph-up-arrow",
+            "title": _("Finans Profesyonelleri"),
+            "summary": _("Portföy, uyum ve blockchain denetim izlerini tek yerden izleyerek kariyerinizi güçlendirin."),
+        },
+        {
+            "icon": "bi-controller",
+            "title": _("Oyunlaştırma Tutkunları"),
+            "summary": _("Finans temalı oyunlar ve turnuvalarla veri okuryazarlığını eğlenceli şekilde geliştirin."),
+        },
+    ]
+
     context = {
         "page_title": _("FinAsis · Finansal Şirket Yönetimi Platformu"),
         "hero": hero,
@@ -758,6 +796,7 @@ def landing_home(request):
         "customer_segments": customer_segments,
         "resource_cards": resource_cards,
         "journeys": journeys,
+        "audience_tiles": audience_tiles,
         "primary_navigation": primary_navigation,
         "secondary_navigation": secondary_navigation,
         "teacher_brief": teacher_brief,
