@@ -41,6 +41,10 @@ CSRF_TRUSTED_ORIGINS = env_list(
     'https://finasis.com.tr,https://www.finasis.com.tr'
 )
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', not DEBUG)
+
 SITE_BASE_URL = ENV('DJANGO_SITE_BASE_URL', 'https://finasis.com.tr')
 FINASIS_MEETING_BASE_URL = ENV('FINASIS_MEETING_BASE_URL', SITE_BASE_URL)
 DEFAULT_VIDEO_PROVIDER = ENV('FINASIS_DEFAULT_VIDEO_PROVIDER', 'finasis')
@@ -103,6 +107,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -161,6 +166,22 @@ DATABASES: dict[str, dict[str, Any]] = {
         'PORT': ENV('DJANGO_DB_PORT', ''),
     }
 }
+
+_cloudsql_instance = ENV('CLOUD_SQL_CONNECTION_NAME', '')
+_db_socket_dir = ENV('DB_SOCKET_DIR', '/cloudsql')
+if _cloudsql_instance:
+    DATABASES['default']['HOST'] = f"{_db_socket_dir.rstrip('/')}/{_cloudsql_instance}"
+    DATABASES['default']['PORT'] = ''
+
+_conn_max_age = ENV('DJANGO_DB_CONN_MAX_AGE')
+if _conn_max_age:
+    DATABASES['default']['CONN_MAX_AGE'] = int(_conn_max_age)
+
+_db_options: dict[str, Any] = {}
+if env_bool('DJANGO_DB_SSL_REQUIRED', False):
+    _db_options['sslmode'] = ENV('DJANGO_DB_SSLMODE', 'require')
+if _db_options:
+    DATABASES['default']['OPTIONS'] = _db_options
 
 if 'django_prometheus' in INSTALLED_APPS:
     _PROM_DB_ENGINES = {
@@ -271,6 +292,11 @@ REGION_LABELS = {
 # -----------------------------------------------------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = ENV(
+    'DJANGO_STATICFILES_STORAGE',
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
+WHITENOISE_MAX_AGE = int(ENV('WHITENOISE_MAX_AGE', 60 * 60 * 24 * 30))
 
 if (BASE_DIR / 'static').exists():
     STATICFILES_DIRS = [BASE_DIR / 'static']

@@ -1,0 +1,84 @@
+timeout: "2400s"
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _PYTHON_VERSION: "3.11"
+  _REGION: "europe-west4"
+  _SERVICE: "finasis-api"
+  _REPOSITORY: "finasis-app"
+  _IMAGE_TAG: "latest"
+  _CLOUD_RUN_ENV_VARS: ""
+  _CLOUD_RUN_SECRETS: ""
+  _CLOUD_SQL_CONNECTION: ""
+
+steps:
+  - name: "python:${_PYTHON_VERSION}"
+    id: "Install dependencies & readiness check"
+    entrypoint: "bash"
+    env:
+      - "DJANGO_SETTINGS_MODULE=config.settings"
+      - "DJANGO_SECRET_KEY=test-secret-key-for-cloud-build"
+      - "DJANGO_DEBUG=False"
+      - "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        python manage.py migrate --noinput
+        python project_readiness_check.py
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build container image"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push container image"
+    args:
+      - "push"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    id: "Deploy to Cloud Run"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+        DEPLOY_ARGS=(
+          "--image=${IMAGE}"
+          "--service=${_SERVICE}"
+          "--region=${_REGION}"
+          "--platform=managed"
+          "--allow-unauthenticated"
+          "--execution-environment=gen2"
+          "--memory=2Gi"
+          "--cpu=2"
+          "--timeout=120"
+          "--concurrency=40"
+        )
+
+        if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
+          DEPLOY_ARGS+=("--set-env-vars=${_CLOUD_RUN_ENV_VARS}")
+        fi
+
+        if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
+          DEPLOY_ARGS+=("--set-secrets=${_CLOUD_RUN_SECRETS}")
+        fi
+
+        if [ -n "${_CLOUD_SQL_CONNECTION}" ]; then
+          DEPLOY_ARGS+=("--add-cloudsql-instances=${_CLOUD_SQL_CONNECTION}")
+        fi
+
+        gcloud run deploy "${DEPLOY_ARGS[@]}"
+
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+
