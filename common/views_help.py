@@ -24,21 +24,36 @@ import json
 @login_required
 def help_center(request):
     """
-    Ana yardım merkezi
+    Ana yardım merkezi - Kullanıcının rolüne göre ilgili modülleri gösterir
     """
-    # Kullanıcının rolüne göre ilgili modülleri göster
-    user_role = request.user.role
-    accessible_modules = []
+    from accounts.views_panel import _get_user_role_tags
+    from accounts.views_panel import _get_user_modules
     
-    # Tüm modülleri göster (rol bazlı filtreleme yapılabilir)
+    # Kullanıcının rolleri
+    user_roles = _get_user_role_tags(request.user)
+    
+    # Kullanıcının erişebileceği modüller (gerçek modül erişim kontrolü)
+    user_modules = _get_user_modules(request.user)
+    user_module_keys = [m['name'].lower().replace(' ', '_').replace('yapay_zeka', 'ai_assistant').replace('finansal_yönetim', 'finance').replace('mali_müşavirlik', 'advisors').replace('yönetim', 'management') for m in user_modules]
+    
+    # Tüm modülleri rol bazlı filtreleme ile göster
+    accessible_modules = []
     for module_key, module_data in HELP_CONTENT.items():
-        accessible_modules.append({
-            'key': module_key,
-            'title': module_data['title'],
-            'icon': module_data['icon'],
-            'sections_count': len(module_data.get('sections', [])),
-            'tips_count': len(module_data.get('quick_tips', []))
-        })
+        # Modül erişim kontrolü - kullanıcının gerçek modül erişimi varsa göster
+        # Veya admin ise tüm modülleri göster
+        if (request.user.is_staff or 
+            request.user.is_superuser or 
+            module_key in user_module_keys or
+            module_key == 'accounts'):  # Profil herkese açık
+            
+            accessible_modules.append({
+                'key': module_key,
+                'title': module_data['title'],
+                'icon': module_data['icon'],
+                'sections_count': len(module_data.get('sections', [])),
+                'tips_count': len(module_data.get('quick_tips', [])),
+                'description': module_data.get('description', '')
+            })
     
     context = {
         'title': 'Yardım Merkezi',
@@ -46,6 +61,7 @@ def help_center(request):
         'quick_tips_count': sum(len(tips) for tips in QUICK_TIPS.values()),
         'faq_count': sum(len(cat['questions']) for cat in FAQ_CATEGORIES.values()),
         'video_count': sum(len(videos) for videos in VIDEO_TUTORIALS.values()),
+        'user_roles': user_roles,
     }
     
     return render(request, 'common/help/help_center.html', context)
@@ -267,34 +283,94 @@ def help_api_tour(request, tour_name):
 @login_required
 def help_quick_start(request):
     """
-    Hızlı başlangıç rehberi
+    Hızlı başlangıç rehberi - Rol bazlı özelleştirilmiş
     """
-    # Kullanıcının onboarding durumunu kontrol et
-    user_profile = getattr(request.user, 'profile', None)
+    from accounts.views_panel import _get_user_role_tags
     
-    # Onboarding checklist'i al veya oluştur
-    checklist_items = ONBOARDING_CHECKLIST['new_user'].copy()
+    # Kullanıcının rolleri
+    user_roles = _get_user_role_tags(request.user)
+    
+    # Onboarding checklist'i al - rol bazlı
+    base_checklist = ONBOARDING_CHECKLIST['new_user'].copy()
+    
+    # Rol bazlı özelleştirme
+    checklist_items = base_checklist.copy()
+    
+    # Rol bazlı ek adımlar
+    if 'teacher' in user_roles or 'egitimci' in user_roles:
+        checklist_items.append({
+            'id': 'create_course',
+            'title': 'İlk dersinizi oluşturun',
+            'completed': False
+        })
+    
+    if 'financial_advisor' in user_roles or 'mali_musavir' in user_roles:
+        checklist_items.append({
+            'id': 'add_client',
+            'title': 'İlk müşterinizi ekleyin',
+            'completed': False
+        })
+    
+    if request.user.is_staff or request.user.is_superuser:
+        checklist_items.append({
+            'id': 'system_settings',
+            'title': 'Sistem ayarlarını yapılandırın',
+            'completed': False
+        })
     
     # Kullanıcının tamamladığı adımları işaretle
-    # (Bu kısım user profile'a göre özelleştirilebilir)
+    user_profile = getattr(request.user, 'profile', None)
     if user_profile:
-        # Örnek: Profil tamamsa ilk item tamamlanmış
-        if user_profile.is_complete:
-            checklist_items[0]['completed'] = True
+        if hasattr(user_profile, 'is_complete') and user_profile.is_complete:
+            for item in checklist_items:
+                if item['id'] == 'profile':
+                    item['completed'] = True
     
     # Şirket bilgisi varsa
-    if request.user.company:
-        checklist_items[1]['completed'] = True
+    if hasattr(request.user, 'company') and request.user.company:
+        for item in checklist_items:
+            if item['id'] == 'company':
+                item['completed'] = True
     
     # İlk fatura kontrolü
-    from accounting.models import Invoice
-    if Invoice.objects.filter(created_by=request.user).exists():
-        checklist_items[3]['completed'] = True
+    try:
+        from accounting.models import Invoice
+        if Invoice.objects.filter(created_by=request.user).exists():
+            for item in checklist_items:
+                if item['id'] == 'first_invoice':
+                    item['completed'] = True
+    except:
+        pass
+    
+    # İlk ders kontrolü (öğretmenler için)
+    if 'teacher' in user_roles:
+        try:
+            from education.models import Course
+            if Course.objects.filter(created_by=request.user).exists():
+                for item in checklist_items:
+                    if item['id'] == 'create_course':
+                        item['completed'] = True
+        except:
+            pass
+    
+    # İlk müşteri kontrolü (mali müşavirler için)
+    if 'financial_advisor' in user_roles:
+        try:
+            from advisors.models import AdvisorProfile
+            advisor_profile = getattr(request.user, 'advisor_profile', None)
+            if advisor_profile:
+                # Müşteri kontrolü için advisors modülüne bakılabilir
+                pass
+        except:
+            pass
+    
+    completion_percentage = (sum(1 for item in checklist_items if item.get('completed', False)) / len(checklist_items) * 100) if checklist_items else 0
     
     context = {
         'title': 'Hızlı Başlangıç',
         'checklist': checklist_items,
-        'completion_percentage': sum(1 for item in checklist_items if item['completed']) / len(checklist_items) * 100,
+        'completion_percentage': completion_percentage,
+        'user_roles': user_roles,
     }
     
     return render(request, 'common/help/help_quick_start.html', context)

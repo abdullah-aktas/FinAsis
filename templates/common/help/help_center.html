@@ -114,12 +114,19 @@
                         </div>
                         <h5 class="card-title mb-0">{{ module.title }}</h5>
                     </div>
-                    <p class="card-text text-muted">
-                        <i class="bi-book me-2"></i>{{ module.sections_count }} rehber<br>
-                        <i class="bi-lightbulb me-2"></i>{{ module.tips_count }} ipucu
-                    </p>
+                    {% if module.description %}
+                    <p class="card-text small text-muted mb-2">{{ module.description }}</p>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                            <i class="bi-book me-1"></i>{{ module.sections_count }} rehber
+                        </small>
+                        <small class="text-muted">
+                            <i class="bi-lightbulb me-1"></i>{{ module.tips_count }} ipucu
+                        </small>
+                    </div>
                     <a href="{% url 'common:help_module' module.key %}" class="btn btn-outline-primary w-100">
-                        <i class="bi-arrow-right me-2"></i>Rehbere Git
+                        <i class="bi-arrow-right me-2"></i>Kılavuza Git
                     </a>
                 </div>
             </div>
