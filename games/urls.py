@@ -25,6 +25,10 @@ urlpatterns = [
     
     # Progression
     path('quests/', quests_page, name='quests'),
+    path('görevler/', quests_page, name='gorevler'),  # Turkish alias
+    path('quests/bridge/', views.quest_bridge, name='quest_bridge'),
+    path('quests/bridge', views.quest_bridge, name='quest_bridge_alias'),
+    path('görevler/köprü/', views.quest_bridge, name='gorevler_kopru'),  # Turkish alias
     path('rankings/', rankings_page, name='rankings'),
     path('matches/', match_history, name='match_history'),
     

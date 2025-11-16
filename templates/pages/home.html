@@ -2,54 +2,78 @@
 {% load static i18n %}
 
 {% block breadcrumbs %}{% endblock %}
+
 {% block main_class %}p-0{% endblock %}
 
-{% block title %}{{ page_title }}{% endblock %}
-{% block meta_description %}{{ hero.description }}{% endblock %}
-{% block og_description %}{{ hero.description }}{% endblock %}
-{% block tw_desc %}{{ hero.description }}{% endblock %}
+{% block title %}{{ page_title|default:"FinAsis - Yerel AI Finans Platformu" }}{% endblock %}
+
+{% block meta_description %}{{ hero.description|default:"Yapay zeka destekli finansal yönetim, eğitim ve analitik platformu." }}{% endblock %}
+
+{% block og_description %}{{ hero.description|default:"Yapay zeka destekli finansal yönetim, eğitim ve analitik platformu." }}{% endblock %}
+
+{% block tw_desc %}{{ hero.description|default:"Yapay zeka destekli finansal yönetim, eğitim ve analitik platformu." }}{% endblock %}
 
 {% block extra_css %}
-{% with colors=brand_identity.colors %}
+{% if brand_identity and brand_identity.colors %}
+  {% with colors=brand_identity.colors %}
+  <style>
+    :root {
+      --home-ink: {{ colors.ink|default:"#04121a" }};
+      --home-primary: {{ colors.primary|default:"#0aae94" }};
+      --home-accent: {{ colors.accent|default:"#ffb300" }};
+      --home-muted: {{ colors.surface|default:"#f8f9fa" }};
+      --home-muted-alt: {{ colors.surface_alt|default:"#e9ecef" }};
+      --home-border: rgba(4, 18, 26, 0.08);
+    }
+  </style>
+  {% endwith %}
+{% else %}
+  <style>
+    :root {
+      --home-ink: #04121a;
+      --home-primary: #0aae94;
+      --home-accent: #ffb300;
+      --home-muted: #f8f9fa;
+      --home-muted-alt: #e9ecef;
+      --home-border: rgba(4, 18, 26, 0.08);
+    }
+  </style>
+{% endif %}
+<link rel="stylesheet" href="{% static 'css/pages/home_marketing.css' %}" />
 <style>
-  :root {
-    --home-ink: {{ colors.ink }};
-    --home-primary: {{ colors.primary }};
-    --home-accent: {{ colors.accent }};
-    --home-muted: {{ colors.surface }};
-    --home-muted-alt: {{ colors.surface_alt }};
-    --home-border: rgba(4, 18, 26, 0.08);
+  /* Modern Marketing Homepage Styles */
+  * {
+    scroll-behavior: smooth;
   }
-</style>
-{% endwith %}
-<link rel="stylesheet" href="{% static 'css/pages/home_marketing.css' %}">
-<style>
+
   /* Card-based Design for Homepage */
   .home-card-modern {
     background: white;
     border-radius: clamp(1rem, 2vw, 1.5rem);
     padding: clamp(1.5rem, 3vw, 2rem);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--home-border);
     height: 100%;
     display: flex;
     flex-direction: column;
-  }
-  
-  .home-card-modern {
     position: relative;
     overflow: hidden;
   }
 
   .home-card-modern::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, transparent, var(--card-color, #0AAE94), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--card-color, #0aae94),
+      transparent
+    );
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,7 +83,7 @@
   .home-card-modern:hover {
     transform: translateY(-8px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
-    border-left-color: var(--card-color, #0AAE94);
+    border-left-color: var(--card-color, #0aae94);
     border-left-width: 6px;
   }
 
@@ -78,16 +102,16 @@
   .home-card-modern:hover .home-card-modern__icon i {
     transform: scale(1.15);
   }
-  
+
   .home-card-modern a {
     text-decoration: none;
     color: inherit;
   }
-  
+
   .min-vh-50 {
     min-height: 50vh;
   }
-  
+
   .home-card-modern__icon {
     width: clamp(64px, 8vw, 80px);
     height: clamp(64px, 8vw, 80px);
@@ -103,7 +127,7 @@
   }
 
   .home-card-modern__icon::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -119,14 +143,14 @@
     z-index: 1;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .home-card-modern h3 {
     font-size: clamp(1.125rem, 2vw, 1.25rem);
     font-weight: 700;
     margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
     color: var(--home-ink);
   }
-  
+
   .home-card-modern p {
     font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
     color: #64748b;
@@ -134,13 +158,13 @@
     margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
     flex-grow: 1;
   }
-  
+
   .home-card-modern ul {
     list-style: none;
     padding: 0;
     margin: 0;
   }
-  
+
   .home-card-modern ul li {
     font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
     color: #64748b;
@@ -150,24 +174,24 @@
     align-items: center;
     gap: 0.5rem;
   }
-  
+
   .home-card-modern ul li:last-child {
     border-bottom: none;
   }
-  
+
   .home-card-modern ul li::before {
-    content: '✓';
-    color: var(--home-accent, #FFB300);
+    content: "✓";
+    color: var(--home-accent, #ffb300);
     font-weight: 700;
     font-size: 1.1em;
   }
-  
+
   .home-grid-modern {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
     gap: clamp(1.5rem, 3vw, 2rem);
   }
-  
+
   .home-panel-card {
     background: var(--home-primary);
     color: white;
@@ -175,43 +199,43 @@
     padding: clamp(1.5rem, 3vw, 2rem);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
-  
+
   .home-panel-card h3 {
     color: white;
   }
-  
+
   .home-panel-card p {
     color: rgba(255, 255, 255, 0.9);
   }
-  
+
   .home-panel-card ul li {
     color: rgba(255, 255, 255, 0.85);
     border-bottom-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .home-panel-card ul li::before {
-    color: #FFB300;
+    color: #ffb300;
   }
-  
+
   .home-section-modern {
     padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
   }
-  
+
   .home-section-modern--alt {
     background: var(--home-muted);
   }
-  
+
   .home-section-header-modern {
     text-align: center;
     max-width: 800px;
     margin: 0 auto clamp(2rem, 4vw, 3rem);
   }
-  
+
   .home-eyebrow-modern {
     display: inline-block;
     padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
     background: rgba(255, 179, 0, 0.1);
-    color: var(--home-accent, #FFB300);
+    color: var(--home-accent, #ffb300);
     border-radius: 999px;
     font-size: clamp(0.75rem, 1.5vw, 0.875rem);
     font-weight: 600;
@@ -219,20 +243,20 @@
     letter-spacing: 0.1em;
     margin-bottom: clamp(1rem, 2vw, 1.5rem);
   }
-  
+
   .home-section-header-modern h2 {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 800;
     margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
     color: var(--home-ink);
   }
-  
+
   .home-section-header-modern p {
     font-size: clamp(1rem, 2vw, 1.125rem);
     color: #64748b;
     line-height: 1.6;
   }
-  
+
   /* Responsive Typography & Spacing */
   .home-section-header-modern {
     padding: 0 clamp(0.5rem, 2vw, 1rem);
@@ -247,7 +271,6 @@
   .home-section-header-modern p {
     font-size: clamp(0.9375rem, 2vw, 1.125rem);
   }
-
 
   #metrics .display-5 {
     font-size: clamp(1.75rem, 5vw, 2.75rem);
@@ -402,7 +425,11 @@
   }
 
   .solution-card-title {
-    background: linear-gradient(135deg, var(--home-ink) 0%, var(--home-ink) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--home-ink) 0%,
+      var(--home-ink) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -444,23 +471,71 @@
   }
 
   /* Individual color backgrounds for CTA */
-  .solution-card-enhanced[style*="#0AAE94"] .solution-cta-link { background: rgba(10, 174, 148, 0.06); border-color: rgba(10, 174, 148, 0.1); }
-  .solution-card-enhanced[style*="#10b981"] .solution-cta-link { background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.1); }
-  .solution-card-enhanced[style*="#6366f1"] .solution-cta-link { background: rgba(99, 102, 241, 0.06); border-color: rgba(99, 102, 241, 0.1); }
-  .solution-card-enhanced[style*="#3b82f6"] .solution-cta-link { background: rgba(59, 130, 246, 0.06); border-color: rgba(59, 130, 246, 0.1); }
-  .solution-card-enhanced[style*="#f59e0b"] .solution-cta-link { background: rgba(245, 158, 11, 0.06); border-color: rgba(245, 158, 11, 0.1); }
-  .solution-card-enhanced[style*="#8b5cf6"] .solution-cta-link { background: rgba(139, 92, 246, 0.06); border-color: rgba(139, 92, 246, 0.1); }
-  .solution-card-enhanced[style*="#2563eb"] .solution-cta-link { background: rgba(37, 99, 235, 0.06); border-color: rgba(37, 99, 235, 0.1); }
-  .solution-card-enhanced[style*="#dc2626"] .solution-cta-link { background: rgba(220, 38, 38, 0.06); border-color: rgba(220, 38, 38, 0.1); }
+  .solution-card-enhanced[style*="#0AAE94"] .solution-cta-link {
+    background: rgba(10, 174, 148, 0.06);
+    border-color: rgba(10, 174, 148, 0.1);
+  }
+  .solution-card-enhanced[style*="#10b981"] .solution-cta-link {
+    background: rgba(16, 185, 129, 0.06);
+    border-color: rgba(16, 185, 129, 0.1);
+  }
+  .solution-card-enhanced[style*="#6366f1"] .solution-cta-link {
+    background: rgba(99, 102, 241, 0.06);
+    border-color: rgba(99, 102, 241, 0.1);
+  }
+  .solution-card-enhanced[style*="#3b82f6"] .solution-cta-link {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.1);
+  }
+  .solution-card-enhanced[style*="#f59e0b"] .solution-cta-link {
+    background: rgba(245, 158, 11, 0.06);
+    border-color: rgba(245, 158, 11, 0.1);
+  }
+  .solution-card-enhanced[style*="#8b5cf6"] .solution-cta-link {
+    background: rgba(139, 92, 246, 0.06);
+    border-color: rgba(139, 92, 246, 0.1);
+  }
+  .solution-card-enhanced[style*="#2563eb"] .solution-cta-link {
+    background: rgba(37, 99, 235, 0.06);
+    border-color: rgba(37, 99, 235, 0.1);
+  }
+  .solution-card-enhanced[style*="#dc2626"] .solution-cta-link {
+    background: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.1);
+  }
 
-  .solution-card-enhanced:hover[style*="#0AAE94"] .solution-cta-link { background: rgba(10, 174, 148, 0.12); border-color: rgba(10, 174, 148, 0.2); }
-  .solution-card-enhanced:hover[style*="#10b981"] .solution-cta-link { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.2); }
-  .solution-card-enhanced:hover[style*="#6366f1"] .solution-cta-link { background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.2); }
-  .solution-card-enhanced:hover[style*="#3b82f6"] .solution-cta-link { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.2); }
-  .solution-card-enhanced:hover[style*="#f59e0b"] .solution-cta-link { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.2); }
-  .solution-card-enhanced:hover[style*="#8b5cf6"] .solution-cta-link { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.2); }
-  .solution-card-enhanced:hover[style*="#2563eb"] .solution-cta-link { background: rgba(37, 99, 235, 0.12); border-color: rgba(37, 99, 235, 0.2); }
-  .solution-card-enhanced:hover[style*="#dc2626"] .solution-cta-link { background: rgba(220, 38, 38, 0.12); border-color: rgba(220, 38, 38, 0.2); }
+  .solution-card-enhanced:hover[style*="#0AAE94"] .solution-cta-link {
+    background: rgba(10, 174, 148, 0.12);
+    border-color: rgba(10, 174, 148, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#10b981"] .solution-cta-link {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#6366f1"] .solution-cta-link {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#3b82f6"] .solution-cta-link {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#f59e0b"] .solution-cta-link {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#8b5cf6"] .solution-cta-link {
+    background: rgba(139, 92, 246, 0.12);
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#2563eb"] .solution-cta-link {
+    background: rgba(37, 99, 235, 0.12);
+    border-color: rgba(37, 99, 235, 0.2);
+  }
+  .solution-card-enhanced:hover[style*="#dc2626"] .solution-cta-link {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: rgba(220, 38, 38, 0.2);
+  }
 
   .solution-card-enhanced:hover .solution-cta-arrow {
     transform: translateX(6px);
@@ -697,525 +772,304 @@
 {% endblock %}
 
 {% block header %}
-  {% include 'components/header.html' %}
+{% include 'components/header.html' %}
 {% endblock %}
 
 {% block hero %}
-<style>
-.home-hero {
-  background: #FFB300;
-  position: relative;
-  overflow: hidden;
-  color: #0D3B66;
-  padding: clamp(3rem, 7vw, 5rem) 0 clamp(2.5rem, 6vw, 4rem);
-}
-
-.home-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 179, 0, 0.15) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.home-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2));
-  pointer-events: none;
-  z-index: 1;
-}
-
-.home-hero .container {
-  position: relative;
-  z-index: 2;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 clamp(1.5rem, 4vw, 2.5rem);
-}
-
-.home-hero__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto;
-  gap: clamp(1.5rem, 3.5vw, 2.25rem);
-}
-
-.home-hero__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: clamp(0.625rem, 1.5vw, 0.875rem) clamp(1.25rem, 2.5vw, 1.75rem);
-  background: rgba(13, 59, 102, 0.1);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(13, 59, 102, 0.15);
-  border-radius: 3rem;
-  font-size: clamp(0.8125rem, 1.75vw, 0.9375rem);
-  font-weight: 700;
-  color: #0D3B66;
-  letter-spacing: 0.03em;
-  animation: fadeInUp 0.7s ease-out;
-  box-shadow: 0 3px 16px rgba(13, 59, 102, 0.12);
-  transition: all 0.3s ease;
-}
-
-.home-hero__badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(13, 59, 102, 0.15);
-  background: rgba(13, 59, 102, 0.15);
-}
-
-.home-hero__badge i {
-  color: #FF8F00;
-  font-size: clamp(0.875rem, 1.75vw, 1rem);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.85; }
-}
-
-.home-hero__title {
-  font-size: clamp(1.875rem, 5vw, 3rem);
-  font-weight: 900;
-  line-height: 1.2;
-  color: #0D3B66;
-  margin: 0;
-  letter-spacing: -0.025em;
-  animation: fadeInUp 0.7s ease-out 0.15s both;
-}
-
-.home-hero__title .highlight {
-  color: #FF8F00;
-  position: relative;
-  display: inline-block;
-}
-
-.home-hero__title .highlight::after {
-  content: '';
-  position: absolute;
-  bottom: 0.125em;
-  left: 0;
-  right: 0;
-  height: 0.2em;
-  background: rgba(255, 143, 0, 0.25);
-  border-radius: 2px;
-  z-index: -1;
-}
-
-.home-hero__description {
-  font-size: clamp(0.9375rem, 1.875vw, 1.125rem);
-  line-height: 1.65;
-  color: rgba(13, 59, 102, 0.9);
-  margin: 0;
-  font-weight: 400;
-  animation: fadeInUp 0.7s ease-out 0.25s both;
-  max-width: 88%;
-}
-
-.home-hero__cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.875rem, 1.75vw, 1.125rem);
-  justify-content: center;
-  animation: fadeInUp 0.7s ease-out 0.35s both;
-  width: 100%;
-  max-width: 550px;
-}
-
-.home-hero__cta .btn {
-  padding: clamp(0.875rem, 1.75vw, 1rem) clamp(1.5rem, 3.5vw, 2rem);
-  font-size: clamp(0.9375rem, 1.75vw, 1rem);
-  font-weight: 700;
-  border-radius: clamp(0.625rem, 1.25vw, 0.75rem);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.home-hero__cta .btn-primary {
-  background: #0D3B66;
-  border-color: #0D3B66;
-  color: white;
-  box-shadow: 0 4px 16px rgba(13, 59, 102, 0.3), 0 2px 6px rgba(13, 59, 102, 0.15);
-}
-
-.home-hero__cta .btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.5s ease, height 0.5s ease;
-}
-
-.home-hero__cta .btn-primary:hover {
-  background: #0A2E52;
-  border-color: #0A2E52;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(13, 59, 102, 0.4), 0 3px 10px rgba(13, 59, 102, 0.25);
-}
-
-.home-hero__cta .btn-primary:hover::before {
-  width: 250px;
-  height: 250px;
-}
-
-.home-hero__cta .btn-outline-dark {
-  border: 2px solid rgba(13, 59, 102, 0.3);
-  color: #0D3B66;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(20px);
-  font-weight: 700;
-}
-
-.home-hero__cta .btn-outline-dark:hover {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(13, 59, 102, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(13, 59, 102, 0.2);
-}
-
-.home-hero__cta .btn i {
-  position: relative;
-  z-index: 1;
-}
-
-.home-hero__benefits {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(0.875rem, 1.75vw, 1.25rem);
-  width: 100%;
-  max-width: 880px;
-  animation: fadeInUp 0.7s ease-out 0.45s both;
-}
-
-.home-hero__benefit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(0.5rem, 1.25vw, 0.75rem);
-  padding: clamp(1.125rem, 2.25vw, 1.5rem);
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(30px);
-  border-radius: clamp(0.875rem, 1.75vw, 1.125rem);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 3px 16px rgba(13, 59, 102, 0.1);
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-}
-
-.home-hero__benefit:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.12);
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
-.home-hero__benefit-icon {
-  width: clamp(48px, 6vw, 60px);
-  height: clamp(48px, 6vw, 60px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 143, 0, 0.18), rgba(255, 179, 0, 0.12));
-  border-radius: clamp(12px, 1.5vw, 14px);
-  color: #FF8F00;
-  font-size: clamp(1.375rem, 3vw, 1.75rem);
-  transition: all 0.35s ease;
-  border: 1px solid rgba(255, 143, 0, 0.1);
-}
-
-.home-hero__benefit:hover .home-hero__benefit-icon {
-  transform: scale(1.08) rotate(3deg);
-  background: linear-gradient(135deg, rgba(255, 143, 0, 0.25), rgba(255, 179, 0, 0.15));
-  box-shadow: 0 3px 12px rgba(255, 143, 0, 0.2);
-}
-
-.home-hero__benefit-title {
-  font-size: clamp(0.875rem, 1.5vw, 1rem);
-  font-weight: 700;
-  color: #0D3B66;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.home-hero__benefit-desc {
-  font-size: clamp(0.75rem, 1.25vw, 0.8125rem);
-  color: rgba(13, 59, 102, 0.75);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.home-hero__trust {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(0.75rem, 1.5vw, 1rem);
-  padding-top: clamp(1rem, 2vw, 1.5rem);
-  border-top: 2px solid rgba(13, 59, 102, 0.15);
-  width: 100%;
-  animation: fadeInUp 0.7s ease-out 0.55s both;
-}
-
-.home-hero__trust-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: clamp(0.375rem, 0.875vw, 0.625rem) clamp(0.75rem, 1.5vw, 1rem);
-  background: rgba(13, 59, 102, 0.08);
-  backdrop-filter: blur(15px);
-  border-radius: clamp(1.25rem, 2.5vw, 1.75rem);
-  font-size: clamp(0.75rem, 1.25vw, 0.8125rem);
-  color: #0D3B66;
-  font-weight: 600;
-  border: 1px solid rgba(13, 59, 102, 0.1);
-  transition: all 0.25s ease;
-}
-
-.home-hero__trust-item:hover {
-  background: rgba(13, 59, 102, 0.12);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(13, 59, 102, 0.08);
-}
-
-.home-hero__trust-item i {
-  font-size: clamp(0.875rem, 1.5vw, 1rem);
-  color: #FF8F00;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 992px) {
-  .home-hero {
-    padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3.5rem);
-  }
-  
-  .home-hero__content {
-    gap: clamp(1.25rem, 3vw, 2rem);
-  }
-  
-  .home-hero__benefits {
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(0.75rem, 1.5vw, 1.125rem);
-  }
-}
-
-@media (max-width: 768px) {
-  .home-hero {
-    padding: clamp(2rem, 5vw, 3.5rem) 0 clamp(1.75rem, 4.5vw, 3rem);
-  }
-
-  .home-hero__content {
-    gap: clamp(1.125rem, 2.5vw, 1.75rem);
-  }
-
-  .home-hero__benefits {
-    grid-template-columns: 1fr;
-    gap: clamp(0.75rem, 1.75vw, 1rem);
-  }
-
-  .home-hero__benefit {
-    padding: clamp(0.875rem, 2vw, 1.25rem);
-  }
-
-  .home-hero__cta {
-    flex-direction: column;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .home-hero__cta .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .home-hero__trust {
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(0.625rem, 1.5vw, 0.875rem);
-  }
-}
-
-@media (max-width: 576px) {
-  .home-hero {
-    padding: clamp(1.75rem, 4.5vw, 3rem) 0 clamp(1.5rem, 3.5vw, 2.5rem);
-  }
-  
-  .home-hero__content {
-    gap: clamp(0.875rem, 2vw, 1.5rem);
-  }
-  
-  .home-hero__benefits {
-    grid-template-columns: 1fr;
-    gap: clamp(0.625rem, 1.5vw, 0.875rem);
-  }
-
-  .home-hero__benefit {
-    flex-direction: row;
-    text-align: left;
-    align-items: flex-start;
-    padding: clamp(0.75rem, 1.75vw, 1.125rem);
-  }
-
-  .home-hero__benefit-icon {
-    flex-shrink: 0;
-    width: clamp(40px, 4.5vw, 48px);
-    height: clamp(40px, 4.5vw, 48px);
-  }
-  
-  .home-hero__description {
-    max-width: 100%;
-    font-size: clamp(0.875rem, 1.75vw, 1rem);
-  }
-}
-</style>
-
-<section class="home-hero" id="hero">
-  <div class="container">
-    <div class="home-hero__content">
-      <div class="home-hero__badge">
-        <i class="bi bi-lightning-charge-fill"></i>
-        <span>{% trans "Teknoloji ve Yenilik Odaklı Platform" %}</span>
-      </div>
-      
-      <h1 class="home-hero__title">
-        {% if hero.title %}{{ hero.title|safe }}{% else %}
-          {% trans "Finans, uyum ve eğitim ekipleri için" %} <span class="highlight">{% trans "tek ekosistem" %}</span>
-        {% endif %}
-      </h1>
-      
-      <p class="home-hero__description">
-        {% if hero.description %}{{ hero.description }}{% else %}
-          {% trans "Yerel AI destekli, blockchain kanıtlı finans yönetimi platformu. Bulut tabanlı veritabanı ve yerel GPU ile her ölçekte işletme için tasarlandı." %}
-        {% endif %}
-      </p>
-      
-      <div class="home-hero__cta">
-        <a class="btn btn-primary btn-lg" href="{% if hero.primary_cta.href %}{{ hero.primary_cta.href }}{% else %}{% url 'accounts:register' %}{% endif %}" data-cta="{% if hero.primary_cta.cta_id %}{{ hero.primary_cta.cta_id }}{% else %}hero-register{% endif %}">
-          <i class="bi bi-rocket-takeoff me-2"></i>{% if hero.primary_cta.label %}{{ hero.primary_cta.label }}{% else %}{% trans "Ücretsiz Başla" %}{% endif %}
-        </a>
-        <a class="btn btn-outline-dark btn-lg" href="{% if hero.secondary_cta.href %}{{ hero.secondary_cta.href }}{% else %}{% url 'contact' %}{% endif %}" data-cta="{% if hero.secondary_cta.cta_id %}{{ hero.secondary_cta.cta_id }}{% else %}hero-contact{% endif %}">
-          <i class="bi bi-calendar-event me-2"></i>{% if hero.secondary_cta.label %}{{ hero.secondary_cta.label }}{% else %}{% trans "Demo Planla" %}{% endif %}
-        </a>
-      </div>
-      
-      <div class="home-hero__benefits">
-        <div class="home-hero__benefit">
-          <div class="home-hero__benefit-icon">
-            <i class="bi bi-shield-check"></i>
+<section id="snapshot" class="home-hero">
+  <div class="home-hero__glow"></div>
+  <div class="container position-relative">
+    <div class="home-hero__grid">
+      <div>
+        <div class="home-hero__badge">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-stars"></i>
+            <span class="fw-semibold">{% trans "Yerel AI finans platformu" %}</span>
           </div>
-          <h3 class="home-hero__benefit-title">{% trans "Veri Güvenliği" %}</h3>
-          <p class="home-hero__benefit-desc">{% trans "KVKK uyumlu bulut tabanlı veritabanı" %}</p>
+          <small>
+            {% trans "Finans, uyum, eğitim ve oyunlaştırmayı aynı tasarım sistemiyle birleştirir." %}
+          </small>
         </div>
-        
-        <div class="home-hero__benefit">
-          <div class="home-hero__benefit-icon">
+
+        <h1 class="display-4 fw-bold mb-3">
+          {% trans "Finans, uyum ve eğitimi tek panelde yöneten yerel AI ekosistemi" %}
+        </h1>
+        <p class="lead mb-4">
+          {% trans "FinAsis; KOBİ'ler, mali müşavirler, öğretmenler, öğrenciler ve oyunlaştırma tutkunları için finans süreçlerini sadeleştiren, yerel GPU üzerinde çalışan bir AI platformudur." %}
+        </p>
+
+        <div class="home-hero__chips">
+          <span class="home-chip">
+            <i class="bi bi-briefcase"></i>
+            {% trans "KOBİ sahipleri" %}
+          </span>
+          <span class="home-chip">
+            <i class="bi bi-calculator"></i>
+            {% trans "Muhasebeciler & mali müşavirler" %}
+          </span>
+          <span class="home-chip">
+            <i class="bi bi-mortarboard"></i>
+            {% trans "Öğretmenler & öğrenciler" %}
+          </span>
+          <span class="home-chip">
+            <i class="bi bi-controller"></i>
+            {% trans "Oyunlaştırma tutkunları" %}
+          </span>
+        </div>
+
+        <div class="home-hero__features d-flex flex-wrap align-items-center gap-2 mt-3">
+          <span class="badge bg-light text-dark border-0">
+            <i class="bi bi-cpu me-1"></i>{% trans "Yerel GPU AI" %}
+          </span>
+          <span class="badge bg-light text-dark border-0">
+            <i class="bi bi-diagram-3 me-1"></i>{% trans "Tek veri modeli" %}
+          </span>
+          <span class="badge bg-light text-dark border-0">
+            <i class="bi bi-mortarboard me-1"></i>{% trans "Eğitim & oyunlaştırma hazır" %}
+          </span>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 mt-4">
+          {% if hero and hero.primary_cta %}
+          <a
+            href="{{ hero.primary_cta.href }}"
+            class="btn btn-light btn-lg d-inline-flex align-items-center justify-content-center gap-2 home-hero__cta"
+            data-cta="{{ hero.primary_cta.cta_id }}"
+          >
+            <i class="bi bi-{{ hero.primary_cta.icon|default:'calendar-event' }}"></i>
+            <span>{{ hero.primary_cta.label }}</span>
+          </a>
+          {% else %}
+          <a
+            href="{% url 'accounts:register' %}"
+            class="btn btn-light btn-lg d-inline-flex align-items-center justify-content-center gap-2 home-hero__cta"
+          >
+            <i class="bi bi-rocket-takeoff"></i>
+            <span>{% trans "Ücretsiz başla" %}</span>
+          </a>
+          {% endif %}
+
+          {% if hero and hero.secondary_cta %}
+          <a
+            href="{{ hero.secondary_cta.href }}"
+            class="btn btn-outline-light btn-lg d-inline-flex align-items-center justify-content-center gap-2"
+            data-cta="{{ hero.secondary_cta.cta_id }}"
+          >
+            <i class="bi bi-{{ hero.secondary_cta.icon|default:'rocket-takeoff' }}"></i>
+            <span>{{ hero.secondary_cta.label }}</span>
+          </a>
+          {% else %}
+          <a
+            href="{% url 'resources' %}"
+            class="btn btn-outline-light btn-lg d-inline-flex align-items-center justify-content-center gap-2"
+          >
+            <i class="bi bi-journal-text"></i>
+            <span>{% trans "Platformu tanı" %}</span>
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="home-hero__trust-indicators d-flex flex-wrap align-items-center gap-3 mt-4 small text-white-50">
+          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
+            <i class="bi bi-shield-lock"></i>
+            {% trans "Verileriniz Türkiye sınırları içinde saklanır." %}
+          </span>
+          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
             <i class="bi bi-cpu"></i>
-          </div>
-          <h3 class="home-hero__benefit-title">{% trans "Yerel AI" %}</h3>
-          <p class="home-hero__benefit-desc">{% trans "Yerel GPU ile hızlı analiz" %}</p>
-        </div>
-        
-        <div class="home-hero__benefit">
-          <div class="home-hero__benefit-icon">
-            <i class="bi bi-diagram-3"></i>
-          </div>
-          <h3 class="home-hero__benefit-title">{% trans "Blockchain Kanıt" %}</h3>
-          <p class="home-hero__benefit-desc">{% trans "Değiştirilemez kayıtlar" %}</p>
+            {% trans "Yerel GPU üzerinde AI işleme mimarisi." %}
+          </span>
+          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
+            <i class="bi bi-link-45deg"></i>
+            {% trans "Finans, uyum ve eğitim modülleri tek ekosistemde." %}
+          </span>
         </div>
       </div>
-      
-      <div class="home-hero__trust">
-        <div class="home-hero__trust-item">
-          <i class="bi bi-shield-fill-check"></i>
-          <span>{% trans "ISO 27001" %}</span>
-        </div>
-        <div class="home-hero__trust-item">
-          <i class="bi bi-lock-fill"></i>
-          <span>{% trans "256-bit SSL" %}</span>
-        </div>
-        <div class="home-hero__trust-item">
-          <i class="bi bi-cloud-check"></i>
-          <span>{% trans "Bulut Veritabanı" %}</span>
+
+      <div class="home-hero__visual">
+        <div class="home-hero__panel">
+          <div class="home-hero__stats">
+            <div class="home-hero__stat">
+              <small>{% trans "Finans & muhasebe" %}</small>
+              <strong>{% trans "Tek panel" %}</strong>
+            </div>
+            <div class="home-hero__stat">
+              <small>{% trans "Uyum & denetim" %}</small>
+              <strong>{% trans "İzlenebilir" %}</strong>
+            </div>
+            <div class="home-hero__stat">
+              <small>{% trans "Eğitim & oyunlaştırma" %}</small>
+              <strong>{% trans "Canlı görevler" %}</strong>
+            </div>
+          </div>
+
+          <div class="mt-3 small text-white-75">
+            <p class="mb-1">
+              {% trans "FinAsis; finans profesyonelleri, öğretmenler ve öğrenciler için aynı veri modelini kullanarak gerçek senaryoları tek ekosistemde bir araya getirir." %}
+            </p>
+            <p class="mb-0">
+              {% trans "İsterseniz yalnızca muhasebe ve raporlama ile başlayıp, zaman içinde eğitim ve oyunlaştırma modüllerini devreye alabilirsiniz." %}
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-
 {% endblock %}
 
 {% block content %}
 <div class="home-shell">
-
-  <!-- Metrics Section -->
-  <section class="py-5 bg-light" id="metrics">
+  <!-- Metrics Section - Modern Marketing Design -->
+  <section class="py-5" id="metrics" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);">
     <div class="container">
       <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold mb-3">{% trans "Rakamlarla FinAsis" %}</h2>
-        <p class="lead text-muted">{% trans "Gerçek zamanlı verilerle platformunuzun gücünü görün" %}</p>
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-graph-up-arrow me-2"></i>{% trans "Platform İstatistikleri" %}
+        </span>
+        <h2 class="display-5 fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Rakamlarla FinAsis" %}</h2>
+        <p class="lead text-muted mx-auto" style="max-width: 600px;">
+          {% trans "Gerçek zamanlı verilerle platformunuzun gücünü görün" %}
+        </p>
       </div>
       <div class="row g-4">
         {% if metrics %}
-        {% for metric in metrics|slice:":6" %}
-        <div class="col-md-4 col-sm-6">
-          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
-            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">{{ metric.value }}</div>
-            <div class="small text-muted">{{ metric.label }}</div>
+          {% for metric in metrics|slice:":6" %}
+          <div class="col-md-4 col-sm-6">
+            <div class="text-center p-4 rounded-4 bg-white shadow-sm h-100 border-0 position-relative overflow-hidden" style="transition: all 0.3s ease;">
+              <div class="position-absolute top-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, var(--home-primary, #0aae94), var(--home-accent, #ffb300));"></div>
+              <div class="h1 fw-bold mb-2" style="color: var(--home-primary, #0aae94); font-size: clamp(2rem, 4vw, 2.75rem);">
+                {{ metric.value }}
+              </div>
+              <div class="small text-muted fw-medium" style="font-size: 0.9375rem;">{{ metric.label }}</div>
+            </div>
           </div>
-        </div>
-        {% endfor %}
+          {% endfor %}
         {% else %}
-        <div class="col-md-4 col-sm-6">
-          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
-            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
-            <div class="small text-muted">{% trans "Aktif Kullanıcı" %}</div>
+          <div class="col-md-4 col-sm-6">
+            <div class="text-center p-4 rounded-4 bg-white shadow-sm h-100 border-0 position-relative overflow-hidden" style="transition: all 0.3s ease;">
+              <div class="position-absolute top-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, var(--home-primary, #0aae94), var(--home-accent, #ffb300));"></div>
+              <div class="h1 fw-bold mb-2" style="color: var(--home-primary, #0aae94); font-size: clamp(2rem, 4vw, 2.75rem);">
+                0
+              </div>
+              <div class="small text-muted fw-medium" style="font-size: 0.9375rem;">{% trans "Aktif Kullanıcı" %}</div>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
-            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
-            <div class="small text-muted">{% trans "Aktif Şirket" %}</div>
+          <div class="col-md-4 col-sm-6">
+            <div class="text-center p-4 rounded-4 bg-white shadow-sm h-100 border-0 position-relative overflow-hidden" style="transition: all 0.3s ease;">
+              <div class="position-absolute top-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, var(--home-primary, #0aae94), var(--home-accent, #ffb300));"></div>
+              <div class="h1 fw-bold mb-2" style="color: var(--home-primary, #0aae94); font-size: clamp(2rem, 4vw, 2.75rem);">
+                0
+              </div>
+              <div class="small text-muted fw-medium" style="font-size: 0.9375rem;">{% trans "Aktif Şirket" %}</div>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
-            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
-            <div class="small text-muted">{% trans "Toplam İşlem" %}</div>
+          <div class="col-md-4 col-sm-6">
+            <div class="text-center p-4 rounded-4 bg-white shadow-sm h-100 border-0 position-relative overflow-hidden" style="transition: all 0.3s ease;">
+              <div class="position-absolute top-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, var(--home-primary, #0aae94), var(--home-accent, #ffb300));"></div>
+              <div class="h1 fw-bold mb-2" style="color: var(--home-primary, #0aae94); font-size: clamp(2rem, 4vw, 2.75rem);">
+                0
+              </div>
+              <div class="small text-muted fw-medium" style="font-size: 0.9375rem;">{% trans "Toplam İşlem" %}</div>
+            </div>
           </div>
-        </div>
         {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Features Section - Modern Marketing Design -->
+  <section class="py-5" id="features" style="background: #ffffff;">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-stars me-2"></i>{% trans "Temel Özellikler" %}
+        </span>
+        <h2 class="display-4 fw-bold mb-3" style="color: var(--home-ink, #04121a);">
+          {% trans "Neden FinAsis?" %}
+        </h2>
+        <p class="lead text-muted mx-auto" style="max-width: 700px;">
+          {% trans "Yerel AI, blockchain kanıt ve bulut tabanlı altyapı ile finans yönetimini bir üst seviyeye taşıyın." %}
+        </p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-cpu-fill fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Yerel AI İşleme" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "Yerel GPU ile hızlı ve güvenli AI analizi. Verileriniz hiçbir zaman sunuculara gönderilmez." %}
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-link-45deg fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Blockchain Kanıt" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "Tüm finansal kayıtlar blockchain ile doğrulanır. Değiştirilemez ve şeffaf kayıt sistemi." %}
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-shield-check fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "KVKK Uyumlu" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "Verileriniz Türkiye'de kalır. KVKK uyumlu bulut veritabanı ve ISO 27001 güvenlik standartları." %}
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-lightning-charge-fill fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Hızlı Entegrasyon" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "e-Fatura, banka ve muhasebe sistemleri ile kolay entegrasyon. API desteği ile özelleştirilebilir." %}
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-graph-up-arrow fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Gerçek Zamanlı Analiz" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "Anlık finansal raporlar, KPI takibi ve tahminleme. Kararlarınızı veriye dayalı alın." %}
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="home-card-modern h-100 text-center">
+            <div class="mb-4">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-people-fill fs-1" style="color: var(--home-primary, #0aae94);"></i>
+              </div>
+            </div>
+            <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Ekip Yönetimi" %}</h3>
+            <p class="text-muted mb-0">
+              {% trans "Rol bazlı erişim kontrolü, görev yönetimi ve işbirliği araçları. Ekiplerinizle verimli çalışın." %}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1223,81 +1077,339 @@
   <!-- Solutions Section - Dinamik Hizmetler ve Çözümler -->
 
   {% if solutions %}
-  <section class="home-section-modern" id="solutions">
+  <section class="home-section-modern py-5" id="solutions" style="background: #ffffff;">
     <div class="container">
-      <div class="home-section-header-modern">
-        <span class="home-eyebrow-modern">{% trans "Hizmetler ve Çözümler" %}</span>
-        <h2>{% trans "10 ayrı hizmet, entegre çözümler." %}</h2>
-        <p>{% trans "Her çözüm bağımsız modül olarak çalışır; FinAsis veri modeli ile güçlendirilir. İlgili ürün sayfalarına tıklayarak detaylı bilgi alabilirsiniz." %}</p>
+      <div class="home-section-header-modern mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-grid-3x3-gap me-2"></i>{% trans "Hizmetler ve Çözümler" %}
+        </span>
+        <h2 class="display-4 fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "10 ayrı hizmet, entegre çözümler." %}</h2>
+        <p class="lead text-muted mx-auto" style="max-width: 700px;">
+          {% trans "Her çözüm bağımsız modül olarak çalışır; FinAsis veri modeli ile güçlendirilir. İlgili ürün sayfalarına tıklayarak detaylı bilgi alabilirsiniz." %}
+        </p>
       </div>
       <div class="row g-4">
         {% for solution in solutions %}
         <div class="col-lg-4 col-md-6 col-12">
-          <a href="{% if solution.href %}{{ solution.href }}{% else %}#{% endif %}" class="text-decoration-none d-block h-100 solution-card-link" data-cta="solution-{{ solution.code }}">
-            <article class="home-card-modern solution-card-enhanced" style="--solution-color: {{ solution.color|default:'#0AAE94' }}; border-left: 4px solid {{ solution.color|default:'#0AAE94' }}; cursor: pointer;">
+          <a
+            href="{% if solution.href %}{{ solution.href }}{% else %}#{% endif %}"
+            class="text-decoration-none d-block h-100 solution-card-link"
+            data-cta="solution-{{ solution.code }}"
+          >
+            <article
+              class="home-card-modern solution-card-enhanced"
+              style="--solution-color: {{ solution.color|default:'#0AAE94' }}; border-left: 4px solid {{ solution.color|default:'#0AAE94' }}; cursor: pointer;"
+            >
               {% if solution.color == "#0AAE94" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(10, 174, 148, 0.15), rgba(10, 174, 148, 0.08)); box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(10, 174, 148, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(10, 174, 148, 0.15),
+                    rgba(10, 174, 148, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(10, 174, 148, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#10b981" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08)); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(16, 185, 129, 0.15),
+                    rgba(16, 185, 129, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(16, 185, 129, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#6366f1" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.08)); box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(99, 102, 241, 0.15),
+                    rgba(99, 102, 241, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(99, 102, 241, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#3b82f6" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08)); box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(59, 130, 246, 0.15),
+                    rgba(59, 130, 246, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(59, 130, 246, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#f59e0b" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.08)); box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(245, 158, 11, 0.15),
+                    rgba(245, 158, 11, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(245, 158, 11, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#8b5cf6" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.08)); box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(139, 92, 246, 0.15),
+                    rgba(139, 92, 246, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(139, 92, 246, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#2563eb" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.08)); box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(37, 99, 235, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.15),
+                    rgba(37, 99, 235, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(37, 99, 235, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% elif solution.color == "#dc2626" %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.08)); box-shadow: 0 4px 16px rgba(220, 38, 38, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(220, 38, 38, 0.15),
+                    rgba(220, 38, 38, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(220, 38, 38, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% else %}
-              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(10, 174, 148, 0.15), rgba(10, 174, 148, 0.08)); box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);">
-                <i class="bi {{ solution.icon }}" style="color: {{ solution.color|default:'#0AAE94' }} !important;"></i>
-                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(10, 174, 148, 0.4) 0%, transparent 70%);"></div>
+              <div
+                class="home-card-modern__icon solution-icon-wrapper"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    rgba(10, 174, 148, 0.15),
+                    rgba(10, 174, 148, 0.08)
+                  );
+                  box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);
+                "
+              >
+                <i
+                  class="bi {{ solution.icon }}"
+                  style="color: {{ solution.color|default:'#0AAE94' }} !important;"
+                ></i>
+                <div
+                  class="solution-icon-glow"
+                  style="
+                    background: radial-gradient(
+                      circle,
+                      rgba(10, 174, 148, 0.4) 0%,
+                      transparent 70%
+                    );
+                  "
+                ></div>
               </div>
               {% endif %}
               <div class="solution-card-content">
-                <h3 class="solution-card-title" style="color: var(--home-ink); font-size: clamp(1.25rem, 2.5vw, 1.5rem); margin-bottom: clamp(0.75rem, 1.5vw, 1rem); font-weight: 700; line-height: 1.3;">{{ solution.title }}</h3>
-                <p class="solution-card-description" style="font-size: clamp(0.9375rem, 1.75vw, 1.0625rem); color: #64748b; line-height: 1.7; margin-bottom: clamp(1rem, 2vw, 1.25rem); flex-grow: 1;">{{ solution.description }}</p>
+                <h3
+                  class="solution-card-title"
+                  style="
+                    color: var(--home-ink);
+                    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+                    margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+                    font-weight: 700;
+                    line-height: 1.3;
+                  "
+                >
+                  {{ solution.title }}
+                </h3>
+                <p
+                  class="solution-card-description"
+                  style="
+                    font-size: clamp(0.9375rem, 1.75vw, 1.0625rem);
+                    color: #64748b;
+                    line-height: 1.7;
+                    margin-bottom: clamp(1rem, 2vw, 1.25rem);
+                    flex-grow: 1;
+                  "
+                >
+                  {{ solution.description }}
+                </p>
                 {% if solution.stats %}
-                <div class="solution-stats mt-auto pt-3 border-top" style="border-color: rgba(0, 0, 0, 0.08); margin-top: auto; padding-top: clamp(0.75rem, 1.5vw, 1rem);">
+                <div
+                  class="solution-stats mt-auto pt-3 border-top"
+                  style="
+                    border-color: rgba(0, 0, 0, 0.08);
+                    margin-top: auto;
+                    padding-top: clamp(0.75rem, 1.5vw, 1rem);
+                  "
+                >
                   {% for stat in solution.stats|slice:":2" %}
-                  <div class="d-flex justify-content-between align-items-center mb-2 solution-stat-item" style="font-size: clamp(0.875rem, 1.75vw, 0.9375rem); padding: clamp(0.25rem, 0.5vw, 0.375rem) 0;">
-                    <span class="text-muted" style="font-weight: 500;">{{ stat.label }}:</span>
-                    <strong class="solution-stat-value" style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(1rem, 2vw, 1.125rem); font-weight: 700;">{{ stat.value }}</strong>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2 solution-stat-item"
+                    style="
+                      font-size: clamp(0.875rem, 1.75vw, 0.9375rem);
+                      padding: clamp(0.25rem, 0.5vw, 0.375rem) 0;
+                    "
+                  >
+                    <span class="text-muted" style="font-weight: 500"
+                      >{{ stat.label }}:</span
+                    >
+                    <strong
+                      class="solution-stat-value"
+                      style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(1rem, 2vw, 1.125rem); font-weight: 700;"
+                      >{{ stat.value }}</strong
+                    >
                   </div>
                   {% endfor %}
                 </div>
                 {% endif %}
                 <div class="solution-cta mt-3 pt-2">
-                  <span class="solution-cta-link d-inline-flex align-items-center gap-2 fw-semibold" style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(0.9375rem, 1.75vw, 1rem);">
+                  <span
+                    class="solution-cta-link d-inline-flex align-items-center gap-2 fw-semibold"
+                    style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(0.9375rem, 1.75vw, 1rem);"
+                  >
                     <span>{% trans "Detayları gör" %}</span>
-                    <i class="bi bi-arrow-right solution-cta-arrow" style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></i>
+                    <i
+                      class="bi bi-arrow-right solution-cta-arrow"
+                      style="
+                        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                      "
+                    ></i>
                   </span>
                 </div>
               </div>
@@ -1309,50 +1421,84 @@
     </div>
   </section>
   {% endif %}
-
+  
+  <!-- Pricing Section - Modern Marketing Design -->
   {% if plans %}
-  <section class="home-section-modern" id="plans">
+  <section class="py-5" id="plans" style="background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);">
     <div class="container">
-      <div class="home-section-header-modern">
-        <span class="home-eyebrow-modern">{% trans "Planlar" %}</span>
-        <h2>{% trans "Rol bazlı FinAsis paketleri" %}</h2>
+      <div class="text-center mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-tag me-2"></i>{% trans "Planlar" %}
+        </span>
+        <h2 class="display-4 fw-bold mb-3" style="color: var(--home-ink, #04121a);">{% trans "Rol bazlı FinAsis paketleri" %}</h2>
+        <p class="lead text-muted mx-auto" style="max-width: 600px;">
+          {% trans "İhtiyacınıza uygun planı seçin ve hemen başlayın" %}
+        </p>
       </div>
-      <div class="home-grid-modern">
+      <div class="row g-4 justify-content-center">
         {% for plan in plans %}
-        <article class="home-card-modern">
-          <span class="badge text-bg-light text-dark mb-3">{{ plan.audience }}</span>
-          <h3>{{ plan.name }}</h3>
-          <p>{{ plan.description }}</p>
-          <div class="mt-auto pt-3">
-            {% if plan.price %}
-            <div class="mb-3">
-              <strong class="h4">{{ plan.price }}</strong>
-              <small class="text-muted d-block">{{ plan.currency }} · {{ plan.price_period }}</small>
+        <div class="col-lg-4 col-md-6">
+          <article class="home-card-modern h-100 position-relative" style="border: 2px solid var(--home-border, rgba(4, 18, 26, 0.08));">
+            <div class="position-absolute top-0 end-0 m-3">
+              <span class="badge bg-primary text-white px-3 py-2" style="font-size: 0.75rem; font-weight: 600;">
+                {{ plan.audience }}
+              </span>
             </div>
-            {% else %}
-            <small class="text-muted d-block mb-3">{% trans "Fiyat talep üzerine" %}</small>
-            {% endif %}
-            <a class="btn btn-outline-dark w-100" href="{% url 'accounts:register' %}" data-cta="plan-{{ plan.code }}">
-              <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Planı başlat" %}
-            </a>
-          </div>
-        </article>
+            <div class="mt-4">
+              <h3 class="fw-bold mb-3" style="color: var(--home-ink, #04121a); font-size: 1.5rem;">{{ plan.name }}</h3>
+              <p class="text-muted mb-4" style="min-height: 60px;">{{ plan.description }}</p>
+              <div class="mb-4">
+                {% if plan.price %}
+                <div class="d-flex align-items-baseline gap-2 mb-2">
+                  <strong class="h2 fw-bold" style="color: var(--home-primary, #0aae94);">{{ plan.price }}</strong>
+                  <small class="text-muted">{{ plan.currency }}</small>
+                </div>
+                <small class="text-muted d-block">{{ plan.price_period }}</small>
+                {% else %}
+                <div class="mb-3">
+                  <strong class="h4 text-muted">{% trans "Fiyat talep üzerine" %}</strong>
+                </div>
+                {% endif %}
+              </div>
+              <a
+                class="btn btn-primary w-100 fw-semibold"
+                href="{% url 'billing:plans' %}"
+                data-cta="plan-{{ plan.code }}"
+                style="padding: 0.75rem 1.5rem;"
+              >
+                <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Planı başlat" %}
+              </a>
+            </div>
+          </article>
+        </div>
         {% endfor %}
+      </div>
+      <div class="text-center mt-5">
+        <a href="{% url 'billing:plans' %}" class="btn btn-outline-primary btn-lg" data-cta="view-all-plans">
+          <i class="bi bi-arrow-right me-2"></i>{% trans "Tüm planları görüntüle" %}
+        </a>
       </div>
     </div>
   </section>
   {% endif %}
-
+  
+  <!-- AI & Intelligence Section - Modern Marketing Design -->
   {% if ai_spotlight or missions %}
-  <section class="home-section-modern" id="intelligence">
+  <section class="py-5" id="intelligence" style="background: #ffffff;">
     <div class="container">
-      <div class="home-section-header-modern">
-        <span class="home-eyebrow-modern">{% trans "AI & Görevler" %}</span>
-        <h2>{% trans "Yerel AI ve görev motoru ile finansal süreçlerinizi optimize edin." %}</h2>
+      <div class="text-center mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-robot me-2"></i>{% trans "AI & Görevler" %}
+        </span>
+        <h2 class="display-4 fw-bold mb-3" style="color: var(--home-ink, #04121a);">
+          {% trans "Yerel AI ve görev motoru ile finansal süreçlerinizi optimize edin." %}
+        </h2>
+        <p class="lead text-muted mx-auto" style="max-width: 700px;">
+          {% trans "Yapay zeka destekli otomasyon ve oyunlaştırılmış görevlerle iş süreçlerinizi hızlandırın." %}
+        </p>
       </div>
       <div class="home-grid-modern">
-        {% if ai_spotlight %}
-        {% for prompt in ai_spotlight %}
+        {% if ai_spotlight %} {% for prompt in ai_spotlight %}
         <article class="home-card-modern">
           <div class="home-card-modern__icon">
             <i class="bi {{ prompt.icon }}"></i>
@@ -1361,61 +1507,92 @@
           <p>{{ prompt.body }}</p>
           {% if prompt.cta_href or prompt.cta_label %}
           <div class="mt-auto pt-2">
-            <a class="btn btn-link px-0 fw-semibold" href="{% if prompt.cta_href %}{{ prompt.cta_href }}{% else %}{% url 'ai_assistant:home' %}{% endif %}" data-cta="ai-card">
+            <a
+              class="btn btn-link px-0 fw-semibold"
+              href="{% if prompt.cta_href %}{{ prompt.cta_href }}{% else %}{% url 'ai_assistant:home' %}{% endif %}"
+              data-cta="ai-card"
+            >
               {% if prompt.cta_label %}{{ prompt.cta_label }}{% else %}{% trans "Detayları gör" %}{% endif %} <i class="bi bi-arrow-right"></i>
             </a>
           </div>
           {% endif %}
         </article>
-        {% endfor %}
-        {% endif %}
-        {% if missions %}
-        {% for mission in missions %}
+        {% endfor %} {% endif %} {% if missions %} {% for mission in missions %}
         <article class="home-card-modern">
           <div class="home-card-modern__icon">
             <i class="bi {{ mission.icon }}"></i>
           </div>
-          <small class="text-uppercase text-muted d-block mb-2">{{ mission.tags|first }}</small>
+          <small class="text-uppercase text-muted d-block mb-2"
+            >{{ mission.tags|first }}</small
+          >
           <h3>{{ mission.title }}</h3>
           <p>{{ mission.description }}</p>
           <div class="mt-auto pt-2">
-            {% if mission.reward_xp %}<span class="badge me-1" style="background: var(--home-accent, #FFB300); color: #000;"><i class="bi bi-lightning-charge"></i>{{ mission.reward_xp }} XP</span>{% endif %}
-            {% if mission.cta_href or mission.cta_label %}
-            <a class="btn btn-outline-secondary btn-sm mt-2" href="{% if mission.cta_href %}{{ mission.cta_href }}{% else %}{% url 'games:quests' %}{% endif %}" data-cta="mission-card">
+            {% if mission.reward_xp %}<span
+              class="badge me-1"
+              style="background: var(--home-accent, #ffb300); color: #000"
+              ><i class="bi bi-lightning-charge"></i>{{ mission.reward_xp }}
+              XP</span
+            >{% endif %} {% if mission.cta_href or mission.cta_label %}
+            <a
+              class="btn btn-outline-secondary btn-sm mt-2"
+              href="{% if mission.cta_href %}{{ mission.cta_href }}{% else %}{% url 'games:quests' %}{% endif %}"
+              data-cta="mission-card"
+            >
               {{ mission.cta_label|default:_("Görevi aç") }}
             </a>
             {% endif %}
           </div>
         </article>
-        {% endfor %}
-        {% endif %}
+        {% endfor %} {% endif %}
       </div>
     </div>
   </section>
   {% endif %}
-
+  
+  <!-- Resources Section - Modern Marketing Design -->
   {% if resource_cards %}
-  <section class="home-section-modern home-section-modern--alt" id="resources">
+  <section class="py-5" id="resources" style="background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);">
     <div class="container">
-      <div class="home-section-header-modern">
-        <span class="home-eyebrow-modern">{% trans "Kaynaklar" %}</span>
-        <h2>{% trans "Yatırımcı dokümanları, AI kart rehberi ve FinAsis haberleri." %}</h2>
+      <div class="text-center mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 600;">
+          <i class="bi bi-journal-text me-2"></i>{% trans "Kaynaklar" %}
+        </span>
+        <h2 class="display-4 fw-bold mb-3" style="color: var(--home-ink, #04121a);">
+          {% trans "Yatırımcı dokümanları, AI kart rehberi ve FinAsis haberleri." %}
+        </h2>
+        <p class="lead text-muted mx-auto" style="max-width: 700px;">
+          {% trans "Platform hakkında detaylı bilgi, rehberler ve güncel haberler." %}
+        </p>
       </div>
       <div class="home-grid-modern">
         {% for card in resource_cards %}
         <article class="home-card-modern">
-          <span class="badge text-bg-light text-dark mb-3">{{ card.title }}</span>
+          <span class="badge text-bg-light text-dark mb-3"
+            >{{ card.title }}</span
+          >
           <ul>
             {% for item in card.items|slice:":4" %}
             <li>
-              <a href="{% if item.href %}{{ item.href }}{% else %}#{% endif %}" data-cta="resource-item" class="text-decoration-none text-dark">{% if item.label %}{{ item.label }}{% else %}{% trans "Kaynak" %}{% endif %}</a>
-              {% if item.meta %}<small class="d-block text-muted">{{ item.meta }}</small>{% endif %}
+              <a
+                href="{% if item.href %}{{ item.href }}{% else %}#{% endif %}"
+                data-cta="resource-item"
+                class="text-decoration-none text-dark"
+                >{% if item.label %}{{ item.label }}{% else %}{% trans "Kaynak" %}{% endif %}</a
+              >
+              {% if item.meta %}<small class="d-block text-muted"
+                >{{ item.meta }}</small
+              >{% endif %}
             </li>
             {% endfor %}
           </ul>
           {% if card.cta %}
           <div class="mt-auto pt-2">
-            <a class="btn btn-link px-0 mt-3 fw-semibold text-decoration-none" href="{% if card.cta.href %}{{ card.cta.href }}{% else %}{% url 'resources_guides' %}{% endif %}" data-cta="resource-cta">
+            <a
+              class="btn btn-link px-0 mt-3 fw-semibold text-decoration-none"
+              href="{% if card.cta.href %}{{ card.cta.href }}{% else %}{% url 'resources_guides' %}{% endif %}"
+              data-cta="resource-cta"
+            >
               {% if card.cta.label %}{{ card.cta.label }}{% else %}{% trans "Tümünü gör" %}{% endif %} <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -1427,52 +1604,149 @@
   </section>
   {% endif %}
 
-  <section class="home-section-modern home-section-modern--alt" id="corporate">
-    <div class="container">
-      <div class="home-panel-card">
-        <div class="home-section-header-modern text-white mb-4">
-          <span class="home-eyebrow-modern" style="background: rgba(255, 255, 255, 0.2); color: white;">{% trans "Kurumsal yapı" %}</span>
-          <h2 class="text-white">{% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}</h2>
-          <p class="text-white-75">{% trans "FinAsis markası; accounting, finans, mali müşavirlik, eğitim, oyun ve blockchain kabiliyetlerini tek kurumsal çatı altında sunar." %}</p>
-        </div>
-        <div class="home-grid-modern">
-          <article class="home-card-modern" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <h3 class="text-white">{% trans "Haklar & güvenceler" %}</h3>
-            <ul>
-              <li>{% trans "Beta: her üyelik 1 hisse + 2 ay ücretsiz" %}</li>
-              <li>{% trans "Blockchain yatırımcı sözleşmesi otomatik" %}</li>
-              <li>{% trans "FinAsis Meeting kurum içi altyapıda" %}</li>
-            </ul>
-          </article>
-          <article class="home-card-modern" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <h3 class="text-white">{% trans "İletişim" %}</h3>
-            <ul>
-              <li><i class="bi bi-envelope-at me-1"></i><a href="mailto:{{ brand_identity.support.email }}" class="text-white text-decoration-none">{{ brand_identity.support.email }}</a></li>
-              <li><i class="bi bi-geo-alt me-1"></i> {% trans "İzmir Aliağa · Türkiye" %}</li>
-              <li><i class="bi bi-chat-dots me-1"></i><a href="{% url 'contact' %}" class="text-white text-decoration-none">{% trans "Kurumsal iletişim formu" %}</a></li>
-            </ul>
-          </article>
+  <!-- Corporate Section - Modern Marketing Design -->
+  <section class="py-5" id="corporate" style="background: linear-gradient(135deg, var(--home-primary, #0aae94) 0%, #008e7a 100%); position: relative; overflow: hidden;">
+    <div class="container position-relative" style="z-index: 2;">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="text-center text-white mb-5">
+            <span class="badge bg-warning text-dark px-3 py-2 mb-3 d-inline-block" style="font-size: 0.875rem; font-weight: 700;">
+              <i class="bi bi-building me-2"></i>{% trans "Kurumsal yapı" %}
+            </span>
+            <h2 class="display-5 fw-bold mb-3 text-white">
+              {% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}
+            </h2>
+            <p class="lead text-white-75 mx-auto" style="max-width: 700px; opacity: 0.95;">
+              {% trans "FinAsis markası; accounting, finans, mali müşavirlik, eğitim, oyun ve blockchain kabiliyetlerini tek kurumsal çatı altında sunar." %}
+            </p>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <article class="home-card-modern h-100" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-shield-check text-dark fs-5"></i>
+                  </div>
+                  <h3 class="text-white mb-0 fw-bold">{% trans "Haklar & güvenceler" %}</h3>
+                </div>
+                <ul class="list-unstyled mb-0">
+                  <li class="text-white mb-2 d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill mt-1" style="color: var(--home-accent, #ffb300);"></i>
+                    <span>{% trans "Beta: her üyelik 1 hisse + 2 ay ücretsiz" %}</span>
+                  </li>
+                  <li class="text-white mb-2 d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill mt-1" style="color: var(--home-accent, #ffb300);"></i>
+                    <span>{% trans "Blockchain yatırımcı sözleşmesi otomatik" %}</span>
+                  </li>
+                  <li class="text-white d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill mt-1" style="color: var(--home-accent, #ffb300);"></i>
+                    <span>{% trans "FinAsis Meeting kurum içi altyapıda" %}</span>
+                  </li>
+                </ul>
+              </article>
+            </div>
+            <div class="col-md-6">
+              <article class="home-card-modern h-100" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-envelope-at text-dark fs-5"></i>
+                  </div>
+                  <h3 class="text-white mb-0 fw-bold">{% trans "İletişim" %}</h3>
+                </div>
+                <ul class="list-unstyled mb-0">
+                  <li class="text-white mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-envelope-at" style="color: var(--home-accent, #ffb300);"></i>
+                    <a href="mailto:{% if brand_identity and brand_identity.support and brand_identity.support.email %}{{ brand_identity.support.email }}{% else %}support@finasis.com.tr{% endif %}" class="text-white text-decoration-none">
+                      {% if brand_identity and brand_identity.support and brand_identity.support.email %}{{ brand_identity.support.email }}{% else %}support@finasis.com.tr{% endif %}
+                    </a>
+                  </li>
+                  <li class="text-white mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-geo-alt" style="color: var(--home-accent, #ffb300);"></i>
+                    <span>{% trans "İzmir Aliağa · Türkiye" %}</span>
+                  </li>
+                  <li class="text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-chat-dots" style="color: var(--home-accent, #ffb300);"></i>
+                    <a href="{% url 'contact' %}" class="text-white text-decoration-none fw-medium">
+                      {% trans "Kurumsal iletişim formu" %} <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                  </li>
+                </ul>
+              </article>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 30% 30%, rgba(255, 179, 0, 0.15) 0%, transparent 50%); z-index: 1; pointer-events: none;"></div>
   </section>
 
-  <section class="home-section-modern" id="cta">
-    <div class="container">
-      <div class="home-panel-card text-center">
-        <span class="home-eyebrow-modern" style="background: rgba(255, 255, 255, 0.2); color: white; margin-bottom: 1.5rem;">{% trans "Beta kampanyası" %}</span>
-        <h2 class="text-white mb-3">{% trans "FinAsis'e katıl, 1 hisse + 2 ay ücretsiz ve blockchain sözleşmesi kazan." %}</h2>
-        <p class="text-white-75 mb-4">{% trans "FinAsis Meeting, FinQuest ve Ledger Engine aynı kurumsal tasarım sistemiyle sunulur; veriniz Türkiye'de kalır, MASAK denetim izi ve ISO 27001 kontrolleri hazırdır." %}</p>
-        <div class="d-flex flex-wrap gap-3 justify-content-center">
-          <a href="{% url 'accounts:register' %}" class="btn btn-light text-dark" data-cta="cta-register">
-            <i class="bi bi-rocket"></i> {% trans "Ücretsiz başla" %}
-          </a>
-          <a href="{% url 'contact' %}" class="btn btn-outline-light" data-cta="cta-contact">
-            <i class="bi bi-people"></i> {% trans "Satış ile görüş" %}
-          </a>
+  <!-- Final CTA Section - Modern Marketing Design -->
+  <section class="py-5" id="cta" style="background: linear-gradient(135deg, var(--home-primary, #0aae94) 0%, #008e7a 50%, #0d3b66 100%); position: relative; overflow: hidden;">
+    <div class="container position-relative" style="z-index: 2;">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8 text-center text-white">
+          <span class="badge bg-warning text-dark px-3 py-2 mb-4 d-inline-block" style="font-size: 0.875rem; font-weight: 700;">
+            <i class="bi bi-lightning-charge-fill me-2"></i>{% trans "Beta kampanyası" %}
+          </span>
+          <h2 class="display-4 fw-bold mb-4 text-white">
+            {% trans "FinAsis'e katıl, 1 hisse + 2 ay ücretsiz ve blockchain sözleşmesi kazan." %}
+          </h2>
+          <p class="lead mb-5 text-white-75" style="opacity: 0.95;">
+            {% trans "FinAsis Meeting, FinQuest ve Ledger Engine aynı kurumsal tasarım sistemiyle sunulur; veriniz Türkiye'de kalır, MASAK denetim izi ve ISO 27001 kontrolleri hazırdır." %}
+          </p>
+          <div class="d-flex flex-wrap gap-3 justify-content-center">
+            <a
+              href="{% url 'accounts:register' %}"
+              class="btn btn-warning btn-lg fw-bold px-4 py-3"
+              data-cta="cta-register"
+              style="min-width: 200px; box-shadow: 0 4px 16px rgba(255, 179, 0, 0.4);"
+            >
+              <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Ücretsiz başla" %}
+            </a>
+            <a
+              href="{% url 'contact' %}"
+              class="btn btn-outline-light btn-lg fw-semibold px-4 py-3"
+              data-cta="cta-contact"
+              style="min-width: 200px; border-width: 2px;"
+            >
+              <i class="bi bi-people me-2"></i>{% trans "Satış ile görüş" %}
+            </a>
+          </div>
+          <div class="mt-5 pt-4 border-top border-white border-opacity-25">
+            <div class="row g-4 text-center">
+              <div class="col-md-4">
+                <div class="d-flex align-items-center justify-content-center gap-2 text-white">
+                  <i class="bi bi-shield-check fs-4" style="color: var(--home-accent, #ffb300);"></i>
+                  <div class="text-start">
+                    <div class="fw-bold">{% trans "ISO 27001" %}</div>
+                    <small class="text-white-75">{% trans "Güvenlik sertifikası" %}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex align-items-center justify-content-center gap-2 text-white">
+                  <i class="bi bi-cloud-check fs-4" style="color: var(--home-accent, #ffb300);"></i>
+                  <div class="text-start">
+                    <div class="fw-bold">{% trans "KVKK Uyumlu" %}</div>
+                    <small class="text-white-75">{% trans "Veri koruma" %}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex align-items-center justify-content-center gap-2 text-white">
+                  <i class="bi bi-lock-fill fs-4" style="color: var(--home-accent, #ffb300);"></i>
+                  <div class="text-start">
+                    <div class="fw-bold">{% trans "256-bit SSL" %}</div>
+                    <small class="text-white-75">{% trans "Şifreli bağlantı" %}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 20% 50%, rgba(255, 179, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255, 143, 0, 0.08) 0%, transparent 50%); z-index: 1; pointer-events: none;"></div>
   </section>
 </div>
 {% endblock %}

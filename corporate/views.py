@@ -319,19 +319,19 @@ def _build_corporate_snapshot():
 
 def corporate_landing(request):
     """
-    Kurumsal çözümler tanıtım sayfası
+    Kurumsal merkez: şirket, yatırımcı, güvenlik ve sürdürülebilirlik sayfalarına giriş sayfası.
     """
     snapshot = _build_corporate_snapshot()
 
     context = {
-        "page_title": _("Kurumsal Çözümler"),
+        "page_title": _("Kurumsal Merkez"),
         **snapshot,
         "primary_navigation": [
             {"label": _("Genel Bakış"), "href": "#overview"},
-            {"label": _("Kurumsal Paketler"), "href": "#enterprise-suite"},
-            {"label": _("Planlar"), "href": "#enterprise-plans"},
-            {"label": _("Başarı Akışları"), "href": "#journeys"},
-            {"label": _("Kaynaklar"), "href": "#resources"},
+            {"label": _("Şirket"), "href": "#company"},
+            {"label": _("Yatırımcı & güvenlik"), "href": "#governance"},
+            {"label": _("Kariyer"), "href": "#careers"},
+            {"label": _("İletişim"), "href": "#contact"},
         ],
     }
     return render(request, "corporate/landing.html", context)
@@ -341,6 +341,10 @@ def contact(request):
     """
     Kurumsal iletişim ve satış ekibiyle bağlantı sayfası
     """
+    from django.contrib import messages
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
     snapshot = _build_corporate_snapshot()
 
     try:
@@ -348,13 +352,69 @@ def contact(request):
     except Exception:
         partner_marketplace_url = ""
 
+    # Form işleme
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip()
+        company = request.POST.get("company", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        subject = request.POST.get("subject", "").strip()
+        message = request.POST.get("message", "").strip()
+        privacy = request.POST.get("privacy")
+        
+        if not privacy:
+            messages.error(request, _("KVKK onayı gereklidir."))
+        elif not all([name, email, subject, message]):
+            messages.error(request, _("Lütfen tüm zorunlu alanları doldurun."))
+        else:
+            # E-posta gönder
+            subject_map = {
+                "demo": _("Demo Talep"),
+                "sales": _("Satış Bilgisi"),
+                "support": _("Teknik Destek"),
+                "compliance": _("Uyumluluk Danışmanlığı"),
+                "partnership": _("Partner Olmak"),
+                "other": _("Diğer"),
+            }
+            email_subject = f"[FinAsis İletişim] {subject_map.get(subject, _('İletişim Formu'))} - {name}"
+            
+            email_body = f"""
+İletişim Formu Mesajı
+====================
+
+Ad Soyad: {name}
+E-posta: {email}
+Şirket: {company or 'Belirtilmemiş'}
+Telefon: {phone or 'Belirtilmemiş'}
+Konu: {subject_map.get(subject, subject)}
+
+Mesaj:
+{message}
+
+---
+Bu mesaj FinAsis iletişim formundan gönderilmiştir.
+"""
+            
+            try:
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    ["sales@finasis.com"],
+                    fail_silently=False,
+                )
+                messages.success(request, _("Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız."))
+                return redirect(request.path + "?success=1")
+            except Exception as e:
+                messages.error(request, _("Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin veya doğrudan e-posta gönderin."))
+
     contact_channels = [
         {
             "icon": "bi-calendar-check",
-            "title": _("Demo Planla"),
-            "description": _("Çevrimiçi tanıtım oturumu planlayın, ürün akışını canlı görün."),
+            "title": _("Satış Ekibi ile Görüşün"),
+            "description": _("Ürünle ilgili sorularınızı iletin, kullanım senaryolarınızı bizimle paylaşın."),
             "href": f"{request.build_absolute_uri()}?intent=demo",
-            "cta": _("Demo talep et"),
+            "cta": _("İletişime geçin"),
         },
         {
             "icon": "bi-clipboard-data",
@@ -434,8 +494,13 @@ def careers(request):
 
 def investors(request):
     """Yatırımcı ilişkileri sayfası."""
+    from .models import InvestorDocument
+
+    documents = list(InvestorDocument.objects.all())
+
     context = {
         'page_title': _('FinAsis · Yatırımcı İlişkileri'),
+        'documents': documents,
     }
     return render(request, 'corporate/investors.html', context)
 

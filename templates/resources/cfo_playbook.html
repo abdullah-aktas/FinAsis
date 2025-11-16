@@ -38,49 +38,45 @@
 
 <section id="weekly-rituals" class="py-4">
   <div class="row g-4">
-    {% for week in [
-      {
-        "title": _("Pazartesi · Nakit ve Tahsilat"),
-        "pill": _("Hafta Başlangıcı"),
-        "bullets": [
-          _("Bankalar, POS ve çek hareketlerini FinAsis bankacılık entegrasyonu ile senkronize edin."),
-          _("Tahsilat gecikme listesi ve en riskli müşteri segmentlerini gözden geçirin."),
-          _("AI finans asistanının önerdiği tahsilat aksiyon planını paylaşın.")
-        ]
-      },
-      {
-        "title": _("Çarşamba · KPI Panosu"),
-        "pill": _("Hafta Ortası"),
-        "bullets": [
-          _("MRR, net gelir tutma, brüt kâr ve işletme gideri (OpEx) sapmalarını kontrol edin."),
-          _("Blokzincir denetim kanıtı gerektiren yüksek tutarlı sözleşmeleri işaretleyin."),
-          _("Uyumluluk motoru tarafından oluşturulan AML uyarılarını revize edin.")
-        ]
-      },
-      {
-        "title": _("Cuma · Yönetici Özeti"),
-        "pill": _("Hafta Sonu"),
-        "bullets": [
-          _("Hafta içi gerçekleşen KPI sapmalarını yönetim kuruluna raporlayın."),
-          _("Finans & uyumluluk görevlerinin kapanma durumlarını FinAsis görev panelinden ihrac edin."),
-          _("Varsa yeni yatırımcı taleplerini FinAsis veri odasına yükleyin.")
-        ]
-      }
-    ] %}
     <div class="col-md-6 col-xl-4">
       <div class="resource-card playbook-card h-100">
         <div class="resource-pill teal mb-3">
-          <i class="bi bi-clock-history"></i>{{ week.pill }}
+          <i class="bi bi-clock-history"></i>{% trans "Hafta Başlangıcı" %}
         </div>
-        <h3 class="h5 fw-semibold mb-3">{{ week.title }}</h3>
+        <h3 class="h5 fw-semibold mb-3">{% trans "Pazartesi · Nakit ve Tahsilat" %}</h3>
         <ul class="list-unstyled d-grid gap-2 text-secondary">
-          {% for bullet in week.bullets %}
-          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ bullet }}</li>
-          {% endfor %}
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Bankalar, POS ve çek hareketlerini FinAsis bankacılık entegrasyonu ile senkronize edin." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Tahsilat gecikme listesi ve en riskli müşteri segmentlerini gözden geçirin." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "AI finans asistanının önerdiği tahsilat aksiyon planını paylaşın." %}</li>
         </ul>
       </div>
     </div>
-    {% endfor %}
+    <div class="col-md-6 col-xl-4">
+      <div class="resource-card playbook-card h-100">
+        <div class="resource-pill teal mb-3">
+          <i class="bi bi-clock-history"></i>{% trans "Hafta Ortası" %}
+        </div>
+        <h3 class="h5 fw-semibold mb-3">{% trans "Çarşamba · KPI Panosu" %}</h3>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "MRR, net gelir tutma, brüt kâr ve işletme gideri (OpEx) sapmalarını kontrol edin." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Blokzincir denetim kanıtı gerektiren yüksek tutarlı sözleşmeleri işaretleyin." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Uyumluluk motoru tarafından oluşturulan AML uyarılarını revize edin." %}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+      <div class="resource-card playbook-card h-100">
+        <div class="resource-pill teal mb-3">
+          <i class="bi bi-clock-history"></i>{% trans "Hafta Sonu" %}
+        </div>
+        <h3 class="h5 fw-semibold mb-3">{% trans "Cuma · Yönetici Özeti" %}</h3>
+        <ul class="list-unstyled d-grid gap-2 text-secondary">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Hafta içi gerçekleşen KPI sapmalarını yönetim kuruluna raporlayın." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Finans & uyumluluk görevlerinin kapanma durumlarını FinAsis görev panelinden ihrac edin." %}</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>{% trans "Varsa yeni yatırımcı taleplerini FinAsis veri odasına yükleyin." %}</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -1,0 +1,154 @@
+{% load static i18n %}
+<style>
+  :root {
+    --fa-teal: #057680;
+    --fa-night: #021a1f;
+    --fa-gold: #f7b039;
+    --fa-mint: #18c9c0;
+  }
+  .home-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 20px 40px rgba(2, 26, 31, 0.18);
+  }
+  .home-navbar__ribbon {
+    background: linear-gradient(120deg, rgba(2, 26, 31, 0.95), rgba(5, 118, 128, 0.9));
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.88rem;
+    padding: 0.4rem 0;
+  }
+  .home-navbar__ribbon strong {
+    color: #fff;
+  }
+  .home-navbar__ribbon .badge {
+    background: rgba(247, 176, 57, 0.15);
+    color: #ffd580;
+    letter-spacing: 0.12em;
+  }
+  .home-navbar__shell {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(2, 26, 31, 0.05);
+  }
+  .home-brand {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .home-brand__logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: radial-gradient(circle at 30% 20%, #fff 0%, rgba(255, 255, 255, 0.8) 32%, transparent 60%),
+      linear-gradient(135deg, var(--fa-teal), var(--fa-mint));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 30px rgba(5, 118, 128, 0.35);
+  }
+  .home-brand__logo img {
+    width: 26px;
+    height: 26px;
+  }
+  .home-navbar .nav-link {
+    font-weight: 600;
+    color: var(--fa-night);
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+  }
+  .home-navbar .nav-link:hover,
+  .home-navbar .nav-link:focus {
+    color: var(--fa-teal);
+    background: rgba(5, 118, 128, 0.12);
+  }
+  .home-navbar__badge {
+    border-radius: 999px;
+    padding: 0.25rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--fa-gold);
+    border: 1px dashed rgba(247, 176, 57, 0.5);
+  }
+  .home-navbar__cta {
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  @media (max-width: 991.98px) {
+    .home-navbar .navbar-nav {
+      padding: 1rem 0;
+      gap: 0.4rem;
+    }
+    .home-navbar__badge {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+<header class="home-navbar" role="banner">
+  <div class="home-navbar__ribbon">
+    <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="badge text-uppercase">{% trans "Beta" %}</span>
+        <strong>{% trans "1 hisse + 2 ay ücretsiz erişim" %}</strong>
+        <span><i class="bi bi-link-45deg me-1"></i>{% trans "Blockchain yatırımcı sözleşmesi otomatik" %}</span>
+      </div>
+      <small class="text-white-50 d-flex align-items-center gap-2">
+        <i class="bi bi-geo-alt"></i>{% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}
+      </small>
+    </div>
+  </div>
+  <div class="home-navbar__shell">
+    <nav class="navbar navbar-expand-lg" aria-label="{% trans 'Ana navigasyon' %}">
+      <div class="container py-2">
+        <a class="home-brand" href="{% url 'home' %}" aria-label="{{ brand_identity.name }}">
+          <span class="home-brand__logo">
+            <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo">
+          </span>
+          <span class="d-flex flex-column lh-sm">
+            <strong class="text-dark">{{ brand_identity.name }}</strong>
+            <small class="text-muted text-uppercase">{{ brand_identity.tagline }}</small>
+          </span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNav"
+          aria-controls="homeNav" aria-expanded="false" aria-label="{% trans 'Menüyü aç/kapat' %}">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="homeNav">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
+            <li class="nav-item"><a class="nav-link" href="#hero">{% trans 'Genel Bakış' %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#services">{% trans 'Hizmetler' %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#solutions">{% trans 'Çözümler' %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#journeys">{% trans 'Kullanıcı Planları' %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#resources">{% trans 'Kaynaklar' %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#corporate">{% trans 'Kurumsal' %}</a></li>
+            <li class="nav-item ms-lg-2">
+              <span class="home-navbar__badge">
+                <i class="bi bi-stars me-1"></i>{% trans "Beta avantajı aktif" %}
+              </span>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item ms-lg-2">
+              <a class="btn btn-outline-primary home-navbar__cta" href="{% url 'user_panel' %}">
+                <i class="bi bi-grid-3x3-gap me-1"></i>{% trans 'Panel' %}
+              </a>
+            </li>
+            {% else %}
+            <li class="nav-item ms-lg-2">
+              <a class="btn btn-outline-secondary home-navbar__cta" href="{% url 'accounts:login' %}">
+                {% trans 'Giriş Yap' %}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-primary home-navbar__cta ms-lg-1" href="{% url 'accounts:register' %}">
+                <i class="bi bi-rocket-takeoff me-1"></i>{% trans 'Ücretsiz başla' %}
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>

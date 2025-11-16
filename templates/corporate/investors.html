@@ -1,36 +1,494 @@
 {% extends "core_ui/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Yatırımcı İlişkileri" %} - FinAsis{% endblock %}
+
+{% block extra_css %}
+<style>
+  .investors-hero {
+    position: relative;
+    background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+    color: white;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+
+  .investors-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.12) 0%, transparent 55%);
+  }
+
+  .investors-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .investors-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .investors-hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .investors-hero p {
+    font-size: 20px;
+    opacity: 0.95;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .pill-list {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .pill {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    padding: 6px 14px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(15, 118, 110, 0.25);
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1f2933;
+    margin-bottom: 12px;
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    line-height: 1.7;
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  .trust-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 22px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+    border-top: 3px solid #0f766e;
+  }
+
+  .trust-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .trust-card p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 0;
+  }
+
+  .trust-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    color: #4b5563;
+  }
+
+  .trust-list li::before {
+    content: "•";
+    color: #0f766e;
+    margin-right: 6px;
+  }
+
+  .documents-section {
+    padding: 72px 0;
+    background: #f8fafc;
+  }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .doc-card {
+    background: white;
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .doc-meta {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .doc-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(15, 118, 110, 0.06);
+    color: #0f766e;
+  }
+
+  .doc-link {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f766e;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .doc-link i {
+    font-size: 14px;
+  }
+
+  .process-section {
+    padding: 72px 0;
+  }
+
+  .process-card {
+    border-radius: 20px;
+    background: #0f172a;
+    color: white;
+    padding: 32px 28px;
+  }
+
+  .process-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .process-steps li {
+    display: flex;
+    gap: 10px;
+  }
+
+  .process-steps span.badge-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.14);
+    color: #7dd3fc;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .risk-note {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 16px;
+  }
+
+  .contracts-card {
+    border-radius: 18px;
+    background: #f9fafb;
+    padding: 18px 20px;
+    border: 1px dashed rgba(15, 23, 42, 0.1);
+    font-size: 13px;
+    color: #4b5563;
+    margin-top: 16px;
+  }
+
+  .contracts-card a {
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-5 bg-gradient" style="background: linear-gradient(135deg,#f8fff9 0%, #e0f7fa 100%);">
+
+<section class="investors-hero">
   <div class="container">
-    <div class="text-center">
-      <h1 class="display-5 fw-bold text-dark animate__animated animate__fadeInDown">Yatırımcı İlişkileri</h1>
-      <p class="lead mb-4 animate__animated animate__fadeInUp">Finansal raporlar, kilometre taşları ve iletişim.</p>
+    <div class="investors-hero-content">
+      <div class="investors-badge">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>{% trans "Yatırımcı İlişkileri ve Şeffaflık" %}</span>
+      </div>
+      <h1>{% trans "FinAsis yatırımcıları için güven odaklı bir merkez." %}</h1>
+      <p>
+        {% trans "Aboneler ve hisse sahipleri için, şeffaf dokümantasyon, sözleşme yapısı ve risk bilgilendirmeleri tek bir sayfada toplanır." %}
+      </p>
+      <div class="pill-list">
+        <span class="pill">{% trans "Net sözleşmeler" %}</span>
+        <span class="pill">{% trans "Düzenli raporlama" %}</span>
+        <span class="pill">{% trans "Tek sayfada özet" %}</span>
+      </div>
     </div>
+  </div>
+</section>
 
-    <h2 class="h5 fw-bold">KPI'lar</h2>
-    <div class="row g-3 text-center mb-4">
-      <div class="col-md-3"><div class="card p-3"><div class="display-6 fw-bold text-success">1.5x</div><small>Yıl/Yıl Büyüme</small></div></div>
-      <div class="col-md-3"><div class="card p-3"><div class="display-6 fw-bold text-info">95%</div><small>Müşteri Tutma</small></div></div>
-      <div class="col-md-3"><div class="card p-3"><div class="display-6 fw-bold text-warning text-dark">60%</div><small>Brüt Marj</small></div></div>
-      <div class="col-md-3"><div class="card p-3"><div class="display-6 fw-bold text-secondary">< 1%</div><small>Churn</small></div></div>
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <span class="section-badge">{% trans "Yatırımcı güveni için temel ilkeler" %}</span>
+        <h2 class="section-title">{% trans "Abone olan ve hisse sahibi kullanıcılar için çerçeve" %}</h2>
+        <p class="section-subtitle">
+          {% trans "FinAsis; abonelik ve hisse ilişkisini, yazılı sözleşmeler ve kayıt altına alınan onay adımları ile yönetir. Aşağıdaki başlıklar, yatırımcılar için temel güven ilkelerini özetler." %}
+        </p>
+      </div>
     </div>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <h3>{% trans "Sözleşme ve onay akışı" %}</h3>
+        <p>
+          {% trans "Her abonelik ve hisse tahsisi, yazılı sözleşme metinleri ve açık onay adımları ile ilişkilendirilir. Yatırımcı, hangi hakka hangi şartlarla sahip olduğunu doküman üzerinden takip edebilir." %}
+        </p>
+      </div>
+      <div class="trust-card">
+        <h3>{% trans "Kayıtlı geçmiş ve izlenebilirlik" %}</h3>
+        <p>
+          {% trans "Abonelik, tahsis ve iptal işlemleri sistem üzerinde kayıt altına alınır. Böylece yatırımcı, ileride doğabilecek uyuşmazlıklarda işlem geçmişine referans verebilir." %}
+        </p>
+      </div>
+      <div class="trust-card">
+        <h3>{% trans "Risk ve hak bilgilendirmesi" %}</h3>
+        <p>
+          {% trans "Yatırım kararından önce; risk uyarıları, hak ve yükümlülüklere ilişkin bilgiler dokümanlar aracılığıyla sunulur. Her yatırımcıdan bu bilgilendirmeyi okuduğuna dair onay alınması hedeflenir." %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <h2 class="h5 fw-bold">Belgeler</h2>
+<section class="documents-section">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <span class="section-badge">{% trans "Yatırımcı dokümanları" %}</span>
+        <h2 class="section-title">{% trans "Sunumlar ve raporlar" %}</h2>
+        <p class="section-subtitle">
+          {% trans "Buradaki belgeler; FinAsis ürün vizyonu, iş modeli ve risk yaklaşımlarını anlamanız için hazırlanmıştır. Her belge yayınlandığı tarih ile birlikte listelenir." %}
+        </p>
+      </div>
+    </div>
     {% if documents %}
-      <ul class="list-group mb-4">
+      <div class="doc-grid">
         {% for doc in documents %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ doc.name }}
-            <a href="{{ doc.file_url }}" class="btn btn-sm btn-outline-dark">İndir</a>
-          </li>
+        <article class="doc-card">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <strong>{{ doc.name }}</strong>
+              {% if doc.published_at %}
+              <div class="doc-meta">
+                {{ doc.published_at }}
+              </div>
+              {% endif %}
+            </div>
+            <div class="doc-kind">
+              <i class="bi bi-file-earmark-text"></i>
+              {% if doc.kind == "deck" %}{% trans "Sunum" %}
+              {% elif doc.kind == "report" %}{% trans "Rapor" %}
+              {% else %}{% trans "Belge" %}{% endif %}
+            </div>
+          </div>
+          <a href="{{ doc.file_url }}" class="doc-link" target="_blank" rel="noopener" data-cta="investor-doc">
+            {% trans "Belgeyi aç" %} <i class="bi bi-arrow-up-right"></i>
+          </a>
+        </article>
         {% endfor %}
-      </ul>
+      </div>
     {% else %}
-      <div class="card p-4 mb-4">
-        <p class="mb-2">Yatırımcı sunumu ve finansal özetler.</p>
-  <button type="button" class="btn btn-outline-dark btn-sm" onclick="window.location.href='/static/common/FinAsis_Investor_Deck.pdf'">Sunumu İndir</button>
+      <div class="doc-grid">
+        <article class="doc-card">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <strong>{% trans "FinAsis Yatırımcı Sunumu (Özet)" %}</strong>
+              <div class="doc-meta">
+                {% trans "Güncel sürüm talep üzerine paylaşılır." %}
+              </div>
+            </div>
+            <div class="doc-kind">
+              <i class="bi bi-file-earmark-slides"></i>
+              {% trans "Sunum" %}
+            </div>
+          </div>
+          <a href="{% url 'contact' %}?intent=demo" class="doc-link" data-cta="investor-deck-request">
+            {% trans "Sunum talep et" %} <i class="bi bi-arrow-up-right"></i>
+          </a>
+        </article>
+        <article class="doc-card">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <strong>{% trans "Yatırımcı Bilgi Dokümanı (Metin)" %}</strong>
+              <div class="doc-meta">
+                {% trans "Platform yapısı, gelir modeli ve risk çerçevesi özeti." %}
+              </div>
+            </div>
+            <div class="doc-kind">
+              <i class="bi bi-file-earmark-text"></i>
+              {% trans "Bilgilendirme Metni" %}
+            </div>
+          </div>
+          <a href="#investor-brief" class="doc-link" data-cta="investor-brief-scroll">
+            {% trans "Özeti oku" %} <i class="bi bi-arrow-down-short"></i>
+          </a>
+        </article>
       </div>
     {% endif %}
   </div>
 </section>
+
+<section id="investor-brief" class="py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <span class="section-badge">{% trans "Bilgi dokümanı özeti" %}</span>
+        <h2 class="section-title">{% trans "FinAsis işleyişi ve yatırımcı ilişkileri çerçevesi" %}</h2>
+        <p class="section-subtitle">
+          {% trans "Bu özet; FinAsis ürününün nasıl konumlandığını, abonelik yapısını ve yatırımcıyla kurulan ilişkiyi yüksek seviyede açıklamak için hazırlanmıştır." %}
+        </p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="trust-card">
+          <h3>{% trans "Ürün ve abonelik yapısı" %}</h3>
+          <p class="mb-2">
+            {% trans "FinAsis; finans, muhasebe, uyumluluk ve eğitim modüllerini tek bir veri modeli üzerinde birleştiren abonelik tabanlı bir platformdur." %}
+          </p>
+          <p class="mb-0">
+            {% trans "Kullanıcılar; seçtikleri modüllere göre abonelik planı tercih eder, bu planlar da sözleşmelerde açıkça tanımlanan hak ve erişimlerle ilişkilidir." %}
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="trust-card">
+          <h3>{% trans "Yatırımcıyla kurulan ilişki" %}</h3>
+          <p class="mb-2">
+            {% trans "Yatırımcı ilişkisi; yazılı sözleşme, bilgilendirme metinleri ve kayıt altına alınan onay adımları üzerinden yürütülür." %}
+          </p>
+          <p class="mb-0">
+            {% trans "Her yatırımcıya, sahip olduğu hakların kapsamı ve sınırları sözleşme eki dokümanlarla anlatılır; bu sayfa ise yalnızca genel çerçeveyi özetler." %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process-section">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-6">
+        <span class="section-badge">{% trans "Yatırımcı için önerilen adımlar" %}</span>
+        <h2 class="section-title">{% trans "Karar vermeden önce yapılması önerilen kontroller" %}</h2>
+        <p class="section-subtitle">
+          {% trans "Her yatırım kararı risk içerir. FinAsis, yatırımcının bilinçli karar verebilmesi için; okuması ve saklaması gereken başlıca dokümanları açıkça belirtmeyi hedefler." %}
+        </p>
+      </div>
+      <div class="col-lg-6">
+        <div class="process-card">
+          <ul class="process-steps">
+            <li>
+              <span class="badge-step">1</span>
+              <div>
+                <strong>{% trans "Sözleşme metinlerini gözden geçirin" %}</strong>
+                <p class="mb-0">
+                  {% trans "Abonelik ve hisse ilişkisinin nasıl kurulduğunu, iptal ve devir koşullarını sözleşme dokümanlarından okuyun." %}
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="badge-step">2</span>
+              <div>
+                <strong>{% trans "Risk uyarılarını ve hak özetlerini inceleyin" %}</strong>
+                <p class="mb-0">
+                  {% trans "Sermaye kaybı, likidite ve operasyonel riskler gibi başlıklara ilişkin uyarıları dikkatle okuyun." %}
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="badge-step">3</span>
+              <div>
+                <strong>{% trans "Kendi kayıtlarınızı saklayın" %}</strong>
+                <p class="mb-0">
+                  {% trans "İmzaladığınız dokümanların, onay ekranlarının ve ödeme dekontlarının bir kopyasını kendi arşivinizde saklayın." %}
+                </p>
+              </div>
+            </li>
+          </ul>
+          <p class="risk-note">
+            {% trans "Bu sayfadaki bilgiler yatırım tavsiyesi değildir; yalnızca FinAsis yatırımcı ilişkileri çerçevesini açıklamayı amaçlar." %}
+          </p>
+          <div class="contracts-card">
+            <strong>{% trans "Sözleşmelere erişim" %}</strong>
+            <p class="mb-1">
+              {% trans "Genel kullanım koşulları ve gizlilik metinleri herkese açıktır; yatırımcıya özel sözleşmeler ise yalnızca ilgili kişiyle kurulan iletişim kanalı üzerinden paylaşılır." %}
+            </p>
+            <p class="mb-1">
+              {% trans "Genel şartlar için aşağıdaki sayfalara bakabilirsiniz:" %}
+            </p>
+            <ul class="mb-2">
+              <li><a href="{% url 'terms' %}">{% trans "Kullanım Şartları" %}</a></li>
+              <li><a href="{% url 'privacy_policy' %}">{% trans "Gizlilik Politikası" %}</a></li>
+              <li><a href="{% url 'legal_kvkk' %}">{% trans "KVKK Aydınlatma Metni" %}</a></li>
+            </ul>
+            <p class="mb-0">
+              {% trans "Kendi adınıza düzenlenecek yatırımcı sözleşmesi taslağına erişmek için kurumsal iletişim formu üzerinden talep oluşturabilirsiniz." %}
+              <a href="{% url 'contact' %}">{% trans "İletişim formuna git" %}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

@@ -156,16 +156,23 @@ body {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: clamp(1rem, 2vw, var(--spacing-lg));
+  margin-bottom: clamp(1.5rem, 3vw, var(--spacing-xl));
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .stat-card {
   background: var(--surface-elevated);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  padding: clamp(1rem, 2vw, var(--spacing-lg));
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
@@ -183,13 +190,13 @@ body {
 }
 
 .stat-card-icon {
-  width: 48px;
-  height: 48px;
+  width: clamp(40px, 5vw, 48px);
+  height: clamp(40px, 5vw, 48px);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
 }
 
 .stat-card-icon.success {

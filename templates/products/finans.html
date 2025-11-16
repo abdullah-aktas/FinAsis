@@ -230,26 +230,26 @@
     <div class="row g-4">
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">₺125M</div>
-          <div class="metric-label">Aylık Nakit Akışı</div>
+          <div class="metric-value">{% if stats.company_count %}{{ stats.company_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Aktif Şirket" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">&lt;2dk</div>
-          <div class="metric-label">Tahmin Raporu</div>
+          <div class="metric-value">{% if stats.total_transactions %}{{ stats.total_transactions|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Toplam İşlem" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">%85</div>
-          <div class="metric-label">Doğruluk Oranı</div>
+          <div class="metric-value">{% if stats.monthly_transactions %}{{ stats.monthly_transactions|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Bu Ayki İşlem" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">24/7</div>
-          <div class="metric-label">Canlı Dashboard</div>
+          <div class="metric-value">{% if stats.total_invoices %}{{ stats.total_invoices|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Toplam Fatura" %}</div>
         </div>
       </div>
     </div>

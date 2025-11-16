@@ -1,5 +1,8 @@
-{% extends 'core_ui/base.html' %} {% load static %} {% block title %}Planlar ve
-Fiyatlandırma - FinAsis{% endblock %} {% block extra_css %}
+{% extends 'core_ui/base.html' %}
+{% load static i18n %}
+{% block title %}Planlar ve
+Fiyatlandırma - FinAsis{% endblock %}
+{% block extra_css %}
 <style>
   .category-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -214,13 +217,24 @@ Fiyatlandırma - FinAsis{% endblock %} {% block extra_css %}
     <div class="col-md-4">
       <a href="{% url 'billing:plans_kobi' %}" class="category-card kobi">
         <div class="category-icon">🏢</div>
-        <h3 class="fw-bold text-center mb-2">KOBİ Planları</h3>
+        <h3 class="fw-bold text-center mb-2">{% trans "KOBİ Planları" %}</h3>
         <p class="text-center text-muted mb-3">
-          Küçük ve orta büyüklükteki işletmeler için finansal yönetim çözümleri
+          {% trans "Küçük ve orta büyüklükteki işletmeler için finansal yönetim çözümleri" %}
         </p>
 
-        <div class="text-center price-range">299₺ - 2.499₺</div>
-        <p class="text-center text-muted small mb-4">/ay</p>
+        {% if price_ranges.kobi %}
+        <div class="text-center price-range">
+          {{ price_ranges.kobi.min }}{{ price_ranges.kobi.currency }}
+          -
+          {{ price_ranges.kobi.max }}{{ price_ranges.kobi.currency }}
+        </div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
+        {% else %}
+        <div class="text-center price-range">—</div>
+        <p class="text-center text-muted small mb-4">
+          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
+        </p>
+        {% endif %}
 
         <ul class="feature-list">
           <li>
@@ -260,13 +274,24 @@ Fiyatlandırma - FinAsis{% endblock %} {% block extra_css %}
         class="category-card education"
       >
         <div class="category-icon">🎓</div>
-        <h3 class="fw-bold text-center mb-2">Eğitim Planları</h3>
+        <h3 class="fw-bold text-center mb-2">{% trans "Eğitim Planları" %}</h3>
         <p class="text-center text-muted mb-3">
-          Öğrenciler, öğretmenler ve eğitim kurumları için özel paketler
+          {% trans "Öğrenciler, öğretmenler ve eğitim kurumları için özel paketler" %}
         </p>
 
-        <div class="text-center price-range">99₺ - 999₺</div>
-        <p class="text-center text-muted small mb-4">/ay</p>
+        {% if price_ranges.education %}
+        <div class="text-center price-range">
+          {{ price_ranges.education.min }}{{ price_ranges.education.currency }}
+          -
+          {{ price_ranges.education.max }}{{ price_ranges.education.currency }}
+        </div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
+        {% else %}
+        <div class="text-center price-range">—</div>
+        <p class="text-center text-muted small mb-4">
+          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
+        </p>
+        {% endif %}
 
         <ul class="feature-list">
           <li>
@@ -303,13 +328,24 @@ Fiyatlandırma - FinAsis{% endblock %} {% block extra_css %}
     <div class="col-md-4">
       <a href="{% url 'billing:plans_games' %}" class="category-card games">
         <div class="category-icon">🎮</div>
-        <h3 class="fw-bold text-center mb-2">Oyuncu Planları</h3>
+        <h3 class="fw-bold text-center mb-2">{% trans "Oyuncu Planları" %}</h3>
         <p class="text-center text-muted mb-3">
-          Finansal okur-yazarlığı oyunlaştırarak öğrenin, yarışın ve kazanın
+          {% trans "Finansal okur-yazarlığı oyunlaştırarak öğrenin, yarışın ve kazanın" %}
         </p>
 
-        <div class="text-center price-range">Ücretsiz - 99₺</div>
-        <p class="text-center text-muted small mb-4">/ay</p>
+        {% if price_ranges.games %}
+        <div class="text-center price-range">
+          {{ price_ranges.games.min }}{{ price_ranges.games.currency }}
+          -
+          {{ price_ranges.games.max }}{{ price_ranges.games.currency }}
+        </div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
+        {% else %}
+        <div class="text-center price-range">—</div>
+        <p class="text-center text-muted small mb-4">
+          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
+        </p>
+        {% endif %}
 
         <ul class="feature-list">
           <li>

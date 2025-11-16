@@ -1,0 +1,94 @@
+{% load i18n static %}
+<style>
+  .home-footer {
+    background: #020b11;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 3rem;
+  }
+  .home-footer a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+  }
+  .home-footer a:hover {
+    color: #7ef0cf;
+  }
+  .home-footer__top {
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .home-footer__bottom {
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .home-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .home-footer__logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(
+      135deg,
+      var(--brand-accent, #068c71),
+      var(--brand-primary, #0aae94)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .home-footer__logo img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+  }
+  .home-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+</style>
+<footer class="home-footer" role="contentinfo">
+  <div class="container">
+    <div
+      class="home-footer__top d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+    >
+      <div class="home-footer__brand">
+        <span class="home-footer__logo"
+          ><img
+            src="{{ brand_identity.assets.logo_mark }}"
+            alt="{{ brand_identity.name }}"
+        /></span>
+        <strong>{{ brand_identity.name }}</strong>
+      </div>
+      <div class="home-footer__links">
+        <a href="{% url 'privacy_policy' %}">{% trans 'Gizlilik' %}</a>
+        <a href="{% url 'terms' %}">{% trans 'Şartlar' %}</a>
+        <a href="{% url 'cookie_policy' %}">{% trans 'Çerezler' %}</a>
+        <a href="{% url 'legal_kvkk' %}">KVKK</a>
+        <a href="{% url 'developer_api' %}">{% trans 'Geliştirici' %}</a>
+      </div>
+    </div>
+    <div class="home-footer__bottom">
+      <div>
+        <i class="bi bi-c-circle me-1"></i>
+        {{ brand_identity.current_year }} {{ brand_identity.name }} · {% trans
+        'Tüm hakları saklıdır.' %}
+      </div>
+      <div class="d-flex flex-wrap gap-3 text-white-50">
+        <span><i class="bi bi-stars"></i> {% trans 'Beta' %}</span>
+        <span
+          ><i class="bi bi-link-45deg"></i> {% trans 'Blockchain sözleşmesi'
+          %}</span
+        >
+      </div>
+    </div>
+  </div>
+</footer>

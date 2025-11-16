@@ -7,11 +7,11 @@ FinAsis{% endblock %} {% block extra_css %}
 />
 {% endblock %} {% block content %}
 <div
-  class="dashboard-hero bg-gradient-to-r from-brand-primary to-brand-accent text-white py-5 mb-4"
+  class="dashboard-hero bg-gradient-to-r from-brand-primary to-brand-accent text-white py-4 py-md-5 mb-3 mb-md-4"
 >
   <div class="container">
     <div class="row align-items-center">
-      <div class="col-md-8">
+      <div class="col-12 col-md-8 mb-3 mb-md-0">
         <h1 class="display-5 fw-bold mb-2 animate-fade-in-up">
           Hoş Geldin, {{ user.first_name|default:user.username }}! 👋
         </h1>
@@ -19,22 +19,22 @@ FinAsis{% endblock %} {% block extra_css %}
           İşte bugünkü finansal özetiniz ve AI önerileriniz
         </p>
       </div>
-      <div class="col-md-4 text-md-end">
-        <div class="d-flex flex-column align-items-md-end">
+      <div class="col-12 col-md-4 text-center text-md-end">
+        <div class="d-flex flex-column align-items-center align-items-md-end">
           <span
             class="badge bg-white bg-opacity-20 px-3 py-2 rounded-pill mb-2"
           >
-            <i class="bi bi-calendar me-2"></i>{{ today|date:"d F Y" }}
+            <i class="bi bi-calendar me-2"></i><span class="d-none d-sm-inline">{{ today|date:"d F Y" }}</span><span class="d-sm-none">{{ today|date:"d.m.Y" }}</span>
           </span>
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-md-end">
             <button class="btn btn-light btn-sm" onclick="refreshDashboard()">
-              <i class="bi bi-arrow-clockwise me-1"></i>Yenile
+              <i class="bi bi-arrow-clockwise me-1"></i><span class="d-none d-sm-inline">Yenile</span>
             </button>
             <a
               href="{% url 'accounts:user_profile' %}"
               class="btn btn-outline-light btn-sm"
             >
-              <i class="bi bi-gear me-1"></i>Ayarlar
+              <i class="bi bi-gear me-1"></i><span class="d-none d-sm-inline">Ayarlar</span>
             </a>
           </div>
         </div>
@@ -170,12 +170,12 @@ FinAsis{% endblock %} {% block extra_css %}
             görünecek.
           </p>
         </div>
-        <div class="d-flex justify-content-center gap-2">
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
           <a
             href="{% url 'accounting:invoice_create' %}"
             class="btn-modern primary"
           >
-            <i class="bi bi-plus-lg"></i>İlk Faturanızı Oluşturun
+            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">İlk Faturanızı Oluşturun</span><span class="d-sm-none">Fatura Oluştur</span>
           </a>
           <button class="btn-modern secondary" onclick="startTour()">
             <i class="bi bi-play-circle"></i>Tura Başla
@@ -187,9 +187,9 @@ FinAsis{% endblock %} {% block extra_css %}
   </div>
 
   <!-- Main Grid -->
-  <div class="main-grid">
+  <div class="main-grid row g-4">
     <!-- Left Column -->
-    <div>
+    <div class="col-12 col-lg-8">
       <!-- AI Assistant Panel -->
       <div class="panel-card">
         <h3 class="panel-title">
@@ -259,7 +259,7 @@ FinAsis{% endblock %} {% block extra_css %}
     </div>
 
     <!-- Right Column -->
-    <div>
+    <div class="col-12 col-lg-4">
       <!-- Quick Actions -->
       <div class="panel-card">
         <h3 class="panel-title">

@@ -238,26 +238,26 @@
     <div class="row g-4">
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">8M+</div>
-          <div class="metric-label">e-Belge/Yıl</div>
+          <div class="metric-value">{% if stats.e_invoice_count %}{{ stats.e_invoice_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "e-Belge" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">%85</div>
-          <div class="metric-label">Maliyet Azaltımı</div>
+          <div class="metric-value">{% if stats.monthly_invoices %}{{ stats.monthly_invoices|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Bu Ay e-Fatura" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">&lt;5sn</div>
-          <div class="metric-label">e-Belge Gönderimi</div>
+          <div class="metric-value">{% if stats.company_count %}{{ stats.company_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Aktif Şirket" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
           <div class="metric-value">%100</div>
-          <div class="metric-label">GİB Uyumlu</div>
+          <div class="metric-label">{% trans "GİB Uyumlu" %}</div>
         </div>
       </div>
     </div>

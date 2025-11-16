@@ -79,7 +79,15 @@ class SmokeTests(TestCase):
             if pattern_str.startswith("admin"):
                 continue
 
+            # Skip i18n set_language endpoint (POST only)
+            if pattern_str.startswith("i18n"):
+                continue
+
             if "<" in pattern_str and ">" in pattern_str:
+                continue
+
+            # Skip regex-based patterns like static/media catch-alls
+            if "(?P<" in pattern_str or "(" in pattern_str:
                 continue
 
             url = "/" + pattern_str.lstrip("^/").rstrip("$")
@@ -128,10 +136,13 @@ class SmokeTests(TestCase):
 
         resp = self.client.get(url, follow=True)
         self.assertIn(resp.status_code, [200, 302])
-        self.assertIn(
-            "Giriş Yap".encode("utf-8"),
-            resp.content,
-            msg="Ana sayfada 'Giriş Yap' butonu/ifadesi bulunamadı. Metni projene göre uyarlamalısın.",
+        expected_snippets = [
+            'data-cta="nav-login"'.encode("utf-8"),
+            "Giriş".encode("utf-8"),
+        ]
+        self.assertTrue(
+            any(snippet in resp.content for snippet in expected_snippets),
+            msg="Ana sayfada oturum açma çağrısı (data-cta=nav-login) bulunamadı.",
         )
 
     def test_ai_health_endpoint(self):

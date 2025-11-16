@@ -1,296 +1,804 @@
 {% load i18n static %}
-<header class="fresh-header border-bottom bg-white" role="banner" data-component="fresh-header">
-  <div class="fresh-header__context text-bg-dark d-none d-md-block">
-    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 gap-md-3 py-2">
-      <span class="badge text-bg-light text-dark d-inline-flex align-items-center gap-1" data-status="{{ brand_identity.version.status }}">
-        <i class="bi bi-stars"></i><span class="d-none d-sm-inline">{{ brand_identity.version.label|default:"BETA" }}</span>
-      </span>
-      <p class="mb-0 small text-white-75 d-none d-lg-flex align-items-center gap-2">
-        <i class="bi bi-cpu"></i>
-        {% trans "Yerel GPU üzerinde çalışan FinAsis AI, finans süreçlerini tek panelde toplar." %}
-      </p>
-      <a class="btn btn-sm btn-outline-light" href="{% url 'contact' %}" data-cta="header-contact">
-        <i class="bi bi-chat-dots me-1"></i><span class="d-none d-sm-inline">{% trans "Canlı görüşme planla" %}</span><span class="d-sm-none">{% trans "İletişim" %}</span>
-      </a>
-    </div>
-  </div>
+<header
+  class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top"
+  role="banner"
+  data-component="header"
+  style="z-index: 1030; transition: all 0.3s ease;"
+>
+  <div class="container">
+    <!-- Logo ve Marka -->
+    <a
+      class="navbar-brand d-flex align-items-center gap-2 text-decoration-none"
+      href="{% url 'home' %}"
+      aria-label="{{ brand_identity.name|default:'FinAsis' }}"
+    >
+      <div class="header-logo position-relative">
+        <img
+          src="{{ brand_identity.assets.logo_mark|default:'/static/brand/logo-fa.svg' }}"
+          alt="{{ brand_identity.name|default:'FinAsis' }} logo"
+          loading="lazy"
+          decoding="async"
+          style="height: 42px; width: auto; transition: transform 0.3s ease;"
+        />
+      </div>
+      <div class="d-none d-sm-flex flex-column lh-1">
+        <strong class="text-dark fw-bold fs-6 mb-0" style="letter-spacing: -0.02em;">{{ brand_identity.name|default:'FinAsis' }}</strong>
+        <small class="text-muted d-none d-md-inline small" style="font-size: 0.75rem; line-height: 1.2;">
+          {{ brand_identity.tagline_short|default:'Yerel AI Finans Platformu' }}
+        </small>
+      </div>
+    </a>
 
-  <nav class="navbar navbar-expand-lg fresh-header__navbar" aria-label="{% trans 'Ana navigasyon' %}">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-1 gap-md-2" href="{% url 'home' %}" aria-label="{{ brand_identity.name }}">
-        <span class="fresh-header__logo">
-          <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo" loading="lazy" decoding="async" class="img-responsive" />
-        </span>
-        <span class="d-none d-sm-flex flex-column lh-1">
-          <strong class="text-dark">{{ brand_identity.name }}</strong>
-          <small class="text-muted d-none d-md-inline">{{ brand_identity.tagline_short }}</small>
-        </span>
-      </a>
+    <!-- Mobil Menü Butonu -->
+    <button
+      class="navbar-toggler border-0 p-2"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#headerNav"
+      aria-controls="headerNav"
+      aria-expanded="false"
+      aria-label="{% trans 'Menüyü aç/kapat' %}"
+      style="border-radius: 8px; transition: all 0.2s ease;"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <div class="d-flex align-items-center gap-2 d-lg-none">
-        <button class="btn btn-light btn-sm" type="button" onclick="toggleTheme()" aria-label="{% trans 'Tema değiştir' %}">
+    <!-- Navigasyon -->
+    <div class="collapse navbar-collapse" id="headerNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2">
+        {% if primary_navigation %}
+          {% for item in primary_navigation %}
+            <li class="nav-item">
+              <a
+                class="nav-link fw-medium px-3 py-2 rounded-2"
+                href="{{ item.href }}"
+                data-cta="nav-primary-{{ item.code|default:forloop.counter }}"
+                style="transition: all 0.2s ease; position: relative;"
+              >
+                {{ item.label }}
+              </a>
+            </li>
+          {% endfor %}
+        {% else %}
+          <!-- Varsayılan Navigasyon (home ve diğer sayfalarda çalışan global linkler) -->
+          <li class="nav-item">
+            <a
+              class="nav-link fw-medium px-3 py-2 rounded-2"
+              href="{% url 'home' %}#snapshot"
+              data-cta="nav-overview"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Genel Bakış" %}
+            </a>
+          </li>
+
+          <!-- Hizmetler Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle fw-medium px-3 py-2 rounded-2"
+              href="{% url 'products_muhasebe' %}"
+              id="servicesDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Hizmetler" %}
+            </a>
+            <ul
+              class="dropdown-menu dropdown-menu-lg-end shadow-lg border-0 rounded-4 p-3 mt-2"
+              aria-labelledby="servicesDropdown"
+              style="min-width: 340px; border: 1px solid rgba(0, 0, 0, 0.05);"
+            >
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_muhasebe' %}"
+                  data-cta="nav-service-accounting"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(10, 174, 148, 0.05)); border-radius: 12px; color: #0aae94; font-size: 1.5rem;">
+                    <i class="bi bi-calculator"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Muhasebe" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "e-Fatura, defter, banka entegrasyonları" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_finans' %}"
+                  data-cta="nav-service-finance"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-radius: 12px; color: #10b981; font-size: 1.5rem;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Finansal Yönetim" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "KPI, bütçe, nakit akışı" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'audit:landing' %}"
+                  data-cta="nav-service-audit"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05)); border-radius: 12px; color: #6366f1; font-size: 1.5rem;">
+                    <i class="bi bi-shield-check"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Denetim" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "Denetim izi, risk değerlendirme" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_blockchain' %}"
+                  data-cta="nav-service-blockchain"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05)); border-radius: 12px; color: #3b82f6; font-size: 1.5rem;">
+                    <i class="bi bi-link-45deg"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Blockchain" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "Akıllı sözleşmeler, kanıt kayıtları" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_egitim' %}"
+                  data-cta="nav-service-education"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border-radius: 12px; color: #f59e0b; font-size: 1.5rem;">
+                    <i class="bi bi-mortarboard"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Eğitim" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "LMS, FinQuest görev motoru" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_oyunlar' %}"
+                  data-cta="nav-service-games"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border-radius: 12px; color: #8b5cf6; font-size: 1.5rem;">
+                    <i class="bi bi-controller"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Oyunlar" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "TradeSim, oyunlaştırma" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_mali_musavir' %}"
+                  data-cta="nav-service-advisors"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)); border-radius: 12px; color: #2563eb; font-size: 1.5rem;">
+                    <i class="bi bi-briefcase"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Mali Müşavirlik" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "Marketplace, müşteri yönetimi" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_yapay_zeka' %}"
+                  data-cta="nav-service-ai"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border-radius: 12px; color: #8b5cf6; font-size: 1.5rem;">
+                    <i class="bi bi-robot"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Yapay Zeka" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "Prompt kütüphanesi, otomasyon" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'products_kobi_analizi' %}"
+                  data-cta="nav-service-kobi-analysis"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(220, 38, 38, 0.05)); border-radius: 12px; color: #dc2626; font-size: 1.5rem;">
+                    <i class="bi bi-graph-up"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "KOBİ Analizi" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "Sağlık skoru, SWOT analizi" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 d-flex align-items-center gap-3"
+                  href="{% url 'products_edonusum' %}"
+                  data-cta="nav-service-edonusum"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border-radius: 12px; color: #f59e0b; font-size: 1.5rem;">
+                    <i class="bi bi-file-earmark-check"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "e-Dönüşüm" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem; line-height: 1.4;">
+                      {% trans "e-Fatura, e-Arşiv, e-Defter" %}
+                    </small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link fw-medium px-3 py-2 rounded-2"
+              href="{% url 'home' %}#solutions"
+              data-cta="nav-solutions"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Çözümler" %}
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link fw-medium px-3 py-2 rounded-2"
+              href="{% url 'resources' %}"
+              data-cta="nav-resources"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Kaynaklar" %}
+            </a>
+          </li>
+
+          <!-- Planlar Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle fw-medium px-3 py-2 rounded-2"
+              href=" {% url 'billing:plans' %}"
+              id="plansDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Planlar" %}
+            </a>
+            <ul
+              class="dropdown-menu dropdown-menu-lg-end shadow-lg border-0 rounded-4 p-3 mt-2"
+              aria-labelledby="plansDropdown"
+              style="min-width: 300px; border: 1px solid rgba(0, 0, 0, 0.05);"
+            >
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'billing:plans' %}"
+                  data-cta="nav-plans-index"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(10, 174, 148, 0.05)); border-radius: 12px; color: #0aae94; font-size: 1.5rem;">
+                    <i class="bi bi-grid-3x3"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Tüm Planlar" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem;">{% trans "Fiyatlandırma ve paketler" %}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-2" style="opacity: 0.1;" /></li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'billing:plans_kobi' %}"
+                  data-cta="nav-plans-kobi"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-radius: 12px; color: #10b981; font-size: 1.5rem;">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "KOBİ Planları" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem;">{% trans "Küçük ve orta işletmeler için" %}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'billing:plans_education' %}"
+                  data-cta="nav-plans-education"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border-radius: 12px; color: #f59e0b; font-size: 1.5rem;">
+                    <i class="bi bi-mortarboard"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Eğitim Planları" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem;">{% trans "Okullar ve eğitim kurumları" %}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 d-flex align-items-center gap-3"
+                  href="{% url 'billing:plans_games' %}"
+                  data-cta="nav-plans-games"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05)); border-radius: 12px; color: #8b5cf6; font-size: 1.5rem;">
+                    <i class="bi bi-controller"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Oyun Planları" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem;">{% trans "Oyunlaştırma ve eğitim oyunları" %}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Kurumsal Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle fw-medium px-3 py-2 rounded-2"
+              href="{% url 'corporate:landing' %}"
+              id="corporateDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style="transition: all 0.2s ease;"
+            >
+              {% trans "Kurumsal" %}
+            </a>
+            <ul
+              class="dropdown-menu dropdown-menu-lg-end shadow-lg border-0 rounded-4 p-3 mt-2"
+              aria-labelledby="corporateDropdown"
+              style="min-width: 280px; border: 1px solid rgba(0, 0, 0, 0.05);"
+            >
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-3 px-3 mb-2 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:landing' %}"
+                  data-cta="nav-corporate-landing"
+                  style="transition: all 0.2s ease;"
+                >
+                  <div class="service-icon d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(10, 174, 148, 0.05)); border-radius: 12px; color: #0aae94; font-size: 1.5rem;">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1" style="color: #04121a;">{% trans "Genel Bakış" %}</div>
+                    <small class="text-muted d-block" style="font-size: 0.8125rem;">{% trans "Kurumsal çözümler" %}</small>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-2" style="opacity: 0.1;" /></li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:about' %}"
+                  data-cta="nav-corporate-about"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-info-circle" style="color: #0aae94; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Hakkımızda" %}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:team' %}"
+                  data-cta="nav-corporate-team"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-people" style="color: #10b981; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Takım" %}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:careers' %}"
+                  data-cta="nav-corporate-careers"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-briefcase" style="color: #6366f1; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Kariyer" %}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:press' %}"
+                  data-cta="nav-corporate-press"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-newspaper" style="color: #f59e0b; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Basın" %}</span>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-2" style="opacity: 0.1;" /></li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:investors' %}"
+                  data-cta="nav-corporate-investors"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-graph-up-arrow" style="color: #3b82f6; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Yatırımcılar" %}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 mb-1 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:security' %}"
+                  data-cta="nav-corporate-security"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-shield-check" style="color: #8b5cf6; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Güvenlik" %}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3"
+                  href="{% url 'corporate:sustainability' %}"
+                  data-cta="nav-corporate-sustainability"
+                  style="transition: all 0.2s ease;"
+                >
+                  <i class="bi bi-leaf" style="color: #10b981; font-size: 1.25rem; width: 24px;"></i>
+                  <span class="fw-medium" style="color: #04121a;">{% trans "Sürdürülebilirlik" %}</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        {% endif %}
+      </ul>
+
+      <!-- Sağ Taraf Aksiyonlar -->
+      <div class="d-flex align-items-center gap-2 flex-shrink-0">
+        <!-- Tema Değiştirme Butonu (Desktop) -->
+        <button
+          class="btn btn-light btn-sm d-none d-lg-inline-flex align-items-center justify-content-center"
+          type="button"
+          onclick="toggleTheme()"
+          aria-label="{% trans 'Tema değiştir' %}"
+          title="{% trans 'Tema değiştir' %}"
+          style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(0, 0, 0, 0.08); transition: all 0.2s ease;"
+        >
           <i class="bi bi-brightness-high"></i>
         </button>
+
+        <!-- İkincil Navigasyon -->
+        {% if secondary_navigation %}
+          {% for item in secondary_navigation %}
+            <a
+              class="btn btn-outline-secondary btn-sm d-none d-lg-inline-flex"
+              href="{{ item.href }}"
+              data-cta="nav-secondary-{{ item.code|default:forloop.counter }}"
+              style="border-radius: 10px; font-weight: 500; transition: all 0.2s ease;"
+            >
+              {{ item.label }}
+            </a>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Kullanıcı Durumuna Göre Butonlar -->
         {% if user.is_authenticated %}
-          <a class="btn btn-outline-dark btn-sm" href="{% url 'user_panel' %}" aria-label="{% trans 'Panel' %}">
+          <a
+            class="btn btn-primary d-inline-flex align-items-center gap-2"
+            href="{% url 'user_panel' %}"
+            data-cta="nav-dashboard"
+            style="
+              background: linear-gradient(135deg, #0aae94 0%, #008e7a 100%);
+              border: none;
+              font-weight: 600;
+              white-space: nowrap;
+              border-radius: 12px;
+              padding: 0.625rem 1.25rem;
+              box-shadow: 0 2px 8px rgba(10, 174, 148, 0.2);
+              transition: all 0.3s ease;
+            "
+          >
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            <span class="d-none d-md-inline">{% trans "Panel" %}</span>
+          </a>
+        {% else %}
+          <a
+            class="btn btn-outline-dark d-none d-lg-inline-flex align-items-center gap-2"
+            href="{% url 'accounts:login' %}"
+            data-cta="nav-login"
+            style="border-radius: 12px; font-weight: 600; padding: 0.625rem 1.25rem; transition: all 0.2s ease;"
+          >
+            {% trans "Giriş yap" %}
+          </a>
+          <a
+            class="btn btn-warning d-inline-flex align-items-center gap-2"
+            href="{% url 'accounts:register' %}"
+            data-cta="nav-register"
+            style="
+              background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+              border: none;
+              color: #0d3b66;
+              font-weight: 700;
+              white-space: nowrap;
+              border-radius: 12px;
+              padding: 0.625rem 1.5rem;
+              box-shadow: 0 4px 12px rgba(255, 179, 0, 0.35);
+              transition: all 0.3s ease;
+            "
+          >
+            <i class="bi bi-rocket-takeoff"></i>
+            <span>{% trans "Ücretsiz başla" %}</span>
+          </a>
+        {% endif %}
+
+        <!-- Mobil Tema Butonu -->
+        <button
+          class="btn btn-light btn-sm d-lg-none"
+          type="button"
+          onclick="toggleTheme()"
+          aria-label="{% trans 'Tema değiştir' %}"
+          style="width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(0, 0, 0, 0.08);"
+        >
+          <i class="bi bi-brightness-high"></i>
+        </button>
+
+        <!-- Mobil Giriş/Panel Butonu -->
+        {% if user.is_authenticated %}
+          <a
+            class="btn btn-outline-dark btn-sm d-lg-none"
+            href="{% url 'user_panel' %}"
+            aria-label="{% trans 'Panel' %}"
+            style="border-radius: 10px;"
+          >
             <i class="bi bi-grid-3x3-gap-fill"></i>
           </a>
         {% else %}
-          <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:login' %}">{% trans "Giriş" %}</a>
+          <a
+            class="btn btn-outline-dark btn-sm d-lg-none"
+            href="{% url 'accounts:login' %}"
+            style="border-radius: 10px;"
+          >
+            {% trans "Giriş" %}
+          </a>
         {% endif %}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#freshHeaderNav" aria-controls="freshHeaderNav" aria-expanded="false" aria-label="{% trans 'Menüyü aç/kapat' %}">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
-
-      <div class="collapse navbar-collapse" id="freshHeaderNav">
-        <ul class="navbar-nav me-auto mb-3 mb-lg-0 gap-lg-2">
-          {% if primary_navigation %}
-            {% for item in primary_navigation %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{ item.href }}" data-cta="nav-primary">{{ item.label }}</a>
-              </li>
-            {% endfor %}
-          {% else %}
-            <li class="nav-item"><a class="nav-link" href="#hero">{% trans "Genel bakış" %}</a></li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                {% trans "Hizmetler" %}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-lg-end shadow border-0 rounded-3 p-3" aria-labelledby="servicesDropdown" style="min-width: 320px;">
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_muhasebe' %}" data-cta="nav-service-accounting">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-calculator" style="color: #0AAE94;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Muhasebe" %}</div>
-                        <small class="text-muted">{% trans "e-Fatura, defter, banka entegrasyonları" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_finans' %}" data-cta="nav-service-finance">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-graph-up-arrow" style="color: #10b981;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Finansal Yönetim" %}</div>
-                        <small class="text-muted">{% trans "KPI, bütçe, nakit akışı" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'audit:landing' %}" data-cta="nav-service-audit">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-shield-check" style="color: #6366f1;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Denetim" %}</div>
-                        <small class="text-muted">{% trans "Denetim izi, risk değerlendirme" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_blockchain' %}" data-cta="nav-service-blockchain">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-link-45deg" style="color: #3b82f6;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Blockchain" %}</div>
-                        <small class="text-muted">{% trans "Akıllı sözleşmeler, kanıt kayıtları" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_egitim' %}" data-cta="nav-service-education">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-mortarboard" style="color: #f59e0b;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Eğitim" %}</div>
-                        <small class="text-muted">{% trans "LMS, FinQuest görev motoru" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_oyunlar' %}" data-cta="nav-service-games">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-controller" style="color: #8b5cf6;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Oyunlar" %}</div>
-                        <small class="text-muted">{% trans "TradeSim, oyunlaştırma" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_mali_musavir' %}" data-cta="nav-service-advisors">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-briefcase" style="color: #2563eb;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Mali Müşavirlik" %}</div>
-                        <small class="text-muted">{% trans "Marketplace, müşteri yönetimi" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_yapay_zeka' %}" data-cta="nav-service-ai">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-robot" style="color: #8b5cf6;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Yapay Zeka" %}</div>
-                        <small class="text-muted">{% trans "Prompt kütüphanesi, otomasyon" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_kobi_analizi' %}" data-cta="nav-service-kobi-analysis">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-graph-up" style="color: #dc2626;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "KOBİ Analizi" %}</div>
-                        <small class="text-muted">{% trans "Sağlık skoru, SWOT analizi" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3" href="{% url 'products_edonusum' %}" data-cta="nav-service-edonusum">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-file-earmark-check" style="color: #f59e0b;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "e-Dönüşüm" %}</div>
-                        <small class="text-muted">{% trans "e-Fatura, e-Arşiv, e-Defter" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="#solutions">{% trans "Çözümler" %}</a></li>
-            <li class="nav-item"><a class="nav-link" href="#resources">{% trans "Kaynaklar" %}</a></li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="corporateDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                {% trans "Kurumsal" %}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-lg-end shadow border-0 rounded-3 p-3" aria-labelledby="corporateDropdown" style="min-width: 280px;">
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:landing' %}" data-cta="nav-corporate-landing">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-building" style="color: #0AAE94;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Genel Bakış" %}</div>
-                        <small class="text-muted">{% trans "Kurumsal çözümler" %}</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li><hr class="dropdown-divider my-2"></li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:about' %}" data-cta="nav-corporate-about">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-info-circle" style="color: #0AAE94;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Hakkımızda" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:team' %}" data-cta="nav-corporate-team">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-people" style="color: #10b981;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Takım" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:careers' %}" data-cta="nav-corporate-careers">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-briefcase" style="color: #6366f1;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Kariyer" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:press' %}" data-cta="nav-corporate-press">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-newspaper" style="color: #f59e0b;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Basın" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li><hr class="dropdown-divider my-2"></li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:investors' %}" data-cta="nav-corporate-investors">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-graph-up-arrow" style="color: #3b82f6;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Yatırımcılar" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:security' %}" data-cta="nav-corporate-security">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-shield-check" style="color: #8b5cf6;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Güvenlik" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item rounded-2 py-2 px-3" href="{% url 'corporate:sustainability' %}" data-cta="nav-corporate-sustainability">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="bi bi-leaf" style="color: #10b981;"></i>
-                      <div>
-                        <div class="fw-semibold">{% trans "Sürdürülebilirlik" %}</div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-          {% endif %}
-        </ul>
-
-        <div class="fresh-header__actions d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
-          <div class="d-flex flex-wrap gap-2">
-            {% if secondary_navigation %}
-              {% for item in secondary_navigation %}
-                <a class="btn btn-outline-secondary btn-sm" href="{{ item.href }}" data-cta="nav-secondary">{{ item.label }}</a>
-              {% endfor %}
-            {% endif %}
-            <button class="btn btn-light btn-sm d-none d-lg-inline-flex" type="button" onclick="toggleTheme()" aria-label="{% trans 'Tema değiştir' %}">
-              <i class="bi bi-brightness-high"></i>
-            </button>
-          </div>
-          {% if user.is_authenticated %}
-            <a class="btn btn-dark" href="{% url 'user_panel' %}" data-cta="nav-dashboard">
-              <i class="bi bi-grid-3x3-gap-fill me-1"></i>{% trans "Panel" %}
-            </a>
-          {% else %}
-            <div class="d-flex flex-column flex-lg-row gap-2">
-              <a class="btn btn-outline-dark" href="{% url 'accounts:login' %}" data-cta="nav-login">{% trans "Giriş yap" %}</a>
-              <a class="btn btn-dark" href="{% url 'accounts:register' %}" data-cta="nav-register">
-                <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Ücretsiz başla" %}
-              </a>
-            </div>
-          {% endif %}
-        </div>
       </div>
     </div>
-  </nav>
+  </div>
 </header>
 
+<style>
+  /* Modern Header Stilleri */
+  .header-logo img {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header-logo:hover img {
+    transform: scale(1.08) rotate(2deg);
+  }
+
+  .navbar-brand:hover {
+    opacity: 0.9;
+  }
+
+  .nav-link {
+    transition: all 0.2s ease;
+    position: relative;
+    color: #04121a !important;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #0aae94, #008e7a);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    width: 80%;
+  }
+
+  .nav-link:hover {
+    color: #0aae94 !important;
+    background-color: rgba(10, 174, 148, 0.05);
+  }
+
+  .dropdown-toggle::after {
+    transition: transform 0.2s ease;
+  }
+
+  .dropdown-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+  }
+
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, rgba(10, 174, 148, 0.08), rgba(10, 174, 148, 0.04)) !important;
+    transform: translateX(4px);
+    border-color: rgba(10, 174, 148, 0.1);
+  }
+
+  .dropdown-item:hover .service-icon {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .dropdown-item:hover i.bi-chevron-right {
+    transform: translateX(4px);
+    color: #0aae94 !important;
+  }
+
+  .service-icon {
+    transition: all 0.3s ease;
+  }
+
+  /* Sticky Header Scroll Effect */
+  .navbar.sticky-top {
+    backdrop-filter: blur(20px);
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .navbar.scrolled {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    background-color: rgba(255, 255, 255, 0.98) !important;
+  }
+
+  /* Button Hover Effects */
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 174, 148, 0.35) !important;
+  }
+
+  .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 179, 0, 0.45) !important;
+  }
+
+  .btn-outline-dark:hover {
+    background-color: #04121a;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-light:hover {
+    background-color: #f8f9fa;
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+
+  /* Responsive */
+  @media (max-width: 991.98px) {
+    .navbar-collapse {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      background: white;
+      border-radius: 12px;
+      margin-left: -1rem;
+      margin-right: -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .navbar-nav {
+      gap: 0.25rem !important;
+    }
+
+    .nav-link {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+    }
+
+    .dropdown-menu {
+      margin-top: 0.5rem !important;
+      border-radius: 12px !important;
+    }
+  }
+
+  /* Animation for dropdown items */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-menu.show {
+    animation: slideIn 0.3s ease;
+  }
+</style>
+
+<script>
+  // Scroll effect for header
+  document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.navbar');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', function() {
+      const currentScroll = window.pageYOffset;
+
+      if (currentScroll > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+
+      lastScroll = currentScroll;
+    });
+  });
+</script>

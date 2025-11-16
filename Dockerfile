@@ -3,9 +3,10 @@
 FROM python:3.11-slim AS builder
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     build-essential \
     gcc \
     g++ \
@@ -46,6 +47,9 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 
 COPY . .
 RUN python manage.py collectstatic --noinput
+RUN python manage.py migrate
+RUN python manage.py createsuperuser
+RUN python manage.py init_trade_sim
 
 COPY deploy/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

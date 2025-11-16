@@ -34,21 +34,17 @@ from ..utils.exports import export_audit_trails_to_excel
 def audit_landing(request):
     """
     Public marketing/landing page for the Internal Audit module.
-    Return a static response without touching session/DB so tests without DB access pass.
     """
-    html = (
-        "<!doctype html>"
-        "<html lang='tr'>"
-        "<head><meta charset='utf-8'><title>İç Denetim (Audit)</title></head>"
-        "<body>"
-        "<main style='padding:24px;font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;'>"
-        "<h1>İç Denetim ve Kontrol Sistemi</h1>"
-        "<p>FinAsis iç denetim (audit) modülü giriş sayfası.</p>"
-        "<p><a href='/audit/controls/dashboard/'>Denetim Paneline Git</a></p>"
-        "</main>"
-        "</body></html>"
-    )
-    return HttpResponse(html)
+    from core_ui.views import _get_product_stats
+    
+    # Denetim sayfası için dinamik istatistikleri hesapla
+    product_stats = _get_product_stats("products_audit")
+    
+    context = {
+        'stats': product_stats,
+    }
+    
+    return render(request, 'products/audit.html', context)
 
 # Sık kullanılan ContentType objeleri için basit cache
 def get_ct(model_cls):

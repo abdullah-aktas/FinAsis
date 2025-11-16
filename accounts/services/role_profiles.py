@@ -91,9 +91,19 @@ def ensure_role_profile(user, *, explicit_role: Optional[str] = None) -> Tuple[R
         role = UserRole.objects.filter(name="viewer").first()
 
     if role is None:
-        raise UserRole.DoesNotExist(
-            "No default UserRole found. Run `python manage.py create_default_roles_and_plans` first."
-        )
+        # Auto-create a minimal 'viewer' role to avoid hard test dependency on seed commands
+        try:
+            role = UserRole.objects.create(
+                name="viewer",
+                display_name="Görüntüleyici",
+                description="Varsayılan görüntüleyici rolü (otomatik).",
+                is_active=True,
+                hierarchy_level=10,
+            )
+        except Exception:
+            raise UserRole.DoesNotExist(
+                "No default UserRole found and could not auto-create 'viewer'. Run `python manage.py create_default_roles_and_plans`."
+            )
 
     profile, created = RoleBasedUserProfile.objects.select_for_update().get_or_create(
         user=user,

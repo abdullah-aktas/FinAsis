@@ -16,6 +16,9 @@ urlpatterns = [
     # Student module (namespaced as 'student')
     path('student/', include(('education.student.urls', 'student'), namespace='student')),
     path('kobi-tutorials/', views.kobi_tutorials, name='kobi_tutorials'),
+    # Exam quick prep (with Turkish aliases)
+    path('exams/quick-prep/', views.quick_prep, name='quick_prep'),
+    path('sınavlar/hızlı-hazırlık/', views.quick_prep, name='hizli_hazirlik'),
     # Meetings pages
     path('meetings/', views.MeetingListView.as_view(), name='meetings_list'),
     path('meetings/add/', views.MeetingCreateView.as_view(), name='meetings_add'),

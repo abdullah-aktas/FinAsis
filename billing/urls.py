@@ -1,9 +1,12 @@
 from django.urls import path
+from django.views.generic import RedirectView
+
 from . import views
 
 app_name = 'billing'
 
 urlpatterns = [
+    path('', RedirectView.as_view(pattern_name='billing:plans', permanent=False), name='billing_home'),
     path('plans/', views.plans_index, name='plans_index'),  # Main plans index page
     path('plans/', views.plans_index, name='plans'),  # Alias for backward compatibility
     path('plans/kobi/', views.plans_kobi, name='plans_kobi'),

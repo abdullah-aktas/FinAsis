@@ -57,55 +57,43 @@ def _get_user_modules(user):
             modules.append({
                 'name': 'Muhasebe',
                 'icon': 'bi-calculator',
-                'color': 'primary',
+                'color': '#0AAE94',
                 'url': reverse('accounting:dashboard'),
-                'description': 'Fatura, gider, mali tablolar yönetimi',
+                'description': 'Fatura, defter, e-belge ve banka entegrasyonları',
                 'category': 'finance',
                 'badge': None
             })
         except Exception:
             pass
     
-    # Finans Modülü
+    # Finansal Yönetim Modülü
     if (user.has_perm('finance.view_banktransaction') or 
         'manager' in user_roles or 
         'accountant' in user_roles):
         try:
             modules.append({
-                'name': 'Finans',
-                'icon': 'bi-bank',
-                'color': 'success',
+                'name': 'Finansal Yönetim',
+                'icon': 'bi-graph-up-arrow',
+                'color': '#10b981',
                 'url': reverse('finance:finance_home'),
-                'description': 'Banka hesapları, nakit akışı, finansal raporlar',
+                'description': 'KPI, bütçe, nakit akışı ve finansal raporlar',
                 'category': 'finance',
                 'badge': None
             })
         except Exception:
             pass
     
-    # AI Asistan - Tüm kullanıcılara açık
-    try:
-        modules.append({
-            'name': 'AI Asistan',
-            'icon': 'bi-robot',
-            'color': 'info',
-            'url': reverse('ai_assistant:home'),
-            'description': 'Yapay zeka destekli finansal analiz ve öneriler',
-            'category': 'ai',
-            'badge': 'Yeni'
-        })
-    except Exception:
-        pass
-    
     # Denetim Modülü
-    if (user.has_perm('audit.view_auditlog') or 'manager' in user_roles):
+    if (user.has_perm('audit.view_auditlog') or 
+        'auditor' in user_roles or 
+        'manager' in user_roles):
         try:
             modules.append({
                 'name': 'Denetim',
                 'icon': 'bi-shield-check',
-                'color': 'warning',
+                'color': '#6366f1',
                 'url': reverse('audit:landing'),
-                'description': 'İşlem kayıtları ve denetim izleri',
+                'description': 'İşlem kayıtları, risk değerlendirme ve uyumluluk',
                 'category': 'management',
                 'badge': None
             })
@@ -119,51 +107,71 @@ def _get_user_modules(user):
             modules.append({
                 'name': 'Blockchain',
                 'icon': 'bi-link-45deg',
-                'color': 'dark',
+                'color': '#3b82f6',
                 'url': reverse('blockchain:home'),
-                'description': 'Blok zinciri entegrasyonu ve kayıtlar',
+                'description': 'Akıllı sözleşmeler ve değiştirilemez kayıtlar',
                 'category': 'technology',
                 'badge': 'Beta'
             })
         except Exception:
             pass
     
-    # Eğitim Modülü - Öğretmen
-    if 'teacher' in user_roles:
+    # AI Asistan - Tüm kullanıcılara açık
+    try:
+        modules.append({
+            'name': 'Yapay Zeka',
+            'icon': 'bi-robot',
+            'color': '#8b5cf6',
+            'url': reverse('ai_assistant:home'),
+            'description': 'Türkçe prompt kütüphanesi ve doğal dil raporları',
+            'category': 'ai',
+            'badge': 'Yeni'
+        })
+    except Exception:
+        pass
+    
+    # Mali Müşavirlik Modülü
+    if (hasattr(user, 'advisor_profile') or 
+        'financial_advisor' in user_roles or 
+        'mali_musavir' in user_roles or
+        user.has_perm('advisors.view_advisorprofile')):
         try:
             modules.append({
-                'name': 'Öğretmen Paneli',
-                'icon': 'bi-easel',
-                'color': 'purple',
-                'url': reverse('teacher_dashboard:dashboard'),
-                'description': 'Ders yönetimi, öğrenci takibi',
+                'name': 'Mali Müşavirlik',
+                'icon': 'bi-briefcase',
+                'color': '#2563eb',
+                'url': reverse('products_mali_musavir'),
+                'description': 'Müşteri yönetimi ve danışmanlık oturumları',
+                'category': 'management',
+                'badge': None
+            })
+        except Exception:
+            pass
+    
+    # Eğitim Modülü - Öğretmen
+    if 'teacher' in user_roles or 'egitimci' in user_roles:
+        try:
+            modules.append({
+                'name': 'Eğitim',
+                'icon': 'bi-mortarboard',
+                'color': '#f59e0b',
+                'url': reverse('education:education_home'),
+                'description': 'Rol bazlı LMS ve FinQuest görev motoru',
                 'category': 'education',
                 'badge': None
             })
         except Exception:
-            # Fallback to education home if teacher dashboard not available
-            try:
-                modules.append({
-                    'name': 'Eğitim',
-                    'icon': 'bi-easel',
-                    'color': 'purple',
-                    'url': reverse('education:education_home'),
-                    'description': 'Eğitim yönetimi',
-                    'category': 'education',
-                    'badge': None
-                })
-            except Exception:
-                pass
+            pass
     
     # Eğitim Modülü - Öğrenci
-    if 'student' in user_roles:
+    if 'student' in user_roles or 'ogrenci' in user_roles:
         try:
             modules.append({
-                'name': 'Öğrenci Paneli',
-                'icon': 'bi-book',
-                'color': 'info',
-                'url': reverse('student:dashboard'),
-                'description': 'Dersler, ödevler, notlar',
+                'name': 'Eğitim',
+                'icon': 'bi-mortarboard',
+                'color': '#f59e0b',
+                'url': reverse('education:education_home'),
+                'description': 'Dersler, görevler ve sertifikalar',
                 'category': 'education',
                 'badge': None
             })
@@ -175,9 +183,9 @@ def _get_user_modules(user):
         modules.append({
             'name': 'Oyunlar',
             'icon': 'bi-controller',
-            'color': 'danger',
+            'color': '#8b5cf6',
             'url': reverse('games:games_index'),
-            'description': 'Eğitici finansal simülasyon oyunları',
+            'description': 'TradeSim ligleri ve finansal simülasyonlar',
             'category': 'games',
             'badge': None
         })
@@ -235,7 +243,7 @@ def user_panel(request):
         'education': 'Eğitim',
         'games': 'Oyunlar',
         'technology': 'Teknoloji',
-        'management': 'Yönetim',
+        'management': 'Denetim & Danışmanlık',
     }
     
     # Özet istatistikler (kullanıcıya özel)

@@ -86,8 +86,48 @@ def _prepare_plan_display(plans_list: List[Plan], region: str) -> Tuple[List[Dic
     return plan_cards, card_map, feature_rows
 
 def plans_index(request: HttpRequest) -> HttpResponse:
-    """Ana planlar sayfası - kategori seçimi"""
-    return render(request, 'billing/plans_index.html')
+    """Ana planlar sayfası - kategori seçimi, dinamik fiyat aralıkları ile."""
+    region, region_options, region_config = _build_region_context(request)
+    price_qs = Price.objects.filter(is_active=True).order_by("period")
+
+    price_ranges: Dict[str, Dict[str, object]] = {}
+    audience_map = {
+        "sme": "kobi",
+        "edu": "education",
+        "games": "games",
+    }
+
+    for audience, key in audience_map.items():
+        qs = (
+            Plan.objects.filter(is_active=True, audience=audience)
+            .prefetch_related(
+                Prefetch("prices", queryset=price_qs),
+                "plan_modules__module",
+            )
+        )
+        plans_list = list(qs)
+        amounts = []
+        currency = None
+        for plan in plans_list:
+            card = build_plan_card(plan, region, prices=getattr(plan, "prices").all())
+            month_amount = card.get("month_amount")
+            if month_amount is not None:
+                amounts.append(month_amount)
+                currency = card.get("currency") or currency
+        if amounts and currency:
+            price_ranges[key] = {
+                "min": min(amounts),
+                "max": max(amounts),
+                "currency": currency,
+            }
+
+    context = {
+        "region": region,
+        "region_options": region_options,
+        "region_config": region_config,
+        "price_ranges": price_ranges,
+    }
+    return render(request, "billing/plans_index.html", context)
 
 def plans_kobi(request: HttpRequest) -> HttpResponse:
     """KOBİ planları - Özel tasarım"""

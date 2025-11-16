@@ -81,26 +81,26 @@
     <div class="row g-3 text-center">
       <div class="col-md-3 col-6">
         <div class="metric-card">
-          <div class="metric-value">%95</div>
-          <div class="metric-label">Doğruluk</div>
+          <div class="metric-value">{% if stats.prompt_count %}{{ stats.prompt_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Prompt Kütüphanesi" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card">
-          <div class="metric-value">&lt;1sn</div>
-          <div class="metric-label">Ortalama Yanıt</div>
+          <div class="metric-value">{% if stats.chat_sessions %}{{ stats.chat_sessions|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Chat Oturumu" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card">
-          <div class="metric-value">OCR</div>
-          <div class="metric-label">Belge Okuma</div>
+          <div class="metric-value">{% if stats.custom_prompts %}{{ stats.custom_prompts|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Özel Prompt" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card">
-          <div class="metric-value">Multi</div>
-          <div class="metric-label">Multi-tool Motor</div>
+          <div class="metric-value">{% if stats.ai_cards %}{{ stats.ai_cards|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "AI Kartı" %}</div>
         </div>
       </div>
     </div>

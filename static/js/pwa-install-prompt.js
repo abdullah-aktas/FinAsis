@@ -94,6 +94,14 @@
 
     promptEl.classList.remove('d-none');
     promptEl.classList.add('fade-in');
+    promptEl.setAttribute('aria-hidden', 'false');
+    setTimeout(() => {
+      try {
+        promptEl.focus();
+      } catch (err) {
+        // ignore focus errors
+      }
+    }, 50);
 
     // Analytics event
     if (window.dataLayer) {
@@ -111,10 +119,47 @@
     const promptEl = document.getElementById('pwa-install-prompt');
     if (promptEl) {
       promptEl.classList.add('fade-out');
+      promptEl.setAttribute('aria-hidden', 'true');
       setTimeout(() => {
         promptEl.classList.add('d-none');
         promptEl.classList.remove('fade-in', 'fade-out');
       }, 300);
+    }
+  }
+
+  function bindPromptButtons() {
+    const installBtn = document.getElementById('pwa-install-btn');
+    const dismissBtn = document.getElementById('pwa-dismiss-btn');
+    const neverShowBtn = document.getElementById('pwa-never-show-btn');
+
+    if (installBtn && !installBtn.dataset.bound) {
+      installBtn.addEventListener('click', handleInstall);
+      installBtn.dataset.bound = '1';
+    }
+    if (dismissBtn && !dismissBtn.dataset.bound) {
+      dismissBtn.addEventListener('click', handleDismiss);
+      dismissBtn.dataset.bound = '1';
+    }
+    if (neverShowBtn && !neverShowBtn.dataset.bound) {
+      neverShowBtn.addEventListener('click', handleNeverShow);
+      neverShowBtn.dataset.bound = '1';
+    }
+  }
+
+  function setupButtonBindings() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindPromptButtons, { once: true });
+    } else {
+      bindPromptButtons();
+    }
+  }
+
+  function handleGlobalKeydown(event) {
+    if (event.key === 'Escape') {
+      const promptEl = document.getElementById('pwa-install-prompt');
+      if (promptEl && !promptEl.classList.contains('d-none')) {
+        handleDismiss();
+      }
     }
   }
 
@@ -244,24 +289,8 @@
       }
     });
 
-    // Buton event listeners
-    document.addEventListener('DOMContentLoaded', () => {
-      const installBtn = document.getElementById('pwa-install-btn');
-      const dismissBtn = document.getElementById('pwa-dismiss-btn');
-      const neverShowBtn = document.getElementById('pwa-never-show-btn');
-      
-      if (installBtn) {
-        installBtn.addEventListener('click', handleInstall);
-      }
-      
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', handleDismiss);
-      }
-      
-      if (neverShowBtn) {
-        neverShowBtn.addEventListener('click', handleNeverShow);
-      }
-    });
+    setupButtonBindings();
+    document.addEventListener('keydown', handleGlobalKeydown);
   }
 
   /**

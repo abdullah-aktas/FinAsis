@@ -1,7 +1,7 @@
 {% extends "core_ui/base.html" %}
 {% load i18n static %}
 
-{% block title %}{% trans "Kurumsal Çözümler" %} · FinAsis{% endblock %}
+{% block title %}{% trans "Kurumsal Merkez" %} · FinAsis{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
@@ -12,16 +12,18 @@
 <section id="overview" class="corporate-hero">
   <div class="row align-items-end g-4">
     <div class="col-lg-7">
-      <h1 class="display-4 fw-bold mb-3">{% trans "Kurumsal Finansal Yönetim Platformu" %}</h1>
+      <h1 class="display-4 fw-bold mb-3">
+        {% trans "FinAsis Kurumsal Merkez" %}
+      </h1>
       <p class="lead mb-4">
-        {% trans "AI destekli finans, uyumluluk ve eğitim modülleriyle kurumunuzun dönüşümünü hızlandırın." %}
+        {% trans "Buradan FinAsis'in şirket yapısı, ekip, yatırımcı bilgileri, güvenlik ve sürdürülebilirlik politikalarına tek noktadan ulaşabilirsiniz." %}
       </p>
       <div class="d-flex flex-column flex-md-row gap-3">
-        <a href="{% url 'contact' %}" class="btn btn-light btn-lg px-4">
-          <i class="bi bi-envelope-open me-2"></i>{% trans "Satışla görüş" %}
+        <a href="{% url 'corporate:about' %}" class="btn btn-light btn-lg px-4" data-cta="corporate-hub-about">
+          <i class="bi bi-info-circle me-2"></i>{% trans "Hakkımızda" %}
         </a>
-        <a href="{% url 'corporate:dashboard' %}" class="btn btn-outline-light btn-lg px-4">
-          <i class="bi bi-speedometer2 me-2"></i>{% trans "Kurumsal panele giriş" %}
+        <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg px-4" data-cta="corporate-hub-contact">
+          <i class="bi bi-envelope-open me-2"></i>{% trans "İletişim" %}
         </a>
       </div>
     </div>
@@ -38,197 +40,163 @@
   </div>
 </section>
 
-<section id="enterprise-suite" class="py-5">
+<section id="company" class="py-5 bg-light">
   <div class="container">
     <div class="row mb-5">
       <div class="col-lg-7">
-        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "Çözüm paketleri" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Kurumsal ekipler için modüler mimari" %}</h2>
+        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">
+          {% trans "Şirket" %}
+        </span>
+        <h2 class="landing-section-title mb-3">
+          {% trans "FinAsis markasının arkasındaki yapı" %}
+        </h2>
         <p class="fs-5 text-secondary mb-0">
-          {% trans "FinAsis modülleri finans, uyumluluk ve eğitim ekiplerinin canlı iş akışlarına göre yapılandırılır." %}
+          {% trans "Kurumsal hikayemiz, ekip yapımız ve sürdürülebilirlik yaklaşımımız hakkında detaylı bilgi edinin." %}
         </p>
       </div>
     </div>
     <div class="row g-4">
-      {% for solution in solutions %}
-      <div class="col-md-6 col-xl-3">
-        <div class="solution-card h-100">
-          <div class="solution-icon">
-            <i class="bi {{ solution.icon }}"></i>
-          </div>
-          <span class="badge bg-light text-dark fw-semibold text-uppercase small">{{ solution.code }}</span>
-          <h3 class="h5 fw-semibold mb-2">{{ solution.title }}</h3>
-          <p class="text-secondary mb-3">{{ solution.description }}</p>
-          <div class="solution-stats">
-            {% for stat in solution.stats %}
-            <div class="solution-stat">
-              <span class="solution-stat-value">{{ stat.value }}</span>
-              <span class="solution-stat-label">{{ stat.label }}</span>
-            </div>
-            {% endfor %}
-          </div>
-          {% if solution.href %}
-          <a href="{{ solution.href }}" class="solution-link fw-semibold small" data-cta="corporate-solution">
-            {% trans "Detayları görüntüle" %} <i class="bi bi-arrow-up-right"></i>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-{% if plan_tiles %}
-<section id="enterprise-plans" class="py-5 bg-light">
-  <div class="container">
-    <div class="row mb-5">
-      <div class="col-lg-7">
-        <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "Plan kataloğu" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Kurumsal ekipler için özelleştirilebilir paketler" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Fiyatlandırma, modül erişimleri ve destek seviyeleri plan tipine göre otomatik atanır." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for plan in plan_tiles %}
-      <div class="col-md-6 col-xl-4">
-        <div class="enterprise-highlight-card h-100">
-          <div class="d-flex justify-content-between align-items-start">
-            <span class="badge bg-light text-dark text-uppercase small">{{ plan.audience }}</span>
-            {% if plan.monthly_price or plan.yearly_price %}
-            <span class="price">
-              {% if plan.monthly_price %}
-                {{ plan.monthly_price }} {{ plan.currency }}/ {% trans "ay" %}
-              {% elif plan.yearly_price %}
-                {{ plan.yearly_price }} {{ plan.currency }}/ {% trans "yıl" %}
-              {% endif %}
+      <div class="col-md-4">
+        <a href="{% url 'corporate:about' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-about">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Hakkımızda" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "FinAsis'in kuruluş amacı, vizyonu ve odaklandığı alanlar." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
-            {% endif %}
           </div>
-          <h3 class="h5 fw-semibold mb-2">{{ plan.name }}</h3>
-          {% if plan.description %}
-          <p class="text-secondary small mb-3">{{ plan.description }}</p>
-          {% endif %}
-          {% if plan.modules %}
-          <ul class="module-list">
-            {% for module_name in plan.modules %}
-            <li><i class="bi bi-check-lg text-success me-2"></i>{{ module_name }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-          <a href="{% url 'billing:plans' %}?focus={{ plan.code }}" class="fw-semibold small d-inline-flex align-items-center gap-1" data-cta="corporate-plan">
-            {% trans "Plan detaylarını incele" %} <i class="bi bi-arrow-up-right"></i>
-          </a>
-        </div>
+        </a>
       </div>
-      {% endfor %}
+      <div class="col-md-4">
+        <a href="{% url 'corporate:team' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-team">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Takım" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "Ürün geliştirme, finans ve eğitim alanlarında çalışan çekirdek ekip." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
+            </span>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'corporate:sustainability' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-sustainability">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Sürdürülebilirlik" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "Sosyal etki, çevresel sorumluluk ve uzun vadeli ürün stratejisi." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
+            </span>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </section>
-{% endif %}
 
-{% if journeys %}
-<section id="journeys" class="py-5">
+<section id="governance" class="py-5">
   <div class="container">
     <div class="row mb-5">
       <div class="col-lg-7">
-        <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Başarı akışları" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Ekiplerin FinAsis'te ilerleyişi" %}</h2>
+        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">
+          {% trans "Yatırımcı & Güvenlik" %}
+        </span>
+        <h2 class="landing-section-title mb-3">
+          {% trans "Şeffaflık, güven ve bilgi paylaşımı" %}
+        </h2>
         <p class="fs-5 text-secondary mb-0">
-          {% trans "FinQuest görev motoru ve AI asistanı sayesinde ekiplerinizin canlı başarım akışını yönetin." %}
+          {% trans "Yatırımcı dokümanları, basın bültenleri ve güvenlik politikalarına buradan ulaşabilirsiniz." %}
         </p>
       </div>
     </div>
     <div class="row g-4">
-      {% for journey in journeys %}
-      <div class="col-md-6 col-xl-4">
-        <div class="journey-card h-100">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <span class="badge bg-light text-dark text-uppercase small">{{ journey.audience }}</span>
-            <span class="journey-xp"><i class="bi bi-stars me-1"></i>{{ journey.total_xp }} XP</span>
+      <div class="col-md-4">
+        <a href="{% url 'corporate:investors' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-investors">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Yatırımcılar" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "Yatırımcı sunumları, özetler ve ilgili dokümanlara yönlendirmeler." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
+            </span>
           </div>
-          <h3 class="h5 fw-semibold mb-1">{{ journey.title }}</h3>
-          <p class="text-secondary small mb-2">
-            {% blocktrans with count=journey.task_count %}{{ count }} görev{% endblocktrans %}
-          </p>
-          {% if journey.tags %}
-          <div class="journey-tags">
-            {% for tag in journey.tags %}
-            <span class="journey-tag">{{ tag }}</span>
-            {% endfor %}
-          </div>
-          {% endif %}
-          {% if journey.href %}
-          <a href="{{ journey.href }}" class="journey-link mt-auto" data-cta="corporate-journey">
-            {% trans "Akışı görüntüle" %} <i class="bi bi-arrow-up-right"></i>
-          </a>
-          {% endif %}
-        </div>
+        </a>
       </div>
-      {% endfor %}
+      <div class="col-md-4">
+        <a href="{% url 'corporate:press' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-press">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Basın" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "Basın duyuruları, medya kitleri ve haber bağlantıları." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
+            </span>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'corporate:security' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-security">
+          <div class="resource-card h-100">
+            <h3 class="h5 fw-semibold mb-2">{% trans "Güvenlik" %}</h3>
+            <p class="text-secondary mb-3">
+              {% trans "Altyapı, veri koruma ve güvenlik uygulamalarına ilişkin bilgiler." %}
+            </p>
+            <span class="small fw-semibold text-primary">
+              {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
+            </span>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </section>
-{% endif %}
-
-{% if resource_cards %}
-<section id="resources" class="py-5 bg-light">
+<section id="careers" class="py-5 bg-light">
   <div class="container">
-    <div class="row mb-5">
+    <div class="row align-items-center g-4">
       <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Kaynaklar" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Kurumsal karar vericiler için içerikler" %}</h2>
+        <span class="badge bg-success-subtle text-success-emphasis mb-3">
+          {% trans "Kariyer" %}
+        </span>
+        <h2 class="landing-section-title mb-3">
+          {% trans "FinAsis'te kariyer fırsatları" %}
+        </h2>
         <p class="fs-5 text-secondary mb-0">
-          {% trans "Basın duyuruları, yatırımcı belgeleri ve AI asistan kartları gerçek kayıtlar üzerinden derlenmiştir." %}
+          {% trans "Açık pozisyonlar, çalışma kültürü ve başvuru süreçleri için kariyer sayfamızı inceleyin." %}
         </p>
       </div>
-    </div>
-    <div class="row g-4">
-      {% for card in resource_cards %}
-      <div class="col-md-6 col-xl-4">
-        <div class="resource-card h-100">
-          <h3 class="h5 fw-semibold mb-3">{{ card.title }}</h3>
-          <ul class="list-unstyled resource-list d-grid gap-3">
-            {% for item in card.items %}
-            <li>
-              <a href="{{ item.href|default:'#' }}" class="resource-link" {% if item.href %}target="_blank" rel="noopener"{% endif %} data-cta="corporate-resource">
-                <span class="resource-label">{{ item.label }}</span>
-                {% if item.meta %}
-                <span class="resource-meta text-secondary small">{{ item.meta }}</span>
-                {% endif %}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
+      <div class="col-lg-5 text-lg-end">
+        <a href="{% url 'corporate:careers' %}" class="btn btn-success btn-lg px-4" data-cta="corporate-card-careers">
+          <i class="bi bi-briefcase me-2"></i>{% trans "Kariyer sayfasına git" %}
+        </a>
       </div>
-      {% endfor %}
     </div>
   </div>
 </section>
-{% endif %}
 
-<section class="py-5">
+<section id="contact" class="py-5">
   <div class="container">
     <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
       <div>
-        <h2 class="display-6 fw-bold mb-3">{% trans "Ekibinizle FinAsis'i deneyimleyin." %}</h2>
+        <h2 class="display-6 fw-bold mb-3">{% trans "Kurumsal ekibimizle iletişime geçin." %}</h2>
         <p class="lead mb-0">
-          {% trans "Kurumsal finans, uyumluluk ve eğitim ekipleriniz için demo planlayın; canlı verilerle platformu değerlendirin." %}
+          {% trans "Ürün, iş ortaklığı veya yatırımcı ilişkileri hakkında sorularınız için iletişim formunu kullanabilirsiniz." %}
         </p>
       </div>
       <div class="d-flex flex-column flex-md-row gap-3">
-        <a class="btn btn-light btn-lg px-4" href="{% url 'contact' %}" data-cta="corporate-cta-contact">
-          <i class="bi bi-chat-right-dots me-2"></i>{% trans "Satışla iletişime geç" %}
-        </a>
-        <a class="btn btn-outline-light btn-lg px-4" href="{% url 'billing:plans' %}" data-cta="corporate-cta-plans">
-          {% trans "Planları incele" %}
+        <a class="btn btn-light btn-lg px-4" href="{% url 'contact' %}" data-cta="corporate-hub-contact-primary">
+          <i class="bi bi-chat-right-dots me-2"></i>{% trans "İletişim formu" %}
         </a>
       </div>
     </div>
   </div>
 </section>
+
 {% endblock %}
 

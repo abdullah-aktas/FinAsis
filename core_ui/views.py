@@ -815,7 +815,8 @@ def landing_home(request):
     primary_navigation = [
         {"label": _("Genel Bakış"), "href": "#snapshot"},
         {"label": _("Çözümler"), "href": "#solutions"},
-        {"label": _("Planlar"), "href": "#plans"},
+        # Planlar linki her sayfadan ana sayfadaki planlar bölümüne gitsin
+        {"label": _("Planlar"), "href": f"{reverse('home')}#plans"},
         {"label": _("Kaynaklar"), "href": "#resources"},
     ]
 

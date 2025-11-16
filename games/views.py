@@ -53,3 +53,56 @@ def leaderboard_page(request):
 def detail(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     return render(request, 'games/detail.html', {'game': game})
+
+def quest_bridge(request):
+    """
+    Görev Köprüsü - FinQuest görevlerini sınıf hedefleriyle eşleştirme aracı
+    Öğretmenler için görev ve ders planı entegrasyon sayfası
+    """
+    from django.contrib.auth.views import redirect_to_login
+    from games.task_engine import get_tasks
+    from games.models import PlayerProfile
+    
+    if not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    
+    # Kullanıcı profil bilgileri
+    try:
+        profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
+    except Exception:
+        profile = None
+    
+    # FinQuest görevleri
+    try:
+        finquest_tasks = get_tasks(audience='student', kind='mission', limit=20) or []
+    except Exception:
+        finquest_tasks = []
+    
+    # Eğitim görevleri (öğretmen ise)
+    education_tasks = []
+    try:
+        from django.apps import apps
+        if apps.is_installed('education'):
+            from education.models import Task as EducationTask
+            if hasattr(request.user, 'teacher_profile') or request.user.groups.filter(name__icontains='teacher').exists():
+                try:
+                    education_tasks = EducationTask.objects.filter(
+                        created_by=request.user,
+                        is_active=True
+                    )[:20]
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    
+    # Eşleştirilmiş görevler
+    matched_quests = []
+    
+    context = {
+        'profile': profile,
+        'finquest_tasks': finquest_tasks,
+        'education_tasks': education_tasks,
+        'matched_quests': matched_quests,
+    }
+    
+    return render(request, 'games/quest_bridge.html', context)

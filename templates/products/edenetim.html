@@ -1,8 +1,8 @@
 {% extends "core_ui/base.html" %}
 {% load i18n static %}
 {% block feature_banner %}{% endblock %}
-{% block title %}FinAsis | {% trans 'Dijital Denetim & Uyumluluk Merkezi' %}{% endblock %}
-{% block meta_description %}{% trans 'Blockchain tabanlı immutable kayıtlar, AI destekli anomali tespiti, 7/24 otomatik kontrol. Denetim süresini %80 kısaltma.' %}{% endblock %}
+{% block title %}FinAsis | {% trans 'Denetim & Uyumluluk Platformu' %}{% endblock %}
+{% block meta_description %}{% trans 'İşlem kayıtları, risk değerlendirmeleri ve uyumluluk kontrolleri ile kapsamlı denetim yönetimi. AI destekli anomali tespiti.' %}{% endblock %}
 {% block extra_css %}
 <style>
   :root {
@@ -97,26 +97,26 @@
     <div class="row g-3">
       <div class="col-md-3 col-6">
         <div class="metric-card text-center">
-          <div class="metric-value">%80</div>
-          <div class="metric-label">Denetim Süresi Azaltma</div>
+          <div class="metric-value">{% if stats.audit_event_count %}{{ stats.audit_event_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Denetim Kaydı" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card text-center">
-          <div class="metric-value">7/24</div>
-          <div class="metric-label">Otomatik Kontroller</div>
+          <div class="metric-value">{% if stats.control_count %}{{ stats.control_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Aktif Kontrol" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card text-center">
           <div class="metric-value">%0</div>
-          <div class="metric-label">Manipülasyon Riski</div>
+          <div class="metric-label">{% trans "Manipülasyon Riski" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-6">
         <div class="metric-card text-center">
-          <div class="metric-value">AI</div>
-          <div class="metric-label">Anomali Tespiti</div>
+          <div class="metric-value">{% if stats.company_count %}{{ stats.company_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Aktif Şirket" %}</div>
         </div>
       </div>
     </div>

@@ -224,6 +224,11 @@ urlpatterns += [
     path('summarize/', summarize_document, name='summarize_document'),
     path('summaries/', summary_list, name='summary_list'),
     path('summaries/<int:pk>/', summary_detail, name='summary_detail'),
+    # URL aliases for summaries
+    path('class-summaries/', summary_list, name='class_summaries'),
+    path('class-summaries/<int:pk>/', summary_detail, name='class_summaries_detail'),
+    path('sınıf-özetleri/', summary_list, name='sinif_ozetleri'),
+    path('sınıf-özetleri/<int:pk>/', summary_detail, name='sinif_ozetleri_detail'),
     
     # Auto Report Generation
     path('reports/', auto_reports, name='auto_reports'),

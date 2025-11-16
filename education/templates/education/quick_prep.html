@@ -1,0 +1,211 @@
+{% extends "core_ui/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Hızlı Hazırlık" %} · {% trans "Sınavlar" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">{% trans "Hızlı Hazırlık" %}</h1>
+      <p class="text-muted mb-0">{% trans "Sınavlara hazırlık için hızlı testler ve alıştırmalar" %}</p>
+    </div>
+  </div>
+
+  <!-- İstatistik Kartları -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <div class="text-muted small mb-1">{% trans "Yaklaşan Sınavlar" %}</div>
+              <div class="h4 mb-0">{{ upcoming_exams|length }}</div>
+            </div>
+            <div class="ms-3">
+              <i class="bi bi-calendar-event text-primary" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <div class="text-muted small mb-1">{% trans "Tamamlanan Sınavlar" %}</div>
+              <div class="h4 mb-0">{{ completed_exams|length }}</div>
+            </div>
+            <div class="ms-3">
+              <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <div class="text-muted small mb-1">{% trans "Toplam Soru" %}</div>
+              <div class="h4 mb-0">{{ total_questions|default:0 }}</div>
+            </div>
+            <div class="ms-3">
+              <i class="bi bi-question-circle text-info" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <div class="text-muted small mb-1">{% trans "Aktif Kurslar" %}</div>
+              <div class="h4 mb-0">{{ user_courses|length }}</div>
+            </div>
+            <div class="ms-3">
+              <i class="bi bi-book text-warning" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yaklaşan Sınavlar -->
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="h5 mb-0">{% trans "Yaklaşan Sınavlar" %}</h2>
+    </div>
+    <div class="card-body">
+      {% if upcoming_exams %}
+      <div class="list-group list-group-flush">
+        {% for exam in upcoming_exams %}
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <h5 class="mb-1">{{ exam.title }}</h5>
+              <p class="mb-1 text-muted">
+                <i class="bi bi-book me-1"></i>{{ exam.course.title }}
+                {% if exam.start_at %}
+                <span class="ms-2">
+                  <i class="bi bi-clock me-1"></i>{{ exam.start_at|date:"d M Y, H:i" }}
+                </span>
+                {% endif %}
+                {% if exam.duration_minutes %}
+                <span class="ms-2">
+                  <i class="bi bi-hourglass-split me-1"></i>{% trans "Süre:" %} {{ exam.duration_minutes }} {% trans "dk" %}
+                </span>
+                {% endif %}
+              </p>
+              {% if exam.questions.exists %}
+              <small class="text-muted">
+                <i class="bi bi-question-circle me-1"></i>{{ exam.questions.count }} {% trans "soru" %}
+              </small>
+              {% endif %}
+            </div>
+            <div class="ms-3">
+              <a href="{% url 'education:api_lms:exam-detail' pk=exam.pk %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-arrow-right me-1"></i>{% trans "Hazırlan" %}
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">{% trans "Yaklaşan sınav bulunmuyor." %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tamamlanan Sınavlar -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h2 class="h5 mb-0">{% trans "Tamamlanan Sınavlar" %}</h2>
+    </div>
+    <div class="card-body">
+      {% if completed_exams %}
+      <div class="list-group list-group-flush">
+        {% for submission in completed_exams %}
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <h5 class="mb-1">{{ submission.exam.title }}</h5>
+              <p class="mb-1 text-muted">
+                <i class="bi bi-book me-1"></i>{{ submission.exam.course.title }}
+                <span class="ms-2">
+                  <i class="bi bi-calendar-check me-1"></i>{{ submission.submitted_at|date:"d M Y, H:i" }}
+                </span>
+              </p>
+              {% if submission.auto_score or submission.manual_score %}
+              <div class="mt-2">
+                <span class="badge bg-primary">
+                  {% trans "Otomatik Puan:" %} {{ submission.auto_score|default:"-" }}
+                </span>
+                {% if submission.manual_score %}
+                <span class="badge bg-success ms-2">
+                  {% trans "Manuel Puan:" %} {{ submission.manual_score }}
+                </span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            <div class="ms-3">
+              <a href="{% url 'education:api_lms:exam-submission-detail' pk=submission.pk %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eye me-1"></i>{% trans "Detaylar" %}
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">{% trans "Henüz tamamlanan sınav yok." %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Kurslar -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="h5 mb-0">{% trans "Kurslarım" %}</h2>
+    </div>
+    <div class="card-body">
+      {% if user_courses %}
+      <div class="row g-3">
+        {% for course in user_courses %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border">
+            <div class="card-body">
+              <h5 class="card-title">{{ course.title }}</h5>
+              {% if course.description %}
+              <p class="card-text text-muted small">{{ course.description|truncatewords:20 }}</p>
+              {% endif %}
+              {% if course.exams.exists %}
+              <p class="mb-2">
+                <small class="text-muted">
+                  <i class="bi bi-clipboard-check me-1"></i>{{ course.exams.count }} {% trans "sınav" %}
+                </small>
+              </p>
+              {% endif %}
+              <a href="{% url 'education:course_marketing' course.slug %}" class="btn btn-sm btn-outline-primary">
+                {% trans "Kursa Git" %}
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">{% trans "Henüz kayıtlı kursunuz yok." %}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

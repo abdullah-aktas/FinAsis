@@ -230,26 +230,26 @@
     <div class="row g-4">
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">100+</div>
-          <div class="metric-label">Kurs & Sertifika</div>
+          <div class="metric-value">{% if stats.total_courses %}{{ stats.total_courses|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Aktif Kurs" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">15K+</div>
-          <div class="metric-label">Mezun Öğrenci</div>
+          <div class="metric-value">{% if stats.total_certificates %}{{ stats.total_certificates|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Sertifika" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">4.9/5</div>
-          <div class="metric-label">Ortalama Puan</div>
+          <div class="metric-value">{% if stats.student_count %}{{ stats.student_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Öğrenci" %}</div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="metric-card">
-          <div class="metric-value">%92</div>
-          <div class="metric-label">Tamamlama Oranı</div>
+          <div class="metric-value">{% if stats.teacher_count %}{{ stats.teacher_count|floatformat:0 }}{% else %}0{% endif %}</div>
+          <div class="metric-label">{% trans "Öğretmen" %}</div>
         </div>
       </div>
     </div>

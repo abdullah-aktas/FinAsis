@@ -168,6 +168,45 @@ def education_home(request):
     }
     return render(request, "education/education_home.html", context)
 
+@login_required
+def quick_prep(request):
+    """
+    Hızlı Hazırlık - Sınavlara hazırlık için hızlı testler ve alıştırmalar
+    """
+    from django.utils import timezone
+    from django.db.models import Q
+    
+    # Kullanıcının erişebileceği sınavlar
+    now = timezone.now()
+    upcoming_exams = Exam.objects.filter(
+        Q(course__teacher=request.user) | Q(course__students=request.user),
+        Q(start_at__isnull=True) | Q(start_at__gte=now),
+    ).distinct().select_related('course').order_by('start_at')[:10]
+    
+    # Kullanıcının tamamladığı sınavlar
+    completed_exams = ExamSubmission.objects.filter(
+        student=request.user
+    ).select_related('exam', 'exam__course').order_by('-submitted_at')[:10]
+    
+    # Kullanıcının katıldığı kurslar
+    user_courses = Course.objects.filter(
+        Q(teacher=request.user) | Q(students=request.user)
+    ).distinct()[:10]
+    
+    # Hızlı testler için soru sayısı
+    total_questions = Question.objects.filter(
+        exams__course__in=user_courses
+    ).distinct().count() if user_courses.exists() else 0
+    
+    context = {
+        'upcoming_exams': upcoming_exams,
+        'completed_exams': completed_exams,
+        'user_courses': user_courses,
+        'total_questions': total_questions,
+        'now': now,
+    }
+    return render(request, 'education/quick_prep.html', context)
+
 @method_decorator(login_required, name='dispatch')
 class FinancialTermCardListView(ListView):
     model = FinancialTermCard

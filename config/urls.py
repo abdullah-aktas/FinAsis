@@ -26,6 +26,7 @@ urlpatterns = [
     path('common/', include(('common.urls', 'common'), namespace='common')),
     path('core-ui/', include(('core_ui.urls', 'core_ui'), namespace='core_ui')),
     path('education/', include(('education.urls', 'education'), namespace='education')),
+    path('eğitim/', include(('education.urls', 'education'), namespace='education_tr')),  # Turkish alias
     path('corporate/', include(('corporate.urls', 'corporate'), namespace='corporate')),
     path('finance/', include(('finance.urls', 'finance'), namespace='finance')),
     path('contact/', corporate_views.contact, name='contact'),
@@ -63,6 +64,8 @@ MARKETING_ROUTES = [
     ('products/edonusum/', 'products_edonusum', 'products_edonusum'),
     ('products/edenetim/', 'products_edenetim', 'products_edenetim'),
     ('products/yapay-zeka/', 'products_yapay_zeka', 'products_yapay_zeka'),
+    ('products/mali-musavir/', 'products_mali_musavir', 'products_mali_musavir'),
+    ('products/kobi-analizi/', 'products_kobi_analizi', 'products_kobi_analizi'),
     ('solutions/entegrasyon/', 'solutions_enteg', 'solutions_enteg'),
     ('solutions/raporlama/', 'solutions_raporlama', 'solutions_raporlama'),
     ('solutions/analitik/', 'solutions_analitik', 'solutions_analitik'),

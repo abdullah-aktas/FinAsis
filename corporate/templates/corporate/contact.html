@@ -6,97 +6,449 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
 <link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+<style>
+.contact-hero {
+  background: linear-gradient(135deg, #0D3B66 0%, #0AAE94 100%);
+  color: white;
+  padding: clamp(4rem, 8vw, 5rem) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 179, 0, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.contact-section {
+  padding: 4rem 0;
+}
+
+.contact-card {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.contact-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(255, 179, 0, 0.05));
+  color: #0AAE94;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.contact-info-item:last-child {
+  border-bottom: none;
+}
+
+.contact-info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 174, 148, 0.1);
+  color: #0AAE94;
+  flex-shrink: 0;
+}
+
+.contact-form-section {
+  background: #F8FAFA;
+  padding: 4rem 0;
+}
+
+.form-control, .form-select {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0AAE94;
+  box-shadow: 0 0 0 0.2rem rgba(10, 174, 148, 0.1);
+}
+
+.office-card {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  height: 100%;
+}
+
+.office-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #0AAE94;
+}
+
+.office-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0AAE94, #008E7A);
+  color: white;
+  font-size: 1.25rem;
+}
+
+.contact-hours {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.hours-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.hours-item:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-header .badge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+}
+
+@media (max-width: 768px) {
+  .contact-section, .contact-form-section {
+    padding: 2.5rem 0;
+  }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<section id="contact-hero" class="contact-hero">
-  <div class="row g-4 align-items-center">
-    <div class="col-lg-7">
-      <h1 class="display-5 fw-bold mb-3">{% trans "Satış ve destek ekibimizle iletişime geçin" %}</h1>
-      <p class="lead mb-4">
-        {% trans "Kurumsal ekipleriniz için canlı demo planlayın, uyumluluk danışmanlığı alın veya FinAsis partner ağına katılın." %}
-      </p>
-      <div class="d-flex flex-column flex-md-row gap-3">
-        <a class="btn btn-light btn-lg px-4" href="mailto:{{ sales_email }}" data-cta="contact-hero-sales">
-          <i class="bi bi-envelope-paper me-2"></i>{% trans "Satışa e-posta gönder" %}
-        </a>
-        <a class="btn btn-outline-light btn-lg px-4" href="tel:{{ phone_number|cut:' ' }}" data-cta="contact-hero-call">
-          <i class="bi bi-telephone-forward me-2"></i>{% trans "Telefonla ara" %}
-        </a>
-      </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="contact-metric-grid">
-        {% if has_metrics_activity %}
-          {% for metric in metrics %}
-          <div class="contact-metric-card">
-            <span class="value">{{ metric.value }}</span>
-            <span class="label">{{ metric.label }}</span>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div class="contact-metric-card">
-            <span class="value">{% trans "Canlı" %}</span>
-            <span class="label">{% trans "Platform metriklerimiz entegrasyon sonrası burada görüntülenir." %}</span>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="channels" class="py-5">
+<!-- Hero Section -->
+<section class="contact-hero">
   <div class="container">
-    <div class="row mb-4">
-      <div class="col-lg-7">
-        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "İletişim kanalları" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Ekibiniz için doğru temas noktasını seçin" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Her kanal, FinAsis platformundaki gerçek ekipler tarafından yönetiliyor ve SLA'lerimize göre izleniyor." %}
+    <div class="row align-items-center">
+      <div class="col-lg-8 mx-auto text-center">
+        <div class="mb-4">
+          <span class="badge bg-warning text-dark mb-3">{% trans "Kurumsal İletişim" %}</span>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">{% trans "FinAsis ile İletişime Geçin" %}</h1>
+        <p class="lead mb-4 opacity-90">
+          {% trans "Yerel AI destekli finans platformumuz hakkında sorularınız için kurumsal ekibimizle iletişime geçin. Satış, destek ve iş ortaklığı konularında size yardımcı olmaktan memnuniyet duyarız." %}
         </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for channel in contact_channels %}
-      <div class="col-md-6 col-xl-4">
-        <div class="contact-channel-card h-100">
-          <div class="icon-wrap">
-            <i class="bi {{ channel.icon }}"></i>
-          </div>
-          <h3 class="h5 fw-semibold mb-1">{{ channel.title }}</h3>
-          <p class="text-secondary mb-3">{{ channel.description }}</p>
-          {% if channel.cta %}
-          <a href="{{ channel.href|default:'#' }}" class="fw-semibold small d-inline-flex align-items-center gap-1" data-cta="contact-channel">
-            {{ channel.cta }} <i class="bi bi-arrow-up-right"></i>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="mailto:{{ sales_email }}" class="btn btn-light btn-lg px-4 fw-semibold" data-cta="contact-hero-email">
+            <i class="bi bi-envelope-fill me-2"></i>{% trans "E-posta Gönder" %}
           </a>
-          {% endif %}
+          <a href="tel:{{ phone_number|cut:' ' }}" class="btn btn-outline-light btn-lg px-4 fw-semibold" data-cta="contact-hero-phone">
+            <i class="bi bi-telephone-fill me-2"></i>{% trans "Hemen Ara" %}
+          </a>
         </div>
       </div>
-      {% endfor %}
     </div>
   </div>
 </section>
 
-{% if support_programs %}
-<section class="py-5 bg-light">
+<!-- Contact Information Cards -->
+<section class="contact-section">
   <div class="container">
-    <div class="row mb-4">
-      <div class="col-lg-7">
-        <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "Destek programları" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Plan bazında atanmış danışmanlar" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Planınıza göre erişebileceğiniz modüller ve destek SLA değerleri aşağıdadır." %}
-        </p>
+    <div class="section-header">
+      <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "İletişim Kanalları" %}</span>
+      <h2 class="h3 fw-bold mb-3">{% trans "Size En Uygun Yolu Seçin" %}</h2>
+      <p class="text-secondary mb-0">
+        {% trans "Aşağıdaki kanallardan birini seçerek bizimle iletişime geçebilirsiniz. Tüm talepleriniz en kısa sürede değerlendirilecektir." %}
+      </p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="contact-card">
+          <div class="contact-card-icon">
+            <i class="bi bi-envelope-paper-heart"></i>
+          </div>
+          <h3 class="h5 fw-bold mb-2">{% trans "Satış Ekibi" %}</h3>
+          <p class="text-secondary mb-3">{% trans "Ürün demoları, fiyatlandırma ve kurumsal çözümler için" %}</p>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
+              <a href="mailto:{{ sales_email }}" class="text-decoration-none">{{ sales_email }}</a>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "Yanıt Süresi" %}</strong>
+              <span class="text-secondary">{% trans "24 saat içinde" %}</span>
+            </div>
+          </div>
+        </div>
       </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="contact-card">
+          <div class="contact-card-icon">
+            <i class="bi bi-headset"></i>
+          </div>
+          <h3 class="h5 fw-bold mb-2">{% trans "Teknik Destek" %}</h3>
+          <p class="text-secondary mb-3">{% trans "Platform kullanımı, teknik sorunlar ve entegrasyon desteği için" %}</p>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
+              <a href="mailto:{{ support_email }}" class="text-decoration-none">{{ support_email }}</a>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "Yanıt Süresi" %}</strong>
+              <span class="text-secondary">{% trans "2-4 saat içinde" %}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="contact-card">
+          <div class="contact-card-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <h3 class="h5 fw-bold mb-2">{% trans "İş Ortaklığı" %}</h3>
+          <p class="text-secondary mb-3">{% trans "Partner programı, distribütörlük ve işbirliği fırsatları için" %}</p>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
+              <a href="mailto:partners@finasis.com" class="text-decoration-none">partners@finasis.com</a>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">
+              <i class="bi bi-link-45deg"></i>
+            </div>
+            <div>
+              <strong class="d-block mb-1">{% trans "Daha Fazla Bilgi" %}</strong>
+              <a href="{% url 'resources_partner_marketplace' %}" class="text-decoration-none">{% trans "Partner Merkezi" %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Form -->
+<section class="contact-form-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-8">
+        <div class="section-header">
+          <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "İletişim Formu" %}</span>
+          <h2 class="h3 fw-bold mb-3">{% trans "Bize Mesaj Gönderin" %}</h2>
+          <p class="text-secondary mb-0">
+            {% trans "Aşağıdaki formu doldurarak bizimle iletişime geçebilirsiniz. Tüm alanları eksiksiz doldurmanız halinde en kısa sürede size dönüş yapacağız." %}
+          </p>
+        </div>
+        <div class="contact-card">
+          {% include "components/messages.html" %}
+          <form method="post" novalidate autocomplete="on" id="contactForm">
+            {% csrf_token %}
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-semibold">{% trans "Adınız Soyadınız" %} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="{% trans 'Adınız Soyadınız' %}" required>
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold">{% trans "E-posta Adresiniz" %} <span class="text-danger">*</span></label>
+                <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="ornek@firma.com" required>
+              </div>
+              <div class="col-md-6">
+                <label for="company" class="form-label fw-semibold">{% trans "Şirket Adı" %}</label>
+                <input type="text" class="form-control form-control-lg" id="company" name="company" placeholder="{% trans 'Şirket Adı (Opsiyonel)' %}">
+              </div>
+              <div class="col-md-6">
+                <label for="phone" class="form-label fw-semibold">{% trans "Telefon Numarası" %}</label>
+                <input type="tel" class="form-control form-control-lg" id="phone" name="phone" placeholder="+90 5XX XXX XX XX">
+              </div>
+              <div class="col-12">
+                <label for="subject" class="form-label fw-semibold">{% trans "Konu" %} <span class="text-danger">*</span></label>
+                <select class="form-select form-select-lg" id="subject" name="subject" required>
+                  <option value="">{% trans "Konu seçin" %}</option>
+                  <option value="demo">{% trans "Demo Talep Et" %}</option>
+                  <option value="sales">{% trans "Satış Bilgisi" %}</option>
+                  <option value="support">{% trans "Teknik Destek" %}</option>
+                  <option value="compliance">{% trans "Uyumluluk Danışmanlığı" %}</option>
+                  <option value="partnership">{% trans "İş Ortaklığı" %}</option>
+                  <option value="other">{% trans "Diğer" %}</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="message" class="form-label fw-semibold">{% trans "Mesajınız" %} <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="message" name="message" rows="6" placeholder="{% trans 'Mesajınızı buraya yazın...' %}" required></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="privacy" name="privacy" required>
+                  <label class="form-check-label text-secondary" for="privacy">
+                    {% trans "Kişisel verilerimin işlenmesine izin veriyorum." %} 
+                    <a href="{% url 'legal_kvkk' %}" target="_blank" class="text-decoration-none fw-semibold">{% trans "KVKK Aydınlatma Metni" %}</a>
+                  </label>
+                </div>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold py-3" data-cta="contact-form-submit">
+                  <i class="bi bi-send-fill me-2"></i>{% trans "Mesajı Gönder" %}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Business Hours & Additional Info -->
+<section class="contact-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="contact-hours">
+          <h3 class="h5 fw-bold mb-4">
+            <i class="bi bi-clock-history text-primary me-2"></i>{% trans "Çalışma Saatleri" %}
+          </h3>
+          <div class="hours-item">
+            <span class="fw-semibold">{% trans "Pazartesi - Cuma" %}</span>
+            <span class="text-secondary">09:00 - 18:00</span>
+          </div>
+          <div class="hours-item">
+            <span class="fw-semibold">{% trans "Cumartesi" %}</span>
+            <span class="text-secondary">10:00 - 14:00</span>
+          </div>
+          <div class="hours-item">
+            <span class="fw-semibold">{% trans "Pazar" %}</span>
+            <span class="text-secondary">{% trans "Kapalı" %}</span>
+          </div>
+          <div class="mt-4 pt-3 border-top">
+            <p class="text-secondary small mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              {% trans "Teknik destek talepleri 7/24 otomatik sistem tarafından işlenir." %}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="contact-card">
+          <h3 class="h5 fw-bold mb-4">
+            <i class="bi bi-shield-check text-primary me-2"></i>{% trans "Güvenlik ve Uyumluluk" %}
+          </h3>
+          <ul class="list-unstyled">
+            <li class="mb-3 d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong class="d-block">{% trans "KVKK Uyumlu" %}</strong>
+                <span class="text-secondary small">{% trans "Tüm verileriniz KVKK uyumlu şekilde işlenir" %}</span>
+              </div>
+            </li>
+            <li class="mb-3 d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong class="d-block">{% trans "Yerel Veri Saklama" %}</strong>
+                <span class="text-secondary small">{% trans "Verileriniz Türkiye'de saklanır ve işlenir" %}</span>
+              </div>
+            </li>
+            <li class="mb-3 d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong class="d-block">{% trans "Blockchain Kanıt" %}</strong>
+                <span class="text-secondary small">{% trans "Kritik işlemler blockchain ile kanıtlanır" %}</span>
+              </div>
+            </li>
+            <li class="d-flex align-items-start gap-2">
+              <i class="bi bi-check-circle-fill text-success mt-1"></i>
+              <div>
+                <strong class="d-block">{% trans "SSL Şifreleme" %}</strong>
+                <span class="text-secondary small">{% trans "256-bit SSL ile güvenli iletişim" %}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Support Programs -->
+{% if support_programs %}
+<section class="contact-section bg-light">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Destek Programları" %}</span>
+      <h2 class="h3 fw-bold mb-3">{% trans "Planınıza Özel Destek" %}</h2>
+      <p class="text-secondary mb-0">
+        {% trans "Her plan için özel olarak atanmış danışmanlar ve SLA değerleri ile destekleniyorsunuz." %}
+      </p>
     </div>
     <div class="row g-4">
       {% for program in support_programs %}
       <div class="col-md-6 col-xl-4">
-        <div class="support-program-card h-100">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <span class="badge bg-light text-dark text-uppercase small">{{ program.audience }}</span>
+        <div class="contact-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="badge bg-primary-subtle text-primary-emphasis text-uppercase small">{{ program.audience }}</span>
             {% if program.monthly_price or program.yearly_price %}
-            <span class="price">
+            <span class="text-primary fw-bold">
               {% if program.monthly_price %}
                 {{ program.monthly_price }} {{ program.currency }}/ {% trans "ay" %}
               {% elif program.yearly_price %}
@@ -105,16 +457,19 @@
             </span>
             {% endif %}
           </div>
-          <h3 class="h6 fw-semibold mb-2">{{ program.name }}</h3>
+          <h3 class="h6 fw-bold mb-2">{{ program.name }}</h3>
           {% if program.modules %}
-          <ul class="segment-module-list mb-3">
+          <ul class="list-unstyled mb-3">
             {% for module_name in program.modules %}
-            <li><i class="bi bi-check-lg text-success me-2"></i>{{ module_name }}</li>
+            <li class="mb-2">
+              <i class="bi bi-check-lg text-success me-2"></i>
+              <span class="small">{{ module_name }}</span>
+            </li>
             {% endfor %}
           </ul>
           {% endif %}
-          <a href="{% url 'billing:plans' %}?focus={{ program.code }}" class="segment-link" data-cta="contact-program">
-            {% trans "Planı görüntüle" %} <i class="bi bi-arrow-up-right"></i>
+          <a href="{% url 'billing:plans' %}?focus={{ program.code }}" class="btn btn-outline-primary btn-sm w-100" data-cta="contact-program">
+            {% trans "Planı İncele" %} <i class="bi bi-arrow-right ms-1"></i>
           </a>
         </div>
       </div>
@@ -123,91 +478,4 @@
   </div>
 </section>
 {% endif %}
-
-<section id="offices" class="py-5">
-  <div class="container">
-    <div class="row mb-4">
-      <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">{% trans "Ofislerimiz" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "Türkiye'de yerel destek" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "İstanbul ve Ankara ofislerimizde yüz yüze toplantı talepleri için bize ulaşabilirsiniz." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for office in office_locations %}
-      <div class="col-md-6">
-        <div class="office-card h-100">
-          <h3 class="h5 fw-semibold mb-2"><i class="bi bi-geo-alt-fill text-primary me-2"></i>{{ office.city }}</h3>
-          <p class="mb-2">{{ office.address }}</p>
-          <p class="mb-0 text-secondary">
-            <i class="bi bi-telephone me-2"></i>
-            <a href="tel:{{ office.phone|cut:' ' }}">{{ office.phone }}</a>
-          </p>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-{% if resource_cards %}
-<section id="resources" class="py-5 bg-light">
-  <div class="container">
-    <div class="row mb-4">
-      <div class="col-lg-7">
-        <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Hazırlık rehberleri" %}</span>
-        <h2 class="landing-section-title mb-3">{% trans "İlk görüşmeden önce inceleyebileceğiniz içerikler" %}</h2>
-        <p class="fs-5 text-secondary mb-0">
-          {% trans "Basın duyuruları, yatırımcı belgeleri ve AI asistan kartlarına göz atarak FinAsis'i yakından tanıyın." %}
-        </p>
-      </div>
-    </div>
-    <div class="row g-4">
-      {% for card in resource_cards %}
-      <div class="col-md-6 col-xl-4">
-        <div class="resource-card h-100">
-          <h3 class="h5 fw-semibold mb-3">{{ card.title }}</h3>
-          <ul class="list-unstyled resource-list d-grid gap-3">
-            {% for item in card.items %}
-            <li>
-              <a href="{{ item.href|default:'#' }}" class="resource-link" {% if item.href %}target="_blank" rel="noopener"{% endif %} data-cta="contact-resource">
-                <span class="resource-label">{{ item.label }}</span>
-                {% if item.meta %}
-                <span class="resource-meta text-secondary small">{{ item.meta }}</span>
-                {% endif %}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-<section class="py-5">
-  <div class="container">
-    <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
-      <div>
-        <h2 class="display-6 fw-bold mb-3">{% trans "Birlikte stratejik yol haritası çıkaralım." %}</h2>
-        <p class="lead mb-0">
-          {% trans "FinAsis uzmanları ekiplerinizle birlikte mevcut süreçlerinizi analiz ederek canlı geçiş planı oluşturur." %}
-        </p>
-      </div>
-      <div class="d-flex flex-column flex-md-row gap-3">
-        <a class="btn btn-light btn-lg px-4" href="mailto:{{ sales_email }}" data-cta="contact-final-sales">
-          <i class="bi bi-envelope-at me-2"></i>{% trans "Satışa e-posta gönder" %}
-        </a>
-        <a class="btn btn-outline-light btn-lg px-4" href="{% url 'billing:plans' %}" data-cta="contact-final-plans">
-          {% trans "Planları incele" %}
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
 {% endblock %}
-

@@ -1,217 +1,199 @@
 {% load i18n static %}
-
-<style>
-  .site-footer {
-    background: #020b11;
-    color: rgba(241, 248, 246, 0.9);
-    padding-top: 3rem;
-    margin-top: 4rem;
-  }
-  .footer-cta {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 1.75rem;
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    background: linear-gradient(120deg, rgba(3, 33, 45, 0.85), rgba(7, 81, 67, 0.9));
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .footer-cta .btn {
-    border-radius: 999px;
-    font-weight: 600;
-  }
-  .footer-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .footer-logo {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--brand-primary, #0aae94), var(--brand-accent, #068c71));
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 15px 30px rgba(10, 174, 148, 0.3);
-  }
-  .footer-logo img {
-    width: 30px;
-    height: 30px;
-  }
-  .footer-grid {
-    margin-top: 3rem;
-  }
-  .footer-title {
-    text-transform: uppercase;
-    letter-spacing: 0.25rem;
-    font-size: 0.78rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 1rem;
-  }
-  .footer-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 0.5rem;
-  }
-  .footer-list a {
-    text-decoration: none;
-    color: rgba(241, 248, 246, 0.9);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-  .footer-list a:hover {
-    color: #7ef0cf;
-  }
-  .footer-contact {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.75);
-  }
-  .footer-social {
-    display: flex;
-    gap: 0.6rem;
-    margin-top: 1rem;
-  }
-  .footer-social a {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    margin-top: 3rem;
-    padding: 1.5rem 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 1rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
-  @media (max-width: 767.98px) {
-    .footer-cta {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-</style>
-
-<footer class="site-footer" role="contentinfo">
-  <div class="container">
-    <section class="footer-cta">
-      <div>
-        <p class="text-uppercase small fw-semibold mb-2 text-white-50">{% trans "Beta kampanyası" %}</p>
-        <h3 class="h4 mb-2 text-white">{% trans "FinAsis'e katıl · 1 hisse + 2 ay ücretsiz + blockchain sözleşmesi" %}</h3>
-        <p class="mb-0 text-white-75">
-          {% trans "Her üyelik Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. güvencesiyle zincir üzerinde yatırımcı sözleşmesi elde eder." %}
-        </p>
-      </div>
-      <div class="d-flex flex-column flex-md-row gap-3">
-        <a class="btn btn-light text-dark" href="{% url 'accounts:register' %}" data-cta="footer-register">
-          <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Ücretsiz başla" %}
-        </a>
-        <a class="btn btn-outline-light" href="{% url 'contact' %}" data-cta="footer-contact">
-          <i class="bi bi-chat-dots me-1"></i>{% trans "Kurumsal demo" %}
-        </a>
+<footer class="finasis-footer" role="contentinfo" data-component="finasis-footer">
+  <div class="container py-5">
+    <!-- CTA Section -->
+    <section class="finasis-footer__cta mb-5 pb-4 border-bottom border-light-subtle">
+      <div class="row g-4 align-items-center">
+        <div class="col-12 col-lg-8">
+          <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2">{% trans "Yerli Teknoloji" %}</span>
+          <h2 class="h3 fw-bold mb-3">{% trans "Finansal süreçlerinizi Türkiye'de geliştirilen yapay zeka ile yönetin" %}</h2>
+          <p class="lead mb-0 text-white-75">
+            {% trans "Verileriniz Türkiye'de kalır, analiz yerel GPU'da yapılır, yasal gereklilikler otomatik karşılanır. KVKK uyumlu, blockchain destekli, tamamen yerli çözüm." %}
+          </p>
+        </div>
+        <div class="col-12 col-lg-4 d-flex flex-column flex-sm-row flex-lg-column flex-xl-row gap-2 justify-content-sm-start justify-content-lg-end">
+          <a class="btn btn-light btn-lg fw-semibold" href="{% url 'accounts:register' %}" data-cta="footer-register">
+            <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Ücretsiz Başla" %}
+          </a>
+          <a class="btn btn-outline-light btn-lg" href="{% url 'contact' %}" data-cta="footer-demo">
+            <i class="bi bi-calendar-event me-2"></i>{% trans "Demo Planla" %}
+          </a>
+        </div>
       </div>
     </section>
 
-    <div class="row g-4 footer-grid">
+    <!-- Main Footer Content -->
+    <div class="row gy-5">
+      <!-- Brand & Mission -->
       <div class="col-12 col-lg-4">
-        <div class="footer-brand">
-          <div class="d-flex align-items-center gap-3">
-            <span class="footer-logo">
-              <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo">
-            </span>
-            <div>
-              <h5 class="mb-0 text-white">{{ brand_identity.name }}</h5>
-              <small class="text-white-50">{{ brand_identity.tagline }}</small>
-            </div>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }}" width="48" height="48" loading="lazy" decoding="async" class="rounded-2" />
+          <div>
+            <strong class="fs-4 d-block">{{ brand_identity.name }}</strong>
+            <small class="text-white-50 d-none d-md-block">{{ brand_identity.tagline }}</small>
           </div>
-          <p class="text-white-75 mb-2">
-            {% trans "Yerel AI destekli finans, uyum ve eğitim platformu. Başvuru yapan her üye için blockchain yatırımcı sözleşmesi oluşturulur." %}
-          </p>
-          <div class="footer-contact">
-            <span><i class="bi bi-geo-alt me-1"></i> İzmir Aliağa · Türkiye</span>
-            <a href="mailto:{{ brand_identity.support.email }}" class="text-white-75 text-decoration-none">
-              <i class="bi bi-envelope-at me-1"></i>{{ brand_identity.support.email }}
+        </div>
+        <p class="text-white-75 mb-4">
+          {% trans "Türkiye merkezli yapay zeka destekli bütünleşik finansal yönetim platformu. Muhasebe, finans, eğitim, denetim ve blockchain çözümlerini tek ekosistemde sunar." %}
+        </p>
+        
+        <!-- Trust Badges -->
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+            <i class="bi bi-shield-check me-1"></i>{% trans "KVKK Uyumlu" %}
+          </span>
+          <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2">
+            <i class="bi bi-cpu me-1"></i>{% trans "Yerel AI" %}
+          </span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+            <i class="bi bi-link-45deg me-1"></i>{% trans "Blockchain" %}
+          </span>
+        </div>
+
+        <!-- Social Links -->
+        <div class="d-flex gap-3">
+          {% for social in brand_identity.social %}
+            <a class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" 
+               href="{{ social.url }}" target="_blank" rel="noopener" 
+               aria-label="{{ social.name }}" 
+               style="width: 40px; height: 40px;">
+              <i class="bi bi-{{ social.icon }}"></i>
             </a>
-          </div>
-          <div class="footer-social">
-            {% for social in brand_identity.social %}
-              <a href="{{ social.url }}" target="_blank" rel="noopener" aria-label="{{ social.name }}">
-                <i class="bi bi-{{ social.icon }}"></i>
-              </a>
-            {% endfor %}
-          </div>
+          {% endfor %}
         </div>
       </div>
 
-      <div class="col-6 col-lg-2">
-        <p class="footer-title">{% trans "Platform" %}</p>
-        <ul class="footer-list">
-          <li><a href="{% url 'home' %}#hero"><i class="bi bi-arrow-up-right"></i>{% trans "Genel bakış" %}</a></li>
-          <li><a href="{% url 'home' %}#capabilities"><i class="bi bi-arrow-up-right"></i>{% trans "Hizmetler" %}</a></li>
-          <li><a href="{% url 'home' %}#solutions"><i class="bi bi-arrow-up-right"></i>{% trans "Çözümler" %}</a></li>
-          <li><a href="{% url 'billing:plans' %}"><i class="bi bi-arrow-up-right"></i>{% trans "Planlar" %}</a></li>
+      <!-- Hizmetler -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <h6 class="text-uppercase small fw-bold text-white mb-3">{% trans "Hizmetlerimiz" %}</h6>
+        <ul class="list-unstyled finasis-footer__list">
+          <li><a href="{% url 'products_muhasebe' %}">{% trans "Muhasebe" %}</a></li>
+          <li><a href="{% url 'products_finans' %}">{% trans "Finansal Yönetim" %}</a></li>
+          <li><a href="{% url 'audit:landing' %}">{% trans "Denetim" %}</a></li>
+          <li><a href="{% url 'products_blockchain' %}">{% trans "Blockchain" %}</a></li>
+          <li><a href="{% url 'products_egitim' %}">{% trans "Eğitim" %}</a></li>
+          <li><a href="{% url 'products_oyunlar' %}">{% trans "Oyunlar" %}</a></li>
+          <li><a href="{% url 'products_mali_musavir' %}">{% trans "Mali Müşavirlik" %}</a></li>
         </ul>
       </div>
 
-      <div class="col-6 col-lg-2">
-        <p class="footer-title">{% trans "Kaynaklar" %}</p>
-        <ul class="footer-list">
-          <li><a href="{% url 'resources' %}"><i class="bi bi-journal-text"></i>{% trans "Kaynak merkezi" %}</a></li>
-          <li><a href="{% url 'developer_api' %}"><i class="bi bi-code-slash"></i>{% trans "Geliştirici" %}</a></li>
-          <li><a href="{% url 'resources_partner_marketplace' %}"><i class="bi bi-people"></i>{% trans "Partner ekosistemi" %}</a></li>
-          <li><a href="{% url 'corporate:landing' %}"><i class="bi bi-building"></i>{% trans "Kurumsal" %}</a></li>
+      <!-- Çözümler & Kaynaklar -->
+      <div class="col-6 col-md-4 col-lg-3">
+        <h6 class="text-uppercase small fw-bold text-white mb-3">{% trans "Kaynaklar" %}</h6>
+        <ul class="list-unstyled finasis-footer__list">
+          <li><a href="{% url 'resources_guides' %}">{% trans "Kılavuzlar" %}</a></li>
+          <li><a href="{% url 'resources_docs' %}">{% trans "Dokümantasyon" %}</a></li>
+          <li><a href="{% url 'resources_training' %}">{% trans "Eğitim Programı" %}</a></li>
+          <li><a href="{% url 'resources_academy' %}">{% trans "FinAsis Akademi" %}</a></li>
+          <li><a href="{% url 'developer_api' %}">{% trans "Geliştirici API" %}</a></li>
+          <li><a href="{% url 'resources_partner_marketplace' %}">{% trans "Partner Marketplace" %}</a></li>
         </ul>
       </div>
 
-      <div class="col-6 col-lg-2">
-        <p class="footer-title">{% trans "Hizmetler" %}</p>
-        <ul class="footer-list">
-          <li><a href="{% url 'products_muhasebe' %}"><i class="bi bi-calculator"></i>{% trans "Muhasebe" %}</a></li>
-          <li><a href="{% url 'products_finans' %}"><i class="bi bi-graph-up"></i>{% trans "Finans" %}</a></li>
-          <li><a href="{% url 'products_egitim' %}"><i class="bi bi-mortarboard"></i>{% trans "Eğitim & LMS" %}</a></li>
-          <li><a href="{% url 'products_blockchain' %}"><i class="bi bi-link-45deg"></i>{% trans "Blockchain" %}</a></li>
-          <li><a href="{% url 'products_yapay_zeka' %}"><i class="bi bi-robot"></i>{% trans "AI kartları" %}</a></li>
+      <!-- Destek & Yasal -->
+      <div class="col-6 col-md-4 col-lg-3">
+        <h6 class="text-uppercase small fw-bold text-white mb-3">{% trans "Destek & Yasal" %}</h6>
+        <ul class="list-unstyled finasis-footer__list mb-4">
+          <li><a href="{% url 'contact' %}">{% trans "İletişim" %}</a></li>
+          <li><a href="{% url 'support' %}">{% trans "Destek Merkezi" %}</a></li>
+          <li><a href="{% url 'privacy_policy' %}">{% trans "Gizlilik Politikası" %}</a></li>
+          <li><a href="{% url 'terms' %}">{% trans "Kullanım Şartları" %}</a></li>
+          <li><a href="{% url 'legal_kvkk' %}">KVKK</a></li>
+          <li><a href="{% url 'cookie_policy' %}">{% trans "Çerez Politikası" %}</a></li>
         </ul>
-      </div>
-
-      <div class="col-6 col-lg-2">
-        <p class="footer-title">{% trans "Yasal" %}</p>
-        <ul class="footer-list">
-          <li><a href="{% url 'privacy_policy' %}"><i class="bi bi-shield-lock"></i>{% trans "Gizlilik" %}</a></li>
-          <li><a href="{% url 'terms' %}"><i class="bi bi-file-earmark-text"></i>{% trans "Kullanım Şartları" %}</a></li>
-          <li><a href="{% url 'legal_kvkk' %}"><i class="bi bi-lock"></i>KVKK</a></li>
-          <li><a href="{% url 'risk_warning' %}"><i class="bi bi-exclamation-octagon"></i>{% trans "Risk Bildirimi" %}</a></li>
-        </ul>
+        
+        <!-- İletişim Bilgileri -->
+        <div class="finasis-footer__contact small text-white-50">
+          <p class="mb-2">
+            <i class="bi bi-envelope-at me-2"></i>
+            <a href="mailto:{{ brand_identity.support.email }}" class="text-white-75 text-decoration-none">{{ brand_identity.support.email }}</a>
+          </p>
+          {% if brand_identity.support.phone %}
+          <p class="mb-2">
+            <i class="bi bi-telephone me-2"></i>
+            <a href="tel:{{ brand_identity.support.phone }}" class="text-white-75 text-decoration-none">{{ brand_identity.support.phone }}</a>
+          </p>
+          {% endif %}
+          {% if brand_identity.support.address %}
+          <p class="mb-0">
+            <i class="bi bi-geo-alt me-2"></i>
+            <span>{{ brand_identity.support.address }}</span>
+          </p>
+          {% endif %}
+        </div>
       </div>
     </div>
 
-    <div class="footer-bottom">
-      <div>
-        <i class="bi bi-c-circle me-1"></i>
-        {{ brand_identity.current_year }} {% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa · Tüm hakları saklıdır." %}
-      </div>
-      <div class="d-flex flex-wrap gap-1">
-        <span><i class="bi bi-stars"></i> {% trans "Beta: 1 hisse + 2 ay ücretsiz" %}</span>
-        <span class="ms-3"><i class="bi bi-link-45deg"></i> {% trans "Blockchain yatırımcı sözleşmesi" %}</span>
+    <!-- Bottom Bar -->
+    <div class="finasis-footer__bottom border-top border-light-subtle mt-5 pt-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-6 text-center text-md-start">
+          <span class="text-white-50 small">
+            &copy; {{ brand_identity.current_year }} {{ brand_identity.name }} · {% trans "Tüm hakları saklıdır." %}
+          </span>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-end align-items-center">
+            <span class="badge bg-dark border border-light-subtle text-white-75 px-3 py-2 small">
+              <i class="bi bi-shield-check me-1"></i>{% trans "Veri Türkiye'de" %}
+            </span>
+            <span class="badge bg-dark border border-light-subtle text-white-75 px-3 py-2 small">
+              <i class="bi bi-diagram-3 me-1"></i>{% trans "10 Hizmet" %}
+            </span>
+            <span class="badge bg-dark border border-light-subtle text-white-75 px-3 py-2 small">
+              <i class="bi bi-activity me-1"></i>{% trans "Gerçek Zamanlı" %}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </footer>
 
+<style>
+.finasis-footer {
+  background: linear-gradient(180deg, #0d3b66 0%, #0a2e4f 100%);
+  color: #ffffff;
+  margin-top: auto;
+}
+
+.finasis-footer a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.finasis-footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.finasis-footer__list li {
+  margin-bottom: 0.5rem;
+}
+
+.finasis-footer__list a {
+  font-size: 0.9rem;
+}
+
+.finasis-footer__cta {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.finasis-footer__contact a {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 768px) {
+  .finasis-footer__cta {
+    padding: 1.5rem;
+  }
+}
+
+body[data-theme='dark'] .finasis-footer {
+  background: linear-gradient(180deg, #0a1f2e 0%, #061418 100%);
+}
+</style>

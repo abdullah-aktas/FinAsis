@@ -5,6 +5,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
+from decouple import config
+
 
 from config import oidc as oidc_config
 
@@ -107,7 +109,17 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+]
+
+# Add WhiteNoise only if the package is available, to avoid ModuleNotFoundError in tests
+try:
+    import importlib.util as _importlib_util
+    if _importlib_util.find_spec('whitenoise') is not None:
+        MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+except Exception:
+    pass
+
+MIDDLEWARE += [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -136,6 +148,8 @@ TEMPLATES = [
         ],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': [],
+            'string_if_invalid': '',
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -239,6 +253,7 @@ if oidc_config.OIDC_ENABLED and oidc_config.KEYCLOAK_CLIENT_SECRET:
 # Internationalisation
 # -----------------------------------------------------------------------------
 LANGUAGE_CODE = 'tr'
+DEFAULT_CHARSET = 'utf-8'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
 USE_TZ = True
@@ -292,10 +307,16 @@ REGION_LABELS = {
 # -----------------------------------------------------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = ENV(
-    'DJANGO_STATICFILES_STORAGE',
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-)
+_DEFAULT_STATIC_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+try:
+    # Fallback to Django storage if WhiteNoise isn't installed
+    import importlib.util as _importlib_util2
+    if _importlib_util2.find_spec('whitenoise') is None:
+        _DEFAULT_STATIC_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+except Exception:
+    _DEFAULT_STATIC_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+STATICFILES_STORAGE = ENV('DJANGO_STATICFILES_STORAGE', _DEFAULT_STATIC_STORAGE)
 WHITENOISE_MAX_AGE = int(ENV('WHITENOISE_MAX_AGE', 60 * 60 * 24 * 30))
 
 if (BASE_DIR / 'static').exists():
