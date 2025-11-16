@@ -88,6 +88,14 @@ MARKETING_PAGES: dict[str, MarketingPageConfig] = {
         template_name="products/yapay_zeka.html",
         title=_("FinAsis · Yapay Zeka Asistanı"),
     ),
+    "products_mali_musavir": MarketingPageConfig(
+        template_name="products/mali_musavir.html",
+        title=_("FinAsis · Mali Müşavirlik Platformu"),
+    ),
+    "products_kobi_analizi": MarketingPageConfig(
+        template_name="products/kobi_analizi.html",
+        title=_("FinAsis · KOBİ Analiz & Sağlık Platformu"),
+    ),
     "solutions_enteg": MarketingPageConfig(
         template_name="solutions/entegrasyon.html",
         title=_("FinAsis · Sistem Entegrasyon Çözümleri"),
@@ -506,11 +514,41 @@ def landing_home(request):
         except Exception:
             return ""
 
+    # Audit istatistikleri
+    audit_event_count = 0
+    audit_control_count = 0
+    if apps.is_installed("audit"):
+        try:
+            from audit.models import AuditEvent, Control
+            audit_event_count = AuditEvent.objects.count()
+            audit_control_count = Control.objects.filter(is_active=True).count()
+        except Exception:
+            pass
+    
+    # Mali müşavir istatistikleri
+    advisor_count = 0
+    if apps.is_installed("advisors"):
+        try:
+            from advisors.models import AdvisorProfile
+            advisor_count = AdvisorProfile.objects.filter(verified_at__isnull=False).count()
+        except Exception:
+            pass
+    
+    # KOBİ Analizi istatistikleri
+    kobi_analysis_count = 0
+    if apps.is_installed("kobi_analysis"):
+        try:
+            from kobi_analysis.models import KOBIFinancialAnalysis
+            kobi_analysis_count = KOBIFinancialAnalysis.objects.count()
+        except Exception:
+            pass
+    
     solutions = [
         {
-            "code": "accounting-suite",
-            "title": _("Muhasebe & Finans"),
+            "code": "accounting",
+            "title": _("Muhasebe"),
             "icon": "bi-receipt",
+            "color": "#0AAE94",
             "description": _(
                 "Fatura, tahsilat ve banka entegrasyonlarını tek akışta yönetin; e-fatura ve e-arşiv çıktıları üretin."
             ),
@@ -521,22 +559,94 @@ def landing_home(request):
             ],
         },
         {
-            "code": "compliance-blockchain",
-            "title": _("Uyumluluk & Blockchain"),
-            "icon": "bi-shield-lock",
+            "code": "finance",
+            "title": _("Finansal Yönetim"),
+            "icon": "bi-graph-up-arrow",
+            "color": "#10b981",
             "description": _(
-                "Blockchain kanıtı, AML kontrolleri ve denetim izi üretimi ile tüm işlemleri doğrulanabilir kılın."
+                "KPI, bütçe, nakit akışı ve risk senaryoları ile finansal performansı gerçek zamanlı takip edin."
+            ),
+            "href": _safe_reverse("products_finans"),
+            "stats": [
+                {"label": _("Aktif şirket"), "value": _format_number(company_count)},
+                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+            ],
+        },
+        {
+            "code": "audit",
+            "title": _("Denetim"),
+            "icon": "bi-shield-check",
+            "color": "#6366f1",
+            "description": _(
+                "İşlem kayıtları, risk değerlendirmeleri ve uyumluluk kontrolleri ile kapsamlı denetim yönetimi."
+            ),
+            "href": _safe_reverse("audit:landing"),
+            "stats": [
+                {"label": _("Denetim kaydı"), "value": _format_number(audit_event_count)},
+                {"label": _("Aktif kontrol"), "value": _format_number(audit_control_count)},
+            ],
+        },
+        {
+            "code": "blockchain",
+            "title": _("Blockchain"),
+            "icon": "bi-link-45deg",
+            "color": "#3b82f6",
+            "description": _(
+                "Blockchain kanıtı, akıllı sözleşmeler ve değiştirilemez kayıtlar ile işlemleri doğrulanabilir kılın."
             ),
             "href": _safe_reverse("products_blockchain"),
             "stats": [
-                {"label": _("Onaylanan blockchain işlemi"), "value": _format_number(blockchain_tx_count)},
-                {"label": _("Aktif akıllı sözleşme"), "value": _format_number(blockchain_contract_count)},
+                {"label": _("Onaylanan işlem"), "value": _format_number(blockchain_tx_count)},
+                {"label": _("Aktif sözleşme"), "value": _format_number(blockchain_contract_count)},
+            ],
+        },
+        {
+            "code": "education",
+            "title": _("Eğitim"),
+            "icon": "bi-mortarboard",
+            "color": "#f59e0b",
+            "description": _(
+                "Rol bazlı LMS, FinQuest görev motoru ve öğretmen panoları ile eğitim yönetimi."
+            ),
+            "href": _safe_reverse("products_egitim"),
+            "stats": [
+                {"label": _("Öğretmen görevi"), "value": _format_number(teacher_brief["task_count"])},
+                {"label": _("Öğrenci görevi"), "value": _format_number(student_brief["task_count"])},
+            ],
+        },
+        {
+            "code": "games",
+            "title": _("Oyunlar"),
+            "icon": "bi-controller",
+            "color": "#8b5cf6",
+            "description": _(
+                "Finansal okuryazarlığı ligler, görevler ve simülasyonlarla güçlendiren oyunlaştırma platformu."
+            ),
+            "href": _safe_reverse("products_oyunlar"),
+            "stats": [
+                {"label": _("Aktif oyuncu"), "value": _format_number(0)},
+                {"label": _("Tamamlanan görev"), "value": _format_number(0)},
+            ],
+        },
+        {
+            "code": "advisors",
+            "title": _("Mali Müşavirlik"),
+            "icon": "bi-briefcase",
+            "color": "#2563eb",
+            "description": _(
+                "Mali müşavir marketplace, müşteri yönetimi, danışmanlık oturumları ve raporlama sistemi."
+            ),
+            "href": _safe_reverse("products_mali_musavir"),
+            "stats": [
+                {"label": _("Onaylı müşavir"), "value": _format_number(advisor_count)},
+                {"label": _("Yayınlanan partner"), "value": _format_number(partner_count)},
             ],
         },
         {
             "code": "ai-assistant",
-            "title": _("AI Asistan & Otomasyon"),
+            "title": _("Yapay Zeka"),
             "icon": "bi-robot",
+            "color": "#8b5cf6",
             "description": _(
                 "Rol bazlı Türkçe prompt kütüphanesi ve doğal dil rapor üretimiyle finans ekiplerini hızlandırın."
             ),
@@ -547,29 +657,31 @@ def landing_home(request):
             ],
         },
         {
-            "code": "education-gamification",
-            "title": _("Eğitim & Gamification"),
-            "icon": "bi-mortarboard",
+            "code": "kobi-analysis",
+            "title": _("KOBİ Analizi"),
+            "icon": "bi-graph-up",
+            "color": "#dc2626",
             "description": _(
-                "FinQuest görev motoru ve öğretmen panoları ile oyunlaştırılmış finans eğitim deneyimi tasarlayın."
+                "AI destekli finansal analiz, KOBİ sağlık skoru, risk yönetimi ve büyüme önerileri."
             ),
-            "href": _safe_reverse("products_egitim"),
+            "href": _safe_reverse("products_kobi_analizi"),
             "stats": [
-                {"label": _("Öğretmen görevleri"), "value": _format_number(teacher_brief["task_count"])},
-                {"label": _("Öğrenci görevleri"), "value": _format_number(student_brief["task_count"])},
+                {"label": _("Aktif şirket"), "value": _format_number(company_count)},
+                {"label": _("Yapılan analiz"), "value": _format_number(kobi_analysis_count)},
             ],
         },
         {
-            "code": "partner-ecosystem",
-            "title": _("Partner Ekosistemi"),
-            "icon": "bi-people",
+            "code": "e-donusum",
+            "title": _("e-Dönüşüm"),
+            "icon": "bi-file-earmark-check",
+            "color": "#f59e0b",
             "description": _(
-                "Marketplace üzerinden entegratör, danışman ve çözüm ortaklarıyla ekosistemi genişletin."
+                "e-Fatura, e-Arşiv, e-Defter. GİB onaylı entegrasyon, kağıtsız süreçler ve maliyet azaltımı."
             ),
-            "href": _safe_reverse("resources_partner_marketplace"),
+            "href": _safe_reverse("products_edonusum"),
             "stats": [
-                {"label": _("Yayınlanan partner"), "value": _format_number(partner_count)},
-                {"label": _("Yatırımcı dokümanı"), "value": _format_number(len(investor_documents))},
+                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+                {"label": _("Aktif şirket"), "value": _format_number(company_count)},
             ],
         },
     ]
@@ -707,10 +819,7 @@ def landing_home(request):
         {"label": _("Kaynaklar"), "href": "#resources"},
     ]
 
-    secondary_navigation = [
-        {"label": _("AI & Görevler"), "href": "#intelligence"},
-        {"label": _("Başarı Hikayeleri"), "href": "#achievements"},
-    ]
+    secondary_navigation = []
 
     hero_description = _(
         "KOBİ sahipleri, muhasebeciler, mali müşavirler, öğretmenler, öğrenciler ve finansı oyunlaştırarak öğrenmek isteyenler için "
@@ -1232,16 +1341,202 @@ def resource_partner_marketplace(request):
     return render(request, "resources/partner_marketplace.html", context)
 
 
+def _get_product_stats(page_key: str) -> Dict[str, object]:
+    """Her ürün sayfası için dinamik istatistikleri hesapla"""
+    stats = {}
+    
+    if page_key == "products_muhasebe":
+        # Muhasebe istatistikleri
+        stats["total_invoices"] = AccountingInvoice.objects.count()
+        stats["company_count"] = Company.objects.filter(is_active=True).count()
+        today = timezone.localdate()
+        start_of_month = today.replace(day=1)
+        monthly_invoices = AccountingInvoice.objects.filter(
+            issue_date__gte=start_of_month,
+            is_active=True,
+        )
+        stats["monthly_invoices"] = monthly_invoices.count()
+        monthly_total = monthly_invoices.aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        stats["monthly_total"] = monthly_total
+        
+    elif page_key == "products_finans":
+        # Finansal Yönetim istatistikleri
+        stats["company_count"] = Company.objects.filter(is_active=True).count()
+        stats["total_invoices"] = AccountingInvoice.objects.count()
+        if apps.is_installed("finance"):
+            try:
+                from finance.models import Transaction as FinanceTransaction
+                stats["total_transactions"] = FinanceTransaction.objects.count()
+                today = timezone.localdate()
+                start_of_month = today.replace(day=1)
+                monthly_transactions = FinanceTransaction.objects.filter(
+                    date__gte=start_of_month,
+                )
+                stats["monthly_transactions"] = monthly_transactions.count()
+            except Exception:
+                stats["total_transactions"] = 0
+                stats["monthly_transactions"] = 0
+        
+    elif page_key == "products_blockchain":
+        # Blockchain istatistikleri
+        if apps.is_installed("blockchain"):
+            try:
+                from blockchain.models import Transaction as BlockchainTransaction
+                from blockchain.models import SmartContract
+                from blockchain.models import Block
+                stats["total_transactions"] = BlockchainTransaction.objects.filter(status="confirmed").count()
+                stats["total_contracts"] = SmartContract.objects.filter(is_active=True).count()
+                stats["total_blocks"] = Block.objects.count()
+            except Exception:
+                stats["total_transactions"] = 0
+                stats["total_contracts"] = 0
+                stats["total_blocks"] = 0
+        
+    elif page_key == "products_egitim":
+        # Eğitim istatistikleri
+        if apps.is_installed("education"):
+            try:
+                from education.models import Course, Certificate, Enrollment
+                stats["total_courses"] = Course.objects.filter(is_active=True).count()
+                stats["total_certificates"] = Certificate.objects.count()
+                stats["total_enrollments"] = Enrollment.objects.count()
+                user_model = get_user_model()
+                stats["teacher_count"] = user_model.objects.filter(
+                    user_type__code__in=["teacher", "egitimci"]
+                ).count()
+                stats["student_count"] = user_model.objects.filter(
+                    user_type__code__in=["student", "ogrenci"]
+                ).count()
+            except Exception:
+                stats["total_courses"] = 0
+                stats["total_certificates"] = 0
+                stats["total_enrollments"] = 0
+                stats["teacher_count"] = 0
+                stats["student_count"] = 0
+        
+    elif page_key == "products_oyunlar":
+        # Oyunlar istatistikleri
+        user_model = get_user_model()
+        stats["player_count"] = user_model.objects.filter(
+            user_type__code__in=["player", "oyuncu"]
+        ).count()
+        if apps.is_installed("games"):
+            try:
+                from games.models import GameSession, Leaderboard
+                stats["total_sessions"] = GameSession.objects.count()
+                stats["leaderboard_entries"] = Leaderboard.objects.count()
+            except Exception:
+                stats["total_sessions"] = 0
+                stats["leaderboard_entries"] = 0
+        
+    elif page_key == "products_mali_musavir":
+        # Mali Müşavirlik istatistikleri
+        if apps.is_installed("advisors"):
+            try:
+                from advisors.models import AdvisorProfile, TaxpayerProfile, ConsultationSession, AdvisorReport
+                stats["verified_advisors"] = AdvisorProfile.objects.filter(verified_at__isnull=False).count()
+                stats["total_clients"] = TaxpayerProfile.objects.count()
+                stats["total_consultations"] = ConsultationSession.objects.count()
+                stats["total_reports"] = AdvisorReport.objects.count()
+            except Exception:
+                stats["verified_advisors"] = 0
+                stats["total_clients"] = 0
+                stats["total_consultations"] = 0
+                stats["total_reports"] = 0
+        
+        if apps.is_installed("partners"):
+            try:
+                from partners.models import PartnerProfile
+                stats["partner_count"] = PartnerProfile.objects.filter(
+                    status=PartnerProfile.Status.PUBLISHED
+                ).count()
+            except Exception:
+                stats["partner_count"] = 0
+        
+    elif page_key == "products_yapay_zeka":
+        # Yapay Zeka istatistikleri
+        try:
+            stats["prompt_count"] = sum(
+                len(prompt_registry.get_prompts_for_role(role))
+                for role in prompt_registry.list_roles()
+            )
+            stats["ai_cards"] = len(prompt_registry.get_prompts_for_role("kobi", limit=10))
+        except Exception:
+            stats["prompt_count"] = 0
+            stats["ai_cards"] = 0
+        
+        if apps.is_installed("ai_assistant"):
+            try:
+                from ai_assistant.models import ChatSession, AIPrompt
+                stats["chat_sessions"] = ChatSession.objects.count()
+                stats["custom_prompts"] = AIPrompt.objects.count()
+            except Exception:
+                stats["chat_sessions"] = 0
+                stats["custom_prompts"] = 0
+    
+    elif page_key == "products_kobi_analizi":
+        # KOBİ Analizi istatistikleri
+        stats["company_count"] = Company.objects.filter(is_active=True).count()
+        if apps.is_installed("kobi_analysis"):
+            try:
+                from kobi_analysis.models import KOBIFinancialAnalysis, FinancialReport, FinancialGoal
+                stats["total_analyses"] = KOBIFinancialAnalysis.objects.count()
+                stats["total_reports"] = FinancialReport.objects.count()
+                stats["active_goals"] = FinancialGoal.objects.filter(status='IN_PROGRESS').count()
+            except Exception:
+                stats["total_analyses"] = 0
+                stats["total_reports"] = 0
+                stats["active_goals"] = 0
+        
+    elif page_key == "products_edonusum":
+        # e-Dönüşüm istatistikleri
+        stats["total_invoices"] = AccountingInvoice.objects.count()
+        stats["company_count"] = Company.objects.filter(is_active=True).count()
+        today = timezone.localdate()
+        start_of_month = today.replace(day=1)
+        monthly_invoices = AccountingInvoice.objects.filter(
+            issue_date__gte=start_of_month,
+            is_active=True,
+        )
+        stats["monthly_invoices"] = monthly_invoices.count()
+        # e-fatura sayısı (örnek olarak tüm faturalar e-fatura kabul ediliyor)
+        stats["e_invoice_count"] = AccountingInvoice.objects.filter(is_active=True).count()
+        
+    elif page_key == "products_audit":
+        # Denetim istatistikleri
+        if apps.is_installed("audit"):
+            try:
+                from audit.models import AuditEvent, Control
+                stats["audit_event_count"] = AuditEvent.objects.count()
+                stats["control_count"] = Control.objects.filter(is_active=True).count()
+            except Exception:
+                stats["audit_event_count"] = 0
+                stats["control_count"] = 0
+        stats["company_count"] = Company.objects.filter(is_active=True).count()
+    
+    # Genel istatistikler (tüm sayfalar için)
+    user_model = get_user_model()
+    stats["total_active_users"] = user_model.objects.filter(is_active=True).count()
+    stats["total_companies"] = Company.objects.filter(is_active=True).count()
+    
+    return stats
+
+
 def marketing_page(request, page_key: str):
     """
     Tekrarlı pazarlama ve tanıtım sayfalarını render eden genel amaçlı görünüm.
+    Dinamik istatistiklerle zenginleştirilmiş.
     """
     page_config = MARKETING_PAGES.get(page_key)
     if page_config is None:
         raise Http404(f"Marketing page config not found for key '{page_key}'.")
 
+    # Ürün sayfası için dinamik istatistikleri hesapla
+    product_stats = _get_product_stats(page_key)
+    
     context: Dict[str, object] = {
         "page_config": page_config,
+        "stats": product_stats,
     }
     if page_config.title:
         context.setdefault("page_title", page_config.title)

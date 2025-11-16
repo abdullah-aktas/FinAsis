@@ -13,632 +13,1462 @@
 {% with colors=brand_identity.colors %}
 <style>
   :root {
-    --landing-ink: {{ colors.ink }};
-    --landing-primary: {{ colors.primary }};
-    --landing-accent: {{ colors.accent }};
-    --landing-muted: {{ colors.surface }};
-    --landing-muted-alt: {{ colors.surface_alt }};
-  }
-  .landing-hero {
-    background: radial-gradient(circle at 15% 10%, rgba(10, 78, 118, 0.35), transparent 55%),
-      radial-gradient(circle at 85% 0%, rgba(255, 140, 58, 0.35), transparent 65%),
-      linear-gradient(130deg, #03121c, #073034 55%, #062823);
-    color: #fff;
-    padding: clamp(3rem, 7vw, 6rem) 0;
-  }
-  .hero-layout {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2.5rem;
-    align-items: center;
-  }
-  .hero-pills {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 0.7rem;
-  }
-  .hero-pills li {
-    display: flex;
-    gap: 0.6rem;
-    align-items: center;
-    padding: 0.65rem 0.9rem;
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.08);
-    font-weight: 500;
-  }
-  .hero-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-  }
-  .hero-ctas .btn {
-    border-radius: 999px;
-    font-weight: 600;
-    padding-inline: 1.4rem;
-  }
-  .stat-card {
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.25);
-    padding: 1.2rem;
-  }
-  .stat-card small {
-    text-transform: uppercase;
-    letter-spacing: 0.2rem;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .stat-card strong {
-    display: block;
-    font-size: 1.8rem;
-    color: #fff;
-  }
-  .value-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 1.25rem;
-  }
-  .value-strip span {
-    border-radius: 999px;
-    padding: 0.4rem 1rem;
-    font-weight: 600;
-    font-size: 0.82rem;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  .trust-band {
-    background: #020b11;
-    color: rgba(255, 255, 255, 0.85);
-    padding: 1.25rem 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .trust-band__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    font-size: 0.92rem;
-  }
-  .trust-band__item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .landing-section {
-    padding: clamp(3rem, 5vw, 5.5rem) 0;
-  }
-  .landing-section--muted {
-    background: var(--landing-muted);
-  }
-  .landing-section--alt {
-    background: var(--landing-muted-alt);
-  }
-  .section-eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.35rem;
-    font-size: 0.78rem;
-    color: #64748b;
-    margin-bottom: 0.6rem;
-  }
-  .section-heading {
-    margin-bottom: 2.5rem;
-  }
-  .grid-responsive {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
-  }
-  .service-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.25rem;
-  }
-  .service-card {
-    border-radius: 1.4rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    background: #fff;
-    padding: 1.75rem;
-    height: 100%;
-    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
-  }
-  .service-card__icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: rgba(10, 174, 148, 0.12);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    color: var(--landing-primary);
-    margin-bottom: 1rem;
-  }
-  .service-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
-    display: grid;
-    gap: 0.4rem;
-  }
-  .service-card ul li {
-    display: flex;
-    gap: 0.45rem;
-    align-items: center;
-    color: #475569;
-    font-size: 0.92rem;
-  }
-  .service-card__meta {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--landing-primary);
-    font-weight: 600;
-  }
-  .card {
-    border-radius: 1.25rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    background: #fff;
-    padding: 1.5rem;
-    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
-    height: 100%;
-  }
-  .card h3 {
-    font-size: 1.15rem;
-    margin-bottom: 0.4rem;
-  }
-  .card ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
-    display: grid;
-    gap: 0.4rem;
-    font-size: 0.92rem;
-  }
-  .card ul li {
-    display: flex;
-    gap: 0.4rem;
-    align-items: center;
-    color: #475569;
-  }
-  .list-plain {
-    list-style: none;
-    padding: 0;
-    margin: 0.8rem 0 0;
-    display: grid;
-    gap: 0.45rem;
-  }
-  .list-plain li {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.92rem;
-    color: #475569;
-  }
-  .hero-tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-  .hero-tiles article {
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
-  }
-  .audience-card {
-    border-radius: 1.25rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    padding: 1.4rem;
-    background: #fff;
-  }
-  .audience-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    border-radius: 999px;
-    padding: 0.35rem 0.8rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--landing-primary);
-    background: rgba(10, 174, 148, 0.12);
-  }
-  .resource-card {
-    border-radius: 1.25rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    background: #fff;
-    padding: 1.5rem;
-  }
-  .resource-card__list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
-    display: grid;
-    gap: 0.7rem;
-  }
-  .resource-card__list a {
-    text-decoration: none;
-    font-weight: 600;
-    color: var(--landing-ink);
-  }
-  .cta-panel {
-    border-radius: 2rem;
-    background: linear-gradient(120deg, var(--landing-primary), var(--landing-accent));
-    color: #fff;
-    padding: clamp(2rem, 4vw, 3rem);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .cta-panel .btn {
-    border-radius: 999px;
-    padding-inline: 1.6rem;
-    font-weight: 600;
-  }
-  @media (max-width: 991.98px) {
-    .hero-layout {
-      grid-template-columns: 1fr;
-    }
-    .hero-ctas {
-      flex-direction: column;
-    }
+    --home-ink: {{ colors.ink }};
+    --home-primary: {{ colors.primary }};
+    --home-accent: {{ colors.accent }};
+    --home-muted: {{ colors.surface }};
+    --home-muted-alt: {{ colors.surface_alt }};
+    --home-border: rgba(4, 18, 26, 0.08);
   }
 </style>
 {% endwith %}
+<link rel="stylesheet" href="{% static 'css/pages/home_marketing.css' %}">
+<style>
+  /* Card-based Design for Homepage */
+  .home-card-modern {
+    background: white;
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    border: 1px solid var(--home-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .home-card-modern {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--card-color, #0AAE94), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .home-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-left-color: var(--card-color, #0AAE94);
+    border-left-width: 6px;
+  }
+
+  .home-card-modern:hover::before {
+    transform: scaleX(1);
+  }
+
+  .home-card-modern:hover .home-card-modern__icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .home-card-modern:hover .home-card-modern__icon::before {
+    opacity: 0.2;
+  }
+
+  .home-card-modern:hover .home-card-modern__icon i {
+    transform: scale(1.15);
+  }
+  
+  .home-card-modern a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .min-vh-50 {
+    min-height: 50vh;
+  }
+  
+  .home-card-modern__icon {
+    width: clamp(64px, 8vw, 80px);
+    height: clamp(64px, 8vw, 80px);
+    border-radius: clamp(16px, 2vw, 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.5rem);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .home-card-modern__icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    opacity: 0.12;
+    transition: opacity 0.4s ease;
+  }
+
+  .home-card-modern__icon i {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .home-card-modern h3 {
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    font-weight: 700;
+    margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+    color: var(--home-ink);
+  }
+  
+  .home-card-modern p {
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+    flex-grow: 1;
+  }
+  
+  .home-card-modern ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .home-card-modern ul li {
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+    color: #64748b;
+    padding: clamp(0.5rem, 1vw, 0.75rem) 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .home-card-modern ul li:last-child {
+    border-bottom: none;
+  }
+  
+  .home-card-modern ul li::before {
+    content: '✓';
+    color: var(--home-accent, #FFB300);
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+  
+  .home-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: clamp(1.5rem, 3vw, 2rem);
+  }
+  
+  .home-panel-card {
+    background: var(--home-primary);
+    color: white;
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .home-panel-card h3 {
+    color: white;
+  }
+  
+  .home-panel-card p {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .home-panel-card ul li {
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .home-panel-card ul li::before {
+    color: #FFB300;
+  }
+  
+  .home-section-modern {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+  
+  .home-section-modern--alt {
+    background: var(--home-muted);
+  }
+  
+  .home-section-header-modern {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto clamp(2rem, 4vw, 3rem);
+  }
+  
+  .home-eyebrow-modern {
+    display: inline-block;
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+    background: rgba(255, 179, 0, 0.1);
+    color: var(--home-accent, #FFB300);
+    border-radius: 999px;
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  }
+  
+  .home-section-header-modern h2 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+    color: var(--home-ink);
+  }
+  
+  .home-section-header-modern p {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: #64748b;
+    line-height: 1.6;
+  }
+  
+  /* Responsive Typography & Spacing */
+  .home-section-header-modern {
+    padding: 0 clamp(0.5rem, 2vw, 1rem);
+    margin-bottom: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .home-section-header-modern h2 {
+    font-size: clamp(1.5rem, 4.5vw, 2.5rem);
+    margin-bottom: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  .home-section-header-modern p {
+    font-size: clamp(0.9375rem, 2vw, 1.125rem);
+  }
+
+
+  #metrics .display-5 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+  }
+
+  #metrics .lead {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  #metrics .h2 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  #metrics .p-4 {
+    padding: clamp(1.25rem, 3vw, 1.75rem) !important;
+  }
+
+  /* Grid Responsive Breakpoints */
+  @media (max-width: 575.98px) {
+    .home-grid-modern {
+      grid-template-columns: 1fr;
+      gap: clamp(1rem, 4vw, 1.5rem);
+    }
+
+    .home-card-modern {
+      padding: clamp(1.25rem, 4vw, 1.75rem);
+    }
+
+    .home-card-modern__icon {
+      width: clamp(44px, 8vw, 52px);
+      height: clamp(44px, 8vw, 52px);
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+    }
+
+    .home-card-modern h3 {
+      font-size: clamp(1rem, 3vw, 1.125rem);
+    }
+
+    .home-card-modern p {
+      font-size: clamp(0.8125rem, 2.5vw, 0.875rem);
+    }
+
+    #metrics .col-md-4,
+    #metrics .col-sm-6 {
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    }
+
+    #solutions .row {
+      margin: 0;
+    }
+
+    #solutions .col-lg-4,
+    #solutions .col-md-6,
+    #solutions .col-12 {
+      padding: 0 clamp(0.5rem, 2vw, 1rem);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    }
+  }
+
+  @media (min-width: 576px) and (max-width: 767.98px) {
+    .home-grid-modern {
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(1.25rem, 3vw, 1.75rem);
+    }
+
+    .home-card-modern {
+      padding: clamp(1.5rem, 4vw, 2rem);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .home-grid-modern {
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    #features .row,
+    #services .row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(1.25rem, 3vw, 1.75rem);
+    }
+  }
+
+  @media (min-width: 992px) and (max-width: 1199.98px) {
+    .home-grid-modern {
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(1.5rem, 3vw, 2rem);
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .home-grid-modern {
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: clamp(1.5rem, 3vw, 2rem);
+    }
+  }
+
+  /* Solutions Section - Enhanced Design */
+  .solution-card-enhanced {
+    background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+  }
+
+  .solution-card-enhanced:hover {
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%);
+    border-left-width: 6px;
+  }
+
+  .solution-icon-wrapper {
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .solution-icon-wrapper i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .solution-icon-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    filter: blur(12px);
+  }
+
+  .solution-card-enhanced:hover .solution-icon-wrapper {
+    transform: scale(1.08) rotate(3deg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .solution-card-enhanced:hover .solution-icon-wrapper i {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  }
+
+  .solution-card-enhanced:hover .solution-icon-glow {
+    opacity: 1;
+  }
+
+  .solution-card-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .solution-card-title {
+    background: linear-gradient(135deg, var(--home-ink) 0%, var(--home-ink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .solution-stat-item {
+    transition: all 0.3s ease;
+    border-radius: clamp(6px, 0.75vw, 8px);
+    padding-left: clamp(0.5rem, 1vw, 0.75rem);
+    padding-right: clamp(0.5rem, 1vw, 0.75rem);
+    margin: clamp(0.125rem, 0.25vw, 0.25rem) 0;
+    background: transparent;
+  }
+
+  .solution-card-enhanced:hover .solution-stat-item {
+    background: rgba(0, 0, 0, 0.02);
+    transform: translateX(4px);
+  }
+
+  .solution-stat-value {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .solution-cta-link {
+    position: relative;
+    padding: clamp(0.625rem, 1.25vw, 0.875rem) clamp(1rem, 2vw, 1.25rem);
+    border-radius: clamp(8px, 1.25vw, 10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+    border: 1px solid transparent;
+  }
+
+  .solution-card-enhanced:hover .solution-cta-link {
+    transform: translateX(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Individual color backgrounds for CTA */
+  .solution-card-enhanced[style*="#0AAE94"] .solution-cta-link { background: rgba(10, 174, 148, 0.06); border-color: rgba(10, 174, 148, 0.1); }
+  .solution-card-enhanced[style*="#10b981"] .solution-cta-link { background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.1); }
+  .solution-card-enhanced[style*="#6366f1"] .solution-cta-link { background: rgba(99, 102, 241, 0.06); border-color: rgba(99, 102, 241, 0.1); }
+  .solution-card-enhanced[style*="#3b82f6"] .solution-cta-link { background: rgba(59, 130, 246, 0.06); border-color: rgba(59, 130, 246, 0.1); }
+  .solution-card-enhanced[style*="#f59e0b"] .solution-cta-link { background: rgba(245, 158, 11, 0.06); border-color: rgba(245, 158, 11, 0.1); }
+  .solution-card-enhanced[style*="#8b5cf6"] .solution-cta-link { background: rgba(139, 92, 246, 0.06); border-color: rgba(139, 92, 246, 0.1); }
+  .solution-card-enhanced[style*="#2563eb"] .solution-cta-link { background: rgba(37, 99, 235, 0.06); border-color: rgba(37, 99, 235, 0.1); }
+  .solution-card-enhanced[style*="#dc2626"] .solution-cta-link { background: rgba(220, 38, 38, 0.06); border-color: rgba(220, 38, 38, 0.1); }
+
+  .solution-card-enhanced:hover[style*="#0AAE94"] .solution-cta-link { background: rgba(10, 174, 148, 0.12); border-color: rgba(10, 174, 148, 0.2); }
+  .solution-card-enhanced:hover[style*="#10b981"] .solution-cta-link { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.2); }
+  .solution-card-enhanced:hover[style*="#6366f1"] .solution-cta-link { background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.2); }
+  .solution-card-enhanced:hover[style*="#3b82f6"] .solution-cta-link { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.2); }
+  .solution-card-enhanced:hover[style*="#f59e0b"] .solution-cta-link { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.2); }
+  .solution-card-enhanced:hover[style*="#8b5cf6"] .solution-cta-link { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.2); }
+  .solution-card-enhanced:hover[style*="#2563eb"] .solution-cta-link { background: rgba(37, 99, 235, 0.12); border-color: rgba(37, 99, 235, 0.2); }
+  .solution-card-enhanced:hover[style*="#dc2626"] .solution-cta-link { background: rgba(220, 38, 38, 0.12); border-color: rgba(220, 38, 38, 0.2); }
+
+  .solution-card-enhanced:hover .solution-cta-arrow {
+    transform: translateX(6px);
+  }
+
+  /* Enhanced Card Title */
+  .solution-card-title {
+    position: relative;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+  }
+
+  @media (max-width: 767.98px) {
+    .solution-card-enhanced {
+      padding: clamp(1.5rem, 4vw, 2rem);
+    }
+
+    .solution-icon-wrapper {
+      width: clamp(56px, 10vw, 72px) !important;
+      height: clamp(56px, 10vw, 72px) !important;
+      font-size: clamp(1.75rem, 5vw, 2.25rem) !important;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    #solutions .row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #solutions .home-card-modern {
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    }
+  }
+
+  /* Solutions Section Specific */
+  @media (max-width: 991.98px) {
+    #solutions .home-grid-modern {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    #solutions .home-grid-modern {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* CTA Section Responsive */
+  #cta .home-panel-card {
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  #cta .home-panel-card h2 {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  #cta .home-panel-card p {
+    font-size: clamp(0.9375rem, 2vw, 1.125rem);
+  }
+
+  #cta .d-flex {
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1rem) !important;
+  }
+
+  #cta .btn {
+    width: 100%;
+    padding: clamp(0.875rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+    font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+  }
+
+  @media (min-width: 576px) {
+    #cta .d-flex {
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    #cta .btn {
+      width: auto;
+      min-width: clamp(150px, 20vw, 200px);
+    }
+  }
+
+  /* Corporate Section Responsive */
+  #corporate .home-panel-card {
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  #corporate .home-grid-modern {
+    grid-template-columns: 1fr;
+    gap: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  @media (min-width: 768px) {
+    #corporate .home-grid-modern {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Homepage Overall Layout Optimization */
+  .home-shell {
+    overflow-x: hidden;
+  }
+
+  /* Section Spacing Optimization */
+  .home-section-modern {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  .home-section-modern--alt {
+    background: var(--home-muted);
+  }
+
+  /* Metrics Section Spacing */
+  #metrics {
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Solutions Section Spacing */
+  #solutions {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Plans Section Spacing */
+  #plans {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Intelligence Section Spacing */
+  #intelligence {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Resources Section Spacing */
+  #resources {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Corporate Section Spacing */
+  #corporate {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* CTA Section Spacing */
+  #cta {
+    padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 3vw, 2rem);
+  }
+
+  /* Smooth Transitions Between Sections */
+  section {
+    transition: all 0.3s ease;
+  }
+
+  /* Remove last section bottom padding if needed */
+  #cta {
+    margin-bottom: 0;
+  }
+
+  /* Button & Link Responsive */
+  .home-card-modern .btn {
+    padding: clamp(0.625rem, 1.5vw, 0.75rem) clamp(1rem, 2.5vw, 1.25rem);
+    font-size: clamp(0.8125rem, 1.75vw, 0.9375rem);
+  }
+
+  /* Trust Indicators Responsive */
+  @media (max-width: 575.98px) {
+    .home-hero__trust-indicators {
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(0.75rem, 2vw, 1rem);
+      text-align: center;
+    }
+
+    .home-hero__trust-item {
+      font-size: clamp(0.75rem, 2vw, 0.8125rem);
+    }
+  }
+
+  /* Stats Cards Responsive */
+  @media (max-width: 575.98px) {
+    .home-hero__stats {
+      grid-template-columns: 1fr;
+      gap: clamp(0.875rem, 2.5vw, 1.25rem);
+    }
+
+    .home-hero__stat-card {
+      padding: clamp(1.75rem, 5vw, 2rem) clamp(1.5rem, 4vw, 1.75rem);
+    }
+
+    .home-hero__stat-value {
+      font-size: clamp(2rem, 6vw, 2.75rem);
+    }
+
+    .home-hero__stat-label {
+      font-size: clamp(0.8125rem, 2vw, 0.875rem);
+    }
+  }
+
+  /* Features Badges Responsive */
+  @media (max-width: 575.98px) {
+    .home-hero__features {
+      flex-direction: column;
+      gap: clamp(0.875rem, 2.5vw, 1.25rem);
+      width: 100%;
+    }
+
+    .home-hero__features span {
+      width: 100%;
+      justify-content: center;
+      padding: clamp(0.625rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.25rem);
+      font-size: clamp(0.8125rem, 2vw, 0.875rem);
+    }
+  }
+
+  /* CTA Buttons Responsive */
+  @media (max-width: 575.98px) {
+    .home-hero__cta {
+      flex-direction: column;
+      width: 100%;
+      gap: clamp(0.875rem, 2.5vw, 1rem);
+    }
+
+    .home-hero__cta .btn {
+      width: 100%;
+      padding: clamp(1rem, 3vw, 1.125rem) clamp(1.75rem, 5vw, 2.5rem);
+      font-size: clamp(1rem, 2.5vw, 1.125rem);
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+  {% include 'components/header.html' %}
 {% endblock %}
 
 {% block hero %}
-<section class="landing-hero" id="hero">
+<style>
+.home-hero {
+  background: #FFB300;
+  position: relative;
+  overflow: hidden;
+  color: #0D3B66;
+  padding: clamp(3rem, 7vw, 5rem) 0 clamp(2.5rem, 6vw, 4rem);
+}
+
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 179, 0, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-hero .container {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.home-hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+  gap: clamp(1.5rem, 3.5vw, 2.25rem);
+}
+
+.home-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: clamp(0.625rem, 1.5vw, 0.875rem) clamp(1.25rem, 2.5vw, 1.75rem);
+  background: rgba(13, 59, 102, 0.1);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(13, 59, 102, 0.15);
+  border-radius: 3rem;
+  font-size: clamp(0.8125rem, 1.75vw, 0.9375rem);
+  font-weight: 700;
+  color: #0D3B66;
+  letter-spacing: 0.03em;
+  animation: fadeInUp 0.7s ease-out;
+  box-shadow: 0 3px 16px rgba(13, 59, 102, 0.12);
+  transition: all 0.3s ease;
+}
+
+.home-hero__badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(13, 59, 102, 0.15);
+  background: rgba(13, 59, 102, 0.15);
+}
+
+.home-hero__badge i {
+  color: #FF8F00;
+  font-size: clamp(0.875rem, 1.75vw, 1rem);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+.home-hero__title {
+  font-size: clamp(1.875rem, 5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.2;
+  color: #0D3B66;
+  margin: 0;
+  letter-spacing: -0.025em;
+  animation: fadeInUp 0.7s ease-out 0.15s both;
+}
+
+.home-hero__title .highlight {
+  color: #FF8F00;
+  position: relative;
+  display: inline-block;
+}
+
+.home-hero__title .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0.125em;
+  left: 0;
+  right: 0;
+  height: 0.2em;
+  background: rgba(255, 143, 0, 0.25);
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.home-hero__description {
+  font-size: clamp(0.9375rem, 1.875vw, 1.125rem);
+  line-height: 1.65;
+  color: rgba(13, 59, 102, 0.9);
+  margin: 0;
+  font-weight: 400;
+  animation: fadeInUp 0.7s ease-out 0.25s both;
+  max-width: 88%;
+}
+
+.home-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.875rem, 1.75vw, 1.125rem);
+  justify-content: center;
+  animation: fadeInUp 0.7s ease-out 0.35s both;
+  width: 100%;
+  max-width: 550px;
+}
+
+.home-hero__cta .btn {
+  padding: clamp(0.875rem, 1.75vw, 1rem) clamp(1.5rem, 3.5vw, 2rem);
+  font-size: clamp(0.9375rem, 1.75vw, 1rem);
+  font-weight: 700;
+  border-radius: clamp(0.625rem, 1.25vw, 0.75rem);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero__cta .btn-primary {
+  background: #0D3B66;
+  border-color: #0D3B66;
+  color: white;
+  box-shadow: 0 4px 16px rgba(13, 59, 102, 0.3), 0 2px 6px rgba(13, 59, 102, 0.15);
+}
+
+.home-hero__cta .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.home-hero__cta .btn-primary:hover {
+  background: #0A2E52;
+  border-color: #0A2E52;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 59, 102, 0.4), 0 3px 10px rgba(13, 59, 102, 0.25);
+}
+
+.home-hero__cta .btn-primary:hover::before {
+  width: 250px;
+  height: 250px;
+}
+
+.home-hero__cta .btn-outline-dark {
+  border: 2px solid rgba(13, 59, 102, 0.3);
+  color: #0D3B66;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  font-weight: 700;
+}
+
+.home-hero__cta .btn-outline-dark:hover {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(13, 59, 102, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 59, 102, 0.2);
+}
+
+.home-hero__cta .btn i {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero__benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.875rem, 1.75vw, 1.25rem);
+  width: 100%;
+  max-width: 880px;
+  animation: fadeInUp 0.7s ease-out 0.45s both;
+}
+
+.home-hero__benefit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 1.25vw, 0.75rem);
+  padding: clamp(1.125rem, 2.25vw, 1.5rem);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(30px);
+  border-radius: clamp(0.875rem, 1.75vw, 1.125rem);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 3px 16px rgba(13, 59, 102, 0.1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.home-hero__benefit:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.12);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.home-hero__benefit-icon {
+  width: clamp(48px, 6vw, 60px);
+  height: clamp(48px, 6vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 143, 0, 0.18), rgba(255, 179, 0, 0.12));
+  border-radius: clamp(12px, 1.5vw, 14px);
+  color: #FF8F00;
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  transition: all 0.35s ease;
+  border: 1px solid rgba(255, 143, 0, 0.1);
+}
+
+.home-hero__benefit:hover .home-hero__benefit-icon {
+  transform: scale(1.08) rotate(3deg);
+  background: linear-gradient(135deg, rgba(255, 143, 0, 0.25), rgba(255, 179, 0, 0.15));
+  box-shadow: 0 3px 12px rgba(255, 143, 0, 0.2);
+}
+
+.home-hero__benefit-title {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  font-weight: 700;
+  color: #0D3B66;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.home-hero__benefit-desc {
+  font-size: clamp(0.75rem, 1.25vw, 0.8125rem);
+  color: rgba(13, 59, 102, 0.75);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.home-hero__trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+  padding-top: clamp(1rem, 2vw, 1.5rem);
+  border-top: 2px solid rgba(13, 59, 102, 0.15);
+  width: 100%;
+  animation: fadeInUp 0.7s ease-out 0.55s both;
+}
+
+.home-hero__trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: clamp(0.375rem, 0.875vw, 0.625rem) clamp(0.75rem, 1.5vw, 1rem);
+  background: rgba(13, 59, 102, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-size: clamp(0.75rem, 1.25vw, 0.8125rem);
+  color: #0D3B66;
+  font-weight: 600;
+  border: 1px solid rgba(13, 59, 102, 0.1);
+  transition: all 0.25s ease;
+}
+
+.home-hero__trust-item:hover {
+  background: rgba(13, 59, 102, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(13, 59, 102, 0.08);
+}
+
+.home-hero__trust-item i {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  color: #FF8F00;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 992px) {
+  .home-hero {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3.5rem);
+  }
+  
+  .home-hero__content {
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+  
+  .home-hero__benefits {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.75rem, 1.5vw, 1.125rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: clamp(2rem, 5vw, 3.5rem) 0 clamp(1.75rem, 4.5vw, 3rem);
+  }
+
+  .home-hero__content {
+    gap: clamp(1.125rem, 2.5vw, 1.75rem);
+  }
+
+  .home-hero__benefits {
+    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 1.75vw, 1rem);
+  }
+
+  .home-hero__benefit {
+    padding: clamp(0.875rem, 2vw, 1.25rem);
+  }
+
+  .home-hero__cta {
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .home-hero__cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .home-hero__trust {
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.625rem, 1.5vw, 0.875rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .home-hero {
+    padding: clamp(1.75rem, 4.5vw, 3rem) 0 clamp(1.5rem, 3.5vw, 2.5rem);
+  }
+  
+  .home-hero__content {
+    gap: clamp(0.875rem, 2vw, 1.5rem);
+  }
+  
+  .home-hero__benefits {
+    grid-template-columns: 1fr;
+    gap: clamp(0.625rem, 1.5vw, 0.875rem);
+  }
+
+  .home-hero__benefit {
+    flex-direction: row;
+    text-align: left;
+    align-items: flex-start;
+    padding: clamp(0.75rem, 1.75vw, 1.125rem);
+  }
+
+  .home-hero__benefit-icon {
+    flex-shrink: 0;
+    width: clamp(40px, 4.5vw, 48px);
+    height: clamp(40px, 4.5vw, 48px);
+  }
+  
+  .home-hero__description {
+    max-width: 100%;
+    font-size: clamp(0.875rem, 1.75vw, 1rem);
+  }
+}
+</style>
+
+<section class="home-hero" id="hero">
   <div class="container">
-    <div class="hero-layout">
-      <div>
-        <span class="section-eyebrow">{{ hero.eyebrow }}</span>
-        <h1 class="display-4 fw-semibold mb-3">{{ hero.title }}</h1>
-        <p class="lead text-white-75 mb-4">{{ hero.description }}</p>
-        <ul class="hero-pills">
-          <li><i class="bi bi-building"></i>{% trans "KOBİ finans akışları ve muhasebe operasyonları tek kanvasta." %}</li>
-          <li><i class="bi bi-briefcase"></i>{% trans "Mali müşavir marketplace’i, e-fatura ve uyum otomasyonu." %}</li>
-          <li><i class="bi bi-mortarboard"></i>{% trans "Öğretmen, öğrenci ve trader’lar için FinQuest görev motoru." %}</li>
-        </ul>
-        <div class="hero-ctas mt-4">
-          <a class="btn btn-light text-dark btn-lg" href="{{ hero.primary_cta.href }}" data-cta="{{ hero.primary_cta.cta_id }}">
-            <i class="bi bi-{{ hero.primary_cta.icon }} me-2"></i>{{ hero.primary_cta.label }}
-          </a>
-          <a class="btn btn-outline-light btn-lg" href="{{ hero.secondary_cta.href }}" data-cta="{{ hero.secondary_cta.cta_id }}">
-            <i class="bi bi-{{ hero.secondary_cta.icon }} me-2"></i>{{ hero.secondary_cta.label }}
-          </a>
-        </div>
-        <p class="text-white-50 small mt-2 mb-0">
-          {% trans "FinAsis Meeting, FinQuest ve Ledger Engine; mali müşavir, finans ve eğitim ekiplerini aynı CTA akışında buluşturur." %}
-        </p>
-        <div class="value-strip">
-          <span><i class="bi bi-stars me-1"></i>{% trans "BETA: Her üyelik 1 hisse + 2 ay ücretsiz kullanım" %}</span>
-          <span><i class="bi bi-link-45deg me-1"></i>{% trans "Blockchain yatırımcı sözleşmesi otomatik üretilir" %}</span>
-          <span><i class="bi bi-camera-video me-1"></i>{% trans "FinAsis toplantıları kurum içi altyapıda" %}</span>
-        </div>
+    <div class="home-hero__content">
+      <div class="home-hero__badge">
+        <i class="bi bi-lightning-charge-fill"></i>
+        <span>{% trans "Teknoloji ve Yenilik Odaklı Platform" %}</span>
       </div>
-      <div>
-        {% with highlight_stats=hero_stats|default:metrics|slice:":3" %}
-          <div class="hero-tiles">
-            {% for stat in highlight_stats %}
-              <article class="stat-card">
-                <small>{{ stat.label }}</small>
-                <strong>{{ stat.value }}</strong>
-                {% if stat.icon %}
-                  <span class="text-white-50"><i class="bi {{ stat.icon }}"></i></span>
-                {% endif %}
-              </article>
-            {% endfor %}
+      
+      <h1 class="home-hero__title">
+        {% if hero.title %}{{ hero.title|safe }}{% else %}
+          {% trans "Finans, uyum ve eğitim ekipleri için" %} <span class="highlight">{% trans "tek ekosistem" %}</span>
+        {% endif %}
+      </h1>
+      
+      <p class="home-hero__description">
+        {% if hero.description %}{{ hero.description }}{% else %}
+          {% trans "Yerel AI destekli, blockchain kanıtlı finans yönetimi platformu. Bulut tabanlı veritabanı ve yerel GPU ile her ölçekte işletme için tasarlandı." %}
+        {% endif %}
+      </p>
+      
+      <div class="home-hero__cta">
+        <a class="btn btn-primary btn-lg" href="{% if hero.primary_cta.href %}{{ hero.primary_cta.href }}{% else %}{% url 'accounts:register' %}{% endif %}" data-cta="{% if hero.primary_cta.cta_id %}{{ hero.primary_cta.cta_id }}{% else %}hero-register{% endif %}">
+          <i class="bi bi-rocket-takeoff me-2"></i>{% if hero.primary_cta.label %}{{ hero.primary_cta.label }}{% else %}{% trans "Ücretsiz Başla" %}{% endif %}
+        </a>
+        <a class="btn btn-outline-dark btn-lg" href="{% if hero.secondary_cta.href %}{{ hero.secondary_cta.href }}{% else %}{% url 'contact' %}{% endif %}" data-cta="{% if hero.secondary_cta.cta_id %}{{ hero.secondary_cta.cta_id }}{% else %}hero-contact{% endif %}">
+          <i class="bi bi-calendar-event me-2"></i>{% if hero.secondary_cta.label %}{{ hero.secondary_cta.label }}{% else %}{% trans "Demo Planla" %}{% endif %}
+        </a>
+      </div>
+      
+      <div class="home-hero__benefits">
+        <div class="home-hero__benefit">
+          <div class="home-hero__benefit-icon">
+            <i class="bi bi-shield-check"></i>
           </div>
-        {% endwith %}
-        <article class="stat-card mt-3">
-          <small>{% trans "FinAsis toplantı mimarisi" %}</small>
-          <strong>{% trans "Finasis Meeting" %}</strong>
-          <p class="mb-0 text-white-75">{% trans "Danışman, öğretmen ve öğrenci görüşmeleri education.Meeting ile senkron; Zoom / Jitsi / Meet yalnızca opsiyonel." %}</p>
-        </article>
+          <h3 class="home-hero__benefit-title">{% trans "Veri Güvenliği" %}</h3>
+          <p class="home-hero__benefit-desc">{% trans "KVKK uyumlu bulut tabanlı veritabanı" %}</p>
+        </div>
+        
+        <div class="home-hero__benefit">
+          <div class="home-hero__benefit-icon">
+            <i class="bi bi-cpu"></i>
+          </div>
+          <h3 class="home-hero__benefit-title">{% trans "Yerel AI" %}</h3>
+          <p class="home-hero__benefit-desc">{% trans "Yerel GPU ile hızlı analiz" %}</p>
+        </div>
+        
+        <div class="home-hero__benefit">
+          <div class="home-hero__benefit-icon">
+            <i class="bi bi-diagram-3"></i>
+          </div>
+          <h3 class="home-hero__benefit-title">{% trans "Blockchain Kanıt" %}</h3>
+          <p class="home-hero__benefit-desc">{% trans "Değiştirilemez kayıtlar" %}</p>
+        </div>
+      </div>
+      
+      <div class="home-hero__trust">
+        <div class="home-hero__trust-item">
+          <i class="bi bi-shield-fill-check"></i>
+          <span>{% trans "ISO 27001" %}</span>
+        </div>
+        <div class="home-hero__trust-item">
+          <i class="bi bi-lock-fill"></i>
+          <span>{% trans "256-bit SSL" %}</span>
+        </div>
+        <div class="home-hero__trust-item">
+          <i class="bi bi-cloud-check"></i>
+          <span>{% trans "Bulut Veritabanı" %}</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
-<section class="trust-band home-full-bleed">
-  <div class="container">
-    <div class="trust-band__grid">
-      <div class="trust-band__item">
-        <i class="bi bi-shield-lock text-success"></i>
-        <span>{% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}</span>
-      </div>
-      <div class="trust-band__item">
-        <i class="bi bi-cpu text-success"></i>
-        <span>{% trans "Yerel GPU üzerinde çalışan FinAsis AI" %}</span>
-      </div>
-      <div class="trust-band__item">
-        <i class="bi bi-link-45deg text-success"></i>
-        <span>{% trans "Her üyelik için blockchain yatırımcı sözleşmesi" %}</span>
-      </div>
-      <div class="trust-band__item">
-        <i class="bi bi-star text-success"></i>
-        <span>{% trans "Beta kontenjanı sınırlı · 1 hisse + 2 ay ücretsiz" %}</span>
-      </div>
-    </div>
-  </div>
-</section>
+
 {% endblock %}
 
 {% block content %}
-<div class="landing-shell">
-  <section class="landing-section" id="capabilities">
+<div class="home-shell">
+
+  <!-- Metrics Section -->
+  <section class="py-5 bg-light" id="metrics">
     <div class="container">
-      <div class="section-heading">
-        <p class="section-eyebrow">{% trans "FinAsis hizmet haritası" %}</p>
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-          <h2 class="h2">{% trans "Her hizmetimiz FinAsis’in kendi akışına sahiptir." %}</h2>
-          <p class="text-muted mb-0">{% trans "Muhasebeden oyunlaştırmaya kadar tüm katmanlar aynı veri modeli ve FinAsis toplantı altyapısında ilerler." %}</p>
-        </div>
+      <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold mb-3">{% trans "Rakamlarla FinAsis" %}</h2>
+        <p class="lead text-muted">{% trans "Gerçek zamanlı verilerle platformunuzun gücünü görün" %}</p>
       </div>
-      <div class="service-grid">
-        <article class="service-card">
-          <div class="service-card__icon"><i class="bi bi-calculator"></i></div>
-          <h3 class="h5">{% trans "Muhasebe Otomasyonu" %}</h3>
-          <p class="text-muted">{% trans "Defter, e-belge ve banka uzlaştırmalarını FinAsis veri modeli üzerinde yönetin." %}</p>
-          <ul>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "e-Fatura, e-Arşiv, e-Mutabakat akışları" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Banka ve ERP entegrasyonları anlık çalışır" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Blockchain yatırımcı sözleşmesi tetiklenir" %}</li>
-          </ul>
-          <div class="service-card__meta">
-            <span>{% trans "FinAsis Meeting + Ledger" %}</span>
-            <a href="{% url 'products_muhasebe' %}" class="text-decoration-none" data-cta="service-accounting">
-              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-            </a>
+      <div class="row g-4">
+        {% if metrics %}
+        {% for metric in metrics|slice:":6" %}
+        <div class="col-md-4 col-sm-6">
+          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
+            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">{{ metric.value }}</div>
+            <div class="small text-muted">{{ metric.label }}</div>
           </div>
-        </article>
-        <article class="service-card">
-          <div class="service-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
-          <h3 class="h5">{% trans "Finans Yönetimi" %}</h3>
-          <p class="text-muted">{% trans "Nakit akışı, bütçe, KPI ve risk senaryoları tek kanvasta." %}</p>
-          <ul>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Gerçek zamanlı KPI ve panolar" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Senaryo ve duyarlılık analizleri" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Yerel AI ile otomatik raporlar" %}</li>
-          </ul>
-          <div class="service-card__meta">
-            <span>{% trans "FinQuest veri modeli" %}</span>
-            <a href="{% url 'products_finans' %}" class="text-decoration-none" data-cta="service-finance">
-              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-            </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-md-4 col-sm-6">
+          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
+            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
+            <div class="small text-muted">{% trans "Aktif Kullanıcı" %}</div>
           </div>
-        </article>
-        <article class="service-card">
-          <div class="service-card__icon"><i class="bi bi-briefcase"></i></div>
-          <h3 class="h5">{% trans "Mali Müşavirlik Platformu" %}</h3>
-          <p class="text-muted">{% trans "Müşteri onboarding, sözleşme ve video toplantılar FinAsis içinde gerçekleşir." %}</p>
-          <ul>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Danışman marketplace ve FinAsis Meeting" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Blockchain sözleşme + uyum izleri" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Beta: her müşteri kaydına 1 hisse" %}</li>
-          </ul>
-          <div class="service-card__meta">
-            <span>{% trans "Yerel toplantı + zincir" %}</span>
-            <a href="{% url 'resources_partner_marketplace' %}" class="text-decoration-none" data-cta="service-advisor">
-              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-            </a>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
+            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
+            <div class="small text-muted">{% trans "Aktif Şirket" %}</div>
           </div>
-        </article>
-        <article class="service-card">
-          <div class="service-card__icon"><i class="bi bi-mortarboard"></i></div>
-          <h3 class="h5">{% trans "Eğitim & FinQuest" %}</h3>
-          <p class="text-muted">{% trans "Öğretmen ve öğrenciler için oyunlaştırılmış görev motoru, quiz ve sertifika akışı." %}</p>
-          <ul>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Rol bazlı LMS ve canlı ders raporları" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Öğrenci XP, rozet ve zincir kayıtları" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "FinAsis Meeting ile hibrit sınıf" %}</li>
-          </ul>
-          <div class="service-card__meta">
-            <span>{% trans "FinQuest motoru" %}</span>
-            <a href="{% url 'products_egitim' %}" class="text-decoration-none" data-cta="service-education">
-              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-            </a>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <div class="text-center p-4 rounded-3 bg-white shadow-sm h-100">
+            <div class="h2 fw-bold mb-2" style="color: var(--home-accent, #FFB300);">0</div>
+            <div class="small text-muted">{% trans "Toplam İşlem" %}</div>
           </div>
-        </article>
-        <article class="service-card">
-          <div class="service-card__icon"><i class="bi bi-controller"></i></div>
-          <h3 class="h5">{% trans "Oyunlar & Trader Simülasyonları" %}</h3>
-          <p class="text-muted">{% trans "Finansal okuryazarlığı ligler, görevler ve gerçek zamanlı simülasyonlarla güçlendirin." %}</p>
-          <ul>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "Gerçek zamanlı portföy ligleri" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "XP ve ödül ekonomisi FinQuest ile entegre" %}</li>
-            <li><i class="bi bi-check-circle text-success"></i>{% trans "AI destekli taktik önerileri" %}</li>
-          </ul>
-          <div class="service-card__meta">
-            <span>{% trans "FinAsis Games" %}</span>
-            <a href="{% url 'products_oyunlar' %}" class="text-decoration-none" data-cta="service-games">
-              {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </article>
+        </div>
+        {% endif %}
       </div>
     </div>
   </section>
 
-  {% if solutions %}
-    <section class="landing-section landing-section--muted home-full-bleed" id="solutions">
-      <div class="container">
-        <div class="section-heading">
-          <p class="section-eyebrow">{% trans "Çözümler" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Tüm hizmetlerimiz kurumsal kartlar halinde." %}</h2>
-            <p class="text-muted mb-0">{% trans "Finans, uyum, eğitim ve AI alanlarındaki kataloğumuzu inceleyin." %}</p>
-          </div>
-        </div>
-        <div class="grid-responsive">
-          {% for solution in solutions %}
-            <article class="card h-100">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h3 class="h5 mb-0">{{ solution.title }}</h3>
-                <span class="badge text-bg-light text-dark"><i class="bi {{ solution.icon }}"></i></span>
-              </div>
-              <p class="text-muted">{{ solution.description }}</p>
-              {% if solution.stats %}
-                <ul class="list-plain">
-                  {% for stat in solution.stats %}
-                    <li><i class="bi bi-dot"></i><span class="text-muted">{{ stat.label }}</span><strong class="ms-auto">{{ stat.value }}</strong></li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-              {% if solution.href %}
-                <a class="stretched-link text-decoration-none fw-semibold mt-3 d-inline-flex align-items-center gap-1" href="{{ solution.href }}" data-cta="solution-card">
-                  {% trans "Detay" %} <i class="bi bi-arrow-right"></i>
-                </a>
-              {% endif %}
-            </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
+  <!-- Solutions Section - Dinamik Hizmetler ve Çözümler -->
 
-  {% if modules %}
-    <section class="landing-section" id="modules">
-      <div class="container">
-        <div class="section-heading">
-          <p class="section-eyebrow">{% trans "Modüller" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Aktif modüller FinAsis tasarım sistemiyle sunulur." %}</h2>
-            <p class="text-muted mb-0">{% trans "Her modül aynı veri modeli ve erişim politikası üzerinde çalışır." %}</p>
-          </div>
-        </div>
-        <div class="grid-responsive">
-          {% for module in modules %}
-            <article class="card h-100">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge text-bg-light text-dark">{{ module.code|upper }}</span>
-                <i class="bi {{ module.icon }}"></i>
-              </div>
-              <h3 class="h5">{{ module.name }}</h3>
-              <p class="text-muted">{{ module.description }}</p>
-            </article>
-          {% endfor %}
-        </div>
+  {% if solutions %}
+  <section class="home-section-modern" id="solutions">
+    <div class="container">
+      <div class="home-section-header-modern">
+        <span class="home-eyebrow-modern">{% trans "Hizmetler ve Çözümler" %}</span>
+        <h2>{% trans "10 ayrı hizmet, entegre çözümler." %}</h2>
+        <p>{% trans "Her çözüm bağımsız modül olarak çalışır; FinAsis veri modeli ile güçlendirilir. İlgili ürün sayfalarına tıklayarak detaylı bilgi alabilirsiniz." %}</p>
       </div>
-    </section>
+      <div class="row g-4">
+        {% for solution in solutions %}
+        <div class="col-lg-4 col-md-6 col-12">
+          <a href="{% if solution.href %}{{ solution.href }}{% else %}#{% endif %}" class="text-decoration-none d-block h-100 solution-card-link" data-cta="solution-{{ solution.code }}">
+            <article class="home-card-modern solution-card-enhanced" style="--solution-color: {{ solution.color|default:'#0AAE94' }}; border-left: 4px solid {{ solution.color|default:'#0AAE94' }}; cursor: pointer;">
+              {% if solution.color == "#0AAE94" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(10, 174, 148, 0.15), rgba(10, 174, 148, 0.08)); box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(10, 174, 148, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#10b981" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08)); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#6366f1" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.08)); box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#3b82f6" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08)); box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#f59e0b" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.08)); box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#8b5cf6" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.08)); box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#2563eb" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.08)); box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(37, 99, 235, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% elif solution.color == "#dc2626" %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.08)); box-shadow: 0 4px 16px rgba(220, 38, 38, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% else %}
+              <div class="home-card-modern__icon solution-icon-wrapper" style="background: linear-gradient(135deg, rgba(10, 174, 148, 0.15), rgba(10, 174, 148, 0.08)); box-shadow: 0 4px 16px rgba(10, 174, 148, 0.15);">
+                <i class="bi {{ solution.icon }}" style="color: {{ solution.color|default:'#0AAE94' }} !important;"></i>
+                <div class="solution-icon-glow" style="background: radial-gradient(circle, rgba(10, 174, 148, 0.4) 0%, transparent 70%);"></div>
+              </div>
+              {% endif %}
+              <div class="solution-card-content">
+                <h3 class="solution-card-title" style="color: var(--home-ink); font-size: clamp(1.25rem, 2.5vw, 1.5rem); margin-bottom: clamp(0.75rem, 1.5vw, 1rem); font-weight: 700; line-height: 1.3;">{{ solution.title }}</h3>
+                <p class="solution-card-description" style="font-size: clamp(0.9375rem, 1.75vw, 1.0625rem); color: #64748b; line-height: 1.7; margin-bottom: clamp(1rem, 2vw, 1.25rem); flex-grow: 1;">{{ solution.description }}</p>
+                {% if solution.stats %}
+                <div class="solution-stats mt-auto pt-3 border-top" style="border-color: rgba(0, 0, 0, 0.08); margin-top: auto; padding-top: clamp(0.75rem, 1.5vw, 1rem);">
+                  {% for stat in solution.stats|slice:":2" %}
+                  <div class="d-flex justify-content-between align-items-center mb-2 solution-stat-item" style="font-size: clamp(0.875rem, 1.75vw, 0.9375rem); padding: clamp(0.25rem, 0.5vw, 0.375rem) 0;">
+                    <span class="text-muted" style="font-weight: 500;">{{ stat.label }}:</span>
+                    <strong class="solution-stat-value" style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(1rem, 2vw, 1.125rem); font-weight: 700;">{{ stat.value }}</strong>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+                <div class="solution-cta mt-3 pt-2">
+                  <span class="solution-cta-link d-inline-flex align-items-center gap-2 fw-semibold" style="color: {{ solution.color|default:'#0AAE94' }}; font-size: clamp(0.9375rem, 1.75vw, 1rem);">
+                    <span>{% trans "Detayları gör" %}</span>
+                    <i class="bi bi-arrow-right solution-cta-arrow" style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></i>
+                  </span>
+                </div>
+              </div>
+            </article>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
   {% endif %}
 
   {% if plans %}
-    <section class="landing-section landing-section--alt home-full-bleed" id="plans">
-      <div class="container">
-        <div class="section-heading">
-          <p class="section-eyebrow">{% trans "Planlar" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "KOBİ’den kurumsal yapıya kadar ölçeklenir." %}</h2>
-            <p class="text-muted mb-0">{% trans "Yerinde kurulum, yönetilen hizmet ve destek katmanlarını seçin." %}</p>
-          </div>
-        </div>
-        <div class="grid-responsive">
-          {% for plan in plans %}
-            <article class="card h-100">
-              <span class="badge text-bg-light text-dark mb-2">{{ plan.audience }}</span>
-              <h3 class="h5 mb-1">{{ plan.name }}</h3>
-              <p class="text-muted small mb-3">{{ plan.description }}</p>
-              {% if plan.price %}
-                <div class="fs-2 fw-semibold text-primary">
-                  {{ plan.price }}
-                  {% if plan.price_period %}
-                    <small class="text-muted">/ {{ plan.price_period }}</small>
-                  {% endif %}
-                </div>
-              {% else %}
-                <div class="text-muted fw-semibold">{% trans "Özel fiyat" %}</div>
-              {% endif %}
-              <a class="btn btn-outline-primary mt-3" href="{% url 'billing:plans' %}" data-cta="plan-card">
-                {% trans "Planı incele" %}
-              </a>
-            </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  {% if audience_tiles %}
-    <section class="landing-section" id="audiences">
-      <div class="container">
-        <div class="section-heading">
-          <p class="section-eyebrow">{% trans "Hedef kitle" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Tüm hizmetlerimizi kullanan topluluklar." %}</h2>
-            <p class="text-muted mb-0">{% trans "KOBİ, mali müşavir, finans profesyoneli, eğitimci, öğrenci ve gamer akışları aynı veri modeli üzerinde buluşur." %}</p>
-          </div>
-        </div>
-        <div class="grid-responsive">
-          {% for audience in audience_tiles %}
-            <article class="audience-card">
-              <span class="audience-badge"><i class="bi {{ audience.icon }}"></i>{{ audience.title }}</span>
-              <p class="text-muted mt-3 mb-3">{{ audience.summary }}</p>
-              <small class="text-primary fw-semibold">{% trans "Beta: 1 hisse + 2 ay ücretsiz + blockchain sözleşmesi" %}</small>
-            </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  {% if resource_cards or press_releases %}
-    <section class="landing-section landing-section--muted home-full-bleed" id="resources">
-      <div class="container">
-        <div class="section-heading">
-          <p class="section-eyebrow">{% trans "Kaynaklar" %}</p>
-          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-            <h2 class="h2">{% trans "Kurumsal dokümanlar, basın ve AI kütüphanesi." %}</h2>
-            <p class="text-muted mb-0">{% trans "Yatırımcı dosyaları, basın haberleri ve AI kartları tek merkezde." %}</p>
-          </div>
-        </div>
-        <div class="grid-responsive">
-          {% for card in resource_cards %}
-            <article class="resource-card">
-              <span class="badge text-bg-light text-dark mb-2">{{ card.title }}</span>
-              <ul class="resource-card__list">
-                {% for item in card.items|slice:":4" %}
-                  <li>
-                    <a href="{{ item.href }}" data-cta="resource-item">{{ item.label }}</a>
-                    <small class="d-block text-muted">{{ item.meta }}</small>
-                  </li>
-                {% endfor %}
-              </ul>
-              {% if card.cta %}
-                <a class="btn btn-link px-0 mt-3 fw-semibold text-decoration-none" href="{{ card.cta.href }}" data-cta="resource-cta">
-                  {{ card.cta.label }} <i class="bi bi-arrow-right"></i>
-                </a>
-              {% endif %}
-            </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-  {% endif %}
-
-  <section class="landing-section" id="cta">
+  <section class="home-section-modern" id="plans">
     <div class="container">
-      <div class="cta-panel">
-        <div>
-          <p class="text-uppercase small fw-semibold mb-2 text-white-50">{% trans "BETA KAMPANYASI" %}</p>
-          <h2 class="h3 mb-2 text-white">{% trans "FinAsis'e katıl, 1 hisse + 2 ay ücretsiz ve blockchain sözleşmesi kazan." %}</h2>
-          <p class="mb-0 text-white-75">
-            {% trans "FinAsis Meeting, FinQuest ve Blockchain Ledger Engine aynı kurumsal tasarım sistemiyle sunulur; veriniz Türkiye’de kalır, MASAK denetim izi ve ISO 27001 kontrolleri hazırdır." %}
-          </p>
+      <div class="home-section-header-modern">
+        <span class="home-eyebrow-modern">{% trans "Planlar" %}</span>
+        <h2>{% trans "Rol bazlı FinAsis paketleri" %}</h2>
+      </div>
+      <div class="home-grid-modern">
+        {% for plan in plans %}
+        <article class="home-card-modern">
+          <span class="badge text-bg-light text-dark mb-3">{{ plan.audience }}</span>
+          <h3>{{ plan.name }}</h3>
+          <p>{{ plan.description }}</p>
+          <div class="mt-auto pt-3">
+            {% if plan.price %}
+            <div class="mb-3">
+              <strong class="h4">{{ plan.price }}</strong>
+              <small class="text-muted d-block">{{ plan.currency }} · {{ plan.price_period }}</small>
+            </div>
+            {% else %}
+            <small class="text-muted d-block mb-3">{% trans "Fiyat talep üzerine" %}</small>
+            {% endif %}
+            <a class="btn btn-outline-dark w-100" href="{% url 'accounts:register' %}" data-cta="plan-{{ plan.code }}">
+              <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Planı başlat" %}
+            </a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if ai_spotlight or missions %}
+  <section class="home-section-modern" id="intelligence">
+    <div class="container">
+      <div class="home-section-header-modern">
+        <span class="home-eyebrow-modern">{% trans "AI & Görevler" %}</span>
+        <h2>{% trans "Yerel AI ve görev motoru ile finansal süreçlerinizi optimize edin." %}</h2>
+      </div>
+      <div class="home-grid-modern">
+        {% if ai_spotlight %}
+        {% for prompt in ai_spotlight %}
+        <article class="home-card-modern">
+          <div class="home-card-modern__icon">
+            <i class="bi {{ prompt.icon }}"></i>
+          </div>
+          <h3>{{ prompt.title }}</h3>
+          <p>{{ prompt.body }}</p>
+          {% if prompt.cta_href or prompt.cta_label %}
+          <div class="mt-auto pt-2">
+            <a class="btn btn-link px-0 fw-semibold" href="{% if prompt.cta_href %}{{ prompt.cta_href }}{% else %}{% url 'ai_assistant:home' %}{% endif %}" data-cta="ai-card">
+              {% if prompt.cta_label %}{{ prompt.cta_label }}{% else %}{% trans "Detayları gör" %}{% endif %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+          {% endif %}
+        </article>
+        {% endfor %}
+        {% endif %}
+        {% if missions %}
+        {% for mission in missions %}
+        <article class="home-card-modern">
+          <div class="home-card-modern__icon">
+            <i class="bi {{ mission.icon }}"></i>
+          </div>
+          <small class="text-uppercase text-muted d-block mb-2">{{ mission.tags|first }}</small>
+          <h3>{{ mission.title }}</h3>
+          <p>{{ mission.description }}</p>
+          <div class="mt-auto pt-2">
+            {% if mission.reward_xp %}<span class="badge me-1" style="background: var(--home-accent, #FFB300); color: #000;"><i class="bi bi-lightning-charge"></i>{{ mission.reward_xp }} XP</span>{% endif %}
+            {% if mission.cta_href or mission.cta_label %}
+            <a class="btn btn-outline-secondary btn-sm mt-2" href="{% if mission.cta_href %}{{ mission.cta_href }}{% else %}{% url 'games:quests' %}{% endif %}" data-cta="mission-card">
+              {{ mission.cta_label|default:_("Görevi aç") }}
+            </a>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if resource_cards %}
+  <section class="home-section-modern home-section-modern--alt" id="resources">
+    <div class="container">
+      <div class="home-section-header-modern">
+        <span class="home-eyebrow-modern">{% trans "Kaynaklar" %}</span>
+        <h2>{% trans "Yatırımcı dokümanları, AI kart rehberi ve FinAsis haberleri." %}</h2>
+      </div>
+      <div class="home-grid-modern">
+        {% for card in resource_cards %}
+        <article class="home-card-modern">
+          <span class="badge text-bg-light text-dark mb-3">{{ card.title }}</span>
+          <ul>
+            {% for item in card.items|slice:":4" %}
+            <li>
+              <a href="{% if item.href %}{{ item.href }}{% else %}#{% endif %}" data-cta="resource-item" class="text-decoration-none text-dark">{% if item.label %}{{ item.label }}{% else %}{% trans "Kaynak" %}{% endif %}</a>
+              {% if item.meta %}<small class="d-block text-muted">{{ item.meta }}</small>{% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% if card.cta %}
+          <div class="mt-auto pt-2">
+            <a class="btn btn-link px-0 mt-3 fw-semibold text-decoration-none" href="{% if card.cta.href %}{{ card.cta.href }}{% else %}{% url 'resources_guides' %}{% endif %}" data-cta="resource-cta">
+              {% if card.cta.label %}{{ card.cta.label }}{% else %}{% trans "Tümünü gör" %}{% endif %} <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="home-section-modern home-section-modern--alt" id="corporate">
+    <div class="container">
+      <div class="home-panel-card">
+        <div class="home-section-header-modern text-white mb-4">
+          <span class="home-eyebrow-modern" style="background: rgba(255, 255, 255, 0.2); color: white;">{% trans "Kurumsal yapı" %}</span>
+          <h2 class="text-white">{% trans "Miras Ajans Dijital Pazarlama Tic. LTD. ŞTİ. · İzmir Aliağa" %}</h2>
+          <p class="text-white-75">{% trans "FinAsis markası; accounting, finans, mali müşavirlik, eğitim, oyun ve blockchain kabiliyetlerini tek kurumsal çatı altında sunar." %}</p>
         </div>
-        <div class="d-flex flex-column flex-md-row gap-3">
-          <a class="btn btn-light text-dark btn-lg" href="{% url 'accounts:register' %}" data-cta="cta-register">
-            <i class="bi bi-rocket-takeoff me-2"></i>{% trans "Ücretsiz başla" %}
+        <div class="home-grid-modern">
+          <article class="home-card-modern" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 class="text-white">{% trans "Haklar & güvenceler" %}</h3>
+            <ul>
+              <li>{% trans "Beta: her üyelik 1 hisse + 2 ay ücretsiz" %}</li>
+              <li>{% trans "Blockchain yatırımcı sözleşmesi otomatik" %}</li>
+              <li>{% trans "FinAsis Meeting kurum içi altyapıda" %}</li>
+            </ul>
+          </article>
+          <article class="home-card-modern" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 class="text-white">{% trans "İletişim" %}</h3>
+            <ul>
+              <li><i class="bi bi-envelope-at me-1"></i><a href="mailto:{{ brand_identity.support.email }}" class="text-white text-decoration-none">{{ brand_identity.support.email }}</a></li>
+              <li><i class="bi bi-geo-alt me-1"></i> {% trans "İzmir Aliağa · Türkiye" %}</li>
+              <li><i class="bi bi-chat-dots me-1"></i><a href="{% url 'contact' %}" class="text-white text-decoration-none">{% trans "Kurumsal iletişim formu" %}</a></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section-modern" id="cta">
+    <div class="container">
+      <div class="home-panel-card text-center">
+        <span class="home-eyebrow-modern" style="background: rgba(255, 255, 255, 0.2); color: white; margin-bottom: 1.5rem;">{% trans "Beta kampanyası" %}</span>
+        <h2 class="text-white mb-3">{% trans "FinAsis'e katıl, 1 hisse + 2 ay ücretsiz ve blockchain sözleşmesi kazan." %}</h2>
+        <p class="text-white-75 mb-4">{% trans "FinAsis Meeting, FinQuest ve Ledger Engine aynı kurumsal tasarım sistemiyle sunulur; veriniz Türkiye'de kalır, MASAK denetim izi ve ISO 27001 kontrolleri hazırdır." %}</p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center">
+          <a href="{% url 'accounts:register' %}" class="btn btn-light text-dark" data-cta="cta-register">
+            <i class="bi bi-rocket"></i> {% trans "Ücretsiz başla" %}
           </a>
-          <a class="btn btn-outline-light btn-lg" href="{% url 'contact' %}" data-cta="cta-contact">
-            <i class="bi bi-chat-dots me-2"></i>{% trans "Kurumsal demo planla" %}
+          <a href="{% url 'contact' %}" class="btn btn-outline-light" data-cta="cta-contact">
+            <i class="bi bi-people"></i> {% trans "Satış ile görüş" %}
           </a>
         </div>
       </div>
@@ -646,4 +1476,3 @@
   </section>
 </div>
 {% endblock %}
-

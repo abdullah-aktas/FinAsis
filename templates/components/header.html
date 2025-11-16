@@ -1,195 +1,296 @@
-{% load static i18n %}
-
-<style>
-  .masthead {
-    position: sticky;
-    top: 0;
-    z-index: 1040;
-    backdrop-filter: blur(18px);
-  }
-  .masthead__announcement {
-    background: linear-gradient(120deg, rgba(3, 27, 38, 0.98), rgba(6, 65, 63, 0.95));
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.88rem;
-  }
-  .masthead__announcement a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 600;
-  }
-  .masthead__nav {
-    background: rgba(255, 255, 255, 0.97);
-    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  }
-  .masthead__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-decoration: none;
-  }
-  .masthead__brand-logo {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--brand-primary, #0aae94), var(--brand-accent, #068c71));
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 12px 28px rgba(10, 174, 148, 0.25);
-  }
-  .masthead__brand-logo img {
-    width: 28px;
-    height: 28px;
-  }
-  .masthead__nav .nav-link {
-    font-weight: 500;
-    color: #0f172a;
-    padding: 0.6rem 0.85rem;
-    border-radius: 999px;
-  }
-  .masthead__nav .nav-link:hover,
-  .masthead__nav .nav-link:focus {
-    background: rgba(10, 174, 148, 0.12);
-    color: var(--brand-primary, #0aae94);
-  }
-  .masthead__actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .masthead__actions .btn {
-    border-radius: 999px;
-    font-weight: 600;
-  }
-  .masthead__icon-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    background: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #0f172a;
-  }
-  .masthead__icon-btn:hover {
-    border-color: rgba(10, 174, 148, 0.4);
-    color: var(--brand-primary, #0aae94);
-  }
-  @media (max-width: 991.98px) {
-    .masthead__actions {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .masthead__actions .btn {
-      width: 100%;
-    }
-  }
-</style>
-
-<header class="masthead" role="banner">
-  <div class="masthead__announcement py-2">
-    <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center gap-2">
-      <div class="d-flex flex-wrap justify-content-center gap-3">
-        <span><i class="bi bi-stars me-1"></i>{% trans "BETA · Her üyelik 1 hisse + 2 ay ücretsiz kullanım" %}</span>
-        <span><i class="bi bi-link-45deg me-1"></i>{% trans "Blockchain yatırımcı sözleşmesi otomatik oluşturulur" %}</span>
-        <span><i class="bi bi-camera-video me-1"></i>{% trans "FinAsis toplantıları kurum içi altyapı üzerinden" %}</span>
-      </div>
-      <div class="d-flex flex-wrap align-items-center gap-3">
-        <a href="mailto:{{ brand_identity.support.email }}" class="d-inline-flex align-items-center gap-1">
-          <i class="bi bi-envelope-at"></i>{{ brand_identity.support.email }}
-        </a>
-        <a href="{% url 'accounts:register' %}" class="d-inline-flex align-items-center gap-1" data-cta="announcement-register">
-          <i class="bi bi-rocket-takeoff"></i>{% trans "Beta avantajını yakala" %}
-        </a>
-      </div>
+{% load i18n static %}
+<header class="fresh-header border-bottom bg-white" role="banner" data-component="fresh-header">
+  <div class="fresh-header__context text-bg-dark d-none d-md-block">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 gap-md-3 py-2">
+      <span class="badge text-bg-light text-dark d-inline-flex align-items-center gap-1" data-status="{{ brand_identity.version.status }}">
+        <i class="bi bi-stars"></i><span class="d-none d-sm-inline">{{ brand_identity.version.label|default:"BETA" }}</span>
+      </span>
+      <p class="mb-0 small text-white-75 d-none d-lg-flex align-items-center gap-2">
+        <i class="bi bi-cpu"></i>
+        {% trans "Yerel GPU üzerinde çalışan FinAsis AI, finans süreçlerini tek panelde toplar." %}
+      </p>
+      <a class="btn btn-sm btn-outline-light" href="{% url 'contact' %}" data-cta="header-contact">
+        <i class="bi bi-chat-dots me-1"></i><span class="d-none d-sm-inline">{% trans "Canlı görüşme planla" %}</span><span class="d-sm-none">{% trans "İletişim" %}</span>
+      </a>
     </div>
   </div>
 
-  <nav class="navbar navbar-expand-lg masthead__nav" aria-label="{% trans 'Ana navigasyon' %}">
-    <div class="container py-2">
-      <a class="masthead__brand" href="{% url 'home' %}" aria-label="{{ brand_identity.name }}">
-        <span class="masthead__brand-logo">
-          <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo">
+  <nav class="navbar navbar-expand-lg fresh-header__navbar" aria-label="{% trans 'Ana navigasyon' %}">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-1 gap-md-2" href="{% url 'home' %}" aria-label="{{ brand_identity.name }}">
+        <span class="fresh-header__logo">
+          <img src="{{ brand_identity.assets.logo_mark }}" alt="{{ brand_identity.name }} logo" loading="lazy" decoding="async" class="img-responsive" />
         </span>
-        <span class="d-flex flex-column">
+        <span class="d-none d-sm-flex flex-column lh-1">
           <strong class="text-dark">{{ brand_identity.name }}</strong>
-          <small class="text-muted">{{ brand_identity.tagline }}</small>
+          <small class="text-muted d-none d-md-inline">{{ brand_identity.tagline_short }}</small>
         </span>
       </a>
 
-      <button class="navbar-toggler ms-3" type="button" data-bs-toggle="collapse" data-bs-target="#mastheadNav"
-        aria-controls="mastheadNav" aria-expanded="false" aria-label="{% trans 'Menüyü aç/kapat' %}">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="btn btn-light btn-sm" type="button" onclick="toggleTheme()" aria-label="{% trans 'Tema değiştir' %}">
+          <i class="bi bi-brightness-high"></i>
+        </button>
+        {% if user.is_authenticated %}
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'user_panel' %}" aria-label="{% trans 'Panel' %}">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </a>
+        {% else %}
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:login' %}">{% trans "Giriş" %}</a>
+        {% endif %}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#freshHeaderNav" aria-controls="freshHeaderNav" aria-expanded="false" aria-label="{% trans 'Menüyü aç/kapat' %}">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
 
-      <div class="collapse navbar-collapse py-3 py-lg-0" id="mastheadNav">
-        <ul class="navbar-nav me-auto mb-3 mb-lg-0 align-items-lg-center gap-lg-1">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}#hero">{% trans "Genel Bakış" %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}#capabilities">{% trans "Hizmetler" %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}#solutions">{% trans "Çözümler" %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}#resources">{% trans "Kaynaklar" %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'corporate:landing' %}">{% trans "Kurumsal" %}</a>
-          </li>
-        </ul>
-        <div class="masthead__actions ms-lg-3">
-          <button class="masthead__icon-btn" id="siteThemeToggle" type="button" aria-label="{% trans 'Tema değiştir' %}" data-cta="toggle-theme">
-            <i class="bi bi-moon-stars" data-theme-icon="dark"></i>
-            <i class="bi bi-sun d-none" data-theme-icon="light"></i>
-          </button>
-          {% if user.is_authenticated %}
-            <a class="btn btn-outline-primary" href="{% url 'user_panel' %}" data-cta="nav-panel">
-              <i class="bi bi-grid-3x3-gap me-1"></i>{% trans "Panel" %}
-            </a>
-            <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
-              {% csrf_token %}
-              <button class="btn btn-link text-decoration-none text-danger px-2" type="submit" data-cta="nav-logout">
-                <i class="bi bi-box-arrow-right me-1"></i>{% trans "Çıkış" %}
-              </button>
-            </form>
+      <div class="collapse navbar-collapse" id="freshHeaderNav">
+        <ul class="navbar-nav me-auto mb-3 mb-lg-0 gap-lg-2">
+          {% if primary_navigation %}
+            {% for item in primary_navigation %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ item.href }}" data-cta="nav-primary">{{ item.label }}</a>
+              </li>
+            {% endfor %}
           {% else %}
-            <a class="btn btn-outline-secondary" href="{% url 'accounts:login' %}" data-cta="nav-login">
-              {% trans "Giriş" %}
+            <li class="nav-item"><a class="nav-link" href="#hero">{% trans "Genel bakış" %}</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% trans "Hizmetler" %}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg-end shadow border-0 rounded-3 p-3" aria-labelledby="servicesDropdown" style="min-width: 320px;">
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_muhasebe' %}" data-cta="nav-service-accounting">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-calculator" style="color: #0AAE94;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Muhasebe" %}</div>
+                        <small class="text-muted">{% trans "e-Fatura, defter, banka entegrasyonları" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_finans' %}" data-cta="nav-service-finance">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-graph-up-arrow" style="color: #10b981;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Finansal Yönetim" %}</div>
+                        <small class="text-muted">{% trans "KPI, bütçe, nakit akışı" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'audit:landing' %}" data-cta="nav-service-audit">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-shield-check" style="color: #6366f1;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Denetim" %}</div>
+                        <small class="text-muted">{% trans "Denetim izi, risk değerlendirme" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_blockchain' %}" data-cta="nav-service-blockchain">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-link-45deg" style="color: #3b82f6;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Blockchain" %}</div>
+                        <small class="text-muted">{% trans "Akıllı sözleşmeler, kanıt kayıtları" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_egitim' %}" data-cta="nav-service-education">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-mortarboard" style="color: #f59e0b;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Eğitim" %}</div>
+                        <small class="text-muted">{% trans "LMS, FinQuest görev motoru" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_oyunlar' %}" data-cta="nav-service-games">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-controller" style="color: #8b5cf6;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Oyunlar" %}</div>
+                        <small class="text-muted">{% trans "TradeSim, oyunlaştırma" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_mali_musavir' %}" data-cta="nav-service-advisors">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-briefcase" style="color: #2563eb;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Mali Müşavirlik" %}</div>
+                        <small class="text-muted">{% trans "Marketplace, müşteri yönetimi" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_yapay_zeka' %}" data-cta="nav-service-ai">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-robot" style="color: #8b5cf6;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Yapay Zeka" %}</div>
+                        <small class="text-muted">{% trans "Prompt kütüphanesi, otomasyon" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'products_kobi_analizi' %}" data-cta="nav-service-kobi-analysis">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-graph-up" style="color: #dc2626;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "KOBİ Analizi" %}</div>
+                        <small class="text-muted">{% trans "Sağlık skoru, SWOT analizi" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3" href="{% url 'products_edonusum' %}" data-cta="nav-service-edonusum">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-file-earmark-check" style="color: #f59e0b;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "e-Dönüşüm" %}</div>
+                        <small class="text-muted">{% trans "e-Fatura, e-Arşiv, e-Defter" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#solutions">{% trans "Çözümler" %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#resources">{% trans "Kaynaklar" %}</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="corporateDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% trans "Kurumsal" %}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg-end shadow border-0 rounded-3 p-3" aria-labelledby="corporateDropdown" style="min-width: 280px;">
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:landing' %}" data-cta="nav-corporate-landing">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-building" style="color: #0AAE94;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Genel Bakış" %}</div>
+                        <small class="text-muted">{% trans "Kurumsal çözümler" %}</small>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider my-2"></li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:about' %}" data-cta="nav-corporate-about">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-info-circle" style="color: #0AAE94;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Hakkımızda" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:team' %}" data-cta="nav-corporate-team">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-people" style="color: #10b981;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Takım" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:careers' %}" data-cta="nav-corporate-careers">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-briefcase" style="color: #6366f1;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Kariyer" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:press' %}" data-cta="nav-corporate-press">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-newspaper" style="color: #f59e0b;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Basın" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider my-2"></li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:investors' %}" data-cta="nav-corporate-investors">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-graph-up-arrow" style="color: #3b82f6;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Yatırımcılar" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3 mb-1" href="{% url 'corporate:security' %}" data-cta="nav-corporate-security">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-shield-check" style="color: #8b5cf6;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Güvenlik" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item rounded-2 py-2 px-3" href="{% url 'corporate:sustainability' %}" data-cta="nav-corporate-sustainability">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-leaf" style="color: #10b981;"></i>
+                      <div>
+                        <div class="fw-semibold">{% trans "Sürdürülebilirlik" %}</div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+        </ul>
+
+        <div class="fresh-header__actions d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
+          <div class="d-flex flex-wrap gap-2">
+            {% if secondary_navigation %}
+              {% for item in secondary_navigation %}
+                <a class="btn btn-outline-secondary btn-sm" href="{{ item.href }}" data-cta="nav-secondary">{{ item.label }}</a>
+              {% endfor %}
+            {% endif %}
+            <button class="btn btn-light btn-sm d-none d-lg-inline-flex" type="button" onclick="toggleTheme()" aria-label="{% trans 'Tema değiştir' %}">
+              <i class="bi bi-brightness-high"></i>
+            </button>
+          </div>
+          {% if user.is_authenticated %}
+            <a class="btn btn-dark" href="{% url 'user_panel' %}" data-cta="nav-dashboard">
+              <i class="bi bi-grid-3x3-gap-fill me-1"></i>{% trans "Panel" %}
             </a>
-            <a class="btn btn-primary" href="{% url 'accounts:register' %}" data-cta="nav-register">
-              <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Ücretsiz başla" %}
-            </a>
+          {% else %}
+            <div class="d-flex flex-column flex-lg-row gap-2">
+              <a class="btn btn-outline-dark" href="{% url 'accounts:login' %}" data-cta="nav-login">{% trans "Giriş yap" %}</a>
+              <a class="btn btn-dark" href="{% url 'accounts:register' %}" data-cta="nav-register">
+                <i class="bi bi-rocket-takeoff me-1"></i>{% trans "Ücretsiz başla" %}
+              </a>
+            </div>
           {% endif %}
         </div>
       </div>
     </div>
   </nav>
 </header>
-
-<script>
-  (function () {
-    const btn = document.getElementById('siteThemeToggle');
-    if (!btn) return;
-    const darkIcon = btn.querySelector('[data-theme-icon="dark"]');
-    const lightIcon = btn.querySelector('[data-theme-icon="light"]');
-    const sync = () => {
-      const current = document.documentElement.dataset.theme || 'light';
-      darkIcon.classList.toggle('d-none', current !== 'light');
-      lightIcon.classList.toggle('d-none', current === 'light');
-    };
-    btn.addEventListener('click', function () {
-      if (typeof toggleTheme === 'function') {
-        toggleTheme();
-      }
-    });
-    document.addEventListener('themechange', sync);
-    sync();
-  })();
-</script>
 
