@@ -51,6 +51,8 @@ SITE_BASE_URL = ENV('DJANGO_SITE_BASE_URL', 'https://finasis.com.tr')
 FINASIS_MEETING_BASE_URL = ENV('FINASIS_MEETING_BASE_URL', SITE_BASE_URL)
 DEFAULT_VIDEO_PROVIDER = ENV('FINASIS_DEFAULT_VIDEO_PROVIDER', 'finasis')
 
+DISABLE_LOCALE_APP = ENV('DISABLE_LOCALE_APP', '').lower() in {'1', 'true', 'yes', 'on'}
+
 INSTALLED_APPS = [
     # Django core
     'django.contrib.admin',
@@ -95,7 +97,6 @@ INSTALLED_APPS = [
     'integrator_gib.apps.IntegratorGIBConfig',
     'integrator_mock.apps.IntegratorMockConfig',
     'kobi_analysis.apps.KobiAnalysisConfig',
-    'locale.apps.LocaleConfig',
     'management.apps.ManagementConfig',
     'permissions.apps.PermissionsConfig',
     'developer_portal.apps.DeveloperPortalConfig',
@@ -105,6 +106,9 @@ INSTALLED_APPS = [
     'tenancy.apps.TenancyConfig',
     'virtual_company.apps.VirtualCompanyConfig',
 ]
+
+if not DISABLE_LOCALE_APP:
+    INSTALLED_APPS.append('locale.apps.LocaleConfig')
 
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',

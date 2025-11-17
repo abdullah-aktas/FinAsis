@@ -10,7 +10,13 @@ from config import oidc as oidc_config
 from corporate import views as corporate_views
 from core_ui import views as core_ui_views
 from accounts.views_panel import user_panel
-from locale.views import set_language
+try:
+    from locale.views import set_language
+except Exception:  # pragma: no cover - fallback for environments where locale app is disabled
+    from django.http import HttpResponseNotFound
+
+    def set_language(request, *args, **kwargs):  # type: ignore[func-returns-value]
+        return HttpResponseNotFound("Locale app is disabled in this environment.")
 
 urlpatterns = [
     path('', core_ui_views.landing_home, name='home'),
