@@ -262,8 +262,9 @@ LANGUAGES = [
     ('tr', 'Türkçe'),
     ('en', 'English'),
     ('de', 'Deutsch'),
-    ('es', 'Español'),
-    ('ar', 'العربية'),
+    ('ku', 'Kürtçe'),
+    ('ar', 'Arapça'),
+    
 ]
 
 LOCALE_PATHS = [
