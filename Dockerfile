@@ -48,7 +48,6 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 COPY . .
 RUN python manage.py collectstatic --noinput
 RUN python manage.py migrate
-RUN python manage.py createsuperuser
 RUN python manage.py init_trade_sim
 
 COPY deploy/entrypoint.sh /entrypoint.sh
