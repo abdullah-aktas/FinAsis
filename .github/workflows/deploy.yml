@@ -1,0 +1,69 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.py'
+      - '**.html'
+      - '**.js'
+      - '**.css'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'deploy/**'
+      - 'config/**'
+  workflow_dispatch: # Manuel tetikleme için
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: finasis-prod
+  REGION: europe-west1
+  REPOSITORY: finasis-app
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Submit build to Cloud Build
+        run: |
+          gcloud builds submit \
+            --config=deploy/cloud_run/cloudbuild.yaml \
+            --region=${{ env.REGION }} \
+            --substitutions=_SERVICE=${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Get service URL
+        id: service-url
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)" \
+            --project=${{ env.PROJECT_ID }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployment tamamlandı: $URL"
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f ${{ steps.service-url.outputs.url }} || exit 1
+
