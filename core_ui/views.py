@@ -1707,6 +1707,48 @@ def error_404(request, exception=None):
 def error_500(request):
     """
     Custom 500 error handler
+    Handles server errors gracefully with proper logging
     """
-    return render(request, '500.html', status=500)
+    import logging
+    from django.http import HttpResponse
+    from django.conf import settings
+    
+    logger = logging.getLogger(__name__)
+    
+    # Log the error if we have exception info
+    if hasattr(request, '_exception'):
+        logger.exception(
+            f"500 Error on {request.method} {request.path}",
+            exc_info=request._exception
+        )
+    
+    # Try to render the custom error page
+    try:
+        return render(request, '500.html', status=500)
+    except Exception as e:
+        # If template rendering fails, return a simple error page
+        logger.exception("Failed to render 500.html template")
+        
+        # Return a simple HTML error page
+        error_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Server Error</title>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                h1 { color: #dc2626; }
+                p { color: #666; }
+            </style>
+        </head>
+        <body>
+            <h1>Server Error</h1>
+            <p>The server encountered an error and could not complete your request.</p>
+            <p>Please try again in a few moments.</p>
+            <p><a href="/">Return to Home</a></p>
+        </body>
+        </html>
+        """
+        return HttpResponse(error_html, status=500, content_type='text/html')
 

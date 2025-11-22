@@ -36,7 +36,17 @@ def env_bool(name: str, fallback: bool = False) -> bool:
 SECRET_KEY = ENV('DJANGO_SECRET_KEY', 'django-insecure-fin-as1s-placeholder-key')
 DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,finasis.com.tr,www.finasis.com.tr')
+# ALLOWED_HOSTS: Cloud Run için otomatik ekleme
+_default_allowed_hosts = '127.0.0.1,localhost,finasis.com.tr,www.finasis.com.tr'
+_allowed_hosts = env_list('DJANGO_ALLOWED_HOSTS', _default_allowed_hosts)
+
+# Cloud Run ortamında otomatik olarak Cloud Run host'unu ekle
+# CLOUD_RUN_HOST environment variable ile set edilebilir
+cloud_run_host = ENV('CLOUD_RUN_HOST', '')
+if cloud_run_host and cloud_run_host not in _allowed_hosts:
+    _allowed_hosts.append(cloud_run_host)
+
+ALLOWED_HOSTS = _allowed_hosts
 
 CSRF_TRUSTED_ORIGINS = env_list(
     'DJANGO_CSRF_TRUSTED_ORIGINS',

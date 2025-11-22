@@ -4,7 +4,7 @@ options:
 
 substitutions:
   _PYTHON_VERSION: "3.11"
-  _REGION: "europe-west4"
+  _REGION: "europe-west1"
   _SERVICE: "finasis-api"
   _REPOSITORY: "finasis-app"
   _IMAGE_TAG: "latest"
@@ -61,12 +61,20 @@ steps:
           "--execution-environment=gen2"
           "--memory=2Gi"
           "--cpu=2"
-          "--timeout=120"
+          "--timeout=300"
           "--concurrency=40"
+          "--min-instances=1"
+          "--max-instances=10"
         )
 
+        # Default environment variables (Matplotlib cache ve Python ayarları)
+        DEFAULT_ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1"
+        
         if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
-          DEPLOY_ARGS+=("--set-env-vars=${_CLOUD_RUN_ENV_VARS}")
+          # Mevcut env vars ile birleştir
+          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS},${_CLOUD_RUN_ENV_VARS}")
+        else
+          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS}")
         fi
 
         if [ -n "${_CLOUD_RUN_SECRETS}" ]; then

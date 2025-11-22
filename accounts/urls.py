@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from django.views.generic import RedirectView
 from . import views, views_mfa, views_auth
 from .api import UserProfileView, CompanyView, AchievementsView, UserSettingsView
@@ -41,7 +41,10 @@ urlpatterns = [
     path('otp/setup/', views_mfa.otp_setup, name='otp_setup'),
     path('otp/verify/', views_mfa.otp_verify, name='otp_verify'),
     path('otp/disable/', views_mfa.otp_disable, name='otp_disable'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(
+        template_name='registration/password_reset_form.html',
+        success_url=reverse_lazy('accounts:password_reset_done')
+    ), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),

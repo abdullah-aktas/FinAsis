@@ -1,0 +1,194 @@
+# =============================================================================
+# Production Deployment Configuration - 50,000 Eşzamanlı Kullanıcı
+# =============================================================================
+# Bu yapılandırma 50,000 eşzamanlı kullanıcıyı desteklemek için optimize edilmiştir
+# =============================================================================
+
+timeout: "3600s"  # 1 saat (build için)
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'  # Daha hızlı build için
+  diskSizeGb: 100
+
+substitutions:
+  _PYTHON_VERSION: "3.11"
+  _REGION: "europe-west1"
+  _SERVICE: "finasis-api"
+  _REPOSITORY: "finasis-app"
+  _IMAGE_TAG: "latest"
+  
+  # Production Environment Variables
+  _CLOUD_RUN_ENV_VARS: |
+    DJANGO_DEBUG=False,
+    DJANGO_ALLOWED_HOSTS=finasis.com.tr,www.finasis.com.tr,
+    DJANGO_DB_CONN_MAX_AGE=600,
+    DJANGO_SECURE_SSL_REDIRECT=True,
+    REDIS_HOST=,
+    REDIS_PORT=6379,
+    REDIS_DB=0,
+    CACHE_TIMEOUT=300,
+    GUNICORN_WORKERS=4,
+    GUNICORN_THREADS=8,
+    GUNICORN_TIMEOUT=120,
+    GUNICORN_KEEPALIVE=5,
+    MPLCONFIGDIR=/tmp/matplotlib-cache,
+    PYTHONUNBUFFERED=1,
+    PYTHONDONTWRITEBYTECODE=1
+  
+  _CLOUD_RUN_SECRETS: |
+    DJANGO_SECRET_KEY=DJANGO_SECRET_KEY:latest,
+    DJANGO_DB_PASSWORD=DJANGO_DB_PASSWORD:latest,
+    REDIS_PASSWORD=REDIS_PASSWORD:latest
+  
+  _CLOUD_SQL_CONNECTION: ""
+
+steps:
+  # ===========================================================================
+  # 1. Dependency Installation & Pre-flight Checks
+  # ===========================================================================
+  - name: "python:${_PYTHON_VERSION}"
+    id: "Install dependencies & readiness check"
+    entrypoint: "bash"
+    env:
+      - "DJANGO_SETTINGS_MODULE=config.settings"
+      - "DJANGO_SECRET_KEY=test-secret-key-for-cloud-build"
+      - "DJANGO_DEBUG=False"
+      - "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        echo "📦 Python dependencies yükleniyor..."
+        python -m pip install --upgrade pip setuptools wheel
+        pip install --no-cache-dir -r requirements.txt
+        
+        echo "🔍 Pre-flight checks çalıştırılıyor..."
+        python manage.py check --deploy
+        python manage.py migrate --check || python manage.py migrate --noinput
+        python project_readiness_check.py
+        
+        echo "✅ Pre-flight checks tamamlandı"
+
+  # ===========================================================================
+  # 2. Build Container Image
+  # ===========================================================================
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build container image"
+    args:
+      - "build"
+      - "--build-arg"
+      - "BUILDKIT_INLINE_CACHE=1"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${BUILD_ID}"
+      - "."
+      - "--file"
+      - "Dockerfile"
+
+  # ===========================================================================
+  # 3. Push Container Image
+  # ===========================================================================
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push container image"
+    args:
+      - "push"
+      - "--all-tags"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}"
+
+  # ===========================================================================
+  # 4. Deploy to Cloud Run (50K Users Optimized)
+  # ===========================================================================
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    id: "Deploy to Cloud Run"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        
+        IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+        
+        echo "🚀 Cloud Run deployment başlatılıyor..."
+        echo "📊 50,000 eşzamanlı kullanıcı için optimize edilmiş yapılandırma"
+        
+        # Deployment arguments - 50K users için optimize edilmiş
+        DEPLOY_ARGS=(
+          "--image=${IMAGE}"
+          "--service=${_SERVICE}"
+          "--region=${_REGION}"
+          "--platform=managed"
+          "--allow-unauthenticated"
+          "--execution-environment=gen2"
+          
+          # Resource Allocation (50K users için)
+          "--memory=4Gi"                    # Her instance için 4GB RAM
+          "--cpu=4"                         # Her instance için 4 CPU
+          "--timeout=300"                   # 5 dakika timeout
+          "--concurrency=100"               # Her instance 100 eşzamanlı request
+          
+          # Scaling Configuration
+          "--min-instances=10"              # Minimum 10 instance (cold start önleme)
+          "--max-instances=500"             # Maximum 500 instance (50K users için)
+          "--cpu-throttling"                # CPU throttling aktif
+          
+          # Performance
+          "--cpu-boost"                    # CPU boost aktif
+          "--session-affinity"              # Session affinity (sticky sessions)
+          
+          # Network
+          "--ingress=all"                   # Tüm trafiği kabul et
+          "--port=8080"
+          
+          # Health Checks
+          "--deploy-health-check"
+          "--liveness-probe-path=/health/"
+          "--startup-probe-path=/health/"
+        )
+        
+        # Environment Variables
+        DEFAULT_ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1"
+        
+        if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
+          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS},${_CLOUD_RUN_ENV_VARS}")
+        else
+          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS}")
+        fi
+        
+        # Secrets
+        if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
+          DEPLOY_ARGS+=("--set-secrets=${_CLOUD_RUN_SECRETS}")
+        fi
+        
+        # Cloud SQL Connection
+        if [ -n "${_CLOUD_SQL_CONNECTION}" ]; then
+          DEPLOY_ARGS+=("--add-cloudsql-instances=${_CLOUD_SQL_CONNECTION}")
+        fi
+        
+        # VPC Connector (Redis için gerekli olabilir)
+        # DEPLOY_ARGS+=("--vpc-connector=projects/$PROJECT_ID/locations/${_REGION}/connectors/redis-connector")
+        
+        echo "📋 Deployment parametreleri:"
+        echo "  Memory: 4Gi"
+        echo "  CPU: 4"
+        echo "  Concurrency: 100"
+        echo "  Min Instances: 10"
+        echo "  Max Instances: 500"
+        echo "  Timeout: 300s"
+        echo ""
+        
+        # Deploy
+        gcloud run deploy "${DEPLOY_ARGS[@]}" --project="$PROJECT_ID"
+        
+        echo ""
+        echo "✅ Deployment tamamlandı!"
+        echo "📊 Servis URL'si:"
+        gcloud run services describe "${_SERVICE}" \
+          --region="${_REGION}" \
+          --format="value(status.url)" \
+          --project="$PROJECT_ID"
+
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${BUILD_ID}"
+

@@ -24,7 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=config.settings \
     PORT=8080 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    MPLCONFIGDIR=/tmp/matplotlib-cache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
@@ -47,6 +48,8 @@ COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 
 COPY . .
+# Matplotlib cache dizinini oluştur
+RUN mkdir -p /tmp/matplotlib-cache && chmod 777 /tmp/matplotlib-cache
 RUN python manage.py collectstatic --noinput
 RUN python manage.py migrate
 RUN python manage.py init_trade_sim
@@ -58,5 +61,6 @@ USER app
 EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "--timeout", "120"]
+# Production için gunicorn config dosyası kullan (50K users için optimize edilmiş)
+CMD ["gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "-c", "gunicorn_config.py"]
 

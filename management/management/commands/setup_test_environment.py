@@ -205,7 +205,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.stdout.write(self.style.WARNING("➤ Test ortamı kurulumu başlıyor..."))
+            self.stdout.write(self.style.WARNING("> Test ortami kurulumu basliyor..."))
             self._run_prerequisite_commands()
             user_types = self._ensure_user_types()
             companies = self._ensure_companies()
@@ -213,7 +213,7 @@ class Command(BaseCommand):
             self._seed_accounting_data(companies, users)
             self._ensure_feature_flags(users)
             self._ensure_ai_assets(users)
-            self.stdout.write(self.style.SUCCESS("✔ Test ortamı hazır!"))
+            self.stdout.write(self.style.SUCCESS("OK Test ortami hazir!"))
             self._print_summary(users)
 
     # ------------------------------------------------------------------ helpers
@@ -304,9 +304,9 @@ class Command(BaseCommand):
             assign_roles_to_user(user, force=True)
 
             created_users[user.username] = user
-            status = "oluşturuldu" if created else "güncellendi"
+            status = "olusturuldu" if created else "guncellendi"
             self.stdout.write(
-                self.style.SUCCESS(f"  • Kullanıcı {user.username} ({status})")
+                self.style.SUCCESS(f"  - Kullanici {user.username} ({status})")
             )
         return created_users
 
@@ -419,7 +419,7 @@ class Command(BaseCommand):
             if flag.rollout_percentage != 100:
                 flag.rollout_percentage = 100
                 flag.save(update_fields=["rollout_percentage"])
-            self.stdout.write(self.style.SUCCESS(f"  • Feature flag aktif: {flag.key}"))
+            self.stdout.write(self.style.SUCCESS(f"  - Feature flag aktif: {flag.key}"))
 
     def _ensure_ai_assets(self, users: dict[str, User]):
         """
@@ -449,7 +449,7 @@ class Command(BaseCommand):
             y = np.array([0, 0, 0, 1, 0, 0, 1, 0, 1, 0], dtype=int)
             owner = users.get("demo_superadmin") or next(iter(users.values()), None)
             service.train(X, y, user=owner)
-            self.stdout.write(self.style.SUCCESS(f"  • Risk modeli hazırlandı ({model_path.name})"))
+            self.stdout.write(self.style.SUCCESS(f"  - Risk modeli hazirlandi ({model_path.name})"))
 
         # Bilgi tabanı (ChatAIService için) - minimal içerik
         knowledge_dir = base_dir / "var"
@@ -491,7 +491,7 @@ class Command(BaseCommand):
                 ]
             }
             knowledge_file.write_text(json.dumps(sample_chunks, ensure_ascii=False, indent=2), encoding="utf-8")
-            self.stdout.write(self.style.SUCCESS(f"  • AI bilgi indeksi oluşturuldu ({knowledge_file.relative_to(base_dir)})"))
+            self.stdout.write(self.style.SUCCESS(f"  - AI bilgi indeksi olusturuldu ({knowledge_file.relative_to(base_dir)})"))
 
         self._seed_ai_demo_records(users)
 

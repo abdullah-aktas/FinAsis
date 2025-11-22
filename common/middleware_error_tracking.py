@@ -20,6 +20,9 @@ class ErrorTrackingMiddleware(MiddlewareMixin):
         """
         Called when a view raises an exception
         """
+        # Store exception in request for error handler
+        request._exception = exception
+        
         # Track the error
         try:
             error_log = error_tracker.capture_exception(

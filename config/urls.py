@@ -10,6 +10,10 @@ from config import oidc as oidc_config
 from corporate import views as corporate_views
 from core_ui import views as core_ui_views
 from accounts.views_panel import user_panel
+
+# Custom error handlers
+handler404 = core_ui_views.error_404
+handler500 = core_ui_views.error_500
 try:
     from locale.views import set_language
 except Exception:  # pragma: no cover - fallback for environments where locale app is disabled
