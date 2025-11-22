@@ -53,7 +53,7 @@ steps:
         set -euo pipefail
         IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
         DEPLOY_ARGS=(
-          "--image=${IMAGE}"
+          "--image=$${IMAGE}"
           "--service=${_SERVICE}"
           "--region=${_REGION}"
           "--platform=managed"
