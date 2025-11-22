@@ -72,9 +72,9 @@ steps:
         
         if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
           # Mevcut env vars ile birleştir
-          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS},${_CLOUD_RUN_ENV_VARS}")
+          DEPLOY_ARGS+=("--set-env-vars=$${DEFAULT_ENV_VARS},${_CLOUD_RUN_ENV_VARS}")
         else
-          DEPLOY_ARGS+=("--set-env-vars=${DEFAULT_ENV_VARS}")
+          DEPLOY_ARGS+=("--set-env-vars=$${DEFAULT_ENV_VARS}")
         fi
 
         if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
@@ -85,7 +85,7 @@ steps:
           DEPLOY_ARGS+=("--add-cloudsql-instances=${_CLOUD_SQL_CONNECTION}")
         fi
 
-        gcloud run deploy "${DEPLOY_ARGS[@]}"
+        gcloud run deploy "$${DEPLOY_ARGS[@]}"
 
 images:
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
