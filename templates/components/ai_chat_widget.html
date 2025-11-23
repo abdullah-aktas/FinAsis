@@ -68,8 +68,19 @@
       addMsg('assistant', '{% trans "Yazıyor…" %}');
       const typing = elBody.lastElementChild;
       try{
-        const resp = await fetch('{% url "ai_assistant:ai-assistant-chat" %}', {
+        // Absolute URL oluştur - production ve mobil için gerekli
+        const apiUrl = (function(){
+          const baseUrl = '{% url "ai_assistant:ai-assistant-chat" %}';
+          // Eğer relative URL ise, absolute yap
+          if(baseUrl.startsWith('/')){
+            return window.location.origin + baseUrl;
+          }
+          return baseUrl;
+        })();
+        
+        const resp = await fetch(apiUrl, {
           method:'POST',
+          credentials: 'same-origin', // Session cookie'leri gönder
           headers:{
             'Content-Type':'application/json',
             'X-Requested-With': 'XMLHttpRequest',
@@ -81,12 +92,20 @@
           },
           body: JSON.stringify({ message: text, context: { path: location.pathname, title: document.title }})
         });
+        
+        if(!resp.ok){
+          const errorData = await resp.json().catch(() => ({error: 'HTTP ' + resp.status}));
+          typing.remove();
+          addMsg('assistant', errorData.error || '{% trans "Yanıt alınamadı" %}');
+          return;
+        }
+        
         const data = await resp.json();
         typing.remove();
-        if(resp.ok){ addMsg('assistant', data.response || '{% trans "Yanıt alınamadı" %}'); }
-        else { addMsg('assistant', (data.error || 'Error')); }
+        addMsg('assistant', data.response || '{% trans "Yanıt alınamadı" %}');
       }catch(err){
         if(typing && typing.remove){ typing.remove(); }
+        console.error('Chatbot API error:', err);
         addMsg('assistant', '{% trans "Bağlantı hatası" %}');
       }
     }

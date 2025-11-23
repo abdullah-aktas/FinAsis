@@ -53,6 +53,32 @@ CSRF_TRUSTED_ORIGINS = env_list(
     'https://finasis.com.tr,https://www.finasis.com.tr'
 )
 
+# CORS Settings
+CORS_ALLOWED_ORIGINS = env_list(
+    'DJANGO_CORS_ALLOWED_ORIGINS',
+    'https://finasis.com.tr,https://www.finasis.com.tr'
+)
+
+# Cloud Run URL'lerini otomatik ekle
+_cloud_run_url = ENV('CLOUD_RUN_URL', '')
+if _cloud_run_url and _cloud_run_url not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(_cloud_run_url)
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-page-path',
+    'x-page-title',
+]
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', not DEBUG)
@@ -75,6 +101,7 @@ INSTALLED_APPS = [
 
     # Third-party
     'django_prometheus',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
@@ -122,6 +149,7 @@ if not DISABLE_LOCALE_APP:
 
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
 
