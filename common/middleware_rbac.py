@@ -96,7 +96,7 @@ class RBACMiddleware(MiddlewareMixin):
             
             # Normal request ise mesaj göster ve dashboard'a yönlendir
             messages.error(request, 'Bu sayfaya erişim yetkiniz yok.')
-            return HttpResponseRedirect(reverse('accounts:dashboard'))
+            return HttpResponseRedirect(reverse('accounts:user_profile'))
         
         # Yetki varsa devam et
         return None

@@ -355,7 +355,7 @@ def role_required(*required_roles):
                     request,
                     f'Bu sayfaya erişim yetkiniz yok. Gerekli rol: {", ".join(required_roles)}'
                 )
-                return redirect('accounts:dashboard')
+                return redirect('accounts:user_profile')
             
             return view_func(request, *args, **kwargs)
         return wrapper
@@ -389,7 +389,7 @@ def app_permission_required(app_name: str, permission: str):
                     request,
                     f'Bu işlemi yapmaya yetkiniz yok. ({app_name}.{permission})'
                 )
-                return redirect('accounts:dashboard')
+                return redirect('accounts:user_profile')
             
             return view_func(request, *args, **kwargs)
         return wrapper
