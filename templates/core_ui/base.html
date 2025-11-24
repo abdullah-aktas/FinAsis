@@ -6,9 +6,14 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover"
+      content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover,user-scalable=yes"
     />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="FinAsis" />
+    <meta name="format-detection" content="telephone=no" />
     <title>{% block title %}FinAsis{% endblock %}</title>
     <meta
       name="description"
@@ -57,7 +62,8 @@
       sizes="32x32"
       href="{% static 'common/favicon.ico' %}"
     />
-    <link rel="apple-touch-icon" href="{% static 'common/favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="192x192" href="{% static 'common/finasis_logo-192.png' %}" />
+    <link rel="apple-touch-icon" sizes="512x512" href="{% static 'common/finasis_logo-512.png' %}" />
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -242,6 +248,30 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/pwa-install-prompt.js' %}"></script>
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{% static "js/service-worker.js" %}')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful:', registration.scope);
+              // Check for updates
+              registration.addEventListener('updatefound', function() {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', function() {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New service worker available
+                    console.log('New service worker available');
+                  }
+                });
+              });
+            })
+            .catch(function(error) {
+              console.log('ServiceWorker registration failed:', error);
+            });
+        });
+      }
+    </script>
     <script>
       function toggleTheme() {
         const html = document.documentElement;

@@ -1,23 +1,57 @@
 {
-  "name": "FinAsis Platformu",
+  "name": "FinAsis - Yerel AI Finans Platformu",
   "short_name": "FinAsis",
-  "description": "Finans, uyum ve yapay zeka modüllerini tek platformda birleştiren FinAsis.",
+  "description": "KOBİ'ler, mali müşavirler ve eğitim kurumları için yerel AI destekli finans platformu. Muhasebe, raporlama, uyum ve eğitimi tek ekosistemde birleştirin.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0AAE94",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
   "theme_color": "#0AAE94",
   "lang": "tr",
+  "dir": "ltr",
+  "categories": ["finance", "business", "education"],
   "icons": [
     {
       "src": "/static/common/finasis_logo-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "/static/common/finasis_logo-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Panel",
+      "short_name": "Panel",
+      "description": "Kullanıcı paneline git",
+      "url": "/panel/",
+      "icons": [
+        {
+          "src": "/static/common/finasis_logo-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Muhasebe",
+      "short_name": "Muhasebe",
+      "description": "Muhasebe modülüne git",
+      "url": "/accounting/",
+      "icons": [
+        {
+          "src": "/static/common/finasis_logo-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
 }
 

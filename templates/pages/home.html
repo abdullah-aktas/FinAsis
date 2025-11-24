@@ -768,6 +768,539 @@
       justify-content: center;
     }
   }
+
+  /* ============================================
+     MODERN HERO SECTION STYLES
+     ============================================ */
+  
+  .home-hero-modern {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    padding: clamp(4rem, 8vw, 8rem) 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0aae94 0%, #008e7a 50%, #0d3b66 100%);
+    color: white;
+  }
+
+  .min-vh-75 {
+    min-height: 75vh;
+  }
+
+  /* Animated Background Elements */
+  .hero-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(255, 179, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(10, 174, 148, 0.2) 0%, transparent 50%);
+    animation: gradientShift 15s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: orbFloat 20s ease-in-out infinite;
+  }
+
+  .hero-orb-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 179, 0, 0.3);
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+  }
+
+  .hero-orb-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(10, 174, 148, 0.3);
+    bottom: -50px;
+    right: 10%;
+    animation-delay: 5s;
+  }
+
+  .hero-orb-3 {
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 143, 0, 0.25);
+    top: 50%;
+    right: -50px;
+    animation-delay: 10s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .hero-grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.5;
+  }
+
+  /* Badge */
+  .hero-badge-modern {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .badge-dot {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: #ffb300;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.7; transform: translateY(-50%) scale(1.2); }
+  }
+
+  .hero-badge-modern .fw-bold {
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-badge-modern small {
+    font-size: 0.75rem;
+    opacity: 0.9;
+  }
+
+  /* Title */
+  .hero-title-modern {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title-line {
+    display: block;
+    color: white;
+  }
+
+  .hero-title-highlight {
+    display: block;
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+  }
+
+  .hero-subtitle-modern {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.7;
+    opacity: 0.95;
+    max-width: 600px;
+    margin-bottom: 2rem;
+  }
+
+  /* Audience Chips */
+  .hero-audience-chips {
+    margin-bottom: 2rem;
+  }
+
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .audience-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+  }
+
+  .audience-chip:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .audience-chip i {
+    font-size: 1rem;
+  }
+
+  /* Features */
+  .hero-features-modern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .feature-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .feature-item i {
+    font-size: 1.125rem;
+  }
+
+  /* CTA Buttons */
+  .hero-cta-modern {
+    margin-bottom: 2rem;
+  }
+
+  .btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+    color: #0d3b66;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 8px 24px rgba(255, 179, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+  }
+
+  .btn-hero-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(255, 179, 0, 0.5);
+    color: #0d3b66;
+  }
+
+  .btn-hero-primary i:last-child {
+    transition: transform 0.3s ease;
+  }
+
+  .btn-hero-primary:hover i:last-child {
+    transform: translateX(4px);
+  }
+
+  .btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+  }
+
+  .btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Trust Indicators */
+  .hero-trust-modern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  .trust-item i {
+    font-size: 1rem;
+    color: #ffb300;
+  }
+
+  /* Visual Section */
+  .hero-visual-modern {
+    position: relative;
+    height: 100%;
+    min-height: 500px;
+  }
+
+  .dashboard-preview {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    animation: floatUp 6s ease-in-out infinite;
+  }
+
+  @keyframes floatUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dashboard-dots {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .dashboard-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .dashboard-dots span:nth-child(1) { background: rgba(255, 95, 95, 0.8); }
+  .dashboard-dots span:nth-child(2) { background: rgba(255, 189, 46, 0.8); }
+  .dashboard-dots span:nth-child(3) { background: rgba(39, 201, 63, 0.8); }
+
+  .dashboard-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    font-size: 1.25rem;
+  }
+
+  .stat-info {
+    flex: 1;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+  }
+
+  .ai-preview {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .ai-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .ai-header i {
+    font-size: 1.125rem;
+    color: #ffb300;
+  }
+
+  .ai-bubble {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    position: relative;
+  }
+
+  .ai-bubble::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 20px;
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    transform: rotate(45deg);
+  }
+
+  /* Floating Cards */
+  .floating-card {
+    position: absolute;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    animation: floatCard 8s ease-in-out infinite;
+  }
+
+  .floating-card-1 {
+    top: 10%;
+    right: -10%;
+    animation-delay: 0s;
+  }
+
+  .floating-card-2 {
+    bottom: 20%;
+    left: -15%;
+    animation-delay: 2s;
+  }
+
+  @keyframes floatCard {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(10px, -10px) rotate(2deg); }
+    50% { transform: translate(-5px, 5px) rotate(-1deg); }
+    75% { transform: translate(5px, -5px) rotate(1deg); }
+  }
+
+  .floating-card i {
+    font-size: 1.125rem;
+    color: #ffb300;
+  }
+
+  /* Responsive */
+  @media (max-width: 991.98px) {
+    .home-hero-modern {
+      min-height: auto;
+      padding: clamp(3rem, 6vw, 5rem) 0;
+    }
+
+    .hero-visual-modern {
+      min-height: 400px;
+      margin-top: 3rem;
+    }
+
+    .floating-card {
+      display: none;
+    }
+
+    .dashboard-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .hero-title-modern {
+      font-size: clamp(1.75rem, 6vw, 2.5rem);
+    }
+
+    .hero-subtitle-modern {
+      font-size: clamp(0.9375rem, 3vw, 1.125rem);
+    }
+
+    .btn-hero-primary,
+    .btn-hero-secondary {
+      width: 100%;
+      justify-content: center;
+      padding: 0.875rem 1.5rem;
+    }
+
+    .hero-trust-modern {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chip-group {
+      flex-direction: column;
+    }
+
+    .audience-chip {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -776,139 +1309,204 @@
 {% endblock %}
 
 {% block hero %}
-<section id="snapshot" class="home-hero">
-  <div class="home-hero__glow"></div>
+<section id="snapshot" class="home-hero-modern">
+  <!-- Animated Background Elements -->
+  <div class="hero-bg-gradient"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-grid-pattern"></div>
+  
   <div class="container position-relative">
-    <div class="home-hero__grid">
-      <div>
-        <div class="home-hero__badge">
+    <div class="row align-items-center min-vh-75">
+      <!-- Left Column: Content -->
+      <div class="col-lg-6 col-xl-6 mb-5 mb-lg-0">
+        <!-- Badge -->
+        <div class="hero-badge-modern mb-4">
+          <span class="badge-dot"></span>
           <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-stars"></i>
-            <span class="fw-semibold">{% trans "Yerel AI finans platformu" %}</span>
+            <i class="bi bi-stars text-warning"></i>
+            <span class="fw-bold">{% trans "Beta Kampanyası Aktif" %}</span>
           </div>
-          <small>
-            {% trans "Finans, uyum, eğitim ve oyunlaştırmayı aynı tasarım sistemiyle birleştirir." %}
-          </small>
+          <small class="d-block mt-1">{% trans "1 hisse + 2 ay ücretsiz + Blockchain sözleşmesi" %}</small>
         </div>
 
-        <h1 class="display-4 fw-bold mb-3">
-          {% trans "Finans, uyum ve eğitimi tek panelde yöneten yerel AI ekosistemi" %}
+        <!-- Main Headline -->
+        <h1 class="hero-title-modern mb-4">
+          <span class="hero-title-line">{% trans "Finansal süreçlerinizi" %}</span>
+          <span class="hero-title-highlight">{% trans "Yapay Zeka ile" %}</span>
+          <span class="hero-title-line">{% trans "otomatikleştirin" %}</span>
         </h1>
-        <p class="lead mb-4">
-          {% trans "FinAsis; KOBİ'ler, mali müşavirler, öğretmenler, öğrenciler ve oyunlaştırma tutkunları için finans süreçlerini sadeleştiren, yerel GPU üzerinde çalışan bir AI platformudur." %}
+
+        <!-- Subheadline -->
+        <p class="hero-subtitle-modern mb-4">
+          {% trans "KOBİ'ler, mali müşavirler ve eğitim kurumları için yerel AI destekli finans platformu. Muhasebe, raporlama, uyum ve eğitimi tek ekosistemde birleştirin." %}
         </p>
 
-        <div class="home-hero__chips">
-          <span class="home-chip">
-            <i class="bi bi-briefcase"></i>
-            {% trans "KOBİ sahipleri" %}
-          </span>
-          <span class="home-chip">
-            <i class="bi bi-calculator"></i>
-            {% trans "Muhasebeciler & mali müşavirler" %}
-          </span>
-          <span class="home-chip">
-            <i class="bi bi-mortarboard"></i>
-            {% trans "Öğretmenler & öğrenciler" %}
-          </span>
-          <span class="home-chip">
-            <i class="bi bi-controller"></i>
-            {% trans "Oyunlaştırma tutkunları" %}
-          </span>
+        <!-- Target Audience Chips -->
+        <div class="hero-audience-chips mb-4">
+          <div class="chip-group">
+            <span class="audience-chip">
+              <i class="bi bi-building"></i>
+              <span>{% trans "KOBİ'ler" %}</span>
+            </span>
+            <span class="audience-chip">
+              <i class="bi bi-calculator"></i>
+              <span>{% trans "Mali Müşavirler" %}</span>
+            </span>
+            <span class="audience-chip">
+              <i class="bi bi-mortarboard"></i>
+              <span>{% trans "Eğitim Kurumları" %}</span>
+            </span>
+          </div>
         </div>
 
-        <div class="home-hero__features d-flex flex-wrap align-items-center gap-2 mt-3">
-          <span class="badge bg-light text-dark border-0">
-            <i class="bi bi-cpu me-1"></i>{% trans "Yerel GPU AI" %}
-          </span>
-          <span class="badge bg-light text-dark border-0">
-            <i class="bi bi-diagram-3 me-1"></i>{% trans "Tek veri modeli" %}
-          </span>
-          <span class="badge bg-light text-dark border-0">
-            <i class="bi bi-mortarboard me-1"></i>{% trans "Eğitim & oyunlaştırma hazır" %}
-          </span>
+        <!-- Key Features -->
+        <div class="hero-features-modern mb-4">
+          <div class="feature-item">
+            <i class="bi bi-shield-check-fill text-success"></i>
+            <span>{% trans "KVKK Uyumlu" %}</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-cpu-fill text-primary"></i>
+            <span>{% trans "Yerel AI" %}</span>
+          </div>
+          <div class="feature-item">
+            <i class="bi bi-lightning-charge-fill text-warning"></i>
+            <span>{% trans "Hızlı Entegrasyon" %}</span>
+          </div>
         </div>
 
-        <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 mt-4">
+        <!-- CTA Buttons -->
+        <div class="hero-cta-modern d-flex flex-column flex-sm-row gap-3 mb-4">
           {% if hero and hero.primary_cta %}
           <a
             href="{{ hero.primary_cta.href }}"
-            class="btn btn-light btn-lg d-inline-flex align-items-center justify-content-center gap-2 home-hero__cta"
+            class="btn btn-hero-primary"
             data-cta="{{ hero.primary_cta.cta_id }}"
           >
-            <i class="bi bi-{{ hero.primary_cta.icon|default:'calendar-event' }}"></i>
+            <i class="bi bi-{{ hero.primary_cta.icon|default:'rocket-takeoff' }}"></i>
             <span>{{ hero.primary_cta.label }}</span>
+            <i class="bi bi-arrow-right ms-2"></i>
           </a>
           {% else %}
           <a
             href="{% url 'accounts:register' %}"
-            class="btn btn-light btn-lg d-inline-flex align-items-center justify-content-center gap-2 home-hero__cta"
+            class="btn btn-hero-primary"
+            data-cta="hero-register"
           >
             <i class="bi bi-rocket-takeoff"></i>
-            <span>{% trans "Ücretsiz başla" %}</span>
+            <span>{% trans "Ücretsiz Başla" %}</span>
+            <i class="bi bi-arrow-right ms-2"></i>
           </a>
           {% endif %}
 
           {% if hero and hero.secondary_cta %}
           <a
             href="{{ hero.secondary_cta.href }}"
-            class="btn btn-outline-light btn-lg d-inline-flex align-items-center justify-content-center gap-2"
+            class="btn btn-hero-secondary"
             data-cta="{{ hero.secondary_cta.cta_id }}"
           >
-            <i class="bi bi-{{ hero.secondary_cta.icon|default:'rocket-takeoff' }}"></i>
+            <i class="bi bi-{{ hero.secondary_cta.icon|default:'play-circle' }}"></i>
             <span>{{ hero.secondary_cta.label }}</span>
           </a>
           {% else %}
           <a
             href="{% url 'resources' %}"
-            class="btn btn-outline-light btn-lg d-inline-flex align-items-center justify-content-center gap-2"
+            class="btn btn-hero-secondary"
+            data-cta="hero-learn-more"
           >
-            <i class="bi bi-journal-text"></i>
-            <span>{% trans "Platformu tanı" %}</span>
+            <i class="bi bi-play-circle"></i>
+            <span>{% trans "Demo İzle" %}</span>
           </a>
           {% endif %}
         </div>
 
-        <div class="home-hero__trust-indicators d-flex flex-wrap align-items-center gap-3 mt-4 small text-white-50">
-          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
-            <i class="bi bi-shield-lock"></i>
-            {% trans "Verileriniz Türkiye sınırları içinde saklanır." %}
-          </span>
-          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
-            <i class="bi bi-cpu"></i>
-            {% trans "Yerel GPU üzerinde AI işleme mimarisi." %}
-          </span>
-          <span class="home-hero__trust-item d-inline-flex align-items-center gap-1">
-            <i class="bi bi-link-45deg"></i>
-            {% trans "Finans, uyum ve eğitim modülleri tek ekosistemde." %}
-          </span>
+        <!-- Trust Indicators -->
+        <div class="hero-trust-modern">
+          <div class="trust-item">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>{% trans "Verileriniz Türkiye'de" %}</span>
+          </div>
+          <div class="trust-item">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{% trans "ISO 27001 Sertifikalı" %}</span>
+          </div>
+          <div class="trust-item">
+            <i class="bi bi-people-fill"></i>
+            <span>{% trans "10,000+ Kullanıcı" %}</span>
+          </div>
         </div>
       </div>
 
-      <div class="home-hero__visual">
-        <div class="home-hero__panel">
-          <div class="home-hero__stats">
-            <div class="home-hero__stat">
-              <small>{% trans "Finans & muhasebe" %}</small>
-              <strong>{% trans "Tek panel" %}</strong>
+      <!-- Right Column: Visual -->
+      <div class="col-lg-6 col-xl-6">
+        <div class="hero-visual-modern">
+          <!-- Dashboard Preview Card -->
+          <div class="dashboard-preview">
+            <div class="dashboard-header">
+              <div class="dashboard-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="dashboard-title">{% trans "FinAsis Dashboard" %}</div>
             </div>
-            <div class="home-hero__stat">
-              <small>{% trans "Uyum & denetim" %}</small>
-              <strong>{% trans "İzlenebilir" %}</strong>
-            </div>
-            <div class="home-hero__stat">
-              <small>{% trans "Eğitim & oyunlaştırma" %}</small>
-              <strong>{% trans "Canlı görevler" %}</strong>
+            <div class="dashboard-content">
+              <!-- Stats Grid -->
+              <div class="dashboard-stats">
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                  </div>
+                  <div class="stat-info">
+                    <div class="stat-value">₺{{ metrics.0.value|default:"125K" }}</div>
+                    <div class="stat-label">{% trans "Aylık Ciro" %}</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                  </div>
+                  <div class="stat-info">
+                    <div class="stat-value">{{ metrics.1.value|default:"342" }}</div>
+                    <div class="stat-label">{% trans "Fatura" %}</div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                  </div>
+                  <div class="stat-info">
+                    <div class="stat-value">%{{ metrics.2.value|default:"98" }}</div>
+                    <div class="stat-label">{% trans "Uyum Oranı" %}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- AI Assistant Preview -->
+              <div class="ai-preview">
+                <div class="ai-header">
+                  <i class="bi bi-robot"></i>
+                  <span>{% trans "AI Asistan" %}</span>
+                </div>
+                <div class="ai-message">
+                  <div class="ai-bubble">
+                    {% trans "Mali durumunuz analiz edildi. 3 öneri hazır!" %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="mt-3 small text-white-75">
-            <p class="mb-1">
-              {% trans "FinAsis; finans profesyonelleri, öğretmenler ve öğrenciler için aynı veri modelini kullanarak gerçek senaryoları tek ekosistemde bir araya getirir." %}
-            </p>
-            <p class="mb-0">
-              {% trans "İsterseniz yalnızca muhasebe ve raporlama ile başlayıp, zaman içinde eğitim ve oyunlaştırma modüllerini devreye alabilirsiniz." %}
-            </p>
+          <!-- Floating Elements -->
+          <div class="floating-card floating-card-1">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>{% trans "Otomatik Raporlama" %}</span>
+          </div>
+          <div class="floating-card floating-card-2">
+            <i class="bi bi-link-45deg"></i>
+            <span>{% trans "Blockchain Kanıt" %}</span>
           </div>
         </div>
       </div>
