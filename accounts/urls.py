@@ -9,6 +9,7 @@ from drf_yasg import openapi
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 from security.ratelimit import rate_limit_login
+from . import views
 
 app_name = 'accounts'
 
@@ -49,7 +50,7 @@ urlpatterns = [
     path('login/', rate_limit_login(views_auth.OTPLoginView.as_view(
         template_name='registration/login.html'
     )), name='login'),
-    path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
+    path('logout/', views.custom_logout, name='logout'),
     
     # ========================================================================
     # Multi-Factor Authentication (MFA/OTP)

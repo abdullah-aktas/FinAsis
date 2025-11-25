@@ -55,6 +55,10 @@ class RBACMiddleware(MiddlewareMixin):
         if getattr(request, '_rbac_exempt', False):
             return None
         
+        # Redirect döngüsünü önlemek için flag kontrolü
+        if getattr(request, '_rbac_redirected', False):
+            return None
+        
         # URL kontrolü
         path = request.path
         
@@ -70,6 +74,21 @@ class RBACMiddleware(MiddlewareMixin):
                 return HttpResponseRedirect(reverse('accounts:login') + f'?next={path}')
             # Diğerlerinde izin ver (public pages)
             return None
+        
+        # Auth required URL'ler için sadece authenticated kontrolü yeterli
+        if self._is_auth_required_url(path):
+            # Kullanıcının rolü yoksa otomatik rol atama dene (sadece bir kez)
+            if not getattr(request, '_rbac_role_checked', False):
+                user_role = get_user_role_category(request.user)
+                if not user_role and not request.user.is_superuser:
+                    try:
+                        from common.auto_role_assignment import assign_roles_to_user
+                        assign_roles_to_user(request.user)
+                        logger.info(f"Kullanıcı {request.user.username} için otomatik rol atama denendi")
+                    except Exception as e:
+                        logger.warning(f"Otomatik rol atama hatası: {e}")
+                request._rbac_role_checked = True
+            return None  # Authenticated kullanıcılar erişebilir
         
         # Kullanıcı giriş yapmışsa, URL permission kontrolü
         if not check_url_permission(request.user, path):
@@ -94,7 +113,10 @@ class RBACMiddleware(MiddlewareMixin):
                     'code': 'PERMISSION_DENIED'
                 }, status=403)
             
-            # Normal request ise mesaj göster ve dashboard'a yönlendir
+            # Redirect döngüsünü önlemek için flag set et
+            request._rbac_redirected = True
+            
+            # Normal request ise mesaj göster ve profile'a yönlendir
             messages.error(request, 'Bu sayfaya erişim yetkiniz yok.')
             return HttpResponseRedirect(reverse('accounts:user_profile'))
         

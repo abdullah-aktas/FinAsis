@@ -313,7 +313,17 @@ def check_url_permission(user, url_path: str) -> bool:
     if user.is_superuser:
         return True
     
+    # Temel kullanıcı sayfaları - authenticated kullanıcılar rolü olmasa bile erişebilmeli
     import re
+    basic_user_urls = [
+        r'^/accounts/profile',
+        r'^/accounts/settings',
+        r'^/accounts/invoices',
+        r'^/accounts/company',
+    ]
+    for pattern in basic_user_urls:
+        if re.match(pattern, url_path):
+            return True  # Authenticated kullanıcılar erişebilir
     
     for url_pattern, required_roles in URL_ROLE_MAPPING.items():
         if re.match(url_pattern, url_path):
@@ -321,7 +331,7 @@ def check_url_permission(user, url_path: str) -> bool:
     
     # Pattern bulunamadıysa, varsayılan olarak izin ver
     # (Bu, her URL'i tanımlamak zorunda olmamak için)
-            return True
+    return True
 
 
 # ============================================================================

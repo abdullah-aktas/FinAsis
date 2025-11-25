@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
 from accounting.models import Invoice
 from .models import UserSettings, CustomUser, Subscription, SubscriptionType, SubscriptionLog
 from django.utils import timezone
 from django.contrib import messages
-from django.contrib.auth import login
 from django import forms
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -13,6 +13,9 @@ from .forms import RegisterForm
 from .presenters import UserDashboardPresenter
 from .utils import user_type_required, subscription_type_required
 from django.core.mail import send_mail
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 @user_type_required('kobi', 'egitimci')
@@ -309,3 +312,27 @@ def change_subscription(request):
 @login_required
 def premium_feature(request):
     return render(request, 'accounts/premium_feature.html')
+
+
+def custom_logout(request):
+    """
+    Özel logout view - session temizleme ve redirect kontrolü
+    GET ve POST request'lerini destekler
+    """
+    if request.user.is_authenticated:
+        username = request.user.username
+        logger.info(f"Kullanıcı çıkış yapıyor: {username} (Method: {request.method})")
+        
+        # Session'ı temizle
+        request.session.flush()
+        
+        # Logout işlemi
+        logout(request)
+        
+        messages.success(request, 'Başarıyla çıkış yaptınız.')
+        logger.info(f"Kullanıcı {username} başarıyla çıkış yaptı")
+    else:
+        logger.warning("Çıkış yapmaya çalışan kullanıcı zaten giriş yapmamış")
+    
+    # Ana sayfaya yönlendir
+    return redirect('home')

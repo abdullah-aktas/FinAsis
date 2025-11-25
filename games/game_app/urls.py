@@ -9,7 +9,9 @@ urlpatterns = [
     # Simple scoreboard placeholder to fix broken link from games_home
     path('scoreboard/', views.scoreboard, name='scoreboard'),
     path('games/', views.games, name='games'),
+    path('oyunlar/', views.games, name='oyunlar'),  # Turkish alias
     path('games/<str:game_key>/', views.game_detail, name='game_detail'),
+    path('oyunlar/<str:game_key>/', views.game_detail, name='oyun_detay'),  # Turkish alias
     path('student/', views.student_dashboard, name='student_dashboard'),
     path('investor/', views.investor_dashboard, name='investor_dashboard'),
     path('virtual-company/', views.virtual_company_dashboard, name='virtual_company_dashboard'),

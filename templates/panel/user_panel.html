@@ -204,6 +204,14 @@
                         <span class="role-badge">{{ role|upper }}</span>
                     {% endfor %}
                 {% endif %}
+                <div class="mt-2">
+                    <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light btn-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i>{% trans "Çıkış Yap" %}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -371,6 +379,12 @@
                     <a href="{% url 'accounts:user_settings' %}" class="quick-action-card text-decoration-none text-dark d-block">
                         <i class="bi bi-gear text-secondary me-2"></i>{% trans "Ayarlar" %}
                     </a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="quick-action-card text-decoration-none text-dark d-block w-100 border-0 bg-transparent text-start p-3">
+                            <i class="bi bi-box-arrow-right text-danger me-2"></i>{% trans "Çıkış Yap" %}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

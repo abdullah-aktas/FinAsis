@@ -550,7 +550,18 @@ LOGGING['loggers']['finasis']['handlers'] = _root_handlers
 # -----------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = int(ENV('DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE', str(10 * 1024 * 1024)))
+# Maksimum upload veri boyutu (varsayılan: 10MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(
+    ENV('DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE', str(10 * 1024 * 1024))
+)
+
+# Form gönderimlerinde izin verilen maksimum alan sayısı.
+# Çok sayıda inline form / permission vb. olan admin sayfalarında
+# TooManyFieldsSent hatası almamak için bu değeri artırıyoruz.
+# Ortam değişkeni ile özelleştirilebilir.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
+    ENV('DJANGO_DATA_UPLOAD_MAX_NUMBER_FIELDS', '5000')
+)
 
 # --------------------------------------------------------------------------
 # Data governance

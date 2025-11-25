@@ -39,8 +39,17 @@ def invoice_list(request: HttpRequest) -> HttpResponse:
     if customer_filter:
         invoices = invoices.filter(customer_id=customer_filter)
     
+    # Durum filtresi: ayrı bir status alanı olmadığından, is_active ve gib_status üzerinden yorumluyoruz
     if status_filter:
-        invoices = invoices.filter(status=status_filter)
+        if status_filter == 'paid':
+            # Ödenmiş fatura: aktif ve vadesi bugün veya geçmiş, tahsil edilmiş kabul edilebilir
+            invoices = invoices.filter(is_active=True, due_date__lte=datetime.today().date())
+        elif status_filter == 'pending':
+            # Bekleyen fatura: aktif ve vadesi gelecekte olanlar
+            invoices = invoices.filter(is_active=True, due_date__gt=datetime.today().date())
+        elif status_filter == 'cancelled':
+            # İptal: GİB iptal zamanı olanlar
+            invoices = invoices.filter(gib_cancelled_at__isnull=False)
     
     # Ordering
     if order_by.startswith('-'):
@@ -50,8 +59,8 @@ def invoice_list(request: HttpRequest) -> HttpResponse:
     
     # Statistics
     total_invoices = invoices.count()
-    paid_invoices = invoices.filter(status='paid').count()
-    pending_invoices = invoices.filter(status='pending').count()
+    paid_invoices = invoices.filter(is_active=True, due_date__lte=datetime.today().date()).count()
+    pending_invoices = invoices.filter(is_active=True, due_date__gt=datetime.today().date()).count()
     total_amount = invoices.aggregate(total=models.Sum('total_amount'))['total'] or 0
     
     # Pagination
@@ -65,7 +74,12 @@ def invoice_list(request: HttpRequest) -> HttpResponse:
         'is_paginated': page_obj.has_other_pages(),
         'companies': user_companies,
         'customers': Customer.objects.filter(company__in=user_companies),
-        'status_choices': Invoice.STATUS_CHOICES if hasattr(Invoice, 'STATUS_CHOICES') else [],
+        # Basit durum seçenekleri: view içi mantığa paralel
+        'status_choices': [
+            ('paid', 'Ödenmiş'),
+            ('pending', 'Bekleyen'),
+            ('cancelled', 'İptal Edilmiş'),
+        ],
         'total_invoices': total_invoices,
         'paid_invoices': paid_invoices,
         'pending_invoices': pending_invoices,
