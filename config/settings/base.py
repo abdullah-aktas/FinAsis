@@ -46,6 +46,14 @@ cloud_run_host = ENV('CLOUD_RUN_HOST', '')
 if cloud_run_host and cloud_run_host not in _allowed_hosts:
     _allowed_hosts.append(cloud_run_host)
 
+# Cloud Run URL'ini environment variable'dan al (deploy sırasında set edilir)
+cloud_run_url = ENV('CLOUD_RUN_URL', '')
+if cloud_run_url:
+    from urllib.parse import urlparse
+    parsed = urlparse(cloud_run_url if '://' in cloud_run_url else f'https://{cloud_run_url}')
+    if parsed.hostname and parsed.hostname not in _allowed_hosts:
+        _allowed_hosts.append(parsed.hostname)
+
 ALLOWED_HOSTS = _allowed_hosts
 
 CSRF_TRUSTED_ORIGINS = env_list(
