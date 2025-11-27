@@ -812,13 +812,9 @@ def landing_home(request):
         },
     ]
 
-    primary_navigation = [
-        {"label": _("Genel Bakış"), "href": "#snapshot"},
-        {"label": _("Çözümler"), "href": "#solutions"},
-        # Planlar linki her sayfadan ana sayfadaki planlar bölümüne gitsin
-        {"label": _("Planlar"), "href": f"{reverse('home')}#plans"},
-        {"label": _("Kaynaklar"), "href": "#resources"},
-    ]
+    # primary_navigation kaldırıldı - header varsayılan linkleri kullanacak
+    # Artık header.html'deki varsayılan navigasyon kullanılacak
+    primary_navigation = None
 
     secondary_navigation = []
 
@@ -907,7 +903,7 @@ def landing_home(request):
         "resource_cards": resource_cards,
         "journeys": journeys,
         "audience_tiles": audience_tiles,
-        "primary_navigation": primary_navigation,
+        "primary_navigation": primary_navigation,  # None - header varsayılan linkleri kullanacak
         "secondary_navigation": secondary_navigation,
         "teacher_brief": teacher_brief,
         "student_brief": student_brief,
