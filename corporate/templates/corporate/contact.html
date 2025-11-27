@@ -1,329 +1,729 @@
 {% extends "core_ui/base.html" %}
 {% load i18n static %}
 
-{% block title %}{{ page_title }} · FinAsis{% endblock %}
+{% block title %}{% trans "İletişim" %} · FinAsis{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">
-<link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/home_marketing.css' %}">
 <style>
-.contact-hero {
-  background: linear-gradient(135deg, #0D3B66 0%, #0AAE94 100%);
-  color: white;
-  padding: clamp(4rem, 8vw, 5rem) 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.contact-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(255, 179, 0, 0.1) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-.contact-section {
-  padding: 4rem 0;
-}
-
-.contact-card {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
-}
-
-.contact-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-.contact-card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(255, 179, 0, 0.05));
-  color: #0AAE94;
-}
-
-.contact-info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.contact-info-item:last-child {
-  border-bottom: none;
-}
-
-.contact-info-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10, 174, 148, 0.1);
-  color: #0AAE94;
-  flex-shrink: 0;
-}
-
-.contact-form-section {
-  background: #F8FAFA;
-  padding: 4rem 0;
-}
-
-.form-control, .form-select {
-  border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  padding: 0.75rem 1rem;
-}
-
-.form-control:focus, .form-select:focus {
-  border-color: #0AAE94;
-  box-shadow: 0 0 0 0.2rem rgba(10, 174, 148, 0.1);
-}
-
-.office-card {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  height: 100%;
-}
-
-.office-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #0AAE94;
-}
-
-.office-card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0AAE94, #008E7A);
-  color: white;
-  font-size: 1.25rem;
-}
-
-.contact-hours {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.hours-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.hours-item:last-child {
-  border-bottom: none;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.section-header .badge {
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-}
-
-@media (max-width: 768px) {
-  .contact-section, .contact-form-section {
-    padding: 2.5rem 0;
+  /* Contact Page Modern Styles */
+  :root {
+    --contact-ink: #04121a;
+    --contact-primary: #0aae94;
+    --contact-accent: #ffb300;
+    --contact-muted: #f8f9fa;
+    --contact-border: rgba(4, 18, 26, 0.08);
   }
-}
+
+  /* Hero Section */
+  .contact-hero-modern {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding: clamp(4rem, 8vw, 8rem) 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0aae94 0%, #008e7a 50%, #0d3b66 100%);
+    color: white;
+  }
+
+  .contact-hero-modern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(255, 179, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(10, 174, 148, 0.2) 0%, transparent 50%);
+    animation: gradientShift 15s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+  }
+
+  .hero-orb-contact {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: orbFloat 20s ease-in-out infinite;
+  }
+
+  .hero-orb-contact-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 179, 0, 0.3);
+    top: -100px;
+    left: -100px;
+  }
+
+  .hero-orb-contact-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(10, 174, 148, 0.3);
+    bottom: -50px;
+    right: 10%;
+    animation-delay: 5s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  .contact-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .contact-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+  }
+
+  .contact-hero-badge i {
+    color: #ffb300;
+    font-size: 1.25rem;
+  }
+
+  .contact-hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.7;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+  }
+
+  .contact-hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .btn-contact-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-contact-hero-primary {
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+    color: #0d3b66;
+    box-shadow: 0 8px 24px rgba(255, 179, 0, 0.4);
+  }
+
+  .btn-contact-hero-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(255, 179, 0, 0.5);
+    color: #0d3b66;
+  }
+
+  .btn-contact-hero-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-contact-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    color: white;
+  }
+
+  /* Contact Cards Section */
+  .contact-cards-section {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+    background: white;
+  }
+
+  .section-header-modern {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto clamp(2rem, 4vw, 3rem);
+  }
+
+  .section-eyebrow {
+    display: inline-block;
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+    background: rgba(10, 174, 148, 0.1);
+    color: var(--contact-primary);
+    border-radius: 999px;
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .section-title-modern {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+    color: var(--contact-ink);
+  }
+
+  .section-description {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .contact-card-modern {
+    background: white;
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--contact-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-card-modern::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--card-color, #0aae94), var(--contact-accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  .contact-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-left-color: var(--card-color, #0aae94);
+    border-left-width: 6px;
+  }
+
+  .contact-card-modern:hover::before {
+    transform: scaleX(1);
+  }
+
+  .contact-card-icon {
+    width: clamp(64px, 8vw, 80px);
+    height: clamp(64px, 8vw, 80px);
+    border-radius: clamp(16px, 2vw, 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.5rem);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .contact-card-modern:hover .contact-card-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .contact-card-title {
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
+    font-weight: 700;
+    margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+    color: var(--contact-ink);
+  }
+
+  .contact-card-description {
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: clamp(1rem, 2vw, 1.25rem);
+    flex-grow: 1;
+  }
+
+  .contact-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: auto;
+  }
+
+  .contact-card-link-primary {
+    background: linear-gradient(135deg, rgba(10, 174, 148, 0.1), rgba(10, 174, 148, 0.05));
+    color: var(--contact-primary);
+    border: 1px solid rgba(10, 174, 148, 0.2);
+  }
+
+  .contact-card-link-primary:hover {
+    background: linear-gradient(135deg, var(--contact-primary), #008e7a);
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .contact-card-link-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .contact-card-link-success:hover {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .contact-card-link-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .contact-card-link-warning:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .contact-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .contact-info-item:last-child {
+    border-bottom: none;
+  }
+
+  .contact-info-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .contact-info-item-content {
+    flex: 1;
+  }
+
+  .contact-info-item-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-info-item-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--contact-ink);
+  }
+
+  .contact-info-item-value a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .contact-info-item-value a:hover {
+    color: var(--contact-primary);
+  }
+
+  /* Contact Form Section */
+  .contact-form-section {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+    background: var(--contact-muted);
+  }
+
+  .contact-form-card {
+    background: white;
+    border-radius: clamp(1.5rem, 3vw, 2rem);
+    padding: clamp(2rem, 4vw, 3rem);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--contact-border);
+  }
+
+  .contact-form-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    color: var(--contact-ink);
+    text-align: center;
+  }
+
+  .form-control-modern,
+  .form-select-modern {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: clamp(0.75rem, 1.5vw, 0.75rem);
+    padding: clamp(0.75rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1rem);
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+    transition: all 0.3s ease;
+  }
+
+  .form-control-modern:focus,
+  .form-select-modern:focus {
+    border-color: var(--contact-primary);
+    box-shadow: 0 0 0 4px rgba(10, 174, 148, 0.1);
+    outline: none;
+  }
+
+  .form-label-modern {
+    font-weight: 600;
+    color: var(--contact-ink);
+    margin-bottom: 8px;
+    font-size: 0.9375rem;
+  }
+
+  .btn-submit-modern {
+    background: linear-gradient(135deg, var(--contact-primary) 0%, #008e7a 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .btn-submit-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(10, 174, 148, 0.4);
+    color: white;
+  }
+
+  /* Office Locations Section */
+  .office-locations-section {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+    background: white;
+  }
+
+  .office-card {
+    background: white;
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border: 1px solid var(--contact-border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .office-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .office-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--contact-primary);
+  }
+
+  .office-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--contact-primary), #008e7a);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .contact-hero-cta {
+      flex-direction: column;
+    }
+
+    .btn-contact-hero {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .contact-card-modern {
+      margin-bottom: 1.5rem;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="contact-hero">
+<section class="contact-hero-modern" id="contact-hero">
+  <div class="hero-orb-contact hero-orb-contact-1"></div>
+  <div class="hero-orb-contact hero-orb-contact-2"></div>
+  
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-8 mx-auto text-center">
-        <div class="mb-4">
-          <span class="badge bg-warning text-dark mb-3">{% trans "Kurumsal İletişim" %}</span>
-        </div>
-        <h1 class="display-4 fw-bold mb-3">{% trans "FinAsis ile İletişime Geçin" %}</h1>
-        <p class="lead mb-4 opacity-90">
-          {% trans "Yerel AI destekli finans platformumuz hakkında sorularınız için kurumsal ekibimizle iletişime geçin. Satış, destek ve iş ortaklığı konularında size yardımcı olmaktan memnuniyet duyarız." %}
-        </p>
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-          <a href="mailto:{{ sales_email }}" class="btn btn-light btn-lg px-4 fw-semibold" data-cta="contact-hero-email">
-            <i class="bi bi-envelope-fill me-2"></i>{% trans "E-posta Gönder" %}
-          </a>
-          <a href="tel:{{ phone_number|cut:' ' }}" class="btn btn-outline-light btn-lg px-4 fw-semibold" data-cta="contact-hero-phone">
-            <i class="bi bi-telephone-fill me-2"></i>{% trans "Hemen Ara" %}
-          </a>
-        </div>
+    <div class="contact-hero-content">
+      <div class="contact-hero-badge">
+        <i class="bi bi-envelope-paper-heart"></i>
+        <span>{% trans "Bizimle İletişime Geçin" %}</span>
+      </div>
+      
+      <h1 class="contact-hero-title">
+        {% trans "Sorularınız mı var?" %}
+        <br>
+        <span style="background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+          {% trans "Size yardımcı olmak için buradayız!" %}
+        </span>
+      </h1>
+      
+      <p class="contact-hero-subtitle">
+        {% trans "FinAsis hakkında merak ettiğiniz her şeyi sorabilirsiniz. Satış, teknik destek, iş ortaklığı veya genel sorularınız için ekibimiz size yardımcı olmaya hazır." %}
+      </p>
+      
+      <div class="contact-hero-cta">
+        <a href="mailto:{{ sales_email }}" class="btn-contact-hero btn-contact-hero-primary">
+          <i class="bi bi-envelope-fill"></i>
+          {% trans "E-posta Gönder" %}
+        </a>
+        <a href="tel:{{ phone_number|cut:' ' }}" class="btn-contact-hero btn-contact-hero-secondary">
+          <i class="bi bi-telephone-fill"></i>
+          {% trans "Hemen Ara" %}
+        </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Contact Information Cards -->
-<section class="contact-section">
+<!-- Contact Cards Section -->
+<section class="contact-cards-section" id="channels">
   <div class="container">
-    <div class="section-header">
-      <span class="badge bg-primary-subtle text-primary-emphasis mb-3">{% trans "İletişim Kanalları" %}</span>
-      <h2 class="h3 fw-bold mb-3">{% trans "Size En Uygun Yolu Seçin" %}</h2>
-      <p class="text-secondary mb-0">
+    <div class="section-header-modern">
+      <span class="section-eyebrow">
+        <i class="bi bi-grid-3x3-gap me-2"></i>{% trans "İletişim Kanalları" %}
+      </span>
+      <h2 class="section-title-modern">{% trans "Size En Uygun Yolu Seçin" %}</h2>
+      <p class="section-description">
         {% trans "Aşağıdaki kanallardan birini seçerek bizimle iletişime geçebilirsiniz. Tüm talepleriniz en kısa sürede değerlendirilecektir." %}
       </p>
     </div>
+    
     <div class="row g-4">
+      <!-- Satış Ekibi -->
       <div class="col-md-6 col-lg-4">
-        <div class="contact-card">
-          <div class="contact-card-icon">
-            <i class="bi bi-envelope-paper-heart"></i>
+        <div class="contact-card-modern" style="--card-color: #0aae94;">
+          <div class="contact-card-icon" style="background: linear-gradient(135deg, rgba(10, 174, 148, 0.15), rgba(10, 174, 148, 0.05)); color: #0aae94;">
+            <i class="bi bi-chat-dots"></i>
           </div>
-          <h3 class="h5 fw-bold mb-2">{% trans "Satış Ekibi" %}</h3>
-          <p class="text-secondary mb-3">{% trans "Ürün demoları, fiyatlandırma ve kurumsal çözümler için" %}</p>
+          <h3 class="contact-card-title">{% trans "Satış & Demo" %}</h3>
+          <p class="contact-card-description">
+            {% trans "Ürünlerimiz hakkında bilgi almak, demo talep etmek veya fiyatlandırma konusunda detaylı bilgi almak için." %}
+          </p>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
               <i class="bi bi-envelope"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
-              <a href="mailto:{{ sales_email }}" class="text-decoration-none">{{ sales_email }}</a>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "E-posta" %}</div>
+              <div class="contact-info-item-value">
+                <a href="mailto:{{ sales_email }}">{{ sales_email }}</a>
+              </div>
             </div>
           </div>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
               <i class="bi bi-clock"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "Yanıt Süresi" %}</strong>
-              <span class="text-secondary">{% trans "24 saat içinde" %}</span>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "Yanıt Süresi" %}</div>
+              <div class="contact-info-item-value">{% trans "24 saat içinde" %}</div>
             </div>
           </div>
+          
+          <a href="mailto:{{ sales_email }}" class="contact-card-link contact-card-link-primary">
+            <span>{% trans "İletişime Geç" %}</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       </div>
+      
+      <!-- Teknik Destek -->
       <div class="col-md-6 col-lg-4">
-        <div class="contact-card">
-          <div class="contact-card-icon">
+        <div class="contact-card-modern" style="--card-color: #10b981;">
+          <div class="contact-card-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); color: #10b981;">
             <i class="bi bi-headset"></i>
           </div>
-          <h3 class="h5 fw-bold mb-2">{% trans "Teknik Destek" %}</h3>
-          <p class="text-secondary mb-3">{% trans "Platform kullanımı, teknik sorunlar ve entegrasyon desteği için" %}</p>
+          <h3 class="contact-card-title">{% trans "Teknik Destek" %}</h3>
+          <p class="contact-card-description">
+            {% trans "Platform kullanımı, teknik sorunlar, entegrasyon desteği veya API dokümantasyonu hakkında sorularınız için." %}
+          </p>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
               <i class="bi bi-envelope"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
-              <a href="mailto:{{ support_email }}" class="text-decoration-none">{{ support_email }}</a>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "E-posta" %}</div>
+              <div class="contact-info-item-value">
+                <a href="mailto:{{ support_email }}">{{ support_email }}</a>
+              </div>
             </div>
           </div>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
               <i class="bi bi-clock"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "Yanıt Süresi" %}</strong>
-              <span class="text-secondary">{% trans "2-4 saat içinde" %}</span>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "Yanıt Süresi" %}</div>
+              <div class="contact-info-item-value">{% trans "2-4 saat içinde" %} (7/24)</div>
             </div>
           </div>
+          
+          <a href="mailto:{{ support_email }}" class="contact-card-link contact-card-link-success">
+            <span>{% trans "Destek Al" %}</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       </div>
+      
+      <!-- İş Ortaklığı -->
       <div class="col-md-6 col-lg-4">
-        <div class="contact-card">
-          <div class="contact-card-icon">
+        <div class="contact-card-modern" style="--card-color: #f59e0b;">
+          <div class="contact-card-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); color: #f59e0b;">
             <i class="bi bi-people"></i>
           </div>
-          <h3 class="h5 fw-bold mb-2">{% trans "İş Ortaklığı" %}</h3>
-          <p class="text-secondary mb-3">{% trans "Partner programı, distribütörlük ve işbirliği fırsatları için" %}</p>
+          <h3 class="contact-card-title">{% trans "İş Ortaklığı" %}</h3>
+          <p class="contact-card-description">
+            {% trans "Partner programı, distribütörlük, işbirliği fırsatları veya kurumsal çözümler hakkında bilgi almak için." %}
+          </p>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
               <i class="bi bi-envelope"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "E-posta" %}</strong>
-              <a href="mailto:partners@finasis.com" class="text-decoration-none">partners@finasis.com</a>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "E-posta" %}</div>
+              <div class="contact-info-item-value">
+                <a href="mailto:partners@finasis.com">partners@finasis.com</a>
+              </div>
             </div>
           </div>
+          
           <div class="contact-info-item">
-            <div class="contact-info-icon">
+            <div class="contact-info-item-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
               <i class="bi bi-link-45deg"></i>
             </div>
-            <div>
-              <strong class="d-block mb-1">{% trans "Daha Fazla Bilgi" %}</strong>
-              <a href="{% url 'resources_partner_marketplace' %}" class="text-decoration-none">{% trans "Partner Merkezi" %}</a>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "Daha Fazla Bilgi" %}</div>
+              <div class="contact-info-item-value">
+                {% if partner_marketplace_url %}
+                <a href="{{ partner_marketplace_url }}">{% trans "Partner Merkezi" %}</a>
+                {% else %}
+                <span>{% trans "Yakında" %}</span>
+                {% endif %}
+              </div>
             </div>
           </div>
+          
+          <a href="mailto:partners@finasis.com" class="contact-card-link contact-card-link-warning">
+            <span>{% trans "Ortaklık Başlat" %}</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Contact Form -->
+<!-- Contact Form Section -->
 <section class="contact-form-section">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-10 col-xl-8">
-        <div class="section-header">
-          <span class="badge bg-success-subtle text-success-emphasis mb-3">{% trans "İletişim Formu" %}</span>
-          <h2 class="h3 fw-bold mb-3">{% trans "Bize Mesaj Gönderin" %}</h2>
-          <p class="text-secondary mb-0">
+        <div class="section-header-modern mb-4">
+          <span class="section-eyebrow">
+            <i class="bi bi-pencil-square me-2"></i>{% trans "İletişim Formu" %}
+          </span>
+          <h2 class="section-title-modern">{% trans "Bize Mesaj Gönderin" %}</h2>
+          <p class="section-description">
             {% trans "Aşağıdaki formu doldurarak bizimle iletişime geçebilirsiniz. Tüm alanları eksiksiz doldurmanız halinde en kısa sürede size dönüş yapacağız." %}
           </p>
         </div>
-        <div class="contact-card">
+        
+        <div class="contact-form-card">
           {% include "components/messages.html" %}
+          
           <form method="post" novalidate autocomplete="on" id="contactForm">
             {% csrf_token %}
             <div class="row g-4">
               <div class="col-md-6">
-                <label for="name" class="form-label fw-semibold">{% trans "Adınız Soyadınız" %} <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="{% trans 'Adınız Soyadınız' %}" required>
+                <label for="name" class="form-label-modern">
+                  {% trans "Adınız Soyadınız" %} <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control form-control-modern" id="name" name="name" 
+                       placeholder="{% trans 'Adınız Soyadınız' %}" required>
               </div>
+              
               <div class="col-md-6">
-                <label for="email" class="form-label fw-semibold">{% trans "E-posta Adresiniz" %} <span class="text-danger">*</span></label>
-                <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="ornek@firma.com" required>
+                <label for="email" class="form-label-modern">
+                  {% trans "E-posta Adresiniz" %} <span class="text-danger">*</span>
+                </label>
+                <input type="email" class="form-control form-control-modern" id="email" name="email" 
+                       placeholder="ornek@firma.com" required>
               </div>
+              
               <div class="col-md-6">
-                <label for="company" class="form-label fw-semibold">{% trans "Şirket Adı" %}</label>
-                <input type="text" class="form-control form-control-lg" id="company" name="company" placeholder="{% trans 'Şirket Adı (Opsiyonel)' %}">
+                <label for="company" class="form-label-modern">{% trans "Şirket Adı" %}</label>
+                <input type="text" class="form-control form-control-modern" id="company" name="company" 
+                       placeholder="{% trans 'Şirket Adı (Opsiyonel)' %}">
               </div>
+              
               <div class="col-md-6">
-                <label for="phone" class="form-label fw-semibold">{% trans "Telefon Numarası" %}</label>
-                <input type="tel" class="form-control form-control-lg" id="phone" name="phone" placeholder="+90 5XX XXX XX XX">
+                <label for="phone" class="form-label-modern">{% trans "Telefon Numarası" %}</label>
+                <input type="tel" class="form-control form-control-modern" id="phone" name="phone" 
+                       placeholder="+90 5XX XXX XX XX">
               </div>
+              
               <div class="col-12">
-                <label for="subject" class="form-label fw-semibold">{% trans "Konu" %} <span class="text-danger">*</span></label>
-                <select class="form-select form-select-lg" id="subject" name="subject" required>
+                <label for="subject" class="form-label-modern">
+                  {% trans "Konu" %} <span class="text-danger">*</span>
+                </label>
+                <select class="form-select form-select-modern" id="subject" name="subject" required>
                   <option value="">{% trans "Konu seçin" %}</option>
                   <option value="demo">{% trans "Demo Talep Et" %}</option>
                   <option value="sales">{% trans "Satış Bilgisi" %}</option>
@@ -333,21 +733,30 @@
                   <option value="other">{% trans "Diğer" %}</option>
                 </select>
               </div>
+              
               <div class="col-12">
-                <label for="message" class="form-label fw-semibold">{% trans "Mesajınız" %} <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="message" name="message" rows="6" placeholder="{% trans 'Mesajınızı buraya yazın...' %}" required></textarea>
+                <label for="message" class="form-label-modern">
+                  {% trans "Mesajınız" %} <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control form-control-modern" id="message" name="message" rows="6" 
+                          placeholder="{% trans 'Mesajınızı buraya yazın...' %}" required></textarea>
               </div>
+              
               <div class="col-12">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="privacy" name="privacy" required>
-                  <label class="form-check-label text-secondary" for="privacy">
+                  <label class="form-check-label" for="privacy">
                     {% trans "Kişisel verilerimin işlenmesine izin veriyorum." %} 
-                    <a href="{% url 'legal_kvkk' %}" target="_blank" class="text-decoration-none fw-semibold">{% trans "KVKK Aydınlatma Metni" %}</a>
+                    <a href="{% url 'legal_kvkk' %}" target="_blank" class="text-decoration-none fw-semibold" style="color: var(--contact-primary);">
+                      {% trans "KVKK Aydınlatma Metni" %}
+                    </a>
+                    <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
+              
               <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold py-3" data-cta="contact-form-submit">
+                <button type="submit" class="btn btn-submit-modern" data-cta="contact-form-submit">
                   <i class="bi bi-send-fill me-2"></i>{% trans "Mesajı Gönder" %}
                 </button>
               </div>
@@ -359,118 +768,52 @@
   </div>
 </section>
 
-
-<!-- Business Hours & Additional Info -->
-<section class="contact-section">
+<!-- Office Locations Section -->
+{% if office_locations %}
+<section class="office-locations-section" id="offices">
   <div class="container">
-    <div class="row g-4">
-      <div class="col-lg-6">
-        <div class="contact-hours">
-          <h3 class="h5 fw-bold mb-4">
-            <i class="bi bi-clock-history text-primary me-2"></i>{% trans "Çalışma Saatleri" %}
-          </h3>
-          <div class="hours-item">
-            <span class="fw-semibold">{% trans "Pazartesi - Cuma" %}</span>
-            <span class="text-secondary">09:00 - 18:00</span>
-          </div>
-          <div class="hours-item">
-            <span class="fw-semibold">{% trans "Cumartesi" %}</span>
-            <span class="text-secondary">10:00 - 14:00</span>
-          </div>
-          <div class="hours-item">
-            <span class="fw-semibold">{% trans "Pazar" %}</span>
-            <span class="text-secondary">{% trans "Kapalı" %}</span>
-          </div>
-          <div class="mt-4 pt-3 border-top">
-            <p class="text-secondary small mb-0">
-              <i class="bi bi-info-circle me-2"></i>
-              {% trans "Teknik destek talepleri 7/24 otomatik sistem tarafından işlenir." %}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="contact-card">
-          <h3 class="h5 fw-bold mb-4">
-            <i class="bi bi-shield-check text-primary me-2"></i>{% trans "Güvenlik ve Uyumluluk" %}
-          </h3>
-          <ul class="list-unstyled">
-            <li class="mb-3 d-flex align-items-start gap-2">
-              <i class="bi bi-check-circle-fill text-success mt-1"></i>
-              <div>
-                <strong class="d-block">{% trans "KVKK Uyumlu" %}</strong>
-                <span class="text-secondary small">{% trans "Tüm verileriniz KVKK uyumlu şekilde işlenir" %}</span>
-              </div>
-            </li>
-            <li class="mb-3 d-flex align-items-start gap-2">
-              <i class="bi bi-check-circle-fill text-success mt-1"></i>
-              <div>
-                <strong class="d-block">{% trans "Yerel Veri Saklama" %}</strong>
-                <span class="text-secondary small">{% trans "Verileriniz Türkiye'de saklanır ve işlenir" %}</span>
-              </div>
-            </li>
-            <li class="mb-3 d-flex align-items-start gap-2">
-              <i class="bi bi-check-circle-fill text-success mt-1"></i>
-              <div>
-                <strong class="d-block">{% trans "Blockchain Kanıt" %}</strong>
-                <span class="text-secondary small">{% trans "Kritik işlemler blockchain ile kanıtlanır" %}</span>
-              </div>
-            </li>
-            <li class="d-flex align-items-start gap-2">
-              <i class="bi bi-check-circle-fill text-success mt-1"></i>
-              <div>
-                <strong class="d-block">{% trans "SSL Şifreleme" %}</strong>
-                <span class="text-secondary small">{% trans "256-bit SSL ile güvenli iletişim" %}</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Support Programs -->
-{% if support_programs %}
-<section class="contact-section bg-light">
-  <div class="container">
-    <div class="section-header">
-      <span class="badge bg-info-subtle text-info-emphasis mb-3">{% trans "Destek Programları" %}</span>
-      <h2 class="h3 fw-bold mb-3">{% trans "Planınıza Özel Destek" %}</h2>
-      <p class="text-secondary mb-0">
-        {% trans "Her plan için özel olarak atanmış danışmanlar ve SLA değerleri ile destekleniyorsunuz." %}
+    <div class="section-header-modern mb-5">
+      <span class="section-eyebrow">
+        <i class="bi bi-geo-alt me-2"></i>{% trans "Ofis Lokasyonları" %}
+      </span>
+      <h2 class="section-title-modern">{% trans "Bizi Ziyaret Edin" %}</h2>
+      <p class="section-description">
+        {% trans "FinAsis ekibine doğrudan ulaşmak için ofislerimizi ziyaret edebilirsiniz." %}
       </p>
     </div>
+    
     <div class="row g-4">
-      {% for program in support_programs %}
-      <div class="col-md-6 col-xl-4">
-        <div class="contact-card">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <span class="badge bg-primary-subtle text-primary-emphasis text-uppercase small">{{ program.audience }}</span>
-            {% if program.monthly_price or program.yearly_price %}
-            <span class="text-primary fw-bold">
-              {% if program.monthly_price %}
-                {{ program.monthly_price }} {{ program.currency }}/ {% trans "ay" %}
-              {% elif program.yearly_price %}
-                {{ program.yearly_price }} {{ program.currency }}/ {% trans "yıl" %}
-              {% endif %}
-            </span>
-            {% endif %}
+      {% for office in office_locations %}
+      <div class="col-md-6">
+        <div class="office-card">
+          <div class="office-card-header">
+            <div class="office-card-icon">
+              <i class="bi bi-building"></i>
+            </div>
+            <h3 class="h5 fw-bold mb-0">{{ office.city }}</h3>
           </div>
-          <h3 class="h6 fw-bold mb-2">{{ program.name }}</h3>
-          {% if program.modules %}
-          <ul class="list-unstyled mb-3">
-            {% for module_name in program.modules %}
-            <li class="mb-2">
-              <i class="bi bi-check-lg text-success me-2"></i>
-              <span class="small">{{ module_name }}</span>
-            </li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-          <a href="{% url 'billing:plans' %}?focus={{ program.code }}" class="btn btn-outline-primary btn-sm w-100" data-cta="contact-program">
-            {% trans "Planı İncele" %} <i class="bi bi-arrow-right ms-1"></i>
-          </a>
+          
+          <div class="contact-info-item">
+            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "Adres" %}</div>
+              <div class="contact-info-item-value">{{ office.address }}</div>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
+              <i class="bi bi-telephone"></i>
+            </div>
+            <div class="contact-info-item-content">
+              <div class="contact-info-item-label">{% trans "Telefon" %}</div>
+              <div class="contact-info-item-value">
+                <a href="tel:{{ office.phone|cut:' ' }}">{{ office.phone }}</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       {% endfor %}
@@ -478,4 +821,20 @@
   </div>
 </section>
 {% endif %}
+
+<script>
+  // Form submission handler
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    const btn = this.querySelector('.btn-submit-modern');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{% trans "Gönderiliyor..." %}';
+    btn.disabled = true;
+    
+    // Re-enable after 5 seconds as fallback
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }, 5000);
+  });
+</script>
 {% endblock %}
