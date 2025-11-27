@@ -428,47 +428,6 @@
     color: white;
   }
 
-  /* Office Locations Section */
-  .office-locations-section {
-    padding: clamp(3rem, 7vw, 5rem) 0;
-    background: white;
-  }
-
-  .office-card {
-    background: white;
-    border-radius: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(1.5rem, 3vw, 2rem);
-    border: 1px solid var(--contact-border);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
-    height: 100%;
-  }
-
-  .office-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  }
-
-  .office-card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--contact-primary);
-  }
-
-  .office-card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--contact-primary), #008e7a);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-  }
 
   /* Responsive */
   @media (max-width: 768px) {
@@ -767,60 +726,6 @@
     </div>
   </div>
 </section>
-
-<!-- Office Locations Section -->
-{% if office_locations %}
-<section class="office-locations-section" id="offices">
-  <div class="container">
-    <div class="section-header-modern mb-5">
-      <span class="section-eyebrow">
-        <i class="bi bi-geo-alt me-2"></i>{% trans "Ofis Lokasyonları" %}
-      </span>
-      <h2 class="section-title-modern">{% trans "Bizi Ziyaret Edin" %}</h2>
-      <p class="section-description">
-        {% trans "FinAsis ekibine doğrudan ulaşmak için ofislerimizi ziyaret edebilirsiniz." %}
-      </p>
-    </div>
-    
-    <div class="row g-4">
-      {% for office in office_locations %}
-      <div class="col-md-6">
-        <div class="office-card">
-          <div class="office-card-header">
-            <div class="office-card-icon">
-              <i class="bi bi-building"></i>
-            </div>
-            <h3 class="h5 fw-bold mb-0">{{ office.city }}</h3>
-          </div>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
-              <i class="bi bi-geo-alt"></i>
-            </div>
-            <div class="contact-info-item-content">
-              <div class="contact-info-item-label">{% trans "Adres" %}</div>
-              <div class="contact-info-item-value">{{ office.address }}</div>
-            </div>
-          </div>
-          
-          <div class="contact-info-item">
-            <div class="contact-info-item-icon" style="background: rgba(10, 174, 148, 0.1); color: #0aae94;">
-              <i class="bi bi-telephone"></i>
-            </div>
-            <div class="contact-info-item-content">
-              <div class="contact-info-item-label">{% trans "Telefon" %}</div>
-              <div class="contact-info-item-value">
-                <a href="tel:{{ office.phone|cut:' ' }}">{{ office.phone }}</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
 
 <script>
   // Form submission handler
