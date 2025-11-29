@@ -49,10 +49,14 @@ steps:
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
     id: "Deploy to Cloud Run"
     entrypoint: "bash"
+    env:
+      - "CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT="
     args:
       - "-c"
       - |
         set -euo pipefail
+        # Cloud Build service account'unu kullan (varsayılan)
+        # Compute service account yerine Cloud Build service account kullanılacak
         IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:${_IMAGE_TAG}"
         DEPLOY_ARGS=(
           "--image=$${IMAGE}"
@@ -87,6 +91,7 @@ steps:
           DEPLOY_ARGS+=("--add-cloudsql-instances=${_CLOUD_SQL_CONNECTION}")
         fi
 
+        # Cloud Build service account ile deploy et
         gcloud run deploy "$${DEPLOY_ARGS[@]}"
 
 images:

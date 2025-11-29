@@ -49,7 +49,7 @@ jobs:
           gcloud builds submit \
             --config=deploy/cloud_run/cloudbuild.yaml \
             --region=${{ env.REGION }} \
-            --substitutions=_SERVICE=${{ env.SERVICE_NAME }} \
+            --substitutions=_SERVICE=${{ env.SERVICE_NAME }},_REGION=${{ env.REGION }},_REPOSITORY=${{ env.REPOSITORY }},_CLOUD_SQL_CONNECTION="${{ secrets.CLOUD_SQL_CONNECTION }}",_CLOUD_RUN_ENV_VARS="${{ secrets.CLOUD_RUN_ENV_VARS }}",_CLOUD_RUN_SECRETS="${{ secrets.CLOUD_RUN_SECRETS }}" \
             --project=${{ env.PROJECT_ID }}
 
       - name: Get service URL
