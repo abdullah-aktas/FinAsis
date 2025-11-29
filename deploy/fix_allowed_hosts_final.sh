@@ -80,16 +80,30 @@ fi
 echo "📝 Yeni ALLOWED_HOSTS: $NEW_ALLOWED_HOSTS"
 echo ""
 
-# Environment variables'ı KEY=VALUE,KEY2=VALUE2 formatına çevir
-ENV_VARS_STRING=$(cat "$ENV_FILE" | tr '\n' ',' | sed 's/,$//')
+# Environment variables'ı YAML formatına çevir (--env-vars-file için)
+YAML_FILE=$(mktemp)
+echo "env:" > "$YAML_FILE"
+cat "$ENV_FILE" | while IFS='=' read -r key value; do
+    if [ -n "$key" ] && [ -n "$value" ]; then
+        # Değeri tırnak içine al (özel karakterler için)
+        echo "  - name: $key" >> "$YAML_FILE"
+        echo "    value: \"$value\"" >> "$YAML_FILE"
+    fi
+done
 
 echo "🔄 Environment variables güncelleniyor..."
+echo "📋 YAML dosyası içeriği:"
+cat "$YAML_FILE"
+echo ""
 
-# --set-env-vars kullan (tüm env vars'ları set eder)
+# --env-vars-file kullan (YAML formatında, virgül sorunu yok)
 gcloud run services update "$SERVICE_NAME" \
     --region="$REGION" \
-    --set-env-vars="$ENV_VARS_STRING" \
+    --env-vars-file="$YAML_FILE" \
     --quiet
+
+# Geçici dosyaları sil
+rm -f "$YAML_FILE"
 
 # Geçici dosyayı sil
 rm -f "$ENV_FILE"
