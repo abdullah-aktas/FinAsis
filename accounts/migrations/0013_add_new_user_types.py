@@ -35,7 +35,8 @@ def create_new_user_types(apps, schema_editor):
                 'default_subscription': None
             }
         )
-        print(f"✓ Created/Updated UserType: {user_type_data['name']}")
+        # Terminal encoding sorunlarına yol açmamak için yalnızca ASCII karakterler kullan.
+        print(f"[OK] Created/Updated UserType: {user_type_data['name']}")
 
 
 def reverse_create_user_types(apps, schema_editor):
@@ -47,7 +48,7 @@ def reverse_create_user_types(apps, schema_editor):
     codes_to_remove = ['muhasebe_elemani', 'satis_elemani', 'depo_elemani']
     
     deleted_count = UserType.objects.filter(code__in=codes_to_remove).delete()[0]
-    print(f"✓ Deleted {deleted_count} UserType records")
+    print(f"[OK] Deleted {deleted_count} UserType records")
 
 
 class Migration(migrations.Migration):

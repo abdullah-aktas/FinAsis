@@ -1,4 +1,5 @@
 ﻿from django.urls import path, include
+from django.views.generic import RedirectView
 from . import views
 from . import api_role_assignment
 from . import views_help
@@ -34,13 +35,20 @@ help_urlpatterns = [
 ]
 
 urlpatterns = [
+    # /common/ -> yardım merkezine yönlendir
+    path(
+        '',
+        RedirectView.as_view(pattern_name='common:help_center', permanent=False),
+        name='common_root',
+    ),
+
     path('approvals/request/<str:app_label>/<str:model>/<int:pk>/', views.request_approval, name='request_approval'),
     path('approvals/<int:pk>/<str:action>/', views.approval_action, name='approval_action'),
     path('audit/', views.audit_list, name='audit_list'),
-    
+
     # API endpoints
     path('api/', include(api_urlpatterns)),
-    
+
     # Help System
     path('help/', include(help_urlpatterns)),
 ]

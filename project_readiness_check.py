@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 """
-Django Proje Hazırlık Kontrol Scripti
+Django Proje Hazırlık ve Otomatik Düzeltme Scripti
 
 Kullanım:
     python project_readiness_check.py
+    python project_readiness_check.py --auto-fix
 
 Bu script aşağıdakileri yapar:
 - Django sistem kontrolleri
 - Boşta bekleyen migration var mı?
+- (İsteğe bağlı) Migration'ları üretip uygulama (--auto-fix ile)
 - Testleri çalıştırma (özellikle smoke testler)
 - collectstatic dry-run
+- (İsteğe bağlı) Gerçek collectstatic çalıştırma (--auto-fix ile)
 - URL haritasını ve admin panelinin ulaşılabilirliğini raporlama
 """
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -66,7 +70,82 @@ def print_urls():
         print(f"- {pattern_str}  (name={name})")
 
 
+def collect_template_url_names(base_dir: Path) -> set[str]:
+    """
+    Tüm .html şablon dosyalarındaki {% url 'namespace:name' %} kullanımlarını toplar.
+    Amaç: Template'te kullanılan URL isimleri ile URLconf'taki isimleri çapraz kontrol etmek.
+    """
+    url_tag_re = re.compile(r"{%\s*url\s+['\"]([^'^\"]+)['\"]")
+    names: set[str] = set()
+
+    for html_path in base_dir.rglob("*.html"):
+        try:
+            text = html_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        for match in url_tag_re.finditer(text):
+            name = match.group(1).strip()
+            if name:
+                names.add(name)
+
+    return names
+
+
+def check_template_urls(base_dir: Path) -> None:
+    """
+    Template'lerde kullanılan URL isimlerinin gerçekten tanımlı olup olmadığını kontrol eder.
+    Boşa dönen buton / link kalmaması için uyarı üretir.
+    """
+    print("\n" + "=" * 80)
+    print("▶ Template URL kontrolleri")
+    print("=" * 80)
+
+    # Django ortamını hazırla
+    os.environ.setdefault(
+        "DJANGO_SETTINGS_MODULE",
+        os.getenv("DJANGO_SETTINGS_MODULE", "config.settings"),
+    )
+
+    import django
+
+    django.setup()
+    from django.urls import get_resolver
+
+    resolver = get_resolver()
+
+    # URLconf'ta tanımlı isimler
+    valid_names = {
+        name
+        for name in resolver.reverse_dict.keys()
+        if isinstance(name, str)
+    }
+
+    # Template'lerden toplanan isimler
+    template_names = collect_template_url_names(base_dir)
+
+    unused_in_urlconf = sorted(template_names - valid_names)
+
+    print(f"- Bulunan template URL isimleri: {len(template_names)}")
+    print(f"- URLConf'ta tanımlı isimler: {len(valid_names)}")
+
+    if not unused_in_urlconf:
+        print("✅ Tüm template URL isimleri URLConf içinde tanımlı görünüyor.")
+        return
+
+    print("⚠ Aşağıdaki URL isimleri template'lerde kullanılmış ancak URLConf'ta bulunamadı:")
+    for name in unused_in_urlconf:
+        print(f"  - {name}")
+
+    print(
+        "\nNot: Bu isimler yanlış yazılmış olabilir veya ilgili app bu ortamda yüklü değildir.\n"
+        "Boşa dönen düğme/linkleri önlemek için bu listeyi gözden geçirmen önerilir."
+    )
+
+
 def main():
+    auto_fix = "--auto-fix" in sys.argv
+
     if not MANAGE_PY.exists():
         print("manage.py bu dizinde bulunamadı. Scripti proje kökünde çalıştırdığından emin ol.")
         sys.exit(1)
@@ -82,6 +161,19 @@ def main():
         "Boşta bekleyen migration var mı kontrolü",
         stop_on_fail=False,
     )
+
+    # 2b) İsteğe bağlı otomatik düzeltme: migration üret + migrate
+    if auto_fix:
+        run(
+            f"{python} manage.py makemigrations",
+            "Eksik migration'ların oluşturulması (auto-fix)",
+            stop_on_fail=False,
+        )
+        run(
+            f"{python} manage.py migrate",
+            "Veritabanı schema'sının güncellenmesi (auto-fix)",
+            stop_on_fail=True,
+        )
 
     # 3) migrate planı (uygulanmamış migration var mı görmek için)
     run(
@@ -103,6 +195,12 @@ def main():
     except Exception as exc:  # pragma: no cover - bilgilendirme amaçlı
         print(f"⚠ URL'ler listelenirken hata oluştu: {exc}")
 
+    # 4b) Template URL isimlerini kontrol et
+    try:
+        check_template_urls(BASE_DIR)
+    except Exception as exc:  # pragma: no cover - bilgilendirme amaçlı
+        print(f"⚠ Template URL kontrolleri sırasında hata oluştu: {exc}")
+
     # 5) Smoke testler + diğer testler
     run(
         f"{python} manage.py test",
@@ -116,6 +214,14 @@ def main():
         "Static dosyaların collectstatic ile toplanabilirliğinin testi (dry-run)",
         stop_on_fail=False,
     )
+
+    # 6b) İsteğe bağlı gerçek collectstatic
+    if auto_fix:
+        run(
+            f"{python} manage.py collectstatic --noinput",
+            "Static dosyaların gerçek collectstatic ile toplanması (auto-fix)",
+            stop_on_fail=False,
+        )
 
     print("\n" + "=" * 80)
     print("🎉 TOPLAM DURUM")
