@@ -48,13 +48,37 @@ if [ ! -f "$FIXTURE_FILE" ]; then
     exit 1
 fi
 
-# JSON syntax kontrolü
+# JSON syntax kontrolü (encoding sorunlarını handle et)
 echo "🔍 JSON syntax kontrolü yapılıyor..."
-python3 -m json.tool "$FIXTURE_FILE" > /dev/null || {
-    echo "❌ JSON syntax hatası!"
+python3 << EOF
+import json
+import sys
+
+# Farklı encoding'leri dene
+encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252', 'iso-8859-1']
+
+for encoding in encodings:
+    try:
+        with open("$FIXTURE_FILE", 'r', encoding=encoding, errors='replace') as f:
+            data = json.load(f)
+        print(f"✅ JSON geçerli (encoding: {encoding})")
+        sys.exit(0)
+    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+        continue
+    except Exception as e:
+        print(f"⚠️  Encoding {encoding} denendi: {e}")
+        continue
+
+print("❌ JSON syntax hatası veya encoding sorunu!")
+sys.exit(1)
+EOF
+
+if [ $? -ne 0 ]; then
+    echo "❌ JSON dosyası okunamadı. Encoding sorunu olabilir."
+    echo "💡 Dosyayı UTF-8'e dönüştürmeyi deneyin:"
+    echo "   iconv -f ISO-8859-1 -t UTF-8 $FIXTURE_FILE > ${FIXTURE_FILE}.utf8"
     exit 1
-}
-echo "✅ JSON geçerli"
+fi
 
 # Yedek al
 echo ""
@@ -147,10 +171,50 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-# Loaddata çalıştır
+# Loaddata çalıştır (encoding sorunlarını handle et)
 echo ""
 echo "📥 Fixture dosyası yükleniyor..."
-python3 manage.py loaddata "$FIXTURE_FILE" --verbosity=2
+
+# Önce dosyayı UTF-8'e dönüştürmeyi dene (gerekirse)
+TEMP_UTF8_FILE=$(mktemp)
+python3 << EOF
+import json
+import sys
+
+encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252', 'iso-8859-1']
+
+for encoding in encodings:
+    try:
+        with open("$FIXTURE_FILE", 'r', encoding=encoding, errors='replace') as f:
+            data = json.load(f)
+        
+        # UTF-8 olarak kaydet
+        with open("$TEMP_UTF8_FILE", 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"✅ Dosya UTF-8'e dönüştürüldü (kaynak encoding: {encoding})")
+        sys.exit(0)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        continue
+    except Exception as e:
+        print(f"⚠️  Encoding {encoding} denendi: {e}")
+        continue
+
+print("❌ Dosya okunamadı!")
+sys.exit(1)
+EOF
+
+if [ $? -eq 0 ]; then
+    # Dönüştürülmüş dosyayı kullan
+    python3 manage.py loaddata "$TEMP_UTF8_FILE" --verbosity=2
+    rm -f "$TEMP_UTF8_FILE"
+else
+    # Orijinal dosyayı dene
+    python3 manage.py loaddata "$FIXTURE_FILE" --verbosity=2 || {
+        echo "❌ Loaddata başarısız!"
+        echo "💡 Dosyayı manuel olarak UTF-8'e dönüştürmeyi deneyin"
+        exit 1
+    }
+fi
 
 # Sonuç kontrolü
 echo ""
