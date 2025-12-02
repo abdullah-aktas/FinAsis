@@ -22,7 +22,7 @@ def games(request):
             'description': 'Sanal borsada alım-satım yaparak yatırım deneyimi kazanın.',
             'category': 'Yatırım',
             'image': 'img/games/stock.svg',
-            'url': '/game-app/stock-market/',
+            'url': '/games/game_app/stock-market/',
             'icon': 'bi-graph-up-arrow',
             'badge': '',
             'color': 'info'
@@ -32,7 +32,7 @@ def games(request):
             'description': 'Gerçek hayat senaryolarıyla bütçe yönetimini öğrenin.',
             'category': 'Bütçe',
             'image': 'img/games/budget.svg',
-            'url': '/game-app/budget-challenge/',
+            'url': '/games/game_app/budget-challenge/',
             'icon': 'bi-piggy-bank-fill',
             'badge': '',
             'color': 'warning'
@@ -42,7 +42,7 @@ def games(request):
             'description': 'Yatırım stratejilerinizi test edin ve portföyünüzü büyütün.',
             'category': 'Portföy',
             'image': 'img/games/investment.svg',
-            'url': '/game-app/investment-simulator/',
+            'url': '/games/game_app/investment-simulator/',
             'icon': 'bi-currency-dollar',
             'badge': '',
             'color': 'danger'
@@ -52,7 +52,7 @@ def games(request):
             'description': 'Finansal bilginizi test edin, yeni kavramlar öğrenin.',
             'category': 'Eğitim',
             'image': 'img/games/quiz.svg',
-            'url': '/game-app/quiz/',
+            'url': '/games/game_app/quiz/',
             'icon': 'bi-patch-question-fill',
             'badge': '',
             'color': 'secondary'
@@ -72,7 +72,7 @@ def games(request):
             'description': 'Belgelere bakarak TDHP borç-alacak kayıtlarını oluşturun. Sürükle-bırak ile mobil uyumlu!',
             'category': 'Muhasebe',
             'image': 'img/games/ledger.svg',
-            'url': '/game-app/ledger-game/',
+            'url': '/games/game_app/ledger-game/',
             'icon': 'bi-file-earmark-text',
             'badge': 'Yeni',
             'color': 'purple'
@@ -184,7 +184,7 @@ def game_detail(request, game_key):
             'image': '/static/img/games/ledger.jpg',
             'how_to_play': 'Belgeyi incele, hesap kartlarını sürükle, BORÇ ve ALACAK alanlarına bırak, kaydı kontrol et.',
             'features': ['Gerçek belge simülasyonu', 'TDHP hesap planı', 'Sürükle-bırak mekanizması', '5 farklı senaryo', 'Mobil uyumlu', 'Web tabanlı'],
-            'play_url': '/game-app/ledger-game/'
+            'play_url': '/games/game_app/ledger-game/'
         },
     }
     game = games_info.get(game_key)

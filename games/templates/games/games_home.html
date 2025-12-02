@@ -16,7 +16,7 @@
                     <div class="mb-2" style="font-size:2rem; color:#00B894;"><i class="bi bi-controller"></i></div>
                     <h6 class="card-title">Trade Simülasyonu</h6>
                     <p class="card-text">Piyasa koşullarında sanal alım-satım yaparak pratik kazanın.</p>
-                    <a href="/games/game_app/tradesim/" class="btn btn-primary w-100">Simülasyona Git</a>
+                    <a href="{% url 'games:trade_sim:start_game' %}" class="btn btn-primary w-100">Simülasyona Git</a>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
                     <div class="mb-2" style="font-size:2rem; color:#6366F1;"><i class="bi bi-question-circle"></i></div>
                     <h6 class="card-title">Finansal Quiz</h6>
                     <p class="card-text">Bilginizi test edin, finansal okuryazarlığınızı ölçün.</p>
-                    <a href="/games/game_app/quiz/" class="btn btn-primary w-100">Quize Katıl</a>
+                    <a href="{% url 'game_app:quiz' %}" class="btn btn-primary w-100">Quize Katıl</a>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
                 <div class="card-body d-flex flex-column align-items-center justify-content-center">
                     <div class="mb-2" style="font-size:2rem;"><i class="bi bi-bar-chart"></i></div>
                     <h5 class="card-title">Skor Tablosu</h5>
-                    <a href="/games/game_app/scoreboard/" class="btn btn-outline-primary mt-2 w-100">Skorları Görüntüle</a>
+                    <a href="{% url 'game_app:scoreboard' %}" class="btn btn-outline-primary mt-2 w-100">Skorları Görüntüle</a>
                 </div>
             </div>
         </div>
