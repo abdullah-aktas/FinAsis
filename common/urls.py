@@ -3,6 +3,7 @@ from django.views.generic import RedirectView
 from . import views
 from . import api_role_assignment
 from . import views_help
+from . import views_health
 
 app_name = 'common'
 
@@ -51,4 +52,9 @@ urlpatterns = [
 
     # Help System
     path('help/', include(help_urlpatterns)),
+    
+    # Health Check endpoints
+    path('health/', views_health.health_check_simple, name='health_check'),
+    path('health/detailed/', views_health.health_check_detailed, name='health_check_detailed'),
+    path('health/status/', views_health.site_status, name='site_status'),
 ]

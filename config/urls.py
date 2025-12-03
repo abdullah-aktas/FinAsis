@@ -26,6 +26,8 @@ urlpatterns = [
     path('', core_ui_views.landing_home, name='home'),
     path('panel/', user_panel, name='user_panel'),
     path('admin/', admin.site.urls),
+    # Health check endpoints (public, no auth required)
+    path('health/', include('common.urls_health')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
     path('accounting/', include(('accounting.urls', 'accounting'), namespace='accounting')),
