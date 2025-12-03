@@ -1,5 +1,176 @@
 [
   {
+    "model": "accounts.usertype",
+    "pk": 1,
+    "fields": {
+      "code": "muhasebe_elemani",
+      "name": "Muhasebe Eleman�",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 2,
+    "fields": {
+      "code": "satis_elemani",
+      "name": "Sat�� Eleman�",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 3,
+    "fields": {
+      "code": "depo_elemani",
+      "name": "Depo Eleman�",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 4,
+    "fields": {
+      "code": "kobi",
+      "name": "KOB� Sahibi",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 5,
+    "fields": {
+      "code": "muhasebeci",
+      "name": "Muhasebeci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 6,
+    "fields": {
+      "code": "mali_musavir",
+      "name": "Mali M��avir",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 7,
+    "fields": {
+      "code": "egitimci",
+      "name": "E�itimci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 8,
+    "fields": {
+      "code": "ogrenci",
+      "name": "��renci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 9,
+    "fields": {
+      "code": "oyuncu",
+      "name": "Oyuncu",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 10,
+    "fields": {
+      "code": "yatirimci",
+      "name": "Yat�r�mc�",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 11,
+    "fields": {
+      "code": "kobi_owner",
+      "name": "KOB� Sahibi",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 12,
+    "fields": {
+      "code": "kobi_employee",
+      "name": "KOB� �al��an�",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 13,
+    "fields": {
+      "code": "finance_manager",
+      "name": "Finans Y�neticisi",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 14,
+    "fields": {
+      "code": "accountant",
+      "name": "Muhasebeci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 15,
+    "fields": {
+      "code": "financial_advisor",
+      "name": "Finansal Dan��man",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 16,
+    "fields": {
+      "code": "auditor",
+      "name": "Denet�i",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 17,
+    "fields": {
+      "code": "teacher",
+      "name": "E�itimci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 18,
+    "fields": {
+      "code": "student",
+      "name": "��renci",
+      "default_subscription": null
+    }
+  },
+  {
+    "model": "accounts.usertype",
+    "pk": 19,
+    "fields": {
+      "code": "ai_specialist",
+      "name": "AI Analist",
+      "default_subscription": null
+    }
+  },
+  {
     "model": "accounts.customuser",
     "pk": 1,
     "fields": {
