@@ -1,11 +1,14 @@
 from __future__ import annotations
 from typing import Tuple
+import os
+import uuid
 from django.utils import timezone
+from .models import Submission, SubmissionLog
+from .ubl import build_ubl_invoice_xml, validate_xml_against_xsd
+
 try:
     from edoc.gib.client import GibClient  # type: ignore
-except Exception:  # pragma: no cover - test-safe fallback when edoc is unavailable
-    import uuid
-
+except ImportError:  # pragma: no cover - test-safe fallback when edoc is unavailable
     class _DummyResult:
         def __init__(self, tracking_id: str, status: str):
             self.tracking_id = tracking_id
@@ -19,9 +22,6 @@ except Exception:  # pragma: no cover - test-safe fallback when edoc is unavaila
         def poll(self, tracking_id: str) -> str:
             # Always accept after first poll in tests
             return "ACCEPTED"
-import os
-from .models import Submission, SubmissionLog
-from .ubl import build_ubl_invoice_xml, validate_xml_against_xsd
 
 
 def submit_via_gib(submission: Submission) -> Tuple[str, str]:

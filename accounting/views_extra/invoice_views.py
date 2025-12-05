@@ -328,7 +328,7 @@ def invoice_check_gib_status(request: HttpRequest, pk: int) -> HttpResponse:
     invoice = get_object_or_404(Invoice, pk=pk, company__in=user_companies)
     
     try:
-        response = check_invoice_status(invoice)
+        check_invoice_status(invoice)
         messages.info(request, f"GİB Durumu: {invoice.gib_status} | Yanıt: {invoice.gib_response}")
     except Exception as e:
         messages.error(request, f"GİB durum sorgu istisnası: {str(e)}")
