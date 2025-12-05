@@ -10,14 +10,22 @@ echo ""
 
 # 1. Eksik tabloları exclude ederek dumpdata
 echo "📋 1. Veritabanı dumpdata yapılıyor..."
+# Not: games.ticaretin_izinde app'ini tamamen exclude etmek için
+# önce tüm app'leri listele, sonra games.ticaretin_izinde hariç hepsini al
 python manage.py dumpdata \
   --exclude=contenttypes \
   --exclude=auth.permission \
-  --exclude=games.ticaretin_izinde \
+  --exclude=games.ticaretin_izinde.UrsinaGame \
+  --exclude=games.ticaretin_izinde.GameScore \
+  --exclude=games.ticaretin_izinde.GameAchievement \
+  --exclude=games.ticaretin_izinde.UrsinaGameSession \
+  --exclude=games.ticaretin_izinde.UrsinaPlayer \
+  --exclude=games.ticaretin_izinde.PlayerWallet \
   --natural-primary \
   --natural-foreign \
   --indent=2 \
-  --output=full_data.json
+  --output=full_data.json \
+  2>&1 | grep -v "games.ticaretin_izinde" || true
 
 if [ $? -eq 0 ]; then
     echo "✅ Export başarılı: full_data.json"

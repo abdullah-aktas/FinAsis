@@ -6,14 +6,21 @@ echo "================================"
 echo ""
 
 # Eksik tabloları exclude et
+# Not: games.ticaretin_izinde bir app olduğu için, modelleri tek tek exclude ediyoruz
 python manage.py dumpdata \
   --exclude=contenttypes \
   --exclude=auth.permission \
-  --exclude=games.ticaretin_izinde \
+  --exclude=games.ticaretin_izinde.UrsinaGame \
+  --exclude=games.ticaretin_izinde.GameScore \
+  --exclude=games.ticaretin_izinde.GameAchievement \
+  --exclude=games.ticaretin_izinde.UrsinaGameSession \
+  --exclude=games.ticaretin_izinde.UrsinaPlayer \
+  --exclude=games.ticaretin_izinde.PlayerWallet \
   --natural-primary \
   --natural-foreign \
   --indent=2 \
-  --output=full_data.json
+  --output=full_data.json \
+  2>&1 | grep -v "games.ticaretin_izinde" || true
 
 if [ $? -eq 0 ]; then
     echo ""
