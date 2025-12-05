@@ -89,6 +89,7 @@ class AuditEvent(models.Model):
                                           help_text=_('Financial impact if applicable'))
     
     class Meta:
+        app_label = 'audit'
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['-created_at', 'severity']),
