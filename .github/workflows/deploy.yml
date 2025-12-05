@@ -13,6 +13,7 @@ on:
       - 'requirements.txt'
       - 'deploy/**'
       - 'config/**'
+      - 'common/**'
   workflow_dispatch: # Manuel tetikleme için
 
 env:
