@@ -13,6 +13,7 @@ python3 manage.py shell << 'PYTHON_EOF'
 import sys
 from django.urls import get_resolver, reverse
 from django.test import Client
+from django.conf import settings
 
 def test_health_urls():
     """Health check URL'lerini test et"""
@@ -41,35 +42,44 @@ def test_health_urls():
     
     print("\n📋 2. HTTP Client Test:")
     print("-" * 40)
-    client = Client()
     
-    test_urls = [
-        ('/health/', 'health_check'),
-        ('/health/detailed/', 'health_check_detailed'),
-        ('/health/status/', 'site_status'),
-    ]
+    # ALLOWED_HOSTS'i geçici olarak genişlet (test için)
+    original_allowed_hosts = settings.ALLOWED_HOSTS.copy()
+    settings.ALLOWED_HOSTS = list(settings.ALLOWED_HOSTS) + ['testserver', 'localhost', '127.0.0.1']
     
-    all_ok = True
-    for url, name in test_urls:
-        try:
-            response = client.get(url)
-            if response.status_code == 200:
-                print(f"   ✅ {url} -> HTTP {response.status_code}")
-                try:
-                    import json
-                    data = json.loads(response.content)
-                    status = data.get('status', data.get('overall_health', 'N/A'))
-                    print(f"      Status: {status}")
-                except:
-                    print(f"      (Response: {response.content[:100]}...)")
-            else:
-                print(f"   ⚠️  {url} -> HTTP {response.status_code}")
+    try:
+        client = Client()
+        
+        test_urls = [
+            ('/health/', 'health_check'),
+            ('/health/detailed/', 'health_check_detailed'),
+            ('/health/status/', 'site_status'),
+        ]
+        
+        all_ok = True
+        for url, name in test_urls:
+            try:
+                response = client.get(url)
+                if response.status_code == 200:
+                    print(f"   ✅ {url} -> HTTP {response.status_code}")
+                    try:
+                        import json
+                        data = json.loads(response.content)
+                        status = data.get('status', data.get('overall_health', 'N/A'))
+                        print(f"      Status: {status}")
+                    except:
+                        print(f"      (Response: {response.content[:100]}...)")
+                else:
+                    print(f"   ⚠️  {url} -> HTTP {response.status_code}")
+                    all_ok = False
+            except Exception as e:
+                print(f"   ❌ {url} -> Hata: {e}")
                 all_ok = False
-        except Exception as e:
-            print(f"   ❌ {url} -> Hata: {e}")
-            all_ok = False
-    
-    return all_ok
+        
+        return all_ok
+    finally:
+        # ALLOWED_HOSTS'i geri yükle
+        settings.ALLOWED_HOSTS = original_allowed_hosts
 
 if __name__ == '__main__' or True:
     success = test_health_urls()
