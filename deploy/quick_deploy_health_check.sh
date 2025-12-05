@@ -59,11 +59,13 @@ if gcloud builds submit \
     --config=deploy/cloud_run/cloudbuild.yaml \
     --region="$REGION" \
     --substitutions="_SERVICE=${SERVICE_NAME},_REGION=${REGION},_REPOSITORY=${REPOSITORY},_IMAGE_TAG=latest" \
-    2>&1 | tee /tmp/cloudbuild.log; then
+    2>&1 | tee /tmp/cloudbuild.log | grep -q "SUCCESS"; then
     echo "✅ Cloud Build başarılı!"
     exit 0
 else
-    echo "⚠️  Cloud Build başarısız, alternatif yöntem deneniyor..."
+    echo "⚠️  Cloud Build başarısız (NOT_FOUND hatası normal, GitHub Actions kullanın)"
+    echo "   GitHub Actions zaten deploy yapmış olabilir, production'da test edin:"
+    echo "   curl https://finasis.com.tr/health/"
 fi
 
 # Yöntem 2: Deploy script
