@@ -14,9 +14,10 @@ from . import views
 app_name = 'accounts'
 
 # URL reverse helpers for maintainability
-PASSWORD_RESET_DONE_URL = reverse_lazy('accounts:password_reset_done')
-PASSWORD_RESET_COMPLETE_URL = reverse_lazy('accounts:password_reset_complete')
-PASSWORD_CHANGE_DONE_URL = reverse_lazy('accounts:password_change_done')
+# Use string paths instead of reverse_lazy to avoid circular dependency
+PASSWORD_RESET_DONE_URL = '/accounts/password_reset/done/'
+PASSWORD_RESET_COMPLETE_URL = '/accounts/reset/done/'
+PASSWORD_CHANGE_DONE_URL = '/accounts/password_change/done/'
 
 schema_view = get_schema_view(
     openapi.Info(

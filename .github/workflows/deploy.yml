@@ -5,15 +5,15 @@ on:
     branches:
       - main
     paths:
-      - '**.py'
-      - '**.html'
-      - '**.js'
-      - '**.css'
-      - 'Dockerfile'
-      - 'requirements.txt'
-      - 'deploy/**'
-      - 'config/**'
-      - 'common/**'
+      - "**.py"
+      - "**.html"
+      - "**.js"
+      - "**.css"
+      - "Dockerfile"
+      - "requirements.txt"
+      - "deploy/**"
+      - "config/**"
+      - "common/**"
   workflow_dispatch: # Manuel tetikleme için
 
 env:
@@ -69,4 +69,3 @@ jobs:
         run: |
           sleep 10
           curl -f ${{ steps.service-url.outputs.url }} || exit 1
-
