@@ -1,14 +1,26 @@
 #!/usr/bin/env python
 """
 Health check URL pattern'lerini test etmek için script
+manage.py üzerinden çalıştırılmalı: python manage.py shell < deploy/test_health_urls.py
+VEYA direkt: python manage.py shell -c "$(cat deploy/test_health_urls.py | grep -A 1000 'def test_health_urls')"
 """
 import os
 import sys
+
+# manage.py'nin bulunduğu dizini bul
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(script_dir)
+sys.path.insert(0, project_dir)
+
+# Django setup - manage.py'yi kullanarak
+os.chdir(project_dir)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+
+# manage.py'yi import et ve setup yap
 import django
+from django.core.management import execute_from_command_line
 
 # Django setup
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.urls import get_resolver, reverse
