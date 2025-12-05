@@ -1,0 +1,74 @@
+[
+{
+  "model": "accounting.company",
+  "pk": 1,
+  "fields": {
+    "name": "FinAsis Demo Holding",
+    "trade_name": "FinAsis Holding A.Þ.",
+    "tax_number": "1000000001",
+    "tax_office": null,
+    "address": "Ýstanbul Finans Merkezi",
+    "phone": "+90 850 000 00 01",
+    "email": "demo@finasis.com",
+    "website": null,
+    "sector": "Holding",
+    "logo": "company_logos/MirasTeknolojiLogo.png",
+    "is_active": true,
+    "created_at": "2025-11-14T04:49:07.977Z",
+    "updated_at": "2025-11-25T21:06:50.182Z",
+    "created_by": null,
+    "updated_by": null,
+    "country": "TR",
+    "base_currency": "TRY",
+    "slug": "finasis-demo-holding"
+  }
+},
+{
+  "model": "accounting.company",
+  "pk": 2,
+  "fields": {
+    "name": "Anadolu Üretim Sanayi",
+    "trade_name": "Anadolu Üretim Sanayi Tic. Ltd. Þti.",
+    "tax_number": "1000000002",
+    "tax_office": null,
+    "address": "Organize Sanayi Bölgesi, Bursa",
+    "phone": "+90 224 000 00 00",
+    "email": "info@anadoluuretimsanayi.com",
+    "website": null,
+    "sector": "Üretim",
+    "logo": "",
+    "is_active": true,
+    "created_at": "2025-11-14T04:49:07.997Z",
+    "updated_at": "2025-11-25T21:06:50.216Z",
+    "created_by": null,
+    "updated_by": null,
+    "country": "TR",
+    "base_currency": "TRY",
+    "slug": "anadolu-uretim-sanayi"
+  }
+},
+{
+  "model": "accounting.company",
+  "pk": 3,
+  "fields": {
+    "name": "EduFin Akademi",
+    "trade_name": "EduFin Eðitim ve Danýþmanlýk A.Þ.",
+    "tax_number": "1000000003",
+    "tax_office": null,
+    "address": "Teknopark Ýstanbul, Ýstanbul",
+    "phone": "+90 212 000 00 00",
+    "email": "bilgi@edufin.com",
+    "website": null,
+    "sector": "Eðitim",
+    "logo": "",
+    "is_active": true,
+    "created_at": "2025-11-14T04:49:08.003Z",
+    "updated_at": "2025-11-25T21:06:50.220Z",
+    "created_by": null,
+    "updated_by": null,
+    "country": "TR",
+    "base_currency": "TRY",
+    "slug": "edufin-akademi"
+  }
+}
+]
