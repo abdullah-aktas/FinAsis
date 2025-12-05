@@ -75,4 +75,3 @@ jobs:
           name: coverage-html
           path: htmlcov/
           retention-days: 7
-
