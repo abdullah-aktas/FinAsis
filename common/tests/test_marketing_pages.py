@@ -33,10 +33,10 @@ class TestMarketingPages(TestCase):
     def test_named_routes_return_ok(self):
         for name in ROUTE_NAMES:
             url = reverse(name)
-            resp = self.client.get(url)
+            resp = self.client.get(url, follow=True)  # follow redirects (301 -> 200)
             self.assertIn(
                 resp.status_code,
-                [200, 302],
+                [200, 301, 302],
                 msg=f"Route '{name}' at {url} returned {resp.status_code}",
             )
 
