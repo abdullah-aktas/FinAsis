@@ -41,6 +41,9 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Clear Google Auth Override
+        run: gcloud config unset auth/credential_file_override || true
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
