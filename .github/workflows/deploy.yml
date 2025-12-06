@@ -49,10 +49,17 @@ jobs:
         run: |
           # Remove any credential file overrides that might interfere with WIF
           gcloud config unset auth/credential_file_override || true
-          # Also unset via environment variable
+          # Remove environment variable overrides (critical for WIF)
+          unset CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE || true
           unset GOOGLE_APPLICATION_CREDENTIALS || true
-          # Verify WIF is being used
+          # Remove any credential files created by auth action
+          rm -f gha-creds-*.json || true
+          # Verify WIF is being used (should show service account)
+          echo "🔍 Current authentication:"
           gcloud auth list
+          echo ""
+          echo "🔍 Active account:"
+          gcloud config get-value account
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
