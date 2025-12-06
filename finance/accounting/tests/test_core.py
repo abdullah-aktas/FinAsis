@@ -39,7 +39,15 @@ def test_posting_rule_creates_balanced_voucher():
         }
     )
 
-    fiscal_year = type('FY', (), {'id': 1})()  # dummy
+    # Create a real FiscalYear instance
+    from finance.accounting.models import FiscalYear
+    from datetime import date
+    fiscal_year = FiscalYear.objects.create(
+        company=company,
+        year=2024,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 12, 31)
+    )
     ctx = [DocumentLineContext(description="Satış", net_amount=Decimal('100'), tax_rate=Decimal('0.20'), currency='TRY')]
     voucher = post_document(company, fiscal_year, 'sales_invoice', 'TST-1', timezone.now().date(), 'TRY', ctx)
     assert voucher.state == 'posted'

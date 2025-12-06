@@ -15,7 +15,7 @@ def test_virtual_company_create():
     user = User.objects.create_user('testuser', 'test@example.com', 'pass')
     client = APIClient()
     client.force_authenticate(user=user)
-    url = reverse('company-list')
+    url = reverse('virtual_company:api:company-list')
     data = {
         'name': 'Test Şirket',
         'description': 'Açıklama'
@@ -30,12 +30,13 @@ def test_product_create():
     company = VirtualCompany.objects.create(name='Şirket', description='desc', owner=user)
     client = APIClient()
     client.force_authenticate(user=user)
-    url = reverse('product-list')
+    url = reverse('virtual_company:api:product-list')
     data = {
         'name': 'Test Ürün',
         'description': 'Ürün açıklaması',
         'price': '10.00',
-        'stock': 5
+        'stock': 5,
+        'company': company.id
     }
     response = client.post(url, data)
     assert response.status_code == 201

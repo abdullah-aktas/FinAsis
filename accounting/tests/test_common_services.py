@@ -2,13 +2,19 @@ import pytest
 from accounting.services import common_services
 
 def test_fetch_exchange_rates():
-    assert common_services.fetch_exchange_rates() is None
+    # fetch_exchange_rates returns a dict, not None
+    result = common_services.fetch_exchange_rates()
+    assert isinstance(result, dict)
+    assert 'TRY' in result
+    assert 'USD' in result
 
 def test_calculate_financial_score():
     assert common_services.calculate_financial_score(None) is None
 
 def test_suggest_accounting_entry():
-    assert common_services.suggest_accounting_entry(None, None) is None
+    # suggest_accounting_entry returns a list, not None
+    result = common_services.suggest_accounting_entry(None, None)
+    assert isinstance(result, list)
 
 def test_analyze_financial_data():
     assert common_services.analyze_financial_data(None, None) is None
