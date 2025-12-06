@@ -16,6 +16,19 @@ _is_test = (
     'unittest' in sys.modules
 )
 
+# In test mode with DISABLE_LOCALE_APP, prevent Python's standard 'locale' module
+# from blocking Django's 'locale' app import
+if _is_test and os.environ.get('DISABLE_LOCALE_APP', '').lower() in {'1', 'true', 'yes', 'on'}:
+    # If Python's standard locale module is already loaded, temporarily remove it
+    # so Django can import its own locale app if needed (though it won't be in INSTALLED_APPS)
+    if 'locale' in sys.modules:
+        _std_locale = sys.modules['locale']
+        # Only remove if it's Python's standard locale (doesn't have 'apps' attribute)
+        if not hasattr(_std_locale, 'apps'):
+            # Temporarily remove to allow Django's locale app to be imported if needed
+            # (though it won't be added to INSTALLED_APPS due to DISABLE_LOCALE_APP)
+            del sys.modules['locale']
+
 def _alias_module(short_name: str, long_name: str) -> None:
 	"""Alias module only if not in test mode to prevent model conflicts."""
 	if _is_test:
