@@ -42,11 +42,17 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Clear Google Auth Override
-        run: gcloud config unset auth/credential_file_override || true
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Clear Google Auth Override
+        run: |
+          # Remove any credential file overrides that might interfere with WIF
+          gcloud config unset auth/credential_file_override || true
+          # Also unset via environment variable
+          unset GOOGLE_APPLICATION_CREDENTIALS || true
+          # Verify WIF is being used
+          gcloud auth list
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
