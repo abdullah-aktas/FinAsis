@@ -38,5 +38,5 @@ def fifo_consume(layers: List[StockLayer], issue_qty: Decimal) -> FifoCostResult
     if remaining > 0:
         raise ValueError("Yetersiz stok katmanı")
     # Sıfırlanan katmanları temizle
-    layers[:] = [l for l in layers if l.quantity > 0]
+    layers[:] = [layer for layer in layers if layer.quantity > 0]
     return result

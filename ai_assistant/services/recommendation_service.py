@@ -11,13 +11,13 @@ Notlar:
 - Testler, openai çağrısını mock'lar; bu nedenle çağrı yolu uyumludur.
 """
 
-from typing import Any, Dict, List
-from dataclasses import dataclass
-from django.db import transaction
-from django.contrib.auth.models import AbstractBaseUser
-import re
+from typing import Any, Dict, List  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from django.db import transaction  # noqa: E402
+from django.contrib.auth.models import AbstractBaseUser  # noqa: E402
+import re  # noqa: E402
 
-from ai_assistant.models import AIInsight, AIModel, UserPreference
+from ai_assistant.models import AIInsight, AIModel, UserPreference  # noqa: E402
 
 # Not: get_user_model() çalışma zamanında model sınıfını döndürür; bunu tip ipucunda
 # kullanmak Pyright/Pylance için geçerli değildir. Tip ipucu olarak AbstractBaseUser
@@ -89,11 +89,11 @@ class RecommendationService:
         # Bölümleri başlık satırlarına göre ayır
         parts = re.split(r"\n\s*\n", text.strip())
         for part in parts:
-            lines = [l.strip() for l in part.splitlines() if l.strip()]
+            lines = [line.strip() for line in part.splitlines() if line.strip()]
             if not lines:
                 continue
             title = lines[0].rstrip(":")
-            bullets = [l[1:].strip() if l.startswith("-") else l for l in lines[1:]]
+            bullets = [line[1:].strip() if line.startswith("-") else line for line in lines[1:]]
             if not bullets:
                 # tek satırlık öneri de olabilir
                 bullets = lines[1:] or [title]

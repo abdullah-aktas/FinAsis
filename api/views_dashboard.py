@@ -38,7 +38,7 @@ def dashboard_stats(request):
             "invoices": Invoice.objects.count(),
             "expenses": Expense.objects.count(),
         }
-    except:
+    except (ImportError, AttributeError, Exception):
         pass
 
     # Finance
@@ -48,7 +48,7 @@ def dashboard_stats(request):
         module_stats["finance"] = {
             "transactions": Transaction.objects.count(),
         }
-    except:
+    except (ImportError, AttributeError, Exception):
         pass
 
     # Blockchain
@@ -59,7 +59,7 @@ def dashboard_stats(request):
             "blocks": Block.objects.count(),
             "transactions": BlockchainTx.objects.count(),
         }
-    except:
+    except (ImportError, AttributeError, Exception):
         pass
 
     # Education
@@ -70,7 +70,7 @@ def dashboard_stats(request):
             "courses": Course.objects.count(),
             "certificates": Certificate.objects.count(),
         }
-    except:
+    except (ImportError, AttributeError, Exception):
         pass
 
     # AI Assistant
@@ -81,7 +81,7 @@ def dashboard_stats(request):
             "analyses": SentimentAnalysis.objects.count(),
             "summaries": DocumentSummary.objects.count(),
         }
-    except:
+    except (ImportError, AttributeError, Exception):
         pass
 
     # Son aktiviteler

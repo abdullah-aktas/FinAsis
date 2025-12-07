@@ -1083,13 +1083,13 @@ class ComplianceReportGenerator:
         }
 
         # İşlem tipi dağılımı
-        for action_type, _ in AuditTrail.ACTION_TYPES:
+        for action_type, _label in AuditTrail.ACTION_TYPES:
             count = audit_trails.filter(action_type=action_type).count()
             if count > 0:
                 summary["by_action_type"][action_type] = count
 
         # Risk seviyesi dağılımı
-        for risk_level, _ in AuditTrail.RISK_LEVELS:
+        for risk_level, _label in AuditTrail.RISK_LEVELS:
             count = audit_trails.filter(risk_level=risk_level).count()
             if count > 0:
                 summary["by_risk_level"][risk_level] = count
@@ -1143,13 +1143,13 @@ class ComplianceReportGenerator:
         }
 
         # Risk seviyesi dağılımı
-        for risk_level, _ in RiskAssessment.RISK_LEVELS:
+        for risk_level, _label in RiskAssessment.RISK_LEVELS:
             count = risk_assessments.filter(overall_risk_level=risk_level).count()
             if count > 0:
                 summary["by_risk_level"][risk_level] = count
 
         # Kategori dağılımı
-        for category, _ in RiskAssessment.RISK_CATEGORIES:
+        for category, _label in RiskAssessment.RISK_CATEGORIES:
             count = risk_assessments.filter(risk_category=category).count()
             if count > 0:
                 summary["by_category"][category] = count

@@ -361,7 +361,7 @@ def help_quick_start(request):
             for item in checklist_items:
                 if item["id"] == "first_invoice":
                     item["completed"] = True
-    except:
+    except (AttributeError, ImportError, Exception):
         pass
 
     # İlk ders kontrolü (öğretmenler için)
@@ -373,7 +373,7 @@ def help_quick_start(request):
                 for item in checklist_items:
                     if item["id"] == "create_course":
                         item["completed"] = True
-        except:
+        except (AttributeError, ImportError, Exception):
             pass
 
     # İlk müşteri kontrolü (mali müşavirler için)

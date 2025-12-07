@@ -34,12 +34,12 @@ def _to_wav_mono16(audio_bytes: bytes) -> bytes | None:
         return None
 
 
-from accounting.services.ai_service import (
+from accounting.services.ai_service import (  # noqa: E402
     map_text_to_voucher_lines,
     map_ocr_to_voucher_lines,
     create_voucher_from_lines,
 )
-from finance.accounting.models import Account
+from finance.accounting.models import Account  # noqa: E402
 
 
 @api_view(["POST"])

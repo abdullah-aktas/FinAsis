@@ -130,7 +130,7 @@ admin.site.register(UserSettings)
 # ============================================================================
 # YENİ KULLANICI YÖNETİM MODELLERİ - ADMIN KAYITLARI
 # ============================================================================
-from .models import (
+from .models import (  # noqa: E402
     UserNotification,
     TwoFactorAuth,
     PasswordHistory,

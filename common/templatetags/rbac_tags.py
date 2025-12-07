@@ -49,7 +49,7 @@ def has_app_permission(user, permission_str):
     try:
         app_name, permission = permission_str.split(".", 1)
         return user_has_app_permission(user, app_name, permission)
-    except:
+    except (ValueError, AttributeError, Exception):
         return False
 
 

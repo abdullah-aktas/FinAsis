@@ -5,7 +5,7 @@
 Production-specific settings for high-traffic deployment.
 This file should be imported in the main settings file when DEBUG=False.
 """
-from .base import *
+from .base import *  # noqa: F403, F405
 
 # =============================================================================
 # Security Settings

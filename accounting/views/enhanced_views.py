@@ -492,7 +492,7 @@ def ajax_account_balance(request, account_id):
 
 
 # Form sınıfları
-from django import forms
+from django import forms  # noqa: E402
 
 
 class JournalVoucherForm(forms.ModelForm):

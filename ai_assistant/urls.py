@@ -567,7 +567,7 @@ urlpatterns = [
 # ============================================================================
 # YENİ ÖZELLİKLER - Advanced AI (v2.0)
 # ============================================================================
-from .views_advanced import (
+from .views_advanced import (  # noqa: E402
     analytics_dashboard,
     sentiment_analyze,
     sentiment_list,

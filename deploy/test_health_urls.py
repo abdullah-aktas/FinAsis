@@ -22,8 +22,8 @@ import django
 # Django setup
 django.setup()
 
-from django.urls import get_resolver, reverse
-from django.test import Client
+from django.urls import get_resolver, reverse  # noqa: E402
+from django.test import Client  # noqa: E402
 
 
 def test_health_urls():

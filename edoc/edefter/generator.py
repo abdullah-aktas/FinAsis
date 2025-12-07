@@ -35,11 +35,11 @@ def build_yevmiye(entries: Iterable[JournalEntryDTO]) -> bytes:
         etree.SubElement(je, "Date").text = e.date_.isoformat()
         etree.SubElement(je, "Number").text = e.number
         for ln in e.lines:
-            l = etree.SubElement(je, "Line")
-            etree.SubElement(l, "Account").text = ln.account
-            etree.SubElement(l, "Debit").text = f"{ln.debit:.2f}"
-            etree.SubElement(l, "Credit").text = f"{ln.credit:.2f}"
-            etree.SubElement(l, "Description").text = ln.description
+            line_elem = etree.SubElement(je, "Line")
+            etree.SubElement(line_elem, "Account").text = ln.account
+            etree.SubElement(line_elem, "Debit").text = f"{ln.debit:.2f}"
+            etree.SubElement(line_elem, "Credit").text = f"{ln.credit:.2f}"
+            etree.SubElement(line_elem, "Description").text = ln.description
             total_debit += ln.debit
             total_credit += ln.credit
     totals = etree.SubElement(root, "Totals")

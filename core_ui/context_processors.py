@@ -10,7 +10,7 @@ def project_meta(request):
     }
 
 
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _  # noqa: E402
 
 
 def marketing_features(request):

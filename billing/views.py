@@ -558,7 +558,7 @@ def checkout_bank_transfer(request: HttpRequest, price_id: int) -> HttpResponse:
     price = Price.objects.select_related("plan").get(id=price_id, is_active=True)
     # Benzersiz referans üretimi (çakışma halinde yeniden dene)
     ref = None
-    for _ in range(5):
+    for _attempt in range(5):
         try:
             ref_candidate = RefGenerator.bank_reference()
             with transaction.atomic():

@@ -61,15 +61,6 @@ class BankAccount(BaseModel, AuditableMixin):
     )
     is_active = models.BooleanField(_("Aktif"), default=True)
 
-    # Reverse relationlar için tip güvenli property
-    @property
-    def incoming_transactions(self):
-        return self.incoming_transactions_related.all()
-
-    @property
-    def outgoing_transactions(self):
-        return self.outgoing_transactions_related.all()
-
     class Meta:
         verbose_name = _("Banka Hesabı")
         verbose_name_plural = _("Banka Hesapları")
@@ -80,7 +71,7 @@ class BankAccount(BaseModel, AuditableMixin):
     def __str__(self):
         return f"{self.bank.name} - {self.iban[-4:]}"
 
-    # incoming_transactions ve outgoing_transactions, BankTransaction modelindeki related_name ile otomatik oluşur
+    # Reverse relationlar için tip güvenli property
     @property
     def incoming_transactions(self):
         # BankTransaction.destination_account ile ilişkilidir

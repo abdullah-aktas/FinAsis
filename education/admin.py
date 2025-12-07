@@ -152,7 +152,7 @@ class MeetingInvitationAdmin(admin.ModelAdmin):
 # YENİ LMS MODELLERİ - ADMIN KAYITLARI
 # ============================================================================
 
-from .models import (
+from .models import (  # noqa: E402
     CourseCategory,
     EnhancedCourse,
     LearningPath,

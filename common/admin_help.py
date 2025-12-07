@@ -90,4 +90,4 @@ class SupportTicketAdmin(admin.ModelAdmin):
 
 
 # Format HTML için import
-from django.utils.html import format_html
+from django.utils.html import format_html  # noqa: E402
