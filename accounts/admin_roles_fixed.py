@@ -3,9 +3,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from django.db.models import Count
 from django.contrib.admin import ModelAdmin
 from django.contrib import messages
@@ -130,7 +129,12 @@ class UserRoleAdmin(ModelAdmin):
         if obj.can_use_blockchain:
             permissions.append('<span class="badge badge-warning">⛓️ Blockchain</span>')
 
-        return mark_safe(" ".join(permissions)) if permissions else "Temel izinler"
+        if not permissions:
+            return "Temel izinler"
+
+        # Statik HTML parçalarını birleştirirken format_html_join kullanıyoruz;
+        # dışarıdan gelen veri olmadığı için XSS riski bulunmuyor.
+        return format_html_join(" ", "{}", ((p,) for p in permissions))
 
     def save_model(self, request, obj, form, change):
         """Rol kaydederken kontroller"""

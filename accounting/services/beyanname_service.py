@@ -1,5 +1,5 @@
 from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom import minidom
+from defusedxml.minidom import parseString
 
 """
 Basit KDV, Muhtasar ve BA/BS XML üretici fonksiyonları.
@@ -9,8 +9,13 @@ Bu fonksiyonlar MVP/test amaçlı örnek şematik XML üretir.
 
 
 def _prettify(xml_bytes: bytes) -> bytes:
-    # nosec B318
-    return minidom.parseString(xml_bytes).toprettyxml(indent="  ", encoding="utf-8")
+    """
+    Güvenli XML pretty-print.
+
+    defusedxml.minidom.parseString kullanarak XML ile ilgili bilinen saldırı
+    vektörlerine karşı korunuruz.
+    """
+    return parseString(xml_bytes).toprettyxml(indent="  ", encoding="utf-8")
 
 
 def generate_kdv_xml(company, period: str) -> bytes:

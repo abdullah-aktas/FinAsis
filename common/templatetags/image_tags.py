@@ -11,7 +11,7 @@ Usage in templates:
 
 from typing import Optional
 from django import template
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from common.image_optimization import (
     CDNHelper,
     generate_picture_tag,
@@ -42,7 +42,8 @@ def responsive_image(
         lazy=lazy,
         css_class=css_class,
     )
-    return mark_safe(picture_html)
+    # generate_picture_tag zaten format_html ile güvenli HTML döndürür.
+    return picture_html
 
 
 @register.simple_tag
@@ -58,16 +59,13 @@ def lazy_image(
     Usage:
         {% lazy_image "images/product.jpg" "Product photo" class="img-thumbnail" %}
     """
-    html = f"""
-    <img 
-        src="{placeholder}" 
-        data-src="{image_path}" 
-        alt="{alt_text}" 
-        class="lazy {css_class}"
-        loading="lazy"
-    >
-    """
-    return mark_safe(html.strip())
+    return format_html(
+        '<img src="{}" data-src="{}" alt="{}" class="lazy {}" loading="lazy">',
+        placeholder,
+        image_path,
+        alt_text,
+        css_class,
+    )
 
 
 @register.simple_tag
@@ -93,10 +91,12 @@ def cdn_image(
     )
 
     if alt_text or css_class:
-        html = (
-            f'<img src="{cdn_url}" alt="{alt_text}" class="{css_class}" loading="lazy">'
+        return format_html(
+            '<img src="{}" alt="{}" class="{}" loading="lazy">',
+            cdn_url,
+            alt_text,
+            css_class,
         )
-        return mark_safe(html)
 
     return cdn_url
 
@@ -114,14 +114,21 @@ def webp_image(image_path: str, alt_text: str = "", css_class: str = ""):
     base, ext = os.path.splitext(image_path)
     webp_path = f"{base}.webp"
 
-    html = f"""
+    return format_html(
+        """
     <picture>
-        <source type="image/webp" srcset="{webp_path}">
-        <source type="image/{ext[1:]}" srcset="{image_path}">
-        <img src="{image_path}" alt="{alt_text}" class="{css_class}" loading="lazy">
+        <source type="image/webp" srcset="{}">
+        <source type="image/{}" srcset="{}">
+        <img src="{}" alt="{}" class="{}" loading="lazy">
     </picture>
-    """
-    return mark_safe(html.strip())
+    """,
+        webp_path,
+        ext[1:],
+        image_path,
+        image_path,
+        alt_text,
+        css_class,
+    )
 
 
 @register.filter

@@ -5,15 +5,21 @@ from django.conf import settings
 from ..models import Invoice
 import logging
 from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom import minidom
+from defusedxml.minidom import parseString
 
 efatura_logger = logging.getLogger("efatura")
 
 
 def _pretty_xml(elem: Element) -> bytes:
+    """
+    UBL benzeri XML'i güvenli bir şekilde pretty-print eder.
+
+    XML'i kendimiz ürettiğimiz halde, standart xml.dom.minidom yerine
+    defusedxml.minidom.parseString kullanarak potansiyel XML saldırı
+    vektörlerine karşı korunuruz.
+    """
     rough = tostring(elem, encoding="utf-8")
-    # nosec B318
-    return minidom.parseString(rough).toprettyxml(indent="  ", encoding="utf-8")
+    return parseString(rough).toprettyxml(indent="  ", encoding="utf-8")
 
 
 def generate_invoice_xml(invoice: Invoice) -> bytes:

@@ -1,6 +1,8 @@
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "FinAsis.settings")
+# pytest.ini DJANGO_SETTINGS_MODULE'i config.settings olarak ayarlar,
+# fakat bu dosya bağımsız koşturulursa da aynı davranışı koruyalım.
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient

@@ -40,7 +40,9 @@ max_requests = 1000  # Restart worker after N requests (prevent memory leaks)
 max_requests_jitter = 50  # Randomize max_requests to avoid thundering herd
 
 # Worker timeout
-worker_tmp_dir = "/dev/shm"  # Use shared memory for worker temp files (faster)
+# Varsayılan olarak işletim sisteminin tmp dizinini kullanırız; istenirse
+# GUNICORN_WORKER_TMP_DIR ile override edilebilir.
+worker_tmp_dir = os.environ.get("GUNICORN_WORKER_TMP_DIR")
 
 # SSL (if needed)
 # keyfile = None

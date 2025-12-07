@@ -4,7 +4,6 @@ Template Tags for Locale
 """
 
 from django import template
-from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from ..locale_utils import LocaleManager, t as translate
 
@@ -124,4 +123,7 @@ def locale_js_config():
 
     import json
 
-    return mark_safe(json.dumps(config))
+    # JSON çıktısı sadece internal LocaleManager verilerinden oluşur.
+    # Güvenlidir, ancak otomatik escape edilmesini istemiyoruz; bu nedenle
+    # template tarafında |safe filtresi ile kullanılması beklenir.
+    return json.dumps(config)

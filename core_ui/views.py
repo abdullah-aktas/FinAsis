@@ -1763,6 +1763,36 @@ def theme_demo(request):
     return render(request, "core_ui/theme_demo.html", context)
 
 
+def support_live(request):
+    """
+    Destek merkezi · Canlı destek sayfası.
+    """
+    context = {
+        "page_title": _("Canlı Destek"),
+    }
+    return render(request, "support/live.html", context)
+
+
+def support_faq(request):
+    """
+    Destek merkezi · Sıkça sorulan sorular sayfası.
+    """
+    context = {
+        "page_title": _("Sıkça Sorulan Sorular"),
+    }
+    return render(request, "support/faq.html", context)
+
+
+def support_tech(request):
+    """
+    Destek merkezi · Teknik yardım sayfası.
+    """
+    context = {
+        "page_title": _("Teknik Yardım"),
+    }
+    return render(request, "support/tech.html", context)
+
+
 def site_search(request):
     """
     Basit site içi arama (kurumsal içerikler + yardım bağlantıları)

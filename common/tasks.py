@@ -10,6 +10,9 @@ from django.core.cache import cache
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from django.db import connection
+from django.conf import settings
+from pathlib import Path
+import tempfile
 import logging
 
 logger = logging.getLogger(__name__)
@@ -109,11 +112,18 @@ def generate_pdf_report(self, report_type, report_id, user_id):
         # generator = PDFGenerator()
         # pdf_path = generator.generate(report_type, report_id)
 
-        # Şimdilik placeholder
-        pdf_path = f"/tmp/report_{report_type}_{report_id}.pdf"
+        # Şimdilik placeholder - güvenli ve konfigüre edilebilir temp dizini kullan
+        base_tmp_dir = getattr(settings, "REPORT_TMP_DIR", None)
+        if base_tmp_dir:
+            tmp_dir = Path(base_tmp_dir)
+        else:
+            tmp_dir = Path(tempfile.gettempdir()) / "finasis_reports"
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+
+        pdf_path = tmp_dir / f"report_{report_type}_{report_id}.pdf"
 
         logger.info(f"PDF generated: {pdf_path}")
-        return {"success": True, "path": pdf_path}
+        return {"success": True, "path": str(pdf_path)}
 
     except Exception as exc:
         logger.error(f"PDF generation failed: {exc}")

@@ -191,6 +191,13 @@ urlpatterns += [
     ),
 ]
 
+# Destek merkezi alt sayfaları (canlı destek, SSS, teknik yardım)
+urlpatterns += [
+    path("support/live/", core_ui_views.support_live, name="support-live"),
+    path("support/faq/", core_ui_views.support_faq, name="support-faq"),
+    path("support/tech/", core_ui_views.support_tech, name="support-tech"),
+]
+
 urlpatterns += [
     path(route, core_ui_views.marketing_page, {"page_key": page_key}, name=name)
     for route, page_key, name in MARKETING_ROUTES

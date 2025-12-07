@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "FinAsis.settings")
+# Testler pytest-django ile çalıştığında DJANGO_SETTINGS_MODULE zaten
+# pytest.ini içerisinden config.settings olarak ayarlanır. Yine de bu dosya
+# bağımsız çalıştırılırsa diye aynı değeri burada da kullanıyoruz.
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 import pytest
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
