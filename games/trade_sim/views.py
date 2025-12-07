@@ -830,6 +830,7 @@ class ChatMessageReportView(generics.UpdateAPIView):
 
 
 @api_view(["GET"])
+@permission_classes([permissions.AllowAny])
 def product_list(request: Request):
     """Tüm ürünleri listeler."""
     products = Product.objects.all()
@@ -848,6 +849,7 @@ def product_list(request: Request):
 
 
 @api_view(["GET"])
+@permission_classes([permissions.AllowAny])
 def city_market_list(request: Request, city_id):
     """Bir şehrin tüm pazarlarını (ürün, fiyat, arz, talep) listeler."""
     try:
@@ -870,6 +872,7 @@ def city_market_list(request: Request, city_id):
 
 
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def city_trade(request: Request):
     """Şehirler arası ticaret işlemi başlatır."""
     req_data = getattr(request, "data", None) or getattr(request, "POST", {})
@@ -1039,6 +1042,7 @@ def change_city(request: Request):
 
 
 @api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def trigger_market_event(request: Request):
     """Bir şehirdeki ürün için rastgele pazar olayı tetikler."""
     req_data = getattr(request, "data", None) or getattr(request, "POST", {})

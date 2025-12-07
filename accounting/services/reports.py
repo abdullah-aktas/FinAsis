@@ -602,8 +602,8 @@ def export_report_to_xml(report_data):
             value_el.text = str(row)
 
     rough = tostring(root, encoding="utf-8")
-    # nosec: B318 - Internal XML formatting, not parsing untrusted data
-    pretty = minidom.parseString(rough).toprettyxml(indent="  ")  # noqa: B318
+    # nosec: B318
+    pretty = minidom.parseString(rough).toprettyxml(indent="  ")
     response = HttpResponse(pretty.encode("utf-8"), content_type="application/xml")
     response["Content-Disposition"] = "attachment; filename=report.xml"
     return response

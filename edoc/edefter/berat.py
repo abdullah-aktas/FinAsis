@@ -83,5 +83,5 @@ def validate_berat_xml(xml_bytes: bytes) -> None:
     plugging in lxml XMLSchema validation when XSD is available.
     """
     # In future: parse schema from configured path and validate.
-    # nosec: B314 - Internal XML validation, schema-controlled
-    etree.fromstring(xml_bytes)  # noqa: B314  # basic well-formedness check
+    # nosec: B314
+    etree.fromstring(xml_bytes)  # basic well-formedness check

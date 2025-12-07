@@ -184,11 +184,11 @@ def validate_xml_against_xsd(
         return []  # silently skip when no schemas available
 
     try:
-        # nosec: B320 - Schema-validated XML parsing
-        xml_doc = ET.fromstring(xml_bytes)  # noqa: B320
+        # nosec: B320
+        xml_doc = ET.fromstring(xml_bytes)
         with open(main_xsd, "rb") as f:
-            # nosec: B320 - Schema file parsing, trusted source
-            xsd_doc = ET.parse(f)  # noqa: B320
+            # nosec: B320
+            xsd_doc = ET.parse(f)
         schema = ET.XMLSchema(xsd_doc)
         schema.assertValid(xml_doc)
         return []

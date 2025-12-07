@@ -60,9 +60,12 @@ def test_invoice_bulk_delete(client):
     customer = Customer.objects.create(
         first_name="Test", last_name="Customer", company=company
     )
+    from accounting.views_extra.invoice_views import generate_invoice_number
+
     invoice1 = Invoice.objects.create(
         company=company,
         customer=customer,
+        invoice_number=generate_invoice_number(company),
         total_amount=100,
         issue_date="2024-06-01",
         due_date="2024-06-10",
@@ -71,6 +74,7 @@ def test_invoice_bulk_delete(client):
     invoice2 = Invoice.objects.create(
         company=company,
         customer=customer,
+        invoice_number=generate_invoice_number(company),
         total_amount=200,
         issue_date="2024-06-02",
         due_date="2024-06-12",

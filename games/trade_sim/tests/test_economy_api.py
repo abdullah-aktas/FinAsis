@@ -7,7 +7,7 @@ from games.trade_sim.models import City, Product, CityMarket
 @pytest.mark.django_db
 def test_product_list():
     client = APIClient()
-    url = reverse("trade_sim:product_list")
+    url = reverse("games:trade_sim:product_list")
     response = client.get(url)
     assert response.status_code == 200
     assert "products" in response.data

@@ -349,7 +349,7 @@ def invoice_list(request):
         if ids:
             Invoice.objects.filter(id__in=ids).delete()
             messages.success(request, f"{len(ids)} fatura silindi.")
-            return redirect("invoice_list")
+            return redirect("management:invoice_list")
     query = request.GET.get("q", "")
     company_name = request.GET.get("company", "")
     invoices = Invoice.objects.all().order_by("-issue_date")
@@ -468,7 +468,7 @@ def invoice_add(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Fatura başarıyla eklendi.")
-            return redirect("invoice_list")
+            return redirect("management:invoice_list")
     else:
         form = InvoiceForm()
     return render(request, "management/invoice_form.html", {"form": form})
@@ -482,7 +482,7 @@ def invoice_edit(request, invoice_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Fatura başarıyla güncellendi.")
-            return redirect("invoice_list")
+            return redirect("management:invoice_list")
     else:
         form = InvoiceForm(instance=invoice)
     return render(request, "management/invoice_form.html", {"form": form, "edit": True})

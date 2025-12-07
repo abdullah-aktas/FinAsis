@@ -12,8 +12,8 @@ efatura_logger = logging.getLogger("efatura")
 
 def _pretty_xml(elem: Element) -> bytes:
     rough = tostring(elem, encoding="utf-8")
-    # nosec: B318 - Internal XML formatting, not parsing untrusted data
-    return minidom.parseString(rough).toprettyxml(  # noqa: B318
+    # nosec: B318
+    return minidom.parseString(rough).toprettyxml(
         indent="  ", encoding="utf-8"
     )
 
