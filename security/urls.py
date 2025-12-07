@@ -14,14 +14,14 @@ urlpatterns = [
     # Kişi hakları talepleri
     path(
         "data-requests/",
-        data_subject_requests,
-        name="data_subject_requests",  # noqa: F405
+        data_subject_requests,  # noqa: F405
+        name="data_subject_requests",
     ),
     # Kişisel veri envanteri
     path(
         "data-inventory/",
-        personal_data_inventory,
-        name="personal_data_inventory",  # noqa: F405
+        personal_data_inventory,  # noqa: F405
+        name="personal_data_inventory",
     ),
     # Güvenlik olayları
     path("incidents/", security_incidents, name="security_incidents"),  # noqa: F405
@@ -39,7 +39,7 @@ urlpatterns = [
     ),
     path(
         "ajax/security-metrics/",
-        ajax_security_metrics,
-        name="ajax_security_metrics",  # noqa: F405
+        ajax_security_metrics,  # noqa: F405
+        name="ajax_security_metrics",
     ),
 ]
