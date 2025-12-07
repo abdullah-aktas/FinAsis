@@ -147,13 +147,10 @@ class PartnerApplication(models.Model):
     def __str__(self) -> str:
         return f"{self.company_name} · {self.contact_name}"
 
-    def mark_reviewed(
-        self, *, reviewer, status: str, notes: str | None = None
-    ) -> None:
+    def mark_reviewed(self, *, reviewer, status: str, notes: str | None = None) -> None:
         self.status = status
         self.reviewed_by = reviewer
         self.reviewed_at = timezone.now()
         if notes:
             self.metadata.setdefault("review_notes", notes)
         self.save(update_fields=["status", "reviewed_by", "reviewed_at", "metadata"])
-

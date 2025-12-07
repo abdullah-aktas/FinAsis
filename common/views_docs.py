@@ -3,279 +3,280 @@ Documentation Views
 Dinamik Markdown Dokümantasyon Görüntüleme
 """
 from django.shortcuts import render
-from django.http import Http404
 from pathlib import Path
 from django.conf import settings
 import markdown
-import os
 
 
 def render_markdown_doc(request, doc_path):
     """
     Markdown dosyasını HTML'e çevirip render et
-    
+
     Args:
         doc_path: Döküman yolu (örn: 'kobi/quick-start')
     """
     # Markdown dosya yolunu oluştur
-    docs_dir = Path(settings.BASE_DIR) / 'docs'
-    
+    docs_dir = Path(settings.BASE_DIR) / "docs"
+
     # Güvenlik: path traversal önleme
-    doc_path = doc_path.replace('..', '').strip('/')
-    
+    doc_path = doc_path.replace("..", "").strip("/")
+
     # Dosya yolları dene
     possible_paths = [
         docs_dir / f"{doc_path}.md",
         docs_dir / doc_path / "README.md",
         docs_dir / f"{doc_path.upper()}.md",
     ]
-    
+
     markdown_file = None
     for path in possible_paths:
         if path.exists() and path.is_file():
             markdown_file = path
             break
-    
+
     if not markdown_file:
         # Placeholder içerik oluştur
         content_html = generate_placeholder_content(doc_path)
     else:
         # Markdown'ı oku ve HTML'e çevir
-        with open(markdown_file, 'r', encoding='utf-8') as f:
+        with open(markdown_file, "r", encoding="utf-8") as f:
             markdown_content = f.read()
-        
+
         # Markdown extensions ile render et
         content_html = markdown.markdown(
             markdown_content,
             extensions=[
-                'markdown.extensions.extra',
-                'markdown.extensions.codehilite',
-                'markdown.extensions.toc',
-                'markdown.extensions.tables',
-            ]
+                "markdown.extensions.extra",
+                "markdown.extensions.codehilite",
+                "markdown.extensions.toc",
+                "markdown.extensions.tables",
+            ],
         )
-    
+
     # Breadcrumb oluştur
     breadcrumbs = generate_breadcrumbs(doc_path)
-    
+
     # Title oluştur
     title = format_title(doc_path)
-    
+
     context = {
-        'title': title,
-        'content_html': content_html,
-        'breadcrumbs': breadcrumbs,
-        'doc_path': doc_path,
+        "title": title,
+        "content_html": content_html,
+        "breadcrumbs": breadcrumbs,
+        "doc_path": doc_path,
     }
-    
-    return render(request, 'common/documentation_page.html', context)
+
+    return render(request, "common/documentation_page.html", context)
 
 
 def generate_placeholder_content(doc_path):
     """
     Henüz oluşturulmamış dökümanlar için placeholder HTML
     """
-    parts = doc_path.split('/')
-    category = parts[0] if len(parts) > 0 else 'genel'
-    topic = parts[1] if len(parts) > 1 else 'konu'
-    
+    parts = doc_path.split("/")
+    category = parts[0] if len(parts) > 0 else "genel"
+    topic = parts[1] if len(parts) > 1 else "konu"
+
     # Kategori bazlı içerik öneri
     content_suggestions = {
-        'kobi': {
-            'quick-start': {
-                'title': 'KOBİ Hızlı Başlangıç Kılavuzu',
-                'sections': [
-                    'Şirket Oluşturma',
-                    'İlk Fatura Girişi',
-                    'Dashboard Kullanımı',
-                    'Finansal Analiz Başlatma'
-                ]
+        "kobi": {
+            "quick-start": {
+                "title": "KOBİ Hızlı Başlangıç Kılavuzu",
+                "sections": [
+                    "Şirket Oluşturma",
+                    "İlk Fatura Girişi",
+                    "Dashboard Kullanımı",
+                    "Finansal Analiz Başlatma",
+                ],
             },
-            'financial-analysis': {
-                'title': 'Finansal Analiz Rehberi',
-                'sections': [
-                    'Analiz Türleri',
-                    'AI Destekli Analiz',
-                    'Sağlık Skoru Okuma',
-                    'Öneriler ve Aksiyonlar'
-                ]
+            "financial-analysis": {
+                "title": "Finansal Analiz Rehberi",
+                "sections": [
+                    "Analiz Türleri",
+                    "AI Destekli Analiz",
+                    "Sağlık Skoru Okuma",
+                    "Öneriler ve Aksiyonlar",
+                ],
             },
-            'budget-planning': {
-                'title': 'Bütçe Planlama Kılavuzu',
-                'sections': [
-                    'Bütçe Oluşturma',
-                    'Varyans Analizi',
-                    'Otomatik Uyarılar',
-                    'Bütçe Revizyonu'
-                ]
+            "budget-planning": {
+                "title": "Bütçe Planlama Kılavuzu",
+                "sections": [
+                    "Bütçe Oluşturma",
+                    "Varyans Analizi",
+                    "Otomatik Uyarılar",
+                    "Bütçe Revizyonu",
+                ],
             },
-            'cash-flow': {
-                'title': 'Nakit Akış Yönetimi',
-                'sections': [
-                    'Nakit Akış Tahmini',
-                    'Senaryo Analizi',
-                    'Risk Tespiti',
-                    'Nakit Sıkışıklığı Önleme'
-                ]
+            "cash-flow": {
+                "title": "Nakit Akış Yönetimi",
+                "sections": [
+                    "Nakit Akış Tahmini",
+                    "Senaryo Analizi",
+                    "Risk Tespiti",
+                    "Nakit Sıkışıklığı Önleme",
+                ],
+            },
+        },
+        "games": {
+            "player-guide": {
+                "title": "Oyuncu Rehberi",
+                "sections": [
+                    "Hesap Oluşturma",
+                    "İlk Oyun",
+                    "Progression Sistemi",
+                    "Liderlik Tablosu",
+                ],
+            },
+            "tradesim": {
+                "title": "TradeSim Kullanım Kılavuzu",
+                "sections": [
+                    "Detaylı bilgi için TRADESIM_KLAVUZU.md dosyasına bakın",
+                    "Veya /resources/docs/ sayfasında arama yapın",
+                ],
+            },
+            "finquest": {
+                "title": "FinQuest 3D Rehberi",
+                "sections": [
+                    "Kontroller (WASD)",
+                    "Quest Sistemi",
+                    "NPC Etkileşimleri",
+                    "3D Dünya Keşfi",
+                ],
+            },
+            "esports": {
+                "title": "E-Spor Sistemi Rehberi",
+                "sections": [
+                    "Turnuva Sistemi",
+                    "ELO ve Rütbeler",
+                    "Sezonlar",
+                    "Takım Oluşturma",
+                ],
+            },
+        },
+        "ai": {
+            "ai-assistant": {
+                "title": "AI Asistan Kullanımı",
+                "sections": [
+                    "Anomali Tespiti",
+                    "Risk Analizi",
+                    "Akıllı Öneriler",
+                    "Otomatik Muhasebe Kaydı",
+                ],
+            },
+            "anomaly-detection": {
+                "title": "Anomali Tespiti Rehberi",
+                "sections": [
+                    "5 Anomali Türü",
+                    "Risk Skorlama",
+                    "Otomatik Uyarılar",
+                    "Aksiyon Önerileri",
+                ],
+            },
+            "recommendations": {
+                "title": "AI Öneriler Sistemi",
+                "sections": [
+                    "Öneri Tipleri",
+                    "Güven Skoru",
+                    "Öneri Uygulama",
+                    "Feedback Sistemi",
+                ],
+            },
+        },
+        "blockchain": {
+            "audit-trail": {
+                "title": "Blockchain Audit Trail",
+                "sections": [
+                    "SHA-256 Hash",
+                    "Proof of Work",
+                    "Zincir Doğrulama",
+                    "Sertifika İndirme",
+                ],
             }
         },
-        'games': {
-            'player-guide': {
-                'title': 'Oyuncu Rehberi',
-                'sections': [
-                    'Hesap Oluşturma',
-                    'İlk Oyun',
-                    'Progression Sistemi',
-                    'Liderlik Tablosu'
-                ]
+        "accounting": {
+            "invoice-management": {
+                "title": "Fatura Yönetimi Kılavuzu",
+                "sections": [
+                    "Fatura Oluşturma",
+                    "e-Fatura/e-Arşiv",
+                    "Otomatik Fiş",
+                    "Fatura Takibi",
+                ],
             },
-            'tradesim': {
-                'title': 'TradeSim Kullanım Kılavuzu',
-                'sections': [
-                    'Detaylı bilgi için TRADESIM_KLAVUZU.md dosyasına bakın',
-                    'Veya /resources/docs/ sayfasında arama yapın'
-                ]
+            "chart-of-accounts": {
+                "title": "Hesap Planı Rehberi",
+                "sections": [
+                    "Tek Düzen Hesap Planı",
+                    "Hesap Kodları",
+                    "Muhasebe Kayıtları",
+                    "Örnekler",
+                ],
             },
-            'finquest': {
-                'title': 'FinQuest 3D Rehberi',
-                'sections': [
-                    'Kontroller (WASD)',
-                    'Quest Sistemi',
-                    'NPC Etkileşimleri',
-                    '3D Dünya Keşfi'
-                ]
-            },
-            'esports': {
-                'title': 'E-Spor Sistemi Rehberi',
-                'sections': [
-                    'Turnuva Sistemi',
-                    'ELO ve Rütbeler',
-                    'Sezonlar',
-                    'Takım Oluşturma'
-                ]
-            }
         },
-        'ai': {
-            'ai-assistant': {
-                'title': 'AI Asistan Kullanımı',
-                'sections': [
-                    'Anomali Tespiti',
-                    'Risk Analizi',
-                    'Akıllı Öneriler',
-                    'Otomatik Muhasebe Kaydı'
-                ]
+        "finance": {
+            "reports": {
+                "title": "Finansal Raporlama",
+                "sections": [
+                    "Bilanço",
+                    "Gelir Tablosu",
+                    "Nakit Akışı",
+                    "Export İşlemleri",
+                ],
             },
-            'anomaly-detection': {
-                'title': 'Anomali Tespiti Rehberi',
-                'sections': [
-                    '5 Anomali Türü',
-                    'Risk Skorlama',
-                    'Otomatik Uyarılar',
-                    'Aksiyon Önerileri'
-                ]
+            "gib-integration": {
+                "title": "GİB Entegrasyonu",
+                "sections": [
+                    "e-Dönüşüm Kurulumu",
+                    "Sertifika Tanımlama",
+                    "Fatura Gönderimi",
+                    "Hata Kodları",
+                ],
             },
-            'recommendations': {
-                'title': 'AI Öneriler Sistemi',
-                'sections': [
-                    'Öneri Tipleri',
-                    'Güven Skoru',
-                    'Öneri Uygulama',
-                    'Feedback Sistemi'
-                ]
-            }
         },
-        'blockchain': {
-            'audit-trail': {
-                'title': 'Blockchain Audit Trail',
-                'sections': [
-                    'SHA-256 Hash',
-                    'Proof of Work',
-                    'Zincir Doğrulama',
-                    'Sertifika İndirme'
-                ]
-            }
+        "api": {
+            "getting-started": {
+                "title": "API ile Başlangıç",
+                "sections": [
+                    "API_DOCUMENTATION.md dosyasına bakın",
+                    "Token alma",
+                    "İlk istek",
+                    "Rate limiting",
+                ],
+            },
+            "webhooks": {
+                "title": "Webhook Rehberi",
+                "sections": [
+                    "Webhook Kurulumu",
+                    "Event Türleri",
+                    "İmza Doğrulama",
+                    "Retry Politikası",
+                ],
+            },
+            "authentication": {
+                "title": "API Kimlik Doğrulama",
+                "sections": [
+                    "Token-based Auth",
+                    "API Key Kullanımı",
+                    "OAuth2",
+                    "Güvenlik İpuçları",
+                ],
+            },
         },
-        'accounting': {
-            'invoice-management': {
-                'title': 'Fatura Yönetimi Kılavuzu',
-                'sections': [
-                    'Fatura Oluşturma',
-                    'e-Fatura/e-Arşiv',
-                    'Otomatik Fiş',
-                    'Fatura Takibi'
-                ]
-            },
-            'chart-of-accounts': {
-                'title': 'Hesap Planı Rehberi',
-                'sections': [
-                    'Tek Düzen Hesap Planı',
-                    'Hesap Kodları',
-                    'Muhasebe Kayıtları',
-                    'Örnekler'
-                ]
-            }
-        },
-        'finance': {
-            'reports': {
-                'title': 'Finansal Raporlama',
-                'sections': [
-                    'Bilanço',
-                    'Gelir Tablosu',
-                    'Nakit Akışı',
-                    'Export İşlemleri'
-                ]
-            },
-            'gib-integration': {
-                'title': 'GİB Entegrasyonu',
-                'sections': [
-                    'e-Dönüşüm Kurulumu',
-                    'Sertifika Tanımlama',
-                    'Fatura Gönderimi',
-                    'Hata Kodları'
-                ]
-            }
-        },
-        'api': {
-            'getting-started': {
-                'title': 'API ile Başlangıç',
-                'sections': [
-                    'API_DOCUMENTATION.md dosyasına bakın',
-                    'Token alma',
-                    'İlk istek',
-                    'Rate limiting'
-                ]
-            },
-            'webhooks': {
-                'title': 'Webhook Rehberi',
-                'sections': [
-                    'Webhook Kurulumu',
-                    'Event Türleri',
-                    'İmza Doğrulama',
-                    'Retry Politikası'
-                ]
-            },
-            'authentication': {
-                'title': 'API Kimlik Doğrulama',
-                'sections': [
-                    'Token-based Auth',
-                    'API Key Kullanımı',
-                    'OAuth2',
-                    'Güvenlik İpuçları'
-                ]
-            }
-        }
     }
-    
+
     # İçerik önerisini al
-    suggestion = content_suggestions.get(category, {}).get(topic, {
-        'title': format_title(doc_path),
-        'sections': [
-            'Bu döküman henüz hazırlanmaktadır',
-            'Ana klavuzlara göz atın',
-            'Destek ile iletişime geçin'
-        ]
-    })
-    
+    suggestion = content_suggestions.get(category, {}).get(
+        topic,
+        {
+            "title": format_title(doc_path),
+            "sections": [
+                "Bu döküman henüz hazırlanmaktadır",
+                "Ana klavuzlara göz atın",
+                "Destek ile iletişime geçin",
+            ],
+        },
+    )
+
     html = f"""
     <div class="alert alert-info" style="border-radius: 16px; border-left: 5px solid #3b82f6;">
         <h4><i class="bi bi-info-circle me-2"></i>Döküman Hazırlanıyor</h4>
@@ -325,49 +326,50 @@ def generate_placeholder_content(doc_path):
         </a>
     </div>
     """
-    
+
     return html
 
 
 def generate_breadcrumbs(doc_path):
     """Breadcrumb navigation oluştur"""
-    parts = doc_path.split('/')
-    breadcrumbs = [{'title': 'Dokümantasyon', 'url': '/resources/docs/'}]
-    
-    cumulative_path = ''
+    parts = doc_path.split("/")
+    breadcrumbs = [{"title": "Dokümantasyon", "url": "/resources/docs/"}]
+
+    cumulative_path = ""
     for i, part in enumerate(parts):
-        cumulative_path += part if i == 0 else f'/{part}'
-        breadcrumbs.append({
-            'title': format_title(part),
-            'url': f'/docs/{cumulative_path}',
-            'active': i == len(parts) - 1
-        })
-    
+        cumulative_path += part if i == 0 else f"/{part}"
+        breadcrumbs.append(
+            {
+                "title": format_title(part),
+                "url": f"/docs/{cumulative_path}",
+                "active": i == len(parts) - 1,
+            }
+        )
+
     return breadcrumbs
 
 
 def format_title(text):
     """URL slug'ını başlığa çevir"""
-    text = text.replace('-', ' ').replace('_', ' ')
-    
+    text = text.replace("-", " ").replace("_", " ")
+
     # Özel kısaltmalar
     replacements = {
-        'kobi': 'KOBİ',
-        'ai': 'AI',
-        'api': 'API',
-        'gib': 'GİB',
-        'swot': 'SWOT',
+        "kobi": "KOBİ",
+        "ai": "AI",
+        "api": "API",
+        "gib": "GİB",
+        "swot": "SWOT",
     }
-    
+
     words = text.split()
     formatted = []
-    
+
     for word in words:
         lower_word = word.lower()
         if lower_word in replacements:
             formatted.append(replacements[lower_word])
         else:
             formatted.append(word.capitalize())
-    
-    return ' '.join(formatted)
 
+    return " ".join(formatted)

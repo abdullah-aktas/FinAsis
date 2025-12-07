@@ -52,4 +52,4 @@ Hızlı Başlangıç (TDHP):
     ACCOUNT_CODE_TDHP_STRICT = True
 """
 
-default_app_config = 'finance.accounting.apps.AccountingConfig' 
+default_app_config = "finance.accounting.apps.AccountingConfig"

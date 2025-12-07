@@ -18,10 +18,10 @@ from .prompt_registry import (
 from .recommendation_service import RecommendationService
 
 __all__: list[str] = [
-    'LocalSTTService',
-    'RecommendationService',
-    'get_prompts_for_role',
-    'get_prompt',
-    'list_roles',
-    'PromptNotFound',
+    "LocalSTTService",
+    "RecommendationService",
+    "get_prompts_for_role",
+    "get_prompt",
+    "list_roles",
+    "PromptNotFound",
 ]

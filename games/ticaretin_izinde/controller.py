@@ -25,22 +25,22 @@ except Exception:  # pragma: no cover
 class FinancialTradingGame:
     def __init__(self):
         self.app_dir = Path(__file__).resolve().parent
-        self.main_py = self.app_dir / 'main.py'
-        self.pid_file = self.app_dir / 'game.pid'
-        self.ctrl_file = self.app_dir / 'control.json'
+        self.main_py = self.app_dir / "main.py"
+        self.pid_file = self.app_dir / "game.pid"
+        self.ctrl_file = self.app_dir / "control.json"
 
     # --- Internal helpers ---
     def _read_pid(self) -> Optional[int]:
         try:
             if self.pid_file.exists():
-                return int(self.pid_file.read_text(encoding='utf-8').strip())
+                return int(self.pid_file.read_text(encoding="utf-8").strip())
         except Exception:
             return None
         return None
 
     def _write_pid(self, pid: int) -> None:
         try:
-            self.pid_file.write_text(str(pid), encoding='utf-8')
+            self.pid_file.write_text(str(pid), encoding="utf-8")
         except Exception:
             pass
 
@@ -67,13 +67,15 @@ class FinancialTradingGame:
         # Windows için detached/ yeni konsol bayrakları
         creationflags = 0
         try:
-            creationflags = getattr(subprocess, 'CREATE_NEW_CONSOLE', 0) | getattr(subprocess, 'DETACHED_PROCESS', 0)
+            creationflags = getattr(subprocess, "CREATE_NEW_CONSOLE", 0) | getattr(
+                subprocess, "DETACHED_PROCESS", 0
+            )
         except Exception:
             creationflags = 0
 
         env = os.environ.copy()
         # Ursina ikon hatası için (main.py zaten set ediyor ama temkinli olalım)
-        env.setdefault('URSINA_ICON_PATH', 'None')
+        env.setdefault("URSINA_ICON_PATH", "None")
 
         # Çalışma dizinini oyun klasörü yapalım
         cwd = str(self.app_dir)
@@ -82,7 +84,7 @@ class FinancialTradingGame:
         args = [sys.executable, str(self.main_py)]
 
         # Süreci başlat
-        if os.name == 'nt':
+        if os.name == "nt":
             proc = subprocess.Popen(args, cwd=cwd, env=env, creationflags=creationflags)
         else:
             proc = subprocess.Popen(args, cwd=cwd, env=env)
@@ -95,7 +97,10 @@ class FinancialTradingGame:
         if self._is_running(pid):
             return {"status": "running", "pid": pid}
         if not self.main_py.exists():
-            return {"status": "error", "message": f"Ana dosya bulunamadı: {self.main_py}"}
+            return {
+                "status": "error",
+                "message": f"Ana dosya bulunamadı: {self.main_py}",
+            }
         new_pid = self._launch_process()
         self._write_pid(new_pid)
         return {"status": "started", "pid": new_pid}
@@ -126,7 +131,9 @@ class FinancialTradingGame:
     def pause(self) -> dict:
         """Pause durumunu kontrol dosyasına yazar (oyun içi destek gerektirir)."""
         try:
-            self.ctrl_file.write_text(json.dumps({"paused": True, "ts": time.time()}), encoding='utf-8')
+            self.ctrl_file.write_text(
+                json.dumps({"paused": True, "ts": time.time()}), encoding="utf-8"
+            )
             return {"status": "ok"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
@@ -134,7 +141,9 @@ class FinancialTradingGame:
     def resume(self) -> dict:
         """Pause kaldırma durumunu kontrol dosyasına yazar (oyun içi destek gerektirir)."""
         try:
-            self.ctrl_file.write_text(json.dumps({"paused": False, "ts": time.time()}), encoding='utf-8')
+            self.ctrl_file.write_text(
+                json.dumps({"paused": False, "ts": time.time()}), encoding="utf-8"
+            )
             return {"status": "ok"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
@@ -152,13 +161,13 @@ class FinancialTradingGame:
         paused = False
         try:
             if self.ctrl_file.exists():
-                data = json.loads(self.ctrl_file.read_text(encoding='utf-8') or '{}')
-                paused = bool(data.get('paused', False))
+                data = json.loads(self.ctrl_file.read_text(encoding="utf-8") or "{}")
+                paused = bool(data.get("paused", False))
         except Exception:
             paused = False
         return {
-            'status': 'ok',
-            'running': bool(running and pid),
-            'paused': bool(paused),
-            'pid': pid
+            "status": "ok",
+            "running": bool(running and pid),
+            "paused": bool(paused),
+            "pid": pid,
         }

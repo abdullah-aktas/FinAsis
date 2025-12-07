@@ -274,7 +274,11 @@ class Command(BaseCommand):
             if user_info.get("role"):
                 attrs["role"] = user_info["role"]
 
-            company = companies[user_info["company_key"]] if user_info.get("company_key") is not None else None
+            company = (
+                companies[user_info["company_key"]]
+                if user_info.get("company_key") is not None
+                else None
+            )
 
             user, created = User.objects.update_or_create(
                 username=user_info["username"],
@@ -322,7 +326,9 @@ class Command(BaseCommand):
         currencies = ["TRY", "USD", "EUR"]
 
         for company in companies:
-            finance_owner = users.get("demo_finance_manager") or users.get("demo_accountant")
+            finance_owner = users.get("demo_finance_manager") or users.get(
+                "demo_accountant"
+            )
 
             customers_data = [
                 {
@@ -399,9 +405,14 @@ class Command(BaseCommand):
                 )
 
     def _ensure_feature_flags(self, users: dict[str, User]):
-        creator = users.get("demo_superadmin") or User.objects.filter(is_superuser=True).first()
+        creator = (
+            users.get("demo_superadmin")
+            or User.objects.filter(is_superuser=True).first()
+        )
         if not creator:
-            raise RuntimeError("Feature flag oluşturmak için en az bir süper kullanıcı gerekli.")
+            raise RuntimeError(
+                "Feature flag oluşturmak için en az bir süper kullanıcı gerekli."
+            )
 
         for payload in self.FEATURE_FLAGS:
             flag, _ = FeatureFlag.objects.update_or_create(
@@ -449,7 +460,9 @@ class Command(BaseCommand):
             y = np.array([0, 0, 0, 1, 0, 0, 1, 0, 1, 0], dtype=int)
             owner = users.get("demo_superadmin") or next(iter(users.values()), None)
             service.train(X, y, user=owner)
-            self.stdout.write(self.style.SUCCESS(f"  - Risk modeli hazirlandi ({model_path.name})"))
+            self.stdout.write(
+                self.style.SUCCESS(f"  - Risk modeli hazirlandi ({model_path.name})")
+            )
 
         # Bilgi tabanı (ChatAIService için) - minimal içerik
         knowledge_dir = base_dir / "var"
@@ -484,14 +497,24 @@ class Command(BaseCommand):
                     },
                     {
                         "id": 3,
-                        "path": str(guide_path.relative_to(base_dir)) if guide_path.exists() else "docs/ai_assistant_guide",
+                        "path": str(guide_path.relative_to(base_dir))
+                        if guide_path.exists()
+                        else "docs/ai_assistant_guide",
                         "title": "AI Asistan Kullanım Kılavuzu (Özet)",
-                        "content": doc_excerpt or "FinAsis AI Asistan sesli komut, grounded QA ve muhasebe fiş otomasyonu özellikleri sunar.",
+                        "content": doc_excerpt
+                        or "FinAsis AI Asistan sesli komut, grounded QA ve muhasebe fiş otomasyonu özellikleri sunar.",
                     },
                 ]
             }
-            knowledge_file.write_text(json.dumps(sample_chunks, ensure_ascii=False, indent=2), encoding="utf-8")
-            self.stdout.write(self.style.SUCCESS(f"  - AI bilgi indeksi olusturuldu ({knowledge_file.relative_to(base_dir)})"))
+            knowledge_file.write_text(
+                json.dumps(sample_chunks, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"  - AI bilgi indeksi olusturuldu ({knowledge_file.relative_to(base_dir)})"
+                )
+            )
 
         self._seed_ai_demo_records(users)
 
@@ -504,7 +527,11 @@ class Command(BaseCommand):
     # ------------------------------------------------------------------ AI helpers
 
     def _seed_ai_demo_records(self, users: dict[str, User]):
-        owner: Optional[User] = users.get("demo_owner") or users.get("demo_finance_manager") or users.get("demo_superadmin")
+        owner: Optional[User] = (
+            users.get("demo_owner")
+            or users.get("demo_finance_manager")
+            or users.get("demo_superadmin")
+        )
         if not owner:
             return
 
@@ -594,8 +621,14 @@ class Command(BaseCommand):
             title="FinAsis AI Önerileri",
             defaults={
                 "recommendations": [
-                    {"title": "Tahsilat Takibi", "details": "Geciken 3 müşteriyi arayın ve ödeme planı yapın."},
-                    {"title": "Nakit Rezervi", "details": "Operasyon giderleri için 30 günlük nakit rezervi ayırın."},
+                    {
+                        "title": "Tahsilat Takibi",
+                        "details": "Geciken 3 müşteriyi arayın ve ödeme planı yapın.",
+                    },
+                    {
+                        "title": "Nakit Rezervi",
+                        "details": "Operasyon giderleri için 30 günlük nakit rezervi ayırın.",
+                    },
                 ],
                 "category": "cash_flow",
                 "priority": "medium",
@@ -606,7 +639,7 @@ class Command(BaseCommand):
         Notification.objects.get_or_create(
             user=owner,
             title="AI Asistan Hazır",
-            defaults={"message": "Yeni AI içgörüleri ve risk skorları hazır. Dashboard üzerinden inceleyebilirsiniz."},
+            defaults={
+                "message": "Yeni AI içgörüleri ve risk skorları hazır. Dashboard üzerinden inceleyebilirsiniz."
+            },
         )
-
-

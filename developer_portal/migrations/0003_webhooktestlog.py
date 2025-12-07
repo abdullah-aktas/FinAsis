@@ -3,9 +3,11 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("developer_portal", "0002_rename_developer__api_key_058ed9_idx_developer_p_api_key_2199ed_idx_and_more"),
+        (
+            "developer_portal",
+            "0002_rename_developer__api_key_058ed9_idx_developer_p_api_key_2199ed_idx_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -13,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="WebhookTestLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("event_type", models.CharField(max_length=64)),
                 ("target_url", models.URLField()),
                 ("request_headers", models.JSONField(blank=True, default=dict)),
@@ -42,11 +52,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="webhooktestlog",
-            index=models.Index(fields=("event_type", "created_at"), name="developer_p_event_t_d3e07c_idx"),
+            index=models.Index(
+                fields=("event_type", "created_at"),
+                name="developer_p_event_t_d3e07c_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="webhooktestlog",
-            index=models.Index(fields=("actor", "created_at"), name="developer_p_actor_i_975d64_idx"),
+            index=models.Index(
+                fields=("actor", "created_at"), name="developer_p_actor_i_975d64_idx"
+            ),
         ),
     ]
-

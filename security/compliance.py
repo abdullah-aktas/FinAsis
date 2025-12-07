@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import importlib
-import operator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List
@@ -47,7 +45,10 @@ def _setting_contains(params: Dict[str, Any]) -> tuple[bool, str]:
     contains = False
     if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
         contains = expected in value
-    return contains, f"{expected} değeri {path} içinde {'bulundu' if contains else 'bulunamadı'}."
+    return (
+        contains,
+        f"{expected} değeri {path} içinde {'bulundu' if contains else 'bulunamadı'}.",
+    )
 
 
 def _model_exists(params: Dict[str, Any]) -> tuple[bool, str]:
@@ -123,4 +124,3 @@ def run_check(entry: Dict[str, Any], *, debug: bool) -> CheckResult:
         message=message,
         component=component,
     )
-

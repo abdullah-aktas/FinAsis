@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -13,10 +12,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="InvestorDocument",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200)),
                 ("file_url", models.URLField()),
-                ("kind", models.CharField(choices=[("deck", "Sunum"), ("report", "Rapor")], max_length=50)),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[("deck", "Sunum"), ("report", "Rapor")], max_length=50
+                    ),
+                ),
                 ("published_at", models.DateField(blank=True, null=True)),
             ],
             options={
@@ -28,7 +40,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PressRelease",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=200)),
                 ("date", models.DateField()),
                 ("summary", models.TextField(blank=True)),
@@ -43,7 +63,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TeamMember",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=120)),
                 ("role", models.CharField(max_length=120)),
                 ("department", models.CharField(blank=True, max_length=120)),

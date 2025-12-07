@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounts", "0009_userprofile_userpreference_twofactorauth_and_more"),
     ]

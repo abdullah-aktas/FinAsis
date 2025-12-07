@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("accounting", "0013_alter_edefter_options_alter_edefter_created_at_and_more"),
@@ -13,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='userpermission',
-            unique_together={('user', 'company', 'module_name', 'permission_type')},
+            name="userpermission",
+            unique_together={("user", "company", "module_name", "permission_type")},
         ),
     ]

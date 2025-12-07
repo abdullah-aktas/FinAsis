@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audit", "0002_auto_20251009_2359"),
     ]
@@ -12,7 +11,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name="auditevent",
-            options={"ordering": ["-created_at"], "verbose_name": "Audit Event", "verbose_name_plural": "Audit Events"},
+            options={
+                "ordering": ["-created_at"],
+                "verbose_name": "Audit Event",
+                "verbose_name_plural": "Audit Events",
+            },
         ),
         migrations.RenameIndex(
             model_name="auditevent",
@@ -42,12 +45,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="auditevent",
             name="data",
-            field=models.JSONField(blank=True, default=dict, help_text="Current state or event data"),
+            field=models.JSONField(
+                blank=True, default=dict, help_text="Current state or event data"
+            ),
         ),
         migrations.AlterField(
             model_name="auditevent",
             name="diff",
-            field=models.JSONField(blank=True, default=dict, help_text="Changes made (before/after)"),
+            field=models.JSONField(
+                blank=True, default=dict, help_text="Changes made (before/after)"
+            ),
         ),
         migrations.AlterField(
             model_name="auditevent",

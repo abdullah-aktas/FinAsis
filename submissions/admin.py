@@ -1,7 +1,11 @@
 from django.contrib import admin, messages
 from .models import (
-    Declaration, Submission, SubmissionLog,
-    SubmissionTemplate, SubmissionAttachment, SubmissionApproval
+    Declaration,
+    Submission,
+    SubmissionLog,
+    SubmissionTemplate,
+    SubmissionAttachment,
+    SubmissionApproval,
 )
 from .services import send_submission_to_gib
 
@@ -32,12 +36,15 @@ class SubmissionAdmin(admin.ModelAdmin):
             try:
                 tracking, status = send_submission_to_gib(sub)
                 sent += 1
-            except Exception as e:  # safety net, logs already recorded via SubmissionLog
+            except Exception:  # safety net, logs already recorded via SubmissionLog
                 errors += 1
         if sent:
             messages.success(request, f"{sent} gönderim başlatıldı.")
         if errors:
-            messages.error(request, f"{errors} gönderimde hata oluştu (detaylar loglarda).")
+            messages.error(
+                request, f"{errors} gönderimde hata oluştu (detaylar loglarda)."
+            )
+
     send_to_gib_action.short_description = "Seçilenleri GİB'e gönder"
 
 
@@ -50,36 +57,51 @@ class SubmissionLogAdmin(admin.ModelAdmin):
 
 @admin.register(SubmissionTemplate)
 class SubmissionTemplateAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'version', 'is_active', 'created_by', 'created_at')
-    search_fields = ('code', 'name', 'description')
-    list_filter = ('code', 'is_active', 'created_at')
-    readonly_fields = ('created_at', 'updated_at')
+    list_display = ("code", "name", "version", "is_active", "created_by", "created_at")
+    search_fields = ("code", "name", "description")
+    list_filter = ("code", "is_active", "created_at")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(SubmissionAttachment)
 class SubmissionAttachmentAdmin(admin.ModelAdmin):
-    list_display = ('submission', 'file_name', 'file_type', 'file_size', 'uploaded_by', 'uploaded_at')
-    search_fields = ('file_name', 'description')
-    list_filter = ('file_type', 'uploaded_at')
-    readonly_fields = ('uploaded_at',)
+    list_display = (
+        "submission",
+        "file_name",
+        "file_type",
+        "file_size",
+        "uploaded_by",
+        "uploaded_at",
+    )
+    search_fields = ("file_name", "description")
+    list_filter = ("file_type", "uploaded_at")
+    readonly_fields = ("uploaded_at",)
 
 
 @admin.register(SubmissionApproval)
 class SubmissionApprovalAdmin(admin.ModelAdmin):
-    list_display = ('submission', 'approver', 'status', 'requested_at', 'responded_at')
-    search_fields = ('comments', 'revision_notes')
-    list_filter = ('status', 'requested_at')
-    readonly_fields = ('requested_at',)
-    actions = ['approve_submissions', 'reject_submissions']
-    
+    list_display = ("submission", "approver", "status", "requested_at", "responded_at")
+    search_fields = ("comments", "revision_notes")
+    list_filter = ("status", "requested_at")
+    readonly_fields = ("requested_at",)
+    actions = ["approve_submissions", "reject_submissions"]
+
     def approve_submissions(self, request, queryset):
         from django.utils import timezone
-        updated = queryset.filter(status='PENDING').update(status='APPROVED', responded_at=timezone.now())
-        self.message_user(request, f'{updated} beyan onaylandı.')
-    approve_submissions.short_description = 'Seçili beyanları onayla'
-    
+
+        updated = queryset.filter(status="PENDING").update(
+            status="APPROVED", responded_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} beyan onaylandı.")
+
+    approve_submissions.short_description = "Seçili beyanları onayla"
+
     def reject_submissions(self, request, queryset):
         from django.utils import timezone
-        updated = queryset.filter(status='PENDING').update(status='REJECTED', responded_at=timezone.now())
-        self.message_user(request, f'{updated} beyan reddedildi.')
-    reject_submissions.short_description = 'Seçili beyanları reddet'
+
+        updated = queryset.filter(status="PENDING").update(
+            status="REJECTED", responded_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} beyan reddedildi.")
+
+    reject_submissions.short_description = "Seçili beyanları reddet"

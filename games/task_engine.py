@@ -68,10 +68,14 @@ def _load_catalog() -> List[Task]:
     return tasks
 
 
-def get_tasks(*, audience: str, kind: str | None = None, limit: int | None = None) -> List[Dict[str, Any]]:
+def get_tasks(
+    *, audience: str, kind: str | None = None, limit: int | None = None
+) -> List[Dict[str, Any]]:
     """Görev motorundan persona/kategori bazlı görev listesi sağlar."""
     results: Iterable[Task] = (
-        task for task in _load_catalog() if task.audience == audience and (kind is None or task.kind == kind)
+        task
+        for task in _load_catalog()
+        if task.audience == audience and (kind is None or task.kind == kind)
     )
     tasks = [task.as_dict() for task in results]
     if limit is not None:
@@ -92,4 +96,3 @@ def get_brief(*, audience: str) -> Dict[str, Any]:
 
 
 __all__ = ["get_tasks", "get_brief"]
-

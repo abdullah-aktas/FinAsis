@@ -63,8 +63,16 @@ EVENT_DEFINITIONS: Tuple[WebhookEventDefinition, ...] = (
             "severity": "high",
             "triggered_at": timezone.now().isoformat(),
             "rules": [
-                {"code": "MASAK-TRX-01", "description": "Yüksek tutarlı transfer", "score": 0.92},
-                {"code": "KVKK-LOG-04", "description": "PII loglama riski", "score": 0.77},
+                {
+                    "code": "MASAK-TRX-01",
+                    "description": "Yüksek tutarlı transfer",
+                    "score": 0.92,
+                },
+                {
+                    "code": "KVKK-LOG-04",
+                    "description": "PII loglama riski",
+                    "score": 0.77,
+                },
             ],
         },
     ),
@@ -77,15 +85,21 @@ def available_event_choices() -> Iterable[Tuple[str, str]]:
     return ((definition.key, f"{definition.title}") for definition in EVENT_DEFINITIONS)
 
 
-def _prepare_payload(event_key: str, payload_override: str | None = None) -> Mapping[str, Any]:
+def _prepare_payload(
+    event_key: str, payload_override: str | None = None
+) -> Mapping[str, Any]:
     if payload_override:
         try:
             return json.loads(payload_override)
         except json.JSONDecodeError as exc:
-            raise ValueError(_("Geçersiz JSON payload: %(error)s") % {"error": exc}) from exc
+            raise ValueError(
+                _("Geçersiz JSON payload: %(error)s") % {"error": exc}
+            ) from exc
     definition = EVENT_LOOKUP.get(event_key)
     if not definition:
-        raise ValueError(_("Desteklenmeyen webhook olayı: %(event)s") % {"event": event_key})
+        raise ValueError(
+            _("Desteklenmeyen webhook olayı: %(event)s") % {"event": event_key}
+        )
     return definition.sample_payload
 
 
@@ -184,4 +198,3 @@ def dispatch_webhook(
 
 
 __all__ = ["dispatch_webhook", "available_event_choices", "EVENT_DEFINITIONS"]
-

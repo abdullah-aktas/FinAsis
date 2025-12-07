@@ -6,6 +6,7 @@ from .models import SubscriptionProfile
 
 User = get_user_model()
 
+
 @receiver(post_save, sender=User)
 def ensure_billing_profile(sender, instance, created, **kwargs):
     if created:

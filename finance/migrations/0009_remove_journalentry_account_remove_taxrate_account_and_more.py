@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0010_exchangerate_glaccount_gljournalentry_gljournalline"),
         ("contenttypes", "0002_remove_content_type_name"),
@@ -175,7 +174,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ApprovalWorkflow",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="İş Akışı Adı")),
                 (
                     "workflow_type",
@@ -195,23 +202,43 @@ class Migration(migrations.Migration):
                 (
                     "min_amount",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Minimum Tutar"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Minimum Tutar",
                     ),
                 ),
                 (
                     "max_amount",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Maksimum Tutar"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Maksimum Tutar",
                     ),
                 ),
-                ("applicable_modules", models.JSONField(blank=True, default=list, verbose_name="Geçerli Modüller")),
+                (
+                    "applicable_modules",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Geçerli Modüller"
+                    ),
+                ),
                 (
                     "is_sequential",
                     models.BooleanField(
-                        default=True, help_text="True: Sırayla onay, False: Paralel onay", verbose_name="Sıralı Onay"
+                        default=True,
+                        help_text="True: Sırayla onay, False: Paralel onay",
+                        verbose_name="Sıralı Onay",
                     ),
                 ),
-                ("require_all_approvers", models.BooleanField(default=True, verbose_name="Tüm Onaylayanlar Gerekli")),
+                (
+                    "require_all_approvers",
+                    models.BooleanField(
+                        default=True, verbose_name="Tüm Onaylayanlar Gerekli"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -233,12 +260,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ApprovalRequest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("request_id", models.UUIDField(default=uuid.uuid4, unique=True, verbose_name="Talep ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "request_id",
+                    models.UUIDField(
+                        default=uuid.uuid4, unique=True, verbose_name="Talep ID"
+                    ),
+                ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("object_id", models.PositiveIntegerField()),
-                ("requested_at", models.DateTimeField(auto_now_add=True, verbose_name="Talep Zamanı")),
+                (
+                    "requested_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Talep Zamanı"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -255,13 +300,30 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("current_step", models.PositiveIntegerField(default=0, verbose_name="Mevcut Adım")),
+                (
+                    "current_step",
+                    models.PositiveIntegerField(default=0, verbose_name="Mevcut Adım"),
+                ),
                 (
                     "amount",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Tutar"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Tutar",
+                    ),
                 ),
-                ("completed_at", models.DateTimeField(blank=True, null=True, verbose_name="Tamamlanma Zamanı")),
-                ("final_decision", models.TextField(blank=True, verbose_name="Nihai Karar")),
+                (
+                    "completed_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Tamamlanma Zamanı"
+                    ),
+                ),
+                (
+                    "final_decision",
+                    models.TextField(blank=True, verbose_name="Nihai Karar"),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -305,9 +367,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ApprovalWorkflowStep",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("step_order", models.PositiveIntegerField(verbose_name="Adım Sırası")),
-                ("step_name", models.CharField(max_length=100, verbose_name="Adım Adı")),
+                (
+                    "step_name",
+                    models.CharField(max_length=100, verbose_name="Adım Adı"),
+                ),
                 (
                     "approver_role",
                     models.CharField(
@@ -317,11 +390,21 @@ class Migration(migrations.Migration):
                         verbose_name="Onaylayıcı Rolü",
                     ),
                 ),
-                ("is_mandatory", models.BooleanField(default=True, verbose_name="Zorunlu")),
-                ("timeout_hours", models.PositiveIntegerField(default=24, verbose_name="Zaman Aşımı (Saat)")),
+                (
+                    "is_mandatory",
+                    models.BooleanField(default=True, verbose_name="Zorunlu"),
+                ),
+                (
+                    "timeout_hours",
+                    models.PositiveIntegerField(
+                        default=24, verbose_name="Zaman Aşımı (Saat)"
+                    ),
+                ),
                 (
                     "auto_approve_after_timeout",
-                    models.BooleanField(default=False, verbose_name="Zaman Aşımında Otomatik Onay"),
+                    models.BooleanField(
+                        default=False, verbose_name="Zaman Aşımında Otomatik Onay"
+                    ),
                 ),
                 (
                     "condition_expression",
@@ -362,7 +445,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ApprovalRecord",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -378,10 +469,25 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("due_date", models.DateTimeField(verbose_name="Vade Tarihi")),
-                ("decision_date", models.DateTimeField(blank=True, null=True, verbose_name="Karar Tarihi")),
+                (
+                    "decision_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Karar Tarihi"
+                    ),
+                ),
                 ("comments", models.TextField(blank=True, verbose_name="Yorumlar")),
-                ("notification_sent", models.BooleanField(default=False, verbose_name="Bildirim Gönderildi")),
-                ("reminder_count", models.PositiveIntegerField(default=0, verbose_name="Hatırlatma Sayısı")),
+                (
+                    "notification_sent",
+                    models.BooleanField(
+                        default=False, verbose_name="Bildirim Gönderildi"
+                    ),
+                ),
+                (
+                    "reminder_count",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Hatırlatma Sayısı"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "approver",
@@ -418,8 +524,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditTrail",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("session_id", models.CharField(blank=True, max_length=100, verbose_name="Oturum ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "session_id",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Oturum ID"
+                    ),
+                ),
                 (
                     "action_type",
                     models.CharField(
@@ -442,30 +561,85 @@ class Migration(migrations.Migration):
                         verbose_name="İşlem Tipi",
                     ),
                 ),
-                ("table_name", models.CharField(max_length=100, verbose_name="Tablo Adı")),
-                ("record_id", models.CharField(max_length=100, verbose_name="Kayıt ID")),
+                (
+                    "table_name",
+                    models.CharField(max_length=100, verbose_name="Tablo Adı"),
+                ),
+                (
+                    "record_id",
+                    models.CharField(max_length=100, verbose_name="Kayıt ID"),
+                ),
                 ("object_id", models.PositiveIntegerField(blank=True, null=True)),
-                ("old_values", models.JSONField(blank=True, default=dict, verbose_name="Eski Değerler")),
-                ("new_values", models.JSONField(blank=True, default=dict, verbose_name="Yeni Değerler")),
-                ("changed_fields", models.JSONField(blank=True, default=list, verbose_name="Değişen Alanlar")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
-                ("user_agent", models.TextField(blank=True, verbose_name="Tarayıcı Bilgisi")),
+                (
+                    "old_values",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Eski Değerler"
+                    ),
+                ),
+                (
+                    "new_values",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Yeni Değerler"
+                    ),
+                ),
+                (
+                    "changed_fields",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Değişen Alanlar"
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
+                (
+                    "user_agent",
+                    models.TextField(blank=True, verbose_name="Tarayıcı Bilgisi"),
+                ),
                 (
                     "risk_level",
                     models.CharField(
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek"), ("CRITICAL", "Kritik")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                            ("CRITICAL", "Kritik"),
+                        ],
                         default="LOW",
                         max_length=20,
                         verbose_name="Risk Seviyesi",
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("module_name", models.CharField(blank=True, max_length=100, verbose_name="Modül Adı")),
-                ("function_name", models.CharField(blank=True, max_length=100, verbose_name="Fonksiyon Adı")),
+                (
+                    "module_name",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Modül Adı"
+                    ),
+                ),
+                (
+                    "function_name",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Fonksiyon Adı"
+                    ),
+                ),
                 ("success", models.BooleanField(default=True, verbose_name="Başarılı")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("timestamp", models.DateTimeField(auto_now_add=True, verbose_name="Zaman")),
-                ("duration_ms", models.PositiveIntegerField(blank=True, null=True, verbose_name="Süre (ms)")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "timestamp",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Zaman"),
+                ),
+                (
+                    "duration_ms",
+                    models.PositiveIntegerField(
+                        blank=True, null=True, verbose_name="Süre (ms)"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -486,7 +660,10 @@ class Migration(migrations.Migration):
                 (
                     "user",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
@@ -499,10 +676,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ControlActivity",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("control_id", models.CharField(max_length=50, unique=True, verbose_name="Kontrol ID")),
-                ("control_name", models.CharField(max_length=200, verbose_name="Kontrol Adı")),
-                ("control_description", models.TextField(verbose_name="Kontrol Açıklaması")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "control_id",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Kontrol ID"
+                    ),
+                ),
+                (
+                    "control_name",
+                    models.CharField(max_length=200, verbose_name="Kontrol Adı"),
+                ),
+                (
+                    "control_description",
+                    models.TextField(verbose_name="Kontrol Açıklaması"),
+                ),
                 ("control_objective", models.TextField(verbose_name="Kontrol Amacı")),
                 (
                     "control_type",
@@ -546,8 +742,14 @@ class Migration(migrations.Migration):
                         verbose_name="Sıklık",
                     ),
                 ),
-                ("control_procedure", models.TextField(verbose_name="Kontrol Prosedürü")),
-                ("evidence_required", models.TextField(blank=True, verbose_name="Gerekli Kanıt")),
+                (
+                    "control_procedure",
+                    models.TextField(verbose_name="Kontrol Prosedürü"),
+                ),
+                (
+                    "evidence_required",
+                    models.TextField(blank=True, verbose_name="Gerekli Kanıt"),
+                ),
                 (
                     "design_effectiveness",
                     models.CharField(
@@ -575,9 +777,22 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("last_performed_date", models.DateField(blank=True, null=True, verbose_name="Son Uygulama Tarihi")),
-                ("next_due_date", models.DateField(blank=True, null=True, verbose_name="Sonraki Vade Tarihi")),
-                ("improvement_recommendations", models.TextField(blank=True, verbose_name="İyileştirme Önerileri")),
+                (
+                    "last_performed_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Son Uygulama Tarihi"
+                    ),
+                ),
+                (
+                    "next_due_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Sonraki Vade Tarihi"
+                    ),
+                ),
+                (
+                    "improvement_recommendations",
+                    models.TextField(blank=True, verbose_name="İyileştirme Önerileri"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -619,7 +834,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ControlExecution",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("execution_date", models.DateField(verbose_name="Uygulama Tarihi")),
                 (
                     "status",
@@ -634,13 +857,38 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("results_description", models.TextField(verbose_name="Sonuç Açıklaması")),
-                ("exceptions_noted", models.TextField(blank=True, verbose_name="Tespit Edilen İstisnalar")),
-                ("evidence_attached", models.BooleanField(default=False, verbose_name="Kanıt Ekli")),
-                ("management_response", models.TextField(blank=True, verbose_name="Yönetim Yanıtı")),
-                ("corrective_actions", models.TextField(blank=True, verbose_name="Düzeltici Aksiyonlar")),
-                ("follow_up_required", models.BooleanField(default=False, verbose_name="Takip Gerekli")),
-                ("follow_up_date", models.DateField(blank=True, null=True, verbose_name="Takip Tarihi")),
+                (
+                    "results_description",
+                    models.TextField(verbose_name="Sonuç Açıklaması"),
+                ),
+                (
+                    "exceptions_noted",
+                    models.TextField(
+                        blank=True, verbose_name="Tespit Edilen İstisnalar"
+                    ),
+                ),
+                (
+                    "evidence_attached",
+                    models.BooleanField(default=False, verbose_name="Kanıt Ekli"),
+                ),
+                (
+                    "management_response",
+                    models.TextField(blank=True, verbose_name="Yönetim Yanıtı"),
+                ),
+                (
+                    "corrective_actions",
+                    models.TextField(blank=True, verbose_name="Düzeltici Aksiyonlar"),
+                ),
+                (
+                    "follow_up_required",
+                    models.BooleanField(default=False, verbose_name="Takip Gerekli"),
+                ),
+                (
+                    "follow_up_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Takip Tarihi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "control_activity",
@@ -669,9 +917,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RiskAssessment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("assessment_date", models.DateField(verbose_name="Değerlendirme Tarihi")),
-                ("risk_title", models.CharField(max_length=200, verbose_name="Risk Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "assessment_date",
+                    models.DateField(verbose_name="Değerlendirme Tarihi"),
+                ),
+                (
+                    "risk_title",
+                    models.CharField(max_length=200, verbose_name="Risk Başlığı"),
+                ),
                 ("risk_description", models.TextField(verbose_name="Risk Açıklaması")),
                 (
                     "risk_category",
@@ -718,7 +980,12 @@ class Migration(migrations.Migration):
                         verbose_name="Etki",
                     ),
                 ),
-                ("risk_score", models.PositiveIntegerField(blank=True, null=True, verbose_name="Risk Skoru")),
+                (
+                    "risk_score",
+                    models.PositiveIntegerField(
+                        blank=True, null=True, verbose_name="Risk Skoru"
+                    ),
+                ),
                 (
                     "overall_risk_level",
                     models.CharField(
@@ -738,10 +1005,17 @@ class Migration(migrations.Migration):
                 (
                     "potential_financial_impact",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Potansiyel Mali Etki"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Potansiyel Mali Etki",
                     ),
                 ),
-                ("existing_controls", models.TextField(blank=True, verbose_name="Mevcut Kontroller")),
+                (
+                    "existing_controls",
+                    models.TextField(blank=True, verbose_name="Mevcut Kontroller"),
+                ),
                 (
                     "control_effectiveness",
                     models.CharField(
@@ -757,7 +1031,10 @@ class Migration(migrations.Migration):
                         verbose_name="Kontrol Etkinliği",
                     ),
                 ),
-                ("recommended_actions", models.TextField(blank=True, verbose_name="Önerilen Aksiyonlar")),
+                (
+                    "recommended_actions",
+                    models.TextField(blank=True, verbose_name="Önerilen Aksiyonlar"),
+                ),
                 (
                     "action_priority",
                     models.CharField(
@@ -775,7 +1052,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "target_completion_date",
-                    models.DateField(blank=True, null=True, verbose_name="Hedef Tamamlanma Tarihi"),
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Hedef Tamamlanma Tarihi"
+                    ),
                 ),
                 (
                     "status",
@@ -794,7 +1073,12 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("next_review_date", models.DateField(blank=True, null=True, verbose_name="Sonraki İnceleme Tarihi")),
+                (
+                    "next_review_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Sonraki İnceleme Tarihi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -847,11 +1131,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserPermission",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "module_name",
                     models.CharField(
-                        help_text="accounting, finance, inventory vb.", max_length=100, verbose_name="Modül Adı"
+                        help_text="accounting, finance, inventory vb.",
+                        max_length=100,
+                        verbose_name="Modül Adı",
                     ),
                 ),
                 (
@@ -893,11 +1187,24 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "valid_from",
-                    models.DateTimeField(default=django.utils.timezone.now, verbose_name="Geçerlilik Başlangıcı"),
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Geçerlilik Başlangıcı",
+                    ),
                 ),
-                ("valid_to", models.DateTimeField(blank=True, null=True, verbose_name="Geçerlilik Bitişi")),
+                (
+                    "valid_to",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Geçerlilik Bitişi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("granted_at", models.DateTimeField(auto_now_add=True, verbose_name="İzin Verme Zamanı")),
+                (
+                    "granted_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="İzin Verme Zamanı"
+                    ),
+                ),
                 ("reason", models.TextField(blank=True, verbose_name="Gerekçe")),
                 (
                     "company",
@@ -970,23 +1277,36 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="audittrail",
-            index=models.Index(fields=["company", "timestamp"], name="finance_aud_company_caa4a3_idx"),
+            index=models.Index(
+                fields=["company", "timestamp"], name="finance_aud_company_caa4a3_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="audittrail",
-            index=models.Index(fields=["user", "timestamp"], name="finance_aud_user_id_fc822e_idx"),
+            index=models.Index(
+                fields=["user", "timestamp"], name="finance_aud_user_id_fc822e_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="audittrail",
-            index=models.Index(fields=["table_name", "record_id"], name="finance_aud_table_n_27c0f1_idx"),
+            index=models.Index(
+                fields=["table_name", "record_id"],
+                name="finance_aud_table_n_27c0f1_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="audittrail",
-            index=models.Index(fields=["action_type", "timestamp"], name="finance_aud_action__3dec66_idx"),
+            index=models.Index(
+                fields=["action_type", "timestamp"],
+                name="finance_aud_action__3dec66_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="audittrail",
-            index=models.Index(fields=["risk_level", "timestamp"], name="finance_aud_risk_le_6adac6_idx"),
+            index=models.Index(
+                fields=["risk_level", "timestamp"],
+                name="finance_aud_risk_le_6adac6_idx",
+            ),
         ),
         migrations.AlterUniqueTogether(
             name="userpermission",

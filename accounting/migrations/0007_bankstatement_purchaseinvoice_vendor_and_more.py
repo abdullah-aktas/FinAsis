@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("accounting", "0006_invoice_e_archive"),
@@ -16,16 +15,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BankStatement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("period_start", models.DateField(verbose_name="Dönem Başlangıç")),
                 ("period_end", models.DateField(verbose_name="Dönem Bitiş")),
                 (
                     "opening_balance",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Açılış Bakiyesi"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Açılış Bakiyesi"
+                    ),
                 ),
                 (
                     "closing_balance",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Kapanış Bakiyesi"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Kapanış Bakiyesi"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -57,13 +68,42 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PurchaseInvoice",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("invoice_number", models.CharField(max_length=50, unique=True, verbose_name="Fatura Numarası")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Fatura Numarası"
+                    ),
+                ),
                 ("issue_date", models.DateField(verbose_name="Fatura Tarihi")),
-                ("due_date", models.DateField(blank=True, null=True, verbose_name="Vade Tarihi")),
-                ("total_amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Toplam Tutar")),
-                ("currency", models.CharField(default="TRY", max_length=10, verbose_name="Para Birimi")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
+                (
+                    "due_date",
+                    models.DateField(blank=True, null=True, verbose_name="Vade Tarihi"),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Toplam Tutar"
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=10, verbose_name="Para Birimi"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -78,9 +118,18 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -122,15 +171,56 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Vendor",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=255, verbose_name="Tedarikçi Adı")),
-                ("tax_number", models.CharField(blank=True, max_length=20, null=True, verbose_name="Vergi Numarası")),
-                ("email", models.EmailField(blank=True, max_length=254, null=True, verbose_name="E-posta")),
-                ("phone", models.CharField(blank=True, max_length=20, null=True, verbose_name="Telefon")),
-                ("address", models.TextField(blank=True, null=True, verbose_name="Adres")),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Tedarikçi Adı"),
+                ),
+                (
+                    "tax_number",
+                    models.CharField(
+                        blank=True,
+                        max_length=20,
+                        null=True,
+                        verbose_name="Vergi Numarası",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, null=True, verbose_name="E-posta"
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True, max_length=20, null=True, verbose_name="Telefon"
+                    ),
+                ),
+                (
+                    "address",
+                    models.TextField(blank=True, null=True, verbose_name="Adres"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -177,7 +267,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="payment",
             name="approved_at",
-            field=models.DateTimeField(blank=True, null=True, verbose_name="Onay Zamanı"),
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Onay Zamanı"
+            ),
         ),
         migrations.AddField(
             model_name="payment",
@@ -194,8 +286,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="VendorPayment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Ödeme Tutarı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Ödeme Tutarı"
+                    ),
+                ),
                 (
                     "payment_method",
                     models.CharField(
@@ -210,9 +315,18 @@ class Migration(migrations.Migration):
                         verbose_name="Ödeme Yöntemi",
                     ),
                 ),
-                ("payment_date", models.DateField(auto_now_add=True, verbose_name="Ödeme Tarihi")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
+                (
+                    "payment_date",
+                    models.DateField(auto_now_add=True, verbose_name="Ödeme Tarihi"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -286,10 +400,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BankStatementLine",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("date", models.DateField(verbose_name="Tarih")),
-                ("description", models.CharField(blank=True, max_length=255, null=True, verbose_name="Açıklama")),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Tutar")),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Tutar"
+                    ),
+                ),
                 (
                     "matched_transaction",
                     models.ForeignKey(

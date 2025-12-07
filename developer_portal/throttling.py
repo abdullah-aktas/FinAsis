@@ -63,4 +63,3 @@ class DeveloperAPIKeyRateThrottle(SimpleRateThrottle):
 
 
 __all__ = ["DeveloperAPIKeyRateThrottle"]
-

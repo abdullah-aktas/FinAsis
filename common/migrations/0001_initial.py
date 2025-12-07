@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -18,12 +17,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ApprovalRequest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("object_id", models.CharField(max_length=64)),
                 (
                     "status",
                     models.CharField(
-                        choices=[("PENDING", "Beklemede"), ("APPROVED", "Onaylandı"), ("REJECTED", "Reddedildi")],
+                        choices=[
+                            ("PENDING", "Beklemede"),
+                            ("APPROVED", "Onaylandı"),
+                            ("REJECTED", "Reddedildi"),
+                        ],
                         default="PENDING",
                         max_length=16,
                     ),
@@ -33,7 +44,10 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "content_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="contenttypes.contenttype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
                 ),
                 (
                     "decided_by",
@@ -57,15 +71,28 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["content_type", "object_id", "status"], name="common_appr_content_4011c6_idx"),
-                    models.Index(fields=["created_at"], name="common_appr_created_130114_idx"),
+                    models.Index(
+                        fields=["content_type", "object_id", "status"],
+                        name="common_appr_content_4011c6_idx",
+                    ),
+                    models.Index(
+                        fields=["created_at"], name="common_appr_created_130114_idx"
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="AuditLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("object_id", models.CharField(max_length=64)),
                 ("action", models.CharField(max_length=50)),
                 ("ip_address", models.GenericIPAddressField(blank=True, null=True)),
@@ -73,12 +100,18 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "content_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="contenttypes.contenttype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
                 ),
                 (
                     "user",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
@@ -88,9 +121,13 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
                 "indexes": [
                     models.Index(
-                        fields=["content_type", "object_id", "created_at"], name="common_audi_content_a8c024_idx"
+                        fields=["content_type", "object_id", "created_at"],
+                        name="common_audi_content_a8c024_idx",
                     ),
-                    models.Index(fields=["action", "created_at"], name="common_audi_action_f07e2b_idx"),
+                    models.Index(
+                        fields=["action", "created_at"],
+                        name="common_audi_action_f07e2b_idx",
+                    ),
                 ],
             },
         ),

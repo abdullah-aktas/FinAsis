@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django.contrib import messages
-from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
@@ -43,7 +42,9 @@ class PartnerApplicationCreateView(FormView):
 
         messages.success(
             self.request,
-            _("Başvurunuz alındı. Ekiplerimiz en kısa sürede sizinle iletişime geçecek."),
+            _(
+                "Başvurunuz alındı. Ekiplerimiz en kısa sürede sizinle iletişime geçecek."
+            ),
         )
         return super().form_valid(form)
 
@@ -53,9 +54,6 @@ class PartnerApplicationThanksView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.setdefault(
-            "page_title", _("FinAsis · Partner Başvurusu Gönderildi")
-        )
+        context.setdefault("page_title", _("FinAsis · Partner Başvurusu Gönderildi"))
         context["apply_url"] = reverse("partners:apply")
         return context
-

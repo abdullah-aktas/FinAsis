@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("advisors", "0002_taxpayerprofile_company"),
@@ -16,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ConsultationSession",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "session_type",
                     models.CharField(
@@ -48,16 +55,29 @@ class Migration(migrations.Migration):
                 ),
                 ("scheduled_date", models.DateField(verbose_name="Planlanan Tarih")),
                 ("scheduled_time", models.TimeField(verbose_name="Planlanan Saat")),
-                ("duration_minutes", models.IntegerField(default=60, verbose_name="Süre (dakika)")),
+                (
+                    "duration_minutes",
+                    models.IntegerField(default=60, verbose_name="Süre (dakika)"),
+                ),
                 ("actual_start", models.DateTimeField(blank=True, null=True)),
                 ("actual_end", models.DateTimeField(blank=True, null=True)),
                 ("agenda", models.TextField(blank=True, verbose_name="Gündem")),
                 ("notes", models.TextField(blank=True, verbose_name="Görüşme Notları")),
-                ("action_items", models.JSONField(blank=True, default=list, verbose_name="Aksiyonlar")),
+                (
+                    "action_items",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Aksiyonlar"
+                    ),
+                ),
                 ("follow_up_required", models.BooleanField(default=False)),
                 ("follow_up_date", models.DateField(blank=True, null=True)),
                 ("billable", models.BooleanField(default=True)),
-                ("billing_amount", models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
+                (
+                    "billing_amount",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
                 ("invoice_generated", models.BooleanField(default=False)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -87,7 +107,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ClientDocument",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "document_type",
                     models.CharField(
@@ -107,10 +135,30 @@ class Migration(migrations.Migration):
                 ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("file", models.FileField(upload_to="client_documents/", verbose_name="Dosya")),
-                ("file_size", models.IntegerField(blank=True, null=True, verbose_name="Dosya Boyutu (bytes)")),
-                ("document_date", models.DateField(blank=True, null=True, verbose_name="Belge Tarihi")),
-                ("tags", models.JSONField(blank=True, default=list, verbose_name="Etiketler")),
+                (
+                    "file",
+                    models.FileField(
+                        upload_to="client_documents/", verbose_name="Dosya"
+                    ),
+                ),
+                (
+                    "file_size",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Dosya Boyutu (bytes)"
+                    ),
+                ),
+                (
+                    "document_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Belge Tarihi"
+                    ),
+                ),
+                (
+                    "tags",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Etiketler"
+                    ),
+                ),
                 ("is_confidential", models.BooleanField(default=True)),
                 ("access_log", models.JSONField(blank=True, default=list)),
                 ("uploaded_at", models.DateTimeField(auto_now_add=True)),
@@ -141,7 +189,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ClientContract",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "contract_type",
                     models.CharField(
@@ -155,17 +211,33 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("contract_number", models.CharField(max_length=50, unique=True)),
-                ("title", models.CharField(max_length=200, verbose_name="Sözleşme Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Sözleşme Başlığı"),
+                ),
                 ("scope_of_work", models.TextField(verbose_name="İş Kapsamı")),
-                ("terms_and_conditions", models.TextField(verbose_name="Şartlar ve Koşullar")),
+                (
+                    "terms_and_conditions",
+                    models.TextField(verbose_name="Şartlar ve Koşullar"),
+                ),
                 (
                     "contract_value",
-                    models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Sözleşme Bedeli"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Sözleşme Bedeli"
+                    ),
                 ),
-                ("payment_terms", models.CharField(max_length=100, verbose_name="Ödeme Koşulları")),
+                (
+                    "payment_terms",
+                    models.CharField(max_length=100, verbose_name="Ödeme Koşulları"),
+                ),
                 ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
                 ("end_date", models.DateField(verbose_name="Bitiş Tarihi")),
-                ("renewal_date", models.DateField(blank=True, null=True, verbose_name="Yenileme Tarihi")),
+                (
+                    "renewal_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Yenileme Tarihi"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -181,10 +253,25 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("signed_at", models.DateTimeField(blank=True, null=True)),
-                ("contract_file", models.FileField(blank=True, null=True, upload_to="advisor_contracts/")),
-                ("signed_contract", models.FileField(blank=True, null=True, upload_to="advisor_contracts/signed/")),
+                (
+                    "contract_file",
+                    models.FileField(
+                        blank=True, null=True, upload_to="advisor_contracts/"
+                    ),
+                ),
+                (
+                    "signed_contract",
+                    models.FileField(
+                        blank=True, null=True, upload_to="advisor_contracts/signed/"
+                    ),
+                ),
                 ("auto_renew", models.BooleanField(default=False)),
-                ("renewal_notice_days", models.IntegerField(default=30, verbose_name="Yenileme Bildirimi (gün)")),
+                (
+                    "renewal_notice_days",
+                    models.IntegerField(
+                        default=30, verbose_name="Yenileme Bildirimi (gün)"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -213,16 +300,37 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvisorTimeTracking",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("date", models.DateField(verbose_name="Tarih")),
                 ("start_time", models.TimeField(verbose_name="Başlangıç")),
                 ("end_time", models.TimeField(verbose_name="Bitiş")),
                 ("duration_minutes", models.IntegerField(verbose_name="Süre (dakika)")),
                 ("task_description", models.TextField(verbose_name="Yapılan İş")),
-                ("service_category", models.CharField(max_length=50, verbose_name="Hizmet Kategorisi")),
+                (
+                    "service_category",
+                    models.CharField(max_length=50, verbose_name="Hizmet Kategorisi"),
+                ),
                 ("billable", models.BooleanField(default=True)),
-                ("hourly_rate", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Saatlik Ücret")),
-                ("total_amount", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Toplam Tutar")),
+                (
+                    "hourly_rate",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Saatlik Ücret"
+                    ),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Toplam Tutar"
+                    ),
+                ),
                 ("invoiced", models.BooleanField(default=False)),
                 ("invoice_reference", models.CharField(blank=True, max_length=50)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -262,7 +370,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvisorTask",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "task_type",
                     models.CharField(
@@ -278,12 +394,20 @@ class Migration(migrations.Migration):
                         max_length=30,
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Görev Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Görev Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 (
                     "priority",
                     models.CharField(
-                        choices=[("low", "Düşük"), ("medium", "Orta"), ("high", "Yüksek"), ("urgent", "Acil")],
+                        choices=[
+                            ("low", "Düşük"),
+                            ("medium", "Orta"),
+                            ("high", "Yüksek"),
+                            ("urgent", "Acil"),
+                        ],
                         default="medium",
                         max_length=20,
                     ),
@@ -298,7 +422,9 @@ class Migration(migrations.Migration):
                 (
                     "advisor",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="tasks", to="advisors.advisorprofile"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tasks",
+                        to="advisors.advisorprofile",
                     ),
                 ),
                 (
@@ -321,7 +447,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvisorService",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "service_type",
                     models.CharField(
@@ -339,7 +473,10 @@ class Migration(migrations.Migration):
                         verbose_name="Hizmet Tipi",
                     ),
                 ),
-                ("service_name", models.CharField(max_length=200, verbose_name="Hizmet Adı")),
+                (
+                    "service_name",
+                    models.CharField(max_length=200, verbose_name="Hizmet Adı"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 (
                     "pricing_model",
@@ -354,7 +491,12 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("price", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Fiyat")),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Fiyat"
+                    ),
+                ),
                 ("currency", models.CharField(default="TRY", max_length=3)),
                 ("is_active", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -376,7 +518,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvisorReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "report_type",
                     models.CharField(
@@ -393,14 +543,28 @@ class Migration(migrations.Migration):
                         max_length=30,
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Rapor Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Rapor Başlığı"),
+                ),
                 ("executive_summary", models.TextField(verbose_name="Yönetici Özeti")),
                 ("detailed_content", models.TextField(verbose_name="Detaylı İçerik")),
-                ("findings", models.JSONField(blank=True, default=list, verbose_name="Bulgular")),
-                ("recommendations", models.JSONField(blank=True, default=list, verbose_name="Öneriler")),
+                (
+                    "findings",
+                    models.JSONField(blank=True, default=list, verbose_name="Bulgular"),
+                ),
+                (
+                    "recommendations",
+                    models.JSONField(blank=True, default=list, verbose_name="Öneriler"),
+                ),
                 ("period_start", models.DateField(blank=True, null=True)),
                 ("period_end", models.DateField(blank=True, null=True)),
-                ("report_file", models.FileField(blank=True, null=True, upload_to="advisor_reports/")),
+                (
+                    "report_file",
+                    models.FileField(
+                        blank=True, null=True, upload_to="advisor_reports/"
+                    ),
+                ),
                 ("attachments", models.JSONField(blank=True, default=list)),
                 ("is_approved", models.BooleanField(default=False)),
                 ("delivered_at", models.DateTimeField(blank=True, null=True)),

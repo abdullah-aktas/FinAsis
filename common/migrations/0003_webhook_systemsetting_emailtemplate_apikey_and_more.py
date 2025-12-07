@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("contenttypes", "0002_remove_content_type_name"),
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Webhook",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Webhook Adı")),
                 ("url", models.URLField(verbose_name="Webhook URL")),
                 (
@@ -36,12 +43,31 @@ class Migration(migrations.Migration):
                         verbose_name="Event Tipi",
                     ),
                 ),
-                ("secret_key", models.CharField(blank=True, max_length=100, verbose_name="Secret Key")),
+                (
+                    "secret_key",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Secret Key"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("total_calls", models.IntegerField(default=0, verbose_name="Toplam Çağrı")),
-                ("success_count", models.IntegerField(default=0, verbose_name="Başarılı")),
-                ("failure_count", models.IntegerField(default=0, verbose_name="Başarısız")),
-                ("last_called_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Çağrı")),
+                (
+                    "total_calls",
+                    models.IntegerField(default=0, verbose_name="Toplam Çağrı"),
+                ),
+                (
+                    "success_count",
+                    models.IntegerField(default=0, verbose_name="Başarılı"),
+                ),
+                (
+                    "failure_count",
+                    models.IntegerField(default=0, verbose_name="Başarısız"),
+                ),
+                (
+                    "last_called_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Çağrı"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "user",
@@ -62,8 +88,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SystemSetting",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("key", models.CharField(max_length=100, unique=True, verbose_name="Anahtar")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "key",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Anahtar"
+                    ),
+                ),
                 ("value", models.TextField(verbose_name="Değer")),
                 (
                     "value_type",
@@ -82,9 +121,20 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("category", models.CharField(blank=True, max_length=50, verbose_name="Kategori")),
-                ("is_public", models.BooleanField(default=False, verbose_name="Herkese Açık")),
-                ("is_editable", models.BooleanField(default=True, verbose_name="Düzenlenebilir")),
+                (
+                    "category",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Kategori"
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(default=False, verbose_name="Herkese Açık"),
+                ),
+                (
+                    "is_editable",
+                    models.BooleanField(default=True, verbose_name="Düzenlenebilir"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -107,12 +157,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="EmailTemplate",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="Kod")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="Kod"),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Şablon Adı")),
                 ("subject", models.CharField(max_length=200, verbose_name="Konu")),
                 ("body_html", models.TextField(verbose_name="HTML İçerik")),
-                ("body_text", models.TextField(blank=True, verbose_name="Düz Metin İçerik")),
+                (
+                    "body_text",
+                    models.TextField(blank=True, verbose_name="Düz Metin İçerik"),
+                ),
                 (
                     "variables",
                     models.JSONField(
@@ -122,7 +186,12 @@ class Migration(migrations.Migration):
                         verbose_name="Değişkenler",
                     ),
                 ),
-                ("category", models.CharField(blank=True, max_length=50, verbose_name="Kategori")),
+                (
+                    "category",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Kategori"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -146,20 +215,63 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="APIKey",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Anahtar Adı")),
-                ("key", models.CharField(max_length=100, unique=True, verbose_name="API Key")),
-                ("secret", models.CharField(blank=True, max_length=100, verbose_name="Secret Key")),
-                ("permissions", models.JSONField(blank=True, default=list, verbose_name="İzinler")),
+                (
+                    "key",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="API Key"
+                    ),
+                ),
+                (
+                    "secret",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Secret Key"
+                    ),
+                ),
+                (
+                    "permissions",
+                    models.JSONField(blank=True, default=list, verbose_name="İzinler"),
+                ),
                 (
                     "allowed_ips",
-                    models.TextField(blank=True, help_text="Her satırda bir IP", verbose_name="İzin Verilen IP'ler"),
+                    models.TextField(
+                        blank=True,
+                        help_text="Her satırda bir IP",
+                        verbose_name="İzin Verilen IP'ler",
+                    ),
                 ),
-                ("rate_limit", models.IntegerField(default=1000, verbose_name="Rate Limit (saat başı)")),
+                (
+                    "rate_limit",
+                    models.IntegerField(
+                        default=1000, verbose_name="Rate Limit (saat başı)"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("total_requests", models.IntegerField(default=0, verbose_name="Toplam İstek")),
-                ("last_used_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanım")),
-                ("expires_at", models.DateTimeField(blank=True, null=True, verbose_name="Geçerlilik Süresi")),
+                (
+                    "total_requests",
+                    models.IntegerField(default=0, verbose_name="Toplam İstek"),
+                ),
+                (
+                    "last_used_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanım"
+                    ),
+                ),
+                (
+                    "expires_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Geçerlilik Süresi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "user",
@@ -180,15 +292,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="WebhookLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("request_payload", models.JSONField(default=dict, verbose_name="İstek")),
-                ("request_headers", models.JSONField(default=dict, verbose_name="İstek Headers")),
-                ("response_status", models.IntegerField(blank=True, null=True, verbose_name="Durum Kodu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "request_payload",
+                    models.JSONField(default=dict, verbose_name="İstek"),
+                ),
+                (
+                    "request_headers",
+                    models.JSONField(default=dict, verbose_name="İstek Headers"),
+                ),
+                (
+                    "response_status",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Durum Kodu"
+                    ),
+                ),
                 ("response_body", models.TextField(blank=True, verbose_name="Yanıt")),
-                ("response_time_ms", models.IntegerField(blank=True, null=True, verbose_name="Yanıt Süresi (ms)")),
-                ("is_success", models.BooleanField(default=False, verbose_name="Başarılı")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("retry_count", models.IntegerField(default=0, verbose_name="Yeniden Deneme Sayısı")),
+                (
+                    "response_time_ms",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Yanıt Süresi (ms)"
+                    ),
+                ),
+                (
+                    "is_success",
+                    models.BooleanField(default=False, verbose_name="Başarılı"),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "retry_count",
+                    models.IntegerField(
+                        default=0, verbose_name="Yeniden Deneme Sayısı"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "webhook",
@@ -205,15 +352,29 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Webhook Logları",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["webhook", "-created_at"], name="common_webh_webhook_0fdc90_idx"),
-                    models.Index(fields=["is_success", "-created_at"], name="common_webh_is_succ_c88a60_idx"),
+                    models.Index(
+                        fields=["webhook", "-created_at"],
+                        name="common_webh_webhook_0fdc90_idx",
+                    ),
+                    models.Index(
+                        fields=["is_success", "-created_at"],
+                        name="common_webh_is_succ_c88a60_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="ScheduledTask",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Görev Adı")),
                 (
                     "task_type",
@@ -231,14 +392,25 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("scheduled_at", models.DateTimeField(verbose_name="Çalışma Zamanı")),
-                ("is_recurring", models.BooleanField(default=False, verbose_name="Tekrarlayan")),
+                (
+                    "is_recurring",
+                    models.BooleanField(default=False, verbose_name="Tekrarlayan"),
+                ),
                 (
                     "recurrence_pattern",
                     models.CharField(
-                        blank=True, help_text="cron formatı", max_length=100, verbose_name="Tekrar Deseni"
+                        blank=True,
+                        help_text="cron formatı",
+                        max_length=100,
+                        verbose_name="Tekrar Deseni",
                     ),
                 ),
-                ("parameters", models.JSONField(blank=True, default=dict, verbose_name="Parametreler")),
+                (
+                    "parameters",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Parametreler"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -255,10 +427,26 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("result", models.TextField(blank=True, verbose_name="Sonuç")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("started_at", models.DateTimeField(blank=True, null=True, verbose_name="Başlangıç")),
-                ("completed_at", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş")),
-                ("execution_time_ms", models.IntegerField(blank=True, null=True, verbose_name="Çalışma Süresi (ms)")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Başlangıç"
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="Bitiş"),
+                ),
+                (
+                    "execution_time_ms",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Çalışma Süresi (ms)"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "created_by",
@@ -275,19 +463,47 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Zamanlanmış Görevler",
                 "ordering": ["scheduled_at"],
                 "indexes": [
-                    models.Index(fields=["status", "scheduled_at"], name="common_sche_status_6217ba_idx"),
-                    models.Index(fields=["task_type", "-created_at"], name="common_sche_task_ty_7f1c4b_idx"),
+                    models.Index(
+                        fields=["status", "scheduled_at"],
+                        name="common_sche_status_6217ba_idx",
+                    ),
+                    models.Index(
+                        fields=["task_type", "-created_at"],
+                        name="common_sche_task_ty_7f1c4b_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="FileUpload",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("file", models.FileField(upload_to="uploads/%Y/%m/%d/", verbose_name="Dosya")),
-                ("original_filename", models.CharField(max_length=255, verbose_name="Orijinal Dosya Adı")),
-                ("file_size", models.BigIntegerField(verbose_name="Dosya Boyutu (bytes)")),
-                ("file_type", models.CharField(max_length=100, verbose_name="Dosya Tipi (MIME)")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.FileField(
+                        upload_to="uploads/%Y/%m/%d/", verbose_name="Dosya"
+                    ),
+                ),
+                (
+                    "original_filename",
+                    models.CharField(max_length=255, verbose_name="Orijinal Dosya Adı"),
+                ),
+                (
+                    "file_size",
+                    models.BigIntegerField(verbose_name="Dosya Boyutu (bytes)"),
+                ),
+                (
+                    "file_type",
+                    models.CharField(max_length=100, verbose_name="Dosya Tipi (MIME)"),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -307,13 +523,35 @@ class Migration(migrations.Migration):
                 ),
                 ("object_id", models.CharField(blank=True, max_length=64)),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("tags", models.JSONField(blank=True, default=list, verbose_name="Etiketler")),
-                ("is_public", models.BooleanField(default=False, verbose_name="Herkese Açık")),
-                ("access_count", models.IntegerField(default=0, verbose_name="Erişim Sayısı")),
-                ("is_scanned", models.BooleanField(default=False, verbose_name="Tarandı")),
+                (
+                    "tags",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Etiketler"
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(default=False, verbose_name="Herkese Açık"),
+                ),
+                (
+                    "access_count",
+                    models.IntegerField(default=0, verbose_name="Erişim Sayısı"),
+                ),
+                (
+                    "is_scanned",
+                    models.BooleanField(default=False, verbose_name="Tarandı"),
+                ),
                 ("is_safe", models.BooleanField(default=True, verbose_name="Güvenli")),
-                ("scan_result", models.TextField(blank=True, verbose_name="Tarama Sonucu")),
-                ("uploaded_at", models.DateTimeField(auto_now_add=True, verbose_name="Yüklenme Tarihi")),
+                (
+                    "scan_result",
+                    models.TextField(blank=True, verbose_name="Tarama Sonucu"),
+                ),
+                (
+                    "uploaded_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Yüklenme Tarihi"
+                    ),
+                ),
                 (
                     "content_type",
                     models.ForeignKey(
@@ -338,15 +576,29 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Dosya Yüklemeleri",
                 "ordering": ["-uploaded_at"],
                 "indexes": [
-                    models.Index(fields=["uploaded_by", "-uploaded_at"], name="common_file_uploade_f836e1_idx"),
-                    models.Index(fields=["category", "-uploaded_at"], name="common_file_categor_ba82f7_idx"),
+                    models.Index(
+                        fields=["uploaded_by", "-uploaded_at"],
+                        name="common_file_uploade_f836e1_idx",
+                    ),
+                    models.Index(
+                        fields=["category", "-uploaded_at"],
+                        name="common_file_categor_ba82f7_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="EmailLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("to_email", models.EmailField(max_length=254, verbose_name="Alıcı")),
                 ("cc_emails", models.TextField(blank=True, verbose_name="CC")),
                 ("bcc_emails", models.TextField(blank=True, verbose_name="BCC")),
@@ -366,10 +618,28 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("sent_at", models.DateTimeField(blank=True, null=True, verbose_name="Gönderim Zamanı")),
-                ("opened_at", models.DateTimeField(blank=True, null=True, verbose_name="Açılma Zamanı")),
-                ("clicked_at", models.DateTimeField(blank=True, null=True, verbose_name="Tıklama Zamanı")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "sent_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Gönderim Zamanı"
+                    ),
+                ),
+                (
+                    "opened_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Açılma Zamanı"
+                    ),
+                ),
+                (
+                    "clicked_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Tıklama Zamanı"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "template",
@@ -397,8 +667,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "E-posta Logları",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["status", "-created_at"], name="common_emai_status_e24e32_idx"),
-                    models.Index(fields=["to_email", "-created_at"], name="common_emai_to_emai_1bb1c3_idx"),
+                    models.Index(
+                        fields=["status", "-created_at"],
+                        name="common_emai_status_e24e32_idx",
+                    ),
+                    models.Index(
+                        fields=["to_email", "-created_at"],
+                        name="common_emai_to_emai_1bb1c3_idx",
+                    ),
                 ],
             },
         ),

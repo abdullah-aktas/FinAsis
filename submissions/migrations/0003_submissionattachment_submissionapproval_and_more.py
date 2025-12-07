@@ -6,19 +6,37 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("submissions", "0002_rename_decl_code_period_vkn_idx_submissions_code_a229ce_idx"),
+        (
+            "submissions",
+            "0002_rename_decl_code_period_vkn_idx_submissions_code_a229ce_idx",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
             name="SubmissionAttachment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("file", models.FileField(upload_to="submissions/attachments/", verbose_name="Dosya")),
-                ("file_name", models.CharField(max_length=255, verbose_name="Dosya Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "file",
+                    models.FileField(
+                        upload_to="submissions/attachments/", verbose_name="Dosya"
+                    ),
+                ),
+                (
+                    "file_name",
+                    models.CharField(max_length=255, verbose_name="Dosya Adı"),
+                ),
                 (
                     "file_type",
                     models.CharField(
@@ -33,7 +51,10 @@ class Migration(migrations.Migration):
                         verbose_name="Dosya Tipi",
                     ),
                 ),
-                ("file_size", models.BigIntegerField(verbose_name="Dosya Boyutu (bytes)")),
+                (
+                    "file_size",
+                    models.BigIntegerField(verbose_name="Dosya Boyutu (bytes)"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 ("uploaded_at", models.DateTimeField(auto_now_add=True)),
                 (
@@ -63,7 +84,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SubmissionApproval",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -79,9 +108,22 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("comments", models.TextField(blank=True, verbose_name="Yorumlar")),
-                ("revision_notes", models.TextField(blank=True, verbose_name="Revizyon Notları")),
-                ("requested_at", models.DateTimeField(auto_now_add=True, verbose_name="İstek Tarihi")),
-                ("responded_at", models.DateTimeField(blank=True, null=True, verbose_name="Yanıt Tarihi")),
+                (
+                    "revision_notes",
+                    models.TextField(blank=True, verbose_name="Revizyon Notları"),
+                ),
+                (
+                    "requested_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="İstek Tarihi"
+                    ),
+                ),
+                (
+                    "responded_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Yanıt Tarihi"
+                    ),
+                ),
                 (
                     "approver",
                     models.ForeignKey(
@@ -110,18 +152,48 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SubmissionTemplate",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Şablon Adı")),
                 (
                     "code",
-                    models.CharField(help_text="KDV1, BA-BS, Muhtasar, vs.", max_length=50, verbose_name="Beyan Kodu"),
+                    models.CharField(
+                        help_text="KDV1, BA-BS, Muhtasar, vs.",
+                        max_length=50,
+                        verbose_name="Beyan Kodu",
+                    ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("template_structure", models.JSONField(default=dict, verbose_name="Şablon Yapısı")),
-                ("default_values", models.JSONField(blank=True, default=dict, verbose_name="Varsayılan Değerler")),
-                ("validation_rules", models.JSONField(blank=True, default=dict, verbose_name="Doğrulama Kuralları")),
+                (
+                    "template_structure",
+                    models.JSONField(default=dict, verbose_name="Şablon Yapısı"),
+                ),
+                (
+                    "default_values",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Varsayılan Değerler"
+                    ),
+                ),
+                (
+                    "validation_rules",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Doğrulama Kuralları"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("version", models.CharField(default="1.0", max_length=20, verbose_name="Versiyon")),
+                (
+                    "version",
+                    models.CharField(
+                        default="1.0", max_length=20, verbose_name="Versiyon"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (

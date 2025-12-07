@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import secrets
-from dataclasses import dataclass
 from typing import Iterable, Tuple
 from uuid import uuid4
 
@@ -219,5 +218,6 @@ class WebhookTestLog(models.Model):
         ]
 
     def __str__(self) -> str:  # pragma: no cover - admin representation
-        return f"{self.event_type} → {self.target_url} ({self.response_status or 'error'})"
-
+        return (
+            f"{self.event_type} → {self.target_url} ({self.response_status or 'error'})"
+        )

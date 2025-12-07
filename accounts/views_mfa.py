@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, resolve_url
-from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django_otp import devices_for_user, login as otp_login
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -20,26 +19,28 @@ def _get_safe_redirect(request, fallback=None):
     """
     # Önce session'da kaydedilmiş URL'i kontrol et
     next_url = request.session.pop("post_otp_redirect", None)
-    
+
     # Sonra GET parametresinden
     if not next_url:
         next_url = request.GET.get("next")
-    
+
     # Güvenli URL kontrolü
     if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
         return next_url
-    
+
     # Fallback: Kullanıcı tipine göre dashboard
-    if hasattr(request, 'user') and request.user.is_authenticated:
+    if hasattr(request, "user") and request.user.is_authenticated:
         return get_redirect_after_login(request, request.user)
-    
+
     # Son çare: settings'den veya fallback
     return resolve_url(fallback or settings.LOGIN_REDIRECT_URL)
 
 
 @login_required
 def otp_verify(request):
-    confirmed_devices = [device for device in devices_for_user(request.user, confirmed=True)]
+    confirmed_devices = [
+        device for device in devices_for_user(request.user, confirmed=True)
+    ]
     if not confirmed_devices:
         return redirect(_get_safe_redirect(request))
 
@@ -82,7 +83,9 @@ def otp_verify(request):
 
 @login_required
 def otp_setup(request):
-    confirmed_device = next((d for d in devices_for_user(request.user, confirmed=True)), None)
+    confirmed_device = next(
+        (d for d in devices_for_user(request.user, confirmed=True)), None
+    )
     pending_device = None
 
     if not confirmed_device:
@@ -146,5 +149,6 @@ def otp_disable(request):
         messages.success(request, "Çok faktörlü doğrulama devre dışı bırakıldı.")
         return redirect("accounts:otp_setup")
 
-    return render(request, "accounts/otp_disable.html", {"device_count": len(confirmed_devices)})
-
+    return render(
+        request, "accounts/otp_disable.html", {"device_count": len(confirmed_devices)}
+    )

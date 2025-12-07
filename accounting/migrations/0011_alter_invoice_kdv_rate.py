@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0010_exchangerate_glaccount_gljournalentry_gljournalline"),
     ]
@@ -15,7 +14,11 @@ class Migration(migrations.Migration):
             model_name="invoice",
             name="kdv_rate",
             field=models.DecimalField(
-                choices=[(Decimal("0.01"), "%1"), (Decimal("0.10"), "%10"), (Decimal("0.20"), "%20")],
+                choices=[
+                    (Decimal("0.01"), "%1"),
+                    (Decimal("0.10"), "%10"),
+                    (Decimal("0.20"), "%20"),
+                ],
                 decimal_places=2,
                 default=Decimal("0.20"),
                 max_digits=4,

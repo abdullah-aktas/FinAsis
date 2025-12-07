@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("games", "0011_achievement_gamestate_ursinagame_gamescore_and_more"),
     ]

@@ -10,4 +10,4 @@ from .doviz_service import *
 from .blockchain_service import *
 from .ai_service import *
 from .gamification_service import *
-from .edefter_service import * 
+from .edefter_service import *

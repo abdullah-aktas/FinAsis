@@ -5,7 +5,7 @@ Her HTTP isteğinde otomatik yetki kontrolü yapar
 """
 
 from django.utils.deprecation import MiddlewareMixin
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from .permissions import check_url_permission, get_user_role_category
@@ -20,80 +20,83 @@ class RBACMiddleware(MiddlewareMixin):
     Role-Based Access Control Middleware
     Her isteği role göre kontrol eder
     """
-    
+
     # Bu URL'ler kontrol edilmez (herkes erişebilir)
     EXEMPT_URLS = [
-        r'^/$',  # Ana sayfa
-        r'^/accounts/login',
-        r'^/accounts/logout',
-        r'^/accounts/register',
-        r'^/accounts/password',
-        r'^/static/',
-        r'^/media/',
-        r'^/health/',
-        r'^/api/public/',
-        r'^/legal/',
-        r'^/privacy/',
-        r'^/terms/',
-        r'^/contact/',
-        r'^/about/',
-        r'^/__debug__/',  # Django Debug Toolbar
+        r"^/$",  # Ana sayfa
+        r"^/accounts/login",
+        r"^/accounts/logout",
+        r"^/accounts/register",
+        r"^/accounts/password",
+        r"^/static/",
+        r"^/media/",
+        r"^/health/",
+        r"^/api/public/",
+        r"^/legal/",
+        r"^/privacy/",
+        r"^/terms/",
+        r"^/contact/",
+        r"^/about/",
+        r"^/__debug__/",  # Django Debug Toolbar
     ]
-    
+
     # Bu URL'ler özel kontrol gerektirir (logged in olmalı ama role göre değil)
     AUTH_REQUIRED_URLS = [
-        r'^/accounts/profile',
-        r'^/accounts/settings',
-        r'^/dashboard',
+        r"^/accounts/profile",
+        r"^/accounts/settings",
+        r"^/dashboard",
     ]
-    
+
     def process_request(self, request):
         """
         Her request'te çalışır
         """
         # Middleware'i devre dışı bırakma (test için)
-        if getattr(request, '_rbac_exempt', False):
+        if getattr(request, "_rbac_exempt", False):
             return None
-        
+
         # Redirect döngüsünü önlemek için flag kontrolü
-        if getattr(request, '_rbac_redirected', False):
+        if getattr(request, "_rbac_redirected", False):
             return None
-        
+
         # URL kontrolü
         path = request.path
-        
+
         # Exempt URL'leri kontrol et
         if self._is_exempt_url(path):
             return None
-        
+
         # Kullanıcı giriş yapmamışsa
         if not request.user.is_authenticated:
             # Auth required URL'lerde login'e yönlendir
             if self._is_auth_required_url(path):
-                messages.info(request, 'Bu sayfaya erişmek için giriş yapmalısınız.')
-                return HttpResponseRedirect(reverse('accounts:login') + f'?next={path}')
+                messages.info(request, "Bu sayfaya erişmek için giriş yapmalısınız.")
+                return HttpResponseRedirect(reverse("accounts:login") + f"?next={path}")
             # Diğerlerinde izin ver (public pages)
             return None
-        
+
         # Auth required URL'ler için sadece authenticated kontrolü yeterli
         if self._is_auth_required_url(path):
             # Kullanıcının rolü yoksa otomatik rol atama dene (sadece bir kez)
-            if not getattr(request, '_rbac_role_checked', False):
+            if not getattr(request, "_rbac_role_checked", False):
                 user_role = get_user_role_category(request.user)
                 if not user_role and not request.user.is_superuser:
                     try:
                         from common.auto_role_assignment import assign_roles_to_user
+
                         assign_roles_to_user(request.user)
-                        logger.info(f"Kullanıcı {request.user.username} için otomatik rol atama denendi")
+                        logger.info(
+                            f"Kullanıcı {request.user.username} için otomatik rol atama denendi"
+                        )
                     except Exception as e:
                         logger.warning(f"Otomatik rol atama hatası: {e}")
                 request._rbac_role_checked = True
             return None  # Authenticated kullanıcılar erişebilir
-        
+
         # Kullanıcı giriş yapmışsa, URL permission kontrolü
         if not check_url_permission(request.user, path):
             user_role = get_user_role_category(request.user)
-            
+
             # Log kaydet
             logger.warning(
                 f"RBAC: Yetkisiz erişim engellendi | "
@@ -103,47 +106,51 @@ class RBACMiddleware(MiddlewareMixin):
                 f"Method: {request.method} | "
                 f"IP: {self._get_client_ip(request)}"
             )
-            
+
             # AJAX request ise JSON döndür
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 from django.http import JsonResponse
-                return JsonResponse({
-                    'error': True,
-                    'message': 'Bu işlemi yapmaya yetkiniz yok.',
-                    'code': 'PERMISSION_DENIED'
-                }, status=403)
-            
+
+                return JsonResponse(
+                    {
+                        "error": True,
+                        "message": "Bu işlemi yapmaya yetkiniz yok.",
+                        "code": "PERMISSION_DENIED",
+                    },
+                    status=403,
+                )
+
             # Redirect döngüsünü önlemek için flag set et
             request._rbac_redirected = True
-            
+
             # Normal request ise mesaj göster ve profile'a yönlendir
-            messages.error(request, 'Bu sayfaya erişim yetkiniz yok.')
-            return HttpResponseRedirect(reverse('accounts:user_profile'))
-        
+            messages.error(request, "Bu sayfaya erişim yetkiniz yok.")
+            return HttpResponseRedirect(reverse("accounts:user_profile"))
+
         # Yetki varsa devam et
         return None
-    
+
     def _is_exempt_url(self, path: str) -> bool:
         """URL exempt mi kontrol et"""
         for pattern in self.EXEMPT_URLS:
             if re.match(pattern, path):
                 return True
         return False
-    
+
     def _is_auth_required_url(self, path: str) -> bool:
         """URL auth gerektiriyor mu kontrol et"""
         for pattern in self.AUTH_REQUIRED_URLS:
             if re.match(pattern, path):
                 return True
         return False
-    
+
     def _get_client_ip(self, request) -> str:
         """Client IP adresini al"""
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip = request.META.get("REMOTE_ADDR")
         return ip
 
 
@@ -152,20 +159,20 @@ class RoleLoggingMiddleware(MiddlewareMixin):
     Rol bazlı işlem loglama middleware'i
     Tüm önemli işlemleri loglar
     """
-    
+
     # Bu method'lar loglanır
-    LOGGED_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
-    
+    LOGGED_METHODS = ["POST", "PUT", "PATCH", "DELETE"]
+
     # Bu URL'ler loglanır
     LOGGED_URL_PATTERNS = [
-        r'^/accounting/',
-        r'^/finance/',
-        r'^/management/',
-        r'^/blockchain/',
-        r'^/audit/',
-        r'^/billing/',
+        r"^/accounting/",
+        r"^/finance/",
+        r"^/management/",
+        r"^/blockchain/",
+        r"^/audit/",
+        r"^/billing/",
     ]
-    
+
     def process_response(self, request, response):
         """
         Response işlendikten sonra çalışır
@@ -173,19 +180,19 @@ class RoleLoggingMiddleware(MiddlewareMixin):
         # Sadece authenticated user'lar için
         if not request.user.is_authenticated:
             return response
-        
+
         # Sadece belirli method'lar için
         if request.method not in self.LOGGED_METHODS:
             return response
-        
+
         # Sadece belirli URL'ler için
         if not self._should_log_url(request.path):
             return response
-        
+
         # Success response'lar için log
         if 200 <= response.status_code < 400:
             user_role = get_user_role_category(request.user)
-            
+
             logger.info(
                 f"RBAC Action | "
                 f"User: {request.user.username} | "
@@ -195,39 +202,36 @@ class RoleLoggingMiddleware(MiddlewareMixin):
                 f"Status: {response.status_code} | "
                 f"IP: {self._get_client_ip(request)}"
             )
-            
+
             # Audit log'a da kaydet (varsa)
             try:
                 from audit.utils import log_action
+
                 log_action(
                     user=request.user,
                     action=f"{request.method} {request.path}",
-                    object_type='URL',
+                    object_type="URL",
                     ip_address=self._get_client_ip(request),
-                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
-                    extra_data={
-                        'role': user_role,
-                        'status_code': response.status_code
-                    }
+                    user_agent=request.META.get("HTTP_USER_AGENT", ""),
+                    extra_data={"role": user_role, "status_code": response.status_code},
                 )
             except Exception as e:
                 logger.debug(f"Audit log failed: {e}")
-        
+
         return response
-    
+
     def _should_log_url(self, path: str) -> bool:
         """URL loglanmalı mı kontrol et"""
         for pattern in self.LOGGED_URL_PATTERNS:
             if re.match(pattern, path):
                 return True
         return False
-    
+
     def _get_client_ip(self, request) -> str:
         """Client IP adresini al"""
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip = request.META.get("REMOTE_ADDR")
         return ip
-

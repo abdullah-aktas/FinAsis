@@ -24,20 +24,21 @@ class GroundedQAService:
     def answer(self, query: str, top_k: int = 3) -> Dict[str, Any]:
         if not self.index:
             return {
-                'answer': 'Bilgi tabanı bulunamadı. Lütfen önce kaynakları içeri alın.',
-                'citations': []
+                "answer": "Bilgi tabanı bulunamadı. Lütfen önce kaynakları içeri alın.",
+                "citations": [],
             }
         chunks = self.index.search(query, top_k=top_k)
         snippets: List[str] = []
         cites: List[Dict[str, str]] = []
         for ch in chunks:
             # basit: ilk 400 karakterlik alıntı
-            snippet = (ch.content or '')[:400]
+            snippet = (ch.content or "")[:400]
             snippets.append(f"[{ch.title}] {snippet}")
-            cites.append({'title': ch.title, 'path': ch.path, 'snippet': snippet})
+            cites.append({"title": ch.title, "path": ch.path, "snippet": snippet})
         # Yanıt: sadece alıntıları özetleyen birleştirme (halüsinasyon yok)
-        answer_text = '\n\n'.join(snippets) if snippets else 'Sorgunuza uygun doğrulanmış içerik bulunamadı.'
-        return {
-            'answer': answer_text,
-            'citations': cites
-        }
+        answer_text = (
+            "\n\n".join(snippets)
+            if snippets
+            else "Sorgunuza uygun doğrulanmış içerik bulunamadı."
+        )
+        return {"answer": answer_text, "citations": cites}

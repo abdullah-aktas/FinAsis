@@ -5,7 +5,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -14,47 +13,129 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AdvisorProfile',
+            name="AdvisorProfile",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('type', models.CharField(choices=[('SMMM','SMMM'),('YMM','YMM')], max_length=10)),
-               ('chamber_no', models.CharField(blank=True, max_length=50)),
-               ('mersis_no', models.CharField(blank=True, max_length=50)),
-               ('e_signature_serial', models.CharField(blank=True, max_length=128)),
-               ('mali_muhur_fingerprint', models.CharField(blank=True, max_length=128)),
-               ('verified_at', models.DateTimeField(blank=True, null=True)),
-               ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='advisor_profile', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("SMMM", "SMMM"), ("YMM", "YMM")], max_length=10
+                    ),
+                ),
+                ("chamber_no", models.CharField(blank=True, max_length=50)),
+                ("mersis_no", models.CharField(blank=True, max_length=50)),
+                ("e_signature_serial", models.CharField(blank=True, max_length=128)),
+                (
+                    "mali_muhur_fingerprint",
+                    models.CharField(blank=True, max_length=128),
+                ),
+                ("verified_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="advisor_profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='AdvisorRegistrySource',
+            name="AdvisorRegistrySource",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('source', models.CharField(max_length=50)),
-               ('external_id', models.CharField(blank=True, max_length=100)),
-               ('data', models.JSONField(blank=True, default=dict)),
-               ('fetched_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("source", models.CharField(max_length=50)),
+                ("external_id", models.CharField(blank=True, max_length=100)),
+                ("data", models.JSONField(blank=True, default=dict)),
+                ("fetched_at", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
-            name='TaxpayerProfile',
+            name="TaxpayerProfile",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('name', models.CharField(max_length=255)),
-               ('vkn_tckn', models.CharField(max_length=20)),
-               ('mersis_no', models.CharField(blank=True, max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("vkn_tckn", models.CharField(max_length=20)),
+                ("mersis_no", models.CharField(blank=True, max_length=50)),
             ],
         ),
         migrations.CreateModel(
-            name='Engagement',
+            name="Engagement",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('scope', models.CharField(choices=[('defter','e-Defter'),('beyan','e-Beyan'),('both','Her ikisi')], max_length=30)),
-               ('status', models.CharField(choices=[('pending','Beklemede'),('active','Aktif'),('revoked','İptal')], default='active', max_length=20)),
-               ('created_at', models.DateTimeField(auto_now_add=True)),
-               ('advisor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='engagements', to='advisors.advisorprofile')),
-               ('taxpayer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='engagements', to='advisors.taxpayerprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "scope",
+                    models.CharField(
+                        choices=[
+                            ("defter", "e-Defter"),
+                            ("beyan", "e-Beyan"),
+                            ("both", "Her ikisi"),
+                        ],
+                        max_length=30,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Beklemede"),
+                            ("active", "Aktif"),
+                            ("revoked", "İptal"),
+                        ],
+                        default="active",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "advisor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="engagements",
+                        to="advisors.advisorprofile",
+                    ),
+                ),
+                (
+                    "taxpayer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="engagements",
+                        to="advisors.taxpayerprofile",
+                    ),
+                ),
             ],
-            options={'unique_together': {('advisor','taxpayer','scope')}},
+            options={"unique_together": {("advisor", "taxpayer", "scope")}},
         ),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("billing", "0003_plan_audience_enterpriseinquiry"),
     ]
@@ -14,7 +13,9 @@ class Migration(migrations.Migration):
             model_name="plan",
             name="audience",
             field=models.CharField(
-                choices=[("sme", "KOBİ"), ("edu", "Eğitim"), ("games", "Oyuncu")], default="sme", max_length=10
+                choices=[("sme", "KOBİ"), ("edu", "Eğitim"), ("games", "Oyuncu")],
+                default="sme",
+                max_length=10,
             ),
         ),
     ]

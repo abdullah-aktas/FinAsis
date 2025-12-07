@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class CorporateConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'corporate'
-    verbose_name = 'Kurumsal İçerik'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "corporate"
+    verbose_name = "Kurumsal İçerik"

@@ -5,184 +5,631 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Company',
+            name="Company",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, verbose_name='Şirket Adı')),
-                ('trade_name', models.CharField(blank=True, max_length=255, null=True, verbose_name='Ticari Unvan')),
-                ('tax_number', models.CharField(max_length=20, unique=True, verbose_name='Vergi Numarası')),
-                ('tax_office', models.CharField(blank=True, max_length=100, null=True, verbose_name='Vergi Dairesi')),
-                ('address', models.TextField(blank=True, null=True, verbose_name='Adres')),
-                ('phone', models.CharField(blank=True, max_length=20, null=True, verbose_name='Telefon')),
-                ('email', models.EmailField(blank=True, max_length=254, null=True, verbose_name='E-posta')),
-                ('website', models.URLField(blank=True, null=True, verbose_name='Web Sitesi')),
-                ('sector', models.CharField(blank=True, max_length=100, null=True, verbose_name='Sektör')),
-                ('logo', models.ImageField(blank=True, null=True, upload_to='company_logos/', verbose_name='Logo')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Kayıt Tarihi')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncelleme Tarihi')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, verbose_name="Şirket Adı")),
+                (
+                    "trade_name",
+                    models.CharField(
+                        blank=True,
+                        max_length=255,
+                        null=True,
+                        verbose_name="Ticari Unvan",
+                    ),
+                ),
+                (
+                    "tax_number",
+                    models.CharField(
+                        max_length=20, unique=True, verbose_name="Vergi Numarası"
+                    ),
+                ),
+                (
+                    "tax_office",
+                    models.CharField(
+                        blank=True,
+                        max_length=100,
+                        null=True,
+                        verbose_name="Vergi Dairesi",
+                    ),
+                ),
+                (
+                    "address",
+                    models.TextField(blank=True, null=True, verbose_name="Adres"),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True, max_length=20, null=True, verbose_name="Telefon"
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, null=True, verbose_name="E-posta"
+                    ),
+                ),
+                (
+                    "website",
+                    models.URLField(blank=True, null=True, verbose_name="Web Sitesi"),
+                ),
+                (
+                    "sector",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, verbose_name="Sektör"
+                    ),
+                ),
+                (
+                    "logo",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="company_logos/",
+                        verbose_name="Logo",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kayıt Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncelleme Tarihi"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Şirket',
-                'verbose_name_plural': 'Şirketler',
+                "verbose_name": "Şirket",
+                "verbose_name_plural": "Şirketler",
             },
         ),
         migrations.CreateModel(
-            name='BankAccount',
+            name="BankAccount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bank_name', models.CharField(max_length=100, verbose_name='Banka Adı')),
-                ('iban', models.CharField(max_length=34, unique=True, verbose_name='IBAN')),
-                ('account_name', models.CharField(max_length=100, verbose_name='Hesap Sahibinin Adı')),
-                ('account_type', models.CharField(choices=[('VADESIZ', 'Vadesiz Hesap'), ('VADELİ', 'Vadeli Hesap'), ('KREDI', 'Kredi Hesabı'), ('DIGER', 'Diğer')], max_length=20, verbose_name='Hesap Türü')),
-                ('balance', models.DecimalField(decimal_places=2, default=0.0, max_digits=15, verbose_name='Bakiye')),
-                ('currency', models.CharField(default='TRY', max_length=10, verbose_name='Para Birimi')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bank_accounts', to='accounting.company', verbose_name='Şirket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "bank_name",
+                    models.CharField(max_length=100, verbose_name="Banka Adı"),
+                ),
+                (
+                    "iban",
+                    models.CharField(max_length=34, unique=True, verbose_name="IBAN"),
+                ),
+                (
+                    "account_name",
+                    models.CharField(
+                        max_length=100, verbose_name="Hesap Sahibinin Adı"
+                    ),
+                ),
+                (
+                    "account_type",
+                    models.CharField(
+                        choices=[
+                            ("VADESIZ", "Vadesiz Hesap"),
+                            ("VADELİ", "Vadeli Hesap"),
+                            ("KREDI", "Kredi Hesabı"),
+                            ("DIGER", "Diğer"),
+                        ],
+                        max_length=20,
+                        verbose_name="Hesap Türü",
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0.0,
+                        max_digits=15,
+                        verbose_name="Bakiye",
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=10, verbose_name="Para Birimi"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="bank_accounts",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Banka Hesabı',
-                'verbose_name_plural': 'Banka Hesapları',
+                "verbose_name": "Banka Hesabı",
+                "verbose_name_plural": "Banka Hesapları",
             },
         ),
         migrations.CreateModel(
-            name='Customer',
+            name="Customer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=100, verbose_name='Adı')),
-                ('last_name', models.CharField(max_length=100, verbose_name='Soyadı')),
-                ('email', models.EmailField(blank=True, max_length=254, null=True, verbose_name='E-posta')),
-                ('phone', models.CharField(blank=True, max_length=20, null=True, verbose_name='Telefon')),
-                ('address', models.TextField(blank=True, null=True, verbose_name='Adres')),
-                ('tax_number', models.CharField(blank=True, max_length=20, null=True, verbose_name='Vergi Numarası')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Kayıt Tarihi')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncelleme Tarihi')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='customers', to='accounting.company', verbose_name='Bağlı Olduğu Şirket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=100, verbose_name="Adı")),
+                ("last_name", models.CharField(max_length=100, verbose_name="Soyadı")),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, null=True, verbose_name="E-posta"
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True, max_length=20, null=True, verbose_name="Telefon"
+                    ),
+                ),
+                (
+                    "address",
+                    models.TextField(blank=True, null=True, verbose_name="Adres"),
+                ),
+                (
+                    "tax_number",
+                    models.CharField(
+                        blank=True,
+                        max_length=20,
+                        null=True,
+                        verbose_name="Vergi Numarası",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kayıt Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncelleme Tarihi"
+                    ),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="customers",
+                        to="accounting.company",
+                        verbose_name="Bağlı Olduğu Şirket",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Müşteri',
-                'verbose_name_plural': 'Müşteriler',
+                "verbose_name": "Müşteri",
+                "verbose_name_plural": "Müşteriler",
             },
         ),
         migrations.CreateModel(
-            name='Expense',
+            name="Expense",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.CharField(choices=[('KIRA', 'Kira'), ('MAAS', 'Maaş'), ('OFIS', 'Ofis Gideri'), ('YOL', 'Yol / Ulaşım'), ('DIGER', 'Diğer')], max_length=20, verbose_name='Gider Türü')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Tutar')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Açıklama')),
-                ('expense_date', models.DateField(verbose_name='Gider Tarihi')),
-                ('paid', models.BooleanField(default=False, verbose_name='Ödendi mi?')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='expenses', to='accounting.company', verbose_name='Şirket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("KIRA", "Kira"),
+                            ("MAAS", "Maaş"),
+                            ("OFIS", "Ofis Gideri"),
+                            ("YOL", "Yol / Ulaşım"),
+                            ("DIGER", "Diğer"),
+                        ],
+                        max_length=20,
+                        verbose_name="Gider Türü",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Tutar"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                ("expense_date", models.DateField(verbose_name="Gider Tarihi")),
+                ("paid", models.BooleanField(default=False, verbose_name="Ödendi mi?")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="expenses",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Gider',
-                'verbose_name_plural': 'Giderler',
-                'ordering': ['-expense_date'],
+                "verbose_name": "Gider",
+                "verbose_name_plural": "Giderler",
+                "ordering": ["-expense_date"],
             },
         ),
         migrations.CreateModel(
-            name='Invoice',
+            name="Invoice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('invoice_number', models.CharField(max_length=50, unique=True, verbose_name='Fatura Numarası')),
-                ('issue_date', models.DateField(verbose_name='Fatura Tarihi')),
-                ('due_date', models.DateField(blank=True, null=True, verbose_name='Vade Tarihi')),
-                ('total_amount', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Toplam Tutar')),
-                ('currency', models.CharField(default='TRY', max_length=10, verbose_name='Para Birimi')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Açıklama')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invoices', to='accounting.company', verbose_name='Şirket')),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invoices', to='accounting.customer', verbose_name='Müşteri')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Fatura Numarası"
+                    ),
+                ),
+                ("issue_date", models.DateField(verbose_name="Fatura Tarihi")),
+                (
+                    "due_date",
+                    models.DateField(blank=True, null=True, verbose_name="Vade Tarihi"),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Toplam Tutar"
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=10, verbose_name="Para Birimi"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="invoices",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="invoices",
+                        to="accounting.customer",
+                        verbose_name="Müşteri",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Fatura',
-                'verbose_name_plural': 'Faturalar',
-                'ordering': ['-issue_date'],
+                "verbose_name": "Fatura",
+                "verbose_name_plural": "Faturalar",
+                "ordering": ["-issue_date"],
             },
         ),
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Ödeme Tutarı')),
-                ('payment_method', models.CharField(choices=[('NAKIT', 'Nakit'), ('KREDIKARTI', 'Kredi Kartı'), ('BANKA', 'Banka Transferi'), ('CEK', 'Çek'), ('DIGER', 'Diğer')], max_length=20, verbose_name='Ödeme Yöntemi')),
-                ('payment_date', models.DateField(auto_now_add=True, verbose_name='Ödeme Tarihi')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Açıklama')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to='accounting.company', verbose_name='Şirket')),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to='accounting.customer', verbose_name='Müşteri')),
-                ('related_invoice', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='payments', to='accounting.invoice', verbose_name='İlgili Fatura')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Ödeme Tutarı"
+                    ),
+                ),
+                (
+                    "payment_method",
+                    models.CharField(
+                        choices=[
+                            ("NAKIT", "Nakit"),
+                            ("KREDIKARTI", "Kredi Kartı"),
+                            ("BANKA", "Banka Transferi"),
+                            ("CEK", "Çek"),
+                            ("DIGER", "Diğer"),
+                        ],
+                        max_length=20,
+                        verbose_name="Ödeme Yöntemi",
+                    ),
+                ),
+                (
+                    "payment_date",
+                    models.DateField(auto_now_add=True, verbose_name="Ödeme Tarihi"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to="accounting.customer",
+                        verbose_name="Müşteri",
+                    ),
+                ),
+                (
+                    "related_invoice",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="payments",
+                        to="accounting.invoice",
+                        verbose_name="İlgili Fatura",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Ödeme',
-                'verbose_name_plural': 'Ödemeler',
-                'ordering': ['-payment_date'],
+                "verbose_name": "Ödeme",
+                "verbose_name_plural": "Ödemeler",
+                "ordering": ["-payment_date"],
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, verbose_name='Ürün Adı')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Açıklama')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Birim Fiyat')),
-                ('stock', models.PositiveIntegerField(default=0, verbose_name='Stok Miktarı')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='accounting.company', verbose_name='Şirket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, verbose_name="Ürün Adı")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Birim Fiyat"
+                    ),
+                ),
+                (
+                    "stock",
+                    models.PositiveIntegerField(default=0, verbose_name="Stok Miktarı"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="products",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Ürün',
-                'verbose_name_plural': 'Ürünler',
+                "verbose_name": "Ürün",
+                "verbose_name_plural": "Ürünler",
             },
         ),
         migrations.CreateModel(
-            name='InvoiceItem',
+            name="InvoiceItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.CharField(blank=True, max_length=255, null=True, verbose_name='Açıklama')),
-                ('quantity', models.PositiveIntegerField(verbose_name='Adet')),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Birim Fiyat')),
-                ('total_price', models.DecimalField(decimal_places=2, editable=False, max_digits=12, verbose_name='Toplam Tutar')),
-                ('invoice', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='accounting.invoice', verbose_name='Fatura')),
-                ('product', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounting.product', verbose_name='Ürün')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField(verbose_name="Adet")),
+                (
+                    "unit_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Birim Fiyat"
+                    ),
+                ),
+                (
+                    "total_price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        editable=False,
+                        max_digits=12,
+                        verbose_name="Toplam Tutar",
+                    ),
+                ),
+                (
+                    "invoice",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="accounting.invoice",
+                        verbose_name="Fatura",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="accounting.product",
+                        verbose_name="Ürün",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Fatura Kalemi',
-                'verbose_name_plural': 'Fatura Kalemleri',
+                "verbose_name": "Fatura Kalemi",
+                "verbose_name_plural": "Fatura Kalemleri",
             },
         ),
         migrations.CreateModel(
-            name='Sale',
+            name="Sale",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField(verbose_name='Adet')),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Birim Fiyat')),
-                ('total_price', models.DecimalField(decimal_places=2, editable=False, max_digits=12, verbose_name='Toplam Tutar')),
-                ('sale_date', models.DateField(auto_now_add=True, verbose_name='Satış Tarihi')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sales', to='accounting.company', verbose_name='Şirket')),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sales', to='accounting.customer', verbose_name='Müşteri')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sales', to='accounting.product', verbose_name='Ürün')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField(verbose_name="Adet")),
+                (
+                    "unit_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Birim Fiyat"
+                    ),
+                ),
+                (
+                    "total_price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        editable=False,
+                        max_digits=12,
+                        verbose_name="Toplam Tutar",
+                    ),
+                ),
+                (
+                    "sale_date",
+                    models.DateField(auto_now_add=True, verbose_name="Satış Tarihi"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sales",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sales",
+                        to="accounting.customer",
+                        verbose_name="Müşteri",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sales",
+                        to="accounting.product",
+                        verbose_name="Ürün",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Satış',
-                'verbose_name_plural': 'Satışlar',
-                'ordering': ['-sale_date'],
+                "verbose_name": "Satış",
+                "verbose_name_plural": "Satışlar",
+                "ordering": ["-sale_date"],
             },
         ),
     ]

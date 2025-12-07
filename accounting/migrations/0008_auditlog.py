@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("accounting", "0007_bankstatement_purchaseinvoice_vendor_and_more"),
@@ -16,12 +15,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("action", models.CharField(max_length=100, verbose_name="Aksiyon")),
                 ("entity", models.CharField(max_length=100, verbose_name="Nesne")),
-                ("entity_id", models.CharField(max_length=100, verbose_name="Nesne ID")),
+                (
+                    "entity_id",
+                    models.CharField(max_length=100, verbose_name="Nesne ID"),
+                ),
                 ("metadata", models.JSONField(default=dict, verbose_name="Ek Veri")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
                 (
                     "actor",
                     models.ForeignKey(

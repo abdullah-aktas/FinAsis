@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("games", "0014_badge_alter_playerprofile_options_and_more"),
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DailyQuest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "quest_type",
                     models.CharField(
@@ -33,7 +40,10 @@ class Migration(migrations.Migration):
                 ),
                 ("title", models.CharField(max_length=200)),
                 ("description", models.TextField()),
-                ("target_value", models.IntegerField(default=1, verbose_name="Hedef Değer")),
+                (
+                    "target_value",
+                    models.IntegerField(default=1, verbose_name="Hedef Değer"),
+                ),
                 ("reward_xp", models.IntegerField(default=100)),
                 ("reward_coins", models.IntegerField(default=500)),
                 ("reward_gems", models.IntegerField(default=0)),
@@ -60,7 +70,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Item",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField()),
                 (
@@ -79,15 +97,28 @@ class Migration(migrations.Migration):
                 (
                     "rarity",
                     models.CharField(
-                        choices=[("common", "Yaygın"), ("rare", "Nadir"), ("epic", "Epik"), ("legendary", "Efsanevi")],
+                        choices=[
+                            ("common", "Yaygın"),
+                            ("rare", "Nadir"),
+                            ("epic", "Epik"),
+                            ("legendary", "Efsanevi"),
+                        ],
                         default="common",
                         max_length=20,
                     ),
                 ),
                 ("price_coins", models.IntegerField(default=0)),
                 ("price_gems", models.IntegerField(default=0)),
-                ("effect_data", models.JSONField(default=dict, help_text="XP boost, coin multiplier vb.")),
-                ("duration_hours", models.IntegerField(default=0, help_text="0 = kalıcı")),
+                (
+                    "effect_data",
+                    models.JSONField(
+                        default=dict, help_text="XP boost, coin multiplier vb."
+                    ),
+                ),
+                (
+                    "duration_hours",
+                    models.IntegerField(default=0, help_text="0 = kalıcı"),
+                ),
                 ("is_tradeable", models.BooleanField(default=True)),
                 ("is_purchasable", models.BooleanField(default=True)),
             ],
@@ -100,12 +131,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Season",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Sezon Adı")),
                 ("start_date", models.DateTimeField(verbose_name="Başlangıç Tarihi")),
                 ("end_date", models.DateTimeField(verbose_name="Bitiş Tarihi")),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("reward_pool", models.IntegerField(default=100000, verbose_name="Ödül Havuzu (Puan)")),
+                (
+                    "reward_pool",
+                    models.IntegerField(
+                        default=100000, verbose_name="Ödül Havuzu (Puan)"
+                    ),
+                ),
                 ("description", models.TextField(blank=True)),
             ],
             options={
@@ -117,9 +161,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Team",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, unique=True)),
-                ("tag", models.CharField(help_text="Kısa takım etiketi (örn: FIN)", max_length=10, unique=True)),
+                (
+                    "tag",
+                    models.CharField(
+                        help_text="Kısa takım etiketi (örn: FIN)",
+                        max_length=10,
+                        unique=True,
+                    ),
+                ),
                 ("description", models.TextField(blank=True)),
                 ("team_rank", models.CharField(default="bronze", max_length=20)),
                 ("team_elo", models.IntegerField(default=1000)),
@@ -134,7 +193,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="game",
-            options={"ordering": ["name"], "verbose_name": "Oyun", "verbose_name_plural": "Oyunlar"},
+            options={
+                "ordering": ["name"],
+                "verbose_name": "Oyun",
+                "verbose_name_plural": "Oyunlar",
+            },
         ),
         migrations.AlterModelOptions(
             name="playerprofile",
@@ -148,7 +211,12 @@ class Migration(migrations.Migration):
             model_name="badge",
             name="rarity",
             field=models.CharField(
-                choices=[("common", "Yaygın"), ("rare", "Nadir"), ("epic", "Epik"), ("legendary", "Efsanevi")],
+                choices=[
+                    ("common", "Yaygın"),
+                    ("rare", "Nadir"),
+                    ("epic", "Epik"),
+                    ("legendary", "Efsanevi"),
+                ],
                 default="common",
                 max_length=20,
             ),
@@ -161,7 +229,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="game",
             name="duration_minutes",
-            field=models.IntegerField(default=15, help_text="Ortalama oyun süresi (dakika)"),
+            field=models.IntegerField(
+                default=15, help_text="Ortalama oyun süresi (dakika)"
+            ),
         ),
         migrations.AddField(
             model_name="game",
@@ -220,7 +290,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="playerprofile",
             name="gems",
-            field=models.PositiveIntegerField(default=0, verbose_name="Elmas (Premium)"),
+            field=models.PositiveIntegerField(
+                default=0, verbose_name="Elmas (Premium)"
+            ),
         ),
         migrations.AddField(
             model_name="playerprofile",
@@ -274,7 +346,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="playerprofile",
             name="xp_to_next_level",
-            field=models.PositiveIntegerField(default=1000, verbose_name="Sonraki Seviyeye Kalan XP"),
+            field=models.PositiveIntegerField(
+                default=1000, verbose_name="Sonraki Seviyeye Kalan XP"
+            ),
         ),
         migrations.AlterField(
             model_name="playerprofile",
@@ -295,7 +369,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Tournament",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Turnuva Adı")),
                 ("description", models.TextField(blank=True)),
                 (
@@ -331,13 +413,31 @@ class Migration(migrations.Migration):
                 ("end_date", models.DateTimeField()),
                 (
                     "max_participants",
-                    models.IntegerField(default=128, validators=[django.core.validators.MinValueValidator(2)]),
+                    models.IntegerField(
+                        default=128,
+                        validators=[django.core.validators.MinValueValidator(2)],
+                    ),
                 ),
-                ("entry_fee_coins", models.IntegerField(default=0, verbose_name="Katılım Ücreti (Altın)")),
-                ("entry_fee_gems", models.IntegerField(default=0, verbose_name="Katılım Ücreti (Elmas)")),
+                (
+                    "entry_fee_coins",
+                    models.IntegerField(
+                        default=0, verbose_name="Katılım Ücreti (Altın)"
+                    ),
+                ),
+                (
+                    "entry_fee_gems",
+                    models.IntegerField(
+                        default=0, verbose_name="Katılım Ücreti (Elmas)"
+                    ),
+                ),
                 ("prize_pool_coins", models.IntegerField(default=10000)),
                 ("prize_pool_gems", models.IntegerField(default=0)),
-                ("prize_distribution", models.JSONField(default=dict, help_text="1st: 50%, 2nd: 30%, 3rd: 20%")),
+                (
+                    "prize_distribution",
+                    models.JSONField(
+                        default=dict, help_text="1st: 50%, 2nd: 30%, 3rd: 20%"
+                    ),
+                ),
                 ("rules", models.TextField(blank=True)),
                 (
                     "bracket_type",
@@ -364,13 +464,18 @@ class Migration(migrations.Migration):
                 (
                     "game",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="tournaments", to="games.game"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tournaments",
+                        to="games.game",
                     ),
                 ),
                 (
                     "season",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="games.season"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="games.season",
                     ),
                 ),
             ],
@@ -383,18 +488,41 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TeamMembership",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "role",
                     models.CharField(
-                        choices=[("owner", "Kurucu"), ("captain", "Kaptan"), ("member", "Üye")],
+                        choices=[
+                            ("owner", "Kurucu"),
+                            ("captain", "Kaptan"),
+                            ("member", "Üye"),
+                        ],
                         default="member",
                         max_length=20,
                     ),
                 ),
                 ("joined_at", models.DateTimeField(auto_now_add=True)),
-                ("player", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ("team", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.team")),
+                (
+                    "player",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "team",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.team"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Takım Üyeliği",
@@ -406,20 +534,32 @@ class Migration(migrations.Migration):
             model_name="team",
             name="members",
             field=models.ManyToManyField(
-                related_name="teams", through="games.TeamMembership", to=settings.AUTH_USER_MODEL
+                related_name="teams",
+                through="games.TeamMembership",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
             model_name="team",
             name="owner",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="owned_teams", to=settings.AUTH_USER_MODEL
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="owned_teams",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.CreateModel(
             name="Match",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -442,7 +582,12 @@ class Migration(migrations.Migration):
                 ("match_stats", models.JSONField(blank=True, default=dict)),
                 ("elo_change_player1", models.IntegerField(default=0)),
                 ("elo_change_player2", models.IntegerField(default=0)),
-                ("game", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.game")),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.game"
+                    ),
+                ),
                 (
                     "player1",
                     models.ForeignKey(
@@ -491,7 +636,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GameSession",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("started_at", models.DateTimeField(auto_now_add=True)),
                 ("ended_at", models.DateTimeField(blank=True, null=True)),
                 ("duration_seconds", models.IntegerField(default=0)),
@@ -499,12 +652,27 @@ class Migration(migrations.Migration):
                 ("is_victory", models.BooleanField(default=False)),
                 ("xp_earned", models.IntegerField(default=0)),
                 ("coins_earned", models.IntegerField(default=0)),
-                ("session_data", models.JSONField(blank=True, default=dict, help_text="Oyun içi events, actions vb.")),
-                ("game", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.game")),
+                (
+                    "session_data",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                        help_text="Oyun içi events, actions vb.",
+                    ),
+                ),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.game"
+                    ),
+                ),
                 (
                     "match",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="games.match"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="games.match",
                     ),
                 ),
                 (
@@ -526,15 +694,31 @@ class Migration(migrations.Migration):
             model_name="playerprofile",
             name="current_season",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="games.season"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="games.season",
             ),
         ),
         migrations.CreateModel(
             name="TournamentParticipant",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("registered_at", models.DateTimeField(auto_now_add=True)),
-                ("seed", models.IntegerField(blank=True, help_text="Turnuva kura numarası", null=True)),
+                (
+                    "seed",
+                    models.IntegerField(
+                        blank=True, help_text="Turnuva kura numarası", null=True
+                    ),
+                ),
                 ("final_rank", models.IntegerField(blank=True, null=True)),
                 ("total_score", models.IntegerField(default=0)),
                 ("prizes_won", models.JSONField(default=dict)),
@@ -549,7 +733,9 @@ class Migration(migrations.Migration):
                 (
                     "tournament",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="participants", to="games.tournament"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="participants",
+                        to="games.tournament",
                     ),
                 ),
             ],
@@ -563,7 +749,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PlayerQuest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("current_value", models.IntegerField(default=0)),
                 ("is_completed", models.BooleanField(default=False)),
                 ("completed_at", models.DateTimeField(blank=True, null=True)),
@@ -572,10 +766,18 @@ class Migration(migrations.Migration):
                 (
                     "player",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="quests", to=settings.AUTH_USER_MODEL
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="quests",
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
-                ("quest", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.dailyquest")),
+                (
+                    "quest",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.dailyquest",
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Oyuncu Görevi",
@@ -587,12 +789,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PlayerInventory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("quantity", models.PositiveIntegerField(default=1)),
                 ("acquired_at", models.DateTimeField(auto_now_add=True)),
                 ("expires_at", models.DateTimeField(blank=True, null=True)),
                 ("is_equipped", models.BooleanField(default=False)),
-                ("item", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.item")),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.item"
+                    ),
+                ),
                 (
                     "player",
                     models.ForeignKey(
@@ -611,7 +826,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Leaderboard",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "leaderboard_type",
                     models.CharField(
@@ -631,14 +854,26 @@ class Migration(migrations.Migration):
                 (
                     "game",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="games.game"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.game",
                     ),
                 ),
-                ("player", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "player",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
                 (
                     "season",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="games.season"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.season",
                     ),
                 ),
             ],
@@ -647,8 +882,13 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Sıralamalar",
                 "ordering": ["rank"],
                 "indexes": [
-                    models.Index(fields=["leaderboard_type", "rank"], name="games_leade_leaderb_3ab7b8_idx"),
-                    models.Index(fields=["season", "rank"], name="games_leade_season__192009_idx"),
+                    models.Index(
+                        fields=["leaderboard_type", "rank"],
+                        name="games_leade_leaderb_3ab7b8_idx",
+                    ),
+                    models.Index(
+                        fields=["season", "rank"], name="games_leade_season__192009_idx"
+                    ),
                 ],
                 "unique_together": {("leaderboard_type", "game", "season", "player")},
             },
@@ -656,11 +896,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Friend",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
-                        choices=[("pending", "Bekliyor"), ("accepted", "Kabul Edildi"), ("blocked", "Engellendi")],
+                        choices=[
+                            ("pending", "Bekliyor"),
+                            ("accepted", "Kabul Edildi"),
+                            ("blocked", "Engellendi"),
+                        ],
                         default="pending",
                         max_length=20,
                     ),

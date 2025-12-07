@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0009_planningscenario"),
         ("contenttypes", "0002_remove_content_type_name"),
@@ -20,8 +19,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DataBackup",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("backup_name", models.CharField(max_length=200, verbose_name="Yedek Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "backup_name",
+                    models.CharField(max_length=200, verbose_name="Yedek Adı"),
+                ),
                 (
                     "backup_type",
                     models.CharField(
@@ -35,16 +45,62 @@ class Migration(migrations.Migration):
                         verbose_name="Yedek Tipi",
                     ),
                 ),
-                ("backup_date", models.DateTimeField(auto_now_add=True, verbose_name="Yedekleme Tarihi")),
-                ("included_tables", models.JSONField(default=list, verbose_name="Dahil Edilen Tablolar")),
-                ("excluded_tables", models.JSONField(blank=True, default=list, verbose_name="Hariç Tutulan Tablolar")),
-                ("record_count", models.PositiveBigIntegerField(default=0, verbose_name="Kayıt Sayısı")),
-                ("file_path", models.CharField(max_length=500, verbose_name="Dosya Yolu")),
-                ("file_size_bytes", models.PositiveBigIntegerField(default=0, verbose_name="Dosya Boyutu (Byte)")),
-                ("compression_used", models.BooleanField(default=True, verbose_name="Sıkıştırma Kullanıldı")),
-                ("encryption_used", models.BooleanField(default=True, verbose_name="Şifreleme Kullanıldı")),
-                ("file_hash", models.CharField(max_length=128, verbose_name="Dosya Hash")),
-                ("checksum", models.CharField(blank=True, max_length=128, verbose_name="Checksum")),
+                (
+                    "backup_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Yedekleme Tarihi"
+                    ),
+                ),
+                (
+                    "included_tables",
+                    models.JSONField(
+                        default=list, verbose_name="Dahil Edilen Tablolar"
+                    ),
+                ),
+                (
+                    "excluded_tables",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Hariç Tutulan Tablolar"
+                    ),
+                ),
+                (
+                    "record_count",
+                    models.PositiveBigIntegerField(
+                        default=0, verbose_name="Kayıt Sayısı"
+                    ),
+                ),
+                (
+                    "file_path",
+                    models.CharField(max_length=500, verbose_name="Dosya Yolu"),
+                ),
+                (
+                    "file_size_bytes",
+                    models.PositiveBigIntegerField(
+                        default=0, verbose_name="Dosya Boyutu (Byte)"
+                    ),
+                ),
+                (
+                    "compression_used",
+                    models.BooleanField(
+                        default=True, verbose_name="Sıkıştırma Kullanıldı"
+                    ),
+                ),
+                (
+                    "encryption_used",
+                    models.BooleanField(
+                        default=True, verbose_name="Şifreleme Kullanıldı"
+                    ),
+                ),
+                (
+                    "file_hash",
+                    models.CharField(max_length=128, verbose_name="Dosya Hash"),
+                ),
+                (
+                    "checksum",
+                    models.CharField(
+                        blank=True, max_length=128, verbose_name="Checksum"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -61,19 +117,35 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("start_time", models.DateTimeField(verbose_name="Başlangıç Zamanı")),
-                ("end_time", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş Zamanı")),
-                ("duration_seconds", models.PositiveIntegerField(blank=True, null=True, verbose_name="Süre (Saniye)")),
+                (
+                    "end_time",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Bitiş Zamanı"
+                    ),
+                ),
+                (
+                    "duration_seconds",
+                    models.PositiveIntegerField(
+                        blank=True, null=True, verbose_name="Süre (Saniye)"
+                    ),
+                ),
                 (
                     "retention_period_days",
-                    models.PositiveIntegerField(default=365, verbose_name="Saklama Süresi (Gün)"),
+                    models.PositiveIntegerField(
+                        default=365, verbose_name="Saklama Süresi (Gün)"
+                    ),
                 ),
                 (
                     "scheduled_deletion_date",
-                    models.DateTimeField(blank=True, null=True, verbose_name="Planlanan Silme Tarihi"),
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Planlanan Silme Tarihi"
+                    ),
                 ),
                 (
                     "last_verification_date",
-                    models.DateTimeField(blank=True, null=True, verbose_name="Son Doğrulama Tarihi"),
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Doğrulama Tarihi"
+                    ),
                 ),
                 (
                     "verification_status",
@@ -88,7 +160,10 @@ class Migration(migrations.Migration):
                         verbose_name="Doğrulama Durumu",
                     ),
                 ),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -116,8 +191,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DataSubjectRequest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("request_id", models.UUIDField(default=uuid.uuid4, unique=True, verbose_name="Talep ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "request_id",
+                    models.UUIDField(
+                        default=uuid.uuid4, unique=True, verbose_name="Talep ID"
+                    ),
+                ),
                 (
                     "request_type",
                     models.CharField(
@@ -134,16 +222,47 @@ class Migration(migrations.Migration):
                         verbose_name="Talep Tipi",
                     ),
                 ),
-                ("request_date", models.DateTimeField(auto_now_add=True, verbose_name="Talep Tarihi")),
-                ("data_subject_name", models.CharField(max_length=200, verbose_name="Ad Soyad")),
-                ("data_subject_email", models.EmailField(max_length=254, verbose_name="E-posta")),
-                ("data_subject_phone", models.CharField(blank=True, max_length=20, verbose_name="Telefon")),
-                ("identity_verified", models.BooleanField(default=False, verbose_name="Kimlik Doğrulandı")),
-                ("verification_method", models.CharField(blank=True, max_length=100, verbose_name="Doğrulama Yöntemi")),
-                ("request_description", models.TextField(verbose_name="Talep Açıklaması")),
+                (
+                    "request_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Talep Tarihi"
+                    ),
+                ),
+                (
+                    "data_subject_name",
+                    models.CharField(max_length=200, verbose_name="Ad Soyad"),
+                ),
+                (
+                    "data_subject_email",
+                    models.EmailField(max_length=254, verbose_name="E-posta"),
+                ),
+                (
+                    "data_subject_phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="Telefon"),
+                ),
+                (
+                    "identity_verified",
+                    models.BooleanField(
+                        default=False, verbose_name="Kimlik Doğrulandı"
+                    ),
+                ),
+                (
+                    "verification_method",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Doğrulama Yöntemi"
+                    ),
+                ),
+                (
+                    "request_description",
+                    models.TextField(verbose_name="Talep Açıklaması"),
+                ),
                 (
                     "specific_data_requested",
-                    models.JSONField(blank=True, default=list, verbose_name="Talep Edilen Belirli Veriler"),
+                    models.JSONField(
+                        blank=True,
+                        default=list,
+                        verbose_name="Talep Edilen Belirli Veriler",
+                    ),
                 ),
                 (
                     "preferred_response_method",
@@ -176,17 +295,46 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("due_date", models.DateTimeField(blank=True, null=True, verbose_name="Vade Tarihi")),
-                ("response_date", models.DateTimeField(blank=True, null=True, verbose_name="Yanıt Tarihi")),
-                ("is_overdue", models.BooleanField(default=False, verbose_name="Süresi Geçti")),
-                ("response_summary", models.TextField(blank=True, verbose_name="Yanıt Özeti")),
-                ("rejection_reason", models.TextField(blank=True, verbose_name="Red Gerekçesi")),
-                ("actions_taken", models.JSONField(blank=True, default=list, verbose_name="Alınan Aksiyonlar")),
+                (
+                    "due_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Vade Tarihi"
+                    ),
+                ),
+                (
+                    "response_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Yanıt Tarihi"
+                    ),
+                ),
+                (
+                    "is_overdue",
+                    models.BooleanField(default=False, verbose_name="Süresi Geçti"),
+                ),
+                (
+                    "response_summary",
+                    models.TextField(blank=True, verbose_name="Yanıt Özeti"),
+                ),
+                (
+                    "rejection_reason",
+                    models.TextField(blank=True, verbose_name="Red Gerekçesi"),
+                ),
+                (
+                    "actions_taken",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Alınan Aksiyonlar"
+                    ),
+                ),
                 (
                     "supporting_documents",
-                    models.JSONField(blank=True, default=list, verbose_name="Destekleyici Belgeler"),
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Destekleyici Belgeler"
+                    ),
                 ),
-                ("internal_notes", models.TextField(blank=True, verbose_name="İç Notlar")),
+                (
+                    "internal_notes",
+                    models.TextField(blank=True, verbose_name="İç Notlar"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -217,8 +365,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="EncryptionKey",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("key_name", models.CharField(max_length=100, verbose_name="Anahtar Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "key_name",
+                    models.CharField(max_length=100, verbose_name="Anahtar Adı"),
+                ),
                 (
                     "key_type",
                     models.CharField(
@@ -240,21 +399,66 @@ class Migration(migrations.Migration):
                         verbose_name="Kullanım Amacı",
                     ),
                 ),
-                ("algorithm", models.CharField(max_length=50, verbose_name="Algoritma")),
-                ("key_length", models.PositiveIntegerField(verbose_name="Anahtar Uzunluğu (bit)")),
-                ("encrypted_key_value", models.BinaryField(verbose_name="Şifrelenmiş Anahtar Değeri")),
-                ("key_hash", models.CharField(max_length=128, unique=True, verbose_name="Anahtar Hash")),
-                ("created_date", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma Tarihi")),
+                (
+                    "algorithm",
+                    models.CharField(max_length=50, verbose_name="Algoritma"),
+                ),
+                (
+                    "key_length",
+                    models.PositiveIntegerField(verbose_name="Anahtar Uzunluğu (bit)"),
+                ),
+                (
+                    "encrypted_key_value",
+                    models.BinaryField(verbose_name="Şifrelenmiş Anahtar Değeri"),
+                ),
+                (
+                    "key_hash",
+                    models.CharField(
+                        max_length=128, unique=True, verbose_name="Anahtar Hash"
+                    ),
+                ),
+                (
+                    "created_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturma Tarihi"
+                    ),
+                ),
                 (
                     "activation_date",
-                    models.DateTimeField(default=django.utils.timezone.now, verbose_name="Aktivasyon Tarihi"),
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Aktivasyon Tarihi",
+                    ),
                 ),
-                ("expiration_date", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanma Tarihi")),
+                (
+                    "expiration_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanma Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("is_compromised", models.BooleanField(default=False, verbose_name="Güvenliği İhlal Edildi")),
-                ("rotation_required", models.BooleanField(default=False, verbose_name="Rotasyon Gerekli")),
-                ("usage_count", models.PositiveIntegerField(default=0, verbose_name="Kullanım Sayısı")),
-                ("last_used_date", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanım Tarihi")),
+                (
+                    "is_compromised",
+                    models.BooleanField(
+                        default=False, verbose_name="Güvenliği İhlal Edildi"
+                    ),
+                ),
+                (
+                    "rotation_required",
+                    models.BooleanField(default=False, verbose_name="Rotasyon Gerekli"),
+                ),
+                (
+                    "usage_count",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Kullanım Sayısı"
+                    ),
+                ),
+                (
+                    "last_used_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanım Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -273,7 +477,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PersonalDataCategory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Kategori Adı")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 (
@@ -308,17 +520,27 @@ class Migration(migrations.Migration):
                 (
                     "legal_basis",
                     models.TextField(
-                        help_text="KVKK'nın hangi maddesi veya başka yasal düzenleme", verbose_name="Hukuki Dayanak"
+                        help_text="KVKK'nın hangi maddesi veya başka yasal düzenleme",
+                        verbose_name="Hukuki Dayanak",
                     ),
                 ),
                 (
                     "retention_period_months",
-                    models.PositiveIntegerField(help_text="0 = Süresiz", verbose_name="Saklama Süresi (Ay)"),
+                    models.PositiveIntegerField(
+                        help_text="0 = Süresiz", verbose_name="Saklama Süresi (Ay)"
+                    ),
                 ),
-                ("deletion_required", models.BooleanField(default=True, verbose_name="Otomatik Silme Gerekli")),
+                (
+                    "deletion_required",
+                    models.BooleanField(
+                        default=True, verbose_name="Otomatik Silme Gerekli"
+                    ),
+                ),
                 (
                     "data_subjects_informed",
-                    models.BooleanField(default=False, verbose_name="Veri Sahipleri Bilgilendirildi"),
+                    models.BooleanField(
+                        default=False, verbose_name="Veri Sahipleri Bilgilendirildi"
+                    ),
                 ),
                 (
                     "information_method",
@@ -329,7 +551,12 @@ class Migration(migrations.Migration):
                         verbose_name="Bilgilendirme Yöntemi",
                     ),
                 ),
-                ("encryption_required", models.BooleanField(default=False, verbose_name="Şifreleme Gerekli")),
+                (
+                    "encryption_required",
+                    models.BooleanField(
+                        default=False, verbose_name="Şifreleme Gerekli"
+                    ),
+                ),
                 (
                     "access_restrictions",
                     models.JSONField(
@@ -360,8 +587,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SecurityIncident",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("incident_id", models.UUIDField(default=uuid.uuid4, unique=True, verbose_name="Olay ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "incident_id",
+                    models.UUIDField(
+                        default=uuid.uuid4, unique=True, verbose_name="Olay ID"
+                    ),
+                ),
                 (
                     "incident_type",
                     models.CharField(
@@ -383,54 +623,109 @@ class Migration(migrations.Migration):
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("detected_date", models.DateTimeField(verbose_name="Tespit Tarihi")),
-                ("occurred_date", models.DateTimeField(blank=True, null=True, verbose_name="Gerçekleşme Tarihi")),
-                ("reported_date", models.DateTimeField(auto_now_add=True, verbose_name="Raporlama Tarihi")),
+                (
+                    "occurred_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Gerçekleşme Tarihi"
+                    ),
+                ),
+                (
+                    "reported_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Raporlama Tarihi"
+                    ),
+                ),
                 (
                     "severity",
                     models.CharField(
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek"), ("CRITICAL", "Kritik")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                            ("CRITICAL", "Kritik"),
+                        ],
                         max_length=20,
                         verbose_name="Şiddet",
                     ),
                 ),
-                ("affected_systems", models.JSONField(default=list, verbose_name="Etkilenen Sistemler")),
-                ("affected_data_types", models.JSONField(default=list, verbose_name="Etkilenen Veri Tipleri")),
+                (
+                    "affected_systems",
+                    models.JSONField(default=list, verbose_name="Etkilenen Sistemler"),
+                ),
+                (
+                    "affected_data_types",
+                    models.JSONField(
+                        default=list, verbose_name="Etkilenen Veri Tipleri"
+                    ),
+                ),
                 (
                     "estimated_records_affected",
-                    models.PositiveIntegerField(blank=True, null=True, verbose_name="Etkilenen Kayıt Sayısı (Tahmini)"),
+                    models.PositiveIntegerField(
+                        blank=True,
+                        null=True,
+                        verbose_name="Etkilenen Kayıt Sayısı (Tahmini)",
+                    ),
                 ),
-                ("is_personal_data_involved", models.BooleanField(default=False, verbose_name="Kişisel Veri İçeriyor")),
+                (
+                    "is_personal_data_involved",
+                    models.BooleanField(
+                        default=False, verbose_name="Kişisel Veri İçeriyor"
+                    ),
+                ),
                 (
                     "personal_data_categories",
-                    models.JSONField(blank=True, default=list, verbose_name="Etkilenen Kişisel Veri Kategorileri"),
+                    models.JSONField(
+                        blank=True,
+                        default=list,
+                        verbose_name="Etkilenen Kişisel Veri Kategorileri",
+                    ),
                 ),
                 (
                     "data_subjects_affected",
-                    models.PositiveIntegerField(blank=True, null=True, verbose_name="Etkilenen Veri Sahibi Sayısı"),
+                    models.PositiveIntegerField(
+                        blank=True,
+                        null=True,
+                        verbose_name="Etkilenen Veri Sahibi Sayısı",
+                    ),
                 ),
                 (
                     "kvkk_notification_required",
-                    models.BooleanField(default=False, verbose_name="KVKK Bildirimi Gerekli"),
+                    models.BooleanField(
+                        default=False, verbose_name="KVKK Bildirimi Gerekli"
+                    ),
                 ),
                 (
                     "kvkk_notification_sent",
-                    models.BooleanField(default=False, verbose_name="KVKK Bildirimi Gönderildi"),
+                    models.BooleanField(
+                        default=False, verbose_name="KVKK Bildirimi Gönderildi"
+                    ),
                 ),
                 (
                     "kvkk_notification_date",
-                    models.DateTimeField(blank=True, null=True, verbose_name="KVKK Bildirim Tarihi"),
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="KVKK Bildirim Tarihi"
+                    ),
                 ),
                 (
                     "data_subjects_notification_required",
-                    models.BooleanField(default=False, verbose_name="Veri Sahipleri Bildirimi Gerekli"),
+                    models.BooleanField(
+                        default=False, verbose_name="Veri Sahipleri Bildirimi Gerekli"
+                    ),
                 ),
                 (
                     "data_subjects_notification_sent",
-                    models.BooleanField(default=False, verbose_name="Veri Sahipleri Bildirimi Gönderildi"),
+                    models.BooleanField(
+                        default=False,
+                        verbose_name="Veri Sahipleri Bildirimi Gönderildi",
+                    ),
                 ),
                 (
                     "data_subjects_notification_date",
-                    models.DateTimeField(blank=True, null=True, verbose_name="Veri Sahipleri Bildirim Tarihi"),
+                    models.DateTimeField(
+                        blank=True,
+                        null=True,
+                        verbose_name="Veri Sahipleri Bildirim Tarihi",
+                    ),
                 ),
                 (
                     "status",
@@ -448,35 +743,61 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("root_cause", models.TextField(blank=True, verbose_name="Kök Neden")),
-                ("resolution_summary", models.TextField(blank=True, verbose_name="Çözüm Özeti")),
-                ("lessons_learned", models.TextField(blank=True, verbose_name="Alınan Dersler")),
+                (
+                    "resolution_summary",
+                    models.TextField(blank=True, verbose_name="Çözüm Özeti"),
+                ),
+                (
+                    "lessons_learned",
+                    models.TextField(blank=True, verbose_name="Alınan Dersler"),
+                ),
                 (
                     "response_time_hours",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True, verbose_name="Müdahale Süresi (Saat)"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        verbose_name="Müdahale Süresi (Saat)",
                     ),
                 ),
                 (
                     "resolution_time_hours",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True, verbose_name="Çözüm Süresi (Saat)"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        verbose_name="Çözüm Süresi (Saat)",
                     ),
                 ),
                 (
                     "estimated_cost",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Tahmini Maliyet"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Tahmini Maliyet",
                     ),
                 ),
                 (
                     "actual_cost",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Gerçek Maliyet"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Gerçek Maliyet",
                     ),
                 ),
                 (
                     "external_authorities_notified",
-                    models.JSONField(blank=True, default=list, verbose_name="Bilgilendirilen Dış Otoriteler"),
+                    models.JSONField(
+                        blank=True,
+                        default=list,
+                        verbose_name="Bilgilendirilen Dış Otoriteler",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -518,7 +839,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DataEncryption",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "data_identifier",
                     models.CharField(
@@ -536,10 +865,23 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("object_id", models.PositiveIntegerField()),
-                ("encryption_date", models.DateTimeField(auto_now_add=True, verbose_name="Şifreleme Tarihi")),
-                ("data_hash", models.CharField(max_length=128, verbose_name="Veri Hash")),
+                (
+                    "encryption_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Şifreleme Tarihi"
+                    ),
+                ),
+                (
+                    "data_hash",
+                    models.CharField(max_length=128, verbose_name="Veri Hash"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("decryption_date", models.DateTimeField(blank=True, null=True, verbose_name="Şifre Çözme Tarihi")),
+                (
+                    "decryption_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Şifre Çözme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -550,7 +892,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "content_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="contenttypes.contenttype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
                 ),
                 (
                     "encrypted_by",
@@ -576,15 +921,29 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Veri Şifreleme Kayıtları",
                 "ordering": ["-encryption_date"],
                 "indexes": [
-                    models.Index(fields=["data_identifier", "data_type"], name="finance_dat_data_id_b493c7_idx"),
-                    models.Index(fields=["content_type", "object_id"], name="finance_dat_content_892ec1_idx"),
+                    models.Index(
+                        fields=["data_identifier", "data_type"],
+                        name="finance_dat_data_id_b493c7_idx",
+                    ),
+                    models.Index(
+                        fields=["content_type", "object_id"],
+                        name="finance_dat_content_892ec1_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="PersonalDataRecord",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "data_subject_id",
                     models.CharField(
@@ -596,7 +955,9 @@ class Migration(migrations.Migration):
                 (
                     "data_subject_type",
                     models.CharField(
-                        help_text="customer, employee, vendor vb.", max_length=50, verbose_name="Veri Sahibi Tipi"
+                        help_text="customer, employee, vendor vb.",
+                        max_length=50,
+                        verbose_name="Veri Sahibi Tipi",
                     ),
                 ),
                 (
@@ -616,7 +977,12 @@ class Migration(migrations.Migration):
                         verbose_name="İşleme Faaliyeti",
                     ),
                 ),
-                ("processing_date", models.DateTimeField(auto_now_add=True, verbose_name="İşleme Tarihi")),
+                (
+                    "processing_date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="İşleme Tarihi"
+                    ),
+                ),
                 (
                     "data_fields_processed",
                     models.JSONField(
@@ -626,8 +992,16 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("processing_purpose", models.TextField(verbose_name="İşleme Amacı")),
-                ("consent_obtained", models.BooleanField(default=False, verbose_name="Rıza Alındı")),
-                ("consent_date", models.DateTimeField(blank=True, null=True, verbose_name="Rıza Tarihi")),
+                (
+                    "consent_obtained",
+                    models.BooleanField(default=False, verbose_name="Rıza Alındı"),
+                ),
+                (
+                    "consent_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Rıza Tarihi"
+                    ),
+                ),
                 (
                     "consent_method",
                     models.CharField(
@@ -637,16 +1011,39 @@ class Migration(migrations.Migration):
                         verbose_name="Rıza Yöntemi",
                     ),
                 ),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
-                ("user_agent", models.TextField(blank=True, verbose_name="Kullanıcı Aracısı")),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
+                (
+                    "user_agent",
+                    models.TextField(blank=True, verbose_name="Kullanıcı Aracısı"),
+                ),
                 ("object_id", models.PositiveIntegerField(blank=True, null=True)),
                 (
                     "scheduled_deletion_date",
-                    models.DateField(blank=True, null=True, verbose_name="Planlanan Silme Tarihi"),
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Planlanan Silme Tarihi"
+                    ),
                 ),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="Silindi")),
-                ("deletion_date", models.DateTimeField(blank=True, null=True, verbose_name="Silme Tarihi")),
-                ("deletion_method", models.CharField(blank=True, max_length=100, verbose_name="Silme Yöntemi")),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="Silindi"),
+                ),
+                (
+                    "deletion_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Silme Tarihi"
+                    ),
+                ),
+                (
+                    "deletion_method",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Silme Yöntemi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -689,12 +1086,17 @@ class Migration(migrations.Migration):
                 "ordering": ["-processing_date"],
                 "indexes": [
                     models.Index(
-                        fields=["data_subject_id", "data_subject_type"], name="finance_per_data_su_bba202_idx"
+                        fields=["data_subject_id", "data_subject_type"],
+                        name="finance_per_data_su_bba202_idx",
                     ),
                     models.Index(
-                        fields=["processing_activity", "processing_date"], name="finance_per_process_befc2a_idx"
+                        fields=["processing_activity", "processing_date"],
+                        name="finance_per_process_befc2a_idx",
                     ),
-                    models.Index(fields=["scheduled_deletion_date"], name="finance_per_schedul_6450f9_idx"),
+                    models.Index(
+                        fields=["scheduled_deletion_date"],
+                        name="finance_per_schedul_6450f9_idx",
+                    ),
                 ],
             },
         ),

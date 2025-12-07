@@ -6,7 +6,7 @@ Kurumsal İşletme Yönetimi ve İletişim Görünümleri
 from decimal import Decimal
 from typing import Dict, List
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
@@ -22,11 +22,7 @@ from accounting.models import Invoice as AccountingInvoice
 from ai_assistant.services import prompt_registry
 from games import task_engine
 
-from .models import (
-    PressRelease,
-    InvestorDocument,
-    TeamMember
-)
+from .models import PressRelease, InvestorDocument
 
 try:
     from partners.models import PartnerProfile
@@ -78,9 +74,17 @@ def _build_corporate_snapshot():
     customer_segments: List[Dict[str, object]] = []
     for plan in plan_qs:
         active_prices = [price for price in plan.prices.all() if price.is_active]
-        monthly_price = next((price for price in active_prices if price.period == "month"), None)
-        yearly_price = next((price for price in active_prices if price.period == "year"), None)
-        currency = (monthly_price or yearly_price).currency if (monthly_price or yearly_price) else None
+        monthly_price = next(
+            (price for price in active_prices if price.period == "month"), None
+        )
+        yearly_price = next(
+            (price for price in active_prices if price.period == "year"), None
+        )
+        currency = (
+            (monthly_price or yearly_price).currency
+            if (monthly_price or yearly_price)
+            else None
+        )
 
         plan_modules_manager = getattr(plan, "plan_modules", None)
         sample_modules = []
@@ -95,7 +99,9 @@ def _build_corporate_snapshot():
             {
                 "code": plan.code,
                 "name": plan.name,
-                "audience": plan.get_audience_display() if hasattr(plan, "get_audience_display") else plan.audience,
+                "audience": plan.get_audience_display()
+                if hasattr(plan, "get_audience_display")
+                else plan.audience,
                 "description": plan.description,
                 "monthly_price": monthly_price.amount if monthly_price else None,
                 "yearly_price": yearly_price.amount if yearly_price else None,
@@ -160,9 +166,9 @@ def _build_corporate_snapshot():
         + prompt_registry.get_prompts_for_role("egitimci", limit=1)
     )
 
-    teacher_brief = task_engine.get_brief(audience='teacher')
-    student_brief = task_engine.get_brief(audience='student')
-    gamer_brief = task_engine.get_brief(audience='gamer')
+    teacher_brief = task_engine.get_brief(audience="teacher")
+    student_brief = task_engine.get_brief(audience="student")
+    gamer_brief = task_engine.get_brief(audience="gamer")
 
     journeys = [
         {
@@ -193,7 +199,9 @@ def _build_corporate_snapshot():
 
     partner_count = 0
     if PartnerProfile is not None:
-        partner_count = PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED).count()
+        partner_count = PartnerProfile.objects.filter(
+            status=PartnerProfile.Status.PUBLISHED
+        ).count()
 
     press_releases = list(PressRelease.objects.all()[:3])
     investor_documents = list(InvestorDocument.objects.all()[:3])
@@ -209,7 +217,10 @@ def _build_corporate_snapshot():
             "href": _safe_reverse("products_muhasebe"),
             "stats": [
                 {"label": _("Aktif şirket"), "value": _format_number(company_count)},
-                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+                {
+                    "label": _("Toplam fatura"),
+                    "value": _format_number(AccountingInvoice.objects.count()),
+                },
             ],
         },
         {
@@ -234,8 +245,19 @@ def _build_corporate_snapshot():
             ),
             "href": _safe_reverse("products_yapay_zeka"),
             "stats": [
-                {"label": _("Yayınlanan prompt"), "value": _format_number(sum(len(prompt_registry.get_prompts_for_role(role)) for role in prompt_registry.list_roles()))},
-                {"label": _("Öne çıkan AI kartı"), "value": _format_number(len(ai_spotlight))},
+                {
+                    "label": _("Yayınlanan prompt"),
+                    "value": _format_number(
+                        sum(
+                            len(prompt_registry.get_prompts_for_role(role))
+                            for role in prompt_registry.list_roles()
+                        )
+                    ),
+                },
+                {
+                    "label": _("Öne çıkan AI kartı"),
+                    "value": _format_number(len(ai_spotlight)),
+                },
             ],
         },
         {
@@ -247,8 +269,14 @@ def _build_corporate_snapshot():
             ),
             "href": _safe_reverse("products_egitim"),
             "stats": [
-                {"label": _("Öğretmen görevleri"), "value": _format_number(teacher_brief["task_count"])},
-                {"label": _("Öğrenci görevleri"), "value": _format_number(student_brief["task_count"])},
+                {
+                    "label": _("Öğretmen görevleri"),
+                    "value": _format_number(teacher_brief["task_count"]),
+                },
+                {
+                    "label": _("Öğrenci görevleri"),
+                    "value": _format_number(student_brief["task_count"]),
+                },
             ],
         },
     ]
@@ -275,7 +303,9 @@ def _build_corporate_snapshot():
                 "items": [
                     {
                         "label": doc.name,
-                        "meta": formats.date_format(doc.published_at, "DATE_FORMAT") if doc.published_at else "",
+                        "meta": formats.date_format(doc.published_at, "DATE_FORMAT")
+                        if doc.published_at
+                        else "",
                         "href": doc.file_url,
                     }
                     for doc in investor_documents
@@ -344,7 +374,7 @@ def contact(request):
     from django.contrib import messages
     from django.core.mail import send_mail
     from django.conf import settings
-    
+
     snapshot = _build_corporate_snapshot()
 
     try:
@@ -361,7 +391,7 @@ def contact(request):
         subject = request.POST.get("subject", "").strip()
         message = request.POST.get("message", "").strip()
         privacy = request.POST.get("privacy")
-        
+
         if not privacy:
             messages.error(request, _("KVKK onayı gereklidir."))
         elif not all([name, email, subject, message]):
@@ -377,7 +407,7 @@ def contact(request):
                 "other": _("Diğer"),
             }
             email_subject = f"[FinAsis İletişim] {subject_map.get(subject, _('İletişim Formu'))} - {name}"
-            
+
             email_body = f"""
 İletişim Formu Mesajı
 ====================
@@ -394,7 +424,7 @@ Mesaj:
 ---
 Bu mesaj FinAsis iletişim formundan gönderilmiştir.
 """
-            
+
             try:
                 send_mail(
                     email_subject,
@@ -403,30 +433,46 @@ Bu mesaj FinAsis iletişim formundan gönderilmiştir.
                     ["sales@finasis.com"],
                     fail_silently=False,
                 )
-                messages.success(request, _("Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız."))
+                messages.success(
+                    request,
+                    _(
+                        "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız."
+                    ),
+                )
                 return redirect(request.path + "?success=1")
-            except Exception as e:
-                messages.error(request, _("Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin veya doğrudan e-posta gönderin."))
+            except Exception:
+                messages.error(
+                    request,
+                    _(
+                        "Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin veya doğrudan e-posta gönderin."
+                    ),
+                )
 
     contact_channels = [
         {
             "icon": "bi-calendar-check",
             "title": _("Satış Ekibi ile Görüşün"),
-            "description": _("Ürünle ilgili sorularınızı iletin, kullanım senaryolarınızı bizimle paylaşın."),
+            "description": _(
+                "Ürünle ilgili sorularınızı iletin, kullanım senaryolarınızı bizimle paylaşın."
+            ),
             "href": f"{request.build_absolute_uri()}?intent=demo",
             "cta": _("İletişime geçin"),
         },
         {
             "icon": "bi-clipboard-data",
             "title": _("Uyumluluk Danışmanlığı"),
-            "description": _("AML, KVKK ve MASAK gereksinimlerine özel danışman ekibi ile görüşün."),
+            "description": _(
+                "AML, KVKK ve MASAK gereksinimlerine özel danışman ekibi ile görüşün."
+            ),
             "href": "#channels",
             "cta": _("Görüşme ayarla"),
         },
         {
             "icon": "bi-people",
             "title": _("Partner Ekosistemi"),
-            "description": _("FinAsis partner ağına katılın veya çözümlerimizi müşterilerinize sunun."),
+            "description": _(
+                "FinAsis partner ağına katılın veya çözümlerimizi müşterilerinize sunun."
+            ),
             "href": partner_marketplace_url,
             "cta": _("Partner merkezi"),
         },
@@ -471,25 +517,25 @@ Bu mesaj FinAsis iletişim formundan gönderilmiştir.
 def about(request):
     """Kurumsal hakkımızda sayfası."""
     context = {
-        'page_title': _('FinAsis · Hakkımızda'),
+        "page_title": _("FinAsis · Hakkımızda"),
     }
-    return render(request, 'corporate/about.html', context)
+    return render(request, "corporate/about.html", context)
 
 
 def team(request):
     """Kurumsal ekip sayfası."""
     context = {
-        'page_title': _('FinAsis · Ekip'),
+        "page_title": _("FinAsis · Ekip"),
     }
-    return render(request, 'corporate/team.html', context)
+    return render(request, "corporate/team.html", context)
 
 
 def careers(request):
     """Kariyer fırsatları sayfası."""
     context = {
-        'page_title': _('FinAsis · Kariyer'),
+        "page_title": _("FinAsis · Kariyer"),
     }
-    return render(request, 'corporate/careers.html', context)
+    return render(request, "corporate/careers.html", context)
 
 
 def investors(request):
@@ -499,34 +545,34 @@ def investors(request):
     documents = list(InvestorDocument.objects.all())
 
     context = {
-        'page_title': _('FinAsis · Yatırımcı İlişkileri'),
-        'documents': documents,
+        "page_title": _("FinAsis · Yatırımcı İlişkileri"),
+        "documents": documents,
     }
-    return render(request, 'corporate/investors.html', context)
+    return render(request, "corporate/investors.html", context)
 
 
 def press(request):
     """Basın bültenleri sayfası."""
     context = {
-        'page_title': _('FinAsis · Basın Merkezi'),
+        "page_title": _("FinAsis · Basın Merkezi"),
     }
-    return render(request, 'corporate/press.html', context)
+    return render(request, "corporate/press.html", context)
 
 
 def security_page(request):
     """Güvenlik ve uyumluluk sayfası."""
     context = {
-        'page_title': _('FinAsis · Güvenlik'),
+        "page_title": _("FinAsis · Güvenlik"),
     }
-    return render(request, 'corporate/security.html', context)
+    return render(request, "corporate/security.html", context)
 
 
 def sustainability(request):
     """Sürdürülebilirlik ve ESG yaklaşımı sayfası."""
     context = {
-        'page_title': _('FinAsis · Sürdürülebilirlik'),
+        "page_title": _("FinAsis · Sürdürülebilirlik"),
     }
-    return render(request, 'corporate/sustainability.html', context)
+    return render(request, "corporate/sustainability.html", context)
 
 
 @login_required
@@ -534,74 +580,79 @@ def corporate_dashboard(request):
     """
     Kurumsal müşteri yönetim dashboard'u (placeholder)
     """
-    company = getattr(request.user, 'company', None)
-    
+    getattr(request.user, "company", None)
+
     context = {
-        'clients': [],
-        'total_clients': 0,
-        'active_projects': [],
-        'total_projects': 0,
-        'active_contracts': [],
-        'total_contracts': 0,
+        "clients": [],
+        "total_clients": 0,
+        "active_projects": [],
+        "total_projects": 0,
+        "active_contracts": [],
+        "total_contracts": 0,
     }
-    
-    return render(request, 'corporate/dashboard.html', context)
+
+    return render(request, "corporate/dashboard.html", context)
 
 
 @login_required
 def client_list(request):
     """Kurumsal müşteri listesi (placeholder)"""
-    context = {'clients': []}
-    return render(request, 'corporate/client_list.html', context)
+    context = {"clients": []}
+    return render(request, "corporate/client_list.html", context)
 
 
 @login_required
 def client_detail(request, client_id):
     """Kurumsal müşteri detay (placeholder)"""
-    context = {'client': None, 'contacts': [], 'departments': [], 'projects': [], 'contracts': []}
-    return render(request, 'corporate/client_detail.html', context)
+    context = {
+        "client": None,
+        "contacts": [],
+        "departments": [],
+        "projects": [],
+        "contracts": [],
+    }
+    return render(request, "corporate/client_detail.html", context)
 
 
 @login_required
 def client_create(request):
     """Yeni kurumsal müşteri (placeholder)"""
-    if request.method == 'POST':
-        messages.info(request, _('Kurumsal müşteri modeli henüz aktif değil.'))
-        return redirect('corporate:client_list')
-    
-    context = {'industry_sectors': []}
-    return render(request, 'corporate/client_create.html', context)
+    if request.method == "POST":
+        messages.info(request, _("Kurumsal müşteri modeli henüz aktif değil."))
+        return redirect("corporate:client_list")
+
+    context = {"industry_sectors": []}
+    return render(request, "corporate/client_create.html", context)
 
 
 @login_required
 def project_list(request):
     """Kurumsal proje listesi (placeholder)"""
-    context = {'projects': [], 'status_filter': None}
-    return render(request, 'corporate/project_list.html', context)
+    context = {"projects": [], "status_filter": None}
+    return render(request, "corporate/project_list.html", context)
 
 
 @login_required
 def project_detail(request, project_id):
     """Proje detay (placeholder)"""
-    context = {'project': None}
-    return render(request, 'corporate/project_detail.html', context)
+    context = {"project": None}
+    return render(request, "corporate/project_detail.html", context)
 
 
 @login_required
 def contract_list(request):
     """Sözleşme listesi (placeholder)"""
-    context = {'contracts': []}
-    return render(request, 'corporate/contract_list.html', context)
+    context = {"contracts": []}
+    return render(request, "corporate/contract_list.html", context)
 
 
 @login_required
 def ajax_client_stats(request):
     """AJAX: Müşteri istatistikleri (placeholder)"""
     stats = {
-        'total_clients': 0,
-        'active_projects': 0,
-        'completed_projects': 0,
-        'active_contracts': 0,
+        "total_clients": 0,
+        "active_projects": 0,
+        "completed_projects": 0,
+        "active_contracts": 0,
     }
-    return JsonResponse({'success': True, 'stats': stats})
-
+    return JsonResponse({"success": True, "stats": stats})

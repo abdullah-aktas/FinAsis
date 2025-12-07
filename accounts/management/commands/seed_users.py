@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import csv
-import sys
 import secrets
 from typing import List, Dict
 
@@ -22,15 +21,45 @@ class Command(BaseCommand):
     help = "Veri gizliliğine uygun, sahte (PII içermeyen) kullanıcılar oluşturur."
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("--count", type=int, default=0, help="Toplam kullanıcı sayısı (tip dağılımı eşit paylaşılır)")
+        parser.add_argument(
+            "--count",
+            type=int,
+            default=0,
+            help="Toplam kullanıcı sayısı (tip dağılımı eşit paylaşılır)",
+        )
         parser.add_argument("--kobi", type=int, default=0, help="KOBİ kullanıcı sayısı")
-        parser.add_argument("--egitimci", type=int, default=0, help="Eğitimci kullanıcı sayısı")
-        parser.add_argument("--ogrenci", type=int, default=0, help="Öğrenci kullanıcı sayısı")
-        parser.add_argument("--oyuncu", type=int, default=0, help="Oyuncu kullanıcı sayısı")
-        parser.add_argument("--password", type=str, default=None, help="Varsayılan parola (aksi halde her kullanıcı için rastgele)\nUYARI: Parolayı stdout'a yazmayız, isterseniz --out ile CSV alın")
-        parser.add_argument("--out", type=str, default=None, help="Oluşturulan kullanıcıları CSV olarak bu dosyaya yaz")
-        parser.add_argument("--email-notifications", choices=["on", "off"], default="off", help="E-posta bildirim ayarı (UserSettings)")
-        parser.add_argument("--dry-run", action="store_true", help="Sadece ne yapılacağını göster, veri yazma")
+        parser.add_argument(
+            "--egitimci", type=int, default=0, help="Eğitimci kullanıcı sayısı"
+        )
+        parser.add_argument(
+            "--ogrenci", type=int, default=0, help="Öğrenci kullanıcı sayısı"
+        )
+        parser.add_argument(
+            "--oyuncu", type=int, default=0, help="Oyuncu kullanıcı sayısı"
+        )
+        parser.add_argument(
+            "--password",
+            type=str,
+            default=None,
+            help="Varsayılan parola (aksi halde her kullanıcı için rastgele)\nUYARI: Parolayı stdout'a yazmayız, isterseniz --out ile CSV alın",
+        )
+        parser.add_argument(
+            "--out",
+            type=str,
+            default=None,
+            help="Oluşturulan kullanıcıları CSV olarak bu dosyaya yaz",
+        )
+        parser.add_argument(
+            "--email-notifications",
+            choices=["on", "off"],
+            default="off",
+            help="E-posta bildirim ayarı (UserSettings)",
+        )
+        parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Sadece ne yapılacağını göster, veri yazma",
+        )
 
     def handle(self, *args, **options):
         User = get_user_model()
@@ -56,9 +85,11 @@ class Command(BaseCommand):
             total = options["count"]
 
         if total == 0:
-            self.stdout.write(self.style.WARNING(
-                "Oluşturulacak kullanıcı sayısı 0. --count veya tip bazında (--kobi vb.) girin."
-            ))
+            self.stdout.write(
+                self.style.WARNING(
+                    "Oluşturulacak kullanıcı sayısı 0. --count veya tip bazında (--kobi vb.) girin."
+                )
+            )
             return
 
         # Gizlilik notu
@@ -69,9 +100,11 @@ class Command(BaseCommand):
             existing_types = {ut.code for ut in UserType.objects.all()}
             needed = [code for code in per_type.keys() if code not in existing_types]
             for code in needed:
-                UserType.objects.get_or_create(code=code, defaults={"name": code.capitalize()})
+                UserType.objects.get_or_create(
+                    code=code, defaults={"name": code.capitalize()}
+                )
 
-        email_notifications = (options.get("email-notifications") == "on")
+        email_notifications = options.get("email-notifications") == "on"
         use_password = options.get("password")
         out_path = options.get("out")
         dry_run = bool(options.get("dry-run"))
@@ -97,7 +130,14 @@ class Command(BaseCommand):
                     password = use_password or gen_password()
 
                     if dry_run:
-                        created_rows.append([username, email, code, password if out_path else "<hidden>"])
+                        created_rows.append(
+                            [
+                                username,
+                                email,
+                                code,
+                                password if out_path else "<hidden>",
+                            ]
+                        )
                         continue
 
                     user = User(
@@ -112,12 +152,17 @@ class Command(BaseCommand):
                     user.save()
 
                     # UserSettings: bildirim tercihini set et
-                    UserSettings.objects.get_or_create(user=user, defaults={
-                        "email_notifications": email_notifications,
-                        "dark_mode": False,
-                    })
+                    UserSettings.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            "email_notifications": email_notifications,
+                            "dark_mode": False,
+                        },
+                    )
 
-                    created_rows.append([username, email, code, password if out_path else "<hidden>"])
+                    created_rows.append(
+                        [username, email, code, password if out_path else "<hidden>"]
+                    )
 
         # CSV çıktısı
         if out_path:
@@ -125,17 +170,21 @@ class Command(BaseCommand):
                 writer = csv.writer(f)
                 writer.writerow(["username", "email", "user_type", "password"])
                 writer.writerows(created_rows)
-            self.stdout.write(self.style.SUCCESS(f"{len(created_rows)} kullanıcı CSV'ye yazıldı: {out_path}"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"{len(created_rows)} kullanıcı CSV'ye yazıldı: {out_path}"
+                )
+            )
         else:
             # Parolaları STDOUT'a yazmayın, sadece özet verin
             masked = [row[:3] + ["<hidden>"] for row in created_rows]
             # Konsol özeti (ilk 10)
             preview = "\n".join([", ".join(row) for row in masked[:10]])
-            self.stdout.write(self.style.SUCCESS(f"Toplam {len(created_rows)} kullanıcı hazırlandı."))
+            self.stdout.write(
+                self.style.SUCCESS(f"Toplam {len(created_rows)} kullanıcı hazırlandı.")
+            )
             if preview:
                 self.stdout.write(preview)
 
         if dry_run:
             self.stdout.write(self.style.WARNING("Dry-run mod: veri yazılmadı."))
-
-

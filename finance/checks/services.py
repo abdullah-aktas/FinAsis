@@ -6,7 +6,9 @@ from django.db import transaction
 from .models import Check, Bill, CheckStatus
 
 
-def transition_check(check: Check, action: Literal["endorse", "deposit", "cash", "dishonor"]) -> None:
+def transition_check(
+    check: Check, action: Literal["endorse", "deposit", "cash", "dishonor"]
+) -> None:
     with transaction.atomic():
         if action == "endorse":
             check.mark_as_endorsed()
@@ -39,6 +41,10 @@ def propose_voucher_for_check(check: Check) -> dict:
     return {
         "description": f"Check {direction} {check.check_number}",
         "lines": [
-            {"side": "D" if check.is_incoming else "C", "amount": check.amount, "account": check.accounting_account.code},
+            {
+                "side": "D" if check.is_incoming else "C",
+                "amount": check.amount,
+                "account": check.accounting_account.code,
+            },
         ],
     }

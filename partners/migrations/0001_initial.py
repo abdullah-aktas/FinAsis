@@ -18,12 +18,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PartnerCategory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.SlugField(max_length=50, unique=True, verbose_name="Kategori Kodu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.SlugField(
+                        max_length=50, unique=True, verbose_name="Kategori Kodu"
+                    ),
+                ),
                 ("name", models.CharField(max_length=150, verbose_name="Kategori Adı")),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("icon", models.CharField(blank=True, max_length=100, verbose_name="Simge")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="Sıra")),
+                (
+                    "icon",
+                    models.CharField(blank=True, max_length=100, verbose_name="Simge"),
+                ),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="Sıra"),
+                ),
             ],
             options={
                 "verbose_name": "Partner Kategorisi",
@@ -34,11 +53,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PartnerApplication",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("company_name", models.CharField(max_length=200, verbose_name="Şirket Adı")),
-                ("contact_name", models.CharField(max_length=120, verbose_name="İletişim Kişisi")),
-                ("contact_email", models.EmailField(max_length=254, verbose_name="E-posta")),
-                ("contact_phone", models.CharField(blank=True, max_length=50, verbose_name="Telefon")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "company_name",
+                    models.CharField(max_length=200, verbose_name="Şirket Adı"),
+                ),
+                (
+                    "contact_name",
+                    models.CharField(max_length=120, verbose_name="İletişim Kişisi"),
+                ),
+                (
+                    "contact_email",
+                    models.EmailField(max_length=254, verbose_name="E-posta"),
+                ),
+                (
+                    "contact_phone",
+                    models.CharField(blank=True, max_length=50, verbose_name="Telefon"),
+                ),
                 ("website_url", models.URLField(blank=True, verbose_name="Web Sitesi")),
                 (
                     "partner_type",
@@ -56,10 +95,34 @@ class Migration(migrations.Migration):
                         verbose_name="Partner Tipi",
                     ),
                 ),
-                ("integration_focus", models.CharField(help_text="Örn. e-Fatura, muhasebe, eğitim içeriği", max_length=200, verbose_name="Entegrasyon Odağı")),
-                ("target_customer_segments", models.CharField(blank=True, max_length=200, verbose_name="Hedef Müşteri Segmentleri")),
-                ("regions", models.CharField(blank=True, max_length=200, verbose_name="Hizmet Verilen Bölgeler")),
-                ("sandbox_url", models.URLField(blank=True, verbose_name="Sandbox / Demo URL")),
+                (
+                    "integration_focus",
+                    models.CharField(
+                        help_text="Örn. e-Fatura, muhasebe, eğitim içeriği",
+                        max_length=200,
+                        verbose_name="Entegrasyon Odağı",
+                    ),
+                ),
+                (
+                    "target_customer_segments",
+                    models.CharField(
+                        blank=True,
+                        max_length=200,
+                        verbose_name="Hedef Müşteri Segmentleri",
+                    ),
+                ),
+                (
+                    "regions",
+                    models.CharField(
+                        blank=True,
+                        max_length=200,
+                        verbose_name="Hizmet Verilen Bölgeler",
+                    ),
+                ),
+                (
+                    "sandbox_url",
+                    models.URLField(blank=True, verbose_name="Sandbox / Demo URL"),
+                ),
                 (
                     "compliance_notes",
                     models.TextField(
@@ -71,10 +134,15 @@ class Migration(migrations.Migration):
                 (
                     "go_to_market_plan",
                     models.TextField(
-                        blank=True, help_text="Ortak kampanyalar, hedefler", verbose_name="Pazara Giriş Planı"
+                        blank=True,
+                        help_text="Ortak kampanyalar, hedefler",
+                        verbose_name="Pazara Giriş Planı",
                     ),
                 ),
-                ("additional_notes", models.TextField(blank=True, verbose_name="Ek Notlar")),
+                (
+                    "additional_notes",
+                    models.TextField(blank=True, verbose_name="Ek Notlar"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -89,10 +157,32 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("reviewed_at", models.DateTimeField(blank=True, null=True, verbose_name="İnceleme Tarihi")),
-                ("metadata", models.JSONField(blank=True, default=partners.models.default_metadata, verbose_name="Ek Veriler")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Gönderim Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncelleme Tarihi")),
+                (
+                    "reviewed_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="İnceleme Tarihi"
+                    ),
+                ),
+                (
+                    "metadata",
+                    models.JSONField(
+                        blank=True,
+                        default=partners.models.default_metadata,
+                        verbose_name="Ek Veriler",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Gönderim Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncelleme Tarihi"
+                    ),
+                ),
                 (
                     "reviewed_by",
                     models.ForeignKey(
@@ -125,16 +215,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PartnerProfile",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Partner Adı")),
-                ("slug", models.SlugField(max_length=200, unique=True, verbose_name="Slug")),
-                ("headline", models.CharField(blank=True, max_length=200, verbose_name="Kısa Başlık")),
+                (
+                    "slug",
+                    models.SlugField(max_length=200, unique=True, verbose_name="Slug"),
+                ),
+                (
+                    "headline",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Kısa Başlık"
+                    ),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("integration_focus", models.CharField(blank=True, max_length=200, verbose_name="Entegrasyon Odağı")),
+                (
+                    "integration_focus",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Entegrasyon Odağı"
+                    ),
+                ),
                 ("website_url", models.URLField(blank=True, verbose_name="Web Sitesi")),
-                ("contact_email", models.EmailField(blank=True, max_length=254, verbose_name="İletişim E-postası")),
-                ("badge_label", models.CharField(blank=True, max_length=100, verbose_name="Rozet")),
-                ("regions", models.CharField(blank=True, max_length=200, verbose_name="Hizmet Bölgeleri")),
+                (
+                    "contact_email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="İletişim E-postası"
+                    ),
+                ),
+                (
+                    "badge_label",
+                    models.CharField(blank=True, max_length=100, verbose_name="Rozet"),
+                ),
+                (
+                    "regions",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Hizmet Bölgeleri"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -149,10 +273,22 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("is_featured", models.BooleanField(default=False, verbose_name="Öne Çıkan")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="Sıra")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncelleme")),
+                (
+                    "is_featured",
+                    models.BooleanField(default=False, verbose_name="Öne Çıkan"),
+                ),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="Sıra"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncelleme"),
+                ),
                 (
                     "category",
                     models.ForeignKey(
@@ -171,11 +307,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="partnerapplication",
-            index=models.Index(fields=("status", "created_at"), name="partners_pa_status_0ee13f_idx"),
+            index=models.Index(
+                fields=("status", "created_at"), name="partners_pa_status_0ee13f_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="partnerapplication",
-            index=models.Index(fields=("partner_type",), name="partners_pa_partner_37f9d3_idx"),
+            index=models.Index(
+                fields=("partner_type",), name="partners_pa_partner_37f9d3_idx"
+            ),
         ),
     ]
-

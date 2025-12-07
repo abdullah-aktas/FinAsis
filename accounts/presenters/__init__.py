@@ -2,5 +2,4 @@
 
 from .dashboard import UserDashboardPresenter  # noqa: F401
 
-__all__ = ['UserDashboardPresenter']
-
+__all__ = ["UserDashboardPresenter"]

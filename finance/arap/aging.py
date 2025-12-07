@@ -14,7 +14,13 @@ class ARAPItem:
 
 
 def aging_buckets(items: Iterable[ARAPItem], today: date) -> Dict[str, Decimal]:
-    buckets = {"current": Decimal("0"), "30": Decimal("0"), "60": Decimal("0"), "90": Decimal("0"), "120+": Decimal("0")}
+    buckets = {
+        "current": Decimal("0"),
+        "30": Decimal("0"),
+        "60": Decimal("0"),
+        "90": Decimal("0"),
+        "120+": Decimal("0"),
+    }
     for it in items:
         delta = (today - it.due_date).days
         if delta <= 0:

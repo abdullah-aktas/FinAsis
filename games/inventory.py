@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
 
+
 @dataclass
 class InventoryItem:
     id: str
@@ -11,6 +12,7 @@ class InventoryItem:
     total_cost: float
     category: str
     last_updated: datetime
+
 
 class InventoryManager:
     def __init__(self):
@@ -33,4 +35,4 @@ class InventoryManager:
         return self.items.get(item_id)
 
     def all_items(self):
-        return list(self.items.values()) 
+        return list(self.items.values())

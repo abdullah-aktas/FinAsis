@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("finance", "0015_fix_trialbalancesnapshot_user_reference"),
@@ -17,9 +16,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialMetric",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("name", models.CharField(max_length=100, verbose_name="Metrik Adı")),
                 (
@@ -36,17 +53,31 @@ class Migration(migrations.Migration):
                         verbose_name="Metrik Tipi",
                     ),
                 ),
-                ("value", models.DecimalField(decimal_places=4, max_digits=15, verbose_name="Değer")),
+                (
+                    "value",
+                    models.DecimalField(
+                        decimal_places=4, max_digits=15, verbose_name="Değer"
+                    ),
+                ),
                 (
                     "benchmark_value",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=15, null=True, verbose_name="Referans Değer"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Referans Değer",
                     ),
                 ),
                 ("period_start", models.DateField(verbose_name="Dönem Başlangıç")),
                 ("period_end", models.DateField(verbose_name="Dönem Bitiş")),
                 ("formula", models.TextField(blank=True, verbose_name="Formül")),
-                ("calculation_data", models.JSONField(blank=True, default=dict, verbose_name="Hesaplama Verisi")),
+                (
+                    "calculation_data",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Hesaplama Verisi"
+                    ),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="Notlar")),
             ],
             options={
@@ -58,9 +89,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PaymentTerm",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("name", models.CharField(max_length=100, verbose_name="Vade Adı")),
                 (
@@ -81,10 +130,16 @@ class Migration(migrations.Migration):
                 (
                     "discount_percentage",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=5, verbose_name="İndirim Oranı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=5,
+                        verbose_name="İndirim Oranı",
                     ),
                 ),
-                ("discount_days", models.IntegerField(default=0, verbose_name="İndirim Günü")),
+                (
+                    "discount_days",
+                    models.IntegerField(default=0, verbose_name="İndirim Günü"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
             ],
             options={
@@ -96,20 +151,47 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RecurringTransaction",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("name", models.CharField(max_length=200, verbose_name="İşlem Adı")),
                 (
                     "transaction_type",
                     models.CharField(
-                        choices=[("INCOME", "Gelir"), ("EXPENSE", "Gider"), ("TRANSFER", "Transfer")],
+                        choices=[
+                            ("INCOME", "Gelir"),
+                            ("EXPENSE", "Gider"),
+                            ("TRANSFER", "Transfer"),
+                        ],
                         max_length=20,
                         verbose_name="İşlem Tipi",
                     ),
                 ),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Tutar")),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Tutar"
+                    ),
+                ),
                 (
                     "frequency",
                     models.CharField(
@@ -127,16 +209,34 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
-                ("end_date", models.DateField(blank=True, null=True, verbose_name="Bitiş Tarihi")),
+                (
+                    "end_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Bitiş Tarihi"
+                    ),
+                ),
                 ("next_occurrence", models.DateField(verbose_name="Sonraki Oluşum")),
-                ("is_paused", models.BooleanField(default=False, verbose_name="Duraklatıldı")),
-                ("last_executed", models.DateField(blank=True, null=True, verbose_name="Son Çalıştırma")),
-                ("execution_count", models.IntegerField(default=0, verbose_name="Çalıştırma Sayısı")),
+                (
+                    "is_paused",
+                    models.BooleanField(default=False, verbose_name="Duraklatıldı"),
+                ),
+                (
+                    "last_executed",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Son Çalıştırma"
+                    ),
+                ),
+                (
+                    "execution_count",
+                    models.IntegerField(default=0, verbose_name="Çalıştırma Sayısı"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 (
                     "account",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="finance.account", verbose_name="Hesap"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="finance.account",
+                        verbose_name="Hesap",
                     ),
                 ),
                 (
@@ -157,9 +257,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Reconciliation",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 (
                     "reconciliation_type",
@@ -179,13 +297,22 @@ class Migration(migrations.Migration):
                 ("period_end", models.DateField(verbose_name="Dönem Bitiş")),
                 (
                     "system_balance",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Sistem Bakiyesi"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Sistem Bakiyesi"
+                    ),
                 ),
                 (
                     "statement_balance",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Ekstre Bakiyesi"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Ekstre Bakiyesi"
+                    ),
                 ),
-                ("difference", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Fark")),
+                (
+                    "difference",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Fark"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -200,9 +327,19 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("reconciliation_data", models.JSONField(blank=True, default=dict, verbose_name="Mutabakat Verisi")),
+                (
+                    "reconciliation_data",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Mutabakat Verisi"
+                    ),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="Notlar")),
-                ("reconciled_at", models.DateTimeField(blank=True, null=True, verbose_name="Mutabakat Tarihi")),
+                (
+                    "reconciled_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Mutabakat Tarihi"
+                    ),
+                ),
                 (
                     "account",
                     models.ForeignKey(
@@ -233,11 +370,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Loan",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("loan_name", models.CharField(max_length=200, verbose_name="Kredi Adı")),
+                (
+                    "loan_name",
+                    models.CharField(max_length=200, verbose_name="Kredi Adı"),
+                ),
                 (
                     "loan_type",
                     models.CharField(
@@ -254,8 +412,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("lender", models.CharField(max_length=200, verbose_name="Borç Veren")),
-                ("principal_amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Ana Para")),
-                ("interest_rate", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Faiz Oranı (%)")),
+                (
+                    "principal_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Ana Para"
+                    ),
+                ),
+                (
+                    "interest_rate",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Faiz Oranı (%)"
+                    ),
+                ),
                 ("loan_date", models.DateField(verbose_name="Kredi Tarihi")),
                 ("maturity_date", models.DateField(verbose_name="Vade Tarihi")),
                 (
@@ -276,22 +444,32 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "installment_amount",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Taksit Tutarı"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Taksit Tutarı"
+                    ),
                 ),
                 (
                     "outstanding_balance",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Kalan Bakiye"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Kalan Bakiye"
+                    ),
                 ),
                 (
                     "total_paid",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Ödenen"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Ödenen",
                     ),
                 ),
                 (
                     "total_interest_paid",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Ödenen Faiz"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Ödenen Faiz",
                     ),
                 ),
                 (
@@ -312,7 +490,9 @@ class Migration(migrations.Migration):
                 (
                     "liability_account",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="finance.account", verbose_name="Borç Hesabı"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="finance.account",
+                        verbose_name="Borç Hesabı",
                     ),
                 ),
             ],
@@ -325,11 +505,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Investment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("investment_name", models.CharField(max_length=200, verbose_name="Yatırım Adı")),
+                (
+                    "investment_name",
+                    models.CharField(max_length=200, verbose_name="Yatırım Adı"),
+                ),
                 (
                     "investment_type",
                     models.CharField(
@@ -348,39 +549,86 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("purchase_date", models.DateField(verbose_name="Alım Tarihi")),
-                ("purchase_price", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Alım Fiyatı")),
+                (
+                    "purchase_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Alım Fiyatı"
+                    ),
+                ),
                 (
                     "quantity",
                     models.DecimalField(
-                        decimal_places=4, default=Decimal("1.00"), max_digits=15, verbose_name="Miktar"
+                        decimal_places=4,
+                        default=Decimal("1.00"),
+                        max_digits=15,
+                        verbose_name="Miktar",
                     ),
                 ),
-                ("current_price", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Güncel Fiyat")),
-                ("total_cost", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Toplam Maliyet")),
-                ("current_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Güncel Değer")),
+                (
+                    "current_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Güncel Fiyat"
+                    ),
+                ),
+                (
+                    "total_cost",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Toplam Maliyet"
+                    ),
+                ),
+                (
+                    "current_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Güncel Değer"
+                    ),
+                ),
                 (
                     "unrealized_gain_loss",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Gerçekleşmemiş Kar/Zarar"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="Gerçekleşmemiş Kar/Zarar",
+                    ),
                 ),
-                ("return_percentage", models.DecimalField(decimal_places=2, max_digits=8, verbose_name="Getiri (%)")),
-                ("sale_date", models.DateField(blank=True, null=True, verbose_name="Satış Tarihi")),
+                (
+                    "return_percentage",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=8, verbose_name="Getiri (%)"
+                    ),
+                ),
+                (
+                    "sale_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Satış Tarihi"
+                    ),
+                ),
                 (
                     "sale_price",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Satış Fiyatı"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Satış Fiyatı",
                     ),
                 ),
                 (
                     "realized_gain_loss",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Gerçekleşen Kar/Zarar"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Gerçekleşen Kar/Zarar",
                     ),
                 ),
                 ("notes", models.TextField(blank=True, verbose_name="Notlar")),
                 (
                     "investment_account",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="finance.account", verbose_name="Yatırım Hesabı"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="finance.account",
+                        verbose_name="Yatırım Hesabı",
                     ),
                 ),
             ],
@@ -393,23 +641,54 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AssetDepreciation",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("asset_name", models.CharField(max_length=200, verbose_name="Varlık Adı")),
+                (
+                    "asset_name",
+                    models.CharField(max_length=200, verbose_name="Varlık Adı"),
+                ),
                 ("purchase_date", models.DateField(verbose_name="Satın Alma Tarihi")),
                 (
                     "purchase_cost",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Satın Alma Maliyeti"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="Satın Alma Maliyeti",
+                    ),
                 ),
                 (
                     "salvage_value",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Hurda Değeri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Hurda Değeri",
                     ),
                 ),
-                ("useful_life_years", models.IntegerField(verbose_name="Faydalı Ömür (Yıl)")),
+                (
+                    "useful_life_years",
+                    models.IntegerField(verbose_name="Faydalı Ömür (Yıl)"),
+                ),
                 (
                     "method",
                     models.CharField(
@@ -426,22 +705,40 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "annual_depreciation",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Yıllık Amortisman"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="Yıllık Amortisman",
+                    ),
                 ),
                 (
                     "accumulated_depreciation",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Birikmiş Amortisman"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Birikmiş Amortisman",
                     ),
                 ),
-                ("book_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Net Defter Değeri")),
+                (
+                    "book_value",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="Net Defter Değeri",
+                    ),
+                ),
                 (
                     "is_fully_depreciated",
-                    models.BooleanField(default=False, verbose_name="Tamamen Amortismana Tabi Tutuldu"),
+                    models.BooleanField(
+                        default=False, verbose_name="Tamamen Amortismana Tabi Tutuldu"
+                    ),
                 ),
                 (
                     "last_depreciation_date",
-                    models.DateField(blank=True, null=True, verbose_name="Son Amortisman Tarihi"),
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Son Amortisman Tarihi"
+                    ),
                 ),
                 (
                     "accumulated_depreciation_account",

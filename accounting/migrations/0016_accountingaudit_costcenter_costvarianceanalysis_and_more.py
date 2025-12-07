@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("accounting", "0015_remove_banktransaction_acc_banktxn_date_idx_and_more"),
@@ -16,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AccountingAudit",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "audit_type",
                     models.CharField(
@@ -32,13 +39,29 @@ class Migration(migrations.Migration):
                         verbose_name="Denetim Tipi",
                     ),
                 ),
-                ("audit_name", models.CharField(max_length=200, verbose_name="Denetim Adı")),
+                (
+                    "audit_name",
+                    models.CharField(max_length=200, verbose_name="Denetim Adı"),
+                ),
                 ("fiscal_year", models.IntegerField(verbose_name="Mali Yıl")),
-                ("fiscal_period", models.CharField(blank=True, max_length=10, verbose_name="Dönem")),
+                (
+                    "fiscal_period",
+                    models.CharField(blank=True, max_length=10, verbose_name="Dönem"),
+                ),
                 ("planned_start", models.DateField(verbose_name="Planlanan Başlangıç")),
                 ("planned_end", models.DateField(verbose_name="Planlanan Bitiş")),
-                ("actual_start", models.DateField(blank=True, null=True, verbose_name="Gerçekleşen Başlangıç")),
-                ("actual_end", models.DateField(blank=True, null=True, verbose_name="Gerçekleşen Bitiş")),
+                (
+                    "actual_start",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Gerçekleşen Başlangıç"
+                    ),
+                ),
+                (
+                    "actual_end",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Gerçekleşen Bitiş"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -69,18 +92,40 @@ class Migration(migrations.Migration):
                         verbose_name="Denetim Görüşü",
                     ),
                 ),
-                ("overall_score", models.IntegerField(blank=True, null=True, verbose_name="Genel Skor (0-100)")),
-                ("executive_summary", models.TextField(blank=True, verbose_name="Yönetici Özeti")),
-                ("detailed_findings", models.TextField(blank=True, verbose_name="Detaylı Bulgular")),
-                ("recommendations", models.JSONField(blank=True, default=list, verbose_name="Öneriler")),
+                (
+                    "overall_score",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Genel Skor (0-100)"
+                    ),
+                ),
+                (
+                    "executive_summary",
+                    models.TextField(blank=True, verbose_name="Yönetici Özeti"),
+                ),
+                (
+                    "detailed_findings",
+                    models.TextField(blank=True, verbose_name="Detaylı Bulgular"),
+                ),
+                (
+                    "recommendations",
+                    models.JSONField(blank=True, default=list, verbose_name="Öneriler"),
+                ),
                 (
                     "audit_report",
-                    models.FileField(blank=True, null=True, upload_to="audit_reports/", verbose_name="Denetim Raporu"),
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to="audit_reports/",
+                        verbose_name="Denetim Raporu",
+                    ),
                 ),
                 (
                     "working_papers",
                     models.FileField(
-                        blank=True, null=True, upload_to="audit_workpapers/", verbose_name="Çalışma Kağıtları"
+                        blank=True,
+                        null=True,
+                        upload_to="audit_workpapers/",
+                        verbose_name="Çalışma Kağıtları",
                     ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -123,9 +168,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CostCenter",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=20, verbose_name="Maliyet Merkezi Kodu")),
-                ("name", models.CharField(max_length=200, verbose_name="Maliyet Merkezi Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=20, verbose_name="Maliyet Merkezi Kodu"
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=200, verbose_name="Maliyet Merkezi Adı"
+                    ),
+                ),
                 (
                     "center_type",
                     models.CharField(
@@ -145,7 +208,13 @@ class Migration(migrations.Migration):
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 (
                     "budget_amount",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Bütçe"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Bütçe",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -191,23 +260,65 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CostVarianceAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("analysis_period", models.CharField(max_length=20, verbose_name="Analiz Dönemi")),
-                ("budgeted_amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Bütçelenen")),
-                ("actual_amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Gerçekleşen")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "analysis_period",
+                    models.CharField(max_length=20, verbose_name="Analiz Dönemi"),
+                ),
+                (
+                    "budgeted_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Bütçelenen"
+                    ),
+                ),
+                (
+                    "actual_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Gerçekleşen"
+                    ),
+                ),
                 (
                     "variance_amount",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Varyans Tutarı"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Varyans Tutarı"
+                    ),
                 ),
-                ("variance_percentage", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Varyans %")),
-                ("variance_type", models.CharField(max_length=20, verbose_name="Varyans Tipi")),
-                ("cause_analysis", models.TextField(blank=True, verbose_name="Sebep Analizi")),
-                ("corrective_actions", models.JSONField(blank=True, default=list, verbose_name="Düzeltici Aksiyonlar")),
+                (
+                    "variance_percentage",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Varyans %"
+                    ),
+                ),
+                (
+                    "variance_type",
+                    models.CharField(max_length=20, verbose_name="Varyans Tipi"),
+                ),
+                (
+                    "cause_analysis",
+                    models.TextField(blank=True, verbose_name="Sebep Analizi"),
+                ),
+                (
+                    "corrective_actions",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Düzeltici Aksiyonlar"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "analyzed_by",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (
@@ -228,7 +339,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CostReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "report_type",
                     models.CharField(
@@ -244,32 +363,67 @@ class Migration(migrations.Migration):
                         verbose_name="Rapor Tipi",
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Rapor Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Rapor Başlığı"),
+                ),
                 ("period_start", models.DateField(verbose_name="Başlangıç Tarihi")),
                 ("period_end", models.DateField(verbose_name="Bitiş Tarihi")),
                 (
                     "total_costs",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Toplam Maliyetler"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=18,
+                        verbose_name="Toplam Maliyetler",
+                    ),
                 ),
                 (
                     "budgeted_costs",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=18, null=True, verbose_name="Bütçelenen Maliyetler"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=18,
+                        null=True,
+                        verbose_name="Bütçelenen Maliyetler",
                     ),
                 ),
                 (
                     "variance",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=18, null=True, verbose_name="Varyans"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=18,
+                        null=True,
+                        verbose_name="Varyans",
+                    ),
                 ),
                 (
                     "variance_percentage",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Varyans %"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Varyans %",
                     ),
                 ),
-                ("cost_breakdown", models.JSONField(blank=True, default=dict, verbose_name="Maliyet Dağılımı")),
-                ("center_analysis", models.JSONField(blank=True, default=list, verbose_name="Merkez Bazlı Analiz")),
-                ("recommendations", models.JSONField(blank=True, default=list, verbose_name="Öneriler")),
+                (
+                    "cost_breakdown",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Maliyet Dağılımı"
+                    ),
+                ),
+                (
+                    "center_analysis",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Merkez Bazlı Analiz"
+                    ),
+                ),
+                (
+                    "recommendations",
+                    models.JSONField(blank=True, default=list, verbose_name="Öneriler"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "company",
@@ -283,7 +437,10 @@ class Migration(migrations.Migration):
                 (
                     "generated_by",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
@@ -296,7 +453,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CostAllocation",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("allocation_date", models.DateField(verbose_name="Dağıtım Tarihi")),
                 (
                     "allocation_method",
@@ -311,11 +476,20 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Tutar")),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Tutar"
+                    ),
+                ),
                 (
                     "percentage",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Dağıtım Yüzdesi"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Dağıtım Yüzdesi",
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
@@ -323,7 +497,10 @@ class Migration(migrations.Migration):
                 (
                     "allocated_by",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (
@@ -374,8 +551,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditFinding",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("finding_number", models.CharField(max_length=20, verbose_name="Bulgu No")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "finding_number",
+                    models.CharField(max_length=20, verbose_name="Bulgu No"),
+                ),
                 (
                     "finding_type",
                     models.CharField(
@@ -394,22 +582,37 @@ class Migration(migrations.Migration):
                 (
                     "severity",
                     models.CharField(
-                        choices=[("low", "Düşük"), ("medium", "Orta"), ("high", "Yüksek"), ("critical", "Kritik")],
+                        choices=[
+                            ("low", "Düşük"),
+                            ("medium", "Orta"),
+                            ("high", "Yüksek"),
+                            ("critical", "Kritik"),
+                        ],
                         default="medium",
                         max_length=20,
                         verbose_name="Önem Derecesi",
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Bulgu Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Bulgu Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Bulgu Açıklaması")),
-                ("criteria", models.TextField(verbose_name="Denetim Kriteri/Standardı")),
+                (
+                    "criteria",
+                    models.TextField(verbose_name="Denetim Kriteri/Standardı"),
+                ),
                 ("condition", models.TextField(verbose_name="Mevcut Durum")),
                 ("cause", models.TextField(blank=True, verbose_name="Sebep")),
                 ("effect", models.TextField(blank=True, verbose_name="Etki")),
                 (
                     "financial_impact",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Mali Etki"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Mali Etki",
                     ),
                 ),
                 (
@@ -426,11 +629,21 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("corrective_action", models.TextField(blank=True, verbose_name="Düzeltici Aksiyon")),
-                ("target_resolution_date", models.DateField(blank=True, null=True, verbose_name="Hedef Çözüm Tarihi")),
+                (
+                    "corrective_action",
+                    models.TextField(blank=True, verbose_name="Düzeltici Aksiyon"),
+                ),
+                (
+                    "target_resolution_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Hedef Çözüm Tarihi"
+                    ),
+                ),
                 (
                     "actual_resolution_date",
-                    models.DateField(blank=True, null=True, verbose_name="Gerçekleşen Çözüm Tarihi"),
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Gerçekleşen Çözüm Tarihi"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -504,7 +717,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditEvidence",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "evidence_type",
                     models.CharField(
@@ -522,15 +743,29 @@ class Migration(migrations.Migration):
                         verbose_name="Kanıt Tipi",
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Kanıt Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Kanıt Başlığı"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 (
                     "file",
-                    models.FileField(blank=True, null=True, upload_to="audit_evidence/", verbose_name="Kanıt Dosyası"),
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to="audit_evidence/",
+                        verbose_name="Kanıt Dosyası",
+                    ),
                 ),
-                ("source", models.CharField(blank=True, max_length=200, verbose_name="Kaynak")),
+                (
+                    "source",
+                    models.CharField(blank=True, max_length=200, verbose_name="Kaynak"),
+                ),
                 ("collection_date", models.DateField(verbose_name="Toplama Tarihi")),
-                ("reliability_score", models.IntegerField(default=5, verbose_name="Güvenilirlik (1-10)")),
+                (
+                    "reliability_score",
+                    models.IntegerField(default=5, verbose_name="Güvenilirlik (1-10)"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="Notlar")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
@@ -560,10 +795,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="accountingaudit",
-            index=models.Index(fields=["company", "fiscal_year"], name="accounting__company_190b15_idx"),
+            index=models.Index(
+                fields=["company", "fiscal_year"], name="accounting__company_190b15_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="accountingaudit",
-            index=models.Index(fields=["status", "audit_type"], name="accounting__status_d02e77_idx"),
+            index=models.Index(
+                fields=["status", "audit_type"], name="accounting__status_d02e77_idx"
+            ),
         ),
     ]

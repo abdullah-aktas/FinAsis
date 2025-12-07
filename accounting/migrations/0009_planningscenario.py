@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0008_auditlog"),
     ]
@@ -14,19 +13,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PlanningScenario",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Senaryo Adı")),
                 ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
                 ("end_date", models.DateField(verbose_name="Bitiş Tarihi")),
                 (
                     "revenue_multiplier",
-                    models.DecimalField(decimal_places=2, default=1.0, max_digits=6, verbose_name="Gelir Çarpanı"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=1.0,
+                        max_digits=6,
+                        verbose_name="Gelir Çarpanı",
+                    ),
                 ),
                 (
                     "expense_multiplier",
-                    models.DecimalField(decimal_places=2, default=1.0, max_digits=6, verbose_name="Gider Çarpanı"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=1.0,
+                        max_digits=6,
+                        verbose_name="Gider Çarpanı",
+                    ),
                 ),
-                ("notes", models.TextField(blank=True, null=True, verbose_name="Notlar")),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Notlar"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (

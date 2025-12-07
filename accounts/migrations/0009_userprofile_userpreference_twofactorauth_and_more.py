@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounts", "0008_customuser_manager_serializable"),
     ]
@@ -15,34 +14,85 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserProfile",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("phone", models.CharField(blank=True, max_length=20, verbose_name="Telefon")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="Telefon"),
+                ),
                 ("bio", models.TextField(blank=True, verbose_name="Hakkında")),
                 (
                     "avatar",
-                    models.ImageField(blank=True, null=True, upload_to="avatars/", verbose_name="Profil Fotoğrafı"),
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="avatars/",
+                        verbose_name="Profil Fotoğrafı",
+                    ),
                 ),
-                ("birth_date", models.DateField(blank=True, null=True, verbose_name="Doğum Tarihi")),
+                (
+                    "birth_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Doğum Tarihi"
+                    ),
+                ),
                 ("address", models.TextField(blank=True, verbose_name="Adres")),
-                ("city", models.CharField(blank=True, max_length=100, verbose_name="Şehir")),
-                ("country", models.CharField(default="Turkey", max_length=100, verbose_name="Ülke")),
-                ("postal_code", models.CharField(blank=True, max_length=10, verbose_name="Posta Kodu")),
+                (
+                    "city",
+                    models.CharField(blank=True, max_length=100, verbose_name="Şehir"),
+                ),
+                (
+                    "country",
+                    models.CharField(
+                        default="Turkey", max_length=100, verbose_name="Ülke"
+                    ),
+                ),
+                (
+                    "postal_code",
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Posta Kodu"
+                    ),
+                ),
                 ("linkedin_url", models.URLField(blank=True, verbose_name="LinkedIn")),
                 ("twitter_url", models.URLField(blank=True, verbose_name="Twitter")),
                 ("github_url", models.URLField(blank=True, verbose_name="GitHub")),
                 ("website_url", models.URLField(blank=True, verbose_name="Website")),
-                ("profile_views", models.IntegerField(default=0, verbose_name="Profil Görüntüleme")),
-                ("last_profile_update", models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")),
+                (
+                    "profile_views",
+                    models.IntegerField(default=0, verbose_name="Profil Görüntüleme"),
+                ),
+                (
+                    "last_profile_update",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme"),
+                ),
                 (
                     "language",
                     models.CharField(
-                        choices=[("tr", "Türkçe"), ("en", "English"), ("de", "Deutsch")],
+                        choices=[
+                            ("tr", "Türkçe"),
+                            ("en", "English"),
+                            ("de", "Deutsch"),
+                        ],
                         default="tr",
                         max_length=10,
                         verbose_name="Dil",
                     ),
                 ),
-                ("timezone", models.CharField(default="Europe/Istanbul", max_length=50, verbose_name="Zaman Dilimi")),
+                (
+                    "timezone",
+                    models.CharField(
+                        default="Europe/Istanbul",
+                        max_length=50,
+                        verbose_name="Zaman Dilimi",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "user",
@@ -62,25 +112,78 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserPreference",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("email_notifications", models.BooleanField(default=True, verbose_name="E-posta Bildirimleri")),
-                ("push_notifications", models.BooleanField(default=True, verbose_name="Push Bildirimleri")),
-                ("sms_notifications", models.BooleanField(default=False, verbose_name="SMS Bildirimleri")),
-                ("invoice_notifications", models.BooleanField(default=True, verbose_name="Fatura Bildirimleri")),
-                ("payment_notifications", models.BooleanField(default=True, verbose_name="Ödeme Bildirimleri")),
-                ("report_notifications", models.BooleanField(default=True, verbose_name="Rapor Bildirimleri")),
-                ("system_notifications", models.BooleanField(default=True, verbose_name="Sistem Bildirimleri")),
-                ("marketing_notifications", models.BooleanField(default=False, verbose_name="Pazarlama Bildirimleri")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="E-posta Bildirimleri"
+                    ),
+                ),
+                (
+                    "push_notifications",
+                    models.BooleanField(default=True, verbose_name="Push Bildirimleri"),
+                ),
+                (
+                    "sms_notifications",
+                    models.BooleanField(default=False, verbose_name="SMS Bildirimleri"),
+                ),
+                (
+                    "invoice_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="Fatura Bildirimleri"
+                    ),
+                ),
+                (
+                    "payment_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="Ödeme Bildirimleri"
+                    ),
+                ),
+                (
+                    "report_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="Rapor Bildirimleri"
+                    ),
+                ),
+                (
+                    "system_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="Sistem Bildirimleri"
+                    ),
+                ),
+                (
+                    "marketing_notifications",
+                    models.BooleanField(
+                        default=False, verbose_name="Pazarlama Bildirimleri"
+                    ),
+                ),
                 (
                     "theme",
                     models.CharField(
-                        choices=[("light", "Açık Tema"), ("dark", "Koyu Tema"), ("auto", "Otomatik")],
+                        choices=[
+                            ("light", "Açık Tema"),
+                            ("dark", "Koyu Tema"),
+                            ("auto", "Otomatik"),
+                        ],
                         default="light",
                         max_length=20,
                         verbose_name="Tema",
                     ),
                 ),
-                ("sidebar_collapsed", models.BooleanField(default=False, verbose_name="Kenar Çubuğu Daraltılmış")),
+                (
+                    "sidebar_collapsed",
+                    models.BooleanField(
+                        default=False, verbose_name="Kenar Çubuğu Daraltılmış"
+                    ),
+                ),
                 (
                     "items_per_page",
                     models.IntegerField(
@@ -89,17 +192,36 @@ class Migration(migrations.Migration):
                         verbose_name="Sayfa Başına Öğe",
                     ),
                 ),
-                ("session_timeout", models.IntegerField(default=30, verbose_name="Oturum Zaman Aşımı (dakika)")),
+                (
+                    "session_timeout",
+                    models.IntegerField(
+                        default=30, verbose_name="Oturum Zaman Aşımı (dakika)"
+                    ),
+                ),
                 (
                     "require_password_change",
-                    models.BooleanField(default=False, verbose_name="Şifre Değişikliği Gerekli"),
+                    models.BooleanField(
+                        default=False, verbose_name="Şifre Değişikliği Gerekli"
+                    ),
                 ),
                 (
                     "password_change_interval",
-                    models.IntegerField(default=90, verbose_name="Şifre Değişim Aralığı (gün)"),
+                    models.IntegerField(
+                        default=90, verbose_name="Şifre Değişim Aralığı (gün)"
+                    ),
                 ),
-                ("default_dashboard", models.CharField(blank=True, max_length=50, verbose_name="Varsayılan Dashboard")),
-                ("custom_settings", models.JSONField(blank=True, default=dict, verbose_name="Özel Ayarlar")),
+                (
+                    "default_dashboard",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Varsayılan Dashboard"
+                    ),
+                ),
+                (
+                    "custom_settings",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Özel Ayarlar"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -120,22 +242,60 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TwoFactorAuth",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("is_enabled", models.BooleanField(default=False, verbose_name="Aktif")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_enabled",
+                    models.BooleanField(default=False, verbose_name="Aktif"),
+                ),
                 (
                     "method",
                     models.CharField(
-                        choices=[("totp", "Authenticator App (TOTP)"), ("sms", "SMS"), ("email", "E-posta")],
+                        choices=[
+                            ("totp", "Authenticator App (TOTP)"),
+                            ("sms", "SMS"),
+                            ("email", "E-posta"),
+                        ],
                         default="totp",
                         max_length=10,
                         verbose_name="Yöntem",
                     ),
                 ),
-                ("secret_key", models.CharField(blank=True, max_length=100, verbose_name="Secret Key")),
-                ("backup_codes", models.JSONField(blank=True, default=list, verbose_name="Yedek Kodlar")),
-                ("enabled_at", models.DateTimeField(blank=True, null=True, verbose_name="Aktif Edilme")),
-                ("last_used_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanım")),
-                ("total_uses", models.IntegerField(default=0, verbose_name="Toplam Kullanım")),
+                (
+                    "secret_key",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Secret Key"
+                    ),
+                ),
+                (
+                    "backup_codes",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Yedek Kodlar"
+                    ),
+                ),
+                (
+                    "enabled_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Aktif Edilme"
+                    ),
+                ),
+                (
+                    "last_used_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanım"
+                    ),
+                ),
+                (
+                    "total_uses",
+                    models.IntegerField(default=0, verbose_name="Toplam Kullanım"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "user",
@@ -155,11 +315,37 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PasswordHistory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("password_hash", models.CharField(max_length=255, verbose_name="Şifre Hash")),
-                ("change_reason", models.CharField(blank=True, max_length=200, verbose_name="Değişiklik Sebebi")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
-                ("changed_at", models.DateTimeField(auto_now_add=True, verbose_name="Değişiklik Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "password_hash",
+                    models.CharField(max_length=255, verbose_name="Şifre Hash"),
+                ),
+                (
+                    "change_reason",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Değişiklik Sebebi"
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
+                (
+                    "changed_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Değişiklik Tarihi"
+                    ),
+                ),
                 (
                     "changed_by",
                     models.ForeignKey(
@@ -189,14 +375,38 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserSession",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("session_key", models.CharField(max_length=100, unique=True, verbose_name="Session Key")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "session_key",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Session Key"
+                    ),
+                ),
                 ("ip_address", models.GenericIPAddressField(verbose_name="IP Adresi")),
                 ("user_agent", models.TextField(verbose_name="User Agent")),
-                ("device_name", models.CharField(blank=True, max_length=100, verbose_name="Cihaz Adı")),
+                (
+                    "device_name",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Cihaz Adı"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("last_activity", models.DateTimeField(auto_now=True, verbose_name="Son Aktivite")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
+                (
+                    "last_activity",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Aktivite"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
                 ("expires_at", models.DateTimeField(verbose_name="Geçerlilik Süresi")),
                 (
                     "user",
@@ -213,15 +423,28 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Kullanıcı Oturumları",
                 "ordering": ["-last_activity"],
                 "indexes": [
-                    models.Index(fields=["user", "is_active"], name="accounts_us_user_id_91ed82_idx"),
-                    models.Index(fields=["session_key"], name="accounts_us_session_511f42_idx"),
+                    models.Index(
+                        fields=["user", "is_active"],
+                        name="accounts_us_user_id_91ed82_idx",
+                    ),
+                    models.Index(
+                        fields=["session_key"], name="accounts_us_session_511f42_idx"
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="UserNotification",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "notification_type",
                     models.CharField(
@@ -240,7 +463,12 @@ class Migration(migrations.Migration):
                 (
                     "priority",
                     models.CharField(
-                        choices=[("low", "Düşük"), ("normal", "Normal"), ("high", "Yüksek"), ("urgent", "Acil")],
+                        choices=[
+                            ("low", "Düşük"),
+                            ("normal", "Normal"),
+                            ("high", "Yüksek"),
+                            ("urgent", "Acil"),
+                        ],
                         default="normal",
                         max_length=20,
                         verbose_name="Öncelik",
@@ -248,13 +476,39 @@ class Migration(migrations.Migration):
                 ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("message", models.TextField(verbose_name="Mesaj")),
-                ("action_url", models.CharField(blank=True, max_length=500, verbose_name="Aksiyon URL")),
+                (
+                    "action_url",
+                    models.CharField(
+                        blank=True, max_length=500, verbose_name="Aksiyon URL"
+                    ),
+                ),
                 ("is_read", models.BooleanField(default=False, verbose_name="Okundu")),
-                ("read_at", models.DateTimeField(blank=True, null=True, verbose_name="Okunma Zamanı")),
-                ("category", models.CharField(blank=True, max_length=50, verbose_name="Kategori")),
-                ("module", models.CharField(blank=True, max_length=50, verbose_name="Modül")),
-                ("expires_at", models.DateTimeField(blank=True, null=True, verbose_name="Geçerlilik Süresi")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
+                (
+                    "read_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Okunma Zamanı"
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Kategori"
+                    ),
+                ),
+                (
+                    "module",
+                    models.CharField(blank=True, max_length=50, verbose_name="Modül"),
+                ),
+                (
+                    "expires_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Geçerlilik Süresi"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -270,14 +524,25 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Bildirimler",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["user", "is_read", "-created_at"], name="accounts_us_user_id_ccf02b_idx")
+                    models.Index(
+                        fields=["user", "is_read", "-created_at"],
+                        name="accounts_us_user_id_ccf02b_idx",
+                    )
                 ],
             },
         ),
         migrations.CreateModel(
             name="UserActivity",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "activity_type",
                     models.CharField(
@@ -299,11 +564,25 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
                 ("user_agent", models.TextField(blank=True, verbose_name="User Agent")),
-                ("module", models.CharField(blank=True, max_length=50, verbose_name="Modül")),
-                ("extra_data", models.JSONField(blank=True, default=dict, verbose_name="Ek Veri")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Tarih")),
+                (
+                    "module",
+                    models.CharField(blank=True, max_length=50, verbose_name="Modül"),
+                ),
+                (
+                    "extra_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="Ek Veri"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Tarih"),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -319,19 +598,36 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Kullanıcı Aktiviteleri",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["-created_at"], name="accounts_us_created_f371fd_idx"),
-                    models.Index(fields=["user", "-created_at"], name="accounts_us_user_id_506163_idx"),
+                    models.Index(
+                        fields=["-created_at"], name="accounts_us_created_f371fd_idx"
+                    ),
+                    models.Index(
+                        fields=["user", "-created_at"],
+                        name="accounts_us_user_id_506163_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="LoginHistory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
-                        choices=[("success", "Başarılı"), ("failed", "Başarısız"), ("blocked", "Engellendi")],
+                        choices=[
+                            ("success", "Başarılı"),
+                            ("failed", "Başarısız"),
+                            ("blocked", "Engellendi"),
+                        ],
                         default="success",
                         max_length=10,
                         verbose_name="Durum",
@@ -339,16 +635,60 @@ class Migration(migrations.Migration):
                 ),
                 ("ip_address", models.GenericIPAddressField(verbose_name="IP Adresi")),
                 ("user_agent", models.TextField(verbose_name="User Agent")),
-                ("device_type", models.CharField(blank=True, max_length=50, verbose_name="Cihaz Tipi")),
-                ("browser", models.CharField(blank=True, max_length=50, verbose_name="Tarayıcı")),
-                ("os", models.CharField(blank=True, max_length=50, verbose_name="İşletim Sistemi")),
-                ("country", models.CharField(blank=True, max_length=100, verbose_name="Ülke")),
-                ("city", models.CharField(blank=True, max_length=100, verbose_name="Şehir")),
-                ("failure_reason", models.CharField(blank=True, max_length=200, verbose_name="Başarısızlık Sebebi")),
-                ("two_factor_used", models.BooleanField(default=False, verbose_name="2FA Kullanıldı")),
-                ("login_at", models.DateTimeField(auto_now_add=True, verbose_name="Giriş Zamanı")),
-                ("logout_at", models.DateTimeField(blank=True, null=True, verbose_name="Çıkış Zamanı")),
-                ("session_duration", models.IntegerField(blank=True, null=True, verbose_name="Oturum Süresi (dakika)")),
+                (
+                    "device_type",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Cihaz Tipi"
+                    ),
+                ),
+                (
+                    "browser",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Tarayıcı"
+                    ),
+                ),
+                (
+                    "os",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="İşletim Sistemi"
+                    ),
+                ),
+                (
+                    "country",
+                    models.CharField(blank=True, max_length=100, verbose_name="Ülke"),
+                ),
+                (
+                    "city",
+                    models.CharField(blank=True, max_length=100, verbose_name="Şehir"),
+                ),
+                (
+                    "failure_reason",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Başarısızlık Sebebi"
+                    ),
+                ),
+                (
+                    "two_factor_used",
+                    models.BooleanField(default=False, verbose_name="2FA Kullanıldı"),
+                ),
+                (
+                    "login_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Giriş Zamanı"
+                    ),
+                ),
+                (
+                    "logout_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Çıkış Zamanı"
+                    ),
+                ),
+                (
+                    "session_duration",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Oturum Süresi (dakika)"
+                    ),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -364,8 +704,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Giriş Geçmişleri",
                 "ordering": ["-login_at"],
                 "indexes": [
-                    models.Index(fields=["user", "-login_at"], name="accounts_lo_user_id_5b72ce_idx"),
-                    models.Index(fields=["ip_address", "-login_at"], name="accounts_lo_ip_addr_004abf_idx"),
+                    models.Index(
+                        fields=["user", "-login_at"],
+                        name="accounts_lo_user_id_5b72ce_idx",
+                    ),
+                    models.Index(
+                        fields=["ip_address", "-login_at"],
+                        name="accounts_lo_ip_addr_004abf_idx",
+                    ),
                 ],
             },
         ),

@@ -14,10 +14,23 @@ from developer_portal.models import (
 
 @admin.register(DeveloperAPIKey)
 class DeveloperAPIKeyAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "organization", "rate_limit_plan", "status", "created_at")
+    list_display = (
+        "name",
+        "owner",
+        "organization",
+        "rate_limit_plan",
+        "status",
+        "created_at",
+    )
     list_filter = ("status", "rate_limit_plan", "organization")
     search_fields = ("name", "owner__email", "owner__username", "prefix")
-    readonly_fields = ("prefix", "masked_key", "created_at", "updated_at", "last_used_at")
+    readonly_fields = (
+        "prefix",
+        "masked_key",
+        "created_at",
+        "updated_at",
+        "last_used_at",
+    )
     fieldsets = (
         (_("Genel"), {"fields": ("name", "description", "owner", "organization")}),
         (
@@ -44,7 +57,14 @@ class DeveloperAPIKeyAdmin(admin.ModelAdmin):
 
 @admin.register(APIKeyUsageLog)
 class APIKeyUsageLogAdmin(admin.ModelAdmin):
-    list_display = ("api_key", "path", "method", "response_code", "duration_ms", "timestamp")
+    list_display = (
+        "api_key",
+        "path",
+        "method",
+        "response_code",
+        "duration_ms",
+        "timestamp",
+    )
     list_filter = ("method", "response_code")
     search_fields = ("api_key__name", "path", "client_ip")
     date_hierarchy = "timestamp"
@@ -59,8 +79,13 @@ class DeveloperPortalAuditLogAdmin(admin.ModelAdmin):
 
 @admin.register(WebhookTestLog)
 class WebhookTestLogAdmin(admin.ModelAdmin):
-    list_display = ("event_type", "target_url", "response_status", "duration_ms", "created_at")
+    list_display = (
+        "event_type",
+        "target_url",
+        "response_status",
+        "duration_ms",
+        "created_at",
+    )
     search_fields = ("event_type", "target_url", "error")
     list_filter = ("event_type", "response_status")
     date_hierarchy = "created_at"
-

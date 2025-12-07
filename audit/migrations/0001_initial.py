@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,11 +18,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditEvent",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "action",
                     models.CharField(
-                        choices=[("create", "Create"), ("update", "Update"), ("delete", "Delete")], max_length=20
+                        choices=[
+                            ("create", "Create"),
+                            ("update", "Update"),
+                            ("delete", "Delete"),
+                        ],
+                        max_length=20,
                     ),
                 ),
                 ("object_id", models.CharField(max_length=100)),
@@ -44,7 +56,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "content_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="contenttypes.contenttype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
                 ),
                 (
                     "tenant",

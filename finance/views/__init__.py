@@ -7,4 +7,10 @@ from .banking import *
 from .accounting import *
 from .checks import *
 from .einvoice import *
-from ..main_views import InvoiceListView, InvoiceDetailView, InvoiceCreateView, InvoiceUpdateView, InvoiceDeleteView 
+from ..main_views import (
+    InvoiceListView,
+    InvoiceDetailView,
+    InvoiceCreateView,
+    InvoiceUpdateView,
+    InvoiceDeleteView,
+)

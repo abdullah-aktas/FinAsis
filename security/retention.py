@@ -73,7 +73,9 @@ def execute_rule(rule: RetentionRule, *, dry_run: bool = False) -> dict[str, Any
     total = queryset.count()
 
     if total == 0:
-        logger.info("Retention kuralı için uygun kayıt bulunamadı", extra={"model": rule.model})
+        logger.info(
+            "Retention kuralı için uygun kayıt bulunamadı", extra={"model": rule.model}
+        )
         return {"model": rule.model, "action": rule.action, "affected": 0}
 
     if dry_run:
@@ -99,7 +101,9 @@ def execute_rule(rule: RetentionRule, *, dry_run: bool = False) -> dict[str, Any
     raise ValueError(f"Bilinmeyen retention aksiyonu: {rule.action}")
 
 
-def _anonymize_records(queryset: models.QuerySet, rule: RetentionRule) -> dict[str, Any]:
+def _anonymize_records(
+    queryset: models.QuerySet, rule: RetentionRule
+) -> dict[str, Any]:
     if not rule.mask_fields:
         raise ValueError("Anonymize aksiyonu için mask_fields tanımlanmalı.")
 
@@ -121,7 +125,9 @@ def _anonymize_records(queryset: models.QuerySet, rule: RetentionRule) -> dict[s
     return {"model": rule.model, "action": "anonymize", "affected": affected}
 
 
-def _iterate_queryset(queryset: models.QuerySet, batch_size: int) -> Iterable[list[models.Model]]:
+def _iterate_queryset(
+    queryset: models.QuerySet, batch_size: int
+) -> Iterable[list[models.Model]]:
     start = 0
     while True:
         batch = list(queryset[start : start + batch_size])
@@ -131,14 +137,18 @@ def _iterate_queryset(queryset: models.QuerySet, batch_size: int) -> Iterable[li
         start += batch_size
 
 
-def execute_profile(profile_name: str, *, dry_run: bool = False) -> list[dict[str, Any]]:
+def execute_profile(
+    profile_name: str, *, dry_run: bool = False
+) -> list[dict[str, Any]]:
     rules = load_profile(profile_name)
     results: list[dict[str, Any]] = []
     for rule in rules:
-        logger.debug("Retention kuralı çalışıyor", extra={"model": rule.model, "action": rule.action})
+        logger.debug(
+            "Retention kuralı çalışıyor",
+            extra={"model": rule.model, "action": rule.action},
+        )
         results.append(execute_rule(rule, dry_run=dry_run))
     return results
 
 
 __all__ = ["RetentionRule", "execute_profile", "execute_rule", "load_profile"]
-

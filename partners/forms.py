@@ -81,4 +81,3 @@ class PartnerApplicationForm(forms.ModelForm):
             self.fields["consent_marketing"].widget.attrs.setdefault(
                 "class", "form-check-input"
             )
-

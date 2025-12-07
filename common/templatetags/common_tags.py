@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def currency(value):
     """Değeri TL formatında gösterir."""
@@ -13,7 +14,7 @@ def startswith(value, prefix):
     try:
         return str(value).startswith(str(prefix))
     except Exception:
-        return False 
+        return False
 
 
 @register.filter(name="getattr")

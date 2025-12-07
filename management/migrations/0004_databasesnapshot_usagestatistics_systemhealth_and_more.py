@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("management", "0003_helpcontent"),
@@ -16,16 +15,37 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DatabaseSnapshot",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("snapshot_date", models.DateField(verbose_name="Snapshot Tarihi")),
                 (
                     "total_size_mb",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Toplam Boyut (MB)"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="Toplam Boyut (MB)",
+                    ),
                 ),
-                ("data_size_mb", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Veri Boyutu (MB)")),
+                (
+                    "data_size_mb",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Veri Boyutu (MB)"
+                    ),
+                ),
                 (
                     "index_size_mb",
-                    models.DecimalField(decimal_places=2, max_digits=15, verbose_name="İndeks Boyutu (MB)"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        verbose_name="İndeks Boyutu (MB)",
+                    ),
                 ),
                 ("table_count", models.IntegerField(verbose_name="Tablo Sayısı")),
                 ("total_rows", models.BigIntegerField(verbose_name="Toplam Satır")),
@@ -47,15 +67,30 @@ class Migration(migrations.Migration):
                         verbose_name="Ortalama Sorgu Süresi (ms)",
                     ),
                 ),
-                ("slow_queries_count", models.IntegerField(default=0, verbose_name="Yavaş Sorgu Sayısı")),
+                (
+                    "slow_queries_count",
+                    models.IntegerField(default=0, verbose_name="Yavaş Sorgu Sayısı"),
+                ),
                 (
                     "fragmentation_percentage",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Fragmentation (%)"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Fragmentation (%)",
                     ),
                 ),
-                ("optimization_needed", models.BooleanField(default=False, verbose_name="Optimizasyon Gerekli")),
-                ("recommendations", models.TextField(blank=True, verbose_name="Öneriler")),
+                (
+                    "optimization_needed",
+                    models.BooleanField(
+                        default=False, verbose_name="Optimizasyon Gerekli"
+                    ),
+                ),
+                (
+                    "recommendations",
+                    models.TextField(blank=True, verbose_name="Öneriler"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
@@ -67,28 +102,63 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UsageStatistics",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("period_date", models.DateField(verbose_name="Dönem Tarihi")),
                 (
                     "period_type",
                     models.CharField(
-                        choices=[("DAILY", "Günlük"), ("WEEKLY", "Haftalık"), ("MONTHLY", "Aylık")],
+                        choices=[
+                            ("DAILY", "Günlük"),
+                            ("WEEKLY", "Haftalık"),
+                            ("MONTHLY", "Aylık"),
+                        ],
                         default="DAILY",
                         max_length=20,
                         verbose_name="Dönem Tipi",
                     ),
                 ),
-                ("total_users", models.IntegerField(default=0, verbose_name="Toplam Kullanıcı")),
-                ("active_users", models.IntegerField(default=0, verbose_name="Aktif Kullanıcı")),
-                ("new_users", models.IntegerField(default=0, verbose_name="Yeni Kullanıcı")),
-                ("total_sessions", models.IntegerField(default=0, verbose_name="Toplam Oturum")),
+                (
+                    "total_users",
+                    models.IntegerField(default=0, verbose_name="Toplam Kullanıcı"),
+                ),
+                (
+                    "active_users",
+                    models.IntegerField(default=0, verbose_name="Aktif Kullanıcı"),
+                ),
+                (
+                    "new_users",
+                    models.IntegerField(default=0, verbose_name="Yeni Kullanıcı"),
+                ),
+                (
+                    "total_sessions",
+                    models.IntegerField(default=0, verbose_name="Toplam Oturum"),
+                ),
                 (
                     "average_session_duration",
-                    models.IntegerField(default=0, verbose_name="Ortalama Oturum Süresi (dk)"),
+                    models.IntegerField(
+                        default=0, verbose_name="Ortalama Oturum Süresi (dk)"
+                    ),
                 ),
-                ("total_transactions", models.IntegerField(default=0, verbose_name="Toplam İşlem")),
-                ("total_invoices", models.IntegerField(default=0, verbose_name="Toplam Fatura")),
-                ("total_reports", models.IntegerField(default=0, verbose_name="Toplam Rapor")),
+                (
+                    "total_transactions",
+                    models.IntegerField(default=0, verbose_name="Toplam İşlem"),
+                ),
+                (
+                    "total_invoices",
+                    models.IntegerField(default=0, verbose_name="Toplam Fatura"),
+                ),
+                (
+                    "total_reports",
+                    models.IntegerField(default=0, verbose_name="Toplam Rapor"),
+                ),
                 (
                     "module_usage",
                     models.JSONField(
@@ -98,9 +168,20 @@ class Migration(migrations.Migration):
                         verbose_name="Modül Kullanımı",
                     ),
                 ),
-                ("feature_usage", models.JSONField(blank=True, default=dict, verbose_name="Özellik Kullanımı")),
-                ("api_calls", models.IntegerField(default=0, verbose_name="API Çağrısı")),
-                ("api_errors", models.IntegerField(default=0, verbose_name="API Hataları")),
+                (
+                    "feature_usage",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Özellik Kullanımı"
+                    ),
+                ),
+                (
+                    "api_calls",
+                    models.IntegerField(default=0, verbose_name="API Çağrısı"),
+                ),
+                (
+                    "api_errors",
+                    models.IntegerField(default=0, verbose_name="API Hataları"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
@@ -113,15 +194,52 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SystemHealth",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("cpu_usage", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="CPU Kullanımı (%)")),
-                ("memory_usage", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="RAM Kullanımı (%)")),
-                ("disk_usage", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Disk Kullanımı (%)")),
-                ("db_connections", models.IntegerField(verbose_name="Aktif DB Bağlantı")),
-                ("db_response_time_ms", models.IntegerField(verbose_name="DB Yanıt Süresi (ms)")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "cpu_usage",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="CPU Kullanımı (%)"
+                    ),
+                ),
+                (
+                    "memory_usage",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="RAM Kullanımı (%)"
+                    ),
+                ),
+                (
+                    "disk_usage",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=5,
+                        verbose_name="Disk Kullanımı (%)",
+                    ),
+                ),
+                (
+                    "db_connections",
+                    models.IntegerField(verbose_name="Aktif DB Bağlantı"),
+                ),
+                (
+                    "db_response_time_ms",
+                    models.IntegerField(verbose_name="DB Yanıt Süresi (ms)"),
+                ),
                 ("active_users", models.IntegerField(verbose_name="Aktif Kullanıcı")),
-                ("requests_per_minute", models.IntegerField(verbose_name="Dakika Başı İstek")),
-                ("error_count", models.IntegerField(default=0, verbose_name="Hata Sayısı")),
+                (
+                    "requests_per_minute",
+                    models.IntegerField(verbose_name="Dakika Başı İstek"),
+                ),
+                (
+                    "error_count",
+                    models.IntegerField(default=0, verbose_name="Hata Sayısı"),
+                ),
                 (
                     "overall_status",
                     models.CharField(
@@ -136,24 +254,48 @@ class Migration(migrations.Migration):
                         verbose_name="Genel Durum",
                     ),
                 ),
-                ("status_message", models.TextField(blank=True, verbose_name="Durum Mesajı")),
-                ("checked_at", models.DateTimeField(auto_now_add=True, verbose_name="Kontrol Zamanı")),
+                (
+                    "status_message",
+                    models.TextField(blank=True, verbose_name="Durum Mesajı"),
+                ),
+                (
+                    "checked_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kontrol Zamanı"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Sistem Sağlığı",
                 "verbose_name_plural": "Sistem Sağlık Kayıtları",
                 "ordering": ["-checked_at"],
                 "indexes": [
-                    models.Index(fields=["-checked_at"], name="management__checked_79b1b7_idx"),
-                    models.Index(fields=["overall_status", "-checked_at"], name="management__overall_74c329_idx"),
+                    models.Index(
+                        fields=["-checked_at"], name="management__checked_79b1b7_idx"
+                    ),
+                    models.Index(
+                        fields=["overall_status", "-checked_at"],
+                        name="management__overall_74c329_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="SystemAudit",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("audit_name", models.CharField(max_length=200, verbose_name="Denetim Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "audit_name",
+                    models.CharField(max_length=200, verbose_name="Denetim Adı"),
+                ),
                 (
                     "audit_type",
                     models.CharField(
@@ -169,7 +311,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("audit_criteria", models.JSONField(blank=True, default=dict, verbose_name="Denetim Kriterleri")),
+                (
+                    "audit_criteria",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Denetim Kriterleri"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -184,18 +331,41 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("findings", models.JSONField(blank=True, default=list, verbose_name="Bulgular")),
-                ("issues_found", models.IntegerField(default=0, verbose_name="Bulunan Sorun Sayısı")),
+                (
+                    "findings",
+                    models.JSONField(blank=True, default=list, verbose_name="Bulgular"),
+                ),
+                (
+                    "issues_found",
+                    models.IntegerField(default=0, verbose_name="Bulunan Sorun Sayısı"),
+                ),
                 (
                     "compliance_score",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Uyumluluk Skoru (%)"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Uyumluluk Skoru (%)",
                     ),
                 ),
-                ("recommendations", models.TextField(blank=True, verbose_name="Öneriler")),
-                ("action_items", models.JSONField(blank=True, default=list, verbose_name="Aksiyon Maddeleri")),
+                (
+                    "recommendations",
+                    models.TextField(blank=True, verbose_name="Öneriler"),
+                ),
+                (
+                    "action_items",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Aksiyon Maddeleri"
+                    ),
+                ),
                 ("audit_date", models.DateField(verbose_name="Denetim Tarihi")),
-                ("next_audit_date", models.DateField(blank=True, null=True, verbose_name="Sonraki Denetim")),
+                (
+                    "next_audit_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Sonraki Denetim"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "audited_by",
@@ -215,7 +385,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PerformanceMetric",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "metric_type",
                     models.CharField(
@@ -230,39 +408,94 @@ class Migration(migrations.Migration):
                         verbose_name="Metrik Tipi",
                     ),
                 ),
-                ("metric_name", models.CharField(max_length=100, verbose_name="Metrik Adı")),
-                ("value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Değer")),
-                ("unit", models.CharField(help_text="ms, %, requests/sec, vs.", max_length=20, verbose_name="Birim")),
+                (
+                    "metric_name",
+                    models.CharField(max_length=100, verbose_name="Metrik Adı"),
+                ),
+                (
+                    "value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Değer"
+                    ),
+                ),
+                (
+                    "unit",
+                    models.CharField(
+                        help_text="ms, %, requests/sec, vs.",
+                        max_length=20,
+                        verbose_name="Birim",
+                    ),
+                ),
                 (
                     "target_value",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Hedef Değer"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Hedef Değer",
                     ),
                 ),
-                ("is_healthy", models.BooleanField(default=True, verbose_name="Sağlıklı")),
-                ("endpoint", models.CharField(blank=True, max_length=200, verbose_name="Endpoint")),
-                ("module", models.CharField(blank=True, max_length=50, verbose_name="Modül")),
-                ("recorded_at", models.DateTimeField(auto_now_add=True, verbose_name="Kayıt Zamanı")),
+                (
+                    "is_healthy",
+                    models.BooleanField(default=True, verbose_name="Sağlıklı"),
+                ),
+                (
+                    "endpoint",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Endpoint"
+                    ),
+                ),
+                (
+                    "module",
+                    models.CharField(blank=True, max_length=50, verbose_name="Modül"),
+                ),
+                (
+                    "recorded_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kayıt Zamanı"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Performans Metriği",
                 "verbose_name_plural": "Performans Metrikleri",
                 "ordering": ["-recorded_at"],
                 "indexes": [
-                    models.Index(fields=["metric_type", "-recorded_at"], name="management__metric__b45718_idx"),
-                    models.Index(fields=["module", "-recorded_at"], name="management__module_900097_idx"),
+                    models.Index(
+                        fields=["metric_type", "-recorded_at"],
+                        name="management__metric__b45718_idx",
+                    ),
+                    models.Index(
+                        fields=["module", "-recorded_at"],
+                        name="management__module_900097_idx",
+                    ),
                 ],
             },
         ),
         migrations.CreateModel(
             name="MaintenanceWindow",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Bakım Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Bakım Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("start_time", models.DateTimeField(verbose_name="Başlangıç Zamanı")),
                 ("end_time", models.DateTimeField(verbose_name="Bitiş Zamanı")),
-                ("estimated_duration_minutes", models.IntegerField(verbose_name="Tahmini Süre (dakika)")),
+                (
+                    "estimated_duration_minutes",
+                    models.IntegerField(verbose_name="Tahmini Süre (dakika)"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -277,13 +510,44 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("actual_start_time", models.DateTimeField(blank=True, null=True, verbose_name="Gerçek Başlangıç")),
-                ("actual_end_time", models.DateTimeField(blank=True, null=True, verbose_name="Gerçek Bitiş")),
-                ("affected_modules", models.JSONField(blank=True, default=list, verbose_name="Etkilenen Modüller")),
-                ("notify_users", models.BooleanField(default=True, verbose_name="Kullanıcılara Bildir")),
-                ("notification_sent", models.BooleanField(default=False, verbose_name="Bildirim Gönderildi")),
-                ("completion_notes", models.TextField(blank=True, verbose_name="Tamamlanma Notları")),
-                ("issues_encountered", models.TextField(blank=True, verbose_name="Karşılaşılan Sorunlar")),
+                (
+                    "actual_start_time",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Gerçek Başlangıç"
+                    ),
+                ),
+                (
+                    "actual_end_time",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Gerçek Bitiş"
+                    ),
+                ),
+                (
+                    "affected_modules",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Etkilenen Modüller"
+                    ),
+                ),
+                (
+                    "notify_users",
+                    models.BooleanField(
+                        default=True, verbose_name="Kullanıcılara Bildir"
+                    ),
+                ),
+                (
+                    "notification_sent",
+                    models.BooleanField(
+                        default=False, verbose_name="Bildirim Gönderildi"
+                    ),
+                ),
+                (
+                    "completion_notes",
+                    models.TextField(blank=True, verbose_name="Tamamlanma Notları"),
+                ),
+                (
+                    "issues_encountered",
+                    models.TextField(blank=True, verbose_name="Karşılaşılan Sorunlar"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "performed_by",
@@ -315,18 +579,54 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FeatureFlag",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Özellik Adı")),
-                ("key", models.SlugField(max_length=100, unique=True, verbose_name="Anahtar")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Özellik Adı"
+                    ),
+                ),
+                (
+                    "key",
+                    models.SlugField(
+                        max_length=100, unique=True, verbose_name="Anahtar"
+                    ),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("is_enabled", models.BooleanField(default=False, verbose_name="Aktif")),
-                ("enabled_for_all", models.BooleanField(default=False, verbose_name="Herkes İçin")),
-                ("enabled_for_roles", models.JSONField(blank=True, default=list, verbose_name="Aktif Roller")),
+                (
+                    "is_enabled",
+                    models.BooleanField(default=False, verbose_name="Aktif"),
+                ),
+                (
+                    "enabled_for_all",
+                    models.BooleanField(default=False, verbose_name="Herkes İçin"),
+                ),
+                (
+                    "enabled_for_roles",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Aktif Roller"
+                    ),
+                ),
                 (
                     "rollout_percentage",
-                    models.IntegerField(default=0, help_text="0-100", verbose_name="Kullanıma Sunma Yüzdesi"),
+                    models.IntegerField(
+                        default=0,
+                        help_text="0-100",
+                        verbose_name="Kullanıma Sunma Yüzdesi",
+                    ),
                 ),
-                ("module", models.CharField(blank=True, max_length=50, verbose_name="Modül")),
+                (
+                    "module",
+                    models.CharField(blank=True, max_length=50, verbose_name="Modül"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -356,8 +656,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BackupLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("backup_name", models.CharField(max_length=200, verbose_name="Yedekleme Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "backup_name",
+                    models.CharField(max_length=200, verbose_name="Yedekleme Adı"),
+                ),
                 (
                     "backup_type",
                     models.CharField(
@@ -372,11 +683,18 @@ class Migration(migrations.Migration):
                         verbose_name="Yedekleme Tipi",
                     ),
                 ),
-                ("file_path", models.CharField(max_length=500, verbose_name="Dosya Yolu")),
+                (
+                    "file_path",
+                    models.CharField(max_length=500, verbose_name="Dosya Yolu"),
+                ),
                 (
                     "file_size_mb",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="Dosya Boyutu (MB)"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Dosya Boyutu (MB)",
                     ),
                 ),
                 (
@@ -393,12 +711,36 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("started_at", models.DateTimeField(blank=True, null=True, verbose_name="Başlangıç")),
-                ("completed_at", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş")),
-                ("duration_seconds", models.IntegerField(blank=True, null=True, verbose_name="Süre (saniye)")),
-                ("success_message", models.TextField(blank=True, verbose_name="Başarı Mesajı")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("items_backed_up", models.IntegerField(blank=True, null=True, verbose_name="Yedeklenen Öğe Sayısı")),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Başlangıç"
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="Bitiş"),
+                ),
+                (
+                    "duration_seconds",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Süre (saniye)"
+                    ),
+                ),
+                (
+                    "success_message",
+                    models.TextField(blank=True, verbose_name="Başarı Mesajı"),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "items_backed_up",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Yedeklenen Öğe Sayısı"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "initiated_by",
@@ -419,7 +761,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ErrorLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "severity",
                     models.CharField(
@@ -435,20 +785,75 @@ class Migration(migrations.Migration):
                         verbose_name="Ciddiyet",
                     ),
                 ),
-                ("error_type", models.CharField(max_length=100, verbose_name="Hata Tipi")),
+                (
+                    "error_type",
+                    models.CharField(max_length=100, verbose_name="Hata Tipi"),
+                ),
                 ("error_message", models.TextField(verbose_name="Hata Mesajı")),
-                ("stack_trace", models.TextField(blank=True, verbose_name="Stack Trace")),
-                ("module", models.CharField(blank=True, max_length=100, verbose_name="Modül")),
-                ("function", models.CharField(blank=True, max_length=100, verbose_name="Fonksiyon")),
-                ("file_path", models.CharField(blank=True, max_length=500, verbose_name="Dosya Yolu")),
-                ("line_number", models.IntegerField(blank=True, null=True, verbose_name="Satır Numarası")),
-                ("request_path", models.CharField(blank=True, max_length=500, verbose_name="İstek Yolu")),
-                ("request_method", models.CharField(blank=True, max_length=10, verbose_name="HTTP Metodu")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
-                ("extra_data", models.JSONField(blank=True, default=dict, verbose_name="Ek Veri")),
-                ("is_resolved", models.BooleanField(default=False, verbose_name="Çözüldü")),
-                ("resolved_at", models.DateTimeField(blank=True, null=True, verbose_name="Çözüm Zamanı")),
-                ("occurred_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşma Zamanı")),
+                (
+                    "stack_trace",
+                    models.TextField(blank=True, verbose_name="Stack Trace"),
+                ),
+                (
+                    "module",
+                    models.CharField(blank=True, max_length=100, verbose_name="Modül"),
+                ),
+                (
+                    "function",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Fonksiyon"
+                    ),
+                ),
+                (
+                    "file_path",
+                    models.CharField(
+                        blank=True, max_length=500, verbose_name="Dosya Yolu"
+                    ),
+                ),
+                (
+                    "line_number",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Satır Numarası"
+                    ),
+                ),
+                (
+                    "request_path",
+                    models.CharField(
+                        blank=True, max_length=500, verbose_name="İstek Yolu"
+                    ),
+                ),
+                (
+                    "request_method",
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="HTTP Metodu"
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
+                (
+                    "extra_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="Ek Veri"),
+                ),
+                (
+                    "is_resolved",
+                    models.BooleanField(default=False, verbose_name="Çözüldü"),
+                ),
+                (
+                    "resolved_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Çözüm Zamanı"
+                    ),
+                ),
+                (
+                    "occurred_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşma Zamanı"
+                    ),
+                ),
                 (
                     "resolved_by",
                     models.ForeignKey(
@@ -476,9 +881,18 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Hata Logları",
                 "ordering": ["-occurred_at"],
                 "indexes": [
-                    models.Index(fields=["severity", "-occurred_at"], name="management__severit_3342e7_idx"),
-                    models.Index(fields=["is_resolved", "-occurred_at"], name="management__is_reso_80cb82_idx"),
-                    models.Index(fields=["module", "-occurred_at"], name="management__module_c868ea_idx"),
+                    models.Index(
+                        fields=["severity", "-occurred_at"],
+                        name="management__severit_3342e7_idx",
+                    ),
+                    models.Index(
+                        fields=["is_resolved", "-occurred_at"],
+                        name="management__is_reso_80cb82_idx",
+                    ),
+                    models.Index(
+                        fields=["module", "-occurred_at"],
+                        name="management__module_c868ea_idx",
+                    ),
                 ],
             },
         ),

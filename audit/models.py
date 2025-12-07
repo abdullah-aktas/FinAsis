@@ -7,216 +7,291 @@ from datetime import timedelta
 
 User = get_user_model()
 
+
 class AuditEvent(models.Model):
     """
     Enhanced Audit Event Model for GRC system
     Tracks all system changes with detailed metadata, severity levels, and retention policies
     """
+
     ACTION_CHOICES = [
-        ('create', _('Create')),
-        ('update', _('Update')),
-        ('delete', _('Delete')),
-        ('view', _('View')),
-        ('export', _('Export')),
-        ('login', _('Login')),
-        ('logout', _('Logout')),
-        ('approve', _('Approve')),
-        ('reject', _('Reject')),
+        ("create", _("Create")),
+        ("update", _("Update")),
+        ("delete", _("Delete")),
+        ("view", _("View")),
+        ("export", _("Export")),
+        ("login", _("Login")),
+        ("logout", _("Logout")),
+        ("approve", _("Approve")),
+        ("reject", _("Reject")),
     ]
-    
+
     SEVERITY_CHOICES = [
-        ('info', _('Information')),
-        ('low', _('Low')),
-        ('medium', _('Medium')),
-        ('high', _('High')),
-        ('critical', _('Critical')),
+        ("info", _("Information")),
+        ("low", _("Low")),
+        ("medium", _("Medium")),
+        ("high", _("High")),
+        ("critical", _("Critical")),
     ]
-    
+
     CATEGORY_CHOICES = [
-        ('security', _('Security')),
-        ('compliance', _('Compliance')),
-        ('financial', _('Financial')),
-        ('operational', _('Operational')),
-        ('data_access', _('Data Access')),
-        ('configuration', _('Configuration')),
-        ('user_management', _('User Management')),
-        ('workflow', _('Workflow')),
+        ("security", _("Security")),
+        ("compliance", _("Compliance")),
+        ("financial", _("Financial")),
+        ("operational", _("Operational")),
+        ("data_access", _("Data Access")),
+        ("configuration", _("Configuration")),
+        ("user_management", _("User Management")),
+        ("workflow", _("Workflow")),
     ]
-    
+
     # Core fields
     action = models.CharField(max_length=20, choices=ACTION_CHOICES, db_index=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_index=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, db_index=True
+    )
     object_id = models.CharField(max_length=100, db_index=True)
-    object_repr = models.CharField(max_length=255, blank=True, help_text=_('String representation of the object'))
-    
+    object_repr = models.CharField(
+        max_length=255, blank=True, help_text=_("String representation of the object")
+    )
+
     # Actor information
-    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='audit_events')
-    actor_username = models.CharField(max_length=150, blank=True, help_text=_('Cached username'))
-    
+    actor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="audit_events",
+    )
+    actor_username = models.CharField(
+        max_length=150, blank=True, help_text=_("Cached username")
+    )
+
     # Tenant/Company
-    tenant = models.ForeignKey('tenancy.Tenant', null=True, blank=True, on_delete=models.SET_NULL, related_name='audit_events')
-    
+    tenant = models.ForeignKey(
+        "tenancy.Tenant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="audit_events",
+    )
+
     # Request metadata
     ip = models.GenericIPAddressField(null=True, blank=True, db_index=True)
     user_agent = models.CharField(max_length=255, blank=True)
-    request_path = models.CharField(max_length=500, blank=True, help_text=_('URL path of the request'))
-    request_method = models.CharField(max_length=10, blank=True, help_text=_('HTTP method (GET, POST, etc.)'))
-    
+    request_path = models.CharField(
+        max_length=500, blank=True, help_text=_("URL path of the request")
+    )
+    request_method = models.CharField(
+        max_length=10, blank=True, help_text=_("HTTP method (GET, POST, etc.)")
+    )
+
     # Event categorization
-    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='info', db_index=True)
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='operational', db_index=True)
-    
+    severity = models.CharField(
+        max_length=20, choices=SEVERITY_CHOICES, default="info", db_index=True
+    )
+    category = models.CharField(
+        max_length=50, choices=CATEGORY_CHOICES, default="operational", db_index=True
+    )
+
     # Change details
-    data = models.JSONField(default=dict, blank=True, help_text=_('Current state or event data'))
-    diff = models.JSONField(default=dict, blank=True, help_text=_('Changes made (before/after)'))
-    description = models.TextField(blank=True, help_text=_('Human-readable description of the event'))
-    
+    data = models.JSONField(
+        default=dict, blank=True, help_text=_("Current state or event data")
+    )
+    diff = models.JSONField(
+        default=dict, blank=True, help_text=_("Changes made (before/after)")
+    )
+    description = models.TextField(
+        blank=True, help_text=_("Human-readable description of the event")
+    )
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    
+
     # Compliance & Retention
-    retention_date = models.DateTimeField(null=True, blank=True, db_index=True, 
-                                         help_text=_('Date when this record can be deleted'))
+    retention_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text=_("Date when this record can be deleted"),
+    )
     is_archived = models.BooleanField(default=False, db_index=True)
-    requires_review = models.BooleanField(default=False, help_text=_('Requires security/compliance review'))
-    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, 
-                                   related_name='reviewed_audit_events')
+    requires_review = models.BooleanField(
+        default=False, help_text=_("Requires security/compliance review")
+    )
+    reviewed_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reviewed_audit_events",
+    )
     reviewed_at = models.DateTimeField(null=True, blank=True)
-    
+
     # Impact tracking
-    affected_users_count = models.IntegerField(default=0, help_text=_('Number of users affected by this event'))
-    financial_impact = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True,
-                                          help_text=_('Financial impact if applicable'))
-    
+    affected_users_count = models.IntegerField(
+        default=0, help_text=_("Number of users affected by this event")
+    )
+    financial_impact = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=_("Financial impact if applicable"),
+    )
+
     class Meta:
-        app_label = 'audit'
-        ordering = ['-created_at']
+        app_label = "audit"
+        ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=['-created_at', 'severity']),
-            models.Index(fields=['category', '-created_at']),
-            models.Index(fields=['actor', '-created_at']),
-            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=["-created_at", "severity"]),
+            models.Index(fields=["category", "-created_at"]),
+            models.Index(fields=["actor", "-created_at"]),
+            models.Index(fields=["content_type", "object_id"]),
         ]
-        verbose_name = _('Audit Event')
-        verbose_name_plural = _('Audit Events')
+        verbose_name = _("Audit Event")
+        verbose_name_plural = _("Audit Events")
 
     def __str__(self):
         # get_action_display() is auto-generated by Django for fields with choices
         return f"{self.get_action_display()}: {self.object_repr or self.object_id} by {self.actor_username}"  # type: ignore[attr-defined]
-    
+
     def save(self, *args, **kwargs):
         # Auto-populate cached fields
         if self.actor and not self.actor_username:
             self.actor_username = self.actor.username
-        
+
         # Set retention date based on severity (example policy)
         if not self.retention_date:
             retention_days = {
-                'info': 90,
-                'low': 180,
-                'medium': 365,
-                'high': 730,  # 2 years
-                'critical': 2555,  # 7 years
+                "info": 90,
+                "low": 180,
+                "medium": 365,
+                "high": 730,  # 2 years
+                "critical": 2555,  # 7 years
             }
             days = retention_days.get(self.severity, 365)
             self.retention_date = timezone.now() + timedelta(days=days)
-        
+
         # Flag critical events for review
-        if self.severity in ['high', 'critical'] and not self.reviewed_by:
+        if self.severity in ["high", "critical"] and not self.reviewed_by:
             self.requires_review = True
-        
+
         super().save(*args, **kwargs)
-    
+
     @classmethod
-    def log_event(cls, action, obj, actor=None, severity='info', category='operational', 
-                  description='', request=None, **extra_data):
+    def log_event(
+        cls,
+        action,
+        obj,
+        actor=None,
+        severity="info",
+        category="operational",
+        description="",
+        request=None,
+        **extra_data,
+    ):
         """
         Convenience method to create audit events
-        
+
         Usage:
-            AuditEvent.log_event('update', invoice, actor=request.user, 
+            AuditEvent.log_event('update', invoice, actor=request.user,
                                severity='medium', category='financial',
                                description='Invoice amount changed',
                                request=request)
         """
         event_data = {
-            'action': action,
-            'content_type': ContentType.objects.get_for_model(obj),
-            'object_id': str(obj.pk),
-            'object_repr': str(obj)[:255],
-            'actor': actor,
-            'severity': severity,
-            'category': category,
-            'description': description,
-            'data': extra_data,
+            "action": action,
+            "content_type": ContentType.objects.get_for_model(obj),
+            "object_id": str(obj.pk),
+            "object_repr": str(obj)[:255],
+            "actor": actor,
+            "severity": severity,
+            "category": category,
+            "description": description,
+            "data": extra_data,
         }
-        
+
         if request:
-            event_data.update({
-                'ip': cls._get_client_ip(request),
-                'user_agent': request.META.get('HTTP_USER_AGENT', '')[:255],
-                'request_path': request.path[:500],
-                'request_method': request.method[:10],
-            })
-        
+            event_data.update(
+                {
+                    "ip": cls._get_client_ip(request),
+                    "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
+                    "request_path": request.path[:500],
+                    "request_method": request.method[:10],
+                }
+            )
+
         return cls.objects.create(**event_data)
-    
+
     @staticmethod
     def _get_client_ip(request):
         """Extract client IP from request"""
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip = request.META.get("REMOTE_ADDR")
         return ip
 
 
 class RealTimeMonitoring(models.Model):
     """Gerçek zamanlı sistem izleme"""
+
     ALERT_LEVELS = [
-        ('info', _('Bilgi')),
-        ('warning', _('Uyarı')),
-        ('critical', _('Kritik')),
-        ('emergency', _('Acil')),
+        ("info", _("Bilgi")),
+        ("warning", _("Uyarı")),
+        ("critical", _("Kritik")),
+        ("emergency", _("Acil")),
     ]
-    
-    metric_name = models.CharField(max_length=100, verbose_name=_('Metrik Adı'))
-    current_value = models.FloatField(verbose_name=_('Güncel Değer'))
-    threshold_value = models.FloatField(verbose_name=_('Eşik Değer'))
-    alert_level = models.CharField(max_length=20, choices=ALERT_LEVELS, default='info')
+
+    metric_name = models.CharField(max_length=100, verbose_name=_("Metrik Adı"))
+    current_value = models.FloatField(verbose_name=_("Güncel Değer"))
+    threshold_value = models.FloatField(verbose_name=_("Eşik Değer"))
+    alert_level = models.CharField(max_length=20, choices=ALERT_LEVELS, default="info")
     is_triggered = models.BooleanField(default=False)
     message = models.TextField(blank=True)
     resolved = models.BooleanField(default=False)
     resolved_at = models.DateTimeField(null=True, blank=True)
-    resolved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='resolved_alerts')
+    resolved_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="resolved_alerts",
+    )
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
-    
+
     class Meta:
-        ordering = ['-timestamp']
-        verbose_name = _('Gerçek Zamanlı İzleme')
-        verbose_name_plural = _('Gerçek Zamanlı İzlemeler')
-    
+        ordering = ["-timestamp"]
+        verbose_name = _("Gerçek Zamanlı İzleme")
+        verbose_name_plural = _("Gerçek Zamanlı İzlemeler")
+
     def __str__(self):
         return f"{self.metric_name}: {self.current_value} ({'✅' if self.resolved else '🔔'})"
 
 
 class ComplianceScore(models.Model):
     """Uyumluluk skorları - GRC için"""
+
     COMPLIANCE_AREAS = [
-        ('gdpr', 'GDPR/KVKK'),
-        ('sox', 'SOX Uyumluluğu'),
-        ('iso27001', 'ISO 27001'),
-        ('pci_dss', 'PCI DSS'),
-        ('hipaa', 'HIPAA'),
-        ('financial', 'Finansal Uyumluluk'),
-        ('tax', 'Vergi Uyumluluğu'),
-        ('custom', 'Özel Uyumluluk'),
+        ("gdpr", "GDPR/KVKK"),
+        ("sox", "SOX Uyumluluğu"),
+        ("iso27001", "ISO 27001"),
+        ("pci_dss", "PCI DSS"),
+        ("hipaa", "HIPAA"),
+        ("financial", "Finansal Uyumluluk"),
+        ("tax", "Vergi Uyumluluğu"),
+        ("custom", "Özel Uyumluluk"),
     ]
-    
-    company = models.ForeignKey('accounting.Company', on_delete=models.CASCADE, related_name='compliance_scores')
+
+    company = models.ForeignKey(
+        "accounting.Company", on_delete=models.CASCADE, related_name="compliance_scores"
+    )
     compliance_area = models.CharField(max_length=30, choices=COMPLIANCE_AREAS)
-    score = models.IntegerField(verbose_name=_('Uyumluluk Skoru'), help_text=_('0-100 arası'))
+    score = models.IntegerField(
+        verbose_name=_("Uyumluluk Skoru"), help_text=_("0-100 arası")
+    )
     max_score = models.IntegerField(default=100)
     passed_checks = models.IntegerField(default=0)
     failed_checks = models.IntegerField(default=0)
@@ -225,76 +300,103 @@ class ComplianceScore(models.Model):
     recommendations = models.JSONField(default=list, blank=True)
     last_audit_date = models.DateField(null=True, blank=True)
     next_audit_date = models.DateField(null=True, blank=True)
-    audited_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    audited_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
-        ordering = ['-updated_at']
-        verbose_name = _('Uyumluluk Skoru')
-        verbose_name_plural = _('Uyumluluk Skorları')
-        unique_together = ['company', 'compliance_area']
-    
+        ordering = ["-updated_at"]
+        verbose_name = _("Uyumluluk Skoru")
+        verbose_name_plural = _("Uyumluluk Skorları")
+        unique_together = ["company", "compliance_area"]
+
     def __str__(self):
-        return f"{self.company.name} - {self.get_compliance_area_display()}: {self.score}%"
+        return (
+            f"{self.company.name} - {self.get_compliance_area_display()}: {self.score}%"
+        )
 
 
 class RiskMatrix(models.Model):
     """Risk matrisi - olasılık x etki"""
+
     PROBABILITY_LEVELS = [
-        ('rare', 'Çok Nadir (1)'),
-        ('unlikely', 'Nadir (2)'),
-        ('possible', 'Olası (3)'),
-        ('likely', 'Muhtemel (4)'),
-        ('certain', 'Kesin (5)'),
+        ("rare", "Çok Nadir (1)"),
+        ("unlikely", "Nadir (2)"),
+        ("possible", "Olası (3)"),
+        ("likely", "Muhtemel (4)"),
+        ("certain", "Kesin (5)"),
     ]
-    
+
     IMPACT_LEVELS = [
-        ('negligible', 'Önemsiz (1)'),
-        ('minor', 'Küçük (2)'),
-        ('moderate', 'Orta (3)'),
-        ('major', 'Büyük (4)'),
-        ('catastrophic', 'Felaket (5)'),
+        ("negligible", "Önemsiz (1)"),
+        ("minor", "Küçük (2)"),
+        ("moderate", "Orta (3)"),
+        ("major", "Büyük (4)"),
+        ("catastrophic", "Felaket (5)"),
     ]
-    
-    company = models.ForeignKey('accounting.Company', on_delete=models.CASCADE, related_name='risk_matrices')
-    risk_name = models.CharField(max_length=200, verbose_name=_('Risk Adı'))
-    risk_category = models.CharField(max_length=50, verbose_name=_('Risk Kategorisi'))
+
+    company = models.ForeignKey(
+        "accounting.Company", on_delete=models.CASCADE, related_name="risk_matrices"
+    )
+    risk_name = models.CharField(max_length=200, verbose_name=_("Risk Adı"))
+    risk_category = models.CharField(max_length=50, verbose_name=_("Risk Kategorisi"))
     probability = models.CharField(max_length=20, choices=PROBABILITY_LEVELS)
     impact = models.CharField(max_length=20, choices=IMPACT_LEVELS)
-    risk_score = models.IntegerField(verbose_name=_('Risk Skoru'), help_text=_('Olasılık x Etki (1-25)'))
-    risk_level = models.CharField(max_length=20, verbose_name=_('Risk Seviyesi'))  # Low, Medium, High, Critical
-    mitigation_plan = models.TextField(blank=True, verbose_name=_('Önleme Planı'))
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='owned_risks')
-    status = models.CharField(max_length=20, default='open')  # open, mitigated, accepted
+    risk_score = models.IntegerField(
+        verbose_name=_("Risk Skoru"), help_text=_("Olasılık x Etki (1-25)")
+    )
+    risk_level = models.CharField(
+        max_length=20, verbose_name=_("Risk Seviyesi")
+    )  # Low, Medium, High, Critical
+    mitigation_plan = models.TextField(blank=True, verbose_name=_("Önleme Planı"))
+    owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="owned_risks"
+    )
+    status = models.CharField(
+        max_length=20, default="open"
+    )  # open, mitigated, accepted
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
-        ordering = ['-risk_score', '-updated_at']
-        verbose_name = _('Risk Matrisi')
-        verbose_name_plural = _('Risk Matrisleri')
-    
+        ordering = ["-risk_score", "-updated_at"]
+        verbose_name = _("Risk Matrisi")
+        verbose_name_plural = _("Risk Matrisleri")
+
     def save(self, *args, **kwargs):
         # Otomatik risk skoru hesapla
-        prob_values = {'rare': 1, 'unlikely': 2, 'possible': 3, 'likely': 4, 'certain': 5}
-        impact_values = {'negligible': 1, 'minor': 2, 'moderate': 3, 'major': 4, 'catastrophic': 5}
-        
+        prob_values = {
+            "rare": 1,
+            "unlikely": 2,
+            "possible": 3,
+            "likely": 4,
+            "certain": 5,
+        }
+        impact_values = {
+            "negligible": 1,
+            "minor": 2,
+            "moderate": 3,
+            "major": 4,
+            "catastrophic": 5,
+        }
+
         prob = prob_values.get(self.probability, 3)
         imp = impact_values.get(self.impact, 3)
         self.risk_score = prob * imp
-        
+
         # Risk seviyesi belirle
         if self.risk_score <= 5:
-            self.risk_level = 'Low'
+            self.risk_level = "Low"
         elif self.risk_score <= 10:
-            self.risk_level = 'Medium'
+            self.risk_level = "Medium"
         elif self.risk_score <= 15:
-            self.risk_level = 'High'
+            self.risk_level = "High"
         else:
-            self.risk_level = 'Critical'
-        
+            self.risk_level = "Critical"
+
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return f"{self.risk_name} - {self.risk_level} ({self.risk_score})"

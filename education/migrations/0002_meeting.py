@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("education", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -16,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Meeting",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 (
@@ -31,17 +38,39 @@ class Migration(migrations.Migration):
                 (
                     "status",
                     models.CharField(
-                        choices=[("scheduled", "Planlandı"), ("completed", "Tamamlandı"), ("canceled", "İptal")],
+                        choices=[
+                            ("scheduled", "Planlandı"),
+                            ("completed", "Tamamlandı"),
+                            ("canceled", "İptal"),
+                        ],
                         default="scheduled",
                         max_length=20,
                         verbose_name="Durum",
                     ),
                 ),
                 ("start_time", models.DateTimeField(verbose_name="Başlangıç")),
-                ("end_time", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş")),
-                ("join_url", models.URLField(blank=True, verbose_name="Toplantı Bağlantısı (Zoom/Meet vb.)")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "end_time",
+                    models.DateTimeField(blank=True, null=True, verbose_name="Bitiş"),
+                ),
+                (
+                    "join_url",
+                    models.URLField(
+                        blank=True, verbose_name="Toplantı Bağlantısı (Zoom/Meet vb.)"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "organizer",
                     models.ForeignKey(
@@ -54,7 +83,10 @@ class Migration(migrations.Migration):
                 (
                     "participants",
                     models.ManyToManyField(
-                        blank=True, related_name="meetings", to=settings.AUTH_USER_MODEL, verbose_name="Katılımcılar"
+                        blank=True,
+                        related_name="meetings",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Katılımcılar",
                     ),
                 ),
             ],

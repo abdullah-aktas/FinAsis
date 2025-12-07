@@ -7,177 +7,202 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("audit", "0001_initial"),
-        ('tenancy', '__first__'),
+        ("tenancy", "__first__"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         # Add new fields to AuditEvent
         migrations.AddField(
-            model_name='auditevent',
-            name='object_repr',
-            field=models.CharField(blank=True, max_length=255, help_text='String representation of the object'),
+            model_name="auditevent",
+            name="object_repr",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                help_text="String representation of the object",
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='actor_username',
-            field=models.CharField(blank=True, max_length=150, help_text='Cached username'),
+            model_name="auditevent",
+            name="actor_username",
+            field=models.CharField(
+                blank=True, max_length=150, help_text="Cached username"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='request_path',
-            field=models.CharField(blank=True, max_length=500, help_text='URL path of the request'),
+            model_name="auditevent",
+            name="request_path",
+            field=models.CharField(
+                blank=True, max_length=500, help_text="URL path of the request"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='request_method',
-            field=models.CharField(blank=True, max_length=10, help_text='HTTP method (GET, POST, etc.)'),
+            model_name="auditevent",
+            name="request_method",
+            field=models.CharField(
+                blank=True, max_length=10, help_text="HTTP method (GET, POST, etc.)"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='severity',
+            model_name="auditevent",
+            name="severity",
             field=models.CharField(
                 choices=[
-                    ('info', 'Information'),
-                    ('low', 'Low'),
-                    ('medium', 'Medium'),
-                    ('high', 'High'),
-                    ('critical', 'Critical'),
+                    ("info", "Information"),
+                    ("low", "Low"),
+                    ("medium", "Medium"),
+                    ("high", "High"),
+                    ("critical", "Critical"),
                 ],
-                default='info',
+                default="info",
                 max_length=20,
                 db_index=True,
             ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='category',
+            model_name="auditevent",
+            name="category",
             field=models.CharField(
                 choices=[
-                    ('security', 'Security'),
-                    ('compliance', 'Compliance'),
-                    ('financial', 'Financial'),
-                    ('operational', 'Operational'),
-                    ('data_access', 'Data Access'),
-                    ('configuration', 'Configuration'),
-                    ('user_management', 'User Management'),
-                    ('workflow', 'Workflow'),
+                    ("security", "Security"),
+                    ("compliance", "Compliance"),
+                    ("financial", "Financial"),
+                    ("operational", "Operational"),
+                    ("data_access", "Data Access"),
+                    ("configuration", "Configuration"),
+                    ("user_management", "User Management"),
+                    ("workflow", "Workflow"),
                 ],
-                default='operational',
+                default="operational",
                 max_length=50,
                 db_index=True,
             ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='description',
-            field=models.TextField(blank=True, help_text='Human-readable description of the event'),
+            model_name="auditevent",
+            name="description",
+            field=models.TextField(
+                blank=True, help_text="Human-readable description of the event"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='retention_date',
+            model_name="auditevent",
+            name="retention_date",
             field=models.DateTimeField(
                 null=True,
                 blank=True,
                 db_index=True,
-                help_text='Date when this record can be deleted',
+                help_text="Date when this record can be deleted",
             ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='is_archived',
+            model_name="auditevent",
+            name="is_archived",
             field=models.BooleanField(default=False, db_index=True),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='requires_review',
-            field=models.BooleanField(default=False, help_text='Requires security/compliance review'),
+            model_name="auditevent",
+            name="requires_review",
+            field=models.BooleanField(
+                default=False, help_text="Requires security/compliance review"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='reviewed_by',
+            model_name="auditevent",
+            name="reviewed_by",
             field=models.ForeignKey(
                 null=True,
                 blank=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='reviewed_audit_events',
+                related_name="reviewed_audit_events",
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='reviewed_at',
+            model_name="auditevent",
+            name="reviewed_at",
             field=models.DateTimeField(null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='affected_users_count',
-            field=models.IntegerField(default=0, help_text='Number of users affected by this event'),
+            model_name="auditevent",
+            name="affected_users_count",
+            field=models.IntegerField(
+                default=0, help_text="Number of users affected by this event"
+            ),
         ),
         migrations.AddField(
-            model_name='auditevent',
-            name='financial_impact',
+            model_name="auditevent",
+            name="financial_impact",
             field=models.DecimalField(
                 max_digits=15,
                 decimal_places=2,
                 null=True,
                 blank=True,
-                help_text='Financial impact if applicable',
+                help_text="Financial impact if applicable",
             ),
         ),
         # Update action field choices
         migrations.AlterField(
-            model_name='auditevent',
-            name='action',
+            model_name="auditevent",
+            name="action",
             field=models.CharField(
                 max_length=20,
                 choices=[
-                    ('create', 'Create'),
-                    ('update', 'Update'),
-                    ('delete', 'Delete'),
-                    ('view', 'View'),
-                    ('export', 'Export'),
-                    ('login', 'Login'),
-                    ('logout', 'Logout'),
-                    ('approve', 'Approve'),
-                    ('reject', 'Reject'),
+                    ("create", "Create"),
+                    ("update", "Update"),
+                    ("delete", "Delete"),
+                    ("view", "View"),
+                    ("export", "Export"),
+                    ("login", "Login"),
+                    ("logout", "Logout"),
+                    ("approve", "Approve"),
+                    ("reject", "Reject"),
                 ],
                 db_index=True,
             ),
         ),
         # Add indexes
         migrations.AddIndex(
-            model_name='auditevent',
-            index=models.Index(fields=['-created_at', 'severity'], name='audit_audit_created_sever_idx'),
+            model_name="auditevent",
+            index=models.Index(
+                fields=["-created_at", "severity"], name="audit_audit_created_sever_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='auditevent',
-            index=models.Index(fields=['category', '-created_at'], name='audit_audit_category_created_idx'),
+            model_name="auditevent",
+            index=models.Index(
+                fields=["category", "-created_at"],
+                name="audit_audit_category_created_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='auditevent',
-            index=models.Index(fields=['actor', '-created_at'], name='audit_audit_actor_created_idx'),
+            model_name="auditevent",
+            index=models.Index(
+                fields=["actor", "-created_at"], name="audit_audit_actor_created_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='auditevent',
-            index=models.Index(fields=['content_type', 'object_id'], name='audit_audit_content_object_idx'),
+            model_name="auditevent",
+            index=models.Index(
+                fields=["content_type", "object_id"],
+                name="audit_audit_content_object_idx",
+            ),
         ),
         # Add IP index
         migrations.AlterField(
-            model_name='auditevent',
-            name='ip',
+            model_name="auditevent",
+            name="ip",
             field=models.GenericIPAddressField(null=True, blank=True, db_index=True),
         ),
         # Add content_type index
         migrations.AlterField(
-            model_name='auditevent',
-            name='content_type',
+            model_name="auditevent",
+            name="content_type",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to='contenttypes.contenttype',
+                to="contenttypes.contenttype",
                 db_index=True,
             ),
         ),

@@ -3,7 +3,9 @@ from importlib import import_module
 
 
 class Command(BaseCommand):
-    help = "Check templates integrity: compile/render and verify internal links resolve."
+    help = (
+        "Check templates integrity: compile/render and verify internal links resolve."
+    )
 
     def handle(self, *args, **options):
         mod = import_module("tests.check_templates_integrity")

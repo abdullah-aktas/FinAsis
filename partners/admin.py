@@ -163,7 +163,10 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
                 reviewer=request.user,
                 publish=True,
             )
-            if result.profile_created and result.profile.status == models.PartnerProfile.Status.PUBLISHED:
+            if (
+                result.profile_created
+                and result.profile.status == models.PartnerProfile.Status.PUBLISHED
+            ):
                 published += 1
         if published:
             self.message_user(
@@ -171,4 +174,3 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
                 _("{} partner profili yayınlandı.").format(published),
                 level=messages.SUCCESS,
             )
-

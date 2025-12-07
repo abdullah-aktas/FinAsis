@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import secrets
 from typing import Iterable, Tuple
 
 from django.utils import timezone
@@ -70,7 +69,9 @@ def rotate_api_key(
     return new_key, raw_secret
 
 
-def revoke_api_key(key: DeveloperAPIKey, *, actor=None, reason: str | None = None) -> None:
+def revoke_api_key(
+    key: DeveloperAPIKey, *, actor=None, reason: str | None = None
+) -> None:
     key.revoke()
     DeveloperPortalAuditLog.objects.create(
         actor=actor,
@@ -105,7 +106,9 @@ def verify_raw_key(raw_key: str) -> DeveloperAPIKey | None:
         return None
     prefix = extract_prefix(raw_key)
     try:
-        candidate = DeveloperAPIKey.objects.get(prefix=prefix, status=APIKeyStatus.ACTIVE)
+        candidate = DeveloperAPIKey.objects.get(
+            prefix=prefix, status=APIKeyStatus.ACTIVE
+        )
     except DeveloperAPIKey.DoesNotExist:
         return None
     if candidate.hash_raw_key(raw_key) != candidate.hashed_key:
@@ -122,4 +125,3 @@ __all__ = [
     "extract_prefix",
     "verify_raw_key",
 ]
-

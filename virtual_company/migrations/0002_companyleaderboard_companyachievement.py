@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("virtual_company", "0001_initial"),
     ]
@@ -14,9 +13,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CompanyLeaderboard",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("total_revenue", models.DecimalField(decimal_places=2, default=0, max_digits=15)),
-                ("total_profit", models.DecimalField(decimal_places=2, default=0, max_digits=15)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "total_revenue",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=15),
+                ),
+                (
+                    "total_profit",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=15),
+                ),
                 ("successful_transactions", models.IntegerField(default=0)),
                 ("achievements_earned", models.IntegerField(default=0)),
                 ("level", models.IntegerField(default=1)),
@@ -41,7 +54,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CompanyAchievement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "achievement_type",
                     models.CharField(

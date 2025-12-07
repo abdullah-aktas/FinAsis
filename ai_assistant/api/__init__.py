@@ -1,1 +1,1 @@
-from .views import MyViewSet 
+from .views import MyViewSet

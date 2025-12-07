@@ -5,16 +5,25 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('education', '0007_rename_education_meetingpresence_idx_education_m_meeting_1fbcdd_idx'),
+        (
+            "education",
+            "0007_rename_education_meetingpresence_idx_education_m_meeting_1fbcdd_idx",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='meeting',
-            name='presenter',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='presented_meetings', to=settings.AUTH_USER_MODEL, verbose_name='Sunum Yapan'),
+            model_name="meeting",
+            name="presenter",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="presented_meetings",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Sunum Yapan",
+            ),
         ),
     ]

@@ -34,10 +34,16 @@ def _to_decimal(value: object, default: Decimal = Decimal("0")) -> Decimal:
         return default
 
 
-def _select_prices_for_period(plan: Plan, period: str, prices: Optional[Iterable[Price]] = None) -> list[Price]:
+def _select_prices_for_period(
+    plan: Plan, period: str, prices: Optional[Iterable[Price]] = None
+) -> list[Price]:
     if prices is None:
         return list(plan.prices.filter(period=period, is_active=True))
-    return [p for p in prices if getattr(p, "period", None) == period and getattr(p, "is_active", False)]
+    return [
+        p
+        for p in prices
+        if getattr(p, "period", None) == period and getattr(p, "is_active", False)
+    ]
 
 
 def get_price_breakdown(
@@ -51,22 +57,34 @@ def get_price_breakdown(
     Returns localized pricing (tax included) for given plan/period.
     """
     region_cfg = get_region_config(region)
-    currency = region_cfg.get("currency", getattr(settings, "BASE_PRICING_CURRENCY", "TRY"))
+    currency = region_cfg.get(
+        "currency", getattr(settings, "BASE_PRICING_CURRENCY", "TRY")
+    )
     price_candidates = _select_prices_for_period(plan, period, prices)
-    direct_price = next((p for p in price_candidates if getattr(p, "currency", "").upper() == currency), None)
+    direct_price = next(
+        (p for p in price_candidates if getattr(p, "currency", "").upper() == currency),
+        None,
+    )
 
     if direct_price is not None:
         amount = _to_decimal(getattr(direct_price, "amount", None))
         source = "direct"
     else:
         base_currency = getattr(settings, "BASE_PRICING_CURRENCY", "TRY")
-        base_price = next((p for p in price_candidates if getattr(p, "currency", "").upper() == base_currency), None)
+        base_price = next(
+            (
+                p
+                for p in price_candidates
+                if getattr(p, "currency", "").upper() == base_currency
+            ),
+            None,
+        )
         if base_price is None:
             return None
         multiplier = _to_decimal(region_cfg.get("price_multiplier", 1))
-        amount = (_to_decimal(getattr(base_price, "amount", None)) * multiplier).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        amount = (
+            _to_decimal(getattr(base_price, "amount", None)) * multiplier
+        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         source = "converted"
 
     tax_rate = Decimal("0.00")
@@ -77,11 +95,15 @@ def get_price_breakdown(
         tax_rate = _to_decimal(region_cfg["gst_rate"])
     elif region_cfg.get("sales_tax"):
         scope = str(region_cfg["sales_tax"])
-        tax_note = _("Satış vergisi bölgesel olarak uygulanır (%(scope)s).") % {"scope": scope}
+        tax_note = _("Satış vergisi bölgesel olarak uygulanır (%(scope)s).") % {
+            "scope": scope
+        }
 
     tax_amount = Decimal("0.00")
     if tax_rate > 0:
-        tax_amount = (amount * tax_rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        tax_amount = (amount * tax_rate).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
     total = (amount + tax_amount).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
@@ -89,7 +111,9 @@ def get_price_breakdown(
         "amount": amount,
         "currency": currency,
         "tax_rate": tax_rate,
-        "tax_rate_percent": float((tax_rate * Decimal("100")).quantize(Decimal("0.01"))) if tax_rate > 0 else None,
+        "tax_rate_percent": float((tax_rate * Decimal("100")).quantize(Decimal("0.01")))
+        if tax_rate > 0
+        else None,
         "tax_amount": tax_amount,
         "total": total,
         "tax_note": tax_note,
@@ -97,7 +121,9 @@ def get_price_breakdown(
     }
 
 
-def build_plan_card(plan: Plan, region: str, prices: Optional[Iterable[Price]] = None) -> Dict[str, object]:
+def build_plan_card(
+    plan: Plan, region: str, prices: Optional[Iterable[Price]] = None
+) -> Dict[str, object]:
     month_info = get_price_breakdown(plan, "month", region=region, prices=prices)
     year_info = get_price_breakdown(plan, "year", region=region, prices=prices)
 
@@ -114,13 +140,16 @@ def build_plan_card(plan: Plan, region: str, prices: Optional[Iterable[Price]] =
 
     year_per_month = None
     if year_total is not None:
-        year_per_month = (year_total / Decimal("12")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        year_per_month = (year_total / Decimal("12")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
     discount_pct = None
     if month_total and year_total and month_total > 0:
         try:
             discount_pct = float(
-                (Decimal("1") - (year_total / (month_total * Decimal("12")))) * Decimal("100")
+                (Decimal("1") - (year_total / (month_total * Decimal("12"))))
+                * Decimal("100")
             )
         except (InvalidOperation, ZeroDivisionError):
             discount_pct = None
@@ -165,4 +194,3 @@ def resolve_region(request) -> str:
     if session_region in supported:
         return session_region  # type: ignore[return-value]
     return default_region
-

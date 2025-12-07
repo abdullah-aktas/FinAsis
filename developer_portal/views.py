@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, View
 
@@ -16,7 +16,6 @@ from developer_portal.forms import (
     APIKeyRotateForm,
     WebhookTestForm,
 )
-from developer_portal.models import DeveloperAPIKey
 from developer_portal.services import key_manager, usage_service, webhook_tester
 from common.services import audit_logger
 
@@ -32,7 +31,9 @@ class DeveloperPortalPermissionMixin(PermissionRequiredMixin):
         return user.is_superuser or super().has_permission()
 
 
-class DeveloperPortalDashboardView(LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView):
+class DeveloperPortalDashboardView(
+    LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView
+):
     template_name = "developer_portal/dashboard.html"
 
     def get_context_data(self, **kwargs):
@@ -59,7 +60,10 @@ class APIKeyListView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Templat
         if form.is_valid():
             organization = getattr(self.request.user, "company", None)
             if organization is None:
-                messages.error(request, _("Bir şirkete bağlı olmadan API anahtarı oluşturamazsınız."))
+                messages.error(
+                    request,
+                    _("Bir şirkete bağlı olmadan API anahtarı oluşturamazsınız."),
+                )
                 return redirect("developer_portal:api_keys")
 
             key, raw_secret = key_manager.create_api_key(
@@ -92,12 +96,16 @@ class APIKeyListView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Templat
         return redirect("developer_portal:api_keys")
 
 
-class APIKeyDetailView(LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView):
+class APIKeyDetailView(
+    LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView
+):
     template_name = "developer_portal/api_key_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        api_key = get_object_or_404(selectors.user_api_keys(self.request.user), pk=self.kwargs["pk"])
+        api_key = get_object_or_404(
+            selectors.user_api_keys(self.request.user), pk=self.kwargs["pk"]
+        )
         context["api_key"] = api_key
         context["usage_logs"] = api_key.usage_logs.all()[:25]
         context["usage_summary"] = usage_service.usage_summary(api_key, hours=24)
@@ -109,7 +117,9 @@ class APIKeyDetailView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Templ
 
 class APIKeyRotateView(LoginRequiredMixin, DeveloperPortalPermissionMixin, View):
     def post(self, request, *args, **kwargs):
-        api_key = get_object_or_404(selectors.user_api_keys(request.user), pk=kwargs["pk"])
+        api_key = get_object_or_404(
+            selectors.user_api_keys(request.user), pk=kwargs["pk"]
+        )
         form = APIKeyRotateForm(request.POST)
         if not form.is_valid():
             messages.error(request, _("Anahtar döndürme onayı gerekli."))
@@ -133,7 +143,9 @@ class APIKeyRotateView(LoginRequiredMixin, DeveloperPortalPermissionMixin, View)
 
 class APIKeyRevokeView(LoginRequiredMixin, DeveloperPortalPermissionMixin, View):
     def post(self, request, *args, **kwargs):
-        api_key = get_object_or_404(selectors.user_api_keys(request.user), pk=kwargs["pk"])
+        api_key = get_object_or_404(
+            selectors.user_api_keys(request.user), pk=kwargs["pk"]
+        )
         form = APIKeyRevokeForm(request.POST)
         if form.is_valid():
             key_manager.revoke_api_key(
@@ -154,7 +166,9 @@ class APIKeyRevokeView(LoginRequiredMixin, DeveloperPortalPermissionMixin, View)
         return redirect("developer_portal:api_keys")
 
 
-class DeveloperDocsView(LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView):
+class DeveloperDocsView(
+    LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView
+):
     template_name = "developer_portal/docs.html"
 
     def get_context_data(self, **kwargs):
@@ -169,14 +183,16 @@ class DeveloperDocsView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Temp
                     {
                         "language": "Python",
                         "icon": "bi bi-filetype-py",
-                        "description": _("Requests ile erişim, hata yönetimi ve yeniden deneme."),
+                        "description": _(
+                            "Requests ile erişim, hata yönetimi ve yeniden deneme."
+                        ),
                         "code": (
                             "import requests\n"
-                            "API_KEY = \"{{ API_KEY }}\"\n"
-                            "BASE_URL = \"https://api.finasis.com.tr/v1\"\n\n"
+                            'API_KEY = "{{ API_KEY }}"\n'
+                            'BASE_URL = "https://api.finasis.com.tr/v1"\n\n'
                             "response = requests.get(\n"
-                            "    f\"{BASE_URL}/accounting/invoices/\",\n"
-                            "    headers={\"X-API-Key\": API_KEY},\n"
+                            '    f"{BASE_URL}/accounting/invoices/",\n'
+                            '    headers={"X-API-Key": API_KEY},\n'
                             "    timeout=10,\n"
                             ")\n"
                             "response.raise_for_status()\n"
@@ -188,8 +204,8 @@ class DeveloperDocsView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Temp
                         "icon": "bi bi-filetype-js",
                         "description": _("fetch API ile istemci tarafı örnek çağrı."),
                         "code": (
-                            "const API_KEY = \"{{ API_KEY }}\";\n"
-                            "const BASE_URL = \"https://api.finasis.com.tr/v1\";\n\n"
+                            'const API_KEY = "{{ API_KEY }}";\n'
+                            'const BASE_URL = "https://api.finasis.com.tr/v1";\n\n'
                             "async function listInvoices() {\n"
                             "  const response = await fetch(`${BASE_URL}/accounting/invoices/`, {\n"
                             "    headers: {\n"
@@ -211,15 +227,15 @@ class DeveloperDocsView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Temp
                         "code": (
                             "package main\n\n"
                             "import (\n"
-                            "    \"fmt\"\n"
-                            "    \"net/http\"\n"
-                            "    \"time\"\n"
+                            '    "fmt"\n'
+                            '    "net/http"\n'
+                            '    "time"\n'
                             ")\n\n"
                             "func main() {\n"
                             "    client := &http.Client{Timeout: 10 * time.Second}\n"
-                            "    req, _ := http.NewRequest(\"GET\", \"https://api.finasis.com.tr/v1/accounting/invoices/\", nil)\n"
-                            "    req.Header.Set(\"X-API-Key\", \"{{ API_KEY }}\")\n"
-                            "    req.Header.Set(\"Accept\", \"application/json\")\n\n"
+                            '    req, _ := http.NewRequest("GET", "https://api.finasis.com.tr/v1/accounting/invoices/", nil)\n'
+                            '    req.Header.Set("X-API-Key", "{{ API_KEY }}")\n'
+                            '    req.Header.Set("Accept", "application/json")\n\n'
                             "    res, err := client.Do(req)\n"
                             "    if err != nil {\n"
                             "        panic(err)\n"
@@ -258,7 +274,9 @@ class DeveloperDocsView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Temp
         return context
 
 
-class WebhookConsoleView(LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView):
+class WebhookConsoleView(
+    LoginRequiredMixin, DeveloperPortalPermissionMixin, TemplateView
+):
     template_name = "developer_portal/webhook_console.html"
 
     def get_context_data(self, **kwargs):
@@ -283,7 +301,9 @@ class WebhookConsoleView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Tem
     def post(self, request, *args, **kwargs):
         form = WebhookTestForm(request.POST)
         if not form.is_valid():
-            messages.error(request, _("Form doğrulanamadı. Lütfen alanları kontrol edin."))
+            messages.error(
+                request, _("Form doğrulanamadı. Lütfen alanları kontrol edin.")
+            )
             return self.render_to_response(self.get_context_data(form=form))
 
         try:
@@ -313,5 +333,3 @@ class WebhookConsoleView(LoginRequiredMixin, DeveloperPortalPermissionMixin, Tem
             )
 
         return redirect("developer_portal:webhook_console")
-
-

@@ -1,10 +1,12 @@
 from django.db import models
 
+
 class IntegratedBankAccount(models.Model):
     # ... aynÄ± alanlar ...
-    pass 
+    pass
+
 
 class BankAccount(models.Model):
     # ... mevcut alanlar ...
     class Meta:
-        app_label = 'bank_integration' 
+        app_label = "bank_integration"

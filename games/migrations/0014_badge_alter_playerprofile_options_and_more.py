@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("games", "0013_playerprofile"),
     ]
@@ -13,12 +12,36 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Badge",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Rozet Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Rozet Adı"
+                    ),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("icon", models.CharField(default="🏆", max_length=50, verbose_name="İkon")),
-                ("criteria", models.JSONField(blank=True, default=dict, verbose_name="Kazanma Kriteri")),
-                ("points", models.PositiveIntegerField(default=10, verbose_name="Puan")),
+                (
+                    "icon",
+                    models.CharField(default="🏆", max_length=50, verbose_name="İkon"),
+                ),
+                (
+                    "criteria",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Kazanma Kriteri"
+                    ),
+                ),
+                (
+                    "points",
+                    models.PositiveIntegerField(default=10, verbose_name="Puan"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
@@ -43,6 +66,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="playerprofile",
             name="badges",
-            field=models.ManyToManyField(blank=True, related_name="players", to="games.badge", verbose_name="Rozetler"),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="players",
+                to="games.badge",
+                verbose_name="Rozetler",
+            ),
         ),
     ]

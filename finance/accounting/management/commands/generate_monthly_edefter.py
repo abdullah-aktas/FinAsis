@@ -29,7 +29,6 @@ from django.utils import timezone
 from apps.accounting.models import Company, EDefter
 from apps.accounting.services.edefter_service import (
     fetch_journal_dtos,
-    package_edefter,
     generate_and_attach_edefter,
     send_edefter_to_gib,
 )
@@ -84,7 +83,9 @@ class Command(BaseCommand):
             try:
                 companies = [Company.objects.get(pk=company_id, is_active=True)]
             except Company.DoesNotExist:
-                raise CommandError(f"Şirket bulunamadı veya aktif değil: ID={company_id}")
+                raise CommandError(
+                    f"Şirket bulunamadı veya aktif değil: ID={company_id}"
+                )
         else:
             companies = Company.objects.filter(is_active=True)
 
@@ -103,7 +104,9 @@ class Command(BaseCommand):
                 entries = fetch_journal_dtos(company, year, month)
                 if not entries:
                     self.stdout.write(
-                        self.style.WARNING(f"  {company.name} için {year}-{month:02d} döneminde fiş bulunamadı. Atlanıyor.")
+                        self.style.WARNING(
+                            f"  {company.name} için {year}-{month:02d} döneminde fiş bulunamadı. Atlanıyor."
+                        )
                     )
                     continue
 
@@ -118,23 +121,32 @@ class Command(BaseCommand):
 
                 if not created and not force:
                     self.stdout.write(
-                        self.style.WARNING(f"  {company.name} için {year}-{month:02d} e-Defter zaten mevcut (ID={edefter.pk}). --force ile üzerine yazabilirsiniz.")
+                        self.style.WARNING(
+                            f"  {company.name} için {year}-{month:02d} e-Defter zaten mevcut (ID={edefter.pk}). --force ile üzerine yazabilirsiniz."
+                        )
                     )
                     continue
 
                 # e-Defter üret ve iliştir
                 generate_and_attach_edefter(edefter, company, year, month, entries)
-                self.stdout.write(self.style.SUCCESS(f"  ✓ e-Defter üretildi: ID={edefter.pk}"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  ✓ e-Defter üretildi: ID={edefter.pk}")
+                )
 
                 # GİB'e gönderim (opsiyonel)
                 if send_to_gib:
                     send_edefter_to_gib(edefter)
-                    self.stdout.write(self.style.SUCCESS(f"  ✓ GİB'e gönderildi: ID={edefter.pk}"))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"  ✓ GİB'e gönderildi: ID={edefter.pk}")
+                    )
 
                 total_ok += 1
 
             except Exception as e:
-                logger.error(f"Şirket {company.pk} için e-Defter üretiminde hata: {e}", exc_info=True)
+                logger.error(
+                    f"Şirket {company.pk} için e-Defter üretiminde hata: {e}",
+                    exc_info=True,
+                )
                 self.stdout.write(self.style.ERROR(f"  ✗ Hata: {e}"))
                 total_err += 1
 

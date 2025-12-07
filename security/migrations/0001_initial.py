@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SecurityPolicy",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Politika Adı")),
                 (
                     "policy_type",
@@ -36,7 +43,10 @@ class Migration(migrations.Migration):
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("rules", models.JSONField(default=dict, verbose_name="Kurallar")),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("is_enforced", models.BooleanField(default=False, verbose_name="Zorunlu")),
+                (
+                    "is_enforced",
+                    models.BooleanField(default=False, verbose_name="Zorunlu"),
+                ),
                 ("priority", models.IntegerField(default=0, verbose_name="Öncelik")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -58,13 +68,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="IPWhitelist",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("ip_address", models.GenericIPAddressField(unique=True, verbose_name="IP Adresi")),
-                ("description", models.CharField(max_length=200, verbose_name="Açıklama")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(unique=True, verbose_name="IP Adresi"),
+                ),
+                (
+                    "description",
+                    models.CharField(max_length=200, verbose_name="Açıklama"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("last_used_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanım")),
-                ("usage_count", models.IntegerField(default=0, verbose_name="Kullanım Sayısı")),
-                ("valid_until", models.DateTimeField(blank=True, null=True, verbose_name="Geçerlilik Süresi")),
+                (
+                    "last_used_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanım"
+                    ),
+                ),
+                (
+                    "usage_count",
+                    models.IntegerField(default=0, verbose_name="Kullanım Sayısı"),
+                ),
+                (
+                    "valid_until",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Geçerlilik Süresi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "created_by",
@@ -95,8 +132,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="IPBlacklist",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("ip_address", models.GenericIPAddressField(unique=True, verbose_name="IP Adresi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(unique=True, verbose_name="IP Adresi"),
+                ),
                 (
                     "reason",
                     models.CharField(
@@ -112,13 +160,26 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("blocked_attempts", models.IntegerField(default=0, verbose_name="Engellenen Deneme")),
-                ("first_blocked_at", models.DateTimeField(verbose_name="İlk Engelleme")),
-                ("last_attempt_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Deneme")),
+                (
+                    "blocked_attempts",
+                    models.IntegerField(default=0, verbose_name="Engellenen Deneme"),
+                ),
+                (
+                    "first_blocked_at",
+                    models.DateTimeField(verbose_name="İlk Engelleme"),
+                ),
+                (
+                    "last_attempt_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Deneme"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 (
                     "auto_unblock_at",
-                    models.DateTimeField(blank=True, null=True, verbose_name="Otomatik Kaldırma Zamanı"),
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Otomatik Kaldırma Zamanı"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
@@ -141,7 +202,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SecurityIncident",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "incident_type",
                     models.CharField(
@@ -162,22 +231,54 @@ class Migration(migrations.Migration):
                 (
                     "severity",
                     models.CharField(
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek"), ("CRITICAL", "Kritik")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                            ("CRITICAL", "Kritik"),
+                        ],
                         max_length=20,
                         verbose_name="Ciddiyet",
                     ),
                 ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("affected_resource", models.CharField(blank=True, max_length=200, verbose_name="Etkilenen Kaynak")),
+                (
+                    "affected_resource",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Etkilenen Kaynak"
+                    ),
+                ),
                 ("source_ip", models.GenericIPAddressField(verbose_name="Kaynak IP")),
                 ("user_agent", models.TextField(blank=True, verbose_name="User Agent")),
-                ("attempt_count", models.IntegerField(default=1, verbose_name="Deneme Sayısı")),
-                ("is_resolved", models.BooleanField(default=False, verbose_name="Çözüldü")),
-                ("resolved_at", models.DateTimeField(blank=True, null=True, verbose_name="Çözüm Zamanı")),
-                ("resolution_notes", models.TextField(blank=True, verbose_name="Çözüm Notları")),
-                ("action_taken", models.TextField(blank=True, verbose_name="Alınan Aksiyon")),
-                ("detected_at", models.DateTimeField(auto_now_add=True, verbose_name="Tespit Tarihi")),
+                (
+                    "attempt_count",
+                    models.IntegerField(default=1, verbose_name="Deneme Sayısı"),
+                ),
+                (
+                    "is_resolved",
+                    models.BooleanField(default=False, verbose_name="Çözüldü"),
+                ),
+                (
+                    "resolved_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Çözüm Zamanı"
+                    ),
+                ),
+                (
+                    "resolution_notes",
+                    models.TextField(blank=True, verbose_name="Çözüm Notları"),
+                ),
+                (
+                    "action_taken",
+                    models.TextField(blank=True, verbose_name="Alınan Aksiyon"),
+                ),
+                (
+                    "detected_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Tespit Tarihi"
+                    ),
+                ),
                 (
                     "affected_user",
                     models.ForeignKey(
@@ -206,8 +307,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Güvenlik Olayları",
                 "ordering": ["-detected_at"],
                 "indexes": [
-                    models.Index(fields=["severity", "-detected_at"], name="security_se_severit_627970_idx"),
-                    models.Index(fields=["is_resolved", "-detected_at"], name="security_se_is_reso_bf1245_idx"),
+                    models.Index(
+                        fields=["severity", "-detected_at"],
+                        name="security_se_severit_627970_idx",
+                    ),
+                    models.Index(
+                        fields=["is_resolved", "-detected_at"],
+                        name="security_se_is_reso_bf1245_idx",
+                    ),
                 ],
             },
         ),

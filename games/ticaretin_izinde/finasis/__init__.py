@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-# Django project initialization 
+# Django project initialization

@@ -28,7 +28,7 @@ class BasePresenter:
     delegating orchestration to presenters to align with the MVP approach.
     """
 
-    template_name: str = ''
+    template_name: str = ""
 
     def __init__(self, request: HttpRequest) -> None:
         self.request = request
@@ -60,7 +60,6 @@ class BasePresenter:
             return result.response
         template_name = result.template_name or self.template_name
         if not template_name:
-            raise ValueError(f'{self.__class__.__name__} requires a template name.')
+            raise ValueError(f"{self.__class__.__name__} requires a template name.")
         context = dict(result.context or {})
         return render(self.request, template_name, context)
-

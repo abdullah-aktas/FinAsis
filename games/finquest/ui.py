@@ -11,7 +11,7 @@ def create_game_ui(game):
     """Create in-game HUD panels and quest list UI for the given game instance."""
     # Info panel
     game.info_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.3, 0.15, 1),
         position=Vec3(-0.6, 0.4, 0),
         color=color.rgba(0, 0, 0, 0.7),
@@ -45,7 +45,7 @@ def create_game_ui(game):
 
     # Date panel
     game.date_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.2, 0.05, 1),
         position=Vec3(0, 0.45, 0),
         color=color.rgba(0, 0, 0, 0.7),
@@ -66,7 +66,7 @@ def create_game_ui(game):
 
     # Quest panel
     game.quest_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.3, 0.25, 1),
         position=Vec3(0.6, 0.35, 0),
         color=color.rgba(0, 0, 0, 0.7),
@@ -97,7 +97,7 @@ def create_game_ui(game):
     )
 
     # Register for cleanup
-    game.ui_elements['game'] = [
+    game.ui_elements["game"] = [
         game.info_panel,
         game.player_name,
         game.player_money,
@@ -119,11 +119,11 @@ def update_quest_list(game):
         destroy(child)
 
     y_position = 0
-    for quest_id in game.game_state['active_quests']:
+    for quest_id in game.game_state["active_quests"]:
         quest_data = None
         for category, quests in game.quests.items():
             for quest in quests:
-                if quest['id'] == quest_id:
+                if quest["id"] == quest_id:
                     quest_data = quest
                     break
             if quest_data:
@@ -151,7 +151,7 @@ def hide_interaction_prompt(game):
 
 def show_quest_completion(game, quest_data):
     panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.5, 0.3, 1),
         position=Vec3(0, 0, 0),
         color=color.rgba(0, 0, 0, 0.8),
@@ -186,14 +186,16 @@ def show_quest_completion(game, quest_data):
     )
 
     from ursina import invoke  # local import to match game file style
+
     def _close():
         destroy(panel)
+
     invoke(_close, delay=3)
 
 
 def show_level_up(game):
     panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.5, 0.3, 1),
         position=Vec3(0, 0, 0),
         color=color.rgba(0, 0, 0, 0.8),
@@ -225,17 +227,20 @@ def show_level_up(game):
     )
 
     from ursina import invoke
+
     def _close():
         destroy(panel)
+
     invoke(_close, delay=3)
 
 
 def create_demo_panels(game):
     """Demo: VR, NFT, AI NPC ve dünya paneli"""
-    from ursina import Entity, Text, Button, camera, color, Vec3
+    from ursina import Entity, Text, camera, color, Vec3
+
     # VR panel
     game.vr_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.2, 0.07, 1),
         position=Vec3(-0.6, 0.25, 0),
         color=color.rgba(0, 212, 255, 180),
@@ -252,11 +257,11 @@ def create_demo_panels(game):
         position=(-0.6, 0.22),
         color=color.azure,
         parent=camera.ui,
-        on_click=lambda: game.vr_text.set_text(f"VR Durumu: {game.demo.toggle_vr()}")
+        on_click=lambda: game.vr_text.set_text(f"VR Durumu: {game.demo.toggle_vr()}"),
     )
     # NFT panel
     game.nft_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.2, 0.12, 1),
         position=Vec3(-0.6, 0.12, 0),
         color=color.rgba(0, 212, 255, 180),
@@ -273,11 +278,13 @@ def create_demo_panels(game):
         position=(-0.6, 0.10),
         color=color.azure,
         parent=camera.ui,
-        on_click=lambda: game.nft_text.set_text(f"NFT Envanteri: {game.demo.mint_demo_nft()['name']}")
+        on_click=lambda: game.nft_text.set_text(
+            f"NFT Envanteri: {game.demo.mint_demo_nft()['name']}"
+        ),
     )
     # AI NPC panel
     game.npc_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.2, 0.10, 1),
         position=Vec3(-0.6, 0.02, 0),
         color=color.rgba(0, 212, 255, 180),
@@ -291,7 +298,7 @@ def create_demo_panels(game):
     )
     # Dünya paneli
     game.world_panel = Entity(
-        model='quad',
+        model="quad",
         scale=Vec3(0.2, 0.10, 1),
         position=Vec3(-0.6, -0.08, 0),
         color=color.rgba(0, 212, 255, 180),
@@ -304,9 +311,15 @@ def create_demo_panels(game):
         parent=camera.ui,
     )
     # Temizlik için ekle
-    game.ui_elements['demo'] = [
-        game.vr_panel, game.vr_text, game.vr_button,
-        game.nft_panel, game.nft_text, game.nft_button,
-        game.npc_panel, game.npc_text,
-        game.world_panel, game.world_text
+    game.ui_elements["demo"] = [
+        game.vr_panel,
+        game.vr_text,
+        game.vr_button,
+        game.nft_panel,
+        game.nft_text,
+        game.nft_button,
+        game.npc_panel,
+        game.npc_text,
+        game.world_panel,
+        game.world_text,
     ]

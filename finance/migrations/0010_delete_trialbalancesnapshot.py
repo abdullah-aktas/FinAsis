@@ -9,7 +9,6 @@ def noop_forward(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finance", "0009_remove_journalentry_account_remove_taxrate_account_and_more"),
     ]

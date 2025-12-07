@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finance', '0002_aiconfig'),
+        ("finance", "0002_aiconfig"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transaction',
-            name='status',
-            field=models.CharField(choices=[('DRAFT', 'Taslak'), ('POSTED', 'Kaydedildi'), ('CANCELLED', 'İptal Edildi')], default='DRAFT', max_length=20, verbose_name='Durum'),
+            model_name="transaction",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("DRAFT", "Taslak"),
+                    ("POSTED", "Kaydedildi"),
+                    ("CANCELLED", "İptal Edildi"),
+                ],
+                default="DRAFT",
+                max_length=20,
+                verbose_name="Durum",
+            ),
         ),
     ]

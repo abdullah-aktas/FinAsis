@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Product",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField(blank=True)),
                 ("base_price", models.IntegerField(default=100)),
@@ -28,7 +35,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="QrReward",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("code", models.CharField(max_length=32, unique=True)),
                 ("description", models.CharField(max_length=255)),
                 ("reward", models.JSONField(default=dict)),
@@ -38,13 +53,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Quest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField()),
                 (
                     "quest_type",
                     models.CharField(
-                        choices=[("main", "Ana Hikaye"), ("side", "Yan Görev")], default="side", max_length=10
+                        choices=[("main", "Ana Hikaye"), ("side", "Yan Görev")],
+                        default="side",
+                        max_length=10,
                     ),
                 ),
                 ("requirements", models.JSONField(blank=True, default=dict)),
@@ -55,7 +80,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Tournament",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField(blank=True)),
                 ("start_time", models.DateTimeField()),
@@ -68,7 +101,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ChatMessage",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("room", models.CharField(max_length=50)),
                 ("message", models.TextField()),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -77,7 +118,10 @@ class Migration(migrations.Migration):
                 (
                     "user",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
@@ -85,23 +129,48 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="City",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField()),
                 ("sectors", models.JSONField(default=list)),
                 ("market_size", models.IntegerField(default=1000)),
                 ("coordinates", models.JSONField(default=dict)),
-                ("image", models.ImageField(blank=True, null=True, upload_to="city_images/")),
+                (
+                    "image",
+                    models.ImageField(blank=True, null=True, upload_to="city_images/"),
+                ),
                 ("sector_markets", models.JSONField(blank=True, default=dict)),
-                ("weather", models.CharField(blank=True, default="gunesli", max_length=20)),
-                ("time_of_day", models.CharField(blank=True, default="oglen", max_length=10)),
+                (
+                    "weather",
+                    models.CharField(blank=True, default="gunesli", max_length=20),
+                ),
+                (
+                    "time_of_day",
+                    models.CharField(blank=True, default="oglen", max_length=10),
+                ),
                 ("neighbors", models.ManyToManyField(blank=True, to="trade_sim.city")),
             ],
         ),
         migrations.CreateModel(
             name="Character",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("skills", models.JSONField(blank=True, default=dict)),
                 ("story_state", models.JSONField(blank=True, default=dict)),
@@ -133,25 +202,51 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GameNotification",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("message", models.CharField(max_length=255)),
                 (
                     "notification_type",
                     models.CharField(
-                        choices=[("success", "Başarı"), ("info", "Bilgi"), ("warning", "Uyarı")],
+                        choices=[
+                            ("success", "Başarı"),
+                            ("info", "Bilgi"),
+                            ("warning", "Uyarı"),
+                        ],
                         default="info",
                         max_length=20,
                     ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("is_read", models.BooleanField(default=False)),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="CharacterQuest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("progress", models.JSONField(blank=True, default=dict)),
                 ("is_completed", models.BooleanField(default=False)),
                 ("started_at", models.DateTimeField(auto_now_add=True)),
@@ -177,7 +272,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TournamentEntry",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("score", models.IntegerField(default=0)),
                 ("rank", models.IntegerField(default=0)),
                 ("reward_claimed", models.BooleanField(default=False)),
@@ -193,7 +296,9 @@ class Migration(migrations.Migration):
                 (
                     "tournament",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="entries", to="trade_sim.tournament"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="entries",
+                        to="trade_sim.tournament",
                     ),
                 ),
             ],
@@ -201,7 +306,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CityMarket",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("price", models.IntegerField(default=100)),
                 ("supply", models.IntegerField(default=100)),
                 ("demand", models.IntegerField(default=100)),
@@ -209,13 +322,17 @@ class Migration(migrations.Migration):
                 (
                     "city",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="markets", to="trade_sim.city"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="markets",
+                        to="trade_sim.city",
                     ),
                 ),
                 (
                     "product",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="city_markets", to="trade_sim.product"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="city_markets",
+                        to="trade_sim.product",
                     ),
                 ),
             ],
@@ -226,10 +343,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserQrReward",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("claimed_at", models.DateTimeField(auto_now_add=True)),
-                ("qr_reward", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="trade_sim.qrreward")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "qr_reward",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="trade_sim.qrreward",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "unique_together": {("user", "qr_reward")},

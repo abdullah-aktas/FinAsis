@@ -5,7 +5,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -14,40 +13,106 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Declaration',
+            name="Declaration",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('code', models.CharField(max_length=50)),
-               ('period', models.CharField(max_length=20)),
-               ('taxpayer_vkn_tckn', models.CharField(max_length=20)),
-               ('payload', models.JSONField(default=dict)),
-               ('created_at', models.DateTimeField(auto_now_add=True)),
-               ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=50)),
+                ("period", models.CharField(max_length=20)),
+                ("taxpayer_vkn_tckn", models.CharField(max_length=20)),
+                ("payload", models.JSONField(default=dict)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            options={'indexes': [models.Index(fields=['code','period','taxpayer_vkn_tckn'], name='decl_code_period_vkn_idx')]},
+            options={
+                "indexes": [
+                    models.Index(
+                        fields=["code", "period", "taxpayer_vkn_tckn"],
+                        name="decl_code_period_vkn_idx",
+                    )
+                ]
+            },
         ),
         migrations.CreateModel(
-            name='Submission',
+            name="Submission",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('target', models.CharField(choices=[('gib','GIB')], default='gib', max_length=10)),
-               ('advisor_required', models.BooleanField(default=True)),
-               ('submitted_at', models.DateTimeField(blank=True, null=True)),
-               ('status', models.CharField(default='draft', max_length=20)),
-               ('external_id', models.CharField(blank=True, max_length=100)),
-               ('declaration', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='submissions', to='submissions.declaration')),
-               ('submitted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "target",
+                    models.CharField(
+                        choices=[("gib", "GIB")], default="gib", max_length=10
+                    ),
+                ),
+                ("advisor_required", models.BooleanField(default=True)),
+                ("submitted_at", models.DateTimeField(blank=True, null=True)),
+                ("status", models.CharField(default="draft", max_length=20)),
+                ("external_id", models.CharField(blank=True, max_length=100)),
+                (
+                    "declaration",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="submissions",
+                        to="submissions.declaration",
+                    ),
+                ),
+                (
+                    "submitted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SubmissionLog',
+            name="SubmissionLog",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('level', models.CharField(default='info', max_length=10)),
-               ('message', models.TextField()),
-               ('context', models.JSONField(blank=True, default=dict)),
-               ('created_at', models.DateTimeField(auto_now_add=True)),
-               ('submission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='submissions.submission')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("level", models.CharField(default="info", max_length=10)),
+                ("message", models.TextField()),
+                ("context", models.JSONField(blank=True, default=dict)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "submission",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="logs",
+                        to="submissions.submission",
+                    ),
+                ),
             ],
         ),
     ]

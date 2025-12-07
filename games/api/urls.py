@@ -15,15 +15,14 @@ from .views_esport import (
 
 urlpatterns = [
     # Mevcut API'ler
-    path('badge/earn/', earn_badge, name='earn_badge'),
-    path('badges/', badges_list, name='badges_list'),
-    path('leaderboard/', leaderboard, name='leaderboard'),
-    path('simulation/score/', save_simulation_score, name='save_simulation_score'),
-    path('personalize/', personalize, name='personalize'),
-    path('track/', track, name='track'),
-    
+    path("badge/earn/", earn_badge, name="earn_badge"),
+    path("badges/", badges_list, name="badges_list"),
+    path("leaderboard/", leaderboard, name="leaderboard"),
+    path("simulation/score/", save_simulation_score, name="save_simulation_score"),
+    path("personalize/", personalize, name="personalize"),
+    path("track/", track, name="track"),
     # E-Spor API'leri
-    path('session/record/', record_game_session, name='record_session'),
-    path('quests/daily/', get_daily_quests, name='daily_quests'),
-    path('profile/stats/', get_profile_stats, name='profile_stats'),
-] 
+    path("session/record/", record_game_session, name="record_session"),
+    path("quests/daily/", get_daily_quests, name="daily_quests"),
+    path("profile/stats/", get_profile_stats, name="profile_stats"),
+]

@@ -42,4 +42,3 @@ def usage_summary(api_key: DeveloperAPIKey, hours: int = 24) -> dict:
 
 
 __all__ = ["log_usage", "usage_summary"]
-

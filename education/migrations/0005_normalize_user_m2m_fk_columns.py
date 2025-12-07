@@ -17,7 +17,9 @@ def forward(apps, schema_editor):
             continue
         if new_col not in cols and old_col in cols:
             try:
-                cursor.execute(f"ALTER TABLE {table} RENAME COLUMN {old_col} TO {new_col}")
+                cursor.execute(
+                    f"ALTER TABLE {table} RENAME COLUMN {old_col} TO {new_col}"
+                )
             except Exception:
                 pass
 
@@ -32,7 +34,9 @@ def backward(apps, schema_editor):
             continue
         if old_col not in cols and new_col in cols:
             try:
-                cursor.execute(f"ALTER TABLE {table} RENAME COLUMN {new_col} TO {old_col}")
+                cursor.execute(
+                    f"ALTER TABLE {table} RENAME COLUMN {new_col} TO {old_col}"
+                )
             except Exception:
                 pass
 

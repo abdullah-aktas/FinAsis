@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 
 class VirtualCompanyConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'virtual_company'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "virtual_company"

@@ -2,8 +2,17 @@ from __future__ import annotations
 from typing import Optional, cast
 from django.db.models import QuerySet
 from .models import (
-    Invoice, Expense, BankTransaction, Company, Customer, Product, Sale, Payment, BankAccount, InvoiceItem,
-    InvoiceQuerySet, ExpenseQuerySet, BankTransactionQuerySet, CustomerQuerySet, PaymentQuerySet
+    Invoice,
+    Expense,
+    BankTransaction,
+    Company,
+    Customer,
+    Payment,
+    InvoiceQuerySet,
+    ExpenseQuerySet,
+    BankTransactionQuerySet,
+    CustomerQuerySet,
+    PaymentQuerySet,
 )
 
 
@@ -21,7 +30,9 @@ def expenses_for_company(company: Optional[Company]) -> QuerySet[Expense]:
     return qs.with_company().filter(company=company)
 
 
-def banktransactions_for_company(company: Optional[Company]) -> QuerySet[BankTransaction]:
+def banktransactions_for_company(
+    company: Optional[Company],
+) -> QuerySet[BankTransaction]:
     if not company:
         return BankTransaction.objects.none()
     qs = cast(BankTransactionQuerySet, BankTransaction.objects)

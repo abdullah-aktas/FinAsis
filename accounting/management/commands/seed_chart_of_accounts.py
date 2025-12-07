@@ -17,24 +17,35 @@ CORE_ACCOUNTS = [
     ("770", "Genel Yönetim Giderleri", "EXPENSE"),
 ]
 
+
 class Command(BaseCommand):
     help = "Şirketler için temel Tek Düzen hesap planı subset'i oluşturur."
 
     def add_arguments(self, parser):
-        parser.add_argument('--company-id', type=int, help='Sadece belirtilen company id için çalıştır')
+        parser.add_argument(
+            "--company-id", type=int, help="Sadece belirtilen company id için çalıştır"
+        )
 
     def handle(self, *args, **options):
         qs = Company.objects.all()
-        if options.get('company_id'):
-            qs = qs.filter(id=options['company_id'])
+        if options.get("company_id"):
+            qs = qs.filter(id=options["company_id"])
         created_total = 0
         for company in qs:
             for code, name, cat in CORE_ACCOUNTS:
-                obj, created = GLAccount.objects.get_or_create(company=company, code=code, defaults={
-                    'name': name,
-                    'category': cat,
-                    'currency': company.base_currency,
-                })
+                obj, created = GLAccount.objects.get_or_create(
+                    company=company,
+                    code=code,
+                    defaults={
+                        "name": name,
+                        "category": cat,
+                        "currency": company.base_currency,
+                    },
+                )
                 if created:
                     created_total += 1
-        self.stdout.write(self.style.SUCCESS(f"Tamamlandı. Oluşturulan yeni hesap sayısı: {created_total}"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Tamamlandı. Oluşturulan yeni hesap sayısı: {created_total}"
+            )
+        )

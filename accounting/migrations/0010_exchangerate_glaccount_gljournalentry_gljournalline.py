@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0009_planningscenario"),
     ]
@@ -14,12 +13,36 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ExchangeRate",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("base_currency", models.CharField(max_length=3, verbose_name="Baz PB")),
-                ("quote_currency", models.CharField(max_length=3, verbose_name="Karşı PB")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "base_currency",
+                    models.CharField(max_length=3, verbose_name="Baz PB"),
+                ),
+                (
+                    "quote_currency",
+                    models.CharField(max_length=3, verbose_name="Karşı PB"),
+                ),
                 ("date", models.DateField()),
-                ("rate", models.DecimalField(decimal_places=8, max_digits=18, verbose_name="Kur")),
-                ("source", models.CharField(blank=True, max_length=50, null=True, verbose_name="Kaynak")),
+                (
+                    "rate",
+                    models.DecimalField(
+                        decimal_places=8, max_digits=18, verbose_name="Kur"
+                    ),
+                ),
+                (
+                    "source",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="Kaynak"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
@@ -32,7 +55,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GLAccount",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("code", models.CharField(max_length=20, verbose_name="Hesap Kodu")),
                 ("name", models.CharField(max_length=255, verbose_name="Hesap Adı")),
                 (
@@ -50,9 +81,20 @@ class Migration(migrations.Migration):
                         verbose_name="Kategori",
                     ),
                 ),
-                ("is_leaf", models.BooleanField(default=True, verbose_name="Alt Hesap Yok")),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
-                ("currency", models.CharField(default="TRY", max_length=3, verbose_name="Defter Para Birimi")),
+                (
+                    "is_leaf",
+                    models.BooleanField(default=True, verbose_name="Alt Hesap Yok"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=3, verbose_name="Defter Para Birimi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -86,23 +128,66 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GLJournalEntry",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("number", models.CharField(max_length=30, verbose_name="Fiş No")),
                 ("date", models.DateField(verbose_name="Tarih")),
-                ("description", models.CharField(blank=True, max_length=255, null=True, verbose_name="Açıklama")),
-                ("source_type", models.CharField(blank=True, max_length=30, null=True, verbose_name="Kaynak Türü")),
-                ("source_id", models.CharField(blank=True, max_length=50, null=True, verbose_name="Kaynak ID")),
-                ("currency", models.CharField(default="TRY", max_length=3, verbose_name="Fiş Para Birimi")),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
+                (
+                    "source_type",
+                    models.CharField(
+                        blank=True, max_length=30, null=True, verbose_name="Kaynak Türü"
+                    ),
+                ),
+                (
+                    "source_id",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="Kaynak ID"
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=3, verbose_name="Fiş Para Birimi"
+                    ),
+                ),
                 (
                     "total_debit",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Toplam Borç"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=18,
+                        verbose_name="Toplam Borç",
+                    ),
                 ),
                 (
                     "total_credit",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Toplam Alacak"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=18,
+                        verbose_name="Toplam Alacak",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("posted_at", models.DateTimeField(blank=True, null=True, verbose_name="Mizan Onay Zamanı")),
+                (
+                    "posted_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Mizan Onay Zamanı"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -123,15 +208,56 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GLJournalLine",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("description", models.CharField(blank=True, max_length=255, null=True, verbose_name="Açıklama")),
-                ("debit", models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Borç")),
-                ("credit", models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Alacak")),
-                ("currency", models.CharField(default="TRY", max_length=3, verbose_name="Satır PB")),
-                ("fx_rate", models.DecimalField(decimal_places=8, default=1, max_digits=18, verbose_name="Kur")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
+                (
+                    "debit",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=18, verbose_name="Borç"
+                    ),
+                ),
+                (
+                    "credit",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=18,
+                        verbose_name="Alacak",
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=3, verbose_name="Satır PB"
+                    ),
+                ),
+                (
+                    "fx_rate",
+                    models.DecimalField(
+                        decimal_places=8, default=1, max_digits=18, verbose_name="Kur"
+                    ),
+                ),
                 (
                     "amount_base",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=18, verbose_name="Tutar (Baz PB)"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=18,
+                        verbose_name="Tutar (Baz PB)",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (

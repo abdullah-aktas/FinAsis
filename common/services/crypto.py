@@ -9,7 +9,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 def _get_key_from_settings() -> bytes:
-    key = getattr(settings, "DATA_ENCRYPTION_KEY", None) or settings.ENV("DATA_ENCRYPTION_KEY", None)
+    key = getattr(settings, "DATA_ENCRYPTION_KEY", None) or settings.ENV(
+        "DATA_ENCRYPTION_KEY", None
+    )
     if not key:
         raise ImproperlyConfigured(
             "DATA_ENCRYPTION_KEY belirtilmemiş. Lütfen 32 baytlık bir Fernet anahtarını environment değişkeni olarak tanımlayın."
@@ -31,7 +33,12 @@ def encrypt(value: str | bytes, *, key: Optional[bytes] = None) -> str:
     return fernet.encrypt(data).decode()
 
 
-def decrypt(token: str | bytes, *, key: Optional[bytes] = None, fallback_key: Optional[bytes] = None) -> str:
+def decrypt(
+    token: str | bytes,
+    *,
+    key: Optional[bytes] = None,
+    fallback_key: Optional[bytes] = None,
+) -> str:
     fernet = get_fernet(key)
     token_bytes = token.encode() if isinstance(token, str) else token
     try:
@@ -43,10 +50,13 @@ def decrypt(token: str | bytes, *, key: Optional[bytes] = None, fallback_key: Op
             or settings.ENV("DATA_ENCRYPTION_FALLBACK_KEY", None)
         )
         if fallback_material:
-            fallback = get_fernet(fallback_material if isinstance(fallback_material, bytes) else fallback_material.encode())
+            fallback = get_fernet(
+                fallback_material
+                if isinstance(fallback_material, bytes)
+                else fallback_material.encode()
+            )
             return fallback.decrypt(token_bytes).decode()
         raise
 
 
 __all__ = ["encrypt", "decrypt", "get_fernet"]
-

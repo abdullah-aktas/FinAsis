@@ -1,2 +1,1 @@
-default_app_config = 'finance_banking.apps.FinanceBankingConfig'
-
+default_app_config = "finance_banking.apps.FinanceBankingConfig"

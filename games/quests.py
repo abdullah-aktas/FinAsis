@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, List, Optional
+from typing import Dict, List
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import random
+import uuid
+from enum import Enum
+
 
 class QuestType(Enum):
     DAILY = "daily"
@@ -10,11 +12,13 @@ class QuestType(Enum):
     SEASONAL = "seasonal"
     SPECIAL = "special"
 
+
 class QuestStatus(Enum):
     ACTIVE = "active"
     COMPLETED = "completed"
     FAILED = "failed"
     EXPIRED = "expired"
+
 
 @dataclass
 class Quest:
@@ -29,6 +33,7 @@ class Quest:
     status: QuestStatus
     progress: Dict
 
+
 @dataclass
 class Event:
     id: str
@@ -40,19 +45,20 @@ class Event:
     special_rules: Dict
     participants: List[str]
 
+
 class QuestSystem:
     def __init__(self):
         self.quests: Dict[str, Quest] = {}
         self.events: Dict[str, Event] = {}
         self.player_quests: Dict[str, List[Quest]] = {}
         self.daily_reset_time = datetime.now().replace(hour=0, minute=0, second=0)
-        
+
     def initialize_quests(self):
         """Görev sistemini başlatır"""
         self._generate_daily_quests()
         self._generate_weekly_quests()
         self._load_seasonal_quests()
-        
+
     def _generate_daily_quests(self):
         """Günlük görevleri oluşturur"""
         daily_quests = [
@@ -66,7 +72,7 @@ class QuestSystem:
                 "start_time": self.daily_reset_time,
                 "end_time": self.daily_reset_time + timedelta(days=1),
                 "status": QuestStatus.ACTIVE,
-                "progress": {"trades": 0}
+                "progress": {"trades": 0},
             },
             {
                 "id": "daily_profit_1",
@@ -78,13 +84,13 @@ class QuestSystem:
                 "start_time": self.daily_reset_time,
                 "end_time": self.daily_reset_time + timedelta(days=1),
                 "status": QuestStatus.ACTIVE,
-                "progress": {"profit": 0}
-            }
+                "progress": {"profit": 0},
+            },
         ]
-        
+
         for quest in daily_quests:
             self.quests[quest["id"]] = Quest(**quest)
-            
+
     def _generate_weekly_quests(self):
         """Haftalık görevleri oluşturur"""
         weekly_quests = [
@@ -98,13 +104,13 @@ class QuestSystem:
                 "start_time": self.daily_reset_time,
                 "end_time": self.daily_reset_time + timedelta(days=7),
                 "status": QuestStatus.ACTIVE,
-                "progress": {"trades": 0}
+                "progress": {"trades": 0},
             }
         ]
-        
+
         for quest in weekly_quests:
             self.quests[quest["id"]] = Quest(**quest)
-            
+
     def _load_seasonal_quests(self):
         """Sezonluk görevleri yükler"""
         current_season = self._get_current_season()
@@ -119,46 +125,52 @@ class QuestSystem:
                 "start_time": self._get_season_start(),
                 "end_time": self._get_season_end(),
                 "status": QuestStatus.ACTIVE,
-                "progress": {"trades": 0}
+                "progress": {"trades": 0},
             }
         ]
-        
+
         for quest in seasonal_quests:
             self.quests[quest["id"]] = Quest(**quest)
-            
+
     def update_quest_progress(self, player_id: str, quest_id: str, progress: Dict):
         """Görev ilerlemesini günceller"""
         if quest_id in self.quests:
             quest = self.quests[quest_id]
-            
+
             # İlerlemeyi güncelle
             for key, value in progress.items():
                 if key in quest.progress:
                     quest.progress[key] += value
-                    
+
             # Görev tamamlandı mı kontrol et
             if self._is_quest_completed(quest):
                 self._complete_quest(player_id, quest)
-                
+
     def _is_quest_completed(self, quest: Quest) -> bool:
         """Görevin tamamlanıp tamamlanmadığını kontrol eder"""
         for requirement, target in quest.requirements.items():
             if quest.progress.get(requirement, 0) < target:
                 return False
         return True
-        
+
     def _complete_quest(self, player_id: str, quest: Quest):
         """Görevi tamamlar ve ödülleri dağıtır"""
         quest.status = QuestStatus.COMPLETED
         self._distribute_rewards(player_id, quest.rewards)
-        
+
     def _distribute_rewards(self, player_id: str, rewards: Dict):
         """Görev ödüllerini dağıtır"""
         # Ödül dağıtım mantığı
         pass
-        
-    def create_event(self, name: str, description: str, duration: int,
-                    rewards: Dict, special_rules: Dict) -> Event:
+
+    def create_event(
+        self,
+        name: str,
+        description: str,
+        duration: int,
+        rewards: Dict,
+        special_rules: Dict,
+    ) -> Event:
         """Yeni bir etkinlik oluşturur"""
         event = Event(
             id=str(uuid.uuid4()),
@@ -168,12 +180,12 @@ class QuestSystem:
             end_time=datetime.now() + timedelta(hours=duration),
             rewards=rewards,
             special_rules=special_rules,
-            participants=[]
+            participants=[],
         )
-        
+
         self.events[event.id] = event
         return event
-        
+
     def join_event(self, player_id: str, event_id: str) -> bool:
         """Oyuncuyu etkinliğe ekler"""
         if event_id in self.events:
@@ -182,22 +194,22 @@ class QuestSystem:
                 event.participants.append(player_id)
                 return True
         return False
-        
+
     def _get_current_season(self) -> int:
         """Mevcut sezonu hesaplar"""
         now = datetime.now()
         year = now.year
         month = now.month
         return (year - 2023) * 12 + month
-        
+
     def _get_season_start(self) -> datetime:
         """Sezon başlangıç zamanını hesaplar"""
         now = datetime.now()
         return now.replace(day=1, hour=0, minute=0, second=0)
-        
+
     def _get_season_end(self) -> datetime:
         """Sezon bitiş zamanını hesaplar"""
         start = self._get_season_start()
         if start.month == 12:
             return start.replace(year=start.year + 1, month=1)
-        return start.replace(month=start.month + 1) 
+        return start.replace(month=start.month + 1)

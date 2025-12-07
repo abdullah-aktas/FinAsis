@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import requests
 from requests.adapters import HTTPAdapter
+
 try:
     # requests vendor packages urllib3; Retry is commonly available
     from urllib3.util.retry import Retry  # type: ignore
@@ -25,7 +26,12 @@ try:
     )
     from FinAsis.src.edoc.edefter.berat import build_berat_xml
     from FinAsis.src.edoc.edefter.packaging import build_output_name, package_zip
-    from FinAsis.src.edoc.signing.providers import DummySigner, DummyTimestampProvider, Signer, TimestampProvider
+    from FinAsis.src.edoc.signing.providers import (
+        DummySigner,
+        DummyTimestampProvider,
+        Signer,
+        TimestampProvider,
+    )
 except Exception:  # pragma: no cover - fallback when optional FinAsis package missing
     from dataclasses import dataclass
 
@@ -110,7 +116,7 @@ def _company_vkn(company) -> str:
 # --- DTO eşleme yardımcıları ---
 def _line_to_dto(ln: _GLJournalLine) -> JournalLine:
     return JournalLine(
-        account=getattr(getattr(ln, 'account', None), 'code', ''),
+        account=getattr(getattr(ln, "account", None), "code", ""),
         debit=ln.debit if ln.debit is not None else Decimal("0.00"),
         credit=ln.credit if ln.credit is not None else Decimal("0.00"),
         description=ln.description or "",
@@ -119,19 +125,25 @@ def _line_to_dto(ln: _GLJournalLine) -> JournalLine:
 
 def fetch_journal_dtos(company, year: int, month: int) -> list[JournalEntryDTO]:
     qs = (
-        _GLJournalEntry.objects
-        .filter(company=company, date__year=year, date__month=month)
-        .prefetch_related('lines__account')
-        .order_by('date', 'id')
+        _GLJournalEntry.objects.filter(
+            company=company, date__year=year, date__month=month
+        )
+        .prefetch_related("lines__account")
+        .order_by("date", "id")
     )
     result: list[JournalEntryDTO] = []
     for je in qs:
-        line_qs = _GLJournalLine.objects.filter(entry=je).select_related('account')
+        line_qs = _GLJournalLine.objects.filter(entry=je).select_related("account")
         lines = [_line_to_dto(ln) for ln in line_qs]
-        result.append(JournalEntryDTO(date_=je.date, number=str(je.number), lines=lines))
+        result.append(
+            JournalEntryDTO(date_=je.date, number=str(je.number), lines=lines)
+        )
     return result
 
-def generate_yevmiye_defter(company, year, month, entries: list[JournalEntryDTO] | None = None) -> bytes:
+
+def generate_yevmiye_defter(
+    company, year, month, entries: list[JournalEntryDTO] | None = None
+) -> bytes:
     """Yevmiye defterini üretir (minimal XML).
 
     entries dolu değilse boş bir defter üretir (toplamlar 0)."""
@@ -142,13 +154,16 @@ def generate_yevmiye_defter(company, year, month, entries: list[JournalEntryDTO]
     return build_yevmiye(entries)
 
 
-def generate_kebir_defter(company, year, month, entries: list[JournalEntryDTO] | None = None) -> bytes:
+def generate_kebir_defter(
+    company, year, month, entries: list[JournalEntryDTO] | None = None
+) -> bytes:
     """Kebir defterini üretir (minimal XML)."""
     if entries is None:
         entries = fetch_journal_dtos(company, year, month)
     else:
         entries = entries
     return build_kebir(entries)
+
 
 def package_edefter(company, year, month, entries: list[JournalEntryDTO] | None = None):
     """e-Defter paketleme: Yevmiye XML ve berat içeriklerini döner.
@@ -167,7 +182,14 @@ def package_edefter(company, year, month, entries: list[JournalEntryDTO] | None 
     return (yevmiye_xml, berat_xml)
 
 
-def package_edefter_zip(company, year, month, entries: list[JournalEntryDTO] | None = None, *, include_signed: bool | None = None) -> bytes:
+def package_edefter_zip(
+    company,
+    year,
+    month,
+    entries: list[JournalEntryDTO] | None = None,
+    *,
+    include_signed: bool | None = None,
+) -> bytes:
     """Yevmiye, Kebir ve Berat dosyalarını ZIP olarak paketler.
 
     include_signed True ise imzalı/zaman damgalı varyantlar da eklenir.
@@ -184,21 +206,41 @@ def package_edefter_zip(company, year, month, entries: list[JournalEntryDTO] | N
     }
 
     if include_signed is None:
-        include_signed = bool(getattr(settings, 'EDEFTER_INCLUDE_SIGNED', False))
+        include_signed = bool(getattr(settings, "EDEFTER_INCLUDE_SIGNED", False))
     if include_signed:
-        signer: Signer = getattr(settings, 'EDEFTER_SIGNER', DummySigner())
-        tsp: TimestampProvider = getattr(settings, 'EDEFTER_TSP', DummyTimestampProvider())
-        files[build_output_name(vkn, year, month, "yevmiye") + ".sig"] = signer.sign(yevmiye_xml)
-        files[build_output_name(vkn, year, month, "kebir") + ".sig"] = signer.sign(kebir_xml)
-        files[build_output_name(vkn, year, month, "berat") + ".sig"] = signer.sign(berat_xml)
+        signer: Signer = getattr(settings, "EDEFTER_SIGNER", DummySigner())
+        tsp: TimestampProvider = getattr(
+            settings, "EDEFTER_TSP", DummyTimestampProvider()
+        )
+        files[build_output_name(vkn, year, month, "yevmiye") + ".sig"] = signer.sign(
+            yevmiye_xml
+        )
+        files[build_output_name(vkn, year, month, "kebir") + ".sig"] = signer.sign(
+            kebir_xml
+        )
+        files[build_output_name(vkn, year, month, "berat") + ".sig"] = signer.sign(
+            berat_xml
+        )
         # Zaman damgası örneği (imzalı üzerine eklemek tercih edilebilir)
-        files[build_output_name(vkn, year, month, "yevmiye") + ".ts"] = tsp.timestamp(yevmiye_xml)
-        files[build_output_name(vkn, year, month, "kebir") + ".ts"] = tsp.timestamp(kebir_xml)
-        files[build_output_name(vkn, year, month, "berat") + ".ts"] = tsp.timestamp(berat_xml)
+        files[build_output_name(vkn, year, month, "yevmiye") + ".ts"] = tsp.timestamp(
+            yevmiye_xml
+        )
+        files[build_output_name(vkn, year, month, "kebir") + ".ts"] = tsp.timestamp(
+            kebir_xml
+        )
+        files[build_output_name(vkn, year, month, "berat") + ".ts"] = tsp.timestamp(
+            berat_xml
+        )
     return package_zip(files)
 
 
-def generate_and_attach_edefter(edefter: EDefter, company, year: int, month: int, entries: list[JournalEntryDTO] | None = None) -> None:
+def generate_and_attach_edefter(
+    edefter: EDefter,
+    company,
+    year: int,
+    month: int,
+    entries: list[JournalEntryDTO] | None = None,
+) -> None:
     """Yevmiye ve Berat dosyalarını üretip `EDefter` nesnesine iliştirir.
 
     Varsayılan olarak `edefter.xml_file` ve `edefter.berat_file` alanları
@@ -219,56 +261,76 @@ def generate_and_attach_edefter(edefter: EDefter, company, year: int, month: int
         edefter.status = "generated"
     edefter.save()
 
+
 def send_edefter_to_gib(edefter: EDefter):
     xml_data = edefter.xml_file.read()
-    base_url = getattr(settings, 'GIB_EDEFTER_BASE_URL', 'https://edefter-test.edefter.gov.tr/api')
+    base_url = getattr(
+        settings, "GIB_EDEFTER_BASE_URL", "https://edefter-test.edefter.gov.tr/api"
+    )
     url = f"{base_url}/sendDefter"
     headers = {
         "Content-Type": "application/xml; charset=utf-8",
         "Accept": "application/xml, text/xml, */*",
     }
-    timeout = float(getattr(settings, 'EDEFTER_HTTP_TIMEOUT', 15))
+    timeout = float(getattr(settings, "EDEFTER_HTTP_TIMEOUT", 15))
     sess = _get_retry_session()
     try:
         t0 = time.perf_counter()
-        response = sess.post(url, data=xml_data, headers=headers, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD), timeout=timeout)
+        response = sess.post(
+            url,
+            data=xml_data,
+            headers=headers,
+            auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD),
+            timeout=timeout,
+        )
         elapsed = (time.perf_counter() - t0) * 1000.0
-        edefter.status = 'sent' if response.status_code == 200 else 'error'
+        edefter.status = "sent" if response.status_code == 200 else "error"
         edefter.save()
         preview = (response.text or "")[:500]
-        defter_logger.info(f"e-Defter {edefter.pk} GİB'e gönderildi. Status: {response.status_code}, Süre: {elapsed:.1f}ms, Yanıt: {preview}")
+        defter_logger.info(
+            f"e-Defter {edefter.pk} GİB'e gönderildi. Status: {response.status_code}, Süre: {elapsed:.1f}ms, Yanıt: {preview}"
+        )
         return response
     except Exception as e:
         defter_logger.error(f"e-Defter {edefter.pk} GİB gönderim hatası: {str(e)}")
-        if hasattr(edefter, 'status'):
-            edefter.status = 'error'
+        if hasattr(edefter, "status"):
+            edefter.status = "error"
             edefter.save()
         raise
 
+
 def get_edefter_berat(edefter: EDefter):
-    base_url = getattr(settings, 'GIB_EDEFTER_BASE_URL', 'https://edefter-test.edefter.gov.tr/api')
+    base_url = getattr(
+        settings, "GIB_EDEFTER_BASE_URL", "https://edefter-test.edefter.gov.tr/api"
+    )
     url = f"{base_url}/getBerat/{edefter.pk}"
-    timeout = float(getattr(settings, 'EDEFTER_HTTP_TIMEOUT', 15))
+    timeout = float(getattr(settings, "EDEFTER_HTTP_TIMEOUT", 15))
     sess = _get_retry_session()
     try:
         t0 = time.perf_counter()
-        response = sess.get(url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD), timeout=timeout)
+        response = sess.get(
+            url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD), timeout=timeout
+        )
         elapsed = (time.perf_counter() - t0) * 1000.0
         if response.status_code == 200:
             name = f"berat_{edefter.pk}.xml"
-            if hasattr(edefter, 'berat_file') and edefter.berat_file is not None:
+            if hasattr(edefter, "berat_file") and edefter.berat_file is not None:
                 edefter.berat_file.save(name, ContentFile(response.content), save=False)
-            if hasattr(edefter, 'status'):
-                edefter.status = 'berat_alindi'
+            if hasattr(edefter, "status"):
+                edefter.status = "berat_alindi"
             edefter.save()
-            defter_logger.info(f"e-Defter {edefter.pk} berat alındı. Status: {response.status_code}, Süre: {elapsed:.1f}ms")
+            defter_logger.info(
+                f"e-Defter {edefter.pk} berat alındı. Status: {response.status_code}, Süre: {elapsed:.1f}ms"
+            )
         else:
             preview = (response.text or "")[:500]
-            defter_logger.warning(f"e-Defter {edefter.pk} berat alınamadı. Status: {response.status_code}, Süre: {elapsed:.1f}ms, Yanıt: {preview}")
+            defter_logger.warning(
+                f"e-Defter {edefter.pk} berat alınamadı. Status: {response.status_code}, Süre: {elapsed:.1f}ms, Yanıt: {preview}"
+            )
         return response
     except Exception as e:
         defter_logger.error(f"e-Defter {edefter.pk} berat alma hatası: {str(e)}")
-        if hasattr(edefter, 'status'):
-            edefter.status = 'error'
+        if hasattr(edefter, "status"):
+            edefter.status = "error"
             edefter.save()
         raise

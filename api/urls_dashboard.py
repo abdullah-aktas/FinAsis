@@ -9,11 +9,10 @@ from .views_dashboard import (
     user_activity_graph,
 )
 
-app_name = 'api_dashboard'
+app_name = "api_dashboard"
 
 urlpatterns = [
-    path('stats/', dashboard_stats, name='dashboard_stats'),
-    path('health/', module_health, name='module_health'),
-    path('activity/', user_activity_graph, name='user_activity_graph'),
+    path("stats/", dashboard_stats, name="dashboard_stats"),
+    path("health/", module_health, name="module_health"),
+    path("activity/", user_activity_graph, name="user_activity_graph"),
 ]
-

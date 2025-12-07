@@ -40,7 +40,9 @@ class EdocSettings:
         customization = os.environ.get("EDOC_CUSTOMIZATION_ID", "TR1.2")
         # Prefer explicit EDOC_GIB_BASE_URL (used by tests and live HTTP-mode),
         # fall back to legacy GIB_TEST_BASE_URL for compatibility.
-        base_url = os.environ.get("EDOC_GIB_BASE_URL") or os.environ.get("GIB_TEST_BASE_URL")
+        base_url = os.environ.get("EDOC_GIB_BASE_URL") or os.environ.get(
+            "GIB_TEST_BASE_URL"
+        )
         endpoints = GibEndpoints(base_url) if base_url else None
         max_attempts = int(os.environ.get("EDOC_RETRY_MAX", "3"))
         backoff = float(os.environ.get("EDOC_RETRY_BACKOFF", "0.7"))
@@ -50,6 +52,10 @@ class EdocSettings:
             customization_id=customization,
             schemas_dir=schemas_dir,
             endpoints=endpoints,
-            retry=RetryPolicy(max_attempts=max_attempts, backoff_factor=backoff, max_backoff_seconds=max_backoff),
+            retry=RetryPolicy(
+                max_attempts=max_attempts,
+                backoff_factor=backoff,
+                max_backoff_seconds=max_backoff,
+            ),
         )
         return settings

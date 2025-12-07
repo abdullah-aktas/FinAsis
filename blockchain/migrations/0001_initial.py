@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -14,7 +13,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ChainRecord",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("reference", models.CharField(max_length=255)),
                 ("hash_hex", models.CharField(db_index=True, max_length=64)),
                 ("payload_preview", models.TextField(blank=True)),

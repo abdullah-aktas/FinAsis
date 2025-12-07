@@ -14,14 +14,14 @@ class IsTeacherOfCourseOrReadOnly(BasePermission):
 
         # Identify course for different object types
         course = None
-        if hasattr(obj, 'course'):
-            course = getattr(obj, 'course', None)
-        elif hasattr(obj, 'exam') and hasattr(obj.exam, 'course'):
+        if hasattr(obj, "course"):
+            course = getattr(obj, "course", None)
+        elif hasattr(obj, "exam") and hasattr(obj.exam, "course"):
             course = obj.exam.course
-        elif hasattr(obj, 'lesson') and hasattr(obj.lesson, 'course'):
+        elif hasattr(obj, "lesson") and hasattr(obj.lesson, "course"):
             course = obj.lesson.course
 
         if course is None:
             return False
 
-        return getattr(course, 'teacher_id', None) == getattr(request.user, 'id', None)
+        return getattr(course, "teacher_id", None) == getattr(request.user, "id", None)

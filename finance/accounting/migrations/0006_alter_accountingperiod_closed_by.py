@@ -2,17 +2,26 @@
 from django.db import migrations, models
 from django.conf import settings
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('finance_accounting', '0005_accounttype_currency_fiscalyear_vouchertype_voucher_and_more'),
+        (
+            "finance_accounting",
+            "0005_accounttype_currency_fiscalyear_vouchertype_voucher_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='accountingperiod',
-            name='closed_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='Kapatılan Kullanıcı'),
+            model_name="accountingperiod",
+            name="closed_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Kapatılan Kullanıcı",
+            ),
         ),
     ]

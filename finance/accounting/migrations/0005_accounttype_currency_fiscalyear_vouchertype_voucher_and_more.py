@@ -9,7 +9,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0008_auditlog"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -20,10 +19,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AccountType",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=10, unique=True, verbose_name="Kod")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=10, unique=True, verbose_name="Kod"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Ad")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
             ],
             options={
@@ -35,11 +48,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Currency",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=3, unique=True, verbose_name="Kod")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=3, unique=True, verbose_name="Kod"),
+                ),
                 ("name", models.CharField(max_length=50, verbose_name="Ad")),
                 ("symbol", models.CharField(max_length=5, verbose_name="Sembol")),
-                ("is_default", models.BooleanField(default=False, verbose_name="Varsayılan")),
+                (
+                    "is_default",
+                    models.BooleanField(default=False, verbose_name="Varsayılan"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
             ],
             options={
@@ -51,7 +78,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FiscalYear",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("year", models.PositiveIntegerField()),
                 ("start_date", models.DateField()),
                 ("end_date", models.DateField()),
@@ -72,14 +107,43 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="VoucherType",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=10, unique=True, verbose_name="Kod")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=10, unique=True, verbose_name="Kod"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Ad")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
-                ("prefix", models.CharField(blank=True, max_length=5, null=True, verbose_name="Önek")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "prefix",
+                    models.CharField(
+                        blank=True, max_length=5, null=True, verbose_name="Önek"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Fiş Tipi",
@@ -90,15 +154,43 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Voucher",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("number", models.CharField(max_length=20, verbose_name="Fiş Numarası")),
-                ("date", models.DateField(default=django.utils.timezone.now, verbose_name="Fiş Tarihi")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
-                ("reference", models.CharField(blank=True, max_length=100, null=True, verbose_name="Referans")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "number",
+                    models.CharField(max_length=20, verbose_name="Fiş Numarası"),
+                ),
+                (
+                    "date",
+                    models.DateField(
+                        default=django.utils.timezone.now, verbose_name="Fiş Tarihi"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "reference",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, verbose_name="Referans"
+                    ),
+                ),
                 (
                     "state",
                     models.CharField(
-                        choices=[("draft", "Taslak"), ("posted", "Kaydedildi"), ("cancelled", "İptal Edildi")],
+                        choices=[
+                            ("draft", "Taslak"),
+                            ("posted", "Kaydedildi"),
+                            ("cancelled", "İptal Edildi"),
+                        ],
                         default="draft",
                         max_length=10,
                         verbose_name="Durum",
@@ -109,7 +201,10 @@ class Migration(migrations.Migration):
                 (
                     "exchange_rate",
                     models.DecimalField(
-                        decimal_places=6, default=Decimal("1.000000"), max_digits=18, verbose_name="Kur"
+                        decimal_places=6,
+                        default=Decimal("1.000000"),
+                        max_digits=18,
+                        verbose_name="Kur",
                     ),
                 ),
                 (
@@ -160,11 +255,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Invoice",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("invoice_number", models.CharField(max_length=50, unique=True, verbose_name="Fatura Numarası")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Fatura Numarası"
+                    ),
+                ),
                 ("issue_date", models.DateField(verbose_name="Düzenleme Tarihi")),
                 ("due_date", models.DateField(verbose_name="Vade Tarihi")),
-                ("total_amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Toplam Tutar")),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Toplam Tutar"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -179,12 +292,24 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "customer",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.customer", verbose_name="Müşteri"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.customer",
+                        verbose_name="Müşteri",
                     ),
                 ),
             ],
@@ -197,7 +322,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Rapor Adı")),
                 (
                     "type",
@@ -215,7 +348,10 @@ class Migration(migrations.Migration):
                 ),
                 ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
                 ("end_date", models.DateField(verbose_name="Bitiş Tarihi")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -236,16 +372,51 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Account",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("code", models.CharField(max_length=20, verbose_name="Hesap Kodu")),
                 ("name", models.CharField(max_length=150, verbose_name="Hesap Adı")),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
-                ("is_tax_account", models.BooleanField(default=False, verbose_name="Vergi Hesabı")),
-                ("is_bank_account", models.BooleanField(default=False, verbose_name="Banka Hesabı")),
-                ("is_cash_account", models.BooleanField(default=False, verbose_name="Kasa Hesabı")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
-                ("balance", models.DecimalField(decimal_places=2, default=Decimal("0.00"), max_digits=15)),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "is_tax_account",
+                    models.BooleanField(default=False, verbose_name="Vergi Hesabı"),
+                ),
+                (
+                    "is_bank_account",
+                    models.BooleanField(default=False, verbose_name="Banka Hesabı"),
+                ),
+                (
+                    "is_cash_account",
+                    models.BooleanField(default=False, verbose_name="Kasa Hesabı"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(
+                        decimal_places=2, default=Decimal("0.00"), max_digits=15
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
@@ -285,19 +456,38 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="VoucherLine",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("line_no", models.PositiveSmallIntegerField(verbose_name="Satır No")),
-                ("description", models.CharField(blank=True, max_length=255, null=True, verbose_name="Açıklama")),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
                 (
                     "debit_amount",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Borç Tutarı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Borç Tutarı",
                     ),
                 ),
                 (
                     "credit_amount",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Alacak Tutarı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Alacak Tutarı",
                     ),
                 ),
                 (
@@ -306,7 +496,9 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         default=Decimal("0.00"),
                         max_digits=18,
-                        validators=[django.core.validators.MinValueValidator(Decimal("0.00"))],
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("0.00"))
+                        ],
                         verbose_name="Döviz Borç",
                     ),
                 ),
@@ -316,7 +508,9 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         default=Decimal("0.00"),
                         max_digits=18,
-                        validators=[django.core.validators.MinValueValidator(Decimal("0.00"))],
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("0.00"))
+                        ],
                         verbose_name="Döviz Alacak",
                     ),
                 ),
@@ -349,12 +543,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PostingRule",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Kural Adı")),
-                ("document_type", models.CharField(max_length=50, verbose_name="Belge Tipi")),
+                (
+                    "document_type",
+                    models.CharField(max_length=50, verbose_name="Belge Tipi"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("definition", models.JSONField(default=dict, verbose_name="Kural Tanımı")),
-                ("priority", models.PositiveIntegerField(default=100, verbose_name="Öncelik")),
+                (
+                    "definition",
+                    models.JSONField(default=dict, verbose_name="Kural Tanımı"),
+                ),
+                (
+                    "priority",
+                    models.PositiveIntegerField(default=100, verbose_name="Öncelik"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -377,32 +588,57 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GLBalance",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("currency", models.CharField(default="TRY", max_length=3, verbose_name="Para Birimi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=3, verbose_name="Para Birimi"
+                    ),
+                ),
                 ("year", models.PositiveIntegerField(verbose_name="Yıl")),
                 ("month", models.PositiveIntegerField(verbose_name="Ay")),
                 (
                     "begin_balance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=18, verbose_name="Açılış Bakiyesi"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=18,
+                        verbose_name="Açılış Bakiyesi",
                     ),
                 ),
                 (
                     "debit_total",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=18, verbose_name="Borç Toplam"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=18,
+                        verbose_name="Borç Toplam",
                     ),
                 ),
                 (
                     "credit_total",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=18, verbose_name="Alacak Toplam"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=18,
+                        verbose_name="Alacak Toplam",
                     ),
                 ),
                 (
                     "end_balance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=18, verbose_name="Kapanış Bakiyesi"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=18,
+                        verbose_name="Kapanış Bakiyesi",
                     ),
                 ),
                 (
@@ -437,13 +673,23 @@ class Migration(migrations.Migration):
                 "verbose_name": "GL Bakiye",
                 "verbose_name_plural": "GL Bakiyeleri",
                 "ordering": ["company", "year", "month", "account__code"],
-                "unique_together": {("company", "account", "currency", "year", "month")},
+                "unique_together": {
+                    ("company", "account", "currency", "year", "month")
+                },
             },
         ),
         migrations.CreateModel(
             name="AccountingPeriod",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("year", models.PositiveIntegerField(verbose_name="Yıl")),
                 ("month", models.PositiveIntegerField(verbose_name="Ay")),
                 (
@@ -455,7 +701,12 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("closed_at", models.DateTimeField(blank=True, null=True, verbose_name="Kapanış Zamanı")),
+                (
+                    "closed_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Kapanış Zamanı"
+                    ),
+                ),
                 (
                     "closed_by",
                     models.ForeignKey(

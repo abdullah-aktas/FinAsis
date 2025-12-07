@@ -6,9 +6,11 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("common", "0005_rename_common_erro_last_se_idx_common_erro_last_se_f451b4_idx_and_more"),
+        (
+            "common",
+            "0005_rename_common_erro_last_se_idx_common_erro_last_se_f451b4_idx_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -16,13 +18,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SupportTicket",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("subject", models.CharField(max_length=200, verbose_name="Konu")),
                 ("message", models.TextField(verbose_name="Mesaj")),
                 (
                     "priority",
                     models.CharField(
-                        choices=[("low", "Düşük"), ("normal", "Normal"), ("high", "Yüksek"), ("urgent", "Acil")],
+                        choices=[
+                            ("low", "Düşük"),
+                            ("normal", "Normal"),
+                            ("high", "Yüksek"),
+                            ("urgent", "Acil"),
+                        ],
                         default="normal",
                         max_length=10,
                         verbose_name="Öncelik",
@@ -44,11 +59,27 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("resolution", models.TextField(blank=True, verbose_name="Çözüm")),
-                ("resolved_at", models.DateTimeField(blank=True, null=True, verbose_name="Çözüm Tarihi")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
+                (
+                    "resolved_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Çözüm Tarihi"
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
                 ("user_agent", models.TextField(blank=True, verbose_name="User Agent")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Güncellenme"),
+                ),
                 (
                     "assigned_to",
                     models.ForeignKey(
@@ -75,9 +106,18 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Destek Talepleri",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["status", "-created_at"], name="common_supp_status_9c5431_idx"),
-                    models.Index(fields=["user", "-created_at"], name="common_supp_user_id_576097_idx"),
-                    models.Index(fields=["priority", "status"], name="common_supp_priorit_16bf9b_idx"),
+                    models.Index(
+                        fields=["status", "-created_at"],
+                        name="common_supp_status_9c5431_idx",
+                    ),
+                    models.Index(
+                        fields=["user", "-created_at"],
+                        name="common_supp_user_id_576097_idx",
+                    ),
+                    models.Index(
+                        fields=["priority", "status"],
+                        name="common_supp_priorit_16bf9b_idx",
+                    ),
                 ],
             },
         ),

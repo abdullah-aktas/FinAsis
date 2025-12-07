@@ -12,9 +12,9 @@ def send_submission_to_gib(submission: Submission) -> Tuple[str, str]:
     """
     SubmissionLog.objects.create(
         submission=submission,
-        level='info',
-        message='Gönderim başlatılıyor...',
-        context={'target': submission.target}
+        level="info",
+        message="Gönderim başlatılıyor...",
+        context={"target": submission.target},
     )
 
     tracking_id, status = submit_via_gib(submission)
@@ -23,13 +23,13 @@ def send_submission_to_gib(submission: Submission) -> Tuple[str, str]:
     submission.external_id = tracking_id
     if not submission.submitted_at:
         submission.submitted_at = timezone.now()
-    lowered = (status or '').lower()
-    if lowered in ('accepted', 'rejected'):
+    lowered = (status or "").lower()
+    if lowered in ("accepted", "rejected"):
         submission.status = lowered
-    elif lowered in ('pending', 'queued', 'sent'):
-        submission.status = 'sent'
+    elif lowered in ("pending", "queued", "sent"):
+        submission.status = "sent"
     else:
-        submission.status = lowered or 'sent'
-    submission.save(update_fields=['external_id', 'submitted_at', 'status'])
+        submission.status = lowered or "sent"
+    submission.save(update_fields=["external_id", "submitted_at", "status"])
 
     return tracking_id, status

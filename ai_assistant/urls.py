@@ -15,234 +15,604 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
-app_name = 'ai_assistant'
+app_name = "ai_assistant"
 
 # API Router tanımlaması
 router = DefaultRouter()
 try:
-    router.register(r'ai-models', views.AIModelViewSet)
+    router.register(r"ai-models", views.AIModelViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'user-interactions', views.UserInteractionViewSet)
+    router.register(r"user-interactions", views.UserInteractionViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'financial-predictions', views.FinancialPredictionViewSet)
+    router.register(r"financial-predictions", views.FinancialPredictionViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'ai-feedback', views.AIFeedbackViewSet)
+    router.register(r"ai-feedback", views.AIFeedbackViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'financial-reports', views.FinancialReportViewSet)
+    router.register(r"financial-reports", views.FinancialReportViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'anomaly-detections', views.AnomalyDetectionViewSet)
+    router.register(r"anomaly-detections", views.AnomalyDetectionViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'trend-analysis', views.TrendAnalysisViewSet)
+    router.register(r"trend-analysis", views.TrendAnalysisViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'user-preferences', views.UserPreferenceViewSet)
+    router.register(r"user-preferences", views.UserPreferenceViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'ai-insights', views.AIInsightViewSet)
+    router.register(r"ai-insights", views.AIInsightViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'recommendations', views.RecommendationViewSet)
+    router.register(r"recommendations", views.RecommendationViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'notifications', views.NotificationViewSet)
+    router.register(r"notifications", views.NotificationViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'market-analysis', views.MarketAnalysisViewSet)
+    router.register(r"market-analysis", views.MarketAnalysisViewSet)
 except AttributeError:
     pass
 try:
-    router.register(r'chat', views.ChatViewSet, basename='chat')
+    router.register(r"chat", views.ChatViewSet, basename="chat")
 except AttributeError:
     pass
 try:
-    router.register(r'financial-analysis', views.FinancialAnalysisViewSet, basename='financial-analysis')
+    router.register(
+        r"financial-analysis",
+        views.FinancialAnalysisViewSet,
+        basename="financial-analysis",
+    )
 except AttributeError:
     pass
 try:
-    router.register(r'ocr', views.OCRViewSet, basename='ocr')
+    router.register(r"ocr", views.OCRViewSet, basename="ocr")
 except AttributeError:
     pass
 
 urlpatterns = [
     # Canonical home name only
-    path('api/', include(router.urls)),
-    path('api/health/', views.ai_health, name='ai-health'),
+    path("api/", include(router.urls)),
+    path("api/health/", views.ai_health, name="ai-health"),
     # ML tabanlı özel API endpointleri
-    path('ml/risk-score/', views.risk_score_api, name='ml-risk-score'),
-    path('ml/financial-forecast/', views.financial_forecast_api, name='ml-financial-forecast'),
+    path("ml/risk-score/", views.risk_score_api, name="ml-risk-score"),
+    path(
+        "ml/financial-forecast/",
+        views.financial_forecast_api,
+        name="ml-financial-forecast",
+    ),
     # Frontend eski link uyumluluğu
-    path('forecast/', views.financial_forecast_api, name='forecast-alias'),
-    path('ml/recommendation/', views.recommendation_api, name='ml-recommendation'),
-    path('assistant/chat/', views.ai_assistant_chat, name='ai-assistant-chat'),
-    path('ocr/', views.ocr_upload_view, name='ocr'),
-    path('ocr/process/', views.ocr_process_api, name='ocr_process_api'),
-    path('a_i_model/', views.AIModelListView.as_view(), name='a_i_model_list'),
-    path('a_i_model/<int:pk>/', views.AIModelDetailView.as_view(), name='a_i_model_detail'),
-    path('a_i_model/create/', views.AIModelCreateView.as_view(), name='a_i_model_create'),
-    path('a_i_model/<int:pk>/update/', views.AIModelUpdateView.as_view(), name='a_i_model_update'),
-    path('a_i_model/<int:pk>/delete/', views.AIModelDeleteView.as_view(), name='a_i_model_delete'),
-    path('user_interaction/', views.UserInteractionListView.as_view(), name='user_interaction_list'),
+    path("forecast/", views.financial_forecast_api, name="forecast-alias"),
+    path("ml/recommendation/", views.recommendation_api, name="ml-recommendation"),
+    path("assistant/chat/", views.ai_assistant_chat, name="ai-assistant-chat"),
+    path("ocr/", views.ocr_upload_view, name="ocr"),
+    path("ocr/process/", views.ocr_process_api, name="ocr_process_api"),
+    path("a_i_model/", views.AIModelListView.as_view(), name="a_i_model_list"),
+    path(
+        "a_i_model/<int:pk>/",
+        views.AIModelDetailView.as_view(),
+        name="a_i_model_detail",
+    ),
+    path(
+        "a_i_model/create/", views.AIModelCreateView.as_view(), name="a_i_model_create"
+    ),
+    path(
+        "a_i_model/<int:pk>/update/",
+        views.AIModelUpdateView.as_view(),
+        name="a_i_model_update",
+    ),
+    path(
+        "a_i_model/<int:pk>/delete/",
+        views.AIModelDeleteView.as_view(),
+        name="a_i_model_delete",
+    ),
+    path(
+        "user_interaction/",
+        views.UserInteractionListView.as_view(),
+        name="user_interaction_list",
+    ),
     # Legacy alias names used in templates (hyphenless)
-    path('userinteraction/', views.UserInteractionListView.as_view(), name='userinteraction_list'),
-    path('user_interaction/<int:pk>/', views.UserInteractionDetailView.as_view(), name='user_interaction_detail'),
-    path('user_interaction/create/', views.UserInteractionCreateView.as_view(), name='user_interaction_create'),
-    path('user_interaction/<int:pk>/update/', views.UserInteractionUpdateView.as_view(), name='user_interaction_update'),
-    path('user_interaction/<int:pk>/delete/', views.UserInteractionDeleteView.as_view(), name='user_interaction_delete'),
+    path(
+        "userinteraction/",
+        views.UserInteractionListView.as_view(),
+        name="userinteraction_list",
+    ),
+    path(
+        "user_interaction/<int:pk>/",
+        views.UserInteractionDetailView.as_view(),
+        name="user_interaction_detail",
+    ),
+    path(
+        "user_interaction/create/",
+        views.UserInteractionCreateView.as_view(),
+        name="user_interaction_create",
+    ),
+    path(
+        "user_interaction/<int:pk>/update/",
+        views.UserInteractionUpdateView.as_view(),
+        name="user_interaction_update",
+    ),
+    path(
+        "user_interaction/<int:pk>/delete/",
+        views.UserInteractionDeleteView.as_view(),
+        name="user_interaction_delete",
+    ),
     # Legacy alias routes for detail/edit/delete
-    path('userinteraction/<int:pk>/', views.UserInteractionDetailView.as_view(), name='userinteraction_detail'),
-    path('userinteraction/create/', views.UserInteractionCreateView.as_view(), name='userinteraction_create'),
-    path('userinteraction/<int:pk>/update/', views.UserInteractionUpdateView.as_view(), name='userinteraction_update'),
-    path('userinteraction/<int:pk>/delete/', views.UserInteractionDeleteView.as_view(), name='userinteraction_delete'),
-    path('financial_prediction/', views.FinancialPredictionListView.as_view(), name='financial_prediction_list'),
+    path(
+        "userinteraction/<int:pk>/",
+        views.UserInteractionDetailView.as_view(),
+        name="userinteraction_detail",
+    ),
+    path(
+        "userinteraction/create/",
+        views.UserInteractionCreateView.as_view(),
+        name="userinteraction_create",
+    ),
+    path(
+        "userinteraction/<int:pk>/update/",
+        views.UserInteractionUpdateView.as_view(),
+        name="userinteraction_update",
+    ),
+    path(
+        "userinteraction/<int:pk>/delete/",
+        views.UserInteractionDeleteView.as_view(),
+        name="userinteraction_delete",
+    ),
+    path(
+        "financial_prediction/",
+        views.FinancialPredictionListView.as_view(),
+        name="financial_prediction_list",
+    ),
     # Legacy alias names used by templates
-    path('financialprediction/', views.FinancialPredictionListView.as_view(), name='financialprediction_list'),
-    path('financial_prediction/<int:pk>/', views.FinancialPredictionDetailView.as_view(), name='financial_prediction_detail'),
-    path('financial_prediction/create/', views.FinancialPredictionCreateView.as_view(), name='financial_prediction_create'),
-    path('financialprediction/create/', views.FinancialPredictionCreateView.as_view(), name='financialprediction_create'),
-    path('financial_prediction/<int:pk>/update/', views.FinancialPredictionUpdateView.as_view(), name='financial_prediction_update'),
-    path('financial_prediction/<int:pk>/delete/', views.FinancialPredictionDeleteView.as_view(), name='financial_prediction_delete'),
-    path('financialprediction/<int:pk>/', views.FinancialPredictionDetailView.as_view(), name='financialprediction_detail'),
-    path('financialprediction/<int:pk>/update/', views.FinancialPredictionUpdateView.as_view(), name='financialprediction_update'),
-    path('financialprediction/<int:pk>/delete/', views.FinancialPredictionDeleteView.as_view(), name='financialprediction_delete'),
-    path('a_i_feedback/', views.AIFeedbackListView.as_view(), name='a_i_feedback_list'),
-    path('a_i_feedback/<int:pk>/', views.AIFeedbackDetailView.as_view(), name='a_i_feedback_detail'),
-    path('a_i_feedback/create/', views.AIFeedbackCreateView.as_view(), name='a_i_feedback_create'),
-    path('a_i_feedback/<int:pk>/update/', views.AIFeedbackUpdateView.as_view(), name='a_i_feedback_update'),
-    path('a_i_feedback/<int:pk>/delete/', views.AIFeedbackDeleteView.as_view(), name='a_i_feedback_delete'),
-    path('financial_report/', views.FinancialReportListView.as_view(), name='financial_report_list'),
+    path(
+        "financialprediction/",
+        views.FinancialPredictionListView.as_view(),
+        name="financialprediction_list",
+    ),
+    path(
+        "financial_prediction/<int:pk>/",
+        views.FinancialPredictionDetailView.as_view(),
+        name="financial_prediction_detail",
+    ),
+    path(
+        "financial_prediction/create/",
+        views.FinancialPredictionCreateView.as_view(),
+        name="financial_prediction_create",
+    ),
+    path(
+        "financialprediction/create/",
+        views.FinancialPredictionCreateView.as_view(),
+        name="financialprediction_create",
+    ),
+    path(
+        "financial_prediction/<int:pk>/update/",
+        views.FinancialPredictionUpdateView.as_view(),
+        name="financial_prediction_update",
+    ),
+    path(
+        "financial_prediction/<int:pk>/delete/",
+        views.FinancialPredictionDeleteView.as_view(),
+        name="financial_prediction_delete",
+    ),
+    path(
+        "financialprediction/<int:pk>/",
+        views.FinancialPredictionDetailView.as_view(),
+        name="financialprediction_detail",
+    ),
+    path(
+        "financialprediction/<int:pk>/update/",
+        views.FinancialPredictionUpdateView.as_view(),
+        name="financialprediction_update",
+    ),
+    path(
+        "financialprediction/<int:pk>/delete/",
+        views.FinancialPredictionDeleteView.as_view(),
+        name="financialprediction_delete",
+    ),
+    path("a_i_feedback/", views.AIFeedbackListView.as_view(), name="a_i_feedback_list"),
+    path(
+        "a_i_feedback/<int:pk>/",
+        views.AIFeedbackDetailView.as_view(),
+        name="a_i_feedback_detail",
+    ),
+    path(
+        "a_i_feedback/create/",
+        views.AIFeedbackCreateView.as_view(),
+        name="a_i_feedback_create",
+    ),
+    path(
+        "a_i_feedback/<int:pk>/update/",
+        views.AIFeedbackUpdateView.as_view(),
+        name="a_i_feedback_update",
+    ),
+    path(
+        "a_i_feedback/<int:pk>/delete/",
+        views.AIFeedbackDeleteView.as_view(),
+        name="a_i_feedback_delete",
+    ),
+    path(
+        "financial_report/",
+        views.FinancialReportListView.as_view(),
+        name="financial_report_list",
+    ),
     # Legacy alias
-    path('financialreport/', views.FinancialReportListView.as_view(), name='financialreport_list'),
-    path('financial_report/<int:pk>/', views.FinancialReportDetailView.as_view(), name='financial_report_detail'),
-    path('financial_report/create/', views.FinancialReportCreateView.as_view(), name='financial_report_create'),
-    path('financialreport/create/', views.FinancialReportCreateView.as_view(), name='financialreport_create'),
-    path('financial_report/<int:pk>/update/', views.FinancialReportUpdateView.as_view(), name='financial_report_update'),
-    path('financial_report/<int:pk>/delete/', views.FinancialReportDeleteView.as_view(), name='financial_report_delete'),
-    path('financialreport/<int:pk>/', views.FinancialReportDetailView.as_view(), name='financialreport_detail'),
-    path('financialreport/<int:pk>/update/', views.FinancialReportUpdateView.as_view(), name='financialreport_update'),
-    path('financialreport/<int:pk>/delete/', views.FinancialReportDeleteView.as_view(), name='financialreport_delete'),
-    path('anomaly_detection/', views.AnomalyDetectionListView.as_view(), name='anomaly_detection_list'),
+    path(
+        "financialreport/",
+        views.FinancialReportListView.as_view(),
+        name="financialreport_list",
+    ),
+    path(
+        "financial_report/<int:pk>/",
+        views.FinancialReportDetailView.as_view(),
+        name="financial_report_detail",
+    ),
+    path(
+        "financial_report/create/",
+        views.FinancialReportCreateView.as_view(),
+        name="financial_report_create",
+    ),
+    path(
+        "financialreport/create/",
+        views.FinancialReportCreateView.as_view(),
+        name="financialreport_create",
+    ),
+    path(
+        "financial_report/<int:pk>/update/",
+        views.FinancialReportUpdateView.as_view(),
+        name="financial_report_update",
+    ),
+    path(
+        "financial_report/<int:pk>/delete/",
+        views.FinancialReportDeleteView.as_view(),
+        name="financial_report_delete",
+    ),
+    path(
+        "financialreport/<int:pk>/",
+        views.FinancialReportDetailView.as_view(),
+        name="financialreport_detail",
+    ),
+    path(
+        "financialreport/<int:pk>/update/",
+        views.FinancialReportUpdateView.as_view(),
+        name="financialreport_update",
+    ),
+    path(
+        "financialreport/<int:pk>/delete/",
+        views.FinancialReportDeleteView.as_view(),
+        name="financialreport_delete",
+    ),
+    path(
+        "anomaly_detection/",
+        views.AnomalyDetectionListView.as_view(),
+        name="anomaly_detection_list",
+    ),
     # Legacy alias
-    path('anomalydetection/', views.AnomalyDetectionListView.as_view(), name='anomalydetection_list'),
-    path('anomaly_detection/<int:pk>/', views.AnomalyDetectionDetailView.as_view(), name='anomaly_detection_detail'),
-    path('anomaly_detection/create/', views.AnomalyDetectionCreateView.as_view(), name='anomaly_detection_create'),
-    path('anomaly_detection/<int:pk>/update/', views.AnomalyDetectionUpdateView.as_view(), name='anomaly_detection_update'),
-    path('anomaly_detection/<int:pk>/delete/', views.AnomalyDetectionDeleteView.as_view(), name='anomaly_detection_delete'),
-    path('anomalydetection/<int:pk>/', views.AnomalyDetectionDetailView.as_view(), name='anomalydetection_detail'),
-    path('anomalydetection/create/', views.AnomalyDetectionCreateView.as_view(), name='anomalydetection_create'),
-    path('anomalydetection/<int:pk>/update/', views.AnomalyDetectionUpdateView.as_view(), name='anomalydetection_update'),
-    path('anomalydetection/<int:pk>/delete/', views.AnomalyDetectionDeleteView.as_view(), name='anomalydetection_delete'),
-    path('trend_analysis/', views.TrendAnalysisListView.as_view(), name='trend_analysis_list'),
+    path(
+        "anomalydetection/",
+        views.AnomalyDetectionListView.as_view(),
+        name="anomalydetection_list",
+    ),
+    path(
+        "anomaly_detection/<int:pk>/",
+        views.AnomalyDetectionDetailView.as_view(),
+        name="anomaly_detection_detail",
+    ),
+    path(
+        "anomaly_detection/create/",
+        views.AnomalyDetectionCreateView.as_view(),
+        name="anomaly_detection_create",
+    ),
+    path(
+        "anomaly_detection/<int:pk>/update/",
+        views.AnomalyDetectionUpdateView.as_view(),
+        name="anomaly_detection_update",
+    ),
+    path(
+        "anomaly_detection/<int:pk>/delete/",
+        views.AnomalyDetectionDeleteView.as_view(),
+        name="anomaly_detection_delete",
+    ),
+    path(
+        "anomalydetection/<int:pk>/",
+        views.AnomalyDetectionDetailView.as_view(),
+        name="anomalydetection_detail",
+    ),
+    path(
+        "anomalydetection/create/",
+        views.AnomalyDetectionCreateView.as_view(),
+        name="anomalydetection_create",
+    ),
+    path(
+        "anomalydetection/<int:pk>/update/",
+        views.AnomalyDetectionUpdateView.as_view(),
+        name="anomalydetection_update",
+    ),
+    path(
+        "anomalydetection/<int:pk>/delete/",
+        views.AnomalyDetectionDeleteView.as_view(),
+        name="anomalydetection_delete",
+    ),
+    path(
+        "trend_analysis/",
+        views.TrendAnalysisListView.as_view(),
+        name="trend_analysis_list",
+    ),
     # Legacy alias
-    path('trendanalysis/', views.TrendAnalysisListView.as_view(), name='trendanalysis_list'),
-    path('trend_analysis/<int:pk>/', views.TrendAnalysisDetailView.as_view(), name='trend_analysis_detail'),
-    path('trend_analysis/create/', views.TrendAnalysisCreateView.as_view(), name='trend_analysis_create'),
-    path('trend_analysis/<int:pk>/update/', views.TrendAnalysisUpdateView.as_view(), name='trend_analysis_update'),
-    path('trend_analysis/<int:pk>/delete/', views.TrendAnalysisDeleteView.as_view(), name='trend_analysis_delete'),
-    path('trendanalysis/<int:pk>/', views.TrendAnalysisDetailView.as_view(), name='trendanalysis_detail'),
-    path('trendanalysis/create/', views.TrendAnalysisCreateView.as_view(), name='trendanalysis_create'),
-    path('trendanalysis/<int:pk>/update/', views.TrendAnalysisUpdateView.as_view(), name='trendanalysis_update'),
-    path('trendanalysis/<int:pk>/delete/', views.TrendAnalysisDeleteView.as_view(), name='trendanalysis_delete'),
-    path('user_preference/', views.UserPreferenceListView.as_view(), name='user_preference_list'),
-    path('user_preference/<int:pk>/', views.UserPreferenceDetailView.as_view(), name='user_preference_detail'),
-    path('user_preference/create/', views.UserPreferenceCreateView.as_view(), name='user_preference_create'),
-    path('user_preference/<int:pk>/update/', views.UserPreferenceUpdateView.as_view(), name='user_preference_update'),
-    path('user_preference/<int:pk>/delete/', views.UserPreferenceDeleteView.as_view(), name='user_preference_delete'),
-    path('a_i_insight/', views.AIInsightListView.as_view(), name='a_i_insight_list'),
-    path('a_i_insight/<int:pk>/', views.AIInsightDetailView.as_view(), name='a_i_insight_detail'),
-    path('a_i_insight/create/', views.AIInsightCreateView.as_view(), name='a_i_insight_create'),
-    path('a_i_insight/<int:pk>/update/', views.AIInsightUpdateView.as_view(), name='a_i_insight_update'),
-    path('a_i_insight/<int:pk>/delete/', views.AIInsightDeleteView.as_view(), name='a_i_insight_delete'),
-    path('recommendation/', views.RecommendationListView.as_view(), name='recommendation_list'),
-    path('recommendation/<int:pk>/', views.RecommendationDetailView.as_view(), name='recommendation_detail'),
-    path('recommendation/create/', views.RecommendationCreateView.as_view(), name='recommendation_create'),
-    path('recommendation/<int:pk>/update/', views.RecommendationUpdateView.as_view(), name='recommendation_update'),
-    path('recommendation/<int:pk>/delete/', views.RecommendationDeleteView.as_view(), name='recommendation_delete'),
-    path('notification/', views.NotificationListView.as_view(), name='notification_list'),
-    path('notification/<int:pk>/', views.NotificationDetailView.as_view(), name='notification_detail'),
-    path('notification/create/', views.NotificationCreateView.as_view(), name='notification_create'),
-    path('notification/<int:pk>/update/', views.NotificationUpdateView.as_view(), name='notification_update'),
-    path('notification/<int:pk>/delete/', views.NotificationDeleteView.as_view(), name='notification_delete'),
-    path('market_analysis/', views.MarketAnalysisListView.as_view(), name='market_analysis_list'),
-    path('market_analysis/<int:pk>/', views.MarketAnalysisDetailView.as_view(), name='market_analysis_detail'),
-    path('market_analysis/create/', views.MarketAnalysisCreateView.as_view(), name='market_analysis_create'),
-    path('market_analysis/<int:pk>/update/', views.MarketAnalysisUpdateView.as_view(), name='market_analysis_update'),
-    path('market_analysis/<int:pk>/delete/', views.MarketAnalysisDeleteView.as_view(), name='market_analysis_delete'),
-    path('', views.home, name='home'),
-    path('voice/', views.voice_demo_view, name='voice-demo'),
-    path('voucher/assistant/', views.assistant_voucher_view, name='assistant-voucher'),
+    path(
+        "trendanalysis/",
+        views.TrendAnalysisListView.as_view(),
+        name="trendanalysis_list",
+    ),
+    path(
+        "trend_analysis/<int:pk>/",
+        views.TrendAnalysisDetailView.as_view(),
+        name="trend_analysis_detail",
+    ),
+    path(
+        "trend_analysis/create/",
+        views.TrendAnalysisCreateView.as_view(),
+        name="trend_analysis_create",
+    ),
+    path(
+        "trend_analysis/<int:pk>/update/",
+        views.TrendAnalysisUpdateView.as_view(),
+        name="trend_analysis_update",
+    ),
+    path(
+        "trend_analysis/<int:pk>/delete/",
+        views.TrendAnalysisDeleteView.as_view(),
+        name="trend_analysis_delete",
+    ),
+    path(
+        "trendanalysis/<int:pk>/",
+        views.TrendAnalysisDetailView.as_view(),
+        name="trendanalysis_detail",
+    ),
+    path(
+        "trendanalysis/create/",
+        views.TrendAnalysisCreateView.as_view(),
+        name="trendanalysis_create",
+    ),
+    path(
+        "trendanalysis/<int:pk>/update/",
+        views.TrendAnalysisUpdateView.as_view(),
+        name="trendanalysis_update",
+    ),
+    path(
+        "trendanalysis/<int:pk>/delete/",
+        views.TrendAnalysisDeleteView.as_view(),
+        name="trendanalysis_delete",
+    ),
+    path(
+        "user_preference/",
+        views.UserPreferenceListView.as_view(),
+        name="user_preference_list",
+    ),
+    path(
+        "user_preference/<int:pk>/",
+        views.UserPreferenceDetailView.as_view(),
+        name="user_preference_detail",
+    ),
+    path(
+        "user_preference/create/",
+        views.UserPreferenceCreateView.as_view(),
+        name="user_preference_create",
+    ),
+    path(
+        "user_preference/<int:pk>/update/",
+        views.UserPreferenceUpdateView.as_view(),
+        name="user_preference_update",
+    ),
+    path(
+        "user_preference/<int:pk>/delete/",
+        views.UserPreferenceDeleteView.as_view(),
+        name="user_preference_delete",
+    ),
+    path("a_i_insight/", views.AIInsightListView.as_view(), name="a_i_insight_list"),
+    path(
+        "a_i_insight/<int:pk>/",
+        views.AIInsightDetailView.as_view(),
+        name="a_i_insight_detail",
+    ),
+    path(
+        "a_i_insight/create/",
+        views.AIInsightCreateView.as_view(),
+        name="a_i_insight_create",
+    ),
+    path(
+        "a_i_insight/<int:pk>/update/",
+        views.AIInsightUpdateView.as_view(),
+        name="a_i_insight_update",
+    ),
+    path(
+        "a_i_insight/<int:pk>/delete/",
+        views.AIInsightDeleteView.as_view(),
+        name="a_i_insight_delete",
+    ),
+    path(
+        "recommendation/",
+        views.RecommendationListView.as_view(),
+        name="recommendation_list",
+    ),
+    path(
+        "recommendation/<int:pk>/",
+        views.RecommendationDetailView.as_view(),
+        name="recommendation_detail",
+    ),
+    path(
+        "recommendation/create/",
+        views.RecommendationCreateView.as_view(),
+        name="recommendation_create",
+    ),
+    path(
+        "recommendation/<int:pk>/update/",
+        views.RecommendationUpdateView.as_view(),
+        name="recommendation_update",
+    ),
+    path(
+        "recommendation/<int:pk>/delete/",
+        views.RecommendationDeleteView.as_view(),
+        name="recommendation_delete",
+    ),
+    path(
+        "notification/", views.NotificationListView.as_view(), name="notification_list"
+    ),
+    path(
+        "notification/<int:pk>/",
+        views.NotificationDetailView.as_view(),
+        name="notification_detail",
+    ),
+    path(
+        "notification/create/",
+        views.NotificationCreateView.as_view(),
+        name="notification_create",
+    ),
+    path(
+        "notification/<int:pk>/update/",
+        views.NotificationUpdateView.as_view(),
+        name="notification_update",
+    ),
+    path(
+        "notification/<int:pk>/delete/",
+        views.NotificationDeleteView.as_view(),
+        name="notification_delete",
+    ),
+    path(
+        "market_analysis/",
+        views.MarketAnalysisListView.as_view(),
+        name="market_analysis_list",
+    ),
+    path(
+        "market_analysis/<int:pk>/",
+        views.MarketAnalysisDetailView.as_view(),
+        name="market_analysis_detail",
+    ),
+    path(
+        "market_analysis/create/",
+        views.MarketAnalysisCreateView.as_view(),
+        name="market_analysis_create",
+    ),
+    path(
+        "market_analysis/<int:pk>/update/",
+        views.MarketAnalysisUpdateView.as_view(),
+        name="market_analysis_update",
+    ),
+    path(
+        "market_analysis/<int:pk>/delete/",
+        views.MarketAnalysisDeleteView.as_view(),
+        name="market_analysis_delete",
+    ),
+    path("", views.home, name="home"),
+    path("voice/", views.voice_demo_view, name="voice-demo"),
+    path("voucher/assistant/", views.assistant_voucher_view, name="assistant-voucher"),
     # Hyphenated aliases for frontend links
-    path('market-analysis/', views.MarketAnalysisListView.as_view(), name='market-analysis-list'),
-    path('recommendations/', views.RecommendationListView.as_view(), name='recommendations-list'),
-    path('financial-predictions/', views.FinancialPredictionListView.as_view(), name='financial-predictions-list'),
-    path('financial-reports/', views.FinancialReportListView.as_view(), name='financial-reports-list'),
-    path('anomaly-detections/', views.AnomalyDetectionListView.as_view(), name='anomaly-detections-list'),
+    path(
+        "market-analysis/",
+        views.MarketAnalysisListView.as_view(),
+        name="market-analysis-list",
+    ),
+    path(
+        "recommendations/",
+        views.RecommendationListView.as_view(),
+        name="recommendations-list",
+    ),
+    path(
+        "financial-predictions/",
+        views.FinancialPredictionListView.as_view(),
+        name="financial-predictions-list",
+    ),
+    path(
+        "financial-reports/",
+        views.FinancialReportListView.as_view(),
+        name="financial-reports-list",
+    ),
+    path(
+        "anomaly-detections/",
+        views.AnomalyDetectionListView.as_view(),
+        name="anomaly-detections-list",
+    ),
     # Aliases requested by front-end links
-    path('chat/', views.ai_chat, name='chat_alias'),
-    path('recommendation_list/', views.RecommendationListView.as_view(), name='recommendation_list_alias'),
-    path('financial_report_list/', views.FinancialReportListView.as_view(), name='financial_report_list_alias'),
-    path('market_analysis_list/', views.MarketAnalysisListView.as_view(), name='market_analysis_list_alias'),
+    path("chat/", views.ai_chat, name="chat_alias"),
+    path(
+        "recommendation_list/",
+        views.RecommendationListView.as_view(),
+        name="recommendation_list_alias",
+    ),
+    path(
+        "financial_report_list/",
+        views.FinancialReportListView.as_view(),
+        name="financial_report_list_alias",
+    ),
+    path(
+        "market_analysis_list/",
+        views.MarketAnalysisListView.as_view(),
+        name="market_analysis_list_alias",
+    ),
 ]
 
 # ============================================================================
 # YENİ ÖZELLİKLER - Advanced AI (v2.0)
 # ============================================================================
 from .views_advanced import (
-    analytics_dashboard, sentiment_analyze, sentiment_list, sentiment_detail,
-    summarize_document, summary_list, summary_detail,
-    auto_reports, generate_report, report_detail,
-    run_analytics, analytics_list, analytics_detail,
-    api_analyze_sentiment, api_summarize_text, api_generate_report
+    analytics_dashboard,
+    sentiment_analyze,
+    sentiment_list,
+    sentiment_detail,
+    summarize_document,
+    summary_list,
+    summary_detail,
+    auto_reports,
+    generate_report,
+    report_detail,
+    run_analytics,
+    analytics_list,
+    analytics_detail,
+    api_analyze_sentiment,
+    api_summarize_text,
+    api_generate_report,
 )
 
 urlpatterns += [
     # Advanced Analytics Dashboard
-    path('analytics/', analytics_dashboard, name='analytics_dashboard'),
-    
+    path("analytics/", analytics_dashboard, name="analytics_dashboard"),
     # Sentiment Analysis
-    path('sentiment/', sentiment_analyze, name='sentiment_analyze'),
-    path('sentiment/list/', sentiment_list, name='sentiment_list'),
-    path('sentiment/<int:pk>/', sentiment_detail, name='sentiment_detail'),
-    
+    path("sentiment/", sentiment_analyze, name="sentiment_analyze"),
+    path("sentiment/list/", sentiment_list, name="sentiment_list"),
+    path("sentiment/<int:pk>/", sentiment_detail, name="sentiment_detail"),
     # Document Summarization
-    path('summarize/', summarize_document, name='summarize_document'),
-    path('summaries/', summary_list, name='summary_list'),
-    path('summaries/<int:pk>/', summary_detail, name='summary_detail'),
+    path("summarize/", summarize_document, name="summarize_document"),
+    path("summaries/", summary_list, name="summary_list"),
+    path("summaries/<int:pk>/", summary_detail, name="summary_detail"),
     # URL aliases for summaries
-    path('class-summaries/', summary_list, name='class_summaries'),
-    path('class-summaries/<int:pk>/', summary_detail, name='class_summaries_detail'),
-    path('sınıf-özetleri/', summary_list, name='sinif_ozetleri'),
-    path('sınıf-özetleri/<int:pk>/', summary_detail, name='sinif_ozetleri_detail'),
-    
+    path("class-summaries/", summary_list, name="class_summaries"),
+    path("class-summaries/<int:pk>/", summary_detail, name="class_summaries_detail"),
+    path("sınıf-özetleri/", summary_list, name="sinif_ozetleri"),
+    path("sınıf-özetleri/<int:pk>/", summary_detail, name="sinif_ozetleri_detail"),
     # Auto Report Generation
-    path('reports/', auto_reports, name='auto_reports'),
-    path('reports/generate/', generate_report, name='generate_report'),
-    path('reports/portfolio-health/', auto_reports, name='portfolio_health_report'),
-    path('reports/<int:pk>/', report_detail, name='report_detail'),
-    
+    path("reports/", auto_reports, name="auto_reports"),
+    path("reports/generate/", generate_report, name="generate_report"),
+    path("reports/portfolio-health/", auto_reports, name="portfolio_health_report"),
+    path("reports/<int:pk>/", report_detail, name="report_detail"),
     # Advanced Analytics
-    path('advanced/run/', run_analytics, name='run_analytics'),
-    path('advanced/list/', analytics_list, name='analytics_list'),
-    path('advanced/<int:pk>/', analytics_detail, name='analytics_detail'),
-    
+    path("advanced/run/", run_analytics, name="run_analytics"),
+    path("advanced/list/", analytics_list, name="analytics_list"),
+    path("advanced/<int:pk>/", analytics_detail, name="analytics_detail"),
     # API Endpoints
-    path('api/sentiment/analyze/', api_analyze_sentiment, name='api_sentiment'),
-    path('api/summarize/', api_summarize_text, name='api_summarize'),
-    path('api/report/generate/', api_generate_report, name='api_report'),
-] 
+    path("api/sentiment/analyze/", api_analyze_sentiment, name="api_sentiment"),
+    path("api/summarize/", api_summarize_text, name="api_summarize"),
+    path("api/report/generate/", api_generate_report, name="api_report"),
+]

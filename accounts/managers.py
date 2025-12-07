@@ -8,6 +8,7 @@ class CompanyQuerySet(models.QuerySet):
             return self
         return self.filter(company=user.company)
 
+
 class CompanyManager(models.Manager):
     def get_queryset(self):
         return CompanyQuerySet(self.model, using=self._db)
@@ -17,6 +18,8 @@ class CompanyManager(models.Manager):
 
 
 class Invoice(models.Model):
-    company = models.ForeignKey("accounts.Company", on_delete=models.CASCADE, related_name="invoices")
+    company = models.ForeignKey(
+        "accounts.Company", on_delete=models.CASCADE, related_name="invoices"
+    )
     ...
     objects = CompanyManager()

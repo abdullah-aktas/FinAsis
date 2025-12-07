@@ -30,4 +30,3 @@ __all__ = [
     "available_event_choices",
     "EVENT_DEFINITIONS",
 ]
-

@@ -5,5 +5,7 @@ from .consumers import MeetingConsumer
 
 websocket_urlpatterns: list[Any] = [
     # Cast to Any to satisfy typing: Channels URLRouter accepts ASGI apps here
-    re_path(r"^ws/meetings/(?P<room_name>[^/]+)/$", cast(Any, MeetingConsumer.as_asgi())),
+    re_path(
+        r"^ws/meetings/(?P<room_name>[^/]+)/$", cast(Any, MeetingConsumer.as_asgi())
+    ),
 ]

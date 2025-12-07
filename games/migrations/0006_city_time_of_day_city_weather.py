@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('games', '0005_tournament_tournamententry'),
+        ("games", "0005_tournament_tournamententry"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='city',
-            name='time_of_day',
-            field=models.CharField(blank=True, default='oglen', max_length=10),
+            model_name="city",
+            name="time_of_day",
+            field=models.CharField(blank=True, default="oglen", max_length=10),
         ),
         migrations.AddField(
-            model_name='city',
-            name='weather',
-            field=models.CharField(blank=True, default='gunesli', max_length=20),
+            model_name="city",
+            name="weather",
+            field=models.CharField(blank=True, default="gunesli", max_length=20),
         ),
     ]

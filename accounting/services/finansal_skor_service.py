@@ -1,1 +1,1 @@
-# Finansal skor ile ilgili servis fonksiyonları burada tanımlanacak. 
+# Finansal skor ile ilgili servis fonksiyonları burada tanımlanacak.

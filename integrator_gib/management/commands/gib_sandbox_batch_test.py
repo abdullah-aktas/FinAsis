@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import os
-import random
 import time
-from typing import Tuple
 
 from django.core.management.base import BaseCommand, CommandParser
 
@@ -15,14 +13,28 @@ class Command(BaseCommand):
     help = "Send N invoices to GİB (sandbox/mock) and report success rate. Uses retry and idempotency."
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("--count", type=int, default=50, help="Number of invoices to send (default: 50)")
-        parser.add_argument("--archive", action="store_true", help="Send as e-Arşiv (archive) invoices")
-        parser.add_argument("--mode", type=str, default=None, help="Force EDOC_GIB_MODE (stub|http)")
-        parser.add_argument("--sleep", type=float, default=0.0, help="Sleep seconds between sends (optional)")
+        parser.add_argument(
+            "--count",
+            type=int,
+            default=50,
+            help="Number of invoices to send (default: 50)",
+        )
+        parser.add_argument(
+            "--archive", action="store_true", help="Send as e-Arşiv (archive) invoices"
+        )
+        parser.add_argument(
+            "--mode", type=str, default=None, help="Force EDOC_GIB_MODE (stub|http)"
+        )
+        parser.add_argument(
+            "--sleep",
+            type=float,
+            default=0.0,
+            help="Sleep seconds between sends (optional)",
+        )
 
     def handle(self, *args, **options):
         count: int = options["count"]
-        archive: bool = bool(options["archive"]) 
+        archive: bool = bool(options["archive"])
         mode: str | None = options["mode"]
         sleep_s: float = float(options["sleep"]) or 0.0
 
@@ -36,13 +48,18 @@ class Command(BaseCommand):
 
         for i in range(count):
             from decimal import Decimal
+
             inv = Invoice(
                 id=f"TEST-{i+1:04d}",
                 issue_date=__import__("datetime").date.today(),
                 supplier=Party(name="FinAsis Test", tax_id="1111111111"),
                 customer=Party(name="Sandbox Müşteri", tax_id="2222222222"),
                 lines=[
-                    Line(description="Hizmet", quantity=Decimal("1"), unit_price=Decimal("100")),
+                    Line(
+                        description="Hizmet",
+                        quantity=Decimal("1"),
+                        unit_price=Decimal("100"),
+                    ),
                 ],
                 notes=["Sandbox gönderim"],
             )
@@ -66,7 +83,11 @@ class Command(BaseCommand):
                 accepted += 1
 
         success_rate = accepted / float(count)
-        self.stdout.write(self.style.SUCCESS(f"Accepted: {accepted}/{count} ({success_rate*100:.1f}%)"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Accepted: {accepted}/{count} ({success_rate*100:.1f}%)"
+            )
+        )
 
         if success_rate < 0.99:
             self.stderr.write(self.style.ERROR("Success rate below 99%"))

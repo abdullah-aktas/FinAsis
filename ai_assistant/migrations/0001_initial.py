@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,225 +14,672 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AIModel',
+            name="AIModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Model Adı')),
-                ('model_type', models.CharField(choices=[('financial', 'Finansal Analiz'), ('recommendation', 'Öneri Sistemi'), ('chat', 'Sohbet Sistemi'), ('prediction', 'Tahmin Sistemi')], max_length=20, verbose_name='Model Tipi')),
-                ('version', models.CharField(max_length=20, verbose_name='Versiyon')),
-                ('description', models.TextField(blank=True, verbose_name='Açıklama')),
-                ('accuracy', models.FloatField(verbose_name='Doğruluk Oranı')),
-                ('parameters', models.JSONField(default=dict, verbose_name='Model Parametreleri')),
-                ('last_trained', models.DateTimeField(auto_now=True, verbose_name='Son Eğitim Tarihi')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Aktif')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Model Adı")),
+                (
+                    "model_type",
+                    models.CharField(
+                        choices=[
+                            ("financial", "Finansal Analiz"),
+                            ("recommendation", "Öneri Sistemi"),
+                            ("chat", "Sohbet Sistemi"),
+                            ("prediction", "Tahmin Sistemi"),
+                        ],
+                        max_length=20,
+                        verbose_name="Model Tipi",
+                    ),
+                ),
+                ("version", models.CharField(max_length=20, verbose_name="Versiyon")),
+                ("description", models.TextField(blank=True, verbose_name="Açıklama")),
+                ("accuracy", models.FloatField(verbose_name="Doğruluk Oranı")),
+                (
+                    "parameters",
+                    models.JSONField(default=dict, verbose_name="Model Parametreleri"),
+                ),
+                (
+                    "last_trained",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Son Eğitim Tarihi"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI Model',
-                'verbose_name_plural': 'AI Modeller',
-                'ordering': ['-created_at'],
+                "verbose_name": "AI Model",
+                "verbose_name_plural": "AI Modeller",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='MarketAnalysis',
+            name="MarketAnalysis",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('asset', models.CharField(max_length=50)),
-                ('current_price', models.FloatField()),
-                ('change_percent', models.FloatField()),
-                ('trend', models.CharField(max_length=20)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("asset", models.CharField(max_length=50)),
+                ("current_price", models.FloatField()),
+                ("change_percent", models.FloatField()),
+                ("trend", models.CharField(max_length=20)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'verbose_name': 'Piyasa Analizi',
-                'verbose_name_plural': 'Piyasa Analizleri',
-                'ordering': ['-timestamp'],
+                "verbose_name": "Piyasa Analizi",
+                "verbose_name_plural": "Piyasa Analizleri",
+                "ordering": ["-timestamp"],
             },
         ),
         migrations.CreateModel(
-            name='AIInsight',
+            name="AIInsight",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('insight_type', models.CharField(choices=[('investment', 'Yatırım Önerisi'), ('risk', 'Risk Uyarısı'), ('opportunity', 'Fırsat Bildirimi'), ('trend', 'Trend Analizi')], max_length=50, verbose_name='İçgörü Türü')),
-                ('title', models.CharField(max_length=200, verbose_name='Başlık')),
-                ('content', models.TextField(verbose_name='İçerik')),
-                ('priority', models.CharField(choices=[('low', 'Düşük'), ('medium', 'Orta'), ('high', 'Yüksek'), ('urgent', 'Acil')], max_length=20, verbose_name='Öncelik')),
-                ('action_required', models.BooleanField(default=False, verbose_name='Aksiyon Gerekli')),
-                ('action_description', models.TextField(blank=True, verbose_name='Aksiyon Açıklaması')),
-                ('is_read', models.BooleanField(default=False, verbose_name='Okundu')),
-                ('is_archived', models.BooleanField(default=False, verbose_name='Arşivlendi')),
-                ('insight_data', models.JSONField(verbose_name='İçgörü Verisi')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('expires_at', models.DateTimeField(blank=True, null=True, verbose_name='Geçerlilik Sonu')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Kullanıcı')),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ai_assistant.aimodel', verbose_name='Model')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "insight_type",
+                    models.CharField(
+                        choices=[
+                            ("investment", "Yatırım Önerisi"),
+                            ("risk", "Risk Uyarısı"),
+                            ("opportunity", "Fırsat Bildirimi"),
+                            ("trend", "Trend Analizi"),
+                        ],
+                        max_length=50,
+                        verbose_name="İçgörü Türü",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="Başlık")),
+                ("content", models.TextField(verbose_name="İçerik")),
+                (
+                    "priority",
+                    models.CharField(
+                        choices=[
+                            ("low", "Düşük"),
+                            ("medium", "Orta"),
+                            ("high", "Yüksek"),
+                            ("urgent", "Acil"),
+                        ],
+                        max_length=20,
+                        verbose_name="Öncelik",
+                    ),
+                ),
+                (
+                    "action_required",
+                    models.BooleanField(default=False, verbose_name="Aksiyon Gerekli"),
+                ),
+                (
+                    "action_description",
+                    models.TextField(blank=True, verbose_name="Aksiyon Açıklaması"),
+                ),
+                ("is_read", models.BooleanField(default=False, verbose_name="Okundu")),
+                (
+                    "is_archived",
+                    models.BooleanField(default=False, verbose_name="Arşivlendi"),
+                ),
+                ("insight_data", models.JSONField(verbose_name="İçgörü Verisi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "expires_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Geçerlilik Sonu"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
+                (
+                    "model",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ai_assistant.aimodel",
+                        verbose_name="Model",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI İçgörüsü',
-                'verbose_name_plural': 'AI İçgörüleri',
-                'ordering': ['-priority', '-created_at'],
+                "verbose_name": "AI İçgörüsü",
+                "verbose_name_plural": "AI İçgörüleri",
+                "ordering": ["-priority", "-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='AIFeedback',
+            name="AIFeedback",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.IntegerField(verbose_name='Değerlendirme')),
-                ('feedback_text', models.TextField(blank=True, verbose_name='Geri Bildirim Metni')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Kullanıcı')),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ai_assistant.aimodel', verbose_name='Model')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating", models.IntegerField(verbose_name="Değerlendirme")),
+                (
+                    "feedback_text",
+                    models.TextField(blank=True, verbose_name="Geri Bildirim Metni"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
+                (
+                    "model",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ai_assistant.aimodel",
+                        verbose_name="Model",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI Geri Bildirimi',
-                'verbose_name_plural': 'AI Geri Bildirimleri',
-                'ordering': ['-created_at'],
+                "verbose_name": "AI Geri Bildirimi",
+                "verbose_name_plural": "AI Geri Bildirimleri",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='AnomalyDetection',
+            name="AnomalyDetection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('detection_type', models.CharField(choices=[('transaction', 'İşlem Anomalisi'), ('pattern', 'Örüntü Anomalisi'), ('trend', 'Trend Anomalisi')], max_length=20, verbose_name='Tespit Tipi')),
-                ('source_data', models.JSONField(verbose_name='Kaynak Veri')),
-                ('anomaly_score', models.FloatField(verbose_name='Anomali Skoru')),
-                ('description', models.TextField(verbose_name='Açıklama')),
-                ('is_resolved', models.BooleanField(default=False, verbose_name='Çözüldü mü?')),
-                ('resolution_notes', models.TextField(blank=True, verbose_name='Çözüm Notları')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('detected_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ai_assistant.aimodel')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "detection_type",
+                    models.CharField(
+                        choices=[
+                            ("transaction", "İşlem Anomalisi"),
+                            ("pattern", "Örüntü Anomalisi"),
+                            ("trend", "Trend Anomalisi"),
+                        ],
+                        max_length=20,
+                        verbose_name="Tespit Tipi",
+                    ),
+                ),
+                ("source_data", models.JSONField(verbose_name="Kaynak Veri")),
+                ("anomaly_score", models.FloatField(verbose_name="Anomali Skoru")),
+                ("description", models.TextField(verbose_name="Açıklama")),
+                (
+                    "is_resolved",
+                    models.BooleanField(default=False, verbose_name="Çözüldü mü?"),
+                ),
+                (
+                    "resolution_notes",
+                    models.TextField(blank=True, verbose_name="Çözüm Notları"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "detected_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ai_assistant.aimodel",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Anomali Tespiti',
-                'verbose_name_plural': 'Anomali Tespitleri',
-                'ordering': ['-created_at'],
+                "verbose_name": "Anomali Tespiti",
+                "verbose_name_plural": "Anomali Tespitleri",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='FinancialPrediction',
+            name="FinancialPrediction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('prediction_type', models.CharField(choices=[('market_trend', 'Piyasa Trendi'), ('stock_price', 'Hisse Fiyatı'), ('risk_analysis', 'Risk Analizi'), ('portfolio_optimization', 'Portföy Optimizasyonu')], max_length=50, verbose_name='Tahmin Tipi')),
-                ('input_data', models.JSONField(verbose_name='Girdi Verileri')),
-                ('prediction_result', models.TextField(verbose_name='Tahmin Sonucu')),
-                ('confidence', models.FloatField(verbose_name='Güven Oranı')),
-                ('is_validated', models.BooleanField(default=False, verbose_name='Doğrulandı')),
-                ('validation_notes', models.TextField(blank=True, verbose_name='Doğrulama Notları')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')),
-                ('model', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ai_assistant.aimodel', verbose_name='Kullanılan Model')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Kullanıcı')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "prediction_type",
+                    models.CharField(
+                        choices=[
+                            ("market_trend", "Piyasa Trendi"),
+                            ("stock_price", "Hisse Fiyatı"),
+                            ("risk_analysis", "Risk Analizi"),
+                            ("portfolio_optimization", "Portföy Optimizasyonu"),
+                        ],
+                        max_length=50,
+                        verbose_name="Tahmin Tipi",
+                    ),
+                ),
+                ("input_data", models.JSONField(verbose_name="Girdi Verileri")),
+                ("prediction_result", models.TextField(verbose_name="Tahmin Sonucu")),
+                ("confidence", models.FloatField(verbose_name="Güven Oranı")),
+                (
+                    "is_validated",
+                    models.BooleanField(default=False, verbose_name="Doğrulandı"),
+                ),
+                (
+                    "validation_notes",
+                    models.TextField(blank=True, verbose_name="Doğrulama Notları"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
+                (
+                    "model",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="ai_assistant.aimodel",
+                        verbose_name="Kullanılan Model",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Finansal Tahmin',
-                'verbose_name_plural': 'Finansal Tahminler',
-                'ordering': ['-created_at'],
+                "verbose_name": "Finansal Tahmin",
+                "verbose_name_plural": "Finansal Tahminler",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='FinancialReport',
+            name="FinancialReport",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255, verbose_name='Rapor Başlığı')),
-                ('report_type', models.CharField(choices=[('balance_sheet', 'Bilanço'), ('income_statement', 'Gelir Tablosu'), ('cash_flow', 'Nakit Akışı'), ('budget', 'Bütçe'), ('custom', 'Özel Rapor')], max_length=20, verbose_name='Rapor Tipi')),
-                ('content', models.JSONField(verbose_name='Rapor İçeriği')),
-                ('parameters', models.JSONField(default=dict, verbose_name='Rapor Parametreleri')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('generated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ai_assistant.aimodel')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Rapor Başlığı"),
+                ),
+                (
+                    "report_type",
+                    models.CharField(
+                        choices=[
+                            ("balance_sheet", "Bilanço"),
+                            ("income_statement", "Gelir Tablosu"),
+                            ("cash_flow", "Nakit Akışı"),
+                            ("budget", "Bütçe"),
+                            ("custom", "Özel Rapor"),
+                        ],
+                        max_length=20,
+                        verbose_name="Rapor Tipi",
+                    ),
+                ),
+                ("content", models.JSONField(verbose_name="Rapor İçeriği")),
+                (
+                    "parameters",
+                    models.JSONField(default=dict, verbose_name="Rapor Parametreleri"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "generated_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ai_assistant.aimodel",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Finansal Rapor',
-                'verbose_name_plural': 'Finansal Raporlar',
-                'ordering': ['-created_at'],
+                "verbose_name": "Finansal Rapor",
+                "verbose_name_plural": "Finansal Raporlar",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('message', models.TextField()),
-                ('is_read', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("message", models.TextField()),
+                ("is_read", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='Recommendation',
+            name="Recommendation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('recommendations', models.JSONField()),
-                ('category', models.CharField(max_length=100)),
-                ('priority', models.CharField(choices=[('low', 'Düşük'), ('medium', 'Orta'), ('high', 'Yüksek')], max_length=10)),
-                ('action_required', models.BooleanField(default=False)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("recommendations", models.JSONField()),
+                ("category", models.CharField(max_length=100)),
+                (
+                    "priority",
+                    models.CharField(
+                        choices=[
+                            ("low", "Düşük"),
+                            ("medium", "Orta"),
+                            ("high", "Yüksek"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("action_required", models.BooleanField(default=False)),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TrendAnalysis',
+            name="TrendAnalysis",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('analysis_type', models.CharField(choices=[('revenue', 'Gelir Trendi'), ('expense', 'Gider Trendi'), ('profit', 'Kâr Trendi'), ('cash_flow', 'Nakit Akış Trendi')], max_length=20, verbose_name='Analiz Tipi')),
-                ('start_date', models.DateField(verbose_name='Başlangıç Tarihi')),
-                ('end_date', models.DateField(verbose_name='Bitiş Tarihi')),
-                ('trend_data', models.JSONField(verbose_name='Trend Verisi')),
-                ('prediction', models.JSONField(verbose_name='Tahmin Verisi')),
-                ('confidence_score', models.FloatField(verbose_name='Güven Skoru')),
-                ('insights', models.TextField(verbose_name='İçgörüler')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('analyzed_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ai_assistant.aimodel')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "analysis_type",
+                    models.CharField(
+                        choices=[
+                            ("revenue", "Gelir Trendi"),
+                            ("expense", "Gider Trendi"),
+                            ("profit", "Kâr Trendi"),
+                            ("cash_flow", "Nakit Akış Trendi"),
+                        ],
+                        max_length=20,
+                        verbose_name="Analiz Tipi",
+                    ),
+                ),
+                ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
+                ("end_date", models.DateField(verbose_name="Bitiş Tarihi")),
+                ("trend_data", models.JSONField(verbose_name="Trend Verisi")),
+                ("prediction", models.JSONField(verbose_name="Tahmin Verisi")),
+                ("confidence_score", models.FloatField(verbose_name="Güven Skoru")),
+                ("insights", models.TextField(verbose_name="İçgörüler")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "analyzed_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ai_assistant.aimodel",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Trend Analizi',
-                'verbose_name_plural': 'Trend Analizleri',
-                'ordering': ['-created_at'],
+                "verbose_name": "Trend Analizi",
+                "verbose_name_plural": "Trend Analizleri",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='UserInteraction',
+            name="UserInteraction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('interaction_type', models.CharField(choices=[('chat', 'Sohbet'), ('analysis', 'Analiz'), ('recommendation', 'Öneri')], max_length=20, verbose_name='Etkileşim Tipi')),
-                ('content', models.TextField(verbose_name='İçerik')),
-                ('ai_response', models.TextField(verbose_name='AI Yanıtı')),
-                ('feedback', models.IntegerField(blank=True, null=True, verbose_name='Geri Bildirim')),
-                ('feedback_text', models.TextField(blank=True, verbose_name='Geri Bildirim Metni')),
-                ('processing_time', models.FloatField(help_text='Saniye cinsinden', verbose_name='İşlem Süresi')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Kullanıcı')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "interaction_type",
+                    models.CharField(
+                        choices=[
+                            ("chat", "Sohbet"),
+                            ("analysis", "Analiz"),
+                            ("recommendation", "Öneri"),
+                        ],
+                        max_length=20,
+                        verbose_name="Etkileşim Tipi",
+                    ),
+                ),
+                ("content", models.TextField(verbose_name="İçerik")),
+                ("ai_response", models.TextField(verbose_name="AI Yanıtı")),
+                (
+                    "feedback",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Geri Bildirim"
+                    ),
+                ),
+                (
+                    "feedback_text",
+                    models.TextField(blank=True, verbose_name="Geri Bildirim Metni"),
+                ),
+                (
+                    "processing_time",
+                    models.FloatField(
+                        help_text="Saniye cinsinden", verbose_name="İşlem Süresi"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kullanıcı Etkileşimi',
-                'verbose_name_plural': 'Kullanıcı Etkileşimleri',
-                'ordering': ['-created_at'],
+                "verbose_name": "Kullanıcı Etkileşimi",
+                "verbose_name_plural": "Kullanıcı Etkileşimleri",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='UserPreference',
+            name="UserPreference",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('language', models.CharField(default='tr', max_length=10, verbose_name='Dil')),
-                ('risk_tolerance', models.CharField(choices=[('low', 'Düşük'), ('medium', 'Orta'), ('high', 'Yüksek')], max_length=20, verbose_name='Risk Toleransı')),
-                ('investment_horizon', models.CharField(choices=[('short', 'Kısa'), ('medium', 'Orta'), ('long', 'Uzun')], max_length=20, verbose_name='Yatırım Vadesi')),
-                ('notification_preferences', models.JSONField(default=dict, verbose_name='Bildirim Tercihleri')),
-                ('ai_interaction_history', models.JSONField(default=list, verbose_name='AI Etkileşim Geçmişi')),
-                ('settings', models.JSONField(default=dict, verbose_name='Ayarlar')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Oluşturulma Tarihi')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Güncellenme Tarihi')),
-                ('preferred_model', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ai_assistant.aimodel', verbose_name='Tercih Edilen Model')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Kullanıcı')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "language",
+                    models.CharField(default="tr", max_length=10, verbose_name="Dil"),
+                ),
+                (
+                    "risk_tolerance",
+                    models.CharField(
+                        choices=[
+                            ("low", "Düşük"),
+                            ("medium", "Orta"),
+                            ("high", "Yüksek"),
+                        ],
+                        max_length=20,
+                        verbose_name="Risk Toleransı",
+                    ),
+                ),
+                (
+                    "investment_horizon",
+                    models.CharField(
+                        choices=[
+                            ("short", "Kısa"),
+                            ("medium", "Orta"),
+                            ("long", "Uzun"),
+                        ],
+                        max_length=20,
+                        verbose_name="Yatırım Vadesi",
+                    ),
+                ),
+                (
+                    "notification_preferences",
+                    models.JSONField(default=dict, verbose_name="Bildirim Tercihleri"),
+                ),
+                (
+                    "ai_interaction_history",
+                    models.JSONField(default=list, verbose_name="AI Etkileşim Geçmişi"),
+                ),
+                ("settings", models.JSONField(default=dict, verbose_name="Ayarlar")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
+                (
+                    "preferred_model",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ai_assistant.aimodel",
+                        verbose_name="Tercih Edilen Model",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kullanıcı Tercihi',
-                'verbose_name_plural': 'Kullanıcı Tercihleri',
+                "verbose_name": "Kullanıcı Tercihi",
+                "verbose_name_plural": "Kullanıcı Tercihleri",
             },
         ),
     ]

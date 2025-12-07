@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import Invoice, Payment
 from .services.journal import create_invoice_entry, create_payment_entry
 
+
 @receiver(post_save, sender=Invoice)
 def auto_journal_invoice(sender, instance, created, **kwargs):
     if created:
@@ -11,6 +12,7 @@ def auto_journal_invoice(sender, instance, created, **kwargs):
         except Exception:
             # Sessiz geç; ileride logging eklenebilir
             pass
+
 
 @receiver(post_save, sender=Payment)
 def auto_journal_payment(sender, instance, created, **kwargs):

@@ -12,6 +12,8 @@ except Exception:  # pragma: no cover - fallback if lxml missing
 
 
 NS_EDEFTER = "http://edefter.gov.tr/namespace"
+
+
 def _to_bytes(elem) -> bytes:
     try:
         return etree.tostring(elem, xml_declaration=True, encoding="UTF-8", pretty_print=True)  # type: ignore[call-arg]
@@ -35,14 +37,18 @@ def compute_hash_chain(entries: Iterable[JournalEntry]) -> List[str]:
     chain: List[str] = []
     prev = b""
     for e in entries:
-        payload = f"{e.date.isoformat()}|{e.number}|{e.debit:.2f}|{e.credit:.2f}".encode()
+        payload = (
+            f"{e.date.isoformat()}|{e.number}|{e.debit:.2f}|{e.credit:.2f}".encode()
+        )
         h = hashlib.sha256(prev + payload).hexdigest()
         chain.append(h)
         prev = h.encode()
     return chain
 
 
-def build_berat_xml(period: str, company_vkn: str, last_hash: str, *, defter_type: str = "YEVMIYE") -> bytes:
+def build_berat_xml(
+    period: str, company_vkn: str, last_hash: str, *, defter_type: str = "YEVMIYE"
+) -> bytes:
     """Build a minimal e-Defter berat XML snippet.
 
     Parameters

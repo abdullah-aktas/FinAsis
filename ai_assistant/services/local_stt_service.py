@@ -7,8 +7,6 @@ The Vosk dependency is imported lazily in __init__ to avoid import-time failures
 """
 from __future__ import annotations
 
-from typing import Any
-
 
 class LocalSTTService:
     """Yerel Vosk tabanlı konuşma-yazı servisi (basit WAV/PCM giriş)."""
@@ -23,20 +21,26 @@ class LocalSTTService:
         self.model = Model(model_path)
 
     def transcribe(self, wav_bytes: bytes) -> str:
-        import wave, json
+        import wave
+        import json
         import io
+
         wf = wave.open(io.BytesIO(wav_bytes), "rb")
-        if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getframerate() not in [8000, 16000, 32000, 44100]:
-            raise ValueError('Lütfen mono PCM WAV (16-bit) yükleyin.')
+        if (
+            wf.getnchannels() != 1
+            or wf.getsampwidth() != 2
+            or wf.getframerate() not in [8000, 16000, 32000, 44100]
+        ):
+            raise ValueError("Lütfen mono PCM WAV (16-bit) yükleyin.")
         rec = self._KaldiRecognizer(self.model, wf.getframerate())
-        result_text = ''
+        result_text = ""
         while True:
             data = wf.readframes(4000)
             if len(data) == 0:
                 break
             if rec.AcceptWaveform(data):
                 res = json.loads(rec.Result())
-                result_text += ' ' + res.get('text', '')
+                result_text += " " + res.get("text", "")
         res_final = json.loads(rec.FinalResult())
-        result_text += ' ' + res_final.get('text', '')
+        result_text += " " + res_final.get("text", "")
         return result_text.strip()

@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,14 +18,42 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Bank",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("code", models.CharField(max_length=10, verbose_name="Banka Kodu")),
                 ("name", models.CharField(max_length=100, verbose_name="Banka Adı")),
-                ("swift_code", models.CharField(blank=True, max_length=20, null=True, verbose_name="SWIFT Kodu")),
+                (
+                    "swift_code",
+                    models.CharField(
+                        blank=True, max_length=20, null=True, verbose_name="SWIFT Kodu"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("logo", models.ImageField(blank=True, null=True, upload_to="banks/", verbose_name="Logo")),
+                (
+                    "logo",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="banks/", verbose_name="Logo"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Banka",
@@ -37,14 +64,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BankAccount",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
-                ("account_number", models.CharField(max_length=50, verbose_name="Hesap Numarası")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
+                (
+                    "account_number",
+                    models.CharField(max_length=50, verbose_name="Hesap Numarası"),
+                ),
                 ("iban", models.CharField(max_length=50, verbose_name="IBAN")),
-                ("branch_code", models.CharField(blank=True, max_length=20, null=True, verbose_name="Şube Kodu")),
-                ("branch_name", models.CharField(blank=True, max_length=100, null=True, verbose_name="Şube Adı")),
-                ("currency", models.CharField(default="TRY", max_length=3, verbose_name="Para Birimi")),
+                (
+                    "branch_code",
+                    models.CharField(
+                        blank=True, max_length=20, null=True, verbose_name="Şube Kodu"
+                    ),
+                ),
+                (
+                    "branch_name",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, verbose_name="Şube Adı"
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        default="TRY", max_length=3, verbose_name="Para Birimi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 (
                     "accounting_account",
@@ -84,16 +147,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BankTransaction",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("transaction_date", models.DateField(verbose_name="İşlem Tarihi")),
                 (
                     "reference_number",
-                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Referans No"),
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="Referans No"
+                    ),
                 ),
-                ("description", models.CharField(max_length=255, verbose_name="Açıklama")),
+                (
+                    "description",
+                    models.CharField(max_length=255, verbose_name="Açıklama"),
+                ),
                 (
                     "transaction_type",
                     models.CharField(
@@ -115,11 +201,16 @@ class Migration(migrations.Migration):
                     models.DecimalField(
                         decimal_places=2,
                         max_digits=15,
-                        validators=[django.core.validators.MinValueValidator(Decimal("0.01"))],
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("0.01"))
+                        ],
                         verbose_name="Tutar",
                     ),
                 ),
-                ("is_reconciled", models.BooleanField(default=False, verbose_name="Mutabakatlı")),
+                (
+                    "is_reconciled",
+                    models.BooleanField(default=False, verbose_name="Mutabakatlı"),
+                ),
                 (
                     "company",
                     models.ForeignKey(

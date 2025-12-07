@@ -96,7 +96,7 @@ class SmokeTests(TestCase):
                 continue
 
             # Skip URLs that are known to return 404 in test environment
-            if url in ['/core-ui/', '/core-ui']:
+            if url in ["/core-ui/", "/core-ui"]:
                 continue
 
             checked_urls.append(url)
@@ -107,7 +107,9 @@ class SmokeTests(TestCase):
                 msg=f"URL hata verdi: {url} (status={response.status_code})",
             )
 
-        self.assertTrue(len(checked_urls) > 0, "Hiç URL test edilmedi, URLConf kontrol et.")
+        self.assertTrue(
+            len(checked_urls) > 0, "Hiç URL test edilmedi, URLConf kontrol et."
+        )
 
     def test_admin_login_and_index(self):
         """
@@ -117,7 +119,9 @@ class SmokeTests(TestCase):
         resp_login = self.client.get("/admin/", follow=True)
         self.assertIn(resp_login.status_code, [200, 301, 302])
 
-        logged_in = self.client.login(username=self.admin_username, password=self.admin_password)
+        logged_in = self.client.login(
+            username=self.admin_username, password=self.admin_password
+        )
         self.assertTrue(logged_in, "Hazırlık admin kullanıcısıyla login olunamadı.")
 
         resp_admin = self.client.get("/admin/")
@@ -178,5 +182,3 @@ class SmokeTests(TestCase):
             self.assertLessEqual(payload["risk_score"], 1)
             self.assertIn("explanation", payload)
         self.assertIsInstance(payload["explanation"].get("features", []), list)
-
-

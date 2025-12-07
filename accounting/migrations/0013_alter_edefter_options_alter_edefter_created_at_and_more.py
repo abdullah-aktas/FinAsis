@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0012_edefter_company_zip_updated_nullable_files"),
     ]
@@ -12,12 +11,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name="edefter",
-            options={"ordering": ["-year", "-month"], "verbose_name": "e-Defter", "verbose_name_plural": "e-Defterler"},
+            options={
+                "ordering": ["-year", "-month"],
+                "verbose_name": "e-Defter",
+                "verbose_name_plural": "e-Defterler",
+            },
         ),
         migrations.AlterField(
             model_name="edefter",
             name="created_at",
-            field=models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi"),
+            field=models.DateTimeField(
+                auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+            ),
         ),
         migrations.AlterField(
             model_name="edefter",
@@ -27,13 +32,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="edefter",
             name="status",
-            field=models.CharField(default="taslak", max_length=20, verbose_name="Durum"),
+            field=models.CharField(
+                default="taslak", max_length=20, verbose_name="Durum"
+            ),
         ),
         migrations.AlterField(
             model_name="edefter",
             name="type",
             field=models.CharField(
-                choices=[("yevmiye", "Yevmiye"), ("kebir", "Kebir")], max_length=10, verbose_name="Defter Türü"
+                choices=[("yevmiye", "Yevmiye"), ("kebir", "Kebir")],
+                max_length=10,
+                verbose_name="Defter Türü",
             ),
         ),
         migrations.AlterField(

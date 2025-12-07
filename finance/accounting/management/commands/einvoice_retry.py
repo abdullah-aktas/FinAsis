@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
 from accounting.models import Invoice
-from accounting.services.efatura_service import check_invoice_status, send_invoice_to_gib
+from accounting.services.efatura_service import send_invoice_to_gib
 
 
 class Command(BaseCommand):
-    help = 'Hatalı e-Fatura gönderimlerini retry eder ve durumunu günceller'
+    help = "Hatalı e-Fatura gönderimlerini retry eder ve durumunu günceller"
 
     def handle(self, *args, **options):
-        errs = Invoice.objects.filter(gib_status='error').order_by('-gib_sent_at')[:50]
+        errs = Invoice.objects.filter(gib_status="error").order_by("-gib_sent_at")[:50]
         retried = 0
         for inv in errs:
             try:
@@ -20,5 +19,3 @@ class Command(BaseCommand):
             except Exception:
                 continue
         self.stdout.write(self.style.SUCCESS(f"Retry edilen: {retried}"))
-
-

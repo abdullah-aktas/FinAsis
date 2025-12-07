@@ -5,26 +5,63 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounting', '0001_initial'),
+        ("accounting", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BankTransaction',
+            name="BankTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Tutar')),
-                ('description', models.CharField(blank=True, max_length=255, null=True, verbose_name='Açıklama')),
-                ('transaction_type', models.CharField(choices=[('IN', 'Giriş'), ('OUT', 'Çıkış')], max_length=3, verbose_name='İşlem Türü')),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name='İşlem Tarihi')),
-                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='accounting.bankaccount', verbose_name='Banka Hesabı')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Tutar"
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="Açıklama"
+                    ),
+                ),
+                (
+                    "transaction_type",
+                    models.CharField(
+                        choices=[("IN", "Giriş"), ("OUT", "Çıkış")],
+                        max_length=3,
+                        verbose_name="İşlem Türü",
+                    ),
+                ),
+                (
+                    "date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="İşlem Tarihi"
+                    ),
+                ),
+                (
+                    "account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="transactions",
+                        to="accounting.bankaccount",
+                        verbose_name="Banka Hesabı",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Banka Hareketi',
-                'verbose_name_plural': 'Banka Hareketleri',
-                'ordering': ['-date'],
+                "verbose_name": "Banka Hareketi",
+                "verbose_name_plural": "Banka Hareketleri",
+                "ordering": ["-date"],
             },
         ),
     ]

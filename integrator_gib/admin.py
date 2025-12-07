@@ -17,17 +17,38 @@ class AccessTokenAdmin(admin.ModelAdmin):
 
 @admin.register(GIBSubmissionLog)
 class GIBSubmissionLogAdmin(admin.ModelAdmin):
-    list_display = ('submission_id', 'declaration_code', 'period', 'taxpayer_vkn', 'status', 'gib_reference_number', 'submitted_at')
-    search_fields = ('submission_id', 'taxpayer_vkn', 'gib_reference_number', 'gib_tracking_id')
-    list_filter = ('status', 'declaration_code', 'submitted_at')
-    date_hierarchy = 'submitted_at'
-    readonly_fields = ('submitted_at', 'processed_at')
+    list_display = (
+        "submission_id",
+        "declaration_code",
+        "period",
+        "taxpayer_vkn",
+        "status",
+        "gib_reference_number",
+        "submitted_at",
+    )
+    search_fields = (
+        "submission_id",
+        "taxpayer_vkn",
+        "gib_reference_number",
+        "gib_tracking_id",
+    )
+    list_filter = ("status", "declaration_code", "submitted_at")
+    date_hierarchy = "submitted_at"
+    readonly_fields = ("submitted_at", "processed_at")
 
 
 @admin.register(GIBCertificate)
 class GIBCertificateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'certificate_type', 'serial_number', 'valid_from', 'valid_until', 'is_active', 'usage_count')
-    search_fields = ('name', 'serial_number', 'alias')
-    list_filter = ('certificate_type', 'is_active', 'valid_until')
-    date_hierarchy = 'valid_until'
-    readonly_fields = ('usage_count', 'last_used_at', 'created_at')
+    list_display = (
+        "name",
+        "certificate_type",
+        "serial_number",
+        "valid_from",
+        "valid_until",
+        "is_active",
+        "usage_count",
+    )
+    search_fields = ("name", "serial_number", "alias")
+    list_filter = ("certificate_type", "is_active", "valid_until")
+    date_hierarchy = "valid_until"
+    readonly_fields = ("usage_count", "last_used_at", "created_at")

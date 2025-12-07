@@ -61,7 +61,7 @@ from advisors.models_marketplace import (
     ConsultantProfile,
     ConsultantService,
     ConsultationBooking,
-    ConsultantReview
+    ConsultantReview,
 )
 from decimal import Decimal
 from datetime import date, time, timedelta
@@ -72,193 +72,193 @@ User = get_user_model()
 
 class MarketplaceSetupTest(TestCase):
     """Marketplace kurulum testi"""
-    
+
     def setUp(self):
         """Test verilerini hazırla"""
         # Admin kullanıcı
         self.admin = User.objects.create_superuser(
-            username='admin',
-            email='admin@finasis.com',
-            password='admin123'
+            username="admin", email="admin@finasis.com", password="admin123"
         )
-        
+
         # Mali müşavir kullanıcısı
         self.consultant_user = User.objects.create_user(
-            username='ahmet_yilmaz',
-            email='ahmet@example.com',
-            password='test123',
-            first_name='Ahmet',
-            last_name='Yılmaz'
+            username="ahmet_yilmaz",
+            email="ahmet@example.com",
+            password="test123",
+            first_name="Ahmet",
+            last_name="Yılmaz",
         )
-        
+
         # AdvisorProfile oluştur
         self.advisor_profile = AdvisorProfile.objects.create(
             user=self.consultant_user,
-            type='SMMM',
-            chamber_no='123456',
-            verified_at=timezone.now()
+            type="SMMM",
+            chamber_no="123456",
+            verified_at=timezone.now(),
         )
-        
+
         # Müşteri kullanıcısı
         self.client_user = User.objects.create_user(
-            username='mehmet_demir',
-            email='mehmet@example.com',
-            password='test123',
-            first_name='Mehmet',
-            last_name='Demir'
+            username="mehmet_demir",
+            email="mehmet@example.com",
+            password="test123",
+            first_name="Mehmet",
+            last_name="Demir",
         )
-    
+
     def test_01_create_consultant_profile(self):
         """Mali müşavir profili oluşturma"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            bio='15 yıllık deneyime sahip mali müşavir',
-            city='İstanbul',
-            phone='05321234567',
-            specializations=['tax_consulting', 'accounting', 'audit'],
-            languages=['Türkçe', 'İngilizce'],
+            display_name="Ahmet Yılmaz SMMM",
+            bio="15 yıllık deneyime sahip mali müşavir",
+            city="İstanbul",
+            phone="05321234567",
+            specializations=["tax_consulting", "accounting", "audit"],
+            languages=["Türkçe", "İngilizce"],
             years_of_experience=15,
-            hourly_rate=Decimal('750.00'),
-            commission_rate=Decimal('15.00'),
-            approval_status='approved',
+            hourly_rate=Decimal("750.00"),
+            commission_rate=Decimal("15.00"),
+            approval_status="approved",
             approved_by=self.admin,
-            approved_at=timezone.now()
+            approved_at=timezone.now(),
         )
-        
-        self.assertEqual(consultant.display_name, 'Ahmet Yılmaz SMMM')
+
+        self.assertEqual(consultant.display_name, "Ahmet Yılmaz SMMM")
         self.assertTrue(consultant.is_available())
         print("✅ Test 1: Mali müşavir profili başarıyla oluşturuldu")
-    
+
     def test_02_create_consultant_service(self):
         """Hizmet paketi oluşturma"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved'
+            display_name="Ahmet Yılmaz SMMM",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
         )
-        
+
         service = ConsultantService.objects.create(
             consultant=consultant,
-            title='Vergi Danışmanlığı Paketi',
-            category='tax_consulting',
-            description='KDV, Stopaj ve Gelir Vergisi danışmanlığı',
-            pricing_type='hourly',
-            price=Decimal('750.00'),
+            title="Vergi Danışmanlığı Paketi",
+            category="tax_consulting",
+            description="KDV, Stopaj ve Gelir Vergisi danışmanlığı",
+            pricing_type="hourly",
+            price=Decimal("750.00"),
             duration_minutes=60,
             includes=[
-                'Vergi mevzuatı danışmanlığı',
-                'Beyanname kontrolü',
-                'Optimizasyon önerileri'
-            ]
+                "Vergi mevzuatı danışmanlığı",
+                "Beyanname kontrolü",
+                "Optimizasyon önerileri",
+            ],
         )
-        
-        self.assertEqual(service.title, 'Vergi Danışmanlığı Paketi')
+
+        self.assertEqual(service.title, "Vergi Danışmanlığı Paketi")
         print("✅ Test 2: Hizmet paketi başarıyla oluşturuldu")
-    
+
     def test_03_create_booking(self):
         """Randevu oluşturma"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved',
-            instant_booking=True
+            display_name="Ahmet Yılmaz SMMM",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
+            instant_booking=True,
         )
-        
+
         booking = ConsultationBooking.objects.create(
-            booking_number='BK-TEST001',
+            booking_number="BK-TEST001",
             client=self.client_user,
             consultant=consultant,
-            meeting_type='online',
+            meeting_type="online",
             scheduled_date=date.today() + timedelta(days=7),
             scheduled_time=time(14, 0),
             duration_minutes=60,
-            subject='KDV Beyanı Danışmanlığı',
-            description='KDV beyanı ile ilgili sorularım var',
-            quoted_price=Decimal('750.00'),
-            status='confirmed'  # instant_booking=True olduğu için
+            subject="KDV Beyanı Danışmanlığı",
+            description="KDV beyanı ile ilgili sorularım var",
+            quoted_price=Decimal("750.00"),
+            status="confirmed",  # instant_booking=True olduğu için
         )
-        
+
         # Komisyon hesapla
         booking.calculate_commission()
-        
-        self.assertEqual(booking.status, 'confirmed')
-        self.assertEqual(booking.commission_amount, Decimal('112.50'))  # %15
-        self.assertEqual(booking.consultant_earning, Decimal('637.50'))
+
+        self.assertEqual(booking.status, "confirmed")
+        self.assertEqual(booking.commission_amount, Decimal("112.50"))  # %15
+        self.assertEqual(booking.consultant_earning, Decimal("637.50"))
         print("✅ Test 3: Randevu başarıyla oluşturuldu ve komisyon hesaplandı")
-    
+
     def test_04_booking_workflow(self):
         """Randevu iş akışı testi"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved'
+            display_name="Ahmet Yılmaz SMMM",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
         )
-        
+
         # 1. Randevu oluştur (pending)
         booking = ConsultationBooking.objects.create(
-            booking_number='BK-TEST002',
+            booking_number="BK-TEST002",
             client=self.client_user,
             consultant=consultant,
-            meeting_type='online',
+            meeting_type="online",
             scheduled_date=date.today() + timedelta(days=3),
             scheduled_time=time(10, 0),
             duration_minutes=60,
-            subject='Mali Tablo İncelemesi',
-            description='Şirket mali tablolarımı incelemek istiyorum',
-            quoted_price=Decimal('1000.00')
+            subject="Mali Tablo İncelemesi",
+            description="Şirket mali tablolarımı incelemek istiyorum",
+            quoted_price=Decimal("1000.00"),
         )
-        
-        self.assertEqual(booking.status, 'pending')
-        
+
+        self.assertEqual(booking.status, "pending")
+
         # 2. Mali müşavir onayla
         booking.confirm()
-        self.assertEqual(booking.status, 'confirmed')
-        
+        self.assertEqual(booking.status, "confirmed")
+
         # 3. Görüşmeyi başlat
         booking.actual_start_time = timezone.now()
         booking.save()
-        
+
         # 4. Görüşmeyi tamamla
         booking.actual_end_time = timezone.now() + timedelta(hours=1)
-        booking.consultant_notes = 'Müşterinin mali tabloları incelendi. Öneriler verildi.'
+        booking.consultant_notes = (
+            "Müşterinin mali tabloları incelendi. Öneriler verildi."
+        )
         booking.complete()
-        
-        self.assertEqual(booking.status, 'completed')
+
+        self.assertEqual(booking.status, "completed")
         self.assertEqual(consultant.completed_consultations, 1)
         print("✅ Test 4: Randevu iş akışı başarıyla tamamlandı")
-    
+
     def test_05_create_review(self):
         """Değerlendirme oluşturma"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved'
+            display_name="Ahmet Yılmaz SMMM",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
         )
-        
+
         booking = ConsultationBooking.objects.create(
-            booking_number='BK-TEST003',
+            booking_number="BK-TEST003",
             client=self.client_user,
             consultant=consultant,
-            meeting_type='online',
+            meeting_type="online",
             scheduled_date=date.today(),
             scheduled_time=time(14, 0),
             duration_minutes=60,
-            subject='Danışmanlık',
-            description='Test',
-            quoted_price=Decimal('750.00'),
-            status='completed'
+            subject="Danışmanlık",
+            description="Test",
+            quoted_price=Decimal("750.00"),
+            status="completed",
         )
-        
-        review = ConsultantReview.objects.create(
+
+        ConsultantReview.objects.create(
             consultant=consultant,
             client=self.client_user,
             booking=booking,
@@ -267,108 +267,107 @@ class MarketplaceSetupTest(TestCase):
             communication_rating=5,
             expertise_rating=5,
             value_rating=4,
-            title='Harika Deneyim',
-            comment='Çok profesyonel ve yardımcı oldu. Kesinlikle tavsiye ederim.'
+            title="Harika Deneyim",
+            comment="Çok profesyonel ve yardımcı oldu. Kesinlikle tavsiye ederim.",
         )
-        
+
         # Rating otomatik güncellendi mi?
         consultant.refresh_from_db()
         self.assertEqual(consultant.total_reviews, 1)
-        self.assertGreater(consultant.average_rating, Decimal('0'))
+        self.assertGreater(consultant.average_rating, Decimal("0"))
         print("✅ Test 5: Değerlendirme başarıyla oluşturuldu")
-    
+
     def test_06_commission_calculation(self):
         """Komisyon hesaplama testi"""
         consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Ahmet Yılmaz SMMM',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            commission_rate=Decimal('15.00'),
-            approval_status='approved'
+            display_name="Ahmet Yılmaz SMMM",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            commission_rate=Decimal("15.00"),
+            approval_status="approved",
         )
-        
+
         test_cases = [
-            (Decimal('1000.00'), Decimal('150.00')),  # %15
-            (Decimal('500.00'), Decimal('75.00')),
-            (Decimal('2000.00'), Decimal('300.00')),
+            (Decimal("1000.00"), Decimal("150.00")),  # %15
+            (Decimal("500.00"), Decimal("75.00")),
+            (Decimal("2000.00"), Decimal("300.00")),
         ]
-        
+
         for amount, expected_commission in test_cases:
             commission = consultant.calculate_commission(amount)
             self.assertEqual(commission, expected_commission)
-        
+
         print("✅ Test 6: Komisyon hesaplamaları doğru çalışıyor")
-    
+
     def test_07_availability_check(self):
         """Müsaitlik kontrolü"""
         # Onaylı ve müsait
         consultant1 = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Müsait Mali Müşavir',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved',
-            availability_status='available',
-            accepts_new_clients=True
+            display_name="Müsait Mali Müşavir",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
+            availability_status="available",
+            accepts_new_clients=True,
         )
         self.assertTrue(consultant1.is_available())
-        
+
         # Onaysız
         consultant2 = ConsultantProfile.objects.create(
             advisor=AdvisorProfile.objects.create(
-                user=User.objects.create_user('test2', 'test2@test.com', 'test'),
-                type='SMMM'
+                user=User.objects.create_user("test2", "test2@test.com", "test"),
+                type="SMMM",
             ),
-            display_name='Onaysız Mali Müşavir',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='pending'
+            display_name="Onaysız Mali Müşavir",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="pending",
         )
         self.assertFalse(consultant2.is_available())
-        
+
         print("✅ Test 7: Müsaitlik kontrolü doğru çalışıyor")
 
 
 class MarketplaceAPITest(TestCase):
     """API endpoint testleri"""
-    
+
     def setUp(self):
         self.client = Client()
-        
+
         # Test kullanıcıları oluştur
         self.consultant_user = User.objects.create_user(
-            username='consultant',
-            password='test123'
+            username="consultant", password="test123"
         )
-        
+
         self.advisor_profile = AdvisorProfile.objects.create(
-            user=self.consultant_user,
-            type='SMMM'
+            user=self.consultant_user, type="SMMM"
         )
-        
+
         self.consultant = ConsultantProfile.objects.create(
             advisor=self.advisor_profile,
-            display_name='Test Consultant',
-            city='İstanbul',
-            hourly_rate=Decimal('750.00'),
-            approval_status='approved'
+            display_name="Test Consultant",
+            city="İstanbul",
+            hourly_rate=Decimal("750.00"),
+            approval_status="approved",
         )
-        
+
         self.client_user = User.objects.create_user(
-            username='client',
-            password='test123'
+            username="client", password="test123"
         )
-    
+
     def test_consultant_list_api(self):
         """Mali müşavir listesi API"""
-        response = self.client.get('/advisors/marketplace/api/consultants/')
+        response = self.client.get("/advisors/marketplace/api/consultants/")
         self.assertEqual(response.status_code, 200)
         print("✅ API Test 1: Consultant list endpoint çalışıyor")
-    
+
     def test_consultant_detail_api(self):
         """Mali müşavir detay API"""
-        response = self.client.get(f'/advisors/marketplace/api/consultants/{self.consultant.id}/')
+        response = self.client.get(
+            f"/advisors/marketplace/api/consultants/{self.consultant.id}/"
+        )
         self.assertEqual(response.status_code, 200)
         print("✅ API Test 2: Consultant detail endpoint çalışıyor")
 
@@ -518,7 +517,7 @@ GÜVENLİK TESTİ
    - DRF throttling kullan
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 80)
     print("FINASIS MALİ MÜŞAVİR MARKETPLACE - KURULUM VE TEST")
     print("=" * 80)

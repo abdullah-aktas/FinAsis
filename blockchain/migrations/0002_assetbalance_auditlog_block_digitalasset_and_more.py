@@ -7,7 +7,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("blockchain", "0001_initial"),
@@ -17,9 +16,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AssetBalance",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("balance", models.DecimalField(decimal_places=2, default=0, max_digits=18)),
-                ("locked_balance", models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=18),
+                ),
+                (
+                    "locked_balance",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=18),
+                ),
                 ("last_updated", models.DateTimeField(auto_now=True)),
             ],
             options={
@@ -30,7 +43,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AuditLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "action_type",
                     models.CharField(
@@ -62,10 +83,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Block",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("block_number", models.IntegerField(db_index=True, unique=True)),
                 ("previous_hash", models.CharField(db_index=True, max_length=64)),
-                ("block_hash", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "block_hash",
+                    models.CharField(db_index=True, max_length=64, unique=True),
+                ),
                 ("timestamp", models.DateTimeField(default=django.utils.timezone.now)),
                 ("nonce", models.IntegerField(default=0)),
                 ("merkle_root", models.CharField(blank=True, max_length=64)),
@@ -83,8 +115,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DigitalAsset",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("asset_id", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "asset_id",
+                    models.CharField(db_index=True, max_length=64, unique=True),
+                ),
                 ("asset_name", models.CharField(max_length=100)),
                 ("asset_symbol", models.CharField(max_length=10)),
                 (
@@ -101,7 +144,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("total_supply", models.DecimalField(decimal_places=2, max_digits=18)),
-                ("circulating_supply", models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                (
+                    "circulating_supply",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=18),
+                ),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
                 ("metadata", models.JSONField(default=dict)),
             ],
@@ -114,8 +160,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SmartContract",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("contract_address", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "contract_address",
+                    models.CharField(db_index=True, max_length=64, unique=True),
+                ),
                 ("contract_name", models.CharField(max_length=100)),
                 (
                     "contract_type",
@@ -132,8 +189,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("code", models.TextField(help_text="Sözleşme kodu (JSON/Python)")),
-                ("abi", models.JSONField(blank=True, default=dict, help_text="Application Binary Interface")),
-                ("deployed_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "abi",
+                    models.JSONField(
+                        blank=True,
+                        default=dict,
+                        help_text="Application Binary Interface",
+                    ),
+                ),
+                (
+                    "deployed_at",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 ("is_active", models.BooleanField(default=True)),
                 ("execution_count", models.IntegerField(default=0)),
                 ("last_executed", models.DateTimeField(blank=True, null=True)),
@@ -148,8 +215,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Transaction",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("transaction_id", models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "transaction_id",
+                    models.CharField(db_index=True, max_length=64, unique=True),
+                ),
                 (
                     "transaction_type",
                     models.CharField(
@@ -169,7 +247,10 @@ class Migration(migrations.Migration):
                 ),
                 ("from_address", models.CharField(max_length=255)),
                 ("to_address", models.CharField(max_length=255)),
-                ("amount", models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                (
+                    "amount",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=18),
+                ),
                 ("payload", models.JSONField(default=dict)),
                 ("payload_hash", models.CharField(db_index=True, max_length=64)),
                 (
@@ -186,8 +267,16 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("timestamp", models.DateTimeField(db_index=True, default=django.utils.timezone.now)),
-                ("gas_fee", models.DecimalField(decimal_places=2, default=0, max_digits=10)),
+                (
+                    "timestamp",
+                    models.DateTimeField(
+                        db_index=True, default=django.utils.timezone.now
+                    ),
+                ),
+                (
+                    "gas_fee",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
                 ("signature", models.TextField(blank=True)),
                 ("reference_model", models.CharField(blank=True, max_length=50)),
                 ("reference_id", models.IntegerField(blank=True, null=True)),
@@ -229,7 +318,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="chainrecord",
-            index=models.Index(fields=["reference", "hash_hex"], name="blockchain__referen_a69878_idx"),
+            index=models.Index(
+                fields=["reference", "hash_hex"], name="blockchain__referen_a69878_idx"
+            ),
         ),
         migrations.AddField(
             model_name="transaction",
@@ -246,21 +337,29 @@ class Migration(migrations.Migration):
             model_name="transaction",
             name="created_by",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
             model_name="smartcontract",
             name="deployed_by",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
             model_name="digitalasset",
             name="contract",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="blockchain.smartcontract"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="blockchain.smartcontract",
             ),
         ),
         migrations.AddField(
@@ -288,7 +387,10 @@ class Migration(migrations.Migration):
             model_name="auditlog",
             name="transaction",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="blockchain.transaction"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="blockchain.transaction",
             ),
         ),
         migrations.AddField(
@@ -304,13 +406,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="assetbalance",
             name="asset",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="blockchain.digitalasset"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="blockchain.digitalasset",
+            ),
         ),
         migrations.AddField(
             model_name="assetbalance",
             name="user",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="asset_balances", to=settings.AUTH_USER_MODEL
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="asset_balances",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
@@ -326,11 +433,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="transaction",
-            index=models.Index(fields=["transaction_type", "status"], name="blockchain__transac_978433_idx"),
+            index=models.Index(
+                fields=["transaction_type", "status"],
+                name="blockchain__transac_978433_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="transaction",
-            index=models.Index(fields=["timestamp"], name="blockchain__timesta_8ceb09_idx"),
+            index=models.Index(
+                fields=["timestamp"], name="blockchain__timesta_8ceb09_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
             name="assetbalance",

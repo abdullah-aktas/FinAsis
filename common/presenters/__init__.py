@@ -3,5 +3,4 @@
 from .base import BasePresenter, PresenterResult  # noqa: F401
 from . import maskers  # noqa: F401
 
-__all__ = ['BasePresenter', 'PresenterResult', 'maskers']
-
+__all__ = ["BasePresenter", "PresenterResult", "maskers"]

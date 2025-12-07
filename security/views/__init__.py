@@ -1,6 +1,5 @@
 """Security views package."""
 
 __all__ = [
-    'compliance_views',
+    "compliance_views",
 ]
-

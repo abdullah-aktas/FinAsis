@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("common", "0002_errorlog"),
         ("common", "0003_webhook_systemsetting_emailtemplate_apikey_and_more"),

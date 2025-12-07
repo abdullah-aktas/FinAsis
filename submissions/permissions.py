@@ -7,13 +7,13 @@ class AdvisorOnlySubmission(BasePermission):
 
     def has_permission(self, request, view):
         # Allow if feature flag explicitly allows direct submissions
-        if getattr(settings, 'SUBMISSIONS_ALLOW_DIRECT', False):
+        if getattr(settings, "SUBMISSIONS_ALLOW_DIRECT", False):
             return True
-        user = getattr(request, 'user', None)
+        user = getattr(request, "user", None)
         if not user or not user.is_authenticated:
             return False
         # User must be an advisor with verified profile
-        advisor = getattr(user, 'advisor_profile', None)
-        if not advisor or not getattr(advisor, 'verified_at', None):
+        advisor = getattr(user, "advisor_profile", None)
+        if not advisor or not getattr(advisor, "verified_at", None):
             return False
         return True

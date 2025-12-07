@@ -4,24 +4,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('games', '0001_initial'),
+        ("games", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='City',
+            name="City",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('sectors', models.JSONField(default=list)),
-                ('market_size', models.IntegerField(default=1000)),
-                ('coordinates', models.JSONField(default=dict)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='city_images/')),
-                ('sector_markets', models.JSONField(blank=True, default=dict)),
-                ('neighbors', models.ManyToManyField(blank=True, to='games.city')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                ("sectors", models.JSONField(default=list)),
+                ("market_size", models.IntegerField(default=1000)),
+                ("coordinates", models.JSONField(default=dict)),
+                (
+                    "image",
+                    models.ImageField(blank=True, null=True, upload_to="city_images/"),
+                ),
+                ("sector_markets", models.JSONField(blank=True, default=dict)),
+                ("neighbors", models.ManyToManyField(blank=True, to="games.city")),
             ],
         ),
     ]

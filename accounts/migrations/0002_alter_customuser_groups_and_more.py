@@ -5,51 +5,119 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounting', '0002_banktransaction'),
-        ('accounts', '0001_initial'),
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("accounting", "0002_banktransaction"),
+        ("accounts", "0001_initial"),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='groups',
-            field=models.ManyToManyField(blank=True, help_text='The groups this user belongs to.', related_name='customuser_set', to='auth.group', verbose_name='groups'),
+            model_name="customuser",
+            name="groups",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="The groups this user belongs to.",
+                related_name="customuser_set",
+                to="auth.group",
+                verbose_name="groups",
+            ),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='customuser_set', to='auth.permission', verbose_name='user permissions'),
+            model_name="customuser",
+            name="user_permissions",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Specific permissions for this user.",
+                related_name="customuser_set",
+                to="auth.permission",
+                verbose_name="user permissions",
+            ),
         ),
         migrations.CreateModel(
-            name='Achievement',
+            name="Achievement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100, verbose_name='Başlık')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Açıklama')),
-                ('icon', models.CharField(default='bi-trophy', max_length=50, verbose_name='İkon (Bootstrap)')),
-                ('date_earned', models.DateField(auto_now_add=True, verbose_name='Kazanılma Tarihi')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='achievements', to='accounting.company', verbose_name='Şirket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100, verbose_name="Başlık")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "icon",
+                    models.CharField(
+                        default="bi-trophy",
+                        max_length=50,
+                        verbose_name="İkon (Bootstrap)",
+                    ),
+                ),
+                (
+                    "date_earned",
+                    models.DateField(
+                        auto_now_add=True, verbose_name="Kazanılma Tarihi"
+                    ),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="achievements",
+                        to="accounting.company",
+                        verbose_name="Şirket",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Başarım',
-                'verbose_name_plural': 'Başarımlar',
-                'ordering': ['-date_earned'],
+                "verbose_name": "Başarım",
+                "verbose_name_plural": "Başarımlar",
+                "ordering": ["-date_earned"],
             },
         ),
         migrations.CreateModel(
-            name='UserSettings',
+            name="UserSettings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email_notifications', models.BooleanField(default=True, verbose_name='E-posta Bildirimleri')),
-                ('dark_mode', models.BooleanField(default=False, verbose_name='Koyu Tema Tercihi')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='settings', to='accounts.customuser', verbose_name='Kullanıcı')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email_notifications",
+                    models.BooleanField(
+                        default=True, verbose_name="E-posta Bildirimleri"
+                    ),
+                ),
+                (
+                    "dark_mode",
+                    models.BooleanField(
+                        default=False, verbose_name="Koyu Tema Tercihi"
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="settings",
+                        to="accounts.customuser",
+                        verbose_name="Kullanıcı",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kullanıcı Ayarları',
-                'verbose_name_plural': 'Kullanıcı Ayarları',
+                "verbose_name": "Kullanıcı Ayarları",
+                "verbose_name_plural": "Kullanıcı Ayarları",
             },
         ),
     ]

@@ -9,13 +9,11 @@ import random
 import platform
 import threading
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 # Üçüncü parti kütüphaneler
 from ursina import (
-    Ursina, Entity, Vec3, color, window, Text, Button, Func,
-    camera, destroy, application, WindowPanel, DirectionalLight,
-    held_keys, mouse
+    Ursina, Entity, color, window, Text, Button, Func,
+    camera, destroy, application, WindowPanel
 )
 from ursina.prefabs.first_person_controller import FirstPersonController
 
@@ -572,7 +570,7 @@ class FinAsisGame(Ursina):
 def run_game(online_mode: bool = False):
     """Oyunu başlat"""
     app = Ursina()
-    dunya = FinAsisGame(online_mode=online_mode)
+    FinAsisGame(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -626,6 +624,8 @@ def create_top_info_panel():
         position=(-0.4, 0.45),
         scale=2,
         color=color.white
+    )
+
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
@@ -1172,7 +1172,7 @@ class FinAsisGame(Ursina):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinAsisGame(online_mode=online_mode)
+    FinAsisGame(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -2076,7 +2076,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -2338,7 +2338,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -2347,7 +2347,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -2503,19 +2503,8 @@ def buy_stock(symbol):
     
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import color, Ursina
 
 # Django ayarlarÄ±nÄ± yÃ¼kle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -2773,19 +2762,8 @@ quest_ui = {
 
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import color, Ursina
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -3083,7 +3061,7 @@ class FinAsisGame(Ursina):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinAsisGame(online_mode=online_mode)
+    FinAsisGame(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -3987,7 +3965,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -4249,7 +4227,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -4258,7 +4236,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -4527,7 +4505,7 @@ class CharacterSelection:
         
         # Karakter kartlarÄ±
         for i, char in enumerate(self.characters):
-            card = Entity(
+            Entity(
                 model='quad',
                 scale=(0.3, 0.4),
                 color=color.white,
@@ -4682,7 +4660,7 @@ class MissionSystem:
             
     def load_level_background(self):
         level = self.levels[self.current_level - 1]
-        background = level['background']
+        level['background']
         # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
@@ -4822,8 +4800,8 @@ def start_game():
     app = Ursina()
     
     # Oyun modlarÄ±
-    battle_royale = BattleRoyaleMode()
-    tournament = FastFinanceTournament()
+    BattleRoyaleMode()
+    FastFinanceTournament()
     
     # Ana menÃ¼
     menu = Entity(parent=camera.ui)
@@ -4873,19 +4851,8 @@ def apply_player_event(player=None, event=None):
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import color, Ursina
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -5433,7 +5400,7 @@ class FinansalDunya(Entity):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinansalDunya(online_mode=online_mode)
+    FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -6337,7 +6304,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -6599,7 +6566,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -6608,7 +6575,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -6764,19 +6731,8 @@ def buy_stock(symbol):
     
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import Entity, color, Ursina
 
 # Django ayarlarÄ±nÄ± yÃ¼kle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -7324,7 +7280,7 @@ class FinansalDunya(Entity):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinansalDunya(online_mode=online_mode)
+    FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -8228,7 +8184,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -8490,7 +8446,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -8499,7 +8455,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -8768,7 +8724,7 @@ class CharacterSelection:
         
         # Karakter kartlarÄ±
         for i, char in enumerate(self.characters):
-            card = Entity(
+            Entity(
                 model='quad',
                 scale=(0.3, 0.4),
                 color=color.white,
@@ -8923,7 +8879,7 @@ class MissionSystem:
             
     def load_level_background(self):
         level = self.levels[self.current_level - 1]
-        background = level['background']
+        level['background']
         # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
@@ -9063,8 +9019,8 @@ def start_game():
     app = Ursina()
     
     # Oyun modlarÄ±
-    battle_royale = BattleRoyaleMode()
-    tournament = FastFinanceTournament()
+    BattleRoyaleMode()
+    FastFinanceTournament()
     
     # Ana menÃ¼
     menu = Entity(parent=camera.ui)
@@ -9111,23 +9067,12 @@ def apply_player_event(player=None, event=None):
     if effect and callable(effect):
         effect(player)
 
-class FinAsisGame(Ursina):
+
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import Entity, color, Ursina
 
 # Django ayarlarını yükle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -9675,7 +9620,7 @@ class FinansalDunya(Entity):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinansalDunya(online_mode=online_mode)
+    FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -10579,7 +10524,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -10841,7 +10786,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -10850,7 +10795,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -11006,19 +10951,8 @@ def buy_stock(symbol):
     
 from __future__ import absolute_import, unicode_literals
 import os
-import random
-from datetime import datetime, timedelta
-import json
-from ursina import Entity, Vec3, color, window, Ursina, Text, Button, Func, camera, destroy, application, WindowPanel, DirectionalLight, held_keys, mouse
-from ursina.prefabs.first_person_controller import FirstPersonController
-from . import FinansalSimulasyonOyunu
-from .ar_module import ARManager
-from .locales.locale_manager import LocaleManager
-import time
-import platform
-from typing import Dict, List, Optional
-import threading
-from game_integration import GameIntegration
+from datetime import datetime
+from ursina import Entity, color, Ursina
 
 # Django ayarlarÄ±nÄ± yÃ¼kle
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
@@ -11566,7 +11500,7 @@ class FinansalDunya(Entity):
 def run_game(online_mode: bool = False):
     """Oyunu baÅŸlat"""
     app = Ursina()
-    dunya = FinansalDunya(online_mode=online_mode)
+    FinansalDunya(online_mode=online_mode)
     app.run()
 
 def create_ui():
@@ -12470,7 +12404,7 @@ def calculate_weekly_growth():
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
-    week_ago_trades = [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
+    [t for t in player['trading_history'] if t['timestamp'] <= week_ago]
     
     # Åžu anki portfÃ¶y deÄŸeri
     current_value = calculate_portfolio_value()
@@ -12732,7 +12666,7 @@ def show_market_event(event):
     )
     
     # BaÅŸlÄ±k
-    title_text = Text(
+    Text(
         parent=notification,
         text=event['title'],
         position=(0, 0.05),
@@ -12741,7 +12675,7 @@ def show_market_event(event):
     )
     
     # AÃ§Ä±klama
-    desc_text = Text(
+    Text(
         parent=notification,
         text=event['description'],
         position=(0, -0.02),
@@ -13010,7 +12944,7 @@ class CharacterSelection:
         
         # Karakter kartlarÄ±
         for i, char in enumerate(self.characters):
-            card = Entity(
+            Entity(
                 model='quad',
                 scale=(0.3, 0.4),
                 color=color.white,
@@ -13165,7 +13099,7 @@ class MissionSystem:
             
     def load_level_background(self):
         level = self.levels[self.current_level - 1]
-        background = level['background']
+        level['background']
         # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
@@ -13305,8 +13239,8 @@ def start_game():
     app = Ursina()
     
     # Oyun modlarÄ±
-    battle_royale = BattleRoyaleMode()
-    tournament = FastFinanceTournament()
+    BattleRoyaleMode()
+    FastFinanceTournament()
     
     # Ana menÃ¼
     menu = Entity(parent=camera.ui)
@@ -14152,7 +14086,7 @@ class FinAsisGame(Ursina):
         
         # Oyun hÄ±zÄ± kontrolÃ¼
         if not self.game_state['is_paused']:
-            time_delta = (current_time - self.game_state['current_time']) * self.game_state['game_speed']
+            (current_time - self.game_state['current_time']) * self.game_state['game_speed']
             self.game_state['current_time'] = current_time
             
             # Sistem gÃ¼ncellemeleri
@@ -14347,7 +14281,6 @@ class FinAsisGame(Ursina):
             'production_system': self.production_system,
             'hr_system': self.hr_system,
             'marketing_system': self.marketing_system,
-            'rnd_system': self.rnd_system,
             'rnd_system': self.rnd_system
         }
         
@@ -14511,7 +14444,7 @@ class FinAsisGame(Ursina):
     def perform_quality_audit(self):
         """Kalite denetimi yapar"""
         # Hata oranÄ±nÄ± kontrol et
-        defect_rate = self.quality_system['quality_control']['defect_rate']
+        self.quality_system['quality_control']['defect_rate']
         
         # ISO standartlarÄ±na uygunluk kontrolÃ¼
         for standard in self.quality_system['iso_standards']:
@@ -15490,7 +15423,7 @@ class FinAsisGame(Ursina):
         """SatÄ±ÅŸ geÃ§miÅŸini kontrol eder"""
         # Yeni iÅŸlemler
         if random.random() < 0.2:  # %20 ÅŸans
-            new_transaction = {
+            {
                 'customer_id': random.randint(1, len(self.crm_system['customer_data']['customers'])),
                 'amount': random.uniform(100, 1000),
                 'product': random.choice(['Ã¼rÃ¼n', 'hizmet', 'abonelik']),

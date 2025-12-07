@@ -91,25 +91,44 @@ def recommend_settings(user, game: str) -> GameSettings:
         }
     elif game == "stock-market":
         params = {
-            "volatility": {"easy": 0.8, "medium": 1.0, "hard": 1.3}.get(difficulty, 1.0),
-            "starting_cash": {"easy": 150000, "medium": 100000, "hard": 70000}.get(difficulty, 100000),
+            "volatility": {"easy": 0.8, "medium": 1.0, "hard": 1.3}.get(
+                difficulty, 1.0
+            ),
+            "starting_cash": {"easy": 150000, "medium": 100000, "hard": 70000}.get(
+                difficulty, 100000
+            ),
         }
     elif game == "budget-challenge":
         params = {
-            "scenario_level": {"easy": "beginner", "medium": "standard", "hard": "advanced"}.get(difficulty, "standard"),
+            "scenario_level": {
+                "easy": "beginner",
+                "medium": "standard",
+                "hard": "advanced",
+            }.get(difficulty, "standard"),
         }
     elif game == "investment-simulator":
         params = {
-            "market_noise": {"easy": 0.8, "medium": 1.0, "hard": 1.2}.get(difficulty, 1.0),
+            "market_noise": {"easy": 0.8, "medium": 1.0, "hard": 1.2}.get(
+                difficulty, 1.0
+            ),
         }
     elif game == "trade-sim":
         params = {
-            "demand_variance": {"easy": 0.8, "medium": 1.0, "hard": 1.25}.get(difficulty, 1.0),
-            "starting_capital": {"easy": 12000, "medium": 10000, "hard": 8000}.get(difficulty, 10000),
+            "demand_variance": {"easy": 0.8, "medium": 1.0, "hard": 1.25}.get(
+                difficulty, 1.0
+            ),
+            "starting_capital": {"easy": 12000, "medium": 10000, "hard": 8000}.get(
+                difficulty, 10000
+            ),
         }
 
     # Save last recommended
-    pp.last_recommended = {"game": game, "difficulty": difficulty, "hints": hints, "params": params}
+    pp.last_recommended = {
+        "game": game,
+        "difficulty": difficulty,
+        "hints": hints,
+        "params": params,
+    }
     pp.save(update_fields=["last_recommended"])
 
     return GameSettings(difficulty=difficulty, hints=hints, params=params)

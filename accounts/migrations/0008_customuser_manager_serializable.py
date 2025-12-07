@@ -5,7 +5,8 @@ from django.db import models
 
 try:
     import accounts.models as accounts_models
-    DefaultManagerClass = getattr(accounts_models, 'CustomUserManager', models.Manager)
+
+    DefaultManagerClass = getattr(accounts_models, "CustomUserManager", models.Manager)
 except Exception:
     # Fallback during tests or when import path is unavailable
     DefaultManagerClass = models.Manager
@@ -17,17 +18,19 @@ def set_customuser_manager(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0007_subscriptiontype_audience_subscriptiontype_features_and_more'),
+        (
+            "accounts",
+            "0007_subscriptiontype_audience_subscriptiontype_features_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='customuser',
+            name="customuser",
             managers=[
                 # Use the real CustomUserManager if importable; otherwise fall back to base Manager
-                ('objects', DefaultManagerClass()),
+                ("objects", DefaultManagerClass()),
             ],
         ),
     ]

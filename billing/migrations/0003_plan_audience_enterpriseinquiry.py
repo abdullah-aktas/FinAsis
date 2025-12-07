@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("billing", "0002_plangroup"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -16,12 +15,24 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="plan",
             name="audience",
-            field=models.CharField(choices=[("sme", "KOBİ"), ("edu", "Eğitim")], default="sme", max_length=10),
+            field=models.CharField(
+                choices=[("sme", "KOBİ"), ("edu", "Eğitim")],
+                default="sme",
+                max_length=10,
+            ),
         ),
         migrations.CreateModel(
             name="EnterpriseInquiry",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("email", models.EmailField(max_length=254)),
                 ("company", models.CharField(blank=True, default="", max_length=150)),
@@ -31,13 +42,19 @@ class Migration(migrations.Migration):
                 (
                     "plan",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="billing.plan"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="billing.plan",
                     ),
                 ),
                 (
                     "user",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],

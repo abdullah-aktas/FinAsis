@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("advisors", "0003_consultationsession_clientdocument_clientcontract_and_more"),
         ("education", "0013_studentprofile_studentassignment_studentprogress"),

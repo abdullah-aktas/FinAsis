@@ -8,14 +8,15 @@ from django.utils.translation import gettext_lazy as _
 
 class ChecksConfig(AppConfig):
     """Çek/Senet uygulaması yapılandırması"""
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'finance.checks'
-    verbose_name = _('Çek/Senet Yönetimi')
-    label = 'finance_checks'  # Benzersiz etiket
-    
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "finance.checks"
+    verbose_name = _("Çek/Senet Yönetimi")
+    label = "finance_checks"  # Benzersiz etiket
+
     def ready(self):
         """Uygulama başlatıldığında yapılacak işlemler"""
         try:
             import finance.checks.signals  # noqa
         except ImportError:
-            pass 
+            pass

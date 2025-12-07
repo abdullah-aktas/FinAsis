@@ -63,5 +63,3 @@ STATIC_PAGES: tuple[StaticPage, ...] = (
     StaticPage("accounting:financial_analysis", changefreq="weekly", priority=0.5),
     StaticPage("accounting:scenario_list", changefreq="weekly", priority=0.5),
 )
-
-

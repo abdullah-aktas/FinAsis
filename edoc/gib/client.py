@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import json
 import time
 import uuid
 import os
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Literal, Optional
+from typing import Optional
 
 from ..shared.config import EdocSettings
 from ..shared.logging import get_logger
@@ -21,7 +18,12 @@ class GibClient:
       - EDOC_GIB_MODE=http
     """
 
-    def __init__(self, settings: Optional[EdocSettings] = None, state_dir: Optional[str] = None, mode: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        settings: Optional[EdocSettings] = None,
+        state_dir: Optional[str] = None,
+        mode: Optional[str] = None,
+    ) -> None:
         self.settings = settings or EdocSettings.from_env()
         self.logger = get_logger(__name__)
         effective_mode = (mode or os.environ.get("EDOC_GIB_MODE") or "stub").lower()
@@ -31,7 +33,9 @@ class GibClient:
             # default to stub and preserve state_dir behavior
             self.adapter = StubGibAdapter(state_dir)
 
-    def send_with_retry(self, xml_bytes: bytes, idempotency_key: Optional[str] = None) -> SendResult:
+    def send_with_retry(
+        self, xml_bytes: bytes, idempotency_key: Optional[str] = None
+    ) -> SendResult:
         rp = self.settings.retry
         attempt = 0
         last = None
@@ -44,13 +48,19 @@ class GibClient:
                 return res
             time.sleep(min(delay, rp.max_backoff_seconds))
             delay *= 2
-        return last or SendResult(tracking_id=idempotency_key or str(uuid.uuid4()), status="ERROR")
+        return last or SendResult(
+            tracking_id=idempotency_key or str(uuid.uuid4()), status="ERROR"
+        )
 
     # --- Delegated public API for backwards compatibility ---
-    def send_invoice(self, xml_bytes: bytes, idempotency_key: Optional[str] = None) -> SendResult:
+    def send_invoice(
+        self, xml_bytes: bytes, idempotency_key: Optional[str] = None
+    ) -> SendResult:
         return self.adapter.send_invoice(xml_bytes, idempotency_key)
 
-    def send_archive_invoice(self, xml_bytes: bytes, idempotency_key: Optional[str] = None) -> SendResult:
+    def send_archive_invoice(
+        self, xml_bytes: bytes, idempotency_key: Optional[str] = None
+    ) -> SendResult:
         return self.adapter.send_archive_invoice(xml_bytes, idempotency_key)
 
     def poll(self, tracking_id: str) -> Status:

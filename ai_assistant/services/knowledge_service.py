@@ -10,7 +10,9 @@ import requests
 
 
 SENSITIVE_PATTERNS = [
-    re.compile(r"(?i)(api[_-]?key|secret|token)\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{12,}['\"]?"),
+    re.compile(
+        r"(?i)(api[_-]?key|secret|token)\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{12,}['\"]?"
+    ),
     re.compile(r"-----BEGIN (?:RSA|EC|OPENSSH) PRIVATE KEY-----"),
 ]
 
@@ -85,25 +87,29 @@ class KnowledgeCrawler:
         self.out_path = out_path
 
     def _extract_main_text(self, html: str) -> Tuple[str, str]:
-        soup = BeautifulSoup(html, 'lxml')
-        title = (soup.title.string if soup.title else '') or ''
-        for tag in soup(['script', 'style', 'noscript']):
+        soup = BeautifulSoup(html, "lxml")
+        title = (soup.title.string if soup.title else "") or ""
+        for tag in soup(["script", "style", "noscript"]):
             tag.extract()
         texts = [t.strip() for t in soup.stripped_strings]
-        content = '\n'.join(t for t in texts if t)
+        content = "\n".join(t for t in texts if t)
         return title.strip(), _redact(content)
 
     def add_urls(self, urls: List[str]) -> int:
         # mevcut dosyayı yükle
         current = KnowledgeIndex.load(self.out_path)
-        items: List[Dict[str, Any]] = [] if current is None else [
-            {'id': ch.id, 'path': ch.path, 'title': ch.title, 'content': ch.content}
-            for ch in current.chunks
-        ]
+        items: List[Dict[str, Any]] = (
+            []
+            if current is None
+            else [
+                {"id": ch.id, "path": ch.path, "title": ch.title, "content": ch.content}
+                for ch in current.chunks
+            ]
+        )
         start_len = len(items)
 
         session = requests.Session()
-        headers = {'User-Agent': 'FinAsis-KB/1.0'}
+        headers = {"User-Agent": "FinAsis-KB/1.0"}
         for u in urls:
             try:
                 r = session.get(u, timeout=15, headers=headers)
@@ -112,18 +118,20 @@ class KnowledgeCrawler:
                 title, content = self._extract_main_text(r.text)
                 if not content:
                     continue
-                items.append({
-                    'id': len(items) + 1,
-                    'path': u,
-                    'title': title,
-                    'content': content[:50000],  # boyut limiti
-                })
+                items.append(
+                    {
+                        "id": len(items) + 1,
+                        "path": u,
+                        "title": title,
+                        "content": content[:50000],  # boyut limiti
+                    }
+                )
             except Exception:
                 continue
 
         os.makedirs(os.path.dirname(self.out_path), exist_ok=True)
-        with open(self.out_path, 'w', encoding='utf-8') as f:
-            json.dump({'chunks': items}, f, ensure_ascii=False, indent=2)
+        with open(self.out_path, "w", encoding="utf-8") as f:
+            json.dump({"chunks": items}, f, ensure_ascii=False, indent=2)
         return len(items) - start_len
 
     def add_local_docs(self, docs: List[Dict[str, str]]) -> int:
@@ -132,41 +140,51 @@ class KnowledgeCrawler:
         docs: [{ 'path': '/abs/path/or/logical', 'title': 'Başlık', 'content': '...' }]
         """
         current = KnowledgeIndex.load(self.out_path)
-        items: List[Dict[str, Any]] = [] if current is None else [
-            {'id': ch.id, 'path': ch.path, 'title': ch.title, 'content': ch.content}
-            for ch in current.chunks
-        ]
+        items: List[Dict[str, Any]] = (
+            []
+            if current is None
+            else [
+                {"id": ch.id, "path": ch.path, "title": ch.title, "content": ch.content}
+                for ch in current.chunks
+            ]
+        )
         # Mevcut kayıtlar için hızlı tekrar ekleme kontrolü (path+title ve içerik hash'i)
         existing_keys = set()
         existing_content_hashes = set()
         for it in items:
             key = f"{it.get('path','').strip()}:::{it.get('title','').strip()}"
             existing_keys.add(key)
-            content_val = it.get('content', '')
-            content_hash = hashlib.sha256(content_val.encode('utf-8', errors='ignore')).hexdigest()
+            content_val = it.get("content", "")
+            content_hash = hashlib.sha256(
+                content_val.encode("utf-8", errors="ignore")
+            ).hexdigest()
             existing_content_hashes.add(content_hash)
         start_len = len(items)
         for d in docs:
             try:
-                title = str(d.get('title') or '').strip()
-                path = str(d.get('path') or '').strip()
-                content = _redact(str(d.get('content') or '')).strip()
+                title = str(d.get("title") or "").strip()
+                path = str(d.get("path") or "").strip()
+                content = _redact(str(d.get("content") or "")).strip()
                 if not content:
                     continue
                 key = f"{path}:::{title}"
                 if key in existing_keys:
                     # Aynı path+title zaten eklenmiş
                     continue
-                content_hash = hashlib.sha256(content.encode('utf-8', errors='ignore')).hexdigest()
+                content_hash = hashlib.sha256(
+                    content.encode("utf-8", errors="ignore")
+                ).hexdigest()
                 if content_hash in existing_content_hashes:
                     # İçerik zaten mevcut bir dokümanla aynı
                     continue
-                items.append({
-                    'id': len(items) + 1,
-                    'path': path,
-                    'title': title,
-                    'content': content[:50000],
-                })
+                items.append(
+                    {
+                        "id": len(items) + 1,
+                        "path": path,
+                        "title": title,
+                        "content": content[:50000],
+                    }
+                )
                 existing_keys.add(key)
                 existing_content_hashes.add(content_hash)
             except Exception:
@@ -174,6 +192,6 @@ class KnowledgeCrawler:
         out_dir = os.path.dirname(self.out_path)
         if out_dir:
             os.makedirs(out_dir, exist_ok=True)
-        with open(self.out_path, 'w', encoding='utf-8') as f:
-            json.dump({'chunks': items}, f, ensure_ascii=False, indent=2)
+        with open(self.out_path, "w", encoding="utf-8") as f:
+            json.dump({"chunks": items}, f, ensure_ascii=False, indent=2)
         return len(items) - start_len

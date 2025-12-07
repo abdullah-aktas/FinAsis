@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,62 +18,121 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SMEBenchmark",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("industry_code", models.CharField(max_length=20, verbose_name="Sektör Kodu")),
-                ("industry_name", models.CharField(max_length=200, verbose_name="Sektör Adı")),
-                ("company_size_category", models.CharField(max_length=50, verbose_name="Şirket Büyüklük Kategorisi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "industry_code",
+                    models.CharField(max_length=20, verbose_name="Sektör Kodu"),
+                ),
+                (
+                    "industry_name",
+                    models.CharField(max_length=200, verbose_name="Sektör Adı"),
+                ),
+                (
+                    "company_size_category",
+                    models.CharField(
+                        max_length=50, verbose_name="Şirket Büyüklük Kategorisi"
+                    ),
+                ),
                 (
                     "benchmark_current_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark Cari Oran"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark Cari Oran",
                     ),
                 ),
                 (
                     "benchmark_quick_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark Asit Test"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark Asit Test",
                     ),
                 ),
                 (
                     "benchmark_debt_to_equity",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark Borç/Özkaynak"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark Borç/Özkaynak",
                     ),
                 ),
                 (
                     "benchmark_profit_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark Kar Marjı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark Kar Marjı",
                     ),
                 ),
                 (
                     "benchmark_roa",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark ROA"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark ROA",
                     ),
                 ),
                 (
                     "benchmark_roe",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Benchmark ROE"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Benchmark ROE",
                     ),
                 ),
                 ("sample_size", models.IntegerField(verbose_name="Örneklem Büyüklüğü")),
                 ("data_year", models.IntegerField(verbose_name="Veri Yılı")),
-                ("last_updated", models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")),
+                (
+                    "last_updated",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme"),
+                ),
             ],
             options={
                 "verbose_name": "KOBİ Benchmark Verisi",
                 "verbose_name_plural": "KOBİ Benchmark Verileri",
                 "ordering": ["industry_name", "company_size_category"],
-                "unique_together": {("industry_code", "company_size_category", "data_year")},
+                "unique_together": {
+                    ("industry_code", "company_size_category", "data_year")
+                },
             },
         ),
         migrations.CreateModel(
             name="BudgetPlan",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("budget_name", models.CharField(max_length=200, verbose_name="Bütçe Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "budget_name",
+                    models.CharField(max_length=200, verbose_name="Bütçe Adı"),
+                ),
                 (
                     "budget_type",
                     models.CharField(
@@ -94,55 +152,82 @@ class Migration(migrations.Migration):
                 (
                     "planned_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Planlanan Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Planlanan Gelir",
                     ),
                 ),
                 (
                     "planned_expenses",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Planlanan Gider"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Planlanan Gider",
                     ),
                 ),
                 (
                     "planned_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Planlanan Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Planlanan Kar",
                     ),
                 ),
                 (
                     "actual_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gerçekleşen Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gerçekleşen Gelir",
                     ),
                 ),
                 (
                     "actual_expenses",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gerçekleşen Gider"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gerçekleşen Gider",
                     ),
                 ),
                 (
                     "actual_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gerçekleşen Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gerçekleşen Kar",
                     ),
                 ),
                 (
                     "revenue_variance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gelir Varyansı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gelir Varyansı",
                     ),
                 ),
                 (
                     "expense_variance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gider Varyansı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gider Varyansı",
                     ),
                 ),
                 (
                     "profit_variance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Kar Varyansı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Kar Varyansı",
                     ),
                 ),
                 (
@@ -160,10 +245,28 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("notes", models.TextField(blank=True, null=True, verbose_name="Notlar")),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="Onay Tarihi")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Notlar"),
+                ),
+                (
+                    "approved_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Onay Tarihi"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "approved_by",
                     models.ForeignKey(
@@ -178,7 +281,9 @@ class Migration(migrations.Migration):
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -200,8 +305,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CashFlowForecast",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("forecast_name", models.CharField(max_length=200, verbose_name="Tahmin Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "forecast_name",
+                    models.CharField(max_length=200, verbose_name="Tahmin Adı"),
+                ),
                 (
                     "forecast_type",
                     models.CharField(
@@ -219,119 +335,193 @@ class Migration(migrations.Migration):
                 (
                     "cash_from_sales",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Satışlardan Nakit"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Satışlardan Nakit",
                     ),
                 ),
                 (
                     "cash_from_receivables",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Alacaklardan Nakit"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Alacaklardan Nakit",
                     ),
                 ),
                 (
                     "cash_from_investments",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Yatırımlardan Nakit"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Yatırımlardan Nakit",
                     ),
                 ),
                 (
                     "cash_from_loans",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Kredilerden Nakit"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Kredilerden Nakit",
                     ),
                 ),
                 (
                     "other_cash_inflows",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Diğer Nakit Girişleri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Diğer Nakit Girişleri",
                     ),
                 ),
                 (
                     "cash_for_operations",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Operasyonel Giderler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Operasyonel Giderler",
                     ),
                 ),
                 (
                     "cash_for_payroll",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Bordro Ödemeleri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Bordro Ödemeleri",
                     ),
                 ),
                 (
                     "cash_for_suppliers",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Tedarikçi Ödemeleri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Tedarikçi Ödemeleri",
                     ),
                 ),
                 (
                     "cash_for_taxes",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Vergi Ödemeleri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Vergi Ödemeleri",
                     ),
                 ),
                 (
                     "cash_for_investments",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Yatırım Harcamaları"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Yatırım Harcamaları",
                     ),
                 ),
                 (
                     "cash_for_loan_payments",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Kredi Ödemeleri"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Kredi Ödemeleri",
                     ),
                 ),
                 (
                     "other_cash_outflows",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Diğer Nakit Çıkışları"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Diğer Nakit Çıkışları",
                     ),
                 ),
                 (
                     "total_cash_inflows",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Nakit Girişi"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Nakit Girişi",
                     ),
                 ),
                 (
                     "total_cash_outflows",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Nakit Çıkışı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Nakit Çıkışı",
                     ),
                 ),
                 (
                     "net_cash_flow",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Net Nakit Akışı"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Net Nakit Akışı",
                     ),
                 ),
                 (
                     "opening_cash_balance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Açılış Nakit Bakiyesi"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Açılış Nakit Bakiyesi",
                     ),
                 ),
                 (
                     "closing_cash_balance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Kapanış Nakit Bakiyesi"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Kapanış Nakit Bakiyesi",
                     ),
                 ),
-                ("cash_shortage_risk", models.BooleanField(default=False, verbose_name="Nakit Sıkışıklığı Riski")),
+                (
+                    "cash_shortage_risk",
+                    models.BooleanField(
+                        default=False, verbose_name="Nakit Sıkışıklığı Riski"
+                    ),
+                ),
                 (
                     "minimum_cash_threshold",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("10000.00"), max_digits=15, verbose_name="Minimum Nakit Eşiği"
+                        decimal_places=2,
+                        default=Decimal("10000.00"),
+                        max_digits=15,
+                        verbose_name="Minimum Nakit Eşiği",
                     ),
                 ),
-                ("notes", models.TextField(blank=True, null=True, verbose_name="Notlar")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Notlar"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -353,7 +543,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialRatio",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "ratio_category",
                     models.CharField(
@@ -372,96 +570,179 @@ class Migration(migrations.Migration):
                 (
                     "current_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Cari Oran"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Cari Oran",
                     ),
                 ),
                 (
                     "quick_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Asit Test Oranı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Asit Test Oranı",
                     ),
                 ),
                 (
                     "cash_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Nakit Oranı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Nakit Oranı",
                     ),
                 ),
                 (
                     "inventory_turnover",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Stok Devir Hızı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Stok Devir Hızı",
                     ),
                 ),
                 (
                     "receivables_turnover",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Alacak Devir Hızı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Alacak Devir Hızı",
                     ),
                 ),
                 (
                     "asset_turnover",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Aktif Devir Hızı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Aktif Devir Hızı",
                     ),
                 ),
                 (
                     "debt_to_equity",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Borç/Özkaynak"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Borç/Özkaynak",
                     ),
                 ),
                 (
                     "debt_to_assets",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Borç/Aktif"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Borç/Aktif",
                     ),
                 ),
                 (
                     "equity_multiplier",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Özkaynak Çarpanı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Özkaynak Çarpanı",
                     ),
                 ),
                 (
                     "gross_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Brüt Kar Marjı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Brüt Kar Marjı",
                     ),
                 ),
                 (
                     "operating_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Faaliyet Kar Marjı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Faaliyet Kar Marjı",
                     ),
                 ),
                 (
                     "net_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Net Kar Marjı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Net Kar Marjı",
                     ),
                 ),
                 (
                     "roa",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Aktif Karlılığı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Aktif Karlılığı",
                     ),
                 ),
                 (
                     "roe",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Özkaynak Karlılığı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Özkaynak Karlılığı",
                     ),
                 ),
-                ("industry_benchmark", models.JSONField(blank=True, null=True, verbose_name="Sektör Benchmarkı")),
-                ("peer_comparison", models.JSONField(blank=True, null=True, verbose_name="Rakip Karşılaştırması")),
-                ("analysis_notes", models.TextField(blank=True, null=True, verbose_name="Analiz Notları")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "industry_benchmark",
+                    models.JSONField(
+                        blank=True, null=True, verbose_name="Sektör Benchmarkı"
+                    ),
+                ),
+                (
+                    "peer_comparison",
+                    models.JSONField(
+                        blank=True, null=True, verbose_name="Rakip Karşılaştırması"
+                    ),
+                ),
+                (
+                    "analysis_notes",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Analiz Notları"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -483,7 +764,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="KOBIFinancialAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "analysis_type",
                     models.CharField(
@@ -498,78 +787,127 @@ class Migration(migrations.Migration):
                         verbose_name="Analiz Türü",
                     ),
                 ),
-                ("analysis_period_start", models.DateField(verbose_name="Analiz Başlangıç Tarihi")),
-                ("analysis_period_end", models.DateField(verbose_name="Analiz Bitiş Tarihi")),
+                (
+                    "analysis_period_start",
+                    models.DateField(verbose_name="Analiz Başlangıç Tarihi"),
+                ),
+                (
+                    "analysis_period_end",
+                    models.DateField(verbose_name="Analiz Bitiş Tarihi"),
+                ),
                 (
                     "total_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Gelir",
                     ),
                 ),
                 (
                     "total_expenses",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Gider"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Gider",
                     ),
                 ),
                 (
                     "net_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Net Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Net Kar",
                     ),
                 ),
                 (
                     "total_assets",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Varlık"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Varlık",
                     ),
                 ),
                 (
                     "total_liabilities",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Borç"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Borç",
                     ),
                 ),
                 (
                     "current_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Cari Oran"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Cari Oran",
                     ),
                 ),
                 (
                     "quick_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Asit Test Oranı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Asit Test Oranı",
                     ),
                 ),
                 (
                     "debt_to_equity_ratio",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Borç/Özkaynak Oranı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Borç/Özkaynak Oranı",
                     ),
                 ),
                 (
                     "profit_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Kar Marjı"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Kar Marjı",
                     ),
                 ),
                 (
                     "roa",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Aktif Karlılığı (ROA)"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Aktif Karlılığı (ROA)",
                     ),
                 ),
                 (
                     "roe",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Özkaynak Karlılığı (ROE)"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Özkaynak Karlılığı (ROE)",
                     ),
                 ),
                 (
                     "financial_health_score",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Finansal Sağlık Skoru"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Finansal Sağlık Skoru",
                     ),
                 ),
                 (
@@ -588,14 +926,34 @@ class Migration(migrations.Migration):
                         verbose_name="Sağlık Durumu",
                     ),
                 ),
-                ("recommendations", models.TextField(blank=True, null=True, verbose_name="Öneriler")),
-                ("analysis_notes", models.TextField(blank=True, null=True, verbose_name="Analiz Notları")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "recommendations",
+                    models.TextField(blank=True, null=True, verbose_name="Öneriler"),
+                ),
+                (
+                    "analysis_notes",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Analiz Notları"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -611,14 +969,27 @@ class Migration(migrations.Migration):
                 "verbose_name": "KOBİ Finansal Analizi",
                 "verbose_name_plural": "KOBİ Finansal Analizleri",
                 "ordering": ["-created_at"],
-                "unique_together": {("company", "analysis_period_start", "analysis_period_end")},
+                "unique_together": {
+                    ("company", "analysis_period_start", "analysis_period_end")
+                },
             },
         ),
         migrations.CreateModel(
             name="ProfitabilityAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("analysis_name", models.CharField(max_length=200, verbose_name="Analiz Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "analysis_name",
+                    models.CharField(max_length=200, verbose_name="Analiz Adı"),
+                ),
                 (
                     "analysis_dimension",
                     models.CharField(
@@ -633,105 +1004,180 @@ class Migration(migrations.Migration):
                         verbose_name="Analiz Boyutu",
                     ),
                 ),
-                ("dimension_value", models.CharField(max_length=200, verbose_name="Boyut Değeri")),
-                ("analysis_period_start", models.DateField(verbose_name="Analiz Başlangıç Tarihi")),
-                ("analysis_period_end", models.DateField(verbose_name="Analiz Bitiş Tarihi")),
+                (
+                    "dimension_value",
+                    models.CharField(max_length=200, verbose_name="Boyut Değeri"),
+                ),
+                (
+                    "analysis_period_start",
+                    models.DateField(verbose_name="Analiz Başlangıç Tarihi"),
+                ),
+                (
+                    "analysis_period_end",
+                    models.DateField(verbose_name="Analiz Bitiş Tarihi"),
+                ),
                 (
                     "gross_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Brüt Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Brüt Gelir",
                     ),
                 ),
                 (
                     "discounts",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="İndirimler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="İndirimler",
                     ),
                 ),
                 (
                     "returns",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="İadeler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="İadeler",
                     ),
                 ),
                 (
                     "net_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Net Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Net Gelir",
                     ),
                 ),
                 (
                     "direct_costs",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Direkt Maliyetler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Direkt Maliyetler",
                     ),
                 ),
                 (
                     "indirect_costs",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Endirekt Maliyetler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Endirekt Maliyetler",
                     ),
                 ),
                 (
                     "total_costs",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Toplam Maliyetler"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Toplam Maliyetler",
                     ),
                 ),
                 (
                     "gross_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Brüt Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Brüt Kar",
                     ),
                 ),
                 (
                     "net_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Net Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Net Kar",
                     ),
                 ),
                 (
                     "gross_profit_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Brüt Kar Marjı %"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Brüt Kar Marjı %",
                     ),
                 ),
                 (
                     "net_profit_margin",
                     models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=10, null=True, verbose_name="Net Kar Marjı %"
+                        blank=True,
+                        decimal_places=4,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Net Kar Marjı %",
                     ),
                 ),
-                ("units_sold", models.IntegerField(default=0, verbose_name="Satılan Birim")),
+                (
+                    "units_sold",
+                    models.IntegerField(default=0, verbose_name="Satılan Birim"),
+                ),
                 (
                     "revenue_per_unit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Birim Başına Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Birim Başına Gelir",
                     ),
                 ),
                 (
                     "cost_per_unit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Birim Başına Maliyet"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Birim Başına Maliyet",
                     ),
                 ),
                 (
                     "profit_per_unit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Birim Başına Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Birim Başına Kar",
                     ),
                 ),
-                ("analysis_notes", models.TextField(blank=True, null=True, verbose_name="Analiz Notları")),
+                (
+                    "analysis_notes",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Analiz Notları"
+                    ),
+                ),
                 (
                     "improvement_recommendations",
-                    models.TextField(blank=True, null=True, verbose_name="İyileştirme Önerileri"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="İyileştirme Önerileri"
+                    ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -748,7 +1194,13 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Karlılık Analizleri",
                 "ordering": ["-created_at"],
                 "unique_together": {
-                    ("company", "analysis_dimension", "dimension_value", "analysis_period_start", "analysis_period_end")
+                    (
+                        "company",
+                        "analysis_dimension",
+                        "dimension_value",
+                        "analysis_period_start",
+                        "analysis_period_end",
+                    )
                 },
             },
         ),

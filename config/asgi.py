@@ -7,7 +7,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 django_asgi_app = get_asgi_application()
 
@@ -15,9 +15,9 @@ django_asgi_app = get_asgi_application()
 def _collect_websocket_patterns() -> list:
     patterns: list = []
     sources: Iterable[tuple[str, str]] = (
-        ('education.routing', 'websocket_urlpatterns'),
-        ('games.routing', 'websocket_urlpatterns'),
-        ('games.trade_sim.routing', 'websocket_urlpatterns'),
+        ("education.routing", "websocket_urlpatterns"),
+        ("games.routing", "websocket_urlpatterns"),
+        ("games.trade_sim.routing", "websocket_urlpatterns"),
     )
     for module_path, attr in sources:
         try:
@@ -30,8 +30,7 @@ def _collect_websocket_patterns() -> list:
 
 application = ProtocolTypeRouter(
     {
-        'http': django_asgi_app,
-        'websocket': AuthMiddlewareStack(URLRouter(_collect_websocket_patterns())),
+        "http": django_asgi_app,
+        "websocket": AuthMiddlewareStack(URLRouter(_collect_websocket_patterns())),
     }
 )
-

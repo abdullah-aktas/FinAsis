@@ -26,7 +26,11 @@ class Command(BaseCommand):
         profiles = options.get("profiles") or ["default"]
         dry_run = options.get("dry_run", False)
 
-        self.stdout.write(self.style.NOTICE(f"Retention çalıştırılıyor | profiller={profiles} dry_run={dry_run}"))
+        self.stdout.write(
+            self.style.NOTICE(
+                f"Retention çalıştırılıyor | profiller={profiles} dry_run={dry_run}"
+            )
+        )
 
         overall_results: list[dict[str, object]] = []
         for profile in profiles:
@@ -36,7 +40,9 @@ class Command(BaseCommand):
             except FileNotFoundError as exc:
                 raise CommandError(str(exc)) from exc
             except Exception as exc:  # pragma: no cover
-                raise CommandError(f"Profil yürütülürken hata oluştu ({profile}): {exc}") from exc
+                raise CommandError(
+                    f"Profil yürütülürken hata oluştu ({profile}): {exc}"
+                ) from exc
 
             for result in results:
                 overall_results.append(result)
@@ -45,5 +51,6 @@ class Command(BaseCommand):
                 )
 
         total = sum(int(item["affected"]) for item in overall_results)
-        self.stdout.write(self.style.SUCCESS(f"Retention tamamlandı. Toplam etkilenen kayıt: {total}"))
-
+        self.stdout.write(
+            self.style.SUCCESS(f"Retention tamamlandı. Toplam etkilenen kayıt: {total}")
+        )

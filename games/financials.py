@@ -1,5 +1,6 @@
 from typing import Dict
 
+
 class FinancialRatios:
     @staticmethod
     def calculate_current_ratio(assets: float, liabilities: float) -> float:
@@ -21,16 +22,13 @@ class FinancialRatios:
     def calculate_return_on_equity(net_income: float, equity: float) -> float:
         return net_income / equity if equity else 0
 
+
 class FinancialReportManager:
     @staticmethod
     def generate_balance_sheet(accounts: Dict) -> Dict:
-        balance_sheet = {
-            "assets": {},
-            "liabilities": {},
-            "equity": {}
-        }
+        balance_sheet = {"assets": {}, "liabilities": {}, "equity": {}}
         for acc in accounts.values():
-            if hasattr(acc, 'type') and hasattr(acc, 'balance'):
+            if hasattr(acc, "type") and hasattr(acc, "balance"):
                 if acc.type.name == "ASSET":
                     balance_sheet["assets"][acc.id] = acc.balance
                 elif acc.type.name == "LIABILITY":
@@ -41,13 +39,9 @@ class FinancialReportManager:
 
     @staticmethod
     def generate_income_statement(accounts: Dict) -> Dict:
-        income_statement = {
-            "revenues": {},
-            "expenses": {},
-            "net_income": 0.0
-        }
+        income_statement = {"revenues": {}, "expenses": {}, "net_income": 0.0}
         for acc in accounts.values():
-            if hasattr(acc, 'type') and hasattr(acc, 'balance'):
+            if hasattr(acc, "type") and hasattr(acc, "balance"):
                 if acc.type.name == "REVENUE":
                     income_statement["revenues"][acc.id] = acc.balance
                 elif acc.type.name == "EXPENSE":
@@ -55,4 +49,4 @@ class FinancialReportManager:
         total_revenue = sum(income_statement["revenues"].values())
         total_expense = sum(income_statement["expenses"].values())
         income_statement["net_income"] = total_revenue - total_expense
-        return income_statement 
+        return income_statement

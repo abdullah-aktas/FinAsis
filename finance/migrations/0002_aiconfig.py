@@ -4,19 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finance', '0001_initial'),
+        ("finance", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AIConfig',
+            name="AIConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=255, verbose_name='OpenAI API Anahtarı')),
-                ('active', models.BooleanField(default=True, verbose_name='Aktif')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "key",
+                    models.CharField(
+                        max_length=255, verbose_name="OpenAI API Anahtarı"
+                    ),
+                ),
+                ("active", models.BooleanField(default=True, verbose_name="Aktif")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
     ]

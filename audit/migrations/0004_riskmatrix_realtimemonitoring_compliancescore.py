@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0015_remove_banktransaction_acc_banktxn_date_idx_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -17,9 +16,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RiskMatrix",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("risk_name", models.CharField(max_length=200, verbose_name="Risk Adı")),
-                ("risk_category", models.CharField(max_length=50, verbose_name="Risk Kategorisi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "risk_name",
+                    models.CharField(max_length=200, verbose_name="Risk Adı"),
+                ),
+                (
+                    "risk_category",
+                    models.CharField(max_length=50, verbose_name="Risk Kategorisi"),
+                ),
                 (
                     "probability",
                     models.CharField(
@@ -46,9 +59,20 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("risk_score", models.IntegerField(help_text="Olasılık x Etki (1-25)", verbose_name="Risk Skoru")),
-                ("risk_level", models.CharField(max_length=20, verbose_name="Risk Seviyesi")),
-                ("mitigation_plan", models.TextField(blank=True, verbose_name="Önleme Planı")),
+                (
+                    "risk_score",
+                    models.IntegerField(
+                        help_text="Olasılık x Etki (1-25)", verbose_name="Risk Skoru"
+                    ),
+                ),
+                (
+                    "risk_level",
+                    models.CharField(max_length=20, verbose_name="Risk Seviyesi"),
+                ),
+                (
+                    "mitigation_plan",
+                    models.TextField(blank=True, verbose_name="Önleme Planı"),
+                ),
                 ("status", models.CharField(default="open", max_length=20)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -79,8 +103,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RealTimeMonitoring",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("metric_name", models.CharField(max_length=100, verbose_name="Metrik Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "metric_name",
+                    models.CharField(max_length=100, verbose_name="Metrik Adı"),
+                ),
                 ("current_value", models.FloatField(verbose_name="Güncel Değer")),
                 ("threshold_value", models.FloatField(verbose_name="Eşik Değer")),
                 (
@@ -121,7 +156,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ComplianceScore",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "compliance_area",
                     models.CharField(
@@ -138,7 +181,12 @@ class Migration(migrations.Migration):
                         max_length=30,
                     ),
                 ),
-                ("score", models.IntegerField(help_text="0-100 arası", verbose_name="Uyumluluk Skoru")),
+                (
+                    "score",
+                    models.IntegerField(
+                        help_text="0-100 arası", verbose_name="Uyumluluk Skoru"
+                    ),
+                ),
                 ("max_score", models.IntegerField(default=100)),
                 ("passed_checks", models.IntegerField(default=0)),
                 ("failed_checks", models.IntegerField(default=0)),
@@ -152,7 +200,10 @@ class Migration(migrations.Migration):
                 (
                     "audited_by",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (

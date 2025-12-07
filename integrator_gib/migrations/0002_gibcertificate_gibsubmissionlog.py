@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("integrator_gib", "0001_initial"),
     ]
@@ -14,8 +13,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GIBCertificate",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=200, verbose_name="Sertifika Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=200, verbose_name="Sertifika Adı"),
+                ),
                 (
                     "certificate_type",
                     models.CharField(
@@ -24,15 +34,41 @@ class Migration(migrations.Migration):
                         verbose_name="Sertifika Tipi",
                     ),
                 ),
-                ("serial_number", models.CharField(max_length=100, unique=True, verbose_name="Seri Numarası")),
+                (
+                    "serial_number",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Seri Numarası"
+                    ),
+                ),
                 ("alias", models.CharField(max_length=200, verbose_name="Alias")),
-                ("certificate_file", models.FileField(upload_to="gib_certificates/", verbose_name="Sertifika Dosyası")),
-                ("password_hash", models.CharField(blank=True, max_length=255, verbose_name="Şifre Hash")),
-                ("valid_from", models.DateTimeField(verbose_name="Geçerlilik Başlangıcı")),
+                (
+                    "certificate_file",
+                    models.FileField(
+                        upload_to="gib_certificates/", verbose_name="Sertifika Dosyası"
+                    ),
+                ),
+                (
+                    "password_hash",
+                    models.CharField(
+                        blank=True, max_length=255, verbose_name="Şifre Hash"
+                    ),
+                ),
+                (
+                    "valid_from",
+                    models.DateTimeField(verbose_name="Geçerlilik Başlangıcı"),
+                ),
                 ("valid_until", models.DateTimeField(verbose_name="Geçerlilik Bitişi")),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("last_used_at", models.DateTimeField(blank=True, null=True, verbose_name="Son Kullanım")),
-                ("usage_count", models.IntegerField(default=0, verbose_name="Kullanım Sayısı")),
+                (
+                    "last_used_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Kullanım"
+                    ),
+                ),
+                (
+                    "usage_count",
+                    models.IntegerField(default=0, verbose_name="Kullanım Sayısı"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
@@ -44,12 +80,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GIBSubmissionLog",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("submission_id", models.CharField(max_length=100, unique=True, verbose_name="Gönderim ID")),
-                ("declaration_code", models.CharField(max_length=50, verbose_name="Beyan Kodu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "submission_id",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Gönderim ID"
+                    ),
+                ),
+                (
+                    "declaration_code",
+                    models.CharField(max_length=50, verbose_name="Beyan Kodu"),
+                ),
                 ("period", models.CharField(max_length=20, verbose_name="Dönem")),
-                ("taxpayer_vkn", models.CharField(max_length=20, verbose_name="VKN/TCKN")),
-                ("request_payload", models.JSONField(default=dict, verbose_name="İstek Verisi")),
+                (
+                    "taxpayer_vkn",
+                    models.CharField(max_length=20, verbose_name="VKN/TCKN"),
+                ),
+                (
+                    "request_payload",
+                    models.JSONField(default=dict, verbose_name="İstek Verisi"),
+                ),
                 ("request_xml", models.TextField(blank=True, verbose_name="İstek XML")),
                 (
                     "status",
@@ -66,14 +124,50 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("response_data", models.JSONField(blank=True, default=dict, verbose_name="Yanıt Verisi")),
-                ("response_xml", models.TextField(blank=True, verbose_name="Yanıt XML")),
-                ("gib_reference_number", models.CharField(blank=True, max_length=100, verbose_name="GİB Referans No")),
-                ("gib_tracking_id", models.CharField(blank=True, max_length=100, verbose_name="GİB Takip No")),
-                ("error_code", models.CharField(blank=True, max_length=50, verbose_name="Hata Kodu")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("submitted_at", models.DateTimeField(auto_now_add=True, verbose_name="Gönderim Zamanı")),
-                ("processed_at", models.DateTimeField(blank=True, null=True, verbose_name="İşlenme Zamanı")),
+                (
+                    "response_data",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Yanıt Verisi"
+                    ),
+                ),
+                (
+                    "response_xml",
+                    models.TextField(blank=True, verbose_name="Yanıt XML"),
+                ),
+                (
+                    "gib_reference_number",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="GİB Referans No"
+                    ),
+                ),
+                (
+                    "gib_tracking_id",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="GİB Takip No"
+                    ),
+                ),
+                (
+                    "error_code",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Hata Kodu"
+                    ),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "submitted_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Gönderim Zamanı"
+                    ),
+                ),
+                (
+                    "processed_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="İşlenme Zamanı"
+                    ),
+                ),
                 (
                     "integrator",
                     models.ForeignKey(

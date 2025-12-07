@@ -15,7 +15,7 @@ from reportlab.graphics.barcode import qr as qrmod
 from reportlab.graphics.shapes import Drawing
 from reportlab.graphics import renderPDF
 
-from .ubltr.invoice import Invoice, AllowanceCharge, TaxTotal
+from .ubltr.invoice import Invoice
 
 
 def generate_invoice_pdf(inv: Invoice, title: Optional[str] = None) -> bytes:
@@ -140,14 +140,24 @@ def generate_invoice_pdf_corporate(
     # Header: Logo and Title
     if logo_path:
         try:
-            c.drawImage(logo_path, margin_l, y - 14 * mm, width=30 * mm, height=14 * mm, preserveAspectRatio=True, mask='auto')
+            c.drawImage(
+                logo_path,
+                margin_l,
+                y - 14 * mm,
+                width=30 * mm,
+                height=14 * mm,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
         except Exception:
             pass
     c.setFont("Helvetica-Bold", 16)
     c.drawRightString(width - margin_r, y - 6 * mm, title or "FATURA")
     c.setFont("Helvetica", 9)
     c.drawRightString(width - margin_r, y - 12 * mm, f"No: {inv.id}")
-    c.drawRightString(width - margin_r, y - 17 * mm, f"Tarih: {inv.issue_date.isoformat()}")
+    c.drawRightString(
+        width - margin_r, y - 17 * mm, f"Tarih: {inv.issue_date.isoformat()}"
+    )
     y -= 22 * mm
 
     # Supplier and Customer boxes
@@ -172,11 +182,24 @@ def generate_invoice_pdf_corporate(
     c.drawString(cx + 4 * mm, y - 12 * mm, f"Unvan: {inv.customer.name}")
     c.drawString(cx + 4 * mm, y - 18 * mm, f"VKN/TCKN: {inv.customer.tax_id}")
 
-    y -= (box_h + 10 * mm)
+    y -= box_h + 10 * mm
 
     # Items table
-    col_x = [margin_l, margin_l + 80 * mm, margin_l + 105 * mm, margin_l + 135 * mm, margin_l + 165 * mm, width - margin_r]
-    headers = ["Açıklama", "Miktar", "Birim", f"Birim Fiyat ({inv.currency})", f"Tutar ({inv.currency})"]
+    col_x = [
+        margin_l,
+        margin_l + 80 * mm,
+        margin_l + 105 * mm,
+        margin_l + 135 * mm,
+        margin_l + 165 * mm,
+        width - margin_r,
+    ]
+    headers = [
+        "Açıklama",
+        "Miktar",
+        "Birim",
+        f"Birim Fiyat ({inv.currency})",
+        f"Tutar ({inv.currency})",
+    ]
     # Table header
     c.setFont("Helvetica-Bold", 9)
     c.line(margin_l, y, width - margin_r, y)
@@ -212,7 +235,10 @@ def generate_invoice_pdf_corporate(
         # Description truncate to fit
         max_desc_width = col_x[1] - col_x[0] - 6
         if stringWidth(desc, "Helvetica", 9) > max_desc_width:
-            while stringWidth(desc + "…", "Helvetica", 9) > max_desc_width and len(desc) > 3:
+            while (
+                stringWidth(desc + "…", "Helvetica", 9) > max_desc_width
+                and len(desc) > 3
+            ):
                 desc = desc[:-1]
             desc += "…"
 
@@ -245,10 +271,19 @@ def generate_invoice_pdf_corporate(
             total_after_allowances -= ac.amount
             total_discount += ac.amount
     tax_amount_total = inv.tax_total.tax_amount if inv.tax_total else Decimal("0.00")
-    payable_total = (total_after_allowances + tax_amount_total - (inv.withholding_tax_total.tax_amount if inv.withholding_tax_total else Decimal("0.00")))
+    payable_total = (
+        total_after_allowances
+        + tax_amount_total
+        - (
+            inv.withholding_tax_total.tax_amount
+            if inv.withholding_tax_total
+            else Decimal("0.00")
+        )
+    )
 
     ty = y - 6 * mm
     c.setFont("Helvetica", 9)
+
     def label_row(name: str, val: str):
         nonlocal ty
         c.drawString(tx + 4 * mm, ty, name)
@@ -263,7 +298,10 @@ def generate_invoice_pdf_corporate(
     if inv.tax_total and inv.tax_total.subtotals:
         for st in inv.tax_total.subtotals:
             perc = f" %{st.percent}" if st.percent is not None else ""
-            label_row(f"{st.tax_scheme_name}{perc}:", f"{_format_money(st.tax_amount)} {inv.currency}")
+            label_row(
+                f"{st.tax_scheme_name}{perc}:",
+                f"{_format_money(st.tax_amount)} {inv.currency}",
+            )
     else:
         label_row("Vergi:", f"{_format_money(tax_amount_total)} {inv.currency}")
     c.setFont("Helvetica-Bold", 10)
@@ -282,7 +320,10 @@ def generate_invoice_pdf_corporate(
     # QR code (top-right of totals box)
     if add_qr:
         try:
-            payload = qr_text or f"INV:{inv.id}|DATE:{inv.issue_date.isoformat()}|SUP:{inv.supplier.tax_id}|TOT:{_format_money(payable_total)} {inv.currency}"
+            payload = (
+                qr_text
+                or f"INV:{inv.id}|DATE:{inv.issue_date.isoformat()}|SUP:{inv.supplier.tax_id}|TOT:{_format_money(payable_total)} {inv.currency}"
+            )
             w = qrmod.QrCodeWidget(payload)
             b = 22 * mm
             d = Drawing(b, b)
@@ -294,7 +335,9 @@ def generate_invoice_pdf_corporate(
     # Footer
     c.setFont("Helvetica", 7)
     c.setFillColor(colors.grey)
-    c.drawRightString(width - margin_r, margin_b - 4, f"Oluşturma: {datetime.utcnow().isoformat()}Z")
+    c.drawRightString(
+        width - margin_r, margin_b - 4, f"Oluşturma: {datetime.utcnow().isoformat()}Z"
+    )
     c.setFillColor(colors.black)
 
     c.showPage()

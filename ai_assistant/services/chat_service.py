@@ -2,11 +2,8 @@
 import logging
 from typing import Dict, Any, List, Optional, cast
 from django.contrib.auth.models import User
-from ..models import UserInteraction, AIModel
-from datetime import datetime
+from ..models import UserInteraction
 import os
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.conf import settings
 from .knowledge_service import KnowledgeIndex
 
@@ -20,22 +17,25 @@ except Exception:
 
 logger = logging.getLogger(__name__)
 
+
 class ChatAIService:
     def __init__(self):
         """AI sohbet servisi başlatıcı"""
         # Mock modu: test/sunucuda anahtar yoksa basit yanıt üret
-        self.mock_mode = os.getenv('FINASIS_AI_MOCK', '0') in ('1', 'true', 'True')
+        self.mock_mode = os.getenv("FINASIS_AI_MOCK", "0") in ("1", "true", "True")
         # API istemcisi varsayılan olarak yok; uygun koşullarda oluşturulacak
         self.client: Optional[Any] = None
 
         # OpenAI paketi yoksa zorunlu mock moda geç ve uyarı logla
         if OpenAI is None:
-            logger.warning("OpenAI paketi bulunamadı; ChatAIService mock modunda çalışacak.")
+            logger.warning(
+                "OpenAI paketi bulunamadı; ChatAIService mock modunda çalışacak."
+            )
             self.mock_mode = True
             self.api_key = None
         else:
             # API anahtarını al ve uygun ise istemciyi başlat
-            self.api_key = os.getenv('OPENAI_API_KEY')
+            self.api_key = os.getenv("OPENAI_API_KEY")
             if not self.api_key:
                 # API anahtarı yoksa mock moda düş
                 self.mock_mode = True
@@ -49,7 +49,7 @@ class ChatAIService:
                     self.mock_mode = True
 
         # Sistem rolü: Finansman/Muhasebe uzmanı ve FinAsis bağlam bilgesi
-        assistant_name = os.getenv('FINASIS_AI_WIDGET_NAME', 'FinAsis Bilgesi')
+        assistant_name = os.getenv("FINASIS_AI_WIDGET_NAME", "FinAsis Bilgesi")
         default_prompt = (
             f"Sen {assistant_name} — FinAsis platformunun deneyimli bir Yapay Zeka asistanısın. "
             "Tam kapsamlı bir finansman ve muhasebe uzmanı gibi davran: TFRS/IFRS prensipleri, nakit akışı, bütçe, mali tablolar, vergisel esaslar, e-dönüşüm (e-Fatura, e-Defter) ve ERP/LMS entegrasyonları hakkında derin bilgiye sahipsin. "
@@ -57,16 +57,22 @@ class ChatAIService:
             "FinAsis modüllerini biliyorsun (Muhasebe, AI Asistan, OCR, Tahmin, Oyunlaştırma, Blockchain kanıt vs.) ve kullanıcıyı bu özelliklerle yönlendirebilirsin. "
             "Bilmediğin noktada varsayım yapma, alternatif kaynak/aksiyon öner."
         )
-        self.system_prompt = os.getenv('FINASIS_AI_SYSTEM_PROMPT', default_prompt)
+        self.system_prompt = os.getenv("FINASIS_AI_SYSTEM_PROMPT", default_prompt)
         # Bilgi indeksi (varsa yükle)
         try:
-            base_dir = getattr(settings, 'BASE_DIR', None) or os.getenv('FINASIS_BASE_DIR') or os.getcwd()
+            base_dir = (
+                getattr(settings, "BASE_DIR", None)
+                or os.getenv("FINASIS_BASE_DIR")
+                or os.getcwd()
+            )
         except Exception:
-            base_dir = os.getenv('FINASIS_BASE_DIR') or os.getcwd()
-        self.knowledge_path = os.path.join(base_dir, 'var', 'ai_knowledge.json')
+            base_dir = os.getenv("FINASIS_BASE_DIR") or os.getcwd()
+        self.knowledge_path = os.path.join(base_dir, "var", "ai_knowledge.json")
         self.knowledge = KnowledgeIndex.load(self.knowledge_path)
 
-    def get_response(self, user: User, query: str, context: Dict[str, Any] | None = None) -> str:
+    def get_response(
+        self, user: User, query: str, context: Dict[str, Any] | None = None
+    ) -> str:
         """
         Kullanıcı sorgusuna yanıt verir
 
@@ -80,20 +86,20 @@ class ChatAIService:
         """
         try:
             # Model adı (env ile override edilebilir)
-            model_name = os.getenv('OPENAI_CHAT_MODEL', 'gpt-4o-mini')
+            model_name = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
 
             # Son sohbet geçmişini al
             history = UserInteraction.objects.filter(
-                user=user, interaction_type='chat'
-            ).order_by('-created_at')[:5]
+                user=user, interaction_type="chat"
+            ).order_by("-created_at")[:5]
 
             # Sistem mesajını ve bağlamı hazırla
             system_content = self.system_prompt
             if context:
                 try:
                     ctx_bits = []
-                    page = context.get('page_path') or context.get('path')
-                    title = context.get('page_title') or context.get('title')
+                    page = context.get("page_path") or context.get("path")
+                    title = context.get("page_title") or context.get("title")
                     if page:
                         ctx_bits.append(f"Sayfa: {page}")
                     if title:
@@ -107,29 +113,39 @@ class ChatAIService:
             # Rol tabanlı rehberlik
             role_hints = []
             try:
-                roles = list(getattr(user, 'groups').all().values_list('name', flat=True))  # type: ignore
-                if 'accountant' in [r.lower() for r in roles]:
-                    role_hints.append("Kullanıcı bir muhasebecidir; kayıt, mutabakat, raporlama odaklı öneriler ver.")
-                if 'manager' in [r.lower() for r in roles] or user.is_staff:
-                    role_hints.append("Kullanıcı yönetici/karar vericidir; özet ve aksiyon odaklı anlat.")
+                roles = list(getattr(user, "groups").all().values_list("name", flat=True))  # type: ignore
+                if "accountant" in [r.lower() for r in roles]:
+                    role_hints.append(
+                        "Kullanıcı bir muhasebecidir; kayıt, mutabakat, raporlama odaklı öneriler ver."
+                    )
+                if "manager" in [r.lower() for r in roles] or user.is_staff:
+                    role_hints.append(
+                        "Kullanıcı yönetici/karar vericidir; özet ve aksiyon odaklı anlat."
+                    )
             except Exception:
                 pass
             if role_hints:
                 system_content += "\nRol Notları: " + " | ".join(role_hints)
 
-            messages: List[ChatCompletionMessageParam] = [{"role": "system", "content": system_content}]
+            messages: List[ChatCompletionMessageParam] = [
+                {"role": "system", "content": system_content}
+            ]
 
             # Geçmiş mesajları ekle
             for interaction in reversed(history):
-                if getattr(interaction, 'content', None):
+                if getattr(interaction, "content", None):
                     messages.append({"role": "user", "content": interaction.content})
-                if getattr(interaction, 'ai_response', None):
-                    messages.append({"role": "assistant", "content": interaction.ai_response})
+                if getattr(interaction, "ai_response", None):
+                    messages.append(
+                        {"role": "assistant", "content": interaction.ai_response}
+                    )
 
             # Bilgi tabanından ilgili parçaları getir ve kullanıcı mesajına ek bağlam olarak iliştir
             user_content = query
             if self.knowledge and isinstance(query, str):
-                tops = self.knowledge.search(query, top_k=int(os.getenv('FINASIS_AI_RETRIEVE_K', '3')))
+                tops = self.knowledge.search(
+                    query, top_k=int(os.getenv("FINASIS_AI_RETRIEVE_K", "3"))
+                )
                 if tops:
                     refs = "\n\n[İlgili Bilgi]" + "".join(
                         f"\n- {t.title} ({t.path})\n{t.content[:400]}..." for t in tops
@@ -140,7 +156,7 @@ class ChatAIService:
             messages.append({"role": "user", "content": user_content})
 
             # Mock yanıt (istemci yoksa da mock'a düş)
-            if self.mock_mode or not getattr(self, 'client', None):
+            if self.mock_mode or not getattr(self, "client", None):
                 prefix = "[MOCK] FinAsis Cevap (Mock)"
                 tips = (
                     "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
@@ -157,9 +173,9 @@ class ChatAIService:
                 response = client.chat.completions.create(
                     model=model_name,
                     messages=messages,
-                    temperature=float(os.getenv('OPENAI_TEMPERATURE', '0.4')),
-                    max_tokens=int(os.getenv('OPENAI_MAX_TOKENS', '800')),
-                    timeout=float(os.getenv('OPENAI_REQUEST_TIMEOUT', '20')),
+                    temperature=float(os.getenv("OPENAI_TEMPERATURE", "0.4")),
+                    max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "800")),
+                    timeout=float(os.getenv("OPENAI_REQUEST_TIMEOUT", "20")),
                 )
 
                 # Yanıtı al

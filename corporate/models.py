@@ -10,9 +10,9 @@ class PressRelease(models.Model):
     url = models.URLField(blank=True)
 
     class Meta:
-        ordering = ['-date']
-        verbose_name = 'Basın Bülteni'
-        verbose_name_plural = 'Basın Bültenleri'
+        ordering = ["-date"]
+        verbose_name = "Basın Bülteni"
+        verbose_name_plural = "Basın Bültenleri"
 
     def __str__(self):
         return f"{self.date} - {self.title}"
@@ -21,13 +21,15 @@ class PressRelease(models.Model):
 class InvestorDocument(models.Model):
     name = models.CharField(max_length=200)
     file_url = models.URLField()
-    kind = models.CharField(max_length=50, choices=[('deck','Sunum'),('report','Rapor')])
+    kind = models.CharField(
+        max_length=50, choices=[("deck", "Sunum"), ("report", "Rapor")]
+    )
     published_at = models.DateField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-published_at', 'name']
-        verbose_name = 'Yatırımcı Belgesi'
-        verbose_name_plural = 'Yatırımcı Belgeleri'
+        ordering = ["-published_at", "name"]
+        verbose_name = "Yatırımcı Belgesi"
+        verbose_name_plural = "Yatırımcı Belgeleri"
 
     def __str__(self):
         return self.name
@@ -39,9 +41,9 @@ class TeamMember(models.Model):
     department = models.CharField(max_length=120, blank=True)
 
     class Meta:
-        ordering = ['name']
-        verbose_name = 'Ekip Üyesi'
-        verbose_name_plural = 'Ekip Üyeleri'
+        ordering = ["name"]
+        verbose_name = "Ekip Üyesi"
+        verbose_name_plural = "Ekip Üyeleri"
 
     def __str__(self):
         return f"{self.name} - {self.role}"
@@ -53,8 +55,12 @@ class PartnerCategory(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=140, unique=True)
     description = models.TextField(blank=True)
-    icon = models.CharField(max_length=80, blank=True, help_text=_("Bootstrap ikon adı veya özel sınıf."))
-    highlight_color = models.CharField(max_length=32, blank=True, help_text=_("Örn. #0AAE94 veya tailwind sınıfı."))
+    icon = models.CharField(
+        max_length=80, blank=True, help_text=_("Bootstrap ikon adı veya özel sınıf.")
+    )
+    highlight_color = models.CharField(
+        max_length=32, blank=True, help_text=_("Örn. #0AAE94 veya tailwind sınıfı.")
+    )
     priority = models.PositiveIntegerField(default=100)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -92,14 +98,18 @@ class PartnerListing(models.Model):
     description = models.TextField(blank=True)
     website = models.URLField(blank=True)
     contact_email = models.EmailField(blank=True)
-    logo_url = models.URLField(blank=True, help_text=_("CDN veya medya kütüphanesi URL'si."))
+    logo_url = models.URLField(
+        blank=True, help_text=_("CDN veya medya kütüphanesi URL'si.")
+    )
     badge_label = models.CharField(max_length=60, blank=True)
     capabilities = models.JSONField(default=list, blank=True)
     regions = models.JSONField(default=list, blank=True)
     integrations = models.JSONField(default=list, blank=True)
     cta_label = models.CharField(max_length=80, default=_("Demo Talep Et"))
     cta_url = models.URLField(blank=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.DRAFT
+    )
     is_featured = models.BooleanField(default=False)
     feature_order = models.PositiveIntegerField(default=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -152,7 +162,9 @@ class PartnerApplication(models.Model):
         blank=True,
         related_name="primary_applications",
     )
-    categories = models.ManyToManyField(PartnerCategory, related_name="applications", blank=True)
+    categories = models.ManyToManyField(
+        PartnerCategory, related_name="applications", blank=True
+    )
     integration_focus = models.JSONField(default=list, blank=True)
     product_notes = models.TextField(blank=True)
     message = models.TextField(blank=True)

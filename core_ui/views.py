@@ -54,7 +54,9 @@ MARKETING_PAGES: dict[str, MarketingPageConfig] = {
     "support": MarketingPageConfig(
         template_name="support.html",
         title=_("FinAsis · Destek Merkezi"),
-        description=_("FinAsis destek kanalları, yardım merkezi ve iletişim seçenekleri."),
+        description=_(
+            "FinAsis destek kanalları, yardım merkezi ve iletişim seçenekleri."
+        ),
     ),
     "products_muhasebe": MarketingPageConfig(
         template_name="products/muhasebe.html",
@@ -135,37 +137,51 @@ MARKETING_PAGES: dict[str, MarketingPageConfig] = {
     "blog": MarketingPageConfig(
         template_name="blog/index.html",
         title=_("FinAsis · Blog ve İçgörüler"),
-        description=_("Finans, uyumluluk ve dijital dönüşüm konularında FinAsis uzmanlarından makaleler."),
+        description=_(
+            "Finans, uyumluluk ve dijital dönüşüm konularında FinAsis uzmanlarından makaleler."
+        ),
     ),
     "resources_cfo_playbook": MarketingPageConfig(
         template_name="resources/cfo_playbook.html",
         title=_("FinAsis · SaaS CFO Oyun Kitabı"),
-        description=_("Finans liderleri için haftalık ritüeller, KPI tabloları ve raporlama şablonları."),
+        description=_(
+            "Finans liderleri için haftalık ritüeller, KPI tabloları ve raporlama şablonları."
+        ),
     ),
     "resources_compliance_checklist": MarketingPageConfig(
         template_name="resources/compliance_checklist.html",
         title=_("FinAsis · Uyumluluk Checklist"),
-        description=_("MASAK ve KVKK uyumluluğu için operasyonel kontrol listeleri ve süreç rehberleri."),
+        description=_(
+            "MASAK ve KVKK uyumluluğu için operasyonel kontrol listeleri ve süreç rehberleri."
+        ),
     ),
     "developer_api": MarketingPageConfig(
         template_name="resources/developer_api.html",
         title=_("FinAsis · Entegrasyon API Dokümantasyonu"),
-        description=_("REST API uç noktaları, kimlik doğrulama ve webhook entegrasyonu hakkında teknik rehber."),
+        description=_(
+            "REST API uç noktaları, kimlik doğrulama ve webhook entegrasyonu hakkında teknik rehber."
+        ),
     ),
     "training_finance_dashboard": MarketingPageConfig(
         template_name="training/finance_dashboard.html",
         title=_("FinAsis · Finans Dashboard Eğitimi"),
-        description=_("KPI kartlarını yorumlama, nakit akışı senaryoları ve aksiyon planları."),
+        description=_(
+            "KPI kartlarını yorumlama, nakit akışı senaryoları ve aksiyon planları."
+        ),
     ),
     "training_compliance_engine": MarketingPageConfig(
         template_name="training/compliance_engine.html",
         title=_("FinAsis · Uyumluluk Motoru Eğitimi"),
-        description=_("MASAK kontrolleri, blockchain kayıtları ve denetim raporlaması."),
+        description=_(
+            "MASAK kontrolleri, blockchain kayıtları ve denetim raporlaması."
+        ),
     ),
     "training_gamification_students": MarketingPageConfig(
         template_name="training/gamification_students.html",
         title=_("FinAsis · Gamification ile Öğrenci Yönetimi"),
-        description=_("Oyunlaştırılmış LMS görevleri, puanlama motoru ve motivasyon akışı."),
+        description=_(
+            "Oyunlaştırılmış LMS görevleri, puanlama motoru ve motivasyon akışı."
+        ),
     ),
 }
 
@@ -178,7 +194,9 @@ def _get_guide_catalogue() -> List[Dict[str, str]]:
     return [
         {
             "title": _("Finans Ekibi İçin İlk 30 Gün"),
-            "summary": _("Bankadan veri çekme, kategori kuralları ve KPI panosu oluşturma."),
+            "summary": _(
+                "Bankadan veri çekme, kategori kuralları ve KPI panosu oluşturma."
+            ),
             "icon": "bi-graph-up-arrow",
             "category": _("Finans"),
             "read_time": _("10 dk"),
@@ -187,7 +205,9 @@ def _get_guide_catalogue() -> List[Dict[str, str]]:
         },
         {
             "title": _("Mali Müşavir Hızlı Kurulum"),
-            "summary": _("Müşteri onboarding, belge talepleri ve uyumluluk kontrolleri."),
+            "summary": _(
+                "Müşteri onboarding, belge talepleri ve uyumluluk kontrolleri."
+            ),
             "icon": "bi-briefcase",
             "category": _("Muhasebe"),
             "read_time": _("8 dk"),
@@ -196,7 +216,9 @@ def _get_guide_catalogue() -> List[Dict[str, str]]:
         },
         {
             "title": _("Öğretmenler İçin LMS Başlangıç"),
-            "summary": _("Ders planı oluşturma, quiz atama ve öğrenci ilerleme raporları."),
+            "summary": _(
+                "Ders planı oluşturma, quiz atama ve öğrenci ilerleme raporları."
+            ),
             "icon": "bi-easel2",
             "category": _("Eğitim"),
             "read_time": _("6 dk"),
@@ -237,22 +259,32 @@ def _get_doc_categories() -> List[Dict[str, object]]:
     return [
         {
             "title": _("Kurulum"),
-            "description": _("SaaS ve kurum içi kurulum, ortam değişkenleri ve güvenlik yapılandırması."),
+            "description": _(
+                "SaaS ve kurum içi kurulum, ortam değişkenleri ve güvenlik yapılandırması."
+            ),
             "icon": "bi-gear",
             "links": [
-                {"label": _("Kurulum Kontrol Listesi"), "url": "/docs/setup/checklist/"},
+                {
+                    "label": _("Kurulum Kontrol Listesi"),
+                    "url": "/docs/setup/checklist/",
+                },
                 {"label": _("Ortam Değişkenleri"), "url": "/docs/setup/environment/"},
                 {"label": _("Güvenlik Yapılandırma"), "url": "/docs/setup/security/"},
             ],
         },
         {
             "title": _("Muhasebe & Finans"),
-            "description": _("Muhasebe fişleri, e-belge entegrasyonları ve raporlama API'leri."),
+            "description": _(
+                "Muhasebe fişleri, e-belge entegrasyonları ve raporlama API'leri."
+            ),
             "icon": "bi-calculator",
             "links": [
                 {"label": _("e-Fatura Akışı"), "url": "/docs/accounting/e-invoice/"},
                 {"label": _("Finansal KPI API"), "url": "/docs/finance/kpi-api/"},
-                {"label": _("Planlanan Raporlar"), "url": "/docs/finance/scheduled-reports/"},
+                {
+                    "label": _("Planlanan Raporlar"),
+                    "url": "/docs/finance/scheduled-reports/",
+                },
             ],
         },
         {
@@ -378,20 +410,23 @@ def landing_home(request):
         plans.append(
             {
                 "name": plan.name,
-                "audience": plan.get_audience_display() if hasattr(plan, "get_audience_display") else plan.audience,
+                "audience": plan.get_audience_display()
+                if hasattr(plan, "get_audience_display")
+                else plan.audience,
                 "description": plan.description,
                 "price": active_price.amount if active_price else None,
-                "price_period": active_price.get_period_display() if active_price else None,
+                "price_period": active_price.get_period_display()
+                if active_price
+                else None,
                 "currency": active_price.currency if active_price else None,
                 "code": plan.code,
             }
         )
     plan_count = plan_qs.count()
 
-    achievements_qs = (
-        Achievement.objects.select_related("company")
-        .order_by("-date_earned")[:3]
-    )
+    achievements_qs = Achievement.objects.select_related("company").order_by(
+        "-date_earned"
+    )[:3]
     achievements = [
         {
             "title": achievement.title,
@@ -416,9 +451,13 @@ def landing_home(request):
     investor_documents = [
         {
             "title": doc.name,
-            "kind": doc.get_kind_display() if hasattr(doc, "get_kind_display") else doc.kind,
+            "kind": doc.get_kind_display()
+            if hasattr(doc, "get_kind_display")
+            else doc.kind,
             "url": doc.file_url,
-            "published_at": formats.date_format(doc.published_at, "DATE_FORMAT") if doc.published_at else "",
+            "published_at": formats.date_format(doc.published_at, "DATE_FORMAT")
+            if doc.published_at
+            else "",
         }
         for doc in InvestorDocument.objects.all()[:3]
     ]
@@ -434,18 +473,22 @@ def landing_home(request):
         for role in prompt_registry.list_roles()
     )
 
-    teacher_brief = task_engine.get_brief(audience='teacher')
-    student_brief = task_engine.get_brief(audience='student')
-    gamer_brief = task_engine.get_brief(audience='gamer')
+    teacher_brief = task_engine.get_brief(audience="teacher")
+    student_brief = task_engine.get_brief(audience="student")
+    gamer_brief = task_engine.get_brief(audience="gamer")
 
     mission_tiles = task_engine.get_tasks(audience="teacher", kind="mission", limit=1)
-    mission_tiles += task_engine.get_tasks(audience="student", kind="challenge", limit=1)
+    mission_tiles += task_engine.get_tasks(
+        audience="student", kind="challenge", limit=1
+    )
     mission_tiles += task_engine.get_tasks(audience="gamer", kind="mission", limit=1)
     mission_tiles = mission_tiles[:3]
 
     partner_count = 0
     if PartnerProfile is not None:
-        partner_count = PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED).count()
+        partner_count = PartnerProfile.objects.filter(
+            status=PartnerProfile.Status.PUBLISHED
+        ).count()
 
     blockchain_tx_count = 0
     blockchain_contract_count = 0
@@ -454,8 +497,12 @@ def landing_home(request):
             from blockchain.models import Transaction as BlockchainTransaction
             from blockchain.models import SmartContract as BlockchainSmartContract
 
-            blockchain_tx_count = BlockchainTransaction.objects.filter(status="confirmed").count()
-            blockchain_contract_count = BlockchainSmartContract.objects.filter(is_active=True).count()
+            blockchain_tx_count = BlockchainTransaction.objects.filter(
+                status="confirmed"
+            ).count()
+            blockchain_contract_count = BlockchainSmartContract.objects.filter(
+                is_active=True
+            ).count()
         except Exception:
             blockchain_tx_count = 0
             blockchain_contract_count = 0
@@ -520,29 +567,34 @@ def landing_home(request):
     if apps.is_installed("audit"):
         try:
             from audit.models import AuditEvent, Control
+
             audit_event_count = AuditEvent.objects.count()
             audit_control_count = Control.objects.filter(is_active=True).count()
         except Exception:
             pass
-    
+
     # Mali müşavir istatistikleri
     advisor_count = 0
     if apps.is_installed("advisors"):
         try:
             from advisors.models import AdvisorProfile
-            advisor_count = AdvisorProfile.objects.filter(verified_at__isnull=False).count()
+
+            advisor_count = AdvisorProfile.objects.filter(
+                verified_at__isnull=False
+            ).count()
         except Exception:
             pass
-    
+
     # KOBİ Analizi istatistikleri
     kobi_analysis_count = 0
     if apps.is_installed("kobi_analysis"):
         try:
             from kobi_analysis.models import KOBIFinancialAnalysis
+
             kobi_analysis_count = KOBIFinancialAnalysis.objects.count()
         except Exception:
             pass
-    
+
     solutions = [
         {
             "code": "accounting",
@@ -554,7 +606,10 @@ def landing_home(request):
             ),
             "href": _safe_reverse("products_muhasebe"),
             "stats": [
-                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+                {
+                    "label": _("Toplam fatura"),
+                    "value": _format_number(AccountingInvoice.objects.count()),
+                },
                 {"label": _("Aktif şirket"), "value": _format_number(company_count)},
             ],
         },
@@ -569,7 +624,10 @@ def landing_home(request):
             "href": _safe_reverse("products_finans"),
             "stats": [
                 {"label": _("Aktif şirket"), "value": _format_number(company_count)},
-                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+                {
+                    "label": _("Toplam fatura"),
+                    "value": _format_number(AccountingInvoice.objects.count()),
+                },
             ],
         },
         {
@@ -582,8 +640,14 @@ def landing_home(request):
             ),
             "href": _safe_reverse("audit:landing"),
             "stats": [
-                {"label": _("Denetim kaydı"), "value": _format_number(audit_event_count)},
-                {"label": _("Aktif kontrol"), "value": _format_number(audit_control_count)},
+                {
+                    "label": _("Denetim kaydı"),
+                    "value": _format_number(audit_event_count),
+                },
+                {
+                    "label": _("Aktif kontrol"),
+                    "value": _format_number(audit_control_count),
+                },
             ],
         },
         {
@@ -596,8 +660,14 @@ def landing_home(request):
             ),
             "href": _safe_reverse("products_blockchain"),
             "stats": [
-                {"label": _("Onaylanan işlem"), "value": _format_number(blockchain_tx_count)},
-                {"label": _("Aktif sözleşme"), "value": _format_number(blockchain_contract_count)},
+                {
+                    "label": _("Onaylanan işlem"),
+                    "value": _format_number(blockchain_tx_count),
+                },
+                {
+                    "label": _("Aktif sözleşme"),
+                    "value": _format_number(blockchain_contract_count),
+                },
             ],
         },
         {
@@ -610,8 +680,14 @@ def landing_home(request):
             ),
             "href": _safe_reverse("products_egitim"),
             "stats": [
-                {"label": _("Öğretmen görevi"), "value": _format_number(teacher_brief["task_count"])},
-                {"label": _("Öğrenci görevi"), "value": _format_number(student_brief["task_count"])},
+                {
+                    "label": _("Öğretmen görevi"),
+                    "value": _format_number(teacher_brief["task_count"]),
+                },
+                {
+                    "label": _("Öğrenci görevi"),
+                    "value": _format_number(student_brief["task_count"]),
+                },
             ],
         },
         {
@@ -639,7 +715,10 @@ def landing_home(request):
             "href": _safe_reverse("products_mali_musavir"),
             "stats": [
                 {"label": _("Onaylı müşavir"), "value": _format_number(advisor_count)},
-                {"label": _("Yayınlanan partner"), "value": _format_number(partner_count)},
+                {
+                    "label": _("Yayınlanan partner"),
+                    "value": _format_number(partner_count),
+                },
             ],
         },
         {
@@ -652,8 +731,14 @@ def landing_home(request):
             ),
             "href": _safe_reverse("products_yapay_zeka"),
             "stats": [
-                {"label": _("Yayınlanan prompt"), "value": _format_number(prompt_catalog_size)},
-                {"label": _("Öne çıkan AI kartı"), "value": _format_number(len(ai_spotlight))},
+                {
+                    "label": _("Yayınlanan prompt"),
+                    "value": _format_number(prompt_catalog_size),
+                },
+                {
+                    "label": _("Öne çıkan AI kartı"),
+                    "value": _format_number(len(ai_spotlight)),
+                },
             ],
         },
         {
@@ -667,7 +752,10 @@ def landing_home(request):
             "href": _safe_reverse("products_kobi_analizi"),
             "stats": [
                 {"label": _("Aktif şirket"), "value": _format_number(company_count)},
-                {"label": _("Yapılan analiz"), "value": _format_number(kobi_analysis_count)},
+                {
+                    "label": _("Yapılan analiz"),
+                    "value": _format_number(kobi_analysis_count),
+                },
             ],
         },
         {
@@ -680,7 +768,10 @@ def landing_home(request):
             ),
             "href": _safe_reverse("products_edonusum"),
             "stats": [
-                {"label": _("Toplam fatura"), "value": _format_number(AccountingInvoice.objects.count())},
+                {
+                    "label": _("Toplam fatura"),
+                    "value": _format_number(AccountingInvoice.objects.count()),
+                },
                 {"label": _("Aktif şirket"), "value": _format_number(company_count)},
             ],
         },
@@ -700,8 +791,12 @@ def landing_home(request):
     customer_segments: List[Dict[str, object]] = []
     for plan in plan_qs:
         active_prices = [price for price in plan.prices.all() if price.is_active]
-        monthly_price = next((price for price in active_prices if price.period == "month"), None)
-        yearly_price = next((price for price in active_prices if price.period == "year"), None)
+        monthly_price = next(
+            (price for price in active_prices if price.period == "month"), None
+        )
+        yearly_price = next(
+            (price for price in active_prices if price.period == "year"), None
+        )
         plan_modules_manager = getattr(plan, "plan_modules", None)
         if plan_modules_manager is not None:
             sample_modules = [
@@ -715,11 +810,15 @@ def landing_home(request):
             {
                 "code": plan.code,
                 "name": plan.name,
-                "audience": plan.get_audience_display() if hasattr(plan, "get_audience_display") else plan.audience,
+                "audience": plan.get_audience_display()
+                if hasattr(plan, "get_audience_display")
+                else plan.audience,
                 "description": plan.description,
                 "monthly_price": monthly_price.amount if monthly_price else None,
                 "yearly_price": yearly_price.amount if yearly_price else None,
-                "currency": (monthly_price or yearly_price).currency if (monthly_price or yearly_price) else None,
+                "currency": (monthly_price or yearly_price).currency
+                if (monthly_price or yearly_price)
+                else None,
                 "modules": sample_modules,
             }
         )
@@ -763,7 +862,9 @@ def landing_home(request):
                 },
             }
         )
-    ai_assistant_library_url = _safe_reverse("ai_assistant:guide") or _safe_reverse("ai_assistant:dashboard")
+    ai_assistant_library_url = _safe_reverse("ai_assistant:guide") or _safe_reverse(
+        "ai_assistant:dashboard"
+    )
     if ai_spotlight and ai_assistant_library_url:
         resource_cards.append(
             {
@@ -783,7 +884,9 @@ def landing_home(request):
             }
         )
 
-    gamer_journey_url = _safe_reverse("games:quests_home") or _safe_reverse("games:index")
+    gamer_journey_url = _safe_reverse("games:quests_home") or _safe_reverse(
+        "games:index"
+    )
 
     journeys = [
         {
@@ -855,32 +958,44 @@ def landing_home(request):
         {
             "icon": "bi-briefcase",
             "title": _("KOBİ Sahipleri"),
-            "summary": _("Nakit akışı, banka entegrasyonu ve gerçek zamanlı raporlarla şirket finansını tek ekrandan yönetin."),
+            "summary": _(
+                "Nakit akışı, banka entegrasyonu ve gerçek zamanlı raporlarla şirket finansını tek ekrandan yönetin."
+            ),
         },
         {
             "icon": "bi-calculator",
             "title": _("Muhasebeciler & Mali Müşavirler"),
-            "summary": _("Marketplace üzerinden müşteri yönetin, e-Fatura ve beyannameleri AI destekli kontrol edin."),
+            "summary": _(
+                "Marketplace üzerinden müşteri yönetin, e-Fatura ve beyannameleri AI destekli kontrol edin."
+            ),
         },
         {
             "icon": "bi-mortarboard",
             "title": _("Öğretmenler"),
-            "summary": _("FinQuest görev motoru ile muhasebe-finans derslerini oyunlaştırarak aktarın."),
+            "summary": _(
+                "FinQuest görev motoru ile muhasebe-finans derslerini oyunlaştırarak aktarın."
+            ),
         },
         {
             "icon": "bi-person-workspace",
             "title": _("Öğrenciler"),
-            "summary": _("Canlı görevler, quizler ve rapor simülasyonlarıyla uygulamalı öğrenme."),
+            "summary": _(
+                "Canlı görevler, quizler ve rapor simülasyonlarıyla uygulamalı öğrenme."
+            ),
         },
         {
             "icon": "bi-graph-up-arrow",
             "title": _("Finans Profesyonelleri"),
-            "summary": _("Portföy, uyum ve blockchain denetim izlerini tek yerden izleyerek kariyerinizi güçlendirin."),
+            "summary": _(
+                "Portföy, uyum ve blockchain denetim izlerini tek yerden izleyerek kariyerinizi güçlendirin."
+            ),
         },
         {
             "icon": "bi-controller",
             "title": _("Oyunlaştırma Tutkunları"),
-            "summary": _("Finans temalı oyunlar ve turnuvalarla veri okuryazarlığını eğlenceli şekilde geliştirin."),
+            "summary": _(
+                "Finans temalı oyunlar ve turnuvalarla veri okuryazarlığını eğlenceli şekilde geliştirin."
+            ),
         },
     ]
 
@@ -923,7 +1038,9 @@ def resource_hub(request):
     resource_tiles = [
         {
             "title": _("Kılavuzlar"),
-            "description": _("Modüller ve persona senaryoları için adım adım rehberler."),
+            "description": _(
+                "Modüller ve persona senaryoları için adım adım rehberler."
+            ),
             "href": reverse("resources_guides"),
             "icon": "bi-journal-text",
             "accent": "#10b981",
@@ -931,7 +1048,9 @@ def resource_hub(request):
         },
         {
             "title": _("Dokümantasyon"),
-            "description": _("API referansları, entegrasyon yönergeleri ve kurulum dökümanları."),
+            "description": _(
+                "API referansları, entegrasyon yönergeleri ve kurulum dökümanları."
+            ),
             "href": reverse("resources_docs"),
             "icon": "bi-file-earmark-code",
             "accent": "#3b82f6",
@@ -939,7 +1058,9 @@ def resource_hub(request):
         },
         {
             "title": _("Eğitim"),
-            "description": _("Video dersler, canlı eğitim programları ve oyunlaştırılmış öğrenme modülleri."),
+            "description": _(
+                "Video dersler, canlı eğitim programları ve oyunlaştırılmış öğrenme modülleri."
+            ),
             "href": reverse("resources_training"),
             "icon": "bi-mortarboard",
             "accent": "#f59e0b",
@@ -947,7 +1068,9 @@ def resource_hub(request):
         },
         {
             "title": _("FinAsis Academy"),
-            "description": _("Öğretmen ve öğrenciler için rol bazlı ders scriptleri, görev motoru ve sertifika içerikleri."),
+            "description": _(
+                "Öğretmen ve öğrenciler için rol bazlı ders scriptleri, görev motoru ve sertifika içerikleri."
+            ),
             "href": reverse("resources_academy"),
             "icon": "bi-mortarboard-fill",
             "accent": "#0ea5e9",
@@ -955,7 +1078,9 @@ def resource_hub(request):
         },
         {
             "title": _("Developer Hub"),
-            "description": _("API örnekleri, webhook test konsolu ve topluluk etkinlikleri."),
+            "description": _(
+                "API örnekleri, webhook test konsolu ve topluluk etkinlikleri."
+            ),
             "href": reverse("resources_developer_hub"),
             "icon": "bi-code-slash",
             "accent": "#6366f1",
@@ -963,7 +1088,9 @@ def resource_hub(request):
         },
         {
             "title": _("Partner Marketplace"),
-            "description": _("Entegratör ve çözüm ortaklarını keşfedin, pazar yerinden modül ekleyin."),
+            "description": _(
+                "Entegratör ve çözüm ortaklarını keşfedin, pazar yerinden modül ekleyin."
+            ),
             "href": reverse("resources_partner_marketplace"),
             "icon": "bi-shop-window",
             "accent": "#f43f5e",
@@ -974,7 +1101,9 @@ def resource_hub(request):
     featured_resources = [
         {
             "title": _("SaaS CFO Oyun Kitabı"),
-            "description": _("Büyüyen şirketler için haftalık finans ritüelleri ve KPI tabloları."),
+            "description": _(
+                "Büyüyen şirketler için haftalık finans ritüelleri ve KPI tabloları."
+            ),
             "href": reverse("resources_cfo_playbook"),
             "icon": "bi-diagram-3",
             "accent": "#7c3aed",
@@ -983,7 +1112,9 @@ def resource_hub(request):
         },
         {
             "title": _("Uyumluluk Checklist"),
-            "description": _("MASAK ve KVKK uyumluluğu için operasyonel checklist şablonları."),
+            "description": _(
+                "MASAK ve KVKK uyumluluğu için operasyonel checklist şablonları."
+            ),
             "href": reverse("resources_compliance_checklist"),
             "icon": "bi-shield-check",
             "accent": "#0aae94",
@@ -992,7 +1123,9 @@ def resource_hub(request):
         },
         {
             "title": _("FinAsis Entegrasyon API"),
-            "description": _("REST & webhook uç noktaları, kimlik doğrulama ve örnek istekler."),
+            "description": _(
+                "REST & webhook uç noktaları, kimlik doğrulama ve örnek istekler."
+            ),
             "href": reverse("developer_api"),
             "icon": "bi-braces",
             "accent": "#2563eb",
@@ -1045,21 +1178,27 @@ def resource_hub(request):
     ecosystem_entries = [
         {
             "title": _("FinAsis Academy"),
-            "description": _("Rol bazlı ders scriptleri, görev motoru ve sertifika programları."),
+            "description": _(
+                "Rol bazlı ders scriptleri, görev motoru ve sertifika programları."
+            ),
             "url": reverse("resources_academy"),
             "category": _("Topluluk"),
             "type": "academy",
         },
         {
             "title": _("Developer Community"),
-            "description": _("API örnek kodları, webhook test konsolu ve topluluk etkinlikleri."),
+            "description": _(
+                "API örnek kodları, webhook test konsolu ve topluluk etkinlikleri."
+            ),
             "url": reverse("resources_developer_hub"),
             "category": _("Teknik"),
             "type": "community",
         },
         {
             "title": _("Partner Marketplace"),
-            "description": _("Entegrasyon partnerleri, ERP/CRM çözümleri ve ortak kampanyalar."),
+            "description": _(
+                "Entegrasyon partnerleri, ERP/CRM çözümleri ve ortak kampanyalar."
+            ),
             "url": reverse("resources_partner_marketplace"),
             "category": _("Ekosistem"),
             "type": "marketplace",
@@ -1126,14 +1265,17 @@ def resource_hub(request):
 
     if search_category:
         search_results = [
-            entry for entry in search_results if entry["category"].lower() == search_category.lower()
+            entry
+            for entry in search_results
+            if entry["category"].lower() == search_category.lower()
         ]
     if search_query:
         lowered = search_query.lower()
         search_results = [
             entry
             for entry in search_results
-            if lowered in entry["title"].lower() or lowered in entry["description"].lower()
+            if lowered in entry["title"].lower()
+            or lowered in entry["description"].lower()
         ]
 
     categories = sorted({entry["category"] for entry in library})
@@ -1177,19 +1319,25 @@ def resource_docs(request):
         {
             "date": formats.date_format(date(2025, 10, 2), "DATE_FORMAT"),
             "title": _("Webhook İmzalama"),
-            "summary": _("Tüm webhook payload'ları için HMAC-SHA256 imzalama zorunlu hale getirildi."),
+            "summary": _(
+                "Tüm webhook payload'ları için HMAC-SHA256 imzalama zorunlu hale getirildi."
+            ),
             "url": "/docs/developers/webhooks/signing/",
         },
         {
             "date": formats.date_format(date(2025, 9, 18), "DATE_FORMAT"),
             "title": _("Yeni Finans KPI Uç Noktası"),
-            "summary": _("`/api/v2/finance/kpi` uç noktası günlük KPI özetlerini döndürüyor."),
+            "summary": _(
+                "`/api/v2/finance/kpi` uç noktası günlük KPI özetlerini döndürüyor."
+            ),
             "url": "/docs/finance/kpi-api/#v2",
         },
         {
             "date": formats.date_format(date(2025, 8, 30), "DATE_FORMAT"),
             "title": _("Özel Roller API"),
-            "summary": _("RBAC politikaları için yeni roller ve izin şemaları yayınlandı."),
+            "summary": _(
+                "RBAC politikaları için yeni roller ve izin şemaları yayınlandı."
+            ),
             "url": "/docs/security/rbac/",
         },
     ]
@@ -1215,10 +1363,10 @@ def resource_training(request):
 
 
 def resource_academy(request):
-    teacher_prompts = prompt_registry.get_prompts_for_role('egitimci', limit=3)
-    student_prompts = prompt_registry.get_prompts_for_role('ogrenci', limit=3)
-    teacher_tasks = task_engine.get_tasks(audience='teacher', kind='mission', limit=3)
-    student_tasks = task_engine.get_tasks(audience='student', kind='mission', limit=3)
+    teacher_prompts = prompt_registry.get_prompts_for_role("egitimci", limit=3)
+    student_prompts = prompt_registry.get_prompts_for_role("ogrenci", limit=3)
+    teacher_tasks = task_engine.get_tasks(audience="teacher", kind="mission", limit=3)
+    student_tasks = task_engine.get_tasks(audience="student", kind="mission", limit=3)
     context = {
         "page_title": _("FinAsis · Academy"),
         "teacher_prompts": teacher_prompts,
@@ -1247,7 +1395,7 @@ def resource_developer_hub(request):
             "format": _("Hibrit"),
         },
     ]
-    metrics = task_engine.get_brief(audience='gamer')
+    metrics = task_engine.get_brief(audience="gamer")
     context = {
         "page_title": _("FinAsis · Developer Hub"),
         "api_resources": api_resources,
@@ -1324,9 +1472,21 @@ def resource_partner_marketplace(request):
             },
         ]
     onboarding_steps = [
-        {"step": 1, "title": _("Başvuru ve değerlendirme"), "detail": _("Partner portalı üzerinden başvuru ve güvenlik taraması.")},
-        {"step": 2, "title": _("Sandbox doğrulaması"), "detail": _("API entegrasyonu ve görev motoru senaryolarının testi.")},
-        {"step": 3, "title": _("Marketplace yayını"), "detail": _("Fiyatlandırma, SLA ve destek bilgileriyle yayın.")},
+        {
+            "step": 1,
+            "title": _("Başvuru ve değerlendirme"),
+            "detail": _("Partner portalı üzerinden başvuru ve güvenlik taraması."),
+        },
+        {
+            "step": 2,
+            "title": _("Sandbox doğrulaması"),
+            "detail": _("API entegrasyonu ve görev motoru senaryolarının testi."),
+        },
+        {
+            "step": 3,
+            "title": _("Marketplace yayını"),
+            "detail": _("Fiyatlandırma, SLA ve destek bilgileriyle yayın."),
+        },
     ]
     context = {
         "page_title": _("FinAsis · Partner Marketplace"),
@@ -1341,7 +1501,7 @@ def resource_partner_marketplace(request):
 def _get_product_stats(page_key: str) -> Dict[str, object]:
     """Her ürün sayfası için dinamik istatistikleri hesapla"""
     stats = {}
-    
+
     if page_key == "products_muhasebe":
         # Muhasebe istatistikleri
         stats["total_invoices"] = AccountingInvoice.objects.count()
@@ -1353,9 +1513,11 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
             is_active=True,
         )
         stats["monthly_invoices"] = monthly_invoices.count()
-        monthly_total = monthly_invoices.aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+        monthly_total = monthly_invoices.aggregate(total=Sum("total_amount"))[
+            "total"
+        ] or Decimal("0")
         stats["monthly_total"] = monthly_total
-        
+
     elif page_key == "products_finans":
         # Finansal Yönetim istatistikleri
         stats["company_count"] = Company.objects.filter(is_active=True).count()
@@ -1363,6 +1525,7 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
         if apps.is_installed("finance"):
             try:
                 from finance.models import Transaction as FinanceTransaction
+
                 stats["total_transactions"] = FinanceTransaction.objects.count()
                 today = timezone.localdate()
                 start_of_month = today.replace(day=1)
@@ -1373,7 +1536,7 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
             except Exception:
                 stats["total_transactions"] = 0
                 stats["monthly_transactions"] = 0
-        
+
     elif page_key == "products_blockchain":
         # Blockchain istatistikleri
         if apps.is_installed("blockchain"):
@@ -1381,19 +1544,25 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
                 from blockchain.models import Transaction as BlockchainTransaction
                 from blockchain.models import SmartContract
                 from blockchain.models import Block
-                stats["total_transactions"] = BlockchainTransaction.objects.filter(status="confirmed").count()
-                stats["total_contracts"] = SmartContract.objects.filter(is_active=True).count()
+
+                stats["total_transactions"] = BlockchainTransaction.objects.filter(
+                    status="confirmed"
+                ).count()
+                stats["total_contracts"] = SmartContract.objects.filter(
+                    is_active=True
+                ).count()
                 stats["total_blocks"] = Block.objects.count()
             except Exception:
                 stats["total_transactions"] = 0
                 stats["total_contracts"] = 0
                 stats["total_blocks"] = 0
-        
+
     elif page_key == "products_egitim":
         # Eğitim istatistikleri
         if apps.is_installed("education"):
             try:
                 from education.models import Course, Certificate, Enrollment
+
                 stats["total_courses"] = Course.objects.filter(is_active=True).count()
                 stats["total_certificates"] = Certificate.objects.count()
                 stats["total_enrollments"] = Enrollment.objects.count()
@@ -1410,7 +1579,7 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
                 stats["total_enrollments"] = 0
                 stats["teacher_count"] = 0
                 stats["student_count"] = 0
-        
+
     elif page_key == "products_oyunlar":
         # Oyunlar istatistikleri
         user_model = get_user_model()
@@ -1420,18 +1589,27 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
         if apps.is_installed("games"):
             try:
                 from games.models import GameSession, Leaderboard
+
                 stats["total_sessions"] = GameSession.objects.count()
                 stats["leaderboard_entries"] = Leaderboard.objects.count()
             except Exception:
                 stats["total_sessions"] = 0
                 stats["leaderboard_entries"] = 0
-        
+
     elif page_key == "products_mali_musavir":
         # Mali Müşavirlik istatistikleri
         if apps.is_installed("advisors"):
             try:
-                from advisors.models import AdvisorProfile, TaxpayerProfile, ConsultationSession, AdvisorReport
-                stats["verified_advisors"] = AdvisorProfile.objects.filter(verified_at__isnull=False).count()
+                from advisors.models import (
+                    AdvisorProfile,
+                    TaxpayerProfile,
+                    ConsultationSession,
+                    AdvisorReport,
+                )
+
+                stats["verified_advisors"] = AdvisorProfile.objects.filter(
+                    verified_at__isnull=False
+                ).count()
                 stats["total_clients"] = TaxpayerProfile.objects.count()
                 stats["total_consultations"] = ConsultationSession.objects.count()
                 stats["total_reports"] = AdvisorReport.objects.count()
@@ -1440,16 +1618,17 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
                 stats["total_clients"] = 0
                 stats["total_consultations"] = 0
                 stats["total_reports"] = 0
-        
+
         if apps.is_installed("partners"):
             try:
                 from partners.models import PartnerProfile
+
                 stats["partner_count"] = PartnerProfile.objects.filter(
                     status=PartnerProfile.Status.PUBLISHED
                 ).count()
             except Exception:
                 stats["partner_count"] = 0
-        
+
     elif page_key == "products_yapay_zeka":
         # Yapay Zeka istatistikleri
         try:
@@ -1457,34 +1636,44 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
                 len(prompt_registry.get_prompts_for_role(role))
                 for role in prompt_registry.list_roles()
             )
-            stats["ai_cards"] = len(prompt_registry.get_prompts_for_role("kobi", limit=10))
+            stats["ai_cards"] = len(
+                prompt_registry.get_prompts_for_role("kobi", limit=10)
+            )
         except Exception:
             stats["prompt_count"] = 0
             stats["ai_cards"] = 0
-        
+
         if apps.is_installed("ai_assistant"):
             try:
                 from ai_assistant.models import ChatSession, AIPrompt
+
                 stats["chat_sessions"] = ChatSession.objects.count()
                 stats["custom_prompts"] = AIPrompt.objects.count()
             except Exception:
                 stats["chat_sessions"] = 0
                 stats["custom_prompts"] = 0
-    
+
     elif page_key == "products_kobi_analizi":
         # KOBİ Analizi istatistikleri
         stats["company_count"] = Company.objects.filter(is_active=True).count()
         if apps.is_installed("kobi_analysis"):
             try:
-                from kobi_analysis.models import KOBIFinancialAnalysis, FinancialReport, FinancialGoal
+                from kobi_analysis.models import (
+                    KOBIFinancialAnalysis,
+                    FinancialReport,
+                    FinancialGoal,
+                )
+
                 stats["total_analyses"] = KOBIFinancialAnalysis.objects.count()
                 stats["total_reports"] = FinancialReport.objects.count()
-                stats["active_goals"] = FinancialGoal.objects.filter(status='IN_PROGRESS').count()
+                stats["active_goals"] = FinancialGoal.objects.filter(
+                    status="IN_PROGRESS"
+                ).count()
             except Exception:
                 stats["total_analyses"] = 0
                 stats["total_reports"] = 0
                 stats["active_goals"] = 0
-        
+
     elif page_key == "products_edonusum":
         # e-Dönüşüm istatistikleri
         stats["total_invoices"] = AccountingInvoice.objects.count()
@@ -1497,25 +1686,28 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
         )
         stats["monthly_invoices"] = monthly_invoices.count()
         # e-fatura sayısı (örnek olarak tüm faturalar e-fatura kabul ediliyor)
-        stats["e_invoice_count"] = AccountingInvoice.objects.filter(is_active=True).count()
-        
+        stats["e_invoice_count"] = AccountingInvoice.objects.filter(
+            is_active=True
+        ).count()
+
     elif page_key == "products_audit":
         # Denetim istatistikleri
         if apps.is_installed("audit"):
             try:
                 from audit.models import AuditEvent, Control
+
                 stats["audit_event_count"] = AuditEvent.objects.count()
                 stats["control_count"] = Control.objects.filter(is_active=True).count()
             except Exception:
                 stats["audit_event_count"] = 0
                 stats["control_count"] = 0
         stats["company_count"] = Company.objects.filter(is_active=True).count()
-    
+
     # Genel istatistikler (tüm sayfalar için)
     user_model = get_user_model()
     stats["total_active_users"] = user_model.objects.filter(is_active=True).count()
     stats["total_companies"] = Company.objects.filter(is_active=True).count()
-    
+
     return stats
 
 
@@ -1530,7 +1722,7 @@ def marketing_page(request, page_key: str):
 
     # Ürün sayfası için dinamik istatistikleri hesapla
     product_stats = _get_product_stats(page_key)
-    
+
     context: Dict[str, object] = {
         "page_config": page_config,
         "stats": product_stats,
@@ -1548,9 +1740,9 @@ def ui_components(request):
     UI bileşenleri demo sayfası (geliştirme amaçlı)
     """
     context = {
-        'page_title': _('UI Bileşenleri'),
+        "page_title": _("UI Bileşenleri"),
     }
-    return render(request, 'core_ui/components.html', context)
+    return render(request, "core_ui/components.html", context)
 
 
 def theme_demo(request):
@@ -1558,98 +1750,112 @@ def theme_demo(request):
     Tema ve stil rehberi
     """
     context = {
-        'page_title': _('Tema ve Stil Rehberi'),
+        "page_title": _("Tema ve Stil Rehberi"),
     }
-    return render(request, 'core_ui/theme_demo.html', context)
+    return render(request, "core_ui/theme_demo.html", context)
 
 
 def site_search(request):
     """
     Basit site içi arama (kurumsal içerikler + yardım bağlantıları)
     """
-    query = request.GET.get('q', '').strip()
+    query = request.GET.get("q", "").strip()
     results: List[Dict[str, str]] = []
 
     if query:
         press_hits = PressRelease.objects.filter(title__icontains=query)[:5]
         for press in press_hits:
-            results.append({
-                'title': press.title,
-                'snippet': Truncator(press.summary or '').chars(130) or _('Kurumsal duyuru'),
-                'url': press.url or reverse('corporate:landing'),
-                'category': _('Basın Bülteni'),
-            })
+            results.append(
+                {
+                    "title": press.title,
+                    "snippet": Truncator(press.summary or "").chars(130)
+                    or _("Kurumsal duyuru"),
+                    "url": press.url or reverse("corporate:landing"),
+                    "category": _("Basın Bülteni"),
+                }
+            )
 
         doc_hits = InvestorDocument.objects.filter(
             Q(name__icontains=query) | Q(kind__icontains=query)
         )[:5]
         for doc in doc_hits:
-            results.append({
-                'title': doc.name,
-                'snippet': _('Yatırımcı belgesi - {kind}').format(kind=doc.get_kind_display())
-                if hasattr(doc, 'get_kind_display') else _('Yatırımcı belgesi'),
-                'url': doc.file_url,
-                'category': _('Yatırımcı Belgeleri'),
-            })
+            results.append(
+                {
+                    "title": doc.name,
+                    "snippet": _("Yatırımcı belgesi - {kind}").format(
+                        kind=doc.get_kind_display()
+                    )
+                    if hasattr(doc, "get_kind_display")
+                    else _("Yatırımcı belgesi"),
+                    "url": doc.file_url,
+                    "category": _("Yatırımcı Belgeleri"),
+                }
+            )
 
         if request.user.is_authenticated:
             try:
-                from common.models import SupportTicket  # Local import to avoid circular
+                from common.models import (
+                    SupportTicket,
+                )  # Local import to avoid circular
             except Exception:
                 SupportTicket = None  # type: ignore
 
             if SupportTicket is not None:
-                ticket_hits = SupportTicket.objects.filter(
-                    user=request.user
-                ).filter(
+                ticket_hits = SupportTicket.objects.filter(user=request.user).filter(
                     Q(subject__icontains=query) | Q(message__icontains=query)
                 )[:3]
                 for ticket in ticket_hits:
-                    results.append({
-                        'title': _('Destek Talebi #{id}').format(id=ticket.id),
-                        'snippet': Truncator(ticket.message).chars(130),
-                        'url': reverse('common:help_center'),
-                        'category': _('Destek'),
-                    })
+                    results.append(
+                        {
+                            "title": _("Destek Talebi #{id}").format(id=ticket.id),
+                            "snippet": Truncator(ticket.message).chars(130),
+                            "url": reverse("common:help_center"),
+                            "category": _("Destek"),
+                        }
+                    )
     else:
         # No query provided; show önerilen bağlantılar
         results = [
             {
-                'title': _('Kaynak Merkezi'),
-                'snippet': _('Dokümantasyon, eğitim içerikleri ve destek rehberlerine göz atın.'),
-                'url': reverse('resources'),
-                'category': _('Önerilen'),
+                "title": _("Kaynak Merkezi"),
+                "snippet": _(
+                    "Dokümantasyon, eğitim içerikleri ve destek rehberlerine göz atın."
+                ),
+                "url": reverse("resources"),
+                "category": _("Önerilen"),
             },
             {
-                'title': _('Kurumsal Çözümler'),
-                'snippet': _('FinAsis ile işletmenizi nasıl dönüştürebileceğinizi keşfedin.'),
-                'url': reverse('corporate:landing'),
-                'category': _('Önerilen'),
+                "title": _("Kurumsal Çözümler"),
+                "snippet": _(
+                    "FinAsis ile işletmenizi nasıl dönüştürebileceğinizi keşfedin."
+                ),
+                "url": reverse("corporate:landing"),
+                "category": _("Önerilen"),
             },
             {
-                'title': _('İletişim'),
-                'snippet': _('Satış ekibimizle iletişime geçerek demo talep edin.'),
-                'url': reverse('contact'),
-                'category': _('Önerilen'),
+                "title": _("İletişim"),
+                "snippet": _("Satış ekibimizle iletişime geçerek demo talep edin."),
+                "url": reverse("contact"),
+                "category": _("Önerilen"),
             },
         ]
 
     suggestions: List[str] = []
     if query and not results:
         suggestions = [
-            _('Farklı anahtar kelimeler deneyin.'),
-            _('Yardım merkezinde aramak için “yardım” kelimesini eklemeyi deneyin.'),
-            _('Bizimle iletişime geçerek destek talebi oluşturabilirsiniz.'),
+            _("Farklı anahtar kelimeler deneyin."),
+            _("Yardım merkezinde aramak için “yardım” kelimesini eklemeyi deneyin."),
+            _("Bizimle iletişime geçerek destek talebi oluşturabilirsiniz."),
         ]
 
     context = {
-        'page_title': _('Arama Sonuçları'),
-        'query': query,
-        'results': results,
-        'result_count': len(results),
-        'suggestions': suggestions,
+        "page_title": _("Arama Sonuçları"),
+        "query": query,
+        "results": results,
+        "result_count": len(results),
+        "suggestions": suggestions,
     }
-    return render(request, 'core_ui/search_results.html', context)
+    return render(request, "core_ui/search_results.html", context)
 
 
 @require_http_methods(["POST"])
@@ -1657,16 +1863,14 @@ def ajax_theme_toggle(request):
     """
     AJAX: Tema değiştirme (dark/light mode)
     """
-    theme = request.POST.get('theme', 'light')
-    
+    theme = request.POST.get("theme", "light")
+
     # Session'a kaydet
-    request.session['theme'] = theme
-    
-    return JsonResponse({
-        'success': True,
-        'theme': theme,
-        'message': _('Tema başarıyla değiştirildi.')
-    })
+    request.session["theme"] = theme
+
+    return JsonResponse(
+        {"success": True, "theme": theme, "message": _("Tema başarıyla değiştirildi.")}
+    )
 
 
 @require_http_methods(["GET"])
@@ -1675,29 +1879,25 @@ def ajax_user_preferences(request):
     AJAX: Kullanıcı UI tercihleri
     """
     if not request.user.is_authenticated:
-        return JsonResponse({
-            'success': False,
-            'error': _('Giriş yapmalısınız.')
-        }, status=401)
-    
+        return JsonResponse(
+            {"success": False, "error": _("Giriş yapmalısınız.")}, status=401
+        )
+
     # Varsayılan tercihler
     preferences = {
-        'theme': request.session.get('theme', 'light'),
-        'language': request.session.get('django_language', 'tr'),
-        'sidebar_collapsed': request.session.get('sidebar_collapsed', False),
+        "theme": request.session.get("theme", "light"),
+        "language": request.session.get("django_language", "tr"),
+        "sidebar_collapsed": request.session.get("sidebar_collapsed", False),
     }
-    
-    return JsonResponse({
-        'success': True,
-        'preferences': preferences
-    })
+
+    return JsonResponse({"success": True, "preferences": preferences})
 
 
 def error_404(request, exception=None):
     """
     Custom 404 error handler
     """
-    return render(request, '404.html', status=404)
+    return render(request, "404.html", status=404)
 
 
 def error_500(request):
@@ -1707,24 +1907,22 @@ def error_500(request):
     """
     import logging
     from django.http import HttpResponse
-    from django.conf import settings
-    
+
     logger = logging.getLogger(__name__)
-    
+
     # Log the error if we have exception info
-    if hasattr(request, '_exception'):
+    if hasattr(request, "_exception"):
         logger.exception(
-            f"500 Error on {request.method} {request.path}",
-            exc_info=request._exception
+            f"500 Error on {request.method} {request.path}", exc_info=request._exception
         )
-    
+
     # Try to render the custom error page
     try:
-        return render(request, '500.html', status=500)
-    except Exception as e:
+        return render(request, "500.html", status=500)
+    except Exception:
         # If template rendering fails, return a simple error page
         logger.exception("Failed to render 500.html template")
-        
+
         # Return a simple HTML error page
         error_html = """
         <!DOCTYPE html>
@@ -1746,5 +1944,4 @@ def error_500(request):
         </body>
         </html>
         """
-        return HttpResponse(error_html, status=500, content_type='text/html')
-
+        return HttpResponse(error_html, status=500, content_type="text/html")

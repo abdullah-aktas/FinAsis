@@ -56,7 +56,9 @@ def build_kebir(entries: Iterable[JournalEntryDTO]) -> bytes:
     balances: dict[str, Decimal] = {}
     for e in entries:
         for ln in e.lines:
-            balances[ln.account] = balances.get(ln.account, Decimal("0.00")) + ln.debit - ln.credit
+            balances[ln.account] = (
+                balances.get(ln.account, Decimal("0.00")) + ln.debit - ln.credit
+            )
     root = etree.Element("Kebir")
     for acc in sorted(balances.keys()):
         a = etree.SubElement(root, "Account")

@@ -14,7 +14,9 @@ def get_logger(name: str) -> logging.Logger:
         if fmt == "json":
             handler.setFormatter(_JsonFormatter())
         else:
-            handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+            handler.setFormatter(
+                logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+            )
         logger.addHandler(handler)
         level = os.environ.get("EDOC_LOG_LEVEL", "INFO").upper()
         logger.setLevel(getattr(logging, level, logging.INFO))

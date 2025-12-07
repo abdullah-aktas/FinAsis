@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0015_remove_banktransaction_acc_banktxn_date_idx_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -18,8 +17,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialGoal",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("goal_name", models.CharField(max_length=200, verbose_name="Hedef Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "goal_name",
+                    models.CharField(max_length=200, verbose_name="Hedef Adı"),
+                ),
                 (
                     "goal_type",
                     models.CharField(
@@ -34,17 +44,28 @@ class Migration(migrations.Migration):
                         verbose_name="Hedef Türü",
                     ),
                 ),
-                ("target_amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Hedef Tutar")),
+                (
+                    "target_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Hedef Tutar"
+                    ),
+                ),
                 (
                     "current_amount",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Mevcut Tutar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Mevcut Tutar",
                     ),
                 ),
                 (
                     "achievement_percentage",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=5, verbose_name="Başarım %"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=5,
+                        verbose_name="Başarım %",
                     ),
                 ),
                 ("start_date", models.DateField(verbose_name="Başlangıç Tarihi")),
@@ -67,19 +88,39 @@ class Migration(migrations.Migration):
                 (
                     "priority",
                     models.CharField(
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek"), ("CRITICAL", "Kritik")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                            ("CRITICAL", "Kritik"),
+                        ],
                         default="MEDIUM",
                         max_length=10,
                         verbose_name="Öncelik",
                     ),
                 ),
-                ("description", models.TextField(blank=True, null=True, verbose_name="Açıklama")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Güncellenme Tarihi")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Açıklama"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Güncellenme Tarihi"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -100,8 +141,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RiskAssessment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("risk_name", models.CharField(max_length=200, verbose_name="Risk Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "risk_name",
+                    models.CharField(max_length=200, verbose_name="Risk Adı"),
+                ),
                 (
                     "risk_category",
                     models.CharField(
@@ -146,7 +198,10 @@ class Migration(migrations.Migration):
                         verbose_name="Etki",
                     ),
                 ),
-                ("risk_score", models.IntegerField(default=0, verbose_name="Risk Skoru")),
+                (
+                    "risk_score",
+                    models.IntegerField(default=0, verbose_name="Risk Skoru"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -167,7 +222,9 @@ class Migration(migrations.Migration):
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -198,17 +255,29 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="cashflowforecast",
             name="forecast_period_end",
-            field=models.DateField(blank=True, null=True, verbose_name="Tahmin Dönemi Bitiş"),
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Tahmin Dönemi Bitiş"
+            ),
         ),
         migrations.AddField(
             model_name="cashflowforecast",
             name="forecast_period_start",
-            field=models.DateField(blank=True, null=True, verbose_name="Tahmin Dönemi Başlangıç"),
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Tahmin Dönemi Başlangıç"
+            ),
         ),
         migrations.CreateModel(
             name="SWOTAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("analysis_date", models.DateField(verbose_name="Analiz Tarihi")),
                 ("strengths", models.TextField(verbose_name="Güçlü Yönler")),
                 ("weaknesses", models.TextField(verbose_name="Zayıf Yönler")),
@@ -216,13 +285,17 @@ class Migration(migrations.Migration):
                 ("threats", models.TextField(verbose_name="Tehditler")),
                 (
                     "strategic_recommendations",
-                    models.TextField(blank=True, null=True, verbose_name="Stratejik Öneriler"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Stratejik Öneriler"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (
@@ -242,8 +315,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RiskMitigation",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("mitigation_action", models.CharField(max_length=200, verbose_name="Önlem Aksiyonu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "mitigation_action",
+                    models.CharField(max_length=200, verbose_name="Önlem Aksiyonu"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 (
                     "status",
@@ -263,17 +347,28 @@ class Migration(migrations.Migration):
                     "effectiveness",
                     models.CharField(
                         blank=True,
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                        ],
                         max_length=10,
                         null=True,
                         verbose_name="Etkinlik",
                     ),
                 ),
-                ("deadline", models.DateField(blank=True, null=True, verbose_name="Termin")),
+                (
+                    "deadline",
+                    models.DateField(blank=True, null=True, verbose_name="Termin"),
+                ),
                 (
                     "cost_estimate",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Tahmini Maliyet"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Tahmini Maliyet",
                     ),
                 ),
                 (
@@ -304,8 +399,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PerformanceMetric",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("metric_name", models.CharField(max_length=100, verbose_name="Metrik Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "metric_name",
+                    models.CharField(max_length=100, verbose_name="Metrik Adı"),
+                ),
                 (
                     "metric_category",
                     models.CharField(
@@ -320,18 +426,31 @@ class Migration(migrations.Migration):
                         verbose_name="Kategori",
                     ),
                 ),
-                ("current_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Mevcut Değer")),
+                (
+                    "current_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Mevcut Değer"
+                    ),
+                ),
                 (
                     "target_value",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Hedef Değer"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Hedef Değer",
                     ),
                 ),
                 (
                     "trend",
                     models.CharField(
                         blank=True,
-                        choices=[("UP", "Yükseliş"), ("DOWN", "Düşüş"), ("STABLE", "Sabit")],
+                        choices=[
+                            ("UP", "Yükseliş"),
+                            ("DOWN", "Düşüş"),
+                            ("STABLE", "Sabit"),
+                        ],
                         max_length=10,
                         null=True,
                         verbose_name="Trend",
@@ -341,7 +460,9 @@ class Migration(migrations.Migration):
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
             ],
@@ -353,10 +474,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MetricTarget",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("target_period", models.DateField(verbose_name="Hedef Dönemi")),
-                ("target_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Hedef Değer")),
-                ("is_achieved", models.BooleanField(default=False, verbose_name="Başarıldı mı?")),
+                (
+                    "target_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Hedef Değer"
+                    ),
+                ),
+                (
+                    "is_achieved",
+                    models.BooleanField(default=False, verbose_name="Başarıldı mı?"),
+                ),
                 (
                     "metric",
                     models.ForeignKey(
@@ -375,31 +512,80 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="IndustryBenchmark",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("industry_sector", models.CharField(max_length=100, verbose_name="Sektör")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "industry_sector",
+                    models.CharField(max_length=100, verbose_name="Sektör"),
+                ),
                 ("benchmark_year", models.IntegerField(verbose_name="Benchmark Yılı")),
-                ("metric_name", models.CharField(max_length=100, verbose_name="Metrik Adı")),
-                ("average_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Ortalama Değer")),
-                ("top_quartile_value", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="En İyi %25")),
+                (
+                    "metric_name",
+                    models.CharField(max_length=100, verbose_name="Metrik Adı"),
+                ),
+                (
+                    "average_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Ortalama Değer"
+                    ),
+                ),
+                (
+                    "top_quartile_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="En İyi %25"
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Sektör Benchmarkı",
                 "verbose_name_plural": "Sektör Benchmarkları",
-                "unique_together": {("industry_sector", "benchmark_year", "metric_name")},
+                "unique_together": {
+                    ("industry_sector", "benchmark_year", "metric_name")
+                },
             },
         ),
         migrations.CreateModel(
             name="GoalProgress",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("progress_date", models.DateField(verbose_name="İlerleme Tarihi")),
-                ("current_amount", models.DecimalField(decimal_places=2, max_digits=15, verbose_name="Mevcut Tutar")),
+                (
+                    "current_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="Mevcut Tutar"
+                    ),
+                ),
                 (
                     "achievement_percentage",
-                    models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Başarım %"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Başarım %"
+                    ),
                 ),
-                ("notes", models.TextField(blank=True, null=True, verbose_name="Notlar")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Kayıt Tarihi")),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Notlar"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kayıt Tarihi"
+                    ),
+                ),
                 (
                     "goal",
                     models.ForeignKey(
@@ -419,36 +605,68 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ForecastScenario",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("scenario_name", models.CharField(max_length=100, verbose_name="Senaryo Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "scenario_name",
+                    models.CharField(max_length=100, verbose_name="Senaryo Adı"),
+                ),
                 (
                     "scenario_type",
                     models.CharField(
-                        choices=[("OPTIMISTIC", "İyimser"), ("PESSIMISTIC", "Kötümser"), ("REALISTIC", "Gerçekçi")],
+                        choices=[
+                            ("OPTIMISTIC", "İyimser"),
+                            ("PESSIMISTIC", "Kötümser"),
+                            ("REALISTIC", "Gerçekçi"),
+                        ],
                         max_length=20,
                         verbose_name="Senaryo Türü",
                     ),
                 ),
-                ("probability", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Olasılık %")),
+                (
+                    "probability",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Olasılık %"
+                    ),
+                ),
                 (
                     "projected_revenue",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Tahmini Gelir"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Tahmini Gelir",
                     ),
                 ),
                 (
                     "projected_expenses",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Tahmini Gider"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Tahmini Gider",
                     ),
                 ),
                 (
                     "projected_profit",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Tahmini Kar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Tahmini Kar",
                     ),
                 ),
-                ("assumptions", models.TextField(blank=True, null=True, verbose_name="Varsayımlar")),
+                (
+                    "assumptions",
+                    models.TextField(blank=True, null=True, verbose_name="Varsayımlar"),
+                ),
                 (
                     "forecast",
                     models.ForeignKey(
@@ -467,27 +685,53 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialHealthSnapshot",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("snapshot_date", models.DateField(verbose_name="Snapshot Tarihi")),
-                ("overall_score", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Genel Skor")),
-                ("liquidity_score", models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Likidite Skoru")),
+                (
+                    "overall_score",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Genel Skor"
+                    ),
+                ),
+                (
+                    "liquidity_score",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Likidite Skoru"
+                    ),
+                ),
                 (
                     "profitability_score",
-                    models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Karlılık Skoru"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Karlılık Skoru"
+                    ),
                 ),
                 (
                     "solvency_score",
-                    models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Ödeme Gücü Skoru"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Ödeme Gücü Skoru"
+                    ),
                 ),
                 (
                     "efficiency_score",
-                    models.DecimalField(decimal_places=2, max_digits=5, verbose_name="Verimlilik Skoru"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=5, verbose_name="Verimlilik Skoru"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
             ],
@@ -500,7 +744,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialAlert",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "alert_type",
                     models.CharField(
@@ -518,19 +770,39 @@ class Migration(migrations.Migration):
                 (
                     "severity",
                     models.CharField(
-                        choices=[("LOW", "Düşük"), ("MEDIUM", "Orta"), ("HIGH", "Yüksek"), ("CRITICAL", "Kritik")],
+                        choices=[
+                            ("LOW", "Düşük"),
+                            ("MEDIUM", "Orta"),
+                            ("HIGH", "Yüksek"),
+                            ("CRITICAL", "Kritik"),
+                        ],
                         max_length=10,
                         verbose_name="Ciddiyet",
                     ),
                 ),
                 ("alert_message", models.TextField(verbose_name="Uyarı Mesajı")),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
-                ("triggered_at", models.DateTimeField(auto_now_add=True, verbose_name="Tetiklenme Zamanı")),
-                ("resolved_at", models.DateTimeField(blank=True, null=True, verbose_name="Çözüm Zamanı")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
+                (
+                    "triggered_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Tetiklenme Zamanı"
+                    ),
+                ),
+                (
+                    "resolved_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Çözüm Zamanı"
+                    ),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
             ],
@@ -543,26 +815,62 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CompetitorAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("competitor_name", models.CharField(max_length=200, verbose_name="Rakip Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "competitor_name",
+                    models.CharField(max_length=200, verbose_name="Rakip Adı"),
+                ),
                 ("analysis_date", models.DateField(verbose_name="Analiz Tarihi")),
                 (
                     "revenue",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=15, null=True, verbose_name="Gelir"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=15,
+                        null=True,
+                        verbose_name="Gelir",
+                    ),
                 ),
                 (
                     "market_share",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Pazar Payı %"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Pazar Payı %",
                     ),
                 ),
-                ("strengths", models.TextField(blank=True, null=True, verbose_name="Güçlü Yönler")),
-                ("weaknesses", models.TextField(blank=True, null=True, verbose_name="Zayıf Yönler")),
-                ("overall_rating", models.IntegerField(default=5, verbose_name="Genel Rating")),
+                (
+                    "strengths",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Güçlü Yönler"
+                    ),
+                ),
+                (
+                    "weaknesses",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Zayıf Yönler"
+                    ),
+                ),
+                (
+                    "overall_rating",
+                    models.IntegerField(default=5, verbose_name="Genel Rating"),
+                ),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
             ],
@@ -574,8 +882,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="BudgetLineItem",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("line_item_name", models.CharField(max_length=200, verbose_name="Kalem Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "line_item_name",
+                    models.CharField(max_length=200, verbose_name="Kalem Adı"),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -592,22 +911,34 @@ class Migration(migrations.Migration):
                 (
                     "planned_amount",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Planlanan Tutar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Planlanan Tutar",
                     ),
                 ),
                 (
                     "actual_amount",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Gerçekleşen Tutar"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Gerçekleşen Tutar",
                     ),
                 ),
                 (
                     "variance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=15, verbose_name="Varyans"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=15,
+                        verbose_name="Varyans",
                     ),
                 ),
-                ("notes", models.TextField(blank=True, null=True, verbose_name="Notlar")),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Notlar"),
+                ),
                 (
                     "budget",
                     models.ForeignKey(
@@ -627,8 +958,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvisoryReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("report_title", models.CharField(max_length=200, verbose_name="Rapor Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "report_title",
+                    models.CharField(max_length=200, verbose_name="Rapor Başlığı"),
+                ),
                 (
                     "report_type",
                     models.CharField(
@@ -644,13 +986,21 @@ class Migration(migrations.Migration):
                 ),
                 ("report_date", models.DateField(verbose_name="Rapor Tarihi")),
                 ("content", models.TextField(verbose_name="Rapor İçeriği")),
-                ("summary", models.TextField(blank=True, null=True, verbose_name="Özet")),
-                ("recommendations", models.TextField(blank=True, null=True, verbose_name="Öneriler")),
+                (
+                    "summary",
+                    models.TextField(blank=True, null=True, verbose_name="Özet"),
+                ),
+                (
+                    "recommendations",
+                    models.TextField(blank=True, null=True, verbose_name="Öneriler"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "company",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="accounting.company", verbose_name="Şirket"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                        verbose_name="Şirket",
                     ),
                 ),
                 (

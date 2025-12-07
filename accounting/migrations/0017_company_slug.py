@@ -12,7 +12,9 @@ def populate_company_slugs(apps, schema_editor):
         base_slug = base_slug[:200]
         slug_candidate = base_slug
         counter = 2
-        while Company.objects.filter(slug=slug_candidate).exclude(pk=instance.pk).exists():
+        while (
+            Company.objects.filter(slug=slug_candidate).exclude(pk=instance.pk).exists()
+        ):
             slug_candidate = f"{base_slug}-{counter}"[:255]
             counter += 1
         return slug_candidate
@@ -30,7 +32,6 @@ def noop(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0016_accountingaudit_costcenter_costvarianceanalysis_and_more"),
     ]
@@ -39,7 +40,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="company",
             name="slug",
-            field=models.SlugField(blank=True, max_length=255, unique=True, null=True, verbose_name="SEO Adresi"),
+            field=models.SlugField(
+                blank=True,
+                max_length=255,
+                unique=True,
+                null=True,
+                verbose_name="SEO Adresi",
+            ),
         ),
         migrations.RunPython(populate_company_slugs, noop),
     ]

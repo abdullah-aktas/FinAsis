@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Tenant",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("code", models.CharField(max_length=50, unique=True)),
                 ("name", models.CharField(max_length=255)),
                 ("is_active", models.BooleanField(default=True)),
@@ -27,14 +34,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Company",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=255)),
                 ("is_active", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "tenant",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="companies", to="tenancy.tenant"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="companies",
+                        to="tenancy.tenant",
                     ),
                 ),
             ],
@@ -42,7 +59,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserTenantRole",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "role",
                     models.CharField(
@@ -59,7 +84,9 @@ class Migration(migrations.Migration):
                 (
                     "tenant",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="user_roles", to="tenancy.tenant"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="user_roles",
+                        to="tenancy.tenant",
                     ),
                 ),
                 (

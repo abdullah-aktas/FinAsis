@@ -3,7 +3,9 @@ from __future__ import annotations
 import re
 from typing import Callable
 
-EMAIL_RE = re.compile(r"(?P<local>[A-Za-z0-9_.+-]+)@(?P<domain>[A-Za-z0-9.-]+\.[A-Za-z]{2,})")
+EMAIL_RE = re.compile(
+    r"(?P<local>[A-Za-z0-9_.+-]+)@(?P<domain>[A-Za-z0-9.-]+\.[A-Za-z]{2,})"
+)
 PHONE_RE = re.compile(r"(\+?\d[\d\s\-]{8,}\d)")
 IBAN_RE = re.compile(r"\b([A-Z]{2}\d{2}[A-Z0-9]{1,30})\b", re.IGNORECASE)
 TC_RE = re.compile(r"\b\d{11}\b")
@@ -73,4 +75,3 @@ __all__ = [
     "mask_tc",
     "mask_text",
 ]
-

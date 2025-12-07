@@ -5,90 +5,164 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounting', '0004_companydeletelog'),
+        ("accounting", "0004_companydeletelog"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EDefter',
+            name="EDefter",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('year', models.PositiveIntegerField()),
-                ('month', models.PositiveIntegerField()),
-                ('type', models.CharField(choices=[('yevmiye', 'Yevmiye'), ('kebir', 'Kebir')], max_length=10)),
-                ('xml_file', models.FileField(upload_to='edefter/xml/')),
-                ('berat_file', models.FileField(upload_to='edefter/berat/')),
-                ('status', models.CharField(default='taslak', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("year", models.PositiveIntegerField()),
+                ("month", models.PositiveIntegerField()),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("yevmiye", "Yevmiye"), ("kebir", "Kebir")],
+                        max_length=10,
+                    ),
+                ),
+                ("xml_file", models.FileField(upload_to="edefter/xml/")),
+                ("berat_file", models.FileField(upload_to="edefter/berat/")),
+                ("status", models.CharField(default="taslak", max_length=20)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.AddField(
-            model_name='company',
-            name='base_currency',
-            field=models.CharField(default='TRY', help_text='ISO para birimi kodu (örn: TRY, USD, EUR)', max_length=3, verbose_name='Ana Para Birimi'),
+            model_name="company",
+            name="base_currency",
+            field=models.CharField(
+                default="TRY",
+                help_text="ISO para birimi kodu (örn: TRY, USD, EUR)",
+                max_length=3,
+                verbose_name="Ana Para Birimi",
+            ),
         ),
         migrations.AddField(
-            model_name='company',
-            name='country',
-            field=models.CharField(default='TR', help_text='ISO ülke kodu (örn: TR, US, DE)', max_length=2, verbose_name='Ülke'),
+            model_name="company",
+            name="country",
+            field=models.CharField(
+                default="TR",
+                help_text="ISO ülke kodu (örn: TR, US, DE)",
+                max_length=2,
+                verbose_name="Ülke",
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_cancelled_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='GİB İptal Zamanı'),
+            model_name="invoice",
+            name="gib_cancelled_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="GİB İptal Zamanı"
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_pdf',
-            field=models.FileField(blank=True, null=True, upload_to='efatura/pdf/', verbose_name='e-Fatura PDF'),
+            model_name="invoice",
+            name="gib_pdf",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="efatura/pdf/",
+                verbose_name="e-Fatura PDF",
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_response',
-            field=models.TextField(blank=True, null=True, verbose_name='GİB Yanıtı'),
+            model_name="invoice",
+            name="gib_response",
+            field=models.TextField(blank=True, null=True, verbose_name="GİB Yanıtı"),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_sent_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='GİB Gönderim Zamanı'),
+            model_name="invoice",
+            name="gib_sent_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="GİB Gönderim Zamanı"
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_status',
-            field=models.CharField(blank=True, max_length=32, null=True, verbose_name='GİB Durumu'),
+            model_name="invoice",
+            name="gib_status",
+            field=models.CharField(
+                blank=True, max_length=32, null=True, verbose_name="GİB Durumu"
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_uuid',
-            field=models.CharField(blank=True, max_length=64, null=True, verbose_name='GİB UUID'),
+            model_name="invoice",
+            name="gib_uuid",
+            field=models.CharField(
+                blank=True, max_length=64, null=True, verbose_name="GİB UUID"
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='gib_xml',
-            field=models.FileField(blank=True, null=True, upload_to='efatura/xml/', verbose_name='e-Fatura XML'),
+            model_name="invoice",
+            name="gib_xml",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="efatura/xml/",
+                verbose_name="e-Fatura XML",
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='kdv_rate',
-            field=models.DecimalField(choices=[(0.01, '%1'), (0.1, '%10'), (0.2, '%20')], decimal_places=2, default=0.2, max_digits=4, verbose_name='KDV Oranı'),
+            model_name="invoice",
+            name="kdv_rate",
+            field=models.DecimalField(
+                choices=[(0.01, "%1"), (0.1, "%10"), (0.2, "%20")],
+                decimal_places=2,
+                default=0.2,
+                max_digits=4,
+                verbose_name="KDV Oranı",
+            ),
         ),
         migrations.CreateModel(
-            name='Declaration',
+            name="Declaration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('declaration_type', models.CharField(choices=[('KDV', 'KDV Beyannamesi'), ('MUHTASAR', 'Muhtasar Beyanname'), ('BABS', 'BA/BS Formu')], max_length=16)),
-                ('period', models.CharField(help_text='YYYY-MM', max_length=7)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('file', models.FileField(blank=True, null=True, upload_to='beyanname/')),
-                ('status', models.CharField(default='draft', max_length=16)),
-                ('response', models.TextField(blank=True, null=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounting.company')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "declaration_type",
+                    models.CharField(
+                        choices=[
+                            ("KDV", "KDV Beyannamesi"),
+                            ("MUHTASAR", "Muhtasar Beyanname"),
+                            ("BABS", "BA/BS Formu"),
+                        ],
+                        max_length=16,
+                    ),
+                ),
+                ("period", models.CharField(help_text="YYYY-MM", max_length=7)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "file",
+                    models.FileField(blank=True, null=True, upload_to="beyanname/"),
+                ),
+                ("status", models.CharField(default="draft", max_length=16)),
+                ("response", models.TextField(blank=True, null=True)),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.company",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Beyanname',
-                'verbose_name_plural': 'Beyannameler',
+                "verbose_name": "Beyanname",
+                "verbose_name_plural": "Beyannameler",
             },
         ),
     ]

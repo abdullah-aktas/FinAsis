@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounts", "0006_subscriptionlog"),
     ]
@@ -32,13 +31,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="subscriptiontype",
             name="monthly_price",
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True
+            ),
         ),
         migrations.AddField(
             model_name="subscriptiontype",
             name="period_options",
             field=models.CharField(
-                choices=[("monthly", "Aylık"), ("yearly", "Yıllık"), ("monthly_yearly", "Aylık/Yıllık")],
+                choices=[
+                    ("monthly", "Aylık"),
+                    ("yearly", "Yıllık"),
+                    ("monthly_yearly", "Aylık/Yıllık"),
+                ],
                 default="monthly",
                 max_length=20,
             ),
@@ -51,6 +56,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="subscriptiontype",
             name="yearly_price",
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True
+            ),
         ),
     ]

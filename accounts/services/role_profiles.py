@@ -12,26 +12,26 @@ User = get_user_model()
 
 
 ROLE_ALIASES = {
-    'superuser': 'super_admin',
-    'super_admin': 'super_admin',
-    'system_admin': 'admin',
-    'company_owner': 'kobi_owner',
-    'business_owner': 'kobi_owner',
-    'kobi_owner': 'kobi_owner',
-    'employee': 'kobi_employee',
-    'kobi_staff': 'kobi_employee',
-    'staff': 'kobi_employee',
-    'finance_manager': 'finance_manager',
-    'financial_manager': 'finance_manager',
-    'accountant': 'accountant',
-    'advisor': 'financial_advisor',
-    'financial_advisor': 'financial_advisor',
-    'auditor': 'auditor',
-    'teacher': 'teacher',
-    'student': 'student',
-    'player': 'player',
-    'viewer': 'viewer',
-    'guest': 'viewer',
+    "superuser": "super_admin",
+    "super_admin": "super_admin",
+    "system_admin": "admin",
+    "company_owner": "kobi_owner",
+    "business_owner": "kobi_owner",
+    "kobi_owner": "kobi_owner",
+    "employee": "kobi_employee",
+    "kobi_staff": "kobi_employee",
+    "staff": "kobi_employee",
+    "finance_manager": "finance_manager",
+    "financial_manager": "finance_manager",
+    "accountant": "accountant",
+    "advisor": "financial_advisor",
+    "financial_advisor": "financial_advisor",
+    "auditor": "auditor",
+    "teacher": "teacher",
+    "student": "student",
+    "player": "player",
+    "viewer": "viewer",
+    "guest": "viewer",
 }
 
 
@@ -74,7 +74,9 @@ def _resolve_role_code(user) -> str:
 
 
 @transaction.atomic
-def ensure_role_profile(user, *, explicit_role: Optional[str] = None) -> Tuple[RoleBasedUserProfile, bool]:
+def ensure_role_profile(
+    user, *, explicit_role: Optional[str] = None
+) -> Tuple[RoleBasedUserProfile, bool]:
     """
     Guarantee that the given user has a RoleBasedUserProfile with a valid UserRole assignment.
 
@@ -145,4 +147,3 @@ def backfill_role_profiles():
         "updated": updated,
         "errors": errors,
     }
-

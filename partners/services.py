@@ -32,10 +32,12 @@ def _get_or_create_category_for_application(
 ) -> Optional[PartnerCategory]:
     code = PARTNER_TYPE_CATEGORY_MAP.get(application.partner_type, "other")
     defaults = {
-        "name": dict(PartnerApplication.PARTNER_TYPES).get(application.partner_type, _("Partner")),
+        "name": dict(PartnerApplication.PARTNER_TYPES).get(
+            application.partner_type, _("Partner")
+        ),
         "description": application.integration_focus,
     }
-    category, _ = PartnerCategory.objects.get_or_create(code=code, defaults=defaults)
+    category, _created = PartnerCategory.objects.get_or_create(code=code, defaults=defaults)
     return category
 
 
@@ -60,9 +62,11 @@ def transition_application(
     application.reviewed_at = timezone.now()
     if notes:
         application.metadata.setdefault("review_notes", notes)
-    application.save(update_fields=["status", "reviewed_by", "reviewed_at", "metadata", "updated_at"])
+    application.save(
+        update_fields=["status", "reviewed_by", "reviewed_at", "metadata", "updated_at"]
+    )
     log_security_event(
-        action=f"partners.application_status_changed",
+        action="partners.application_status_changed",
         actor=reviewer,
         resource=f"PartnerApplication:{application.pk}",
         metadata={"status": status, "company": application.company_name},
@@ -87,7 +91,9 @@ def reject_application(
     return changed
 
 
-def _notify_applicant(application: PartnerApplication, template: str, context: Optional[dict] = None) -> None:
+def _notify_applicant(
+    application: PartnerApplication, template: str, context: Optional[dict] = None
+) -> None:
     if not application.contact_email:
         return
     merged_context = {
@@ -143,10 +149,14 @@ def approve_application(
         _notify_applicant(
             application,
             template="partners/email/approved.txt",
-            context={"profile_url": f"{settings.SITE_BASE_URL}/resources/partner-marketplace/"},
+            context={
+                "profile_url": f"{settings.SITE_BASE_URL}/resources/partner-marketplace/"
+            },
         )
 
-    return ApprovalResult(application=application, profile=profile, profile_created=created)
+    return ApprovalResult(
+        application=application, profile=profile, profile_created=created
+    )
 
 
 def _create_profile_from_application(
@@ -154,7 +164,9 @@ def _create_profile_from_application(
     *,
     publish: bool,
 ) -> tuple[PartnerProfile, bool]:
-    existing = PartnerProfile.objects.filter(slug=slugify(application.company_name)).first()
+    existing = PartnerProfile.objects.filter(
+        slug=slugify(application.company_name)
+    ).first()
     if existing:
         if publish:
             existing.status = PartnerProfile.Status.PUBLISHED
@@ -162,7 +174,9 @@ def _create_profile_from_application(
         return existing, False
 
     category = _get_or_create_category_for_application(application)
-    status = PartnerProfile.Status.PUBLISHED if publish else PartnerProfile.Status.REVIEW
+    status = (
+        PartnerProfile.Status.PUBLISHED if publish else PartnerProfile.Status.REVIEW
+    )
     profile = PartnerProfile.objects.create(
         category=category,
         name=application.company_name,
@@ -186,4 +200,3 @@ __all__ = [
     "transition_application",
     "ApprovalResult",
 ]
-

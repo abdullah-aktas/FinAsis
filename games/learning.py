@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
 
+
 @dataclass
 class Lesson:
     title: str
@@ -10,6 +11,7 @@ class Lesson:
     video_url: str
     quiz: List[Dict]
 
+
 @dataclass
 class Exercise:
     title: str
@@ -17,6 +19,7 @@ class Exercise:
     scenario: str
     expected_output: str
     hints: List[str]
+
 
 @dataclass
 class LearningModule:
@@ -26,6 +29,7 @@ class LearningModule:
     exercises: List[Exercise] = field(default_factory=list)
     completed_tasks: List[str] = field(default_factory=list)
 
+
 @dataclass
 class Achievement:
     id: str
@@ -33,6 +37,7 @@ class Achievement:
     description: str
     reward: int
     required_level: int
+
 
 class LearningManager:
     def __init__(self):
@@ -58,4 +63,4 @@ class LearningManager:
         return completed
 
     def get_achievements(self) -> List[Achievement]:
-        return list(self.achievements.values()) 
+        return list(self.achievements.values())

@@ -8,11 +8,12 @@ from django.utils.translation import gettext_lazy as _
 
 class FinanceConfig(AppConfig):
     """Finans uygulaması yapılandırması"""
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'finance'
-    verbose_name = _('Finans Yönetimi')
-    label = 'finance'  # Benzersiz etiket
-    
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "finance"
+    verbose_name = _("Finans Yönetimi")
+    label = "finance"  # Benzersiz etiket
+
     def ready(self):
         """Uygulama hazır olduğunda sinyalleri yükle"""
         try:
@@ -28,7 +29,7 @@ class FinanceConfig(AppConfig):
         from . import views
 
         urlpatterns = [
-            path('finance/', views.finance_view),
+            path("finance/", views.finance_view),
         ]
         return urlpatterns
 
@@ -97,6 +98,7 @@ class FinanceConfig(AppConfig):
         Uygulama dizinini döndürür.
         """
         from django.utils.module_loading import get_app_path
+
         return get_app_path(self.name)
 
     def get_app_template_dirs(self):
@@ -104,6 +106,7 @@ class FinanceConfig(AppConfig):
         Uygulama için şablon dizinlerini döndürür.
         """
         from django.utils.module_loading import get_app_template_dirs
+
         return get_app_template_dirs(self.name)
 
     def get_app_template_name(self, template_name):
@@ -111,4 +114,5 @@ class FinanceConfig(AppConfig):
         Uygulama için belirtilen şablonun adını döndürür.
         """
         from django.utils.module_loading import get_app_template_name
+
         return get_app_template_name(self.name, template_name)

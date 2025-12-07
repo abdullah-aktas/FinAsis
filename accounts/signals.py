@@ -19,4 +19,3 @@ def ensure_role_profile_on_create(sender, instance, created, **kwargs):
         return
 
     ensure_role_profile(instance)
-

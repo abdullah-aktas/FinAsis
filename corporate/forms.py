@@ -34,7 +34,9 @@ class PartnerApplicationForm(forms.ModelForm):
         label=_("Entegrasyon odak alanları"),
     )
     gdpr_consent = forms.BooleanField(
-        label=_("KVKK ve gizlilik politikasını okudum, başvuru bilgilerimin saklanmasına izin veriyorum."),
+        label=_(
+            "KVKK ve gizlilik politikasını okudum, başvuru bilgilerimin saklanmasına izin veriyorum."
+        ),
         required=True,
     )
 
@@ -64,8 +66,12 @@ class PartnerApplicationForm(forms.ModelForm):
             "product_notes": forms.Textarea(attrs={"rows": 3}),
             "message": forms.Textarea(attrs={"rows": 4}),
             "sandbox_needs": forms.Textarea(attrs={"rows": 3}),
-            "go_live_timeline": forms.TextInput(attrs={"placeholder": _("Örn. 6-8 hafta")}),
-            "revenue_model": forms.TextInput(attrs={"placeholder": _("Örn. Abonelik + rev paylaşımı")}),
+            "go_live_timeline": forms.TextInput(
+                attrs={"placeholder": _("Örn. 6-8 hafta")}
+            ),
+            "revenue_model": forms.TextInput(
+                attrs={"placeholder": _("Örn. Abonelik + rev paylaşımı")}
+            ),
         }
         labels = {
             "company_name": _("Şirket Adı"),
@@ -78,18 +84,24 @@ class PartnerApplicationForm(forms.ModelForm):
         }
         help_texts = {
             "categories": _("Birden fazla kategori seçebilirsiniz."),
-            "integration_focus": _("FinAsis ile hangi alanlarda entegrasyon kurmak istediğinizi belirtin."),
+            "integration_focus": _(
+                "FinAsis ile hangi alanlarda entegrasyon kurmak istediğinizi belirtin."
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        active_categories = PartnerCategory.objects.filter(is_active=True).order_by("priority", "name")
+        active_categories = PartnerCategory.objects.filter(is_active=True).order_by(
+            "priority", "name"
+        )
         self.fields["categories"].queryset = active_categories
         self.fields["primary_category"].queryset = active_categories
 
         # Ön seçimleri ayarla
         if self.instance.pk:
-            self.fields["categories"].initial = self.instance.categories.values_list("pk", flat=True)
+            self.fields["categories"].initial = self.instance.categories.values_list(
+                "pk", flat=True
+            )
             self.fields["integration_focus"].initial = self.instance.integration_focus
 
     def clean_integration_focus(self) -> list[str]:
@@ -121,4 +133,3 @@ class PartnerApplicationForm(forms.ModelForm):
         categories = getattr(self, "_pending_categories", None)
         if categories is not None:
             self.instance.categories.set(categories)
-

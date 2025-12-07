@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 
+
 @dataclass
 class TaxRecord:
     id: str
@@ -11,6 +12,7 @@ class TaxRecord:
     due_date: datetime
     status: str
     payment_date: Optional[datetime]
+
 
 class TaxManager:
     def __init__(self):
@@ -29,4 +31,4 @@ class TaxManager:
     def get_records(self, period: Optional[str] = None):
         if period:
             return [r for r in self.records if r.period == period]
-        return self.records 
+        return self.records

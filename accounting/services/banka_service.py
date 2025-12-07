@@ -1,1 +1,1 @@
-# Banka ile ilgili servis fonksiyonları burada tanımlanacak. 
+# Banka ile ilgili servis fonksiyonları burada tanımlanacak.

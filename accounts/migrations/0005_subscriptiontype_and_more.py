@@ -5,38 +5,70 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0004_customuser_user_type_subscription'),
+        ("accounts", "0004_customuser_user_type_subscription"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SubscriptionType',
+            name="SubscriptionType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=20, unique=True)),
-                ('name', models.CharField(max_length=50)),
-                ('description', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=20, unique=True)),
+                ("name", models.CharField(max_length=50)),
+                ("description", models.TextField(blank=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='subscription_type',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.subscriptiontype'),
+            model_name="subscription",
+            name="subscription_type",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="accounts.subscriptiontype",
+            ),
         ),
         migrations.CreateModel(
-            name='UserType',
+            name="UserType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=20, unique=True)),
-                ('name', models.CharField(max_length=50)),
-                ('default_subscription', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.subscriptiontype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=20, unique=True)),
+                ("name", models.CharField(max_length=50)),
+                (
+                    "default_subscription",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="accounts.subscriptiontype",
+                    ),
+                ),
             ],
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='user_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.usertype'),
+            model_name="customuser",
+            name="user_type",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="accounts.usertype",
+            ),
         ),
     ]

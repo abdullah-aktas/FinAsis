@@ -11,13 +11,13 @@ class StockLayer:
 
     @property
     def total_cost(self) -> Decimal:
-        return (self.quantity * self.unit_cost).quantize(Decimal('0.01'))
+        return (self.quantity * self.unit_cost).quantize(Decimal("0.01"))
 
 
 @dataclass
 class FifoCostResult:
     consumed_layers: List[StockLayer] = field(default_factory=list)
-    cost_of_issued: Decimal = Decimal('0.00')
+    cost_of_issued: Decimal = Decimal("0.00")
 
 
 def fifo_consume(layers: List[StockLayer], issue_qty: Decimal) -> FifoCostResult:
@@ -28,9 +28,11 @@ def fifo_consume(layers: List[StockLayer], issue_qty: Decimal) -> FifoCostResult
         if remaining <= 0:
             break
         take = min(layer.quantity, remaining)
-        cost = (take * layer.unit_cost).quantize(Decimal('0.01'))
+        cost = (take * layer.unit_cost).quantize(Decimal("0.01"))
         result.cost_of_issued += cost
-        result.consumed_layers.append(StockLayer(quantity=take, unit_cost=layer.unit_cost))
+        result.consumed_layers.append(
+            StockLayer(quantity=take, unit_cost=layer.unit_cost)
+        )
         layer.quantity -= take
         remaining -= take
     if remaining > 0:
@@ -38,5 +40,3 @@ def fifo_consume(layers: List[StockLayer], issue_qty: Decimal) -> FifoCostResult
     # Sıfırlanan katmanları temizle
     layers[:] = [l for l in layers if l.quantity > 0]
     return result
-
-

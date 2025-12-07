@@ -108,7 +108,9 @@ def has_dispatch_schema(settings: Optional[EdocSettings] = None) -> bool:
     return _get_cached_dispatch_schema(schemas_dir) is not None
 
 
-def validate_invoice_xml(xml_bytes: bytes, settings: Optional[EdocSettings] = None) -> None:
+def validate_invoice_xml(
+    xml_bytes: bytes, settings: Optional[EdocSettings] = None
+) -> None:
     """Validate Invoice XML against UBL XSD if available.
 
     Looks for EDOC_SCHEMAS_DIR env or settings.schemas_dir. If a suitable
@@ -142,7 +144,9 @@ def validate_invoice_xml(xml_bytes: bytes, settings: Optional[EdocSettings] = No
         raise SchemaValidationError(msg) from exc
 
 
-def validate_dispatch_xml(xml_bytes: bytes, settings: Optional[EdocSettings] = None) -> None:
+def validate_dispatch_xml(
+    xml_bytes: bytes, settings: Optional[EdocSettings] = None
+) -> None:
     settings = settings or EdocSettings.from_env()
     schemas_dir = settings.schemas_dir or os.environ.get("EDOC_SCHEMAS_DIR")
     if not schemas_dir:

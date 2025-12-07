@@ -8,20 +8,23 @@ from .models import AuditEvent
 TRACKED_MODELS = []  # optional explicit model name allow-list
 ALLOWED_APP_LABELS = {"finance", "tenancy", "virtual_company", "accounts", "accounting"}
 
+
 def _audit_ready():
     """Return True if the audit table exists (i.e., after migrations)."""
     try:
-        return 'audit_auditevent' in connection.introspection.table_names()
+        return "audit_auditevent" in connection.introspection.table_names()
     except Exception:
         return False
+
 
 def _should_track(sender):
     if sender is AuditEvent:
         return False
-    app_label = getattr(sender._meta, 'app_label', None)
+    app_label = getattr(sender._meta, "app_label", None)
     if TRACKED_MODELS:
         return sender.__name__ in TRACKED_MODELS
     return app_label in ALLOWED_APP_LABELS
+
 
 @receiver(post_save)
 def create_update_audit(sender, instance, created, **kwargs):
@@ -29,13 +32,14 @@ def create_update_audit(sender, instance, created, **kwargs):
         return
     try:
         AuditEvent.objects.create(
-            action='create' if created else 'update',
+            action="create" if created else "update",
             content_type=ContentType.objects.get_for_model(sender),
-            object_id=str(getattr(instance, 'pk', '')),
+            object_id=str(getattr(instance, "pk", "")),
         )
     except Exception:
         # Fail silent in audit layer; never break core flow
         pass
+
 
 @receiver(post_delete)
 def delete_audit(sender, instance, **kwargs):
@@ -43,9 +47,9 @@ def delete_audit(sender, instance, **kwargs):
         return
     try:
         AuditEvent.objects.create(
-            action='delete',
+            action="delete",
             content_type=ContentType.objects.get_for_model(sender),
-            object_id=str(getattr(instance, 'pk', '')),
+            object_id=str(getattr(instance, "pk", "")),
         )
     except Exception:
         pass

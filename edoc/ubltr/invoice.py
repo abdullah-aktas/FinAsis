@@ -143,9 +143,13 @@ class Invoice:
             qty = etree.SubElement(il, f"{{{UBL_NS['cbc']}}}InvoicedQuantity")
             qty.text = str(line.quantity)
             price = cac(il, "Price")
-            price_amount = etree.SubElement(price, f"{{{UBL_NS['cbc']}}}PriceAmount", currencyID=self.currency)
+            price_amount = etree.SubElement(
+                price, f"{{{UBL_NS['cbc']}}}PriceAmount", currencyID=self.currency
+            )
             price_amount.text = f"{line.unit_price:.2f}"
-            le = etree.SubElement(il, f"{{{UBL_NS['cbc']}}}LineExtensionAmount", currencyID=self.currency)
+            le = etree.SubElement(
+                il, f"{{{UBL_NS['cbc']}}}LineExtensionAmount", currencyID=self.currency
+            )
             le.text = f"{lext:.2f}"
             item = cac(il, "Item")
             desc = etree.SubElement(item, f"{{{UBL_NS['cbc']}}}Description")
@@ -156,7 +160,9 @@ class Invoice:
             ac_el = cac(root, "AllowanceCharge")
             el = etree.SubElement(ac_el, f"{{{UBL_NS['cbc']}}}ChargeIndicator")
             el.text = "true" if ac.charge_indicator else "false"
-            amt = etree.SubElement(ac_el, f"{{{UBL_NS['cbc']}}}Amount", currencyID=self.currency)
+            amt = etree.SubElement(
+                ac_el, f"{{{UBL_NS['cbc']}}}Amount", currencyID=self.currency
+            )
             amt.text = f"{ac.amount:.2f}"
             if ac.reason:
                 r = etree.SubElement(ac_el, f"{{{UBL_NS['cbc']}}}AllowanceChargeReason")
@@ -167,13 +173,19 @@ class Invoice:
         if self.tax_total is not None:
             tax_amount_total = self.tax_total.tax_amount
             tt = cac(root, "TaxTotal")
-            tamt = etree.SubElement(tt, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency)
+            tamt = etree.SubElement(
+                tt, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency
+            )
             tamt.text = f"{self.tax_total.tax_amount:.2f}"
             for st in self.tax_total.subtotals:
                 sub = cac(tt, "TaxSubtotal")
-                txb = etree.SubElement(sub, f"{{{UBL_NS['cbc']}}}TaxableAmount", currencyID=self.currency)
+                txb = etree.SubElement(
+                    sub, f"{{{UBL_NS['cbc']}}}TaxableAmount", currencyID=self.currency
+                )
                 txb.text = f"{st.taxable_amount:.2f}"
-                txa = etree.SubElement(sub, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency)
+                txa = etree.SubElement(
+                    sub, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency
+                )
                 txa.text = f"{st.tax_amount:.2f}"
                 if st.percent is not None:
                     perc = etree.SubElement(sub, f"{{{UBL_NS['cbc']}}}Percent")
@@ -187,14 +199,20 @@ class Invoice:
         withholding_amount = Decimal("0.00")
         if self.withholding_tax_total is not None:
             w = cac(root, "WithholdingTaxTotal")
-            wamt = etree.SubElement(w, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency)
+            wamt = etree.SubElement(
+                w, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency
+            )
             wamt.text = f"{self.withholding_tax_total.tax_amount:.2f}"
             withholding_amount = self.withholding_tax_total.tax_amount
             if self.withholding_tax_total.taxable_amount is not None:
                 sub = cac(w, "TaxSubtotal")
-                txb = etree.SubElement(sub, f"{{{UBL_NS['cbc']}}}TaxableAmount", currencyID=self.currency)
+                txb = etree.SubElement(
+                    sub, f"{{{UBL_NS['cbc']}}}TaxableAmount", currencyID=self.currency
+                )
                 txb.text = f"{self.withholding_tax_total.taxable_amount:.2f}"
-                txa = etree.SubElement(sub, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency)
+                txa = etree.SubElement(
+                    sub, f"{{{UBL_NS['cbc']}}}TaxAmount", currencyID=self.currency
+                )
                 txa.text = f"{self.withholding_tax_total.tax_amount:.2f}"
 
         # PaymentMeans
@@ -214,16 +232,24 @@ class Invoice:
         total_after_allowances = base_total
         for ac in self.allowance_charges:
             total_after_allowances = (
-                total_after_allowances + ac.amount if ac.charge_indicator else total_after_allowances - ac.amount
+                total_after_allowances + ac.amount
+                if ac.charge_indicator
+                else total_after_allowances - ac.amount
             )
-        payable_total = (total_after_allowances + tax_amount_total - withholding_amount).quantize(Decimal("0.01"))
+        payable_total = (
+            total_after_allowances + tax_amount_total - withholding_amount
+        ).quantize(Decimal("0.01"))
 
         mtotal = cac(root, "LegalMonetaryTotal")
-        payable = etree.SubElement(mtotal, f"{{{UBL_NS['cbc']}}}PayableAmount", currencyID=self.currency)
+        payable = etree.SubElement(
+            mtotal, f"{{{UBL_NS['cbc']}}}PayableAmount", currencyID=self.currency
+        )
         payable.text = f"{payable_total:.2f}"
         return root
 
-    def to_xml_bytes(self, settings: EdocSettings | None = None, pretty: bool = True) -> bytes:
+    def to_xml_bytes(
+        self, settings: EdocSettings | None = None, pretty: bool = True
+    ) -> bytes:
         root = self.to_xml(settings)
         try:
             return etree.tostring(root, xml_declaration=True, encoding="UTF-8", pretty_print=pretty)  # type: ignore[call-arg]

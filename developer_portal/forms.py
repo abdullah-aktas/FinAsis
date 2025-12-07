@@ -17,7 +17,9 @@ RATE_PLAN_CHOICES = [
 class APIKeyCreateForm(forms.ModelForm):
     allowed_ips = forms.CharField(
         required=False,
-        help_text=_("Virgülle ayrılmış IP adresleri. Boş bırakılırsa tüm IP'ler için geçerlidir."),
+        help_text=_(
+            "Virgülle ayrılmış IP adresleri. Boş bırakılırsa tüm IP'ler için geçerlidir."
+        ),
     )
     expires_at = forms.DateTimeField(
         required=False,
@@ -69,7 +71,9 @@ class WebhookTestForm(forms.Form):
     signature_secret = forms.CharField(
         required=False,
         label=_("İmza Gizli Anahtarı"),
-        help_text=_("FinAsis tarafından gönderilecek HMAC imzası için opsiyonel gizli anahtar."),
+        help_text=_(
+            "FinAsis tarafından gönderilecek HMAC imzası için opsiyonel gizli anahtar."
+        ),
         widget=forms.PasswordInput(render_value=True),
     )
     custom_headers = forms.CharField(
@@ -96,5 +100,6 @@ class WebhookTestForm(forms.Form):
         ).strip()
         for name in ("custom_headers", "payload_override"):
             widget = self.fields[name].widget
-            widget.attrs["class"] = f'{widget.attrs.get("class", "")} font-monospace'.strip()
-
+            widget.attrs[
+                "class"
+            ] = f'{widget.attrs.get("class", "")} font-monospace'.strip()

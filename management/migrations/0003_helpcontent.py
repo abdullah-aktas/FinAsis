@@ -4,21 +4,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('management', '0002_notification'),
+        ("management", "0002_notification"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='HelpContent',
+            name="HelpContent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100)),
-                ('content', models.TextField()),
-                ('role', models.CharField(choices=[('genel', 'Genel Kullanıcı'), ('admin', 'Yönetici'), ('muhasebeci', 'Muhasebeci'), ('calisan', 'Çalışan'), ('ogrenci', 'Öğrenci'), ('ogretmen', 'Öğretmen')], default='genel', max_length=20)),
-                ('page_key', models.CharField(blank=True, help_text='Yardımın hangi sayfada gösterileceği (isteğe bağlı)', max_length=100, null=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100)),
+                ("content", models.TextField()),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("genel", "Genel Kullanıcı"),
+                            ("admin", "Yönetici"),
+                            ("muhasebeci", "Muhasebeci"),
+                            ("calisan", "Çalışan"),
+                            ("ogrenci", "Öğrenci"),
+                            ("ogretmen", "Öğretmen"),
+                        ],
+                        default="genel",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "page_key",
+                    models.CharField(
+                        blank=True,
+                        help_text="Yardımın hangi sayfada gösterileceği (isteğe bağlı)",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
         ),
     ]

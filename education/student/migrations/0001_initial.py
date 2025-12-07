@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,23 +18,64 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="StudentProfile",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("student_number", models.CharField(max_length=20, unique=True, verbose_name="Öğrenci Numarası")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "student_number",
+                    models.CharField(
+                        max_length=20, unique=True, verbose_name="Öğrenci Numarası"
+                    ),
+                ),
                 (
                     "department",
-                    models.CharField(help_text="Öğrencinin okuduğu bölüm", max_length=100, verbose_name="Bölüm"),
+                    models.CharField(
+                        help_text="Öğrencinin okuduğu bölüm",
+                        max_length=100,
+                        verbose_name="Bölüm",
+                    ),
                 ),
-                ("grade", models.CharField(help_text="Öğrencinin sınıfı", max_length=10, verbose_name="Sınıf")),
-                ("enrollment_date", models.DateField(auto_now_add=True, verbose_name="Kayıt Tarihi")),
-                ("graduation_date", models.DateField(blank=True, null=True, verbose_name="Mezuniyet Tarihi")),
+                (
+                    "grade",
+                    models.CharField(
+                        help_text="Öğrencinin sınıfı",
+                        max_length=10,
+                        verbose_name="Sınıf",
+                    ),
+                ),
+                (
+                    "enrollment_date",
+                    models.DateField(auto_now_add=True, verbose_name="Kayıt Tarihi"),
+                ),
+                (
+                    "graduation_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Mezuniyet Tarihi"
+                    ),
+                ),
                 (
                     "gpa",
                     models.DecimalField(
-                        decimal_places=2, default=0.0, max_digits=3, verbose_name="Genel Not Ortalaması"
+                        decimal_places=2,
+                        default=0.0,
+                        max_digits=3,
+                        verbose_name="Genel Not Ortalaması",
                     ),
                 ),
-                ("completed_credits", models.IntegerField(default=0, verbose_name="Tamamlanan Krediler")),
-                ("total_credits", models.IntegerField(default=240, verbose_name="Toplam Krediler")),
+                (
+                    "completed_credits",
+                    models.IntegerField(default=0, verbose_name="Tamamlanan Krediler"),
+                ),
+                (
+                    "total_credits",
+                    models.IntegerField(default=240, verbose_name="Toplam Krediler"),
+                ),
                 (
                     "user",
                     models.OneToOneField(
@@ -54,30 +94,60 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="StudentProgress",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "attendance",
-                    models.DecimalField(decimal_places=2, default=100, max_digits=5, verbose_name="Devam Durumu"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=100,
+                        max_digits=5,
+                        verbose_name="Devam Durumu",
+                    ),
                 ),
                 (
                     "midterm_grade",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Vize Notu"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Vize Notu",
                     ),
                 ),
                 (
                     "final_grade",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Final Notu"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Final Notu",
                     ),
                 ),
                 (
                     "average_grade",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Ortalama Not"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Ortalama Not",
                     ),
                 ),
-                ("letter_grade", models.CharField(blank=True, max_length=2, null=True, verbose_name="Harf Notu")),
+                (
+                    "letter_grade",
+                    models.CharField(
+                        blank=True, max_length=2, null=True, verbose_name="Harf Notu"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -120,7 +190,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="StudentAssignment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -136,17 +214,39 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("submission_date", models.DateTimeField(blank=True, null=True, verbose_name="Teslim Tarihi")),
-                ("last_activity", models.DateTimeField(auto_now=True, verbose_name="Son Aktivite")),
+                (
+                    "submission_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Teslim Tarihi"
+                    ),
+                ),
+                (
+                    "last_activity",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Aktivite"),
+                ),
                 (
                     "completion_percentage",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name="Tamamlanma Yüzdesi"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="Tamamlanma Yüzdesi",
+                    ),
                 ),
                 (
                     "grade",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Not"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Not",
+                    ),
                 ),
-                ("feedback", models.TextField(blank=True, verbose_name="Geri Bildirim")),
+                (
+                    "feedback",
+                    models.TextField(blank=True, verbose_name="Geri Bildirim"),
+                ),
                 (
                     "assignment",
                     models.ForeignKey(

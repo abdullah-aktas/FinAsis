@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("ai_assistant", "0002_sectorbenchmark"),
@@ -16,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DocumentSummary",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "document_type",
                     models.CharField(
@@ -36,14 +43,36 @@ class Migration(migrations.Migration):
                 ),
                 ("original_text", models.TextField(verbose_name="Orijinal Metin")),
                 ("summary", models.TextField(verbose_name="Özet")),
-                ("summary_length", models.IntegerField(verbose_name="Özet Uzunluğu (kelime)")),
-                ("original_length", models.IntegerField(verbose_name="Orijinal Uzunluk (kelime)")),
-                ("compression_ratio", models.FloatField(verbose_name="Sıkıştırma Oranı")),
-                ("key_points", models.JSONField(blank=True, default=list, verbose_name="Ana Noktalar")),
-                ("entities_mentioned", models.JSONField(blank=True, default=list, verbose_name="Bahsedilen Varlıklar")),
+                (
+                    "summary_length",
+                    models.IntegerField(verbose_name="Özet Uzunluğu (kelime)"),
+                ),
+                (
+                    "original_length",
+                    models.IntegerField(verbose_name="Orijinal Uzunluk (kelime)"),
+                ),
+                (
+                    "compression_ratio",
+                    models.FloatField(verbose_name="Sıkıştırma Oranı"),
+                ),
+                (
+                    "key_points",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Ana Noktalar"
+                    ),
+                ),
+                (
+                    "entities_mentioned",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Bahsedilen Varlıklar"
+                    ),
+                ),
                 ("language", models.CharField(default="tr", max_length=5)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("document_file", models.FileField(blank=True, null=True, upload_to="ai_summaries/")),
+                (
+                    "document_file",
+                    models.FileField(blank=True, null=True, upload_to="ai_summaries/"),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -62,7 +91,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AdvancedAnalytics",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "analytics_type",
                     models.CharField(
@@ -81,9 +118,18 @@ class Migration(migrations.Migration):
                 ),
                 ("title", models.CharField(max_length=200)),
                 ("description", models.TextField(blank=True)),
-                ("results", models.JSONField(default=dict, verbose_name="Analiz Sonuçları")),
-                ("visualizations", models.JSONField(default=dict, verbose_name="Görselleştirmeler")),
-                ("recommendations", models.JSONField(default=list, verbose_name="Öneriler")),
+                (
+                    "results",
+                    models.JSONField(default=dict, verbose_name="Analiz Sonuçları"),
+                ),
+                (
+                    "visualizations",
+                    models.JSONField(default=dict, verbose_name="Görselleştirmeler"),
+                ),
+                (
+                    "recommendations",
+                    models.JSONField(default=list, verbose_name="Öneriler"),
+                ),
                 ("accuracy_score", models.FloatField(blank=True, null=True)),
                 ("confidence_level", models.FloatField(blank=True, null=True)),
                 ("analysis_period_start", models.DateField(blank=True, null=True)),
@@ -107,7 +153,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SentimentAnalysis",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "source_type",
                     models.CharField(
@@ -128,18 +182,40 @@ class Migration(migrations.Migration):
                 (
                     "sentiment",
                     models.CharField(
-                        choices=[("positive", "Pozitif"), ("neutral", "Nötr"), ("negative", "Negatif")],
+                        choices=[
+                            ("positive", "Pozitif"),
+                            ("neutral", "Nötr"),
+                            ("negative", "Negatif"),
+                        ],
                         max_length=20,
                         verbose_name="Duygu",
                     ),
                 ),
-                ("confidence_score", models.FloatField(help_text="0.0 - 1.0 arası", verbose_name="Güven Skoru")),
+                (
+                    "confidence_score",
+                    models.FloatField(
+                        help_text="0.0 - 1.0 arası", verbose_name="Güven Skoru"
+                    ),
+                ),
                 ("positive_score", models.FloatField(default=0.0)),
                 ("neutral_score", models.FloatField(default=0.0)),
                 ("negative_score", models.FloatField(default=0.0)),
-                ("keywords", models.JSONField(blank=True, default=list, verbose_name="Anahtar Kelimeler")),
-                ("entities", models.JSONField(blank=True, default=list, verbose_name="Varlıklar")),
-                ("language", models.CharField(default="tr", max_length=5, verbose_name="Dil")),
+                (
+                    "keywords",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Anahtar Kelimeler"
+                    ),
+                ),
+                (
+                    "entities",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Varlıklar"
+                    ),
+                ),
+                (
+                    "language",
+                    models.CharField(default="tr", max_length=5, verbose_name="Dil"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("reference_model", models.CharField(blank=True, max_length=50)),
                 ("reference_id", models.IntegerField(blank=True, null=True)),
@@ -156,13 +232,26 @@ class Migration(migrations.Migration):
                 "verbose_name": "Sentiment Analizi",
                 "verbose_name_plural": "Sentiment Analizleri",
                 "ordering": ["-created_at"],
-                "indexes": [models.Index(fields=["sentiment", "source_type"], name="ai_assistan_sentime_98d03f_idx")],
+                "indexes": [
+                    models.Index(
+                        fields=["sentiment", "source_type"],
+                        name="ai_assistan_sentime_98d03f_idx",
+                    )
+                ],
             },
         ),
         migrations.CreateModel(
             name="AutoGeneratedReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "report_type",
                     models.CharField(
@@ -182,12 +271,30 @@ class Migration(migrations.Migration):
                         verbose_name="Rapor Tipi",
                     ),
                 ),
-                ("title", models.CharField(max_length=200, verbose_name="Rapor Başlığı")),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Rapor Başlığı"),
+                ),
                 ("content", models.TextField(blank=True, verbose_name="Rapor İçeriği")),
                 ("summary", models.TextField(blank=True, verbose_name="Özet")),
-                ("insights", models.JSONField(blank=True, default=list, verbose_name="İçgörüler")),
-                ("metrics", models.JSONField(blank=True, default=dict, verbose_name="Metrikler")),
-                ("charts_data", models.JSONField(blank=True, default=dict, verbose_name="Grafik Verileri")),
+                (
+                    "insights",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="İçgörüler"
+                    ),
+                ),
+                (
+                    "metrics",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Metrikler"
+                    ),
+                ),
+                (
+                    "charts_data",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Grafik Verileri"
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -203,8 +310,18 @@ class Migration(migrations.Migration):
                 ),
                 ("period_start", models.DateField(blank=True, null=True)),
                 ("period_end", models.DateField(blank=True, null=True)),
-                ("pdf_file", models.FileField(blank=True, null=True, upload_to="ai_reports/pdf/")),
-                ("excel_file", models.FileField(blank=True, null=True, upload_to="ai_reports/excel/")),
+                (
+                    "pdf_file",
+                    models.FileField(
+                        blank=True, null=True, upload_to="ai_reports/pdf/"
+                    ),
+                ),
+                (
+                    "excel_file",
+                    models.FileField(
+                        blank=True, null=True, upload_to="ai_reports/excel/"
+                    ),
+                ),
                 ("is_scheduled", models.BooleanField(default=False)),
                 ("schedule_frequency", models.CharField(blank=True, max_length=20)),
                 ("next_generation", models.DateTimeField(blank=True, null=True)),
@@ -224,8 +341,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Otomatik Raporlar",
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(fields=["status", "report_type"], name="ai_assistan_status_458f6c_idx"),
-                    models.Index(fields=["user", "created_at"], name="ai_assistan_user_id_1666bc_idx"),
+                    models.Index(
+                        fields=["status", "report_type"],
+                        name="ai_assistan_status_458f6c_idx",
+                    ),
+                    models.Index(
+                        fields=["user", "created_at"],
+                        name="ai_assistan_user_id_1666bc_idx",
+                    ),
                 ],
             },
         ),

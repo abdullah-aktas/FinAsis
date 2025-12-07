@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("games", "0010_remove_tournamententry_character_and_more"),
         ("virtual_company", "0001_initial"),
@@ -17,7 +16,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Achievement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("code", models.CharField(max_length=50, unique=True)),
                 ("name", models.CharField(max_length=100)),
                 ("description", models.TextField()),
@@ -29,12 +36,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GameState",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("score", models.IntegerField(default=0)),
                 ("level", models.IntegerField(default=1)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
                 (
                     "virtual_company",
                     models.ForeignKey(
@@ -49,19 +70,40 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UrsinaGame",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("is_active", models.BooleanField(default=True)),
                 ("is_deleted", models.BooleanField(default=False)),
                 ("title", models.CharField(max_length=200)),
                 ("description", models.TextField()),
-                ("game_type", models.CharField(choices=[("pygame", "Pygame"), ("ursina", "Ursina")], max_length=20)),
+                (
+                    "game_type",
+                    models.CharField(
+                        choices=[("pygame", "Pygame"), ("ursina", "Ursina")],
+                        max_length=20,
+                    ),
+                ),
                 ("scene_file", models.FileField(upload_to="games/")),
                 ("max_score", models.IntegerField(default=100)),
                 (
                     "difficulty",
-                    models.CharField(choices=[("easy", "Kolay"), ("medium", "Orta"), ("hard", "Zor")], max_length=20),
+                    models.CharField(
+                        choices=[
+                            ("easy", "Kolay"),
+                            ("medium", "Orta"),
+                            ("hard", "Zor"),
+                        ],
+                        max_length=20,
+                    ),
                 ),
                 (
                     "virtual_company",
@@ -81,7 +123,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GameScore",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("is_active", models.BooleanField(default=True)),
@@ -90,7 +140,13 @@ class Migration(migrations.Migration):
                 ("completion_percentage", models.FloatField(default=0)),
                 ("played_at", models.DateTimeField(auto_now_add=True)),
                 ("duration", models.IntegerField(help_text="Saniye cinsinden süre")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
                 (
                     "virtual_company",
                     models.ForeignKey(
@@ -100,7 +156,13 @@ class Migration(migrations.Migration):
                         to="virtual_company.virtualcompany",
                     ),
                 ),
-                ("game", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.ursinagame")),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.ursinagame",
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Oyun Skoru",
@@ -110,7 +172,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GameAchievement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("is_active", models.BooleanField(default=True)),
@@ -128,7 +198,13 @@ class Migration(migrations.Migration):
                         to="virtual_company.virtualcompany",
                     ),
                 ),
-                ("game", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.ursinagame")),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.ursinagame",
+                    ),
+                ),
             ],
             options={
                 "verbose_name": "Oyun Başarısı",
@@ -138,7 +214,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UrsinaPlayer",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("nickname", models.CharField(max_length=30, unique=True)),
                 ("level", models.IntegerField(default=1)),
                 ("experience", models.IntegerField(default=0)),
@@ -149,51 +233,106 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
                     "user",
-                    models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
                 ),
             ],
         ),
         migrations.CreateModel(
             name="UrsinaGameSession",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("score", models.IntegerField(default=0)),
                 ("started_at", models.DateTimeField(auto_now_add=True)),
                 ("ended_at", models.DateTimeField(blank=True, null=True)),
                 ("is_active", models.BooleanField(default=True)),
-                ("duration", models.IntegerField(default=0, help_text="Saniye cinsinden")),
+                (
+                    "duration",
+                    models.IntegerField(default=0, help_text="Saniye cinsinden"),
+                ),
                 ("stats", models.JSONField(blank=True, default=dict)),
-                ("player", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.ursinaplayer")),
+                (
+                    "player",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.ursinaplayer",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="Tournament",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
                 ("start_date", models.DateTimeField()),
                 ("end_date", models.DateTimeField()),
                 ("prize_pool", models.IntegerField(default=0)),
                 ("is_active", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("participants", models.ManyToManyField(related_name="tournaments", to="games.ursinaplayer")),
+                (
+                    "participants",
+                    models.ManyToManyField(
+                        related_name="tournaments", to="games.ursinaplayer"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="PlayerWallet",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("coins", models.IntegerField(default=0)),
                 ("gems", models.IntegerField(default=0)),
                 ("tokens", models.IntegerField(default=0)),
                 ("last_updated", models.DateTimeField(auto_now=True)),
-                ("player", models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to="games.ursinaplayer")),
+                (
+                    "player",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.ursinaplayer",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="UserGameAchievement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("is_active", models.BooleanField(default=True)),
@@ -201,9 +340,18 @@ class Migration(migrations.Migration):
                 ("earned_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "achievement",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.gameachievement"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.gameachievement",
+                    ),
                 ),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
                 (
                     "virtual_company",
                     models.ForeignKey(
@@ -222,10 +370,30 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PlayerAchievement",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("earned_at", models.DateTimeField(auto_now_add=True)),
-                ("achievement", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.achievement")),
-                ("player", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="games.ursinaplayer")),
+                (
+                    "achievement",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.achievement",
+                    ),
+                ),
+                (
+                    "player",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.ursinaplayer",
+                    ),
+                ),
             ],
             options={
                 "unique_together": {("player", "achievement")},

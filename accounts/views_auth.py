@@ -35,7 +35,7 @@ class OTPLoginView(LoginView):
                 metadata={"redirect": success_url},
             )
             return redirect("accounts:otp_verify")
-        
+
         # MFA yoksa direkt kullanıcı tipine göre yönlendir
         audit_logger.log_security_event(
             action="auth.login.success",
@@ -45,4 +45,3 @@ class OTPLoginView(LoginView):
             metadata={"redirect": self.get_success_url()},
         )
         return response
-

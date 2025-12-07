@@ -6,59 +6,115 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('games', '0008_chatmessage'),
+        ("games", "0008_chatmessage"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True)),
-                ('base_price', models.IntegerField(default=100)),
-                ('unit', models.CharField(default='adet', max_length=20)),
-                ('category', models.CharField(default='genel', max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True)),
+                ("base_price", models.IntegerField(default=100)),
+                ("unit", models.CharField(default="adet", max_length=20)),
+                ("category", models.CharField(default="genel", max_length=50)),
             ],
         ),
         migrations.CreateModel(
-            name='QrReward',
+            name="QrReward",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=32, unique=True)),
-                ('description', models.CharField(max_length=255)),
-                ('reward', models.JSONField(default=dict)),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=32, unique=True)),
+                ("description", models.CharField(max_length=255)),
+                ("reward", models.JSONField(default=dict)),
+                ("is_active", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='CityMarket',
+            name="CityMarket",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('price', models.IntegerField(default=100)),
-                ('supply', models.IntegerField(default=100)),
-                ('demand', models.IntegerField(default=100)),
-                ('last_updated', models.DateTimeField(auto_now=True)),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='markets', to='games.city')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='city_markets', to='games.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("price", models.IntegerField(default=100)),
+                ("supply", models.IntegerField(default=100)),
+                ("demand", models.IntegerField(default=100)),
+                ("last_updated", models.DateTimeField(auto_now=True)),
+                (
+                    "city",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="markets",
+                        to="games.city",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="city_markets",
+                        to="games.product",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('city', 'product')},
+                "unique_together": {("city", "product")},
             },
         ),
         migrations.CreateModel(
-            name='UserQrReward',
+            name="UserQrReward",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('claimed_at', models.DateTimeField(auto_now_add=True)),
-                ('qr_reward', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='games.qrreward')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("claimed_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "qr_reward",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.qrreward"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'qr_reward')},
+                "unique_together": {("user", "qr_reward")},
             },
         ),
     ]

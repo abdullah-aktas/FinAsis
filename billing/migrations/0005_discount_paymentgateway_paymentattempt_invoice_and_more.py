@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("billing", "0004_alter_plan_audience"),
@@ -16,30 +15,71 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Discount",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="İndirim Kodu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="İndirim Kodu"
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="İndirim Adı")),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 (
                     "discount_type",
                     models.CharField(
-                        choices=[("PERCENTAGE", "Yüzde"), ("FIXED", "Sabit Tutar"), ("FREE_TRIAL", "Ücretsiz Deneme")],
+                        choices=[
+                            ("PERCENTAGE", "Yüzde"),
+                            ("FIXED", "Sabit Tutar"),
+                            ("FREE_TRIAL", "Ücretsiz Deneme"),
+                        ],
                         max_length=20,
                         verbose_name="İndirim Tipi",
                     ),
                 ),
-                ("discount_value", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="İndirim Değeri")),
-                ("valid_from", models.DateTimeField(verbose_name="Geçerlilik Başlangıcı")),
+                (
+                    "discount_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="İndirim Değeri"
+                    ),
+                ),
+                (
+                    "valid_from",
+                    models.DateTimeField(verbose_name="Geçerlilik Başlangıcı"),
+                ),
                 ("valid_until", models.DateTimeField(verbose_name="Geçerlilik Bitişi")),
-                ("max_uses", models.IntegerField(blank=True, null=True, verbose_name="Maksimum Kullanım")),
-                ("max_uses_per_user", models.IntegerField(default=1, verbose_name="Kullanıcı Başına Maks. Kullanım")),
-                ("times_used", models.IntegerField(default=0, verbose_name="Kullanım Sayısı")),
+                (
+                    "max_uses",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Maksimum Kullanım"
+                    ),
+                ),
+                (
+                    "max_uses_per_user",
+                    models.IntegerField(
+                        default=1, verbose_name="Kullanıcı Başına Maks. Kullanım"
+                    ),
+                ),
+                (
+                    "times_used",
+                    models.IntegerField(default=0, verbose_name="Kullanım Sayısı"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "applicable_plans",
                     models.ManyToManyField(
-                        blank=True, related_name="discounts", to="billing.plan", verbose_name="Geçerli Planlar"
+                        blank=True,
+                        related_name="discounts",
+                        to="billing.plan",
+                        verbose_name="Geçerli Planlar",
                     ),
                 ),
                 (
@@ -60,7 +100,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PaymentGateway",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Gateway Adı")),
                 (
                     "gateway_type",
@@ -77,15 +125,38 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("api_key", models.CharField(max_length=200, verbose_name="API Key")),
-                ("api_secret", models.CharField(max_length=200, verbose_name="API Secret")),
-                ("merchant_id", models.CharField(blank=True, max_length=100, verbose_name="Merchant ID")),
+                (
+                    "api_secret",
+                    models.CharField(max_length=200, verbose_name="API Secret"),
+                ),
+                (
+                    "merchant_id",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="Merchant ID"
+                    ),
+                ),
                 ("base_url", models.URLField(verbose_name="Base URL")),
-                ("webhook_url", models.URLField(blank=True, verbose_name="Webhook URL")),
-                ("is_test_mode", models.BooleanField(default=True, verbose_name="Test Modu")),
+                (
+                    "webhook_url",
+                    models.URLField(blank=True, verbose_name="Webhook URL"),
+                ),
+                (
+                    "is_test_mode",
+                    models.BooleanField(default=True, verbose_name="Test Modu"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("total_transactions", models.IntegerField(default=0, verbose_name="Toplam İşlem")),
-                ("successful_transactions", models.IntegerField(default=0, verbose_name="Başarılı İşlem")),
-                ("failed_transactions", models.IntegerField(default=0, verbose_name="Başarısız İşlem")),
+                (
+                    "total_transactions",
+                    models.IntegerField(default=0, verbose_name="Toplam İşlem"),
+                ),
+                (
+                    "successful_transactions",
+                    models.IntegerField(default=0, verbose_name="Başarılı İşlem"),
+                ),
+                (
+                    "failed_transactions",
+                    models.IntegerField(default=0, verbose_name="Başarısız İşlem"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
             ],
@@ -98,8 +169,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PaymentAttempt",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("attempt_number", models.IntegerField(default=1, verbose_name="Deneme Numarası")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "attempt_number",
+                    models.IntegerField(default=1, verbose_name="Deneme Numarası"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -114,13 +196,37 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("request_data", models.JSONField(default=dict, verbose_name="İstek Verisi")),
-                ("response_data", models.JSONField(default=dict, verbose_name="Yanıt Verisi")),
-                ("response_code", models.CharField(blank=True, max_length=50, verbose_name="Yanıt Kodu")),
-                ("error_message", models.TextField(blank=True, verbose_name="Hata Mesajı")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
+                (
+                    "request_data",
+                    models.JSONField(default=dict, verbose_name="İstek Verisi"),
+                ),
+                (
+                    "response_data",
+                    models.JSONField(default=dict, verbose_name="Yanıt Verisi"),
+                ),
+                (
+                    "response_code",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Yanıt Kodu"
+                    ),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="Hata Mesajı"),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
                 ("user_agent", models.TextField(blank=True, verbose_name="User Agent")),
-                ("attempted_at", models.DateTimeField(auto_now_add=True, verbose_name="Deneme Zamanı")),
+                (
+                    "attempted_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Deneme Zamanı"
+                    ),
+                ),
                 (
                     "gateway",
                     models.ForeignKey(
@@ -150,20 +256,59 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Invoice",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("invoice_number", models.CharField(max_length=50, unique=True, verbose_name="Fatura No")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Fatura No"
+                    ),
+                ),
                 ("invoice_date", models.DateField(verbose_name="Fatura Tarihi")),
                 ("due_date", models.DateField(verbose_name="Vade Tarihi")),
-                ("billing_period_start", models.DateField(verbose_name="Dönem Başlangıç")),
+                (
+                    "billing_period_start",
+                    models.DateField(verbose_name="Dönem Başlangıç"),
+                ),
                 ("billing_period_end", models.DateField(verbose_name="Dönem Bitiş")),
-                ("subtotal", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Ara Toplam")),
-                ("tax_amount", models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name="Vergi")),
+                (
+                    "subtotal",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Ara Toplam"
+                    ),
+                ),
+                (
+                    "tax_amount",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=10, verbose_name="Vergi"
+                    ),
+                ),
                 (
                     "discount_amount",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name="İndirim"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=10,
+                        verbose_name="İndirim",
+                    ),
                 ),
-                ("total_amount", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Toplam")),
-                ("line_items", models.JSONField(default=list, verbose_name="Fatura Kalemleri")),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Toplam"
+                    ),
+                ),
+                (
+                    "line_items",
+                    models.JSONField(default=list, verbose_name="Fatura Kalemleri"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -180,8 +325,18 @@ class Migration(migrations.Migration):
                         verbose_name="Durum",
                     ),
                 ),
-                ("paid_at", models.DateTimeField(blank=True, null=True, verbose_name="Ödeme Tarihi")),
-                ("payment_method", models.CharField(blank=True, max_length=50, verbose_name="Ödeme Yöntemi")),
+                (
+                    "paid_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Ödeme Tarihi"
+                    ),
+                ),
+                (
+                    "payment_method",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Ödeme Yöntemi"
+                    ),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="Notlar")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -214,17 +369,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DiscountUsage",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "original_amount",
-                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Orijinal Tutar"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Orijinal Tutar"
+                    ),
                 ),
                 (
                     "discount_amount",
-                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="İndirim Tutarı"),
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="İndirim Tutarı"
+                    ),
                 ),
-                ("final_amount", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Final Tutar")),
-                ("used_at", models.DateTimeField(auto_now_add=True, verbose_name="Kullanım Zamanı")),
+                (
+                    "final_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Final Tutar"
+                    ),
+                ),
+                (
+                    "used_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Kullanım Zamanı"
+                    ),
+                ),
                 (
                     "discount",
                     models.ForeignKey(

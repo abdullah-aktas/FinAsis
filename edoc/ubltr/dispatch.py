@@ -93,7 +93,9 @@ class DispatchAdvice:
 
         return root
 
-    def to_xml_bytes(self, settings: EdocSettings | None = None, pretty: bool = True) -> bytes:
+    def to_xml_bytes(
+        self, settings: EdocSettings | None = None, pretty: bool = True
+    ) -> bytes:
         root = self.to_xml(settings)
         try:
             return etree.tostring(root, xml_declaration=True, encoding="UTF-8", pretty_print=pretty)  # type: ignore[call-arg]

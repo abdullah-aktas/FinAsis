@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,11 +18,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="EducationModule",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=100, verbose_name="Görev Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=100, verbose_name="Görev Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Görev Açıklaması")),
-                ("points", models.PositiveIntegerField(default=10, verbose_name="Puan")),
-                ("is_active", models.BooleanField(default=True, verbose_name="Aktif mi?")),
+                (
+                    "points",
+                    models.PositiveIntegerField(default=10, verbose_name="Puan"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Aktif mi?"),
+                ),
             ],
             options={
                 "verbose_name": "Eğitim Modülü",
@@ -33,11 +49,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="StudentProfile",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "completed_modules",
                     models.ManyToManyField(
-                        blank=True, to="virtual_company.educationmodule", verbose_name="Tamamlanan Görevler"
+                        blank=True,
+                        to="virtual_company.educationmodule",
+                        verbose_name="Tamamlanan Görevler",
                     ),
                 ),
                 (
@@ -57,11 +83,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TeacherProfile",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "managed_students",
                     models.ManyToManyField(
-                        blank=True, to="virtual_company.studentprofile", verbose_name="Takip Ettiği Öğrenciler"
+                        blank=True,
+                        to="virtual_company.studentprofile",
+                        verbose_name="Takip Ettiği Öğrenciler",
                     ),
                 ),
                 (
@@ -81,17 +117,36 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="VirtualCompany",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Şirket Adı")),
                 ("description", models.TextField(verbose_name="Şirket Açıklaması")),
                 (
                     "balance",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=12, verbose_name="Bakiye (₺)"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=12,
+                        verbose_name="Bakiye (₺)",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme"),
+                ),
                 (
                     "owner",
                     models.ForeignKey(
@@ -121,14 +176,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Transaction",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "transaction_type",
                     models.CharField(
-                        choices=[("INCOME", "Gelir"), ("EXPENSE", "Gider")], max_length=7, verbose_name="İşlem Türü"
+                        choices=[("INCOME", "Gelir"), ("EXPENSE", "Gider")],
+                        max_length=7,
+                        verbose_name="İşlem Türü",
                     ),
                 ),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Tutar (₺)")),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Tutar (₺)"
+                    ),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("date", models.DateField(auto_now_add=True, verbose_name="Tarih")),
                 (
@@ -161,20 +231,51 @@ class Migration(migrations.Migration):
             model_name="studentprofile",
             name="virtual_company",
             field=models.OneToOneField(
-                on_delete=django.db.models.deletion.CASCADE, to="virtual_company.virtualcompany", verbose_name="Şirket"
+                on_delete=django.db.models.deletion.CASCADE,
+                to="virtual_company.virtualcompany",
+                verbose_name="Şirket",
             ),
         ),
         migrations.CreateModel(
             name="Product",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Ürün Adı")),
                 ("description", models.TextField(verbose_name="Ürün Açıklaması")),
-                ("price", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Birim Fiyat (₺)")),
-                ("stock", models.PositiveIntegerField(default=0, verbose_name="Stok Miktarı")),
-                ("marker_id", models.CharField(default="hiro", max_length=50, verbose_name="Marker ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Eklenme Tarihi")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Birim Fiyat (₺)"
+                    ),
+                ),
+                (
+                    "stock",
+                    models.PositiveIntegerField(default=0, verbose_name="Stok Miktarı"),
+                ),
+                (
+                    "marker_id",
+                    models.CharField(
+                        default="hiro", max_length=50, verbose_name="Marker ID"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Eklenme Tarihi"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme"),
+                ),
                 (
                     "tenant",
                     models.ForeignKey(
@@ -204,10 +305,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Invoice",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("invoice_number", models.CharField(max_length=20, verbose_name="Fatura No")),
-                ("customer_name", models.CharField(max_length=100, verbose_name="Müşteri Adı")),
-                ("total_amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Toplam Tutar (₺)")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(max_length=20, verbose_name="Fatura No"),
+                ),
+                (
+                    "customer_name",
+                    models.CharField(max_length=100, verbose_name="Müşteri Adı"),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Toplam Tutar (₺)"
+                    ),
+                ),
                 ("issue_date", models.DateField(verbose_name="Fatura Tarihi")),
                 (
                     "tenant",
@@ -238,10 +358,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinanceReport",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=100, verbose_name="Rapor Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=100, verbose_name="Rapor Başlığı"),
+                ),
                 ("content", models.TextField(verbose_name="Rapor İçeriği")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "tenant",
                     models.ForeignKey(
@@ -270,9 +406,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AIAccountingRecommendation",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("suggestion", models.TextField(verbose_name="Öneri Açıklaması")),
-                ("confidence_score", models.FloatField(verbose_name="Tahmin Güveni (%)")),
+                (
+                    "confidence_score",
+                    models.FloatField(verbose_name="Tahmin Güveni (%)"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "student",
@@ -301,21 +448,55 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AccountingEntry",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("date", models.DateField(auto_now_add=True, verbose_name="Kayıt Tarihi")),
-                ("description", models.CharField(max_length=255, verbose_name="İşlem Açıklaması")),
-                ("debit_account", models.CharField(max_length=100, verbose_name="Borç Hesabı")),
-                ("credit_account", models.CharField(max_length=100, verbose_name="Alacak Hesabı")),
-                ("amount", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="Tutar (₺)")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "date",
+                    models.DateField(auto_now_add=True, verbose_name="Kayıt Tarihi"),
+                ),
+                (
+                    "description",
+                    models.CharField(max_length=255, verbose_name="İşlem Açıklaması"),
+                ),
+                (
+                    "debit_account",
+                    models.CharField(max_length=100, verbose_name="Borç Hesabı"),
+                ),
+                (
+                    "credit_account",
+                    models.CharField(max_length=100, verbose_name="Alacak Hesabı"),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="Tutar (₺)"
+                    ),
+                ),
                 (
                     "effect_on_balance",
                     models.CharField(
-                        choices=[("POSITIVE", "Pozitif"), ("NEGATIVE", "Negatif"), ("NEUTRAL", "Nötr")],
+                        choices=[
+                            ("POSITIVE", "Pozitif"),
+                            ("NEGATIVE", "Negatif"),
+                            ("NEUTRAL", "Nötr"),
+                        ],
                         max_length=50,
                         verbose_name="Şirket Bakiyesine Etki",
                     ),
                 ),
-                ("ai_recommendation", models.TextField(blank=True, null=True, verbose_name="Yapay Zeka Önerisi")),
+                (
+                    "ai_recommendation",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Yapay Zeka Önerisi"
+                    ),
+                ),
                 (
                     "student",
                     models.ForeignKey(

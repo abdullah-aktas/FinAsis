@@ -28,7 +28,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options) -> None:
-        base_url = options.get("base_url") or getattr(settings, "SITE_BASE_URL", "https://finasis.com")
+        base_url = options.get("base_url") or getattr(
+            settings, "SITE_BASE_URL", "https://finasis.com"
+        )
         base_url = base_url.rstrip("/")
 
         output_arg = options.get("output")
@@ -40,7 +42,7 @@ class Command(BaseCommand):
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         lines: list[str] = [
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            '<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         ]
 
@@ -61,4 +63,3 @@ class Command(BaseCommand):
 
         output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         self.stdout.write(self.style.SUCCESS(f"Sitemap generated at {output_path}"))
-

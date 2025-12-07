@@ -44,7 +44,9 @@ class Command(BaseCommand):
                 any_failed = True
                 continue
 
-            self.stdout.write(self.style.MIGRATE_HEADING(f"[{profile}] Kontroller çalıştırılıyor"))
+            self.stdout.write(
+                self.style.MIGRATE_HEADING(f"[{profile}] Kontroller çalıştırılıyor")
+            )
             for entry in checks:
                 result = compliance.run_check(entry, debug=debug)
                 all_results.append((profile, result))
@@ -55,7 +57,9 @@ class Command(BaseCommand):
                 else:
                     label = self.style.ERROR("FAIL")
                     any_failed = True
-                self.stdout.write(f" {label} {result.id} - {result.title}: {result.message}")
+                self.stdout.write(
+                    f" {label} {result.id} - {result.title}: {result.message}"
+                )
 
         output = options.get("output")
         if output:
@@ -85,4 +89,3 @@ class Command(BaseCommand):
             )
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("\n".join(lines), encoding="utf-8")
-

@@ -12,7 +12,7 @@ class VatResult:
 
 
 def calculate_vat(base: Decimal, rate: Decimal) -> VatResult:
-    tax = (base * rate).quantize(Decimal('0.01'))
+    tax = (base * rate).quantize(Decimal("0.01"))
     total = base + tax
     return VatResult(base=base, rate=rate, tax=tax, total=total)
 
@@ -27,10 +27,12 @@ class WithholdingResult:
     buyer_withholding_rate: Decimal
 
 
-def calculate_vat_with_withholding(base: Decimal, vat_rate: Decimal, buyer_withholding_rate: Decimal) -> WithholdingResult:
+def calculate_vat_with_withholding(
+    base: Decimal, vat_rate: Decimal, buyer_withholding_rate: Decimal
+) -> WithholdingResult:
     """Tevkifatlı KDV: vat_total = base*vat_rate; alıcı payı = vat_total*buyer_withholding_rate."""
-    vat_total = (base * vat_rate).quantize(Decimal('0.01'))
-    buyer_share = (vat_total * buyer_withholding_rate).quantize(Decimal('0.01'))
+    vat_total = (base * vat_rate).quantize(Decimal("0.01"))
+    buyer_share = (vat_total * buyer_withholding_rate).quantize(Decimal("0.01"))
     seller_share = vat_total - buyer_share
     return WithholdingResult(
         base=base,
@@ -40,5 +42,3 @@ def calculate_vat_with_withholding(base: Decimal, vat_rate: Decimal, buyer_withh
         buyer_share=buyer_share,
         buyer_withholding_rate=buyer_withholding_rate,
     )
-
-

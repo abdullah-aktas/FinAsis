@@ -1,1 +1,1 @@
-# Bu dosya, views klasörünü Python paketi olarak tanımlar. 
+# Bu dosya, views klasörünü Python paketi olarak tanımlar.

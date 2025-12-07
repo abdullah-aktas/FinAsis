@@ -115,12 +115,15 @@ class APIUsageLoggingMiddleware(MiddlewareMixin):
         return request.META.get("REMOTE_ADDR")
 
     @staticmethod
-    def _observe_metrics(*, api_key: DeveloperAPIKey, status_code: int, duration_ms: int) -> None:
+    def _observe_metrics(
+        *, api_key: DeveloperAPIKey, status_code: int, duration_ms: int
+    ) -> None:
         plan = (api_key.rate_limit_plan or "unknown").lower()
         DEVELOPER_API_CALLS.labels(plan=plan, status=str(status_code)).inc()
         if duration_ms >= 0:
-            DEVELOPER_API_LATENCY.labels(plan=plan).observe(max(duration_ms, 0) / 1000.0)
+            DEVELOPER_API_LATENCY.labels(plan=plan).observe(
+                max(duration_ms, 0) / 1000.0
+            )
 
 
 __all__ = ["APIUsageLoggingMiddleware"]
-

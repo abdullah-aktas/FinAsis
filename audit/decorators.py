@@ -16,18 +16,21 @@ def require_roles(*roles):
     Superuser her zaman geçer. Kullanıcıda belirtilen rollerden
     en az biri yoksa dashboard'a yönlendirip uyarı verir.
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped(request, *args, **kwargs):
             if not request.user.is_authenticated:
-                return redirect('login')
+                return redirect("login")
             if request.user.is_superuser:
                 return view_func(request, *args, **kwargs)
-            user_roles = set(request.user.groups.values_list('name', flat=True))
+            user_roles = set(request.user.groups.values_list("name", flat=True))
             if not user_roles.intersection(roles):
-                messages.error(request, _('Bu işlem için yetkiniz yok.'))
+                messages.error(request, _("Bu işlem için yetkiniz yok."))
                 # Avoid redirecting to the same route (would cause a loop). Send to landing.
-                return redirect('audit:landing')
+                return redirect("audit:landing")
             return view_func(request, *args, **kwargs)
+
         return _wrapped
+
     return decorator

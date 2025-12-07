@@ -4,32 +4,57 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='IntegratorConfig',
+            name="IntegratorConfig",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('name', models.CharField(default='Default Integrator', max_length=100)),
-               ('base_url', models.URLField()),
-               ('client_id', models.CharField(max_length=200)),
-               ('client_secret', models.CharField(max_length=200)),
-               ('certificate_alias', models.CharField(blank=True, max_length=200)),
-               ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(default="Default Integrator", max_length=100),
+                ),
+                ("base_url", models.URLField()),
+                ("client_id", models.CharField(max_length=200)),
+                ("client_secret", models.CharField(max_length=200)),
+                ("certificate_alias", models.CharField(blank=True, max_length=200)),
+                ("is_active", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='AccessToken',
+            name="AccessToken",
             fields=[
-               ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-               ('token', models.TextField()),
-               ('expires_at', models.DateTimeField()),
-               ('created_at', models.DateTimeField(auto_now_add=True)),
-               ('integrator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tokens', to='integrator_gib.integratorconfig')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("token", models.TextField()),
+                ("expires_at", models.DateTimeField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "integrator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tokens",
+                        to="integrator_gib.integratorconfig",
+                    ),
+                ),
             ],
         ),
     ]

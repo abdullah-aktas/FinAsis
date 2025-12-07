@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,9 +16,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="NavigationMenu",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Menü Adı")),
-                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
                 (
                     "menu_type",
                     models.CharField(
@@ -55,34 +65,117 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Theme",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Tema Adı")),
-                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Tema Adı"
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
-                ("primary_color", models.CharField(default="#007bff", max_length=7, verbose_name="Ana Renk")),
-                ("secondary_color", models.CharField(default="#6c757d", max_length=7, verbose_name="İkincil Renk")),
-                ("success_color", models.CharField(default="#28a745", max_length=7, verbose_name="Başarı Rengi")),
-                ("danger_color", models.CharField(default="#dc3545", max_length=7, verbose_name="Hata Rengi")),
-                ("warning_color", models.CharField(default="#ffc107", max_length=7, verbose_name="Uyarı Rengi")),
-                ("info_color", models.CharField(default="#17a2b8", max_length=7, verbose_name="Bilgi Rengi")),
-                ("background_color", models.CharField(default="#ffffff", max_length=7, verbose_name="Arka Plan Rengi")),
-                ("text_color", models.CharField(default="#212529", max_length=7, verbose_name="Metin Rengi")),
+                (
+                    "primary_color",
+                    models.CharField(
+                        default="#007bff", max_length=7, verbose_name="Ana Renk"
+                    ),
+                ),
+                (
+                    "secondary_color",
+                    models.CharField(
+                        default="#6c757d", max_length=7, verbose_name="İkincil Renk"
+                    ),
+                ),
+                (
+                    "success_color",
+                    models.CharField(
+                        default="#28a745", max_length=7, verbose_name="Başarı Rengi"
+                    ),
+                ),
+                (
+                    "danger_color",
+                    models.CharField(
+                        default="#dc3545", max_length=7, verbose_name="Hata Rengi"
+                    ),
+                ),
+                (
+                    "warning_color",
+                    models.CharField(
+                        default="#ffc107", max_length=7, verbose_name="Uyarı Rengi"
+                    ),
+                ),
+                (
+                    "info_color",
+                    models.CharField(
+                        default="#17a2b8", max_length=7, verbose_name="Bilgi Rengi"
+                    ),
+                ),
+                (
+                    "background_color",
+                    models.CharField(
+                        default="#ffffff", max_length=7, verbose_name="Arka Plan Rengi"
+                    ),
+                ),
+                (
+                    "text_color",
+                    models.CharField(
+                        default="#212529", max_length=7, verbose_name="Metin Rengi"
+                    ),
+                ),
                 (
                     "font_family",
                     models.CharField(
-                        default="Inter, system-ui, sans-serif", max_length=200, verbose_name="Font Ailesi"
+                        default="Inter, system-ui, sans-serif",
+                        max_length=200,
+                        verbose_name="Font Ailesi",
                     ),
                 ),
-                ("font_size_base", models.CharField(default="14px", max_length=10, verbose_name="Temel Font Boyutu")),
-                ("border_radius", models.CharField(default="8px", max_length=10, verbose_name="Köşe Yuvarlaklığı")),
+                (
+                    "font_size_base",
+                    models.CharField(
+                        default="14px", max_length=10, verbose_name="Temel Font Boyutu"
+                    ),
+                ),
+                (
+                    "border_radius",
+                    models.CharField(
+                        default="8px", max_length=10, verbose_name="Köşe Yuvarlaklığı"
+                    ),
+                ),
                 (
                     "box_shadow",
-                    models.CharField(default="0 2px 8px rgba(0,0,0,0.1)", max_length=100, verbose_name="Gölge"),
+                    models.CharField(
+                        default="0 2px 8px rgba(0,0,0,0.1)",
+                        max_length=100,
+                        verbose_name="Gölge",
+                    ),
                 ),
                 ("custom_css", models.TextField(blank=True, verbose_name="Özel CSS")),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("is_default", models.BooleanField(default=False, verbose_name="Varsayılan")),
-                ("thumbnail", models.ImageField(blank=True, null=True, upload_to="themes/", verbose_name="Önizleme")),
+                (
+                    "is_default",
+                    models.BooleanField(default=False, verbose_name="Varsayılan"),
+                ),
+                (
+                    "thumbnail",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="themes/",
+                        verbose_name="Önizleme",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -105,8 +198,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Widget",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Widget Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Widget Başlığı"),
+                ),
                 (
                     "widget_type",
                     models.CharField(
@@ -141,7 +245,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("order", models.IntegerField(default=0, verbose_name="Sıra")),
-                ("css_classes", models.CharField(blank=True, max_length=200, verbose_name="CSS Sınıfları")),
+                (
+                    "css_classes",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="CSS Sınıfları"
+                    ),
+                ),
                 ("custom_css", models.TextField(blank=True, verbose_name="Özel CSS")),
                 (
                     "target_pages",
@@ -152,7 +261,12 @@ class Migration(migrations.Migration):
                         verbose_name="Hedef Sayfalar",
                     ),
                 ),
-                ("target_roles", models.JSONField(blank=True, default=list, verbose_name="Hedef Roller")),
+                (
+                    "target_roles",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Hedef Roller"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -175,15 +289,41 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UserThemePreference",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("dark_mode", models.BooleanField(default=False, verbose_name="Koyu Mod")),
-                ("auto_dark_mode", models.BooleanField(default=True, verbose_name="Otomatik Koyu Mod")),
-                ("sidebar_collapsed", models.BooleanField(default=False, verbose_name="Kenar Çubuğu Daraltılmış")),
-                ("compact_mode", models.BooleanField(default=False, verbose_name="Kompakt Mod")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "dark_mode",
+                    models.BooleanField(default=False, verbose_name="Koyu Mod"),
+                ),
+                (
+                    "auto_dark_mode",
+                    models.BooleanField(default=True, verbose_name="Otomatik Koyu Mod"),
+                ),
+                (
+                    "sidebar_collapsed",
+                    models.BooleanField(
+                        default=False, verbose_name="Kenar Çubuğu Daraltılmış"
+                    ),
+                ),
+                (
+                    "compact_mode",
+                    models.BooleanField(default=False, verbose_name="Kompakt Mod"),
+                ),
                 (
                     "font_size",
                     models.CharField(
-                        choices=[("small", "Küçük"), ("medium", "Orta"), ("large", "Büyük")],
+                        choices=[
+                            ("small", "Küçük"),
+                            ("medium", "Orta"),
+                            ("large", "Büyük"),
+                        ],
                         default="medium",
                         max_length=10,
                         verbose_name="Font Boyutu",
@@ -193,7 +333,10 @@ class Migration(migrations.Migration):
                 (
                     "theme",
                     models.ForeignKey(
-                        null=True, on_delete=django.db.models.deletion.SET_NULL, to="core_ui.theme", verbose_name="Tema"
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core_ui.theme",
+                        verbose_name="Tema",
                     ),
                 ),
                 (
@@ -214,9 +357,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="UIComponent",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="Bileşen Adı")),
-                ("slug", models.SlugField(max_length=100, unique=True, verbose_name="Slug")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Bileşen Adı"
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
                 (
                     "component_type",
                     models.CharField(
@@ -238,13 +397,33 @@ class Migration(migrations.Migration):
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 ("template_code", models.TextField(verbose_name="Template Kodu")),
-                ("default_params", models.JSONField(blank=True, default=dict, verbose_name="Varsayılan Parametreler")),
-                ("preview_data", models.JSONField(blank=True, default=dict, verbose_name="Önizleme Verisi")),
+                (
+                    "default_params",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Varsayılan Parametreler"
+                    ),
+                ),
+                (
+                    "preview_data",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="Önizleme Verisi"
+                    ),
+                ),
                 (
                     "screenshot",
-                    models.ImageField(blank=True, null=True, upload_to="components/", verbose_name="Ekran Görüntüsü"),
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="components/",
+                        verbose_name="Ekran Görüntüsü",
+                    ),
                 ),
-                ("version", models.CharField(default="1.0", max_length=20, verbose_name="Versiyon")),
+                (
+                    "version",
+                    models.CharField(
+                        default="1.0", max_length=20, verbose_name="Versiyon"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -267,9 +446,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Page",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Sayfa Başlığı")),
-                ("slug", models.SlugField(max_length=200, unique=True, verbose_name="Slug")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Sayfa Başlığı"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=200, unique=True, verbose_name="Slug"),
+                ),
                 (
                     "page_type",
                     models.CharField(
@@ -289,18 +482,52 @@ class Migration(migrations.Migration):
                 ),
                 ("content", models.TextField(verbose_name="İçerik (HTML)")),
                 ("excerpt", models.TextField(blank=True, verbose_name="Özet")),
-                ("meta_title", models.CharField(blank=True, max_length=200, verbose_name="Meta Başlık")),
-                ("meta_description", models.TextField(blank=True, verbose_name="Meta Açıklama")),
-                ("meta_keywords", models.CharField(blank=True, max_length=500, verbose_name="Meta Anahtar Kelimeler")),
+                (
+                    "meta_title",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Meta Başlık"
+                    ),
+                ),
+                (
+                    "meta_description",
+                    models.TextField(blank=True, verbose_name="Meta Açıklama"),
+                ),
+                (
+                    "meta_keywords",
+                    models.CharField(
+                        blank=True,
+                        max_length=500,
+                        verbose_name="Meta Anahtar Kelimeler",
+                    ),
+                ),
                 (
                     "featured_image",
-                    models.ImageField(blank=True, null=True, upload_to="pages/", verbose_name="Öne Çıkan Görsel"),
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="pages/",
+                        verbose_name="Öne Çıkan Görsel",
+                    ),
                 ),
                 ("custom_css", models.TextField(blank=True, verbose_name="Özel CSS")),
-                ("custom_js", models.TextField(blank=True, verbose_name="Özel JavaScript")),
-                ("is_published", models.BooleanField(default=False, verbose_name="Yayınlandı")),
-                ("published_at", models.DateTimeField(blank=True, null=True, verbose_name="Yayın Tarihi")),
-                ("view_count", models.IntegerField(default=0, verbose_name="Görüntüleme")),
+                (
+                    "custom_js",
+                    models.TextField(blank=True, verbose_name="Özel JavaScript"),
+                ),
+                (
+                    "is_published",
+                    models.BooleanField(default=False, verbose_name="Yayınlandı"),
+                ),
+                (
+                    "published_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Yayın Tarihi"
+                    ),
+                ),
+                (
+                    "view_count",
+                    models.IntegerField(default=0, verbose_name="Görüntüleme"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -332,14 +559,35 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MenuItem",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=100, verbose_name="Başlık")),
                 ("url", models.CharField(max_length=500, verbose_name="URL")),
-                ("icon", models.CharField(blank=True, max_length=50, verbose_name="İkon (Bootstrap Icons)")),
-                ("target_blank", models.BooleanField(default=False, verbose_name="Yeni Sekmede Aç")),
+                (
+                    "icon",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="İkon (Bootstrap Icons)"
+                    ),
+                ),
+                (
+                    "target_blank",
+                    models.BooleanField(default=False, verbose_name="Yeni Sekmede Aç"),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("order", models.IntegerField(default=0, verbose_name="Sıra")),
-                ("badge_text", models.CharField(blank=True, max_length=20, verbose_name="Rozet Metni")),
+                (
+                    "badge_text",
+                    models.CharField(
+                        blank=True, max_length=20, verbose_name="Rozet Metni"
+                    ),
+                ),
                 (
                     "badge_color",
                     models.CharField(
@@ -380,7 +628,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Banner",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("message", models.TextField(verbose_name="Mesaj")),
                 (
@@ -401,26 +657,73 @@ class Migration(migrations.Migration):
                 (
                     "position",
                     models.CharField(
-                        choices=[("top", "Üst"), ("bottom", "Alt"), ("floating", "Yüzer")],
+                        choices=[
+                            ("top", "Üst"),
+                            ("bottom", "Alt"),
+                            ("floating", "Yüzer"),
+                        ],
                         default="top",
                         max_length=20,
                         verbose_name="Konum",
                     ),
                 ),
-                ("button_text", models.CharField(blank=True, max_length=50, verbose_name="Buton Metni")),
-                ("button_url", models.CharField(blank=True, max_length=500, verbose_name="Buton URL")),
-                ("show_to_guests", models.BooleanField(default=True, verbose_name="Misafirlere Göster")),
-                ("show_to_authenticated", models.BooleanField(default=True, verbose_name="Üyelere Göster")),
-                ("target_roles", models.JSONField(blank=True, default=list, verbose_name="Hedef Roller")),
-                ("start_date", models.DateTimeField(blank=True, null=True, verbose_name="Başlangıç Tarihi")),
-                ("end_date", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş Tarihi")),
+                (
+                    "button_text",
+                    models.CharField(
+                        blank=True, max_length=50, verbose_name="Buton Metni"
+                    ),
+                ),
+                (
+                    "button_url",
+                    models.CharField(
+                        blank=True, max_length=500, verbose_name="Buton URL"
+                    ),
+                ),
+                (
+                    "show_to_guests",
+                    models.BooleanField(
+                        default=True, verbose_name="Misafirlere Göster"
+                    ),
+                ),
+                (
+                    "show_to_authenticated",
+                    models.BooleanField(default=True, verbose_name="Üyelere Göster"),
+                ),
+                (
+                    "target_roles",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Hedef Roller"
+                    ),
+                ),
+                (
+                    "start_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Başlangıç Tarihi"
+                    ),
+                ),
+                (
+                    "end_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Bitiş Tarihi"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("is_dismissible", models.BooleanField(default=True, verbose_name="Kapatılabilir")),
-                ("view_count", models.IntegerField(default=0, verbose_name="Görüntüleme")),
+                (
+                    "is_dismissible",
+                    models.BooleanField(default=True, verbose_name="Kapatılabilir"),
+                ),
+                (
+                    "view_count",
+                    models.IntegerField(default=0, verbose_name="Görüntüleme"),
+                ),
                 ("click_count", models.IntegerField(default=0, verbose_name="Tıklama")),
                 (
                     "priority",
-                    models.IntegerField(default=0, help_text="Yüksek öncelik üstte gösterilir", verbose_name="Öncelik"),
+                    models.IntegerField(
+                        default=0,
+                        help_text="Yüksek öncelik üstte gösterilir",
+                        verbose_name="Öncelik",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),

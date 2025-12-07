@@ -34,9 +34,9 @@ Teknik Notlar:
 3. Tüm finansal işlemler transactional (atomik) olmalıdır.
 """
 
-# Django yapılandırmasını basitleştirmek için paket 
+# Django yapılandırmasını basitleştirmek için paket
 # yapısını auto-discovery mekanizmasıyla uyumlu hale getiriyoruz.
-default_app_config = 'finance.apps.FinanceConfig'
+default_app_config = "finance.apps.FinanceConfig"
 
 # Not: Önceden enhanced_accounting_models burada zorla import ediliyordu (ContentType kaydı
 # için). Artık ilgili modeller migration ile tanımlandığından bu hack'e gerek yok.

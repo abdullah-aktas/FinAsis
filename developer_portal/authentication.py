@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
-from developer_portal.models import DeveloperAPIKey
 from developer_portal.services import key_manager
 
 
@@ -29,7 +28,9 @@ class APIKeyAuthentication(BaseAuthentication):
 
         api_key = key_manager.verify_raw_key(raw_key)
         if api_key is None:
-            raise AuthenticationFailed(_("Geçersiz veya devre dışı bırakılmış API anahtarı."))
+            raise AuthenticationFailed(
+                _("Geçersiz veya devre dışı bırakılmış API anahtarı.")
+            )
 
         if api_key.is_expired:
             raise AuthenticationFailed(_("API anahtarının süresi dolmuş."))
@@ -70,4 +71,3 @@ class APIKeyAuthentication(BaseAuthentication):
 
 
 __all__ = ["APIKeyAuthentication"]
-

@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,7 +18,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="FinancialTermCard",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("term", models.CharField(max_length=100, verbose_name="Terim")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("example", models.TextField(blank=True, verbose_name="Örnek")),
@@ -32,8 +39,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="LearningOutcome",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="Kazanım Kodu")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Kazanım Kodu"
+                    ),
+                ),
                 ("description", models.TextField(verbose_name="Kazanım Açıklaması")),
             ],
             options={
@@ -44,7 +64,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Level",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=50, verbose_name="Seviye Adı")),
                 ("score_required", models.IntegerField(verbose_name="Seviye Puanı")),
             ],
@@ -56,15 +84,29 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Badge",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="Rozet Adı")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("icon", models.ImageField(upload_to="badges/", verbose_name="İkon")),
-                ("criteria", models.JSONField(default=dict, verbose_name="Kazanım Kriterleri")),
+                (
+                    "criteria",
+                    models.JSONField(default=dict, verbose_name="Kazanım Kriterleri"),
+                ),
                 (
                     "users",
                     models.ManyToManyField(
-                        blank=True, related_name="badges", to=settings.AUTH_USER_MODEL, verbose_name="Rozeti Kazananlar"
+                        blank=True,
+                        related_name="badges",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Rozeti Kazananlar",
                     ),
                 ),
             ],
@@ -76,9 +118,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Course",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Ders Adı")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="Ders Kodu")),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Ders Kodu"
+                    ),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="Açıklama")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -109,10 +164,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ClassSession",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("starts_at", models.DateTimeField(verbose_name="Başlangıç")),
-                ("duration_minutes", models.PositiveIntegerField(default=45, verbose_name="Süre (dk)")),
-                ("topic", models.CharField(blank=True, max_length=200, verbose_name="Konu")),
+                (
+                    "duration_minutes",
+                    models.PositiveIntegerField(default=45, verbose_name="Süre (dk)"),
+                ),
+                (
+                    "topic",
+                    models.CharField(blank=True, max_length=200, verbose_name="Konu"),
+                ),
                 (
                     "course",
                     models.ForeignKey(
@@ -131,11 +200,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Exam",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Sınav Başlığı")),
-                ("start_at", models.DateTimeField(blank=True, null=True, verbose_name="Başlangıç")),
-                ("end_at", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş")),
-                ("duration_minutes", models.PositiveIntegerField(default=60, verbose_name="Süre (dk)")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Sınav Başlığı"),
+                ),
+                (
+                    "start_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Başlangıç"
+                    ),
+                ),
+                (
+                    "end_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="Bitiş"),
+                ),
+                (
+                    "duration_minutes",
+                    models.PositiveIntegerField(default=60, verbose_name="Süre (dk)"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "course",
@@ -155,22 +246,42 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ExamSubmission",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("submitted_at", models.DateTimeField(auto_now_add=True)),
                 ("answers", models.JSONField(default=dict, verbose_name="Cevaplar")),
                 (
                     "auto_score",
                     models.DecimalField(
-                        decimal_places=2, default=Decimal("0.00"), max_digits=8, verbose_name="Otomatik Puan"
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=8,
+                        verbose_name="Otomatik Puan",
                     ),
                 ),
                 (
                     "manual_score",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True, verbose_name="Manuel Puan"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        verbose_name="Manuel Puan",
                     ),
                 ),
-                ("flags", models.JSONField(blank=True, default=dict, verbose_name="İşaretler")),
+                (
+                    "flags",
+                    models.JSONField(
+                        blank=True, default=dict, verbose_name="İşaretler"
+                    ),
+                ),
                 (
                     "exam",
                     models.ForeignKey(
@@ -199,16 +310,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CheatingIncident",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("incident_type", models.CharField(max_length=50, verbose_name="İhlal Tipi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "incident_type",
+                    models.CharField(max_length=50, verbose_name="İhlal Tipi"),
+                ),
                 (
                     "similarity_score",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=5, null=True, verbose_name="Benzerlik Skoru"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=5,
+                        null=True,
+                        verbose_name="Benzerlik Skoru",
                     ),
                 ),
                 ("evidence", models.TextField(blank=True, verbose_name="Kanıt")),
-                ("resolved", models.BooleanField(default=False, verbose_name="Çözüldü")),
+                (
+                    "resolved",
+                    models.BooleanField(default=False, verbose_name="Çözüldü"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "submission",
@@ -228,12 +357,36 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Feedback",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("message", models.TextField(verbose_name="Mesaj")),
-                ("page_url", models.CharField(max_length=300, verbose_name="Sayfa URL")),
-                ("email", models.EmailField(blank=True, max_length=150, null=True, verbose_name="E-posta")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
-                ("is_answered", models.BooleanField(default=False, verbose_name="Yanıtlandı mı")),
+                (
+                    "page_url",
+                    models.CharField(max_length=300, verbose_name="Sayfa URL"),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=150, null=True, verbose_name="E-posta"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
+                (
+                    "is_answered",
+                    models.BooleanField(default=False, verbose_name="Yanıtlandı mı"),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -254,10 +407,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Forum",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Forum Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Forum Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -277,9 +446,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ForumTopic",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Konu Başlığı")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Konu Başlığı"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -308,9 +493,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ForumPost",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("content", models.TextField(verbose_name="İçerik")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "author",
                     models.ForeignKey(
@@ -339,10 +537,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="GroupAssignment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Grup Ödevi Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Grup Ödevi Başlığı"),
+                ),
                 ("description", models.TextField(verbose_name="Açıklama")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "assignment",
                     models.ForeignKey(
@@ -365,7 +579,9 @@ class Migration(migrations.Migration):
                 (
                     "members",
                     models.ManyToManyField(
-                        related_name="group_assignments", to=settings.AUTH_USER_MODEL, verbose_name="Üyeler"
+                        related_name="group_assignments",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Üyeler",
                     ),
                 ),
             ],
@@ -377,7 +593,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="LearningContent",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 (
@@ -396,12 +620,28 @@ class Migration(migrations.Migration):
                 (
                     "media_file",
                     models.FileField(
-                        blank=True, null=True, upload_to="learning_content/", verbose_name="Medya Dosyası"
+                        blank=True,
+                        null=True,
+                        upload_to="learning_content/",
+                        verbose_name="Medya Dosyası",
                     ),
                 ),
-                ("external_url", models.URLField(blank=True, null=True, verbose_name="Harici Bağlantı")),
-                ("extra_note", models.TextField(blank=True, verbose_name="Ek Açıklama")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma Tarihi")),
+                (
+                    "external_url",
+                    models.URLField(
+                        blank=True, null=True, verbose_name="Harici Bağlantı"
+                    ),
+                ),
+                (
+                    "extra_note",
+                    models.TextField(blank=True, verbose_name="Ek Açıklama"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Oluşturulma Tarihi"
+                    ),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -422,8 +662,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Lesson",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Konu Başlığı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Konu Başlığı"),
+                ),
                 ("content", models.TextField(blank=True, verbose_name="İçerik")),
                 ("order", models.PositiveIntegerField(default=0, verbose_name="Sıra")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -447,17 +698,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PortfolioItem",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=200, verbose_name="Başlık")),
                 (
                     "artifact_file",
-                    models.FileField(blank=True, null=True, upload_to="eportfolio/", verbose_name="Dosya"),
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to="eportfolio/",
+                        verbose_name="Dosya",
+                    ),
                 ),
-                ("artifact_url", models.URLField(blank=True, null=True, verbose_name="Bağlantı")),
+                (
+                    "artifact_url",
+                    models.URLField(blank=True, null=True, verbose_name="Bağlantı"),
+                ),
                 ("reflection", models.TextField(blank=True, verbose_name="Yansıtma")),
                 (
                     "score",
-                    models.DecimalField(blank=True, decimal_places=2, max_digits=6, null=True, verbose_name="Puan"),
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=6,
+                        null=True,
+                        verbose_name="Puan",
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
@@ -487,12 +760,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Question",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("text", models.TextField(verbose_name="Soru")),
                 (
                     "type",
                     models.CharField(
-                        choices=[("mcq", "Çoktan Seçmeli"), ("text", "Açık Uçlu"), ("bool", "Doğru/Yanlış")],
+                        choices=[
+                            ("mcq", "Çoktan Seçmeli"),
+                            ("text", "Açık Uçlu"),
+                            ("bool", "Doğru/Yanlış"),
+                        ],
                         default="mcq",
                         max_length=10,
                         verbose_name="Soru Tipi",
@@ -500,10 +785,25 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "points",
-                    models.DecimalField(decimal_places=2, default=Decimal("1.00"), max_digits=6, verbose_name="Puan"),
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=Decimal("1.00"),
+                        max_digits=6,
+                        verbose_name="Puan",
+                    ),
                 ),
-                ("choices", models.JSONField(blank=True, default=list, verbose_name="Seçenekler")),
-                ("correct_answer", models.JSONField(blank=True, default=None, null=True, verbose_name="Doğru Cevap")),
+                (
+                    "choices",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Seçenekler"
+                    ),
+                ),
+                (
+                    "correct_answer",
+                    models.JSONField(
+                        blank=True, default=None, null=True, verbose_name="Doğru Cevap"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "course",
@@ -543,19 +843,53 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="exam",
             name="questions",
-            field=models.ManyToManyField(related_name="exams", to="education.question", verbose_name="Sorular"),
+            field=models.ManyToManyField(
+                related_name="exams", to="education.question", verbose_name="Sorular"
+            ),
         ),
         migrations.CreateModel(
             name="StudentAnalytics",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("date", models.DateField(auto_now_add=True, verbose_name="Tarih")),
-                ("completed_assignments", models.IntegerField(default=0, verbose_name="Tamamlanan Ödev")),
-                ("completed_quizzes", models.IntegerField(default=0, verbose_name="Tamamlanan Quiz")),
-                ("success_rate", models.FloatField(default=0, verbose_name="Başarı Oranı")),
-                ("weak_topics", models.JSONField(blank=True, default=list, verbose_name="Zayıf Konular")),
-                ("strong_topics", models.JSONField(blank=True, default=list, verbose_name="Kuvvetli Konular")),
-                ("last_activity", models.DateTimeField(blank=True, null=True, verbose_name="Son Aktivite")),
+                (
+                    "completed_assignments",
+                    models.IntegerField(default=0, verbose_name="Tamamlanan Ödev"),
+                ),
+                (
+                    "completed_quizzes",
+                    models.IntegerField(default=0, verbose_name="Tamamlanan Quiz"),
+                ),
+                (
+                    "success_rate",
+                    models.FloatField(default=0, verbose_name="Başarı Oranı"),
+                ),
+                (
+                    "weak_topics",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Zayıf Konular"
+                    ),
+                ),
+                (
+                    "strong_topics",
+                    models.JSONField(
+                        blank=True, default=list, verbose_name="Kuvvetli Konular"
+                    ),
+                ),
+                (
+                    "last_activity",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Son Aktivite"
+                    ),
+                ),
                 (
                     "student",
                     models.ForeignKey(
@@ -575,12 +909,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="StudentGamificationProgress",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("total_score", models.IntegerField(default=0, verbose_name="Toplam Puan")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "total_score",
+                    models.IntegerField(default=0, verbose_name="Toplam Puan"),
+                ),
                 (
                     "badges",
                     models.ManyToManyField(
-                        blank=True, related_name="students", to="education.badge", verbose_name="Kazanılan Rozetler"
+                        blank=True,
+                        related_name="students",
+                        to="education.badge",
+                        verbose_name="Kazanılan Rozetler",
                     ),
                 ),
                 (
@@ -611,12 +959,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Tournament",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("title", models.CharField(max_length=200, verbose_name="Turnuva Başlığı")),
-                ("starts_at", models.DateTimeField(blank=True, null=True, verbose_name="Başlangıç")),
-                ("ends_at", models.DateTimeField(blank=True, null=True, verbose_name="Bitiş")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="Turnuva Başlığı"),
+                ),
+                (
+                    "starts_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Başlangıç"
+                    ),
+                ),
+                (
+                    "ends_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="Bitiş"),
+                ),
                 ("rules", models.TextField(blank=True, verbose_name="Kurallar")),
-                ("standings", models.JSONField(blank=True, default=list, verbose_name="Sıralama")),
+                (
+                    "standings",
+                    models.JSONField(blank=True, default=list, verbose_name="Sıralama"),
+                ),
                 (
                     "course",
                     models.ForeignKey(
@@ -637,17 +1007,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AttendanceRecord",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "status",
                     models.CharField(
-                        choices=[("present", "Var"), ("absent", "Yok"), ("excused", "İzinli"), ("late", "Geç")],
+                        choices=[
+                            ("present", "Var"),
+                            ("absent", "Yok"),
+                            ("excused", "İzinli"),
+                            ("late", "Geç"),
+                        ],
                         default="present",
                         max_length=10,
                         verbose_name="Durum",
                     ),
                 ),
-                ("note", models.CharField(blank=True, max_length=255, verbose_name="Not")),
+                (
+                    "note",
+                    models.CharField(blank=True, max_length=255, verbose_name="Not"),
+                ),
                 (
                     "student",
                     models.ForeignKey(
@@ -676,7 +1062,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="LessonOutcome",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "lesson",
                     models.ForeignKey(

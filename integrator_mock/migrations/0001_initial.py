@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,8 +16,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MockIntegration",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("name", models.CharField(max_length=200, verbose_name="Entegrasyon Adı")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=200, verbose_name="Entegrasyon Adı"),
+                ),
                 (
                     "integration_type",
                     models.CharField(
@@ -35,9 +45,22 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("mock_endpoint", models.URLField(verbose_name="Mock Endpoint")),
-                ("default_response", models.JSONField(default=dict, verbose_name="Varsayılan Yanıt")),
-                ("response_delay_ms", models.IntegerField(default=100, verbose_name="Yanıt Gecikmesi (ms)")),
-                ("success_rate", models.IntegerField(default=100, help_text="0-100", verbose_name="Başarı Oranı (%)")),
+                (
+                    "default_response",
+                    models.JSONField(default=dict, verbose_name="Varsayılan Yanıt"),
+                ),
+                (
+                    "response_delay_ms",
+                    models.IntegerField(
+                        default=100, verbose_name="Yanıt Gecikmesi (ms)"
+                    ),
+                ),
+                (
+                    "success_rate",
+                    models.IntegerField(
+                        default=100, help_text="0-100", verbose_name="Başarı Oranı (%)"
+                    ),
+                ),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
@@ -50,15 +73,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MockScenario",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Senaryo Adı")),
                 ("description", models.TextField(verbose_name="Açıklama")),
                 ("conditions", models.JSONField(default=dict, verbose_name="Koşullar")),
-                ("response_data", models.JSONField(default=dict, verbose_name="Yanıt Verisi")),
-                ("response_code", models.IntegerField(default=200, verbose_name="HTTP Durum Kodu")),
+                (
+                    "response_data",
+                    models.JSONField(default=dict, verbose_name="Yanıt Verisi"),
+                ),
+                (
+                    "response_code",
+                    models.IntegerField(default=200, verbose_name="HTTP Durum Kodu"),
+                ),
                 ("priority", models.IntegerField(default=0, verbose_name="Öncelik")),
                 ("is_active", models.BooleanField(default=True, verbose_name="Aktif")),
-                ("usage_count", models.IntegerField(default=0, verbose_name="Kullanım Sayısı")),
+                (
+                    "usage_count",
+                    models.IntegerField(default=0, verbose_name="Kullanım Sayısı"),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "integration",
@@ -79,15 +119,49 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="MockRequest",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("request_method", models.CharField(max_length=10, verbose_name="HTTP Metodu")),
-                ("request_path", models.CharField(max_length=500, verbose_name="İstek Yolu")),
-                ("request_headers", models.JSONField(default=dict, verbose_name="İstek Headers")),
-                ("request_body", models.JSONField(default=dict, verbose_name="İstek Body")),
-                ("response_status", models.IntegerField(verbose_name="HTTP Durum Kodu")),
-                ("response_body", models.JSONField(default=dict, verbose_name="Yanıt Body")),
-                ("response_time_ms", models.IntegerField(verbose_name="Yanıt Süresi (ms)")),
-                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP Adresi")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "request_method",
+                    models.CharField(max_length=10, verbose_name="HTTP Metodu"),
+                ),
+                (
+                    "request_path",
+                    models.CharField(max_length=500, verbose_name="İstek Yolu"),
+                ),
+                (
+                    "request_headers",
+                    models.JSONField(default=dict, verbose_name="İstek Headers"),
+                ),
+                (
+                    "request_body",
+                    models.JSONField(default=dict, verbose_name="İstek Body"),
+                ),
+                (
+                    "response_status",
+                    models.IntegerField(verbose_name="HTTP Durum Kodu"),
+                ),
+                (
+                    "response_body",
+                    models.JSONField(default=dict, verbose_name="Yanıt Body"),
+                ),
+                (
+                    "response_time_ms",
+                    models.IntegerField(verbose_name="Yanıt Süresi (ms)"),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP Adresi"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "integration",

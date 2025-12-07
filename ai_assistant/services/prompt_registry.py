@@ -30,7 +30,9 @@ def list_roles() -> Iterable[str]:
     return roles.keys()
 
 
-def get_prompts_for_role(role: str, *, limit: int | None = None) -> List[Dict[str, Any]]:
+def get_prompts_for_role(
+    role: str, *, limit: int | None = None
+) -> List[Dict[str, Any]]:
     """Rol bazlı prompt listesini döndürür."""
     catalog = _load_catalog()
     role_entry = (catalog.get("roles") or {}).get(role)
@@ -62,4 +64,3 @@ def get_prompt(role: str, intent: str) -> Dict[str, Any]:
 
 
 __all__ = ["get_prompts_for_role", "get_prompt", "list_roles", "PromptNotFound"]
-

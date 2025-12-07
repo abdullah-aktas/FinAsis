@@ -5,19 +5,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounting', '0003_bankaccount_created_by_bankaccount_is_active_and_more'),
-        ('accounts', '0002_alter_customuser_groups_and_more'),
+        ("accounting", "0003_bankaccount_created_by_bankaccount_is_active_and_more"),
+        ("accounts", "0002_alter_customuser_groups_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='company',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='accounting.company'),
+            model_name="customuser",
+            name="company",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="accounting.company",
+            ),
         ),
         migrations.DeleteModel(
-            name='Company',
+            name="Company",
         ),
     ]

@@ -30,7 +30,9 @@ class ARManager:
         self.ar_nesneleri = []
         self.ar_etkilesimleri = []
 
-        self.camera_matrix = np.array([[1000.0, 0.0, 320.0], [0.0, 1000.0, 240.0], [0.0, 0.0, 1.0]])
+        self.camera_matrix = np.array(
+            [[1000.0, 0.0, 320.0], [0.0, 1000.0, 240.0], [0.0, 0.0, 1.0]]
+        )
         self.dist_coeffs = np.zeros((4, 1))
 
         if self.use_aruco:
@@ -38,7 +40,9 @@ class ARManager:
             self.aruco_params = cv2.aruco.DetectorParameters_create()
 
         self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.7, min_tracking_confidence=0.7)
+        self.hands = self.mp_hands.Hands(
+            max_num_hands=2, min_detection_confidence=0.7, min_tracking_confidence=0.7
+        )
 
     def start(self):
         if self.cap:
@@ -75,9 +79,12 @@ class ARManager:
     def create_camera_background(self, width, height):
         self.camera_texture = Texture(width=width, height=height)
         self.camera_entity = Entity(
-            model='quad', texture=self.camera_texture,
-            scale=(16/9, 1, 1), position=(0, 0, 2),
-            billboard=True, double_sided=True
+            model="quad",
+            texture=self.camera_texture,
+            scale=(16 / 9, 1, 1),
+            position=(0, 0, 2),
+            billboard=True,
+            double_sided=True,
         )
 
     def _process_camera(self):
@@ -93,14 +100,18 @@ class ARManager:
                 self._detect_color_markers(frame)
 
             if self.show_camera and self.camera_texture:
-                invoke(setattr, self.camera_texture, 'set_data', frame_rgb)
+                invoke(setattr, self.camera_texture, "set_data", frame_rgb)
             time.sleep(0.01)
 
     def _detect_aruco_markers(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        corners, ids, _ = cv2.aruco.detectMarkers(gray, self.aruco_dict, parameters=self.aruco_params)
+        corners, ids, _ = cv2.aruco.detectMarkers(
+            gray, self.aruco_dict, parameters=self.aruco_params
+        )
         if ids is not None:
-            rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners, self.marker_size, self.camera_matrix, self.dist_coeffs)
+            rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+                corners, self.marker_size, self.camera_matrix, self.dist_coeffs
+            )
             for i, marker_id in enumerate(ids.flatten()):
                 tvec, rvec = tvecs[i][0], rvecs[i][0]
                 rot_mat, _ = cv2.Rodrigues(rvec)
@@ -110,15 +121,17 @@ class ARManager:
     def _detect_color_markers(self, frame):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         colors = {
-            'red': ([0, 100, 100], [10, 255, 255], 1),
-            'green': ([50, 100, 100], [70, 255, 255], 2),
-            'blue': ([110, 100, 100], [130, 255, 255], 3),
-            'yellow': ([25, 100, 100], [35, 255, 255], 4)
+            "red": ([0, 100, 100], [10, 255, 255], 1),
+            "green": ([50, 100, 100], [70, 255, 255], 2),
+            "blue": ([110, 100, 100], [130, 255, 255], 3),
+            "yellow": ([25, 100, 100], [35, 255, 255], 4),
         }
-        for (lower, upper, marker_id) in colors.values():
+        for lower, upper, marker_id in colors.values():
             mask = cv2.inRange(hsv, np.array(lower), np.array(upper))
             mask = cv2.dilate(cv2.erode(mask, None, iterations=2), None, iterations=2)
-            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(
+                mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
             if contours:
                 c = max(contours, key=cv2.contourArea)
                 area = cv2.contourArea(c)
@@ -137,7 +150,9 @@ class ARManager:
 
     def on_marker_detected(self, marker_id, position, rotation_matrix=None):
         if marker_id not in self.markers:
-            self.markers[marker_id] = Entity(model='cube', color=color.random_color(), scale=0.5)
+            self.markers[marker_id] = Entity(
+                model="cube", color=color.random_color(), scale=0.5
+            )
         entity = self.markers[marker_id]
         entity.position = position
         if rotation_matrix is not None:
@@ -152,8 +167,8 @@ class ARManager:
             return False
         try:
             data = np.load(file_path)
-            self.camera_matrix = data['camera_matrix']
-            self.dist_coeffs = data['dist_coeffs']
+            self.camera_matrix = data["camera_matrix"]
+            self.dist_coeffs = data["dist_coeffs"]
             return True
         except Exception as e:
             print(f"Kalibrasyon hatası: {str(e)}")
@@ -169,32 +184,34 @@ class ARManager:
         results = self.hands.process(rgb)
         if results.multi_hand_landmarks:
             for hand in results.multi_hand_landmarks:
-                points = [(int(l.x * frame.shape[1]), int(l.y * frame.shape[0])) for l in hand.landmark]
+                points = [
+                    (int(l.x * frame.shape[1]), int(l.y * frame.shape[0]))
+                    for l in hand.landmark
+                ]
                 self.etkilesim_kontrol(points)
         return frame
 
     def etkilesim_kontrol(self, parmak_konumlari):
         for nesne in self.ar_nesneleri:
-            if nesne['durum'] != 'aktif':
+            if nesne["durum"] != "aktif":
                 continue
             for parmak in parmak_konumlari:
-                if self.cakisma_kontrol(parmak, nesne['konum']):
-                    self.ar_etkilesimleri.append({
-                        'nesne': nesne,
-                        'etkilesim_tipi': 'dokunma',
-                        'zaman': time.time()
-                    })
+                if self.cakisma_kontrol(parmak, nesne["konum"]):
+                    self.ar_etkilesimleri.append(
+                        {
+                            "nesne": nesne,
+                            "etkilesim_tipi": "dokunma",
+                            "zaman": time.time(),
+                        }
+                    )
 
     def cakisma_kontrol(self, parmak, konum):
         return np.linalg.norm(np.array(parmak) - np.array(konum)) < 50
 
     def ar_nesne_ekle(self, nesne_tipi, konum, olcek):
-        self.ar_nesneleri.append({
-            'tip': nesne_tipi,
-            'konum': konum,
-            'olcek': olcek,
-            'durum': 'aktif'
-        })
+        self.ar_nesneleri.append(
+            {"tip": nesne_tipi, "konum": konum, "olcek": olcek, "durum": "aktif"}
+        )
 
     def ar_nesne_guncelle(self):
         pass  # Geliştirilebilir animasyon/metin/güncellemeler
@@ -228,15 +245,20 @@ class ARManager:
     def update(self):
         """Her frame'de çalışacak güncelleme fonksiyonu"""
         current_time = time.time()
-        if not self.game_state['is_paused']:
-            time_delta = (current_time - self.game_state['current_time']) * self.game_state['game_speed']
-            self.game_state['current_time'] = current_time
+        if not self.game_state["is_paused"]:
+            (current_time - self.game_state["current_time"]) * self.game_state[
+                "game_speed"
+            ]
+            self.game_state["current_time"] = current_time
             self._tum_sistemleri_guncelle()
             # Otomatik kayıt
-            if current_time - self.game_state['last_save_time'] >= self.game_state['save_interval']:
+            if (
+                current_time - self.game_state["last_save_time"]
+                >= self.game_state["save_interval"]
+            ):
                 self.save_game()
-                self.game_state['last_save_time'] = current_time
+                self.game_state["last_save_time"] = current_time
             self.update_ui()
             self.check_notifications()
-            if self.multiplayer['is_online']:
+            if self.multiplayer["is_online"]:
                 self.update_multiplayer()

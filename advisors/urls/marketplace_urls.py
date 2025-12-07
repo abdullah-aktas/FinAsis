@@ -14,30 +14,33 @@ from ..views.marketplace_views import (
     ConsultantReviewViewSet,
     ConsultantAvailabilityViewSet,
     ConsultantDashboardView,
-    ClientDashboardView
+    ClientDashboardView,
 )
 
-app_name = 'marketplace'
+app_name = "marketplace"
 
 # API Router
 router = DefaultRouter()
-router.register(r'consultants', ConsultantProfileViewSet, basename='consultant')
-router.register(r'services', ConsultantServiceViewSet, basename='service')
-router.register(r'bookings', ConsultationBookingViewSet, basename='booking')
-router.register(r'payments', ConsultationPaymentViewSet, basename='payment')
-router.register(r'contracts', ConsultantContractViewSet, basename='contract')
-router.register(r'reviews', ConsultantReviewViewSet, basename='review')
-router.register(r'availability', ConsultantAvailabilityViewSet, basename='availability')
+router.register(r"consultants", ConsultantProfileViewSet, basename="consultant")
+router.register(r"services", ConsultantServiceViewSet, basename="service")
+router.register(r"bookings", ConsultationBookingViewSet, basename="booking")
+router.register(r"payments", ConsultationPaymentViewSet, basename="payment")
+router.register(r"contracts", ConsultantContractViewSet, basename="contract")
+router.register(r"reviews", ConsultantReviewViewSet, basename="review")
+router.register(r"availability", ConsultantAvailabilityViewSet, basename="availability")
 
 urlpatterns = [
     # API endpoints
-    path('api/', include(router.urls)),
-    
+    path("api/", include(router.urls)),
     # Dashboard endpoints
-    path('api/consultant/dashboard/stats/', 
-         ConsultantDashboardView.as_view({'get': 'stats'}), 
-         name='consultant-dashboard'),
-    path('api/client/dashboard/stats/', 
-         ClientDashboardView.as_view({'get': 'stats'}), 
-         name='client-dashboard'),
+    path(
+        "api/consultant/dashboard/stats/",
+        ConsultantDashboardView.as_view({"get": "stats"}),
+        name="consultant-dashboard",
+    ),
+    path(
+        "api/client/dashboard/stats/",
+        ClientDashboardView.as_view({"get": "stats"}),
+        name="client-dashboard",
+    ),
 ]
