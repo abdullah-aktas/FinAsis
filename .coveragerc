@@ -1,0 +1,13 @@
+[run]
+# Sadece proje kaynak kodunu ölç, test ve migration'ları hariç tut
+source = .
+omit =
+    */tests/*
+    */migrations/*
+
+[report]
+# Eksik kaynak dosyaları ("No source for code") yüzünden hata vermesin
+ignore_errors = True
+skip_empty = True
+
+
