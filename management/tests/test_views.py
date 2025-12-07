@@ -57,7 +57,9 @@ def test_invoice_bulk_delete(client):
     # Create a customer for the invoice
     from accounting.models import Customer
 
-    customer = Customer.objects.create(name="Test Customer", company=company)
+    customer = Customer.objects.create(
+        first_name="Test", last_name="Customer", company=company
+    )
     invoice1 = Invoice.objects.create(
         company=company,
         customer=customer,

@@ -3,7 +3,7 @@
 Muhasebe Motoru: JSON tabanlı PostingRule kullanarak belgeyi fişe çevirme
 ve KDV/kur yardımcıları.
 """
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from dataclasses import dataclass
 from typing import List, Dict, Any
 
@@ -42,11 +42,20 @@ def evaluate_formula(formula: str, ctx: Dict[str, Any]) -> Decimal:
         return allowed["net"]
     if expr == "gross":
         return allowed["gross"]
-    if expr.startswith("net*"):
-        factor = Decimal(expr.split("*", 1)[1])
-        return allowed["net"] * factor
     if expr == "net*tax_rate":
         return allowed["net"] * allowed["tax_rate"]
+    if expr.startswith("net*"):
+        try:
+            factor_str = expr.split("*", 1)[1]
+            # Try to parse as Decimal first
+            factor = Decimal(factor_str)
+        except (ValueError, decimal.InvalidOperation):
+            # If it's a variable name, look it up in allowed dict
+            if factor_str in allowed:
+                factor = allowed[factor_str]
+            else:
+                raise ValidationError(f"Geçersiz formül faktörü: {factor_str}")
+        return allowed["net"] * factor
     try:
         return Decimal(expr)
     except Exception:

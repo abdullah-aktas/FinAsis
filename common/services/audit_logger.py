@@ -52,12 +52,13 @@ def log_security_event(
     if actor is None and request is not None and request.user.is_authenticated:
         actor = request.user
 
+    user_agent = _extract_user_agent(request) or ""
     entry = SecurityAuditLog.objects.create(
         actor=actor,
         action=action,
         resource=resource or "",
         ip_address=_extract_ip(request),
-        user_agent=_extract_user_agent(request),
+        user_agent=user_agent,
         metadata=dict(metadata or {}),
         success=success,
         occurred_at=timezone.now(),

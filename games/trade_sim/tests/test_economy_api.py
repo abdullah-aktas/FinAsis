@@ -27,7 +27,7 @@ def test_city_market_list():
     CityMarket.objects.create(
         city=city, product=product, price=120, supply=100, demand=100
     )
-    url = reverse("trade_sim:city_market_list", args=[city.id])
+    url = reverse("games:trade_sim:city_market_list", args=[city.id])
     response = client.get(url)
     assert response.status_code == 200
     assert "markets" in response.data
@@ -50,7 +50,7 @@ def test_city_trade():
     CityMarket.objects.create(
         city=city2, product=product, price=60, supply=100, demand=100
     )
-    url = reverse("trade_sim:city_trade")
+    url = reverse("games:trade_sim:city_trade")
     data = {
         "from_city": city1.id,
         "to_city": city2.id,
@@ -77,7 +77,7 @@ def test_trigger_market_event():
     CityMarket.objects.create(
         city=city, product=product, price=80, supply=100, demand=100
     )
-    url = reverse("trade_sim:trigger_market_event")
+    url = reverse("games:trade_sim:trigger_market_event")
     data = {"city_id": city.id, "product_id": product.id}
     response = client.post(url, data, format="json")
     assert response.status_code == 200

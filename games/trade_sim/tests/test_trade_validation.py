@@ -18,7 +18,7 @@ def test_city_trade_insufficient_supply_returns_400():
     p = Product.objects.create(name="Altin", base_price=500)
     CityMarket.objects.create(city=a, product=p, price=500, supply=2, demand=100)
     CityMarket.objects.create(city=b, product=p, price=600, supply=100, demand=100)
-    url = reverse("trade_sim:city_trade")
+    url = reverse("games:trade_sim:city_trade")
     payload = {
         "from_city": getattr(a, "id"),
         "to_city": getattr(b, "id"),
@@ -43,7 +43,7 @@ def test_city_trade_negative_amount_returns_400():
     p = Product.objects.create(name="Bakir", base_price=200)
     CityMarket.objects.create(city=a, product=p, price=200, supply=100, demand=100)
     CityMarket.objects.create(city=b, product=p, price=250, supply=100, demand=100)
-    url = reverse("trade_sim:city_trade")
+    url = reverse("games:trade_sim:city_trade")
     payload = {
         "from_city": getattr(a, "id"),
         "to_city": getattr(b, "id"),
