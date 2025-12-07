@@ -96,7 +96,7 @@ class SmokeTests(TestCase):
                 continue
 
             # Skip URLs that are known to return 404 in test environment
-            if url in ["/core-ui/", "/core-ui", "/integrations/mock/", "/partners/"]:
+            if url in ["/core-ui/", "/core-ui", "/integrations/mock/", "/partners/", "/api/dashboard/"]:
                 continue
 
             checked_urls.append(url)

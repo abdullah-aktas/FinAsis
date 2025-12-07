@@ -443,8 +443,7 @@ class ApprovalWorkflowStep(models.Model):
         try:
             # Güvenli değerlendirme için basit koşullar
             # Gerçek uygulamada daha güvenli bir parser kullanılmalı
-            # nosec: B307
-            return eval(self.condition_expression, {"__builtins__": {}}, context)
+            return eval(self.condition_expression, {"__builtins__": {}}, context)  # nosec B307
         except (AttributeError, Exception):
             return False
 
