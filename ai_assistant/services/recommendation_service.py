@@ -15,6 +15,7 @@ from typing import Any, Dict, List
 from dataclasses import dataclass
 from django.db import transaction
 from django.contrib.auth.models import AbstractBaseUser
+import re
 
 from ai_assistant.models import AIInsight, AIModel, UserPreference
 
@@ -84,7 +85,6 @@ class RecommendationService:
         recs: List[GeneratedRecommendation] = []
         if not text:
             return recs
-        import re
 
         # Bölümleri başlık satırlarına göre ayır
         parts = re.split(r"\n\s*\n", text.strip())

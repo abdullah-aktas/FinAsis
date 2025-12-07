@@ -214,7 +214,7 @@ class SecuritySystem:
             hmac_obj = hmac.new(self.encryption_key, json_data, hashlib.sha256)
             if hmac.compare_digest(hmac_obj.digest(), signature):
                 return json.loads(json_data.decode())
-        except:
+        except (ValueError, json.JSONDecodeError, Exception):
             pass
         return None
 

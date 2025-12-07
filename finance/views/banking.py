@@ -344,7 +344,7 @@ def bank_import(request):
         f = request.FILES["file"]
         try:
             data = f.read().decode("utf-8")
-        except:
+        except (UnicodeDecodeError, Exception):
             data = f.read().decode("latin-1")
         rows = list(csv.DictReader(io.StringIO(data)))
         preview = rows[:20]
@@ -374,7 +374,7 @@ def bank_import(request):
                 try:
                     signed = float(str(raw_amount).replace(",", "."))
                     amt = abs(signed)
-                except:
+                except (ValueError, TypeError):
                     continue
                 tx = "deposit" if signed >= 0 else "withdrawal"
                 BankTransaction.objects.create(

@@ -13,7 +13,7 @@ def user_has_role(user, role_name):
 
     try:
         return user.profile.role.name == role_name
-    except:
+    except (AttributeError, Exception):
         return False
 
 
@@ -26,7 +26,7 @@ def user_has_permission(user, permission):
     try:
         role = user.profile.role
         return getattr(role, permission, False)
-    except:
+    except (AttributeError, Exception):
         return False
 
 
@@ -65,7 +65,7 @@ def user_can_access_module(user, module_name):
 
         return has_role_permission and has_plan_feature and subscription.is_active
 
-    except:
+    except (AttributeError, Exception):
         return False
 
 
@@ -74,7 +74,7 @@ def user_hierarchy_level(user):
     """Kullanıcının hiyerarşi seviyesi"""
     try:
         return user.profile.role.hierarchy_level
-    except:
+    except (AttributeError, Exception):
         return 999  # En düşük seviye
 
 
@@ -100,7 +100,7 @@ def can_manage_user(manager_user, target_user):
         # Yönetim iznine sahip olmalı ve daha üst seviyede olmalı
         return manager_can_manage and manager_level < target_level
 
-    except:
+    except (AttributeError, Exception):
         return False
 
 
@@ -119,7 +119,7 @@ def subscription_feature_status(user, feature_name):
         else:
             return "unavailable"
 
-    except:
+    except (AttributeError, Exception):
         return "unavailable"
 
 
@@ -141,7 +141,7 @@ def user_monthly_transaction_limit(user):
         else:
             return min(role_limit, plan_limit)
 
-    except:
+    except (AttributeError, Exception):
         return 0
 
 
@@ -160,7 +160,7 @@ def user_remaining_transactions(user):
 
         return remaining
 
-    except:
+    except (AttributeError, Exception):
         return 0
 
 
@@ -215,7 +215,7 @@ def user_role_card(user):
         }
 
         return context
-    except:
+    except (AttributeError, Exception):
         return {"user": user}
 
 
@@ -256,7 +256,7 @@ def user_permissions(user):
 
         return {"permissions": permissions}
 
-    except:
+    except (AttributeError, Exception):
         return {"permissions": []}
 
 
@@ -349,7 +349,7 @@ def navigation_items(user):
 
         return [item for item in nav_items if item["allowed"]]
 
-    except:
+    except (AttributeError, Exception):
         return [
             {
                 "name": "dashboard",

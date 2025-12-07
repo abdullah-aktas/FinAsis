@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from accounts.models import CustomUser, UserType, Subscription, SubscriptionType
+from accounts.models import CustomUser, UserType, Subscription
 from accounting.models import Company
 from django.db import transaction
 import random

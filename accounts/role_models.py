@@ -348,7 +348,7 @@ class RoleBasedUserProfile(models.Model):
                 self.role.can_manage_users
                 and self.role.hierarchy_level < target_profile.role.hierarchy_level
             )
-        except:
+        except (AttributeError, Exception):
             return False
 
     def get_accessible_modules(self):

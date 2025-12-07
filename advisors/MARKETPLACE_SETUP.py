@@ -3,6 +3,21 @@
 Mali Müşavir Marketplace - Kurulum ve Test Senaryoları
 """
 
+from django.test import TestCase, Client
+from django.contrib.auth import get_user_model
+from advisors.models import AdvisorProfile
+from advisors.models_marketplace import (
+    ConsultantProfile,
+    ConsultantService,
+    ConsultationBooking,
+    ConsultantReview,
+)
+from decimal import Decimal
+from datetime import date, time, timedelta
+from django.utils import timezone
+
+User = get_user_model()
+
 # ============================================================================
 # KURULUM ADIMLARI
 # ============================================================================
@@ -53,21 +68,6 @@ Admin panele gir: http://localhost:8000/admin/
 # ============================================================================
 # TEST SENARYOLARI
 # ============================================================================
-
-from django.test import TestCase, Client
-from django.contrib.auth import get_user_model
-from advisors.models import AdvisorProfile
-from advisors.models_marketplace import (
-    ConsultantProfile,
-    ConsultantService,
-    ConsultationBooking,
-    ConsultantReview,
-)
-from decimal import Decimal
-from datetime import date, time, timedelta
-from django.utils import timezone
-
-User = get_user_model()
 
 
 class MarketplaceSetupTest(TestCase):

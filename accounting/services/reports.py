@@ -1,18 +1,27 @@
 from django.db.models import Sum
 from datetime import date
-from ..models import Invoice, Expense
-from finance.accounting.models import Voucher, VoucherLine, GLBalance, Account
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from django.db import models
+from django.db.models.functions import TruncMonth
+from collections import OrderedDict
+from django.db.models import Count
+import io
+import json
+from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.dom import minidom
+
+import pandas as pd
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+
+from ..models import Invoice, Expense, GLJournalLine, Customer, Payment, Vendor, PurchaseInvoice, VendorPayment
+from finance.accounting.models import Voucher, VoucherLine, GLBalance, Account
 
 if TYPE_CHECKING:  # Hints for static analyzers
 
     class _Voucher(Voucher):  # type: ignore
         lines: "models.Manager[VoucherLine]"
-
-
-from ..models import GLJournalLine  # for trial balance
-from decimal import Decimal
 
 
 def trial_balance(company, date_to=None):
@@ -50,18 +59,6 @@ def trial_balance(company, date_to=None):
         "balanced": total_debit == total_credit,
     }
 
-
-from django.db.models.functions import TruncMonth
-from collections import OrderedDict
-from django.db.models import Count
-import io
-import pandas as pd
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from ..models import Customer, Payment, Vendor, PurchaseInvoice, VendorPayment
-import json
-from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom import minidom
 
 """
 Raporlama servisleri: şirket özeti, aylık gelir/gider, en çok satış yapan müşteriler, borçlu müşteriler.
@@ -343,16 +340,16 @@ def generate_yevmiye_defteri(company, year, month):
         )  # some static analyzers can't see reverse rel
         if not line_manager:
             continue
-        for l in line_manager.all().order_by("line_no"):  # type: ignore[attr-defined]
+        for line in line_manager.all().order_by("line_no"):  # type: ignore[attr-defined]
             rows.append(
                 {
                     "Tarih": v.date,
                     "Fiş No": v.number,
                     "Açıklama": v.description,
-                    "Hesap Kodu": getattr(l.account, "code", ""),
-                    "Hesap Adı": getattr(l.account, "name", ""),
-                    "Borç": float(getattr(l, "debit_amount", 0) or 0),
-                    "Alacak": float(getattr(l, "credit_amount", 0) or 0),
+                    "Hesap Kodu": getattr(line.account, "code", ""),
+                    "Hesap Adı": getattr(line.account, "name", ""),
+                    "Borç": float(getattr(line, "debit_amount", 0) or 0),
+                    "Alacak": float(getattr(line, "credit_amount", 0) or 0),
                 }
             )
     return pd.DataFrame(rows)

@@ -204,13 +204,13 @@ def voucher_from_text(request):
         mapped = map_text_to_voucher_lines(company, text)
         lines = [
             {
-                "account": l["account"].code,
-                "account_name": l["account"].name,
-                "description": l["description"],
-                "debit": str(l["debit"]),
-                "credit": str(l["credit"]),
+                "account": line["account"].code,
+                "account_name": line["account"].name,
+                "description": line["description"],
+                "debit": str(line["debit"]),
+                "credit": str(line["credit"]),
             }
-            for l in mapped["lines"]
+            for line in mapped["lines"]
         ]
         return Response(
             {
@@ -265,13 +265,13 @@ def voucher_from_voice(request):
         mapped = map_text_to_voucher_lines(company, text)
         lines = [
             {
-                "account": l["account"].code,
-                "account_name": l["account"].name,
-                "description": l["description"],
-                "debit": str(l["debit"]),
-                "credit": str(l["credit"]),
+                "account": line["account"].code,
+                "account_name": line["account"].name,
+                "description": line["description"],
+                "debit": str(line["debit"]),
+                "credit": str(line["credit"]),
             }
-            for l in mapped["lines"]
+            for line in mapped["lines"]
         ]
         return Response(
             {
@@ -321,13 +321,13 @@ def voucher_from_document(request):
         mapped = map_ocr_to_voucher_lines(company, ocr_data)
         lines = [
             {
-                "account": l["account"].code,
-                "account_name": l["account"].name,
-                "description": l["description"],
-                "debit": str(l["debit"]),
-                "credit": str(l["credit"]),
+                "account": line["account"].code,
+                "account_name": line["account"].name,
+                "description": line["description"],
+                "debit": str(line["debit"]),
+                "credit": str(line["credit"]),
             }
-            for l in mapped["lines"]
+            for line in mapped["lines"]
         ]
         return Response(
             {
@@ -355,8 +355,8 @@ def voucher_confirm(request):
         return Response({"error": "Eksik veri (company/mapped)."}, status=400)
     try:
         resolved_lines = []
-        for l in mapped.get("lines", []):
-            code = l.get("account")
+        for line in mapped.get("lines", []):
+            code = line.get("account")
             if not code:
                 return Response({"error": "Hesap kodu eksik."}, status=400)
             try:
@@ -368,9 +368,9 @@ def voucher_confirm(request):
             resolved_lines.append(
                 {
                     "account": acc,
-                    "description": l.get("description", ""),
-                    "debit": Decimal(str(l.get("debit", "0"))),
-                    "credit": Decimal(str(l.get("credit", "0"))),
+                    "description": line.get("description", ""),
+                    "debit": Decimal(str(line.get("debit", "0"))),
+                    "credit": Decimal(str(line.get("credit", "0"))),
                 }
             )
         mapped_resolved = {

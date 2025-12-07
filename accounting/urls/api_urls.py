@@ -1,3 +1,5 @@
+from django.urls import path, include
+
 urlpatterns = [
     path("accounting/", include("accounting.urls")),
     path("accounts/", include("accounts.urls")),

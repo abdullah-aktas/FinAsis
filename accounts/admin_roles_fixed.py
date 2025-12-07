@@ -111,7 +111,7 @@ class UserRoleAdmin(ModelAdmin):
                     count,
                 )
             return "0 kullanıcı"
-        except:
+        except Exception:
             return "N/A"
 
     def permission_summary(self, obj):
@@ -253,7 +253,7 @@ class SubscriptionPlanAdmin(ModelAdmin):
                     '<a href="{}?plan__id__exact={}">{} abonə</a>', url, obj.id, count
                 )
             return "0 abonə"
-        except:
+        except Exception:
             return "N/A"
 
     def feature_summary(self, obj):
@@ -537,7 +537,7 @@ class UserProfileAdmin(ModelAdmin):
                     '<span style="color: red;">❌ {}</span>',
                     subscription.get_status_display(),
                 )
-        except:
+        except (AttributeError, Exception):
             return "❓ Abonelik yok"
 
     def last_login_display(self, obj):
@@ -636,14 +636,14 @@ class EnhancedUserAdmin(BaseUserAdmin):
         """Kullanıcı rolü"""
         try:
             return obj.role_profile.role.display_name
-        except:
+        except (AttributeError, Exception):
             return "❓ Rol atanmamış"
 
     def subscription_plan(self, obj):
         """Abonelik planı"""
         try:
             return obj.subscription.plan.display_name
-        except:
+        except (AttributeError, Exception):
             return "❓ Abonelik yok"
 
 

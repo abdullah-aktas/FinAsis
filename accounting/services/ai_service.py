@@ -241,17 +241,17 @@ def create_voucher_from_lines(company: Company, mapped: Dict) -> Voucher:
     total_debit = Decimal("0.00")
     total_credit = Decimal("0.00")
 
-    for l in mapped["lines"]:
+    for line in mapped["lines"]:
         VoucherLine.objects.create(
             voucher=voucher,
             line_no=line_no,
-            account=l["account"],
-            description=l["description"],
-            debit_amount=l["debit"],
-            credit_amount=l["credit"],
+            account=line["account"],
+            description=line["description"],
+            debit_amount=line["debit"],
+            credit_amount=line["credit"],
         )
-        total_debit += l["debit"]
-        total_credit += l["credit"]
+        total_debit += line["debit"]
+        total_credit += line["credit"]
         line_no += 1
 
     # Validate balance (is_balanced is a method, not an attribute)

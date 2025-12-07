@@ -8,6 +8,9 @@ from .models import (
     UserType,
     SubscriptionType,
     SubscriptionLog,
+    UserProfile,
+    UserActivity,
+    LoginHistory,
 )
 
 # YENİ ROL SİSTEMİ İMPORTLARI
@@ -127,11 +130,7 @@ admin.site.register(UserSettings)
 # ============================================================================
 # YENİ KULLANICI YÖNETİM MODELLERİ - ADMIN KAYITLARI
 # ============================================================================
-
 from .models import (
-    UserProfile,
-    UserActivity,
-    LoginHistory,
     UserNotification,
     TwoFactorAuth,
     PasswordHistory,

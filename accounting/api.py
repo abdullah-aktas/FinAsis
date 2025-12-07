@@ -322,13 +322,13 @@ def ocr_preview_voucher(request):
     # JSON döndür: satırlar ve toplam
     lines = [
         {
-            "account": l["account"].code,
-            "account_name": l["account"].name,
-            "description": l["description"],
-            "debit": str(l["debit"]),
-            "credit": str(l["credit"]),
+            "account": line["account"].code,
+            "account_name": line["account"].name,
+            "description": line["description"],
+            "debit": str(line["debit"]),
+            "credit": str(line["credit"]),
         }
-        for l in mapped["lines"]
+        for line in mapped["lines"]
     ]
     return Response(
         {
@@ -357,12 +357,12 @@ def ocr_confirm_voucher(request):
     from finance.accounting.models import Account
 
     resolved_lines = []
-    for l in mapped.get("lines", []):
+    for line in mapped.get("lines", []):
         try:
-            acc = Account.objects.get(company=company, code=l["account"])
+            acc = Account.objects.get(company=company, code=line["account"])
         except Account.DoesNotExist:
             return Response(
-                {"error": f"Hesap bulunamadı: {l['account']}"},
+                {"error": f"Hesap bulunamadı: {line['account']}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         from decimal import Decimal
@@ -370,9 +370,9 @@ def ocr_confirm_voucher(request):
         resolved_lines.append(
             {
                 "account": acc,
-                "description": l.get("description", ""),
-                "debit": Decimal(str(l.get("debit", "0"))),
-                "credit": Decimal(str(l.get("credit", "0"))),
+                "description": line.get("description", ""),
+                "debit": Decimal(str(line.get("debit", "0"))),
+                "credit": Decimal(str(line.get("credit", "0"))),
             }
         )
     mapped_resolved = {
@@ -399,13 +399,13 @@ def nlp_preview_voucher(request):
     mapped = map_text_to_voucher_lines(company, text)
     lines = [
         {
-            "account": l["account"].code,
-            "account_name": l["account"].name,
-            "description": l["description"],
-            "debit": str(l["debit"]),
-            "credit": str(l["credit"]),
+            "account": line["account"].code,
+            "account_name": line["account"].name,
+            "description": line["description"],
+            "debit": str(line["debit"]),
+            "credit": str(line["credit"]),
         }
-        for l in mapped["lines"]
+        for line in mapped["lines"]
     ]
     return Response(
         {
@@ -439,13 +439,13 @@ def stt_preview_voucher(request):
     mapped = map_text_to_voucher_lines(company, text)
     lines = [
         {
-            "account": l["account"].code,
-            "account_name": l["account"].name,
-            "description": l["description"],
-            "debit": str(l["debit"]),
-            "credit": str(l["credit"]),
+            "account": line["account"].code,
+            "account_name": line["account"].name,
+            "description": line["description"],
+            "debit": str(line["debit"]),
+            "credit": str(line["credit"]),
         }
-        for l in mapped["lines"]
+        for line in mapped["lines"]
     ]
     return Response(
         {
@@ -528,17 +528,17 @@ def derive_rule_from_preview(request):
     nature = preview.get("nature") or "expense"
     lines = preview.get("lines") or []
     debit = next(
-        (l.get("account") for l in lines if float(l.get("debit", "0") or "0") > 0), None
+        (line.get("account") for line in lines if float(line.get("debit", "0") or "0") > 0), None
     )
     credit = next(
-        (l.get("account") for l in lines if float(l.get("credit", "0") or "0") > 0),
+        (line.get("account") for line in lines if float(line.get("credit", "0") or "0") > 0),
         None,
     )
     kdv = next(
         (
-            l.get("account")
-            for l in lines
-            if "kdv" in (l.get("description", "").lower())
+            line.get("account")
+            for line in lines
+            if "kdv" in (line.get("description", "").lower())
         ),
         None,
     )

@@ -57,7 +57,7 @@ class RoleSecurityMiddleware:
                     request,
                     "Hesabınız için rol tanımlanmamış. Lütfen yönetici ile iletişime geçin.",
                 )
-        except:
+        except (AttributeError, Exception):
             logger.error(f"User {request.user.username} has no profile")
             # Profil yoksa oluştur
             from accounts.role_models import UserRole, RoleBasedUserProfile
@@ -68,7 +68,7 @@ class RoleSecurityMiddleware:
                     user=request.user, role=default_role
                 )
                 logger.info(f"Created default profile for user {request.user.username}")
-            except:
+            except (Exception, AttributeError):
                 logger.error(
                     f"Failed to create profile for user {request.user.username}"
                 )
@@ -96,7 +96,7 @@ class RoleSecurityMiddleware:
                     )
                     return redirect("/billing/upgrade/")
 
-        except:
+        except (AttributeError, Exception):
             # Abonelik yoksa
             logger.warning(f"User {request.user.username} has no subscription")
 
@@ -158,8 +158,8 @@ class RoleSecurityMiddleware:
         """Son aktivite zamanını güncelle"""
         try:
             cache_key = f"user_activity_{request.user.id}"
-            cache.set(cache_key, timezone.now(), timeout=300)  # 5 dakika
-        except:
+            cache.set(cache_key, timezone.now(), timeout=300)  # 5 dakika 
+        except Exception:
             pass
 
     def _check_rate_limit(self, request):
@@ -334,15 +334,15 @@ class PermissionAuditMiddleware:
         """Kullanıcının izni var mı?"""
         try:
             return getattr(user.profile.role, permission, False)
-        except:
+        except (AttributeError, Exception):
             return False
 
     def _user_has_subscription_feature(self, user, feature):
         """Kullanıcının abonelik özelliği var mı?"""
         try:
             subscription = user.subscription
-            return subscription.is_active and getattr(subscription.plan, feature, False)
-        except:
+            return subscription.is_active and getattr(subscription.plan, feature, False)                                                                  
+        except (AttributeError, Exception):
             return False
 
     def _can_manage_target_user(self, manager_user, target_user_id):
@@ -370,7 +370,7 @@ class PermissionAuditMiddleware:
                 and manager_level < target_level
                 and manager_user.pk != target_user.pk
             )
-        except:
+        except (AttributeError, Exception):
             return False
 
     def _extract_user_id_from_path(self, path):
@@ -380,7 +380,7 @@ class PermissionAuditMiddleware:
 
             match = re.search(r"/users/(\d+)/", path)
             return int(match.group(1)) if match else None
-        except:
+        except (ValueError, AttributeError, Exception):
             return None
 
     def _log_permission_usage(self, request, response):

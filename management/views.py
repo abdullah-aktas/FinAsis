@@ -734,7 +734,7 @@ def module_detail(request, module_name):
     try:
         app_config = apps.get_app_config(module_name)
         models = list(app_config.get_models())
-    except:
+    except (LookupError, Exception):
         models = []
 
     # Her model için bilgi topla
@@ -751,7 +751,7 @@ def module_detail(request, module_name):
                     "count": count,
                 }
             )
-        except:
+        except (AttributeError, Exception):
             pass
 
     return render(
