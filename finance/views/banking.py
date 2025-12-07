@@ -323,10 +323,10 @@ from django.utils.dateparse import parse_date  # noqa: E402
 import csv  # noqa: E402
 import io  # noqa: E402
 
-from finance.banking.models import (
+from finance.banking.models import (  # noqa: E402
     BankTransaction,
     BankAccount as CoreBankAccount,
-)  # noqa: E402
+)
 from common.models import AuditLog  # noqa: E402
 from django.contrib.auth.decorators import login_required  # noqa: E402
 from permissions.decorators import permission_required  # noqa: E402
