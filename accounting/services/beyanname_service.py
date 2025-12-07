@@ -10,9 +10,7 @@ Bu fonksiyonlar MVP/test amaçlı örnek şematik XML üretir.
 
 def _prettify(xml_bytes: bytes) -> bytes:
     # nosec B318
-    return minidom.parseString(xml_bytes).toprettyxml(
-        indent="  ", encoding="utf-8"
-    )
+    return minidom.parseString(xml_bytes).toprettyxml(indent="  ", encoding="utf-8")
 
 
 def generate_kdv_xml(company, period: str) -> bytes:
