@@ -3,7 +3,7 @@ import pygame
 import cv2
 import numpy as np
 import random
-from pygame.locals import *
+from pygame.locals import *  # noqa: F403
 from ..base_game import BaseGame
 
 

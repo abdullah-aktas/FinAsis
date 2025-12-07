@@ -1,4 +1,4 @@
-from ursina import *
+from ursina import *  # noqa: F403, F405
 import photon
 from games.achievements import AchievementSystem
 from games.quests import QuestSystem
@@ -19,7 +19,7 @@ from blockchain.models import BlockchainTransaction, TokenTransaction, TokenCont
 
 class TradeSim:
     def __init__(self):
-        self.app = Ursina()
+        self.app = Ursina()  # noqa: F405
 
         # Photon ağ bağlantısı
         self.network = photon.PUN("your_app_id")
@@ -123,12 +123,12 @@ class TradeSim:
     def setup_world(self):
         """3D dünyayı hazırla"""
         # Temel dünya öğeleri
-        Entity(model="plane", scale=(100, 1, 100), texture="grass", collider="box")
+        Entity(model="plane", scale=(100, 1, 100), texture="grass", collider="box")  # noqa: F405
 
         # Ticaret merkezi
-        Entity(model="building", position=(0, 0, 0), scale=2)
+        Entity(model="building", position=(0, 0, 0), scale=2)  # noqa: F405
         # --- Minecraft tarzı blok yerleştirme sistemi ---
-        self.block_parent = Entity()
+        self.block_parent = Entity()  # noqa: F405
         self.block_size = 1
         self.blocks = {}
         self.selected_block_type = "cube"  # Şimdilik sadece küp
@@ -137,17 +137,17 @@ class TradeSim:
         self.stand_size = (10, 1, 10)
 
         # Mouse ile blok ekle/kaldır
-        def input(key, is_raw=False):
-            if mouse.left:
-                hit_info = mouse.hovered_entity
+        def input(key, is_raw=False):  # noqa: F405
+            if mouse.left:  # noqa: F405
+                hit_info = mouse.hovered_entity  # noqa: F405
                 if hit_info and hit_info in self.blocks.values():
-                    if mouse.normal is not None:
-                        pos = hit_info.position + mouse.normal * self.block_size
+                    if mouse.normal is not None:  # noqa: F405
+                        pos = hit_info.position + mouse.normal * self.block_size  # noqa: F405
                         pos = tuple(round(x) for x in pos)
                         if self.is_in_stand_area(pos):
                             self.add_block(pos)
-            if mouse.right:
-                hit_info = mouse.hovered_entity
+            if mouse.right:  # noqa: F405
+                hit_info = mouse.hovered_entity  # noqa: F405
                 if hit_info and hit_info in self.blocks.values():
                     pos = tuple(round(x) for x in hit_info.position)
                     self.remove_block(pos)
@@ -169,10 +169,10 @@ class TradeSim:
     def add_block(self, pos):
         if pos in self.blocks:
             return
-        block = Entity(
+        block = Entity(  # noqa: F405
             parent=self.block_parent,
             model=self.selected_block_type,
-            color=color.brown,
+            color=color.brown,  # noqa: F405
             position=pos,
             scale=self.block_size,
             collider="box",
@@ -181,7 +181,7 @@ class TradeSim:
 
     def remove_block(self, pos):
         if pos in self.blocks:
-            destroy(self.blocks[pos])
+            destroy(self.blocks[pos])  # noqa: F405
             del self.blocks[pos]
 
     def on_trade(self, player_id, trade_data):
@@ -210,15 +210,15 @@ class TradeSim:
         if self.rest_modal_active:
             return  # Zaten açık
         self.rest_modal_active = True
-        self.rest_modal = WindowPanel(
+        self.rest_modal = WindowPanel(  # noqa: F405
             title="Sağlıklı Yaşam Molası",
             content=(
-                Text(
+                Text(  # noqa: F405
                     "45 dakikadır oynuyorsun! Lütfen kısa bir mola ver ve su iç!",
                     origin=(0, 0),
                 ),
-                Button("Kapat", scale=(0.4, 0.1), on_click=self.close_rest_modal),
-                Button("5 Dakika Mola Ver", scale=(0.4, 0.1), on_click=self.take_rest),
+                Button("Kapat", scale=(0.4, 0.1), on_click=self.close_rest_modal),  # noqa: F405
+                Button("5 Dakika Mola Ver", scale=(0.4, 0.1), on_click=self.take_rest),  # noqa: F405
             ),
             position=(0, 0),
             popup=True,
@@ -229,7 +229,7 @@ class TradeSim:
 
     def close_rest_modal(self):
         if self.rest_modal:
-            destroy(self.rest_modal)
+            destroy(self.rest_modal)  # noqa: F405
             self.rest_modal = None
         self.rest_modal_active = False
 

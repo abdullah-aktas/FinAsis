@@ -119,7 +119,7 @@ def adaptive_rate_limit(user_rate="100/m", anon_rate="20/m"):
 
 
 # DRF için custom throttle sınıfları
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle  # noqa: E402
 
 
 class BurstUserThrottle(UserRateThrottle):

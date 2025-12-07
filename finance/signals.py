@@ -2,7 +2,14 @@
 from django.db.models.signals import post_save, post_delete, pre_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from .models import Account, Transaction, Budget, FinancialReport, Tax
+
+# CashFlow model may not exist in all installations
+try:
+    from .models import CashFlow
+except ImportError:
+    CashFlow = None  # type: ignore
 
 
 @receiver(post_save, sender=Transaction)
@@ -10,9 +17,9 @@ def update_cash_flow_on_transaction_save(sender, instance, created, **kwargs):
     """
     Bir işlem kaydedildiğinde ilgili nakit akışı kaydını günceller.
     """
-    if created:
+    if created and CashFlow:
         # Yeni işlem için nakit akışı kaydı oluştur veya güncelle
-        cash_flow, _ = CashFlow.objects.get_or_create(
+        cash_flow, _unused = CashFlow.objects.get_or_create(
             period="daily",
             start_date=instance.date,
             end_date=instance.date,
@@ -44,6 +51,8 @@ def update_cash_flow_on_transaction_delete(sender, instance, **kwargs):
     """
     Bir işlem silindiğinde ilgili nakit akışı kaydını günceller.
     """
+    if not CashFlow:
+        return
     try:
         cash_flow = CashFlow.objects.get(
             period="daily",

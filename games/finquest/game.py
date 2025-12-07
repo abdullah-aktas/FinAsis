@@ -26,10 +26,10 @@ except Exception:  # pragma: no cover
 FinQuestGame = TicaretinIzinde3D
 
 # Yeni modüller
-from .vr import VRManager
-from .nft import NFTManager
-from .ai_npc import create_npcs
-from .worldgen import generate_worlds
+from .vr import VRManager  # noqa: E402
+from .nft import NFTManager  # noqa: E402
+from .ai_npc import create_npcs  # noqa: E402
+from .worldgen import generate_worlds  # noqa: E402
 
 
 class FinQuestDemo:

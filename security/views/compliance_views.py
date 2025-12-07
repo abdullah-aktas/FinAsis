@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from datetime import timedelta
 
 """Açık import: static analyzer için gereksiz genişleme engellenir."""
-from finance.data_security_compliance import (
+from finance.data_security_compliance import (  # noqa: E402
     PersonalDataRecord,
     DataSubjectRequest,
     SecurityIncident,

@@ -27,7 +27,7 @@ class HelpContentAdmin(admin.ModelAdmin):
 # YENİ YÖNETİM MODELLERİ - ADMIN KAYITLARI
 # ============================================================================
 
-from .models import (
+from .models import (  # noqa: E402
     SystemHealth,
     PerformanceMetric,
     ErrorLog,

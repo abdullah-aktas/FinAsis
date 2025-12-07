@@ -351,7 +351,7 @@ class FinancialHealthSnapshotAdmin(admin.ModelAdmin):
 # YENİ KOBİ ANALİZ MODELLERİ - ADMIN KAYITLARI
 # ============================================================================
 
-from .models import (
+from .models import (  # noqa: E402
     FinancialRating,
     BusinessValuation,
     WorkingCapitalAnalysis,

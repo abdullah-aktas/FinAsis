@@ -10,7 +10,7 @@ import threading
 import time
 import os
 import mediapipe as mp
-from ursina import *
+from ursina import *  # noqa: F403
 from scipy.spatial.transform import Rotation
 
 
@@ -70,15 +70,15 @@ class ARManager:
             self.cap = None
 
         if self.camera_entity:
-            destroy(self.camera_entity)
+            destroy(self.camera_entity)  # noqa: F405
             self.camera_entity = None
 
         self.hands.close()
         cv2.destroyAllWindows()
 
     def create_camera_background(self, width, height):
-        self.camera_texture = Texture(width=width, height=height)
-        self.camera_entity = Entity(
+        self.camera_texture = Texture(width=width, height=height)  # noqa: F405
+        self.camera_entity = Entity(  # noqa: F405
             model="quad",
             texture=self.camera_texture,
             scale=(16 / 9, 1, 1),
@@ -100,7 +100,7 @@ class ARManager:
                 self._detect_color_markers(frame)
 
             if self.show_camera and self.camera_texture:
-                invoke(setattr, self.camera_texture, "set_data", frame_rgb)
+                invoke(setattr, self.camera_texture, "set_data", frame_rgb)  # noqa: F405
             time.sleep(0.01)
 
     def _detect_aruco_markers(self, frame):
@@ -115,7 +115,7 @@ class ARManager:
             for i, marker_id in enumerate(ids.flatten()):
                 tvec, rvec = tvecs[i][0], rvecs[i][0]
                 rot_mat, _ = cv2.Rodrigues(rvec)
-                position = Vec3(tvec[0], tvec[2], -tvec[1]) * 0.01
+                position = Vec3(tvec[0], tvec[2], -tvec[1]) * 0.01  # noqa: F405
                 self._update_marker_entity(marker_id, position, rot_mat)
 
     def _detect_color_markers(self, frame):
@@ -142,22 +142,22 @@ class ARManager:
                     rel_x = (cx - w / 2) / (w / 2)
                     rel_y = (h / 2 - cy) / (h / 2)
                     rel_z = 0.5 * (1 - np.sqrt(area) / np.sqrt(w * h / 2))
-                    position = Vec3(rel_x * 5, rel_y * 5, -rel_z * 10)
+                    position = Vec3(rel_x * 5, rel_y * 5, -rel_z * 10)  # noqa: F405
                     self._update_marker_entity(marker_id, position)
 
     def _update_marker_entity(self, marker_id, position, rotation_matrix=None):
-        invoke(self.on_marker_detected, marker_id, position, rotation_matrix)
+        invoke(self.on_marker_detected, marker_id, position, rotation_matrix)  # noqa: F405
 
     def on_marker_detected(self, marker_id, position, rotation_matrix=None):
         if marker_id not in self.markers:
-            self.markers[marker_id] = Entity(
-                model="cube", color=color.random_color(), scale=0.5
+            self.markers[marker_id] = Entity(  # noqa: F405
+                model="cube", color=color.random_color(), scale=0.5  # noqa: F405
             )
         entity = self.markers[marker_id]
         entity.position = position
         if rotation_matrix is not None:
             quat = Rotation.from_matrix(rotation_matrix).as_quat()
-            entity.rotation = Quat(quat[3], quat[0], quat[1], quat[2])
+            entity.rotation = Quat(quat[3], quat[0], quat[1], quat[2])  # noqa: F405
 
     def register_marker(self, marker_id, entity):
         self.markers[marker_id] = entity
@@ -185,8 +185,8 @@ class ARManager:
         if results.multi_hand_landmarks:
             for hand in results.multi_hand_landmarks:
                 points = [
-                    (int(l.x * frame.shape[1]), int(l.y * frame.shape[0]))
-                    for l in hand.landmark
+                    (int(landmark.x * frame.shape[1]), int(landmark.y * frame.shape[0]))
+                    for landmark in hand.landmark
                 ]
                 self.etkilesim_kontrol(points)
         return frame

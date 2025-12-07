@@ -255,7 +255,7 @@ class UserPermission(models.Model):
     def __str__(self):
         try:
             permission_display = self.get_permission_type_display()
-        except:
+        except (AttributeError, Exception):
             permission_display = self.permission_type
         return f"{self.user.username} - {self.module_name} - {permission_display}"
 
@@ -332,7 +332,7 @@ class ApprovalWorkflow(models.Model):
     def __str__(self):
         try:
             workflow_display = self.get_workflow_type_display()
-        except:
+        except (AttributeError, Exception):
             workflow_display = self.workflow_type
         return f"{self.name} ({workflow_display})"
 
@@ -340,7 +340,7 @@ class ApprovalWorkflow(models.Model):
         """Sonraki onaylayıcıyı al"""
         try:
             steps = self.workflow_steps.filter(is_active=True).order_by("step_order")
-        except:
+        except (AttributeError, Exception):
             # workflow_steps relation eksikse boş liste döndür
             return None
 
@@ -444,7 +444,7 @@ class ApprovalWorkflowStep(models.Model):
             # Güvenli değerlendirme için basit koşullar
             # Gerçek uygulamada daha güvenli bir parser kullanılmalı
             return eval(self.condition_expression, {"__builtins__": {}}, context)
-        except:
+        except (AttributeError, Exception):
             return False
 
 
@@ -512,7 +512,7 @@ class ApprovalRequest(models.Model):
     def __str__(self):
         try:
             status_display = self.get_status_display()
-        except:
+        except (AttributeError, Exception):
             status_display = self.status
         return f"{self.title} - {status_display}"
 
@@ -634,7 +634,7 @@ class ApprovalRecord(models.Model):
     def __str__(self):
         try:
             status_display = self.get_status_display()
-        except:
+        except (AttributeError, Exception):
             status_display = self.status
         return (
             f"{self.request.title} - {self.approver.get_full_name()} - {status_display}"
@@ -807,7 +807,7 @@ class RiskAssessment(models.Model):
     def __str__(self):
         try:
             risk_display = self.get_overall_risk_level_display()
-        except:
+        except (AttributeError, Exception):
             risk_display = self.overall_risk_level or "N/A"
         return f"{self.risk_title} - {risk_display}"
 
@@ -1050,7 +1050,7 @@ class ControlExecution(models.Model):
     def __str__(self):
         try:
             status_display = self.get_status_display()
-        except:
+        except (AttributeError, Exception):
             status_display = self.status
         return f"{self.control_activity.control_id} - {self.execution_date} - {status_display}"
 

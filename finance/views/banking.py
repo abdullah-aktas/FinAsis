@@ -319,14 +319,14 @@ def bank_summary(request):
     return render(request, "finance/bank_summary.html", context)
 
 
-from django.utils.dateparse import parse_date
-import csv
-import io
+from django.utils.dateparse import parse_date  # noqa: E402
+import csv  # noqa: E402
+import io  # noqa: E402
 
-from finance.banking.models import BankTransaction, BankAccount as CoreBankAccount
-from common.models import AuditLog
-from django.contrib.auth.decorators import login_required
-from permissions.decorators import permission_required
+from finance.banking.models import BankTransaction, BankAccount as CoreBankAccount  # noqa: E402
+from common.models import AuditLog  # noqa: E402
+from django.contrib.auth.decorators import login_required  # noqa: E402
+from permissions.decorators import permission_required  # noqa: E402
 
 
 @login_required

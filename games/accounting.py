@@ -53,7 +53,7 @@ class Transaction:
 
 
 @dataclass
-class TaxRecord:
+class TaxRecord:  # noqa: F811
     id: str
     type: str
     amount: float

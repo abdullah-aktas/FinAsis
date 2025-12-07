@@ -17,10 +17,10 @@ os.chdir(project_dir)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 # manage.py'yi import et ve setup yap
-import django
+import django  # noqa: E402
 
 # Django setup
-django.setup()
+django.setup()  # noqa: E402
 
 from django.urls import get_resolver, reverse  # noqa: E402
 from django.test import Client  # noqa: E402
@@ -96,7 +96,7 @@ def test_health_urls():
 
                     data = json.loads(response.content)
                     print(f"      Status: {data.get('status', 'N/A')}")
-                except:
+                except (json.JSONDecodeError, ValueError, Exception):
                     print("      (JSON parse edilemedi)")
             else:
                 print(f"   ⚠️  {url} -> HTTP {response.status_code}")

@@ -383,7 +383,7 @@ def help_quick_start(request):
             if advisor_profile:
                 # Müşteri kontrolü için advisors modülüne bakılabilir
                 pass
-        except:
+        except (AttributeError, ImportError, Exception):
             pass
 
     completion_percentage = (

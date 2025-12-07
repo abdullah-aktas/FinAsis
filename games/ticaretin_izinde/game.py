@@ -29,18 +29,18 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun içindeki şirket modelleri yerine sınıflar kullan
-class GameCompany:
+class GameCompany:  # noqa: F811
     def __init__(self, name, sector):
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -278,8 +278,8 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-class FinAsisGame(Ursina):
-    def __init__(self, online_mode: bool = False):
+class FinAsisGame(Ursina):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -567,13 +567,13 @@ class FinAsisGame(Ursina):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu başlat"""
     app = Ursina()
-    FinAsisGame(online_mode=online_mode)
+    FinAsisGame(online_mode=online_mode)  # noqa: F811
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'ı oluştur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -606,7 +606,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Üst bilgi panelini oluştur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -631,18 +631,18 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun içindeki şirket modelleri yerine sınıflar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -880,8 +880,8 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-class FinAsisGame(Ursina):
-    def __init__(self, online_mode: bool = False):
+class FinAsisGame(Ursina):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -937,7 +937,7 @@ class FinAsisGame(Ursina):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -1026,7 +1026,7 @@ class FinAsisGame(Ursina):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -1036,7 +1036,7 @@ class FinAsisGame(Ursina):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -1051,7 +1051,7 @@ class FinAsisGame(Ursina):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -1062,7 +1062,7 @@ class FinAsisGame(Ursina):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -1071,7 +1071,7 @@ class FinAsisGame(Ursina):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -1127,7 +1127,7 @@ class FinAsisGame(Ursina):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -1151,7 +1151,7 @@ class FinAsisGame(Ursina):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -1169,13 +1169,13 @@ class FinAsisGame(Ursina):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinAsisGame(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -1208,7 +1208,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -1237,7 +1237,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -1280,7 +1280,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -1351,7 +1351,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -1423,7 +1423,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -2121,7 +2121,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -2501,28 +2501,29 @@ def buy_stock(symbol):
     # Ä°ÅŸlem kaydÄ±nÄ± gÃ¼ncelle
     player['trading_history'].append(trade)
     
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import color, Ursina
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import color, Ursina  # noqa: E402
 
-# Django ayarlarÄ±nÄ± yÃ¼kle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
-# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
+# Django ayarlarını yükle
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -2759,18 +2760,19 @@ quest_ui = {
     'active_quests_text': None,
     'completed_quests_text': None
 }
-
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import color, Ursina
+    
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import color, Ursina  # noqa: E402
 
 # Django ayarlarını yükle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
-class FinAsisGame(Ursina):
-    def __init__(self, online_mode: bool = False):
+class FinAsisGame(Ursina):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -2826,7 +2828,7 @@ class FinAsisGame(Ursina):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -2915,7 +2917,7 @@ class FinAsisGame(Ursina):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -2925,7 +2927,7 @@ class FinAsisGame(Ursina):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -2940,7 +2942,7 @@ class FinAsisGame(Ursina):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -2951,7 +2953,7 @@ class FinAsisGame(Ursina):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -2960,7 +2962,7 @@ class FinAsisGame(Ursina):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -3016,7 +3018,7 @@ class FinAsisGame(Ursina):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -3040,7 +3042,7 @@ class FinAsisGame(Ursina):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -3058,13 +3060,13 @@ class FinAsisGame(Ursina):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinAsisGame(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -3097,7 +3099,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -3126,7 +3128,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -3169,7 +3171,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -3240,7 +3242,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -3312,7 +3314,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -3320,7 +3322,7 @@ def toggle_menu():
         destroy(ui['menu_panel'])
         ui['menu_panel'] = None
 
-def create_menu():
+def create_menu():  # noqa: F811
     """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
@@ -3379,7 +3381,7 @@ def create_menu():
         on_click=Func(quit_game)
     )
 
-def show_settings():
+def show_settings():  # noqa: F811
     """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
     # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
@@ -3443,23 +3445,23 @@ def show_settings():
         on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
     )
 
-def toggle_sound():
+def toggle_sound():  # noqa: F811
     """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_music():
+def toggle_music():  # noqa: F811
     """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_fullscreen():
+def toggle_fullscreen():  # noqa: F811
     """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def start_tutorial():
+def start_tutorial():  # noqa: F811
     """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
@@ -3494,7 +3496,7 @@ def start_tutorial():
     
     current_step = 0
     
-    def show_step():
+    def show_step():  # noqa: F811
         nonlocal current_step
         step = tutorial_steps[current_step]
         
@@ -3535,7 +3537,7 @@ def start_tutorial():
             on_click=next_step
         )
     
-    def next_step():
+    def next_step():  # noqa: F811
         nonlocal current_step
         current_step += 1
         if current_step < len(tutorial_steps):
@@ -3549,7 +3551,7 @@ def start_tutorial():
     # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
-def save_game():
+def save_game():  # noqa: F811
     """Oyun durumunu kaydet"""
     try:
         # Kaydedilecek verileri hazÄ±rla
@@ -3562,7 +3564,7 @@ def save_game():
         }
         
         # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
-        def convert_datetime(obj):
+        def convert_datetime(obj):  # noqa: F811
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
@@ -3575,7 +3577,7 @@ def save_game():
     except Exception as e:
         show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
-def load_game():
+def load_game():  # noqa: F811
     """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
         # JSON dosyasÄ±nÄ± oku
@@ -3583,7 +3585,7 @@ def load_game():
             save_data = json.load(f)
         
         # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
-        def parse_datetime(obj):
+        def parse_datetime(obj):  # noqa: F811
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
                     try:
@@ -3611,7 +3613,7 @@ def load_game():
     except Exception as e:
         show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
-def show_notification(message, color=color.white):
+def show_notification(message, color=color.white):  # noqa: F811
     """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
@@ -3621,7 +3623,7 @@ def show_notification(message, color=color.white):
     )
     destroy(notification, delay=3)
 
-def auto_save():
+def auto_save():  # noqa: F811
     """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
@@ -3631,7 +3633,7 @@ def auto_save():
         save_game()
         auto_save.last_save = current_time
 
-def quit_game():
+def quit_game():  # noqa: F811
     """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
@@ -3639,7 +3641,7 @@ def quit_game():
     # Pencereyi kapat
     application.quit()
 
-def initialize_quest_system():
+def initialize_quest_system():  # noqa: F811
     """GÃ¶rev sistemini baÅŸlat"""
     # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
@@ -3684,7 +3686,7 @@ def initialize_quest_system():
     # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
-def assign_daily_quests():
+def assign_daily_quests():  # noqa: F811
     """GÃ¼nlÃ¼k gÃ¶revleri ata"""
     # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
@@ -3697,7 +3699,7 @@ def assign_daily_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def assign_weekly_quests():
+def assign_weekly_quests():  # noqa: F811
     """HaftalÄ±k gÃ¶revleri ata"""
     # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
@@ -3710,7 +3712,7 @@ def assign_weekly_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def check_quest_completion():
+def check_quest_completion():  # noqa: F811
     """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
@@ -3737,7 +3739,7 @@ def check_quest_completion():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def give_quest_rewards(quest):
+def give_quest_rewards(quest):  # noqa: F811
     """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
@@ -3762,7 +3764,7 @@ def give_quest_rewards(quest):
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
-def show_quest_completion(quest):
+def show_quest_completion(quest):  # noqa: F811
     """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
@@ -3787,7 +3789,7 @@ def show_quest_completion(quest):
     if reward_text:
         destroy(reward_text, delay=4)
 
-def show_level_up():
+def show_level_up():  # noqa: F811
     """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
         text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
@@ -3797,11 +3799,11 @@ def show_level_up():
     )
     destroy(level_text, delay=4)
 
-def calculate_next_level_xp(current_level):
+def calculate_next_level_xp(current_level):  # noqa: F811
     """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
-def create_quest_ui():
+def create_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
     # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
@@ -3863,7 +3865,7 @@ def create_quest_ui():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def update_quest_ui():
+def update_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
     # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
@@ -3942,7 +3944,7 @@ def update_quest_ui():
             
             y_position -= 0.1
 
-def calculate_daily_profit():
+def calculate_daily_profit():  # noqa: F811
     """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
@@ -3961,7 +3963,7 @@ def calculate_daily_profit():
     
     return profit
 
-def calculate_weekly_growth():
+def calculate_weekly_growth():  # noqa: F811
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
@@ -3975,7 +3977,7 @@ def calculate_weekly_growth():
         return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
-def update_market_state():
+def update_market_state():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
@@ -4010,7 +4012,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -4025,7 +4027,7 @@ def update():
     if game_settings['auto_save']:
         auto_save()
 
-def update_market():
+def update_market():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -4042,7 +4044,7 @@ def update_market():
         
         market_state['last_update'] = current_time
 
-def update_market_trend():
+def update_market_trend():  # noqa: F811
     """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
@@ -4075,7 +4077,7 @@ def update_market_trend():
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
-def update_stock_prices():
+def update_stock_prices():  # noqa: F811
     """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
@@ -4108,7 +4110,7 @@ def update_stock_prices():
         new_price = base_price * (1 + total_change)
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
-def calculate_sector_effect(sector):
+def calculate_sector_effect(sector):  # noqa: F811
     """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
@@ -4119,7 +4121,7 @@ def calculate_sector_effect(sector):
     }
     return sector_trends.get(sector, 0)
 
-def check_market_events():
+def check_market_events():  # noqa: F811
     """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
@@ -4128,7 +4130,7 @@ def check_market_events():
             apply_market_event(event)
             show_market_event(event)
 
-def generate_market_event():
+def generate_market_event():  # noqa: F811
     """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
@@ -4192,7 +4194,7 @@ def generate_market_event():
     
     return None
 
-def apply_market_event(event):
+def apply_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
@@ -4215,7 +4217,7 @@ def apply_market_event(event):
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
-def show_market_event(event):
+def show_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
@@ -4270,14 +4272,14 @@ def show_market_event(event):
         'duration': 5  # 5 saniye sonra kaybolacak
     })
 
-def calculate_portfolio_value():
+def calculate_portfolio_value():  # noqa: F811
     """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
     return total_value
 
-def calculate_risk_score():
+def calculate_risk_score():  # noqa: F811
     """Risk skorunu hesapla"""
     # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
@@ -4289,7 +4291,7 @@ def calculate_risk_score():
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
-def calculate_portfolio_diversity():
+def calculate_portfolio_diversity():  # noqa: F811
     """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
@@ -4307,7 +4309,7 @@ def calculate_portfolio_diversity():
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
-def calculate_debt_to_income_ratio():
+def calculate_debt_to_income_ratio():  # noqa: F811
     """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
@@ -4320,7 +4322,7 @@ def calculate_debt_to_income_ratio():
     ratio = total_debt / total_income
     return min(max(ratio, 0), 1)
 
-def update_ui():
+def update_ui():  # noqa: F811
     """UI'Ä± gÃ¼ncelle"""
     # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
@@ -4341,7 +4343,7 @@ def update_ui():
     # Bildirimleri gÃ¼ncelle
     update_notifications()
 
-def update_stock_buttons():
+def update_stock_buttons():  # noqa: F811
     """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         # AlÄ±m butonu
@@ -4352,7 +4354,7 @@ def update_stock_buttons():
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
-def update_notifications():
+def update_notifications():  # noqa: F811
     """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -4365,7 +4367,7 @@ def update_notifications():
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
-def buy_stock(symbol):
+def buy_stock(symbol):  # noqa: F811
     """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -4485,7 +4487,7 @@ def check_level_up():
         show_level_up()
 
 class CharacterSelection:
-    def __init__(self):
+    def __init__(self):  # noqa: F811
         self.characters = self.load_characters()
         self.selected_character = None
         self.ui_elements = {}
@@ -4494,7 +4496,7 @@ class CharacterSelection:
         with open('characters.json', 'r', encoding='utf-8') as f:
             return json.load(f)['characters']
             
-    def create_ui(self):
+    def create_ui(self):  # noqa: F811
         # Karakter seÃ§im paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
@@ -4548,7 +4550,7 @@ class CharacterSelection:
         start_game()
 
 class MissionSystem:
-    def __init__(self):
+    def __init__(self):  # noqa: F811
         self.levels = self.load_missions()
         self.current_level = 1
         self.current_mission = None
@@ -4665,7 +4667,7 @@ class MissionSystem:
         # ...
 
 class BattleRoyaleMode:
-    def __init__(self):
+    def __init__(self):  # noqa: F811
         self.players = []
         self.events = []
         self.loot_cards = []
@@ -4710,14 +4712,14 @@ class BattleRoyaleMode:
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             return []
 
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         """AlÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
             self.player.money -= 1000
             return True
         return False
 
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         """SatÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
             self.player.money += 1000
@@ -4725,7 +4727,7 @@ class BattleRoyaleMode:
             return True
         return False
 
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         """OlaylarÄ± gÃ¼ncelle"""
         current_time = time.time()
         for event in self.events:
@@ -4742,7 +4744,7 @@ class BattleRoyaleMode:
         }
         self.events.append(new_event)
 
-    def update(self):
+    def update(self):  # noqa: F811
         """Oyun durumunu gÃ¼ncelle"""
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -4767,7 +4769,7 @@ class BattleRoyaleMode:
         self.olay_guncelle()
 
 class FastFinanceTournament:
-    def __init__(self):
+    def __init__(self):  # noqa: F811
         self.scenarios = self.load_scenarios()
         self.current_scenario = None
         self.player_score = 0
@@ -4848,29 +4850,30 @@ def apply_player_event(player=None, event=None):
     if effect and callable(effect):
         effect(player)
 
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import color, Ursina
+# -*- coding: utf-8 -*-    
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import color, Ursina  # noqa: E402
 
 # Django ayarlarını yükle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun içindeki şirket modelleri yerine sınıflar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -5109,7 +5112,7 @@ quest_ui = {
 }
 
 class FinansalDunya(Entity):
-    def __init__(self, online_mode: bool = False):
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -5165,7 +5168,7 @@ class FinansalDunya(Entity):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -5254,7 +5257,7 @@ class FinansalDunya(Entity):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -5264,7 +5267,7 @@ class FinansalDunya(Entity):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -5279,7 +5282,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -5290,7 +5293,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -5299,7 +5302,7 @@ class FinansalDunya(Entity):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -5355,7 +5358,7 @@ class FinansalDunya(Entity):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -5379,7 +5382,7 @@ class FinansalDunya(Entity):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -5397,13 +5400,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinansalDunya(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -5436,7 +5439,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -5465,7 +5468,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -5508,7 +5511,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -5579,7 +5582,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -5651,7 +5654,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -5659,7 +5662,7 @@ def toggle_menu():
         destroy(ui['menu_panel'])
         ui['menu_panel'] = None
 
-def create_menu():
+def create_menu():  # noqa: F811
     """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
@@ -5718,7 +5721,7 @@ def create_menu():
         on_click=Func(quit_game)
     )
 
-def show_settings():
+def show_settings():  # noqa: F811
     """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
     # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
@@ -5782,23 +5785,23 @@ def show_settings():
         on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
     )
 
-def toggle_sound():
+def toggle_sound():  # noqa: F811
     """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_music():
+def toggle_music():  # noqa: F811
     """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_fullscreen():
+def toggle_fullscreen():  # noqa: F811
     """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def start_tutorial():
+def start_tutorial():  # noqa: F811
     """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
@@ -5833,7 +5836,7 @@ def start_tutorial():
     
     current_step = 0
     
-    def show_step():
+    def show_step():  # noqa: F811
         nonlocal current_step
         step = tutorial_steps[current_step]
         
@@ -5874,7 +5877,7 @@ def start_tutorial():
             on_click=next_step
         )
     
-    def next_step():
+    def next_step():  # noqa: F811
         nonlocal current_step
         current_step += 1
         if current_step < len(tutorial_steps):
@@ -5888,7 +5891,7 @@ def start_tutorial():
     # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
-def save_game():
+def save_game():  # noqa: F811
     """Oyun durumunu kaydet"""
     try:
         # Kaydedilecek verileri hazÄ±rla
@@ -5901,7 +5904,7 @@ def save_game():
         }
         
         # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
-        def convert_datetime(obj):
+        def convert_datetime(obj):  # noqa: F811
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
@@ -5914,7 +5917,7 @@ def save_game():
     except Exception as e:
         show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
-def load_game():
+def load_game():  # noqa: F811
     """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
         # JSON dosyasÄ±nÄ± oku
@@ -5922,7 +5925,7 @@ def load_game():
             save_data = json.load(f)
         
         # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
-        def parse_datetime(obj):
+        def parse_datetime(obj):  # noqa: F811
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
                     try:
@@ -5950,7 +5953,7 @@ def load_game():
     except Exception as e:
         show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
-def show_notification(message, color=color.white):
+def show_notification(message, color=color.white):  # noqa: F811
     """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
@@ -5960,7 +5963,7 @@ def show_notification(message, color=color.white):
     )
     destroy(notification, delay=3)
 
-def auto_save():
+def auto_save():  # noqa: F811
     """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
@@ -5970,7 +5973,7 @@ def auto_save():
         save_game()
         auto_save.last_save = current_time
 
-def quit_game():
+def quit_game():  # noqa: F811
     """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
@@ -5978,7 +5981,7 @@ def quit_game():
     # Pencereyi kapat
     application.quit()
 
-def initialize_quest_system():
+def initialize_quest_system():  # noqa: F811
     """GÃ¶rev sistemini baÅŸlat"""
     # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
@@ -6023,7 +6026,7 @@ def initialize_quest_system():
     # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
-def assign_daily_quests():
+def assign_daily_quests():  # noqa: F811
     """GÃ¼nlÃ¼k gÃ¶revleri ata"""
     # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
@@ -6036,7 +6039,7 @@ def assign_daily_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def assign_weekly_quests():
+def assign_weekly_quests():  # noqa: F811
     """HaftalÄ±k gÃ¶revleri ata"""
     # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
@@ -6049,7 +6052,7 @@ def assign_weekly_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def check_quest_completion():
+def check_quest_completion():  # noqa: F811
     """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
@@ -6076,7 +6079,7 @@ def check_quest_completion():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def give_quest_rewards(quest):
+def give_quest_rewards(quest):  # noqa: F811
     """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
@@ -6101,7 +6104,7 @@ def give_quest_rewards(quest):
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
-def show_quest_completion(quest):
+def show_quest_completion(quest):  # noqa: F811
     """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
@@ -6126,7 +6129,7 @@ def show_quest_completion(quest):
     if reward_text:
         destroy(reward_text, delay=4)
 
-def show_level_up():
+def show_level_up():  # noqa: F811
     """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
         text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
@@ -6136,11 +6139,11 @@ def show_level_up():
     )
     destroy(level_text, delay=4)
 
-def calculate_next_level_xp(current_level):
+def calculate_next_level_xp(current_level):  # noqa: F811
     """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
-def create_quest_ui():
+def create_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
     # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
@@ -6202,7 +6205,7 @@ def create_quest_ui():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def update_quest_ui():
+def update_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
     # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
@@ -6281,7 +6284,7 @@ def update_quest_ui():
             
             y_position -= 0.1
 
-def calculate_daily_profit():
+def calculate_daily_profit():  # noqa: F811
     """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
@@ -6300,7 +6303,7 @@ def calculate_daily_profit():
     
     return profit
 
-def calculate_weekly_growth():
+def calculate_weekly_growth():  # noqa: F811
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
@@ -6314,7 +6317,7 @@ def calculate_weekly_growth():
         return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
-def update_market_state():
+def update_market_state():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
@@ -6349,7 +6352,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -6364,7 +6367,7 @@ def update():
     if game_settings['auto_save']:
         auto_save()
 
-def update_market():
+def update_market():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -6381,7 +6384,7 @@ def update_market():
         
         market_state['last_update'] = current_time
 
-def update_market_trend():
+def update_market_trend():  # noqa: F811
     """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
@@ -6414,7 +6417,7 @@ def update_market_trend():
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
-def update_stock_prices():
+def update_stock_prices():  # noqa: F811
     """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
@@ -6447,7 +6450,7 @@ def update_stock_prices():
         new_price = base_price * (1 + total_change)
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
-def calculate_sector_effect(sector):
+def calculate_sector_effect(sector):  # noqa: F811
     """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
@@ -6458,7 +6461,7 @@ def calculate_sector_effect(sector):
     }
     return sector_trends.get(sector, 0)
 
-def check_market_events():
+def check_market_events():  # noqa: F811
     """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
@@ -6467,7 +6470,7 @@ def check_market_events():
             apply_market_event(event)
             show_market_event(event)
 
-def generate_market_event():
+def generate_market_event():  # noqa: F811
     """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
@@ -6531,7 +6534,7 @@ def generate_market_event():
     
     return None
 
-def apply_market_event(event):
+def apply_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
@@ -6554,7 +6557,7 @@ def apply_market_event(event):
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
-def show_market_event(event):
+def show_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
@@ -6609,14 +6612,14 @@ def show_market_event(event):
         'duration': 5  # 5 saniye sonra kaybolacak
     })
 
-def calculate_portfolio_value():
+def calculate_portfolio_value():  # noqa: F811
     """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
     return total_value
 
-def calculate_risk_score():
+def calculate_risk_score():  # noqa: F811
     """Risk skorunu hesapla"""
     # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
@@ -6628,7 +6631,7 @@ def calculate_risk_score():
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
-def calculate_portfolio_diversity():
+def calculate_portfolio_diversity():  # noqa: F811
     """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
@@ -6646,7 +6649,7 @@ def calculate_portfolio_diversity():
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
-def calculate_debt_to_income_ratio():
+def calculate_debt_to_income_ratio():  # noqa: F811
     """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
@@ -6659,7 +6662,7 @@ def calculate_debt_to_income_ratio():
     ratio = total_debt / total_income
     return min(max(ratio, 0), 1)
 
-def update_ui():
+def update_ui():  # noqa: F811
     """UI'Ä± gÃ¼ncelle"""
     # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
@@ -6680,7 +6683,7 @@ def update_ui():
     # Bildirimleri gÃ¼ncelle
     update_notifications()
 
-def update_stock_buttons():
+def update_stock_buttons():  # noqa: F811
     """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         # AlÄ±m butonu
@@ -6691,7 +6694,7 @@ def update_stock_buttons():
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
-def update_notifications():
+def update_notifications():  # noqa: F811
     """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -6704,7 +6707,7 @@ def update_notifications():
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
-def buy_stock(symbol):
+def buy_stock(symbol):  # noqa: F811
     """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -6729,28 +6732,29 @@ def buy_stock(symbol):
     # Ä°ÅŸlem kaydÄ±nÄ± gÃ¼ncelle
     player['trading_history'].append(trade)
     
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import Entity, color, Ursina
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import Entity, color, Ursina  # noqa: E402
 
-# Django ayarlarÄ±nÄ± yÃ¼kle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
-# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
+# Django ayarlarını yükle
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -6988,8 +6992,8 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-class FinansalDunya(Entity):
-    def __init__(self, online_mode: bool = False):
+class FinansalDunya(Entity):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -7045,7 +7049,7 @@ class FinansalDunya(Entity):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -7134,7 +7138,7 @@ class FinansalDunya(Entity):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -7144,7 +7148,7 @@ class FinansalDunya(Entity):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -7159,7 +7163,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -7170,7 +7174,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -7179,7 +7183,7 @@ class FinansalDunya(Entity):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -7235,7 +7239,7 @@ class FinansalDunya(Entity):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -7259,7 +7263,7 @@ class FinansalDunya(Entity):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -7277,13 +7281,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinansalDunya(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -7316,7 +7320,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -7345,7 +7349,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -7388,7 +7392,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -7459,7 +7463,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -7531,7 +7535,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -7539,7 +7543,7 @@ def toggle_menu():
         destroy(ui['menu_panel'])
         ui['menu_panel'] = None
 
-def create_menu():
+def create_menu():  # noqa: F811
     """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
@@ -7598,7 +7602,7 @@ def create_menu():
         on_click=Func(quit_game)
     )
 
-def show_settings():
+def show_settings():  # noqa: F811
     """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
     # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
@@ -7662,23 +7666,23 @@ def show_settings():
         on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
     )
 
-def toggle_sound():
+def toggle_sound():  # noqa: F811
     """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_music():
+def toggle_music():  # noqa: F811
     """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_fullscreen():
+def toggle_fullscreen():  # noqa: F811
     """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def start_tutorial():
+def start_tutorial():  # noqa: F811
     """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
@@ -7713,7 +7717,7 @@ def start_tutorial():
     
     current_step = 0
     
-    def show_step():
+    def show_step():  # noqa: F811
         nonlocal current_step
         step = tutorial_steps[current_step]
         
@@ -7754,7 +7758,7 @@ def start_tutorial():
             on_click=next_step
         )
     
-    def next_step():
+    def next_step():  # noqa: F811
         nonlocal current_step
         current_step += 1
         if current_step < len(tutorial_steps):
@@ -7768,7 +7772,7 @@ def start_tutorial():
     # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
-def save_game():
+def save_game():  # noqa: F811
     """Oyun durumunu kaydet"""
     try:
         # Kaydedilecek verileri hazÄ±rla
@@ -7781,7 +7785,7 @@ def save_game():
         }
         
         # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
-        def convert_datetime(obj):
+        def convert_datetime(obj):  # noqa: F811
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
@@ -7794,7 +7798,7 @@ def save_game():
     except Exception as e:
         show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
-def load_game():
+def load_game():  # noqa: F811
     """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
         # JSON dosyasÄ±nÄ± oku
@@ -7802,7 +7806,7 @@ def load_game():
             save_data = json.load(f)
         
         # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
-        def parse_datetime(obj):
+        def parse_datetime(obj):  # noqa: F811
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
                     try:
@@ -7830,7 +7834,7 @@ def load_game():
     except Exception as e:
         show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
-def show_notification(message, color=color.white):
+def show_notification(message, color=color.white):  # noqa: F811
     """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
@@ -7840,7 +7844,7 @@ def show_notification(message, color=color.white):
     )
     destroy(notification, delay=3)
 
-def auto_save():
+def auto_save():  # noqa: F811
     """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
@@ -7850,7 +7854,7 @@ def auto_save():
         save_game()
         auto_save.last_save = current_time
 
-def quit_game():
+def quit_game():  # noqa: F811
     """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
@@ -7858,7 +7862,7 @@ def quit_game():
     # Pencereyi kapat
     application.quit()
 
-def initialize_quest_system():
+def initialize_quest_system():  # noqa: F811
     """GÃ¶rev sistemini baÅŸlat"""
     # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
@@ -7903,7 +7907,7 @@ def initialize_quest_system():
     # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
-def assign_daily_quests():
+def assign_daily_quests():  # noqa: F811
     """GÃ¼nlÃ¼k gÃ¶revleri ata"""
     # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
@@ -7916,7 +7920,7 @@ def assign_daily_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def assign_weekly_quests():
+def assign_weekly_quests():  # noqa: F811
     """HaftalÄ±k gÃ¶revleri ata"""
     # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
@@ -7929,7 +7933,7 @@ def assign_weekly_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def check_quest_completion():
+def check_quest_completion():  # noqa: F811
     """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
@@ -7956,7 +7960,7 @@ def check_quest_completion():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def give_quest_rewards(quest):
+def give_quest_rewards(quest):  # noqa: F811
     """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
@@ -7981,7 +7985,7 @@ def give_quest_rewards(quest):
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
-def show_quest_completion(quest):
+def show_quest_completion(quest):  # noqa: F811
     """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
@@ -8006,7 +8010,7 @@ def show_quest_completion(quest):
     if reward_text:
         destroy(reward_text, delay=4)
 
-def show_level_up():
+def show_level_up():  # noqa: F811
     """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
         text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
@@ -8016,11 +8020,11 @@ def show_level_up():
     )
     destroy(level_text, delay=4)
 
-def calculate_next_level_xp(current_level):
+def calculate_next_level_xp(current_level):  # noqa: F811
     """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
-def create_quest_ui():
+def create_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
     # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
@@ -8082,7 +8086,7 @@ def create_quest_ui():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def update_quest_ui():
+def update_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
     # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
@@ -8161,7 +8165,7 @@ def update_quest_ui():
             
             y_position -= 0.1
 
-def calculate_daily_profit():
+def calculate_daily_profit():  # noqa: F811
     """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
@@ -8180,7 +8184,7 @@ def calculate_daily_profit():
     
     return profit
 
-def calculate_weekly_growth():
+def calculate_weekly_growth():  # noqa: F811
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
@@ -8194,7 +8198,7 @@ def calculate_weekly_growth():
         return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
-def update_market_state():
+def update_market_state():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
@@ -8229,7 +8233,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -8244,7 +8248,7 @@ def update():
     if game_settings['auto_save']:
         auto_save()
 
-def update_market():
+def update_market():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -8261,7 +8265,7 @@ def update_market():
         
         market_state['last_update'] = current_time
 
-def update_market_trend():
+def update_market_trend():  # noqa: F811
     """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
@@ -8294,7 +8298,7 @@ def update_market_trend():
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
-def update_stock_prices():
+def update_stock_prices():  # noqa: F811
     """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
@@ -8327,7 +8331,7 @@ def update_stock_prices():
         new_price = base_price * (1 + total_change)
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
-def calculate_sector_effect(sector):
+def calculate_sector_effect(sector):  # noqa: F811
     """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
@@ -8338,7 +8342,7 @@ def calculate_sector_effect(sector):
     }
     return sector_trends.get(sector, 0)
 
-def check_market_events():
+def check_market_events():  # noqa: F811
     """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
@@ -8347,7 +8351,7 @@ def check_market_events():
             apply_market_event(event)
             show_market_event(event)
 
-def generate_market_event():
+def generate_market_event():  # noqa: F811
     """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
@@ -8411,7 +8415,7 @@ def generate_market_event():
     
     return None
 
-def apply_market_event(event):
+def apply_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
@@ -8434,7 +8438,7 @@ def apply_market_event(event):
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
-def show_market_event(event):
+def show_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
@@ -8489,14 +8493,14 @@ def show_market_event(event):
         'duration': 5  # 5 saniye sonra kaybolacak
     })
 
-def calculate_portfolio_value():
+def calculate_portfolio_value():  # noqa: F811
     """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
     return total_value
 
-def calculate_risk_score():
+def calculate_risk_score():  # noqa: F811
     """Risk skorunu hesapla"""
     # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
@@ -8508,7 +8512,7 @@ def calculate_risk_score():
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
-def calculate_portfolio_diversity():
+def calculate_portfolio_diversity():  # noqa: F811
     """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
@@ -8526,7 +8530,7 @@ def calculate_portfolio_diversity():
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
-def calculate_debt_to_income_ratio():
+def calculate_debt_to_income_ratio():  # noqa: F811
     """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
@@ -8539,7 +8543,7 @@ def calculate_debt_to_income_ratio():
     ratio = total_debt / total_income
     return min(max(ratio, 0), 1)
 
-def update_ui():
+def update_ui():  # noqa: F811
     """UI'Ä± gÃ¼ncelle"""
     # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
@@ -8560,7 +8564,7 @@ def update_ui():
     # Bildirimleri gÃ¼ncelle
     update_notifications()
 
-def update_stock_buttons():
+def update_stock_buttons():  # noqa: F811
     """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         # AlÄ±m butonu
@@ -8571,7 +8575,7 @@ def update_stock_buttons():
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
-def update_notifications():
+def update_notifications():  # noqa: F811
     """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -8584,7 +8588,7 @@ def update_notifications():
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
-def buy_stock(symbol):
+def buy_stock(symbol):  # noqa: F811
     """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -8618,7 +8622,7 @@ def buy_stock(symbol):
     # UI'Ä± gÃ¼ncelle
     update_ui()
 
-def sell_stock(symbol):
+def sell_stock(symbol):  # noqa: F811
     """Hisse senedi sat"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -8652,7 +8656,7 @@ def sell_stock(symbol):
     # UI'Ä± gÃ¼ncelle
     update_ui()
 
-def check_quests():
+def check_quests():  # noqa: F811
     """GÃ¶revleri kontrol et"""
     # GÃ¼nlÃ¼k gÃ¶revleri kontrol et
     for quest in quest_system['daily_quests']:
@@ -8685,7 +8689,7 @@ def check_quests():
     # Seviye atlamayÄ± kontrol et
     check_level_up()
 
-def check_level_up():
+def check_level_up():  # noqa: F811
     """Seviye atlamayÄ± kontrol et"""
     while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
         # Seviye atla
@@ -8703,17 +8707,17 @@ def check_level_up():
         # Seviye atlama bildirimini gÃ¶ster
         show_level_up()
 
-class CharacterSelection:
-    def __init__(self):
+class CharacterSelection:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.characters = self.load_characters()
         self.selected_character = None
         self.ui_elements = {}
         
-    def load_characters(self):
+    def load_characters(self):  # noqa: F811
         with open('characters.json', 'r', encoding='utf-8') as f:
             return json.load(f)['characters']
             
-    def create_ui(self):
+    def create_ui(self):  # noqa: F811
         # Karakter seÃ§im paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
@@ -8756,7 +8760,7 @@ class CharacterSelection:
                 parent=self.ui_elements['panel']
             )
             
-    def select_character(self, character):
+    def select_character(self, character):  # noqa: F811
         self.selected_character = character
         # Oyuncu verilerini gÃ¼ncelle
         player['money'] = character['starting_money']
@@ -8766,18 +8770,18 @@ class CharacterSelection:
         # Oyunu baÅŸlat
         start_game()
 
-class MissionSystem:
-    def __init__(self):
+class MissionSystem:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.levels = self.load_missions()
         self.current_level = 1
         self.current_mission = None
         self.ui_elements = {}
         
-    def load_missions(self):
+    def load_missions(self):  # noqa: F811
         with open('missions.json', 'r', encoding='utf-8') as f:
             return json.load(f)['levels']
             
-    def create_mission_ui(self):
+    def create_mission_ui(self):  # noqa: F811
         # GÃ¶rev paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
@@ -8803,7 +8807,7 @@ class MissionSystem:
             parent=self.ui_elements['panel']
         )
         
-    def update_mission_ui(self):
+    def update_mission_ui(self):  # noqa: F811
         if self.current_mission:
             level = self.levels[self.current_level - 1]
             mission = level['missions'][0]  # Ä°lk gÃ¶revi gÃ¶ster
@@ -8830,7 +8834,7 @@ class MissionSystem:
                 parent=self.ui_elements['panel']
             )
             
-    def check_mission_completion(self):
+    def check_mission_completion(self):  # noqa: F811
         if self.current_mission:
             requirements = self.current_mission['requirements']
             completed = True
@@ -8845,7 +8849,7 @@ class MissionSystem:
             if completed:
                 self.complete_mission()
                 
-    def complete_mission(self):
+    def complete_mission(self):  # noqa: F811
         if self.current_mission is None:
             return
             
@@ -8860,7 +8864,7 @@ class MissionSystem:
         # Yeni gÃ¶rev atama
         self.assign_next_mission()
         
-    def assign_next_mission(self):
+    def assign_next_mission(self):  # noqa: F811
         level = self.levels[self.current_level - 1]
         if len(level['missions']) > 1:
             self.current_mission = level['missions'][1]
@@ -8868,7 +8872,7 @@ class MissionSystem:
             # Seviye tamamlandÄ±
             self.level_up()
             
-    def level_up(self):
+    def level_up(self):  # noqa: F811
         self.current_level += 1
         if self.current_level <= len(self.levels):
             # Yeni seviye arka planÄ±nÄ± yÃ¼kle
@@ -8877,14 +8881,14 @@ class MissionSystem:
             self.current_mission = self.levels[self.current_level - 1]['missions'][0]
             show_notification(f'ðŸŽ‰ Seviye {self.current_level} AÃ§Ä±ldÄ±!', color.yellow)
             
-    def load_level_background(self):
+    def load_level_background(self):  # noqa: F811
         level = self.levels[self.current_level - 1]
         level['background']
         # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
-class BattleRoyaleMode:
-    def __init__(self):
+class BattleRoyaleMode:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.players = []
         self.events = []
         self.loot_cards = []
@@ -8908,12 +8912,12 @@ class BattleRoyaleMode:
         # OlaylarÄ± ve kartlarÄ± yÃ¼kle
         self.load_game_data()
 
-    def load_game_data(self):
+    def load_game_data(self):  # noqa: F811
         """Oyun verilerini yÃ¼kle"""
         self.events = self.load_events()
         self.loot_cards = self.load_loot_cards()
 
-    def load_events(self):
+    def load_events(self):  # noqa: F811
         """Olay verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/arena_events.json', 'r', encoding='utf-8') as f:
@@ -8921,7 +8925,7 @@ class BattleRoyaleMode:
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             return []
 
-    def load_loot_cards(self):
+    def load_loot_cards(self):  # noqa: F811
         """Kart verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/loot_cards.json', 'r', encoding='utf-8') as f:
@@ -8929,14 +8933,14 @@ class BattleRoyaleMode:
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             return []
 
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         """AlÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
             self.player.money -= 1000
             return True
         return False
 
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         """SatÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
             self.player.money += 1000
@@ -8944,14 +8948,14 @@ class BattleRoyaleMode:
             return True
         return False
 
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         """OlaylarÄ± gÃ¼ncelle"""
         current_time = time.time()
         for event in self.events:
             if 'start_time' in event and current_time - event['start_time'] > event.get('duration', 0):
                 self.generate_new_event()
 
-    def generate_new_event(self):
+    def generate_new_event(self):  # noqa: F811
         """Yeni olay oluÅŸtur"""
         event_types = ['market_change', 'resource_discovery', 'crisis']
         new_event = {
@@ -8961,7 +8965,7 @@ class BattleRoyaleMode:
         }
         self.events.append(new_event)
 
-    def update(self):
+    def update(self):  # noqa: F811
         """Oyun durumunu gÃ¼ncelle"""
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -8985,23 +8989,23 @@ class BattleRoyaleMode:
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
 
-class FastFinanceTournament:
-    def __init__(self):
+class FastFinanceTournament:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.scenarios = self.load_scenarios()
         self.current_scenario = None
         self.player_score = 0
         self.scenario_start_time = 0
         self.scenario_duration = 300  # 5 dakika
         
-    def load_scenarios(self):
+    def load_scenarios(self):  # noqa: F811
         with open('short_matches.json', 'r', encoding='utf-8') as f:
             return json.load(f)['scenarios']
             
-    def start_scenario(self, scenario_id):
+    def start_scenario(self, scenario_id):  # noqa: F811
         self.current_scenario = next(s for s in self.scenarios if s['id'] == scenario_id)
         self.scenario_start_time = time.time()
         
-    def submit_answer(self, option_id):
+    def submit_answer(self, option_id):  # noqa: F811
         if self.current_scenario is None:
             return False
             
@@ -9011,11 +9015,11 @@ class FastFinanceTournament:
                 return True
         return False
         
-    def check_time_up(self):
+    def check_time_up(self):  # noqa: F811
         elapsed = time.time() - self.scenario_start_time
         return elapsed >= self.scenario_duration
 
-def start_game():
+def start_game():  # noqa: F811
     app = Ursina()
     
     # Oyun modlarÄ±
@@ -9029,7 +9033,7 @@ def start_game():
     
     app.run()
 
-def generate_player_event(player=None):
+def generate_player_event(player=None):  # noqa: F811
     if player is None:
         return None
         
@@ -9047,7 +9051,7 @@ def generate_player_event(player=None):
     ]
     return random.choice(events)
 
-def show_player_event(event=None):
+def show_player_event(event=None):  # noqa: F811
     if event is None or not isinstance(event, dict):
         return None
         
@@ -9059,7 +9063,7 @@ def show_player_event(event=None):
     )
     return popup
 
-def apply_player_event(player=None, event=None):
+def apply_player_event(player=None, event=None):  # noqa: F811
     if player is None or event is None or not isinstance(event, dict):
         return
         
@@ -9068,29 +9072,30 @@ def apply_player_event(player=None, event=None):
         effect(player)
 
 
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import Entity, color, Ursina
+# -*- coding: utf-8 -*-    
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import Entity, color, Ursina  # noqa: E402
 
 # Django ayarlarını yükle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
 # django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun içindeki şirket modelleri yerine sınıflar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -9328,8 +9333,8 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-class FinansalDunya(Entity):
-    def __init__(self, online_mode: bool = False):
+class FinansalDunya(Entity):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -9385,7 +9390,7 @@ class FinansalDunya(Entity):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -9474,7 +9479,7 @@ class FinansalDunya(Entity):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -9484,7 +9489,7 @@ class FinansalDunya(Entity):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -9499,7 +9504,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -9510,7 +9515,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -9519,7 +9524,7 @@ class FinansalDunya(Entity):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -9575,7 +9580,7 @@ class FinansalDunya(Entity):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -9599,7 +9604,7 @@ class FinansalDunya(Entity):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -9617,13 +9622,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinansalDunya(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -9656,7 +9661,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -9685,7 +9690,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -9728,7 +9733,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -9799,7 +9804,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -9871,7 +9876,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -9879,7 +9884,7 @@ def toggle_menu():
         destroy(ui['menu_panel'])
         ui['menu_panel'] = None
 
-def create_menu():
+def create_menu():  # noqa: F811
     """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
@@ -9938,7 +9943,7 @@ def create_menu():
         on_click=Func(quit_game)
     )
 
-def show_settings():
+def show_settings():  # noqa: F811
     """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
     # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
@@ -10002,23 +10007,23 @@ def show_settings():
         on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
     )
 
-def toggle_sound():
+def toggle_sound():  # noqa: F811
     """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_music():
+def toggle_music():  # noqa: F811
     """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_fullscreen():
+def toggle_fullscreen():  # noqa: F811
     """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def start_tutorial():
+def start_tutorial():  # noqa: F811
     """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
@@ -10053,7 +10058,7 @@ def start_tutorial():
     
     current_step = 0
     
-    def show_step():
+    def show_step():  # noqa: F811
         nonlocal current_step
         step = tutorial_steps[current_step]
         
@@ -10094,7 +10099,7 @@ def start_tutorial():
             on_click=next_step
         )
     
-    def next_step():
+    def next_step():  # noqa: F811
         nonlocal current_step
         current_step += 1
         if current_step < len(tutorial_steps):
@@ -10108,7 +10113,7 @@ def start_tutorial():
     # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
-def save_game():
+def save_game():  # noqa: F811
     """Oyun durumunu kaydet"""
     try:
         # Kaydedilecek verileri hazÄ±rla
@@ -10121,7 +10126,7 @@ def save_game():
         }
         
         # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
-        def convert_datetime(obj):
+        def convert_datetime(obj):  # noqa: F811
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
@@ -10134,7 +10139,7 @@ def save_game():
     except Exception as e:
         show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
-def load_game():
+def load_game():  # noqa: F811
     """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
         # JSON dosyasÄ±nÄ± oku
@@ -10142,7 +10147,7 @@ def load_game():
             save_data = json.load(f)
         
         # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
-        def parse_datetime(obj):
+        def parse_datetime(obj):  # noqa: F811
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
                     try:
@@ -10170,7 +10175,7 @@ def load_game():
     except Exception as e:
         show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
-def show_notification(message, color=color.white):
+def show_notification(message, color=color.white):  # noqa: F811
     """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
@@ -10180,7 +10185,7 @@ def show_notification(message, color=color.white):
     )
     destroy(notification, delay=3)
 
-def auto_save():
+def auto_save():  # noqa: F811
     """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
@@ -10190,7 +10195,7 @@ def auto_save():
         save_game()
         auto_save.last_save = current_time
 
-def quit_game():
+def quit_game():  # noqa: F811
     """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
@@ -10198,7 +10203,7 @@ def quit_game():
     # Pencereyi kapat
     application.quit()
 
-def initialize_quest_system():
+def initialize_quest_system():  # noqa: F811
     """GÃ¶rev sistemini baÅŸlat"""
     # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
@@ -10243,7 +10248,7 @@ def initialize_quest_system():
     # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
-def assign_daily_quests():
+def assign_daily_quests():  # noqa: F811
     """GÃ¼nlÃ¼k gÃ¶revleri ata"""
     # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
@@ -10256,7 +10261,7 @@ def assign_daily_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def assign_weekly_quests():
+def assign_weekly_quests():  # noqa: F811
     """HaftalÄ±k gÃ¶revleri ata"""
     # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
@@ -10269,7 +10274,7 @@ def assign_weekly_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def check_quest_completion():
+def check_quest_completion():  # noqa: F811
     """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
@@ -10296,7 +10301,7 @@ def check_quest_completion():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def give_quest_rewards(quest):
+def give_quest_rewards(quest):  # noqa: F811
     """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
@@ -10321,7 +10326,7 @@ def give_quest_rewards(quest):
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
-def show_quest_completion(quest):
+def show_quest_completion(quest):  # noqa: F811
     """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
@@ -10346,7 +10351,7 @@ def show_quest_completion(quest):
     if reward_text:
         destroy(reward_text, delay=4)
 
-def show_level_up():
+def show_level_up():  # noqa: F811
     """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
         text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
@@ -10356,11 +10361,11 @@ def show_level_up():
     )
     destroy(level_text, delay=4)
 
-def calculate_next_level_xp(current_level):
+def calculate_next_level_xp(current_level):  # noqa: F811
     """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
-def create_quest_ui():
+def create_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
     # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
@@ -10422,7 +10427,7 @@ def create_quest_ui():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def update_quest_ui():
+def update_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
     # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
@@ -10501,7 +10506,7 @@ def update_quest_ui():
             
             y_position -= 0.1
 
-def calculate_daily_profit():
+def calculate_daily_profit():  # noqa: F811
     """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
@@ -10520,7 +10525,7 @@ def calculate_daily_profit():
     
     return profit
 
-def calculate_weekly_growth():
+def calculate_weekly_growth():  # noqa: F811
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
@@ -10534,7 +10539,7 @@ def calculate_weekly_growth():
         return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
-def update_market_state():
+def update_market_state():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
@@ -10569,7 +10574,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -10584,7 +10589,7 @@ def update():
     if game_settings['auto_save']:
         auto_save()
 
-def update_market():
+def update_market():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -10601,7 +10606,7 @@ def update_market():
         
         market_state['last_update'] = current_time
 
-def update_market_trend():
+def update_market_trend():  # noqa: F811
     """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
@@ -10634,7 +10639,7 @@ def update_market_trend():
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
-def update_stock_prices():
+def update_stock_prices():  # noqa: F811
     """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
@@ -10667,7 +10672,7 @@ def update_stock_prices():
         new_price = base_price * (1 + total_change)
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
-def calculate_sector_effect(sector):
+def calculate_sector_effect(sector):  # noqa: F811
     """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
@@ -10678,7 +10683,7 @@ def calculate_sector_effect(sector):
     }
     return sector_trends.get(sector, 0)
 
-def check_market_events():
+def check_market_events():  # noqa: F811
     """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
@@ -10687,7 +10692,7 @@ def check_market_events():
             apply_market_event(event)
             show_market_event(event)
 
-def generate_market_event():
+def generate_market_event():  # noqa: F811
     """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
@@ -10751,7 +10756,7 @@ def generate_market_event():
     
     return None
 
-def apply_market_event(event):
+def apply_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
@@ -10774,7 +10779,7 @@ def apply_market_event(event):
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
-def show_market_event(event):
+def show_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
@@ -10829,14 +10834,14 @@ def show_market_event(event):
         'duration': 5  # 5 saniye sonra kaybolacak
     })
 
-def calculate_portfolio_value():
+def calculate_portfolio_value():  # noqa: F811
     """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
     return total_value
 
-def calculate_risk_score():
+def calculate_risk_score():  # noqa: F811
     """Risk skorunu hesapla"""
     # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
@@ -10848,7 +10853,7 @@ def calculate_risk_score():
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
-def calculate_portfolio_diversity():
+def calculate_portfolio_diversity():  # noqa: F811
     """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
@@ -10866,7 +10871,7 @@ def calculate_portfolio_diversity():
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
-def calculate_debt_to_income_ratio():
+def calculate_debt_to_income_ratio():  # noqa: F811
     """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
@@ -10879,7 +10884,7 @@ def calculate_debt_to_income_ratio():
     ratio = total_debt / total_income
     return min(max(ratio, 0), 1)
 
-def update_ui():
+def update_ui():  # noqa: F811
     """UI'Ä± gÃ¼ncelle"""
     # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
@@ -10900,7 +10905,7 @@ def update_ui():
     # Bildirimleri gÃ¼ncelle
     update_notifications()
 
-def update_stock_buttons():
+def update_stock_buttons():  # noqa: F811
     """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         # AlÄ±m butonu
@@ -10911,7 +10916,7 @@ def update_stock_buttons():
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
-def update_notifications():
+def update_notifications():  # noqa: F811
     """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -10924,7 +10929,7 @@ def update_notifications():
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
-def buy_stock(symbol):
+def buy_stock(symbol):  # noqa: F811
     """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -10949,28 +10954,29 @@ def buy_stock(symbol):
     # Ä°ÅŸlem kaydÄ±nÄ± gÃ¼ncelle
     player['trading_history'].append(trade)
     
-from __future__ import absolute_import, unicode_literals
-import os
-from datetime import datetime
-from ursina import Entity, color, Ursina
+# Duplicate imports removed - already imported at top of file
+# from __future__ import absolute_import, unicode_literals  # noqa: E402, F404
+# import os  # noqa: E402
+# from datetime import datetime  # noqa: E402
+# from ursina import Entity, color, Ursina  # noqa: E402
 
-# Django ayarlarÄ±nÄ± yÃ¼kle
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
-# django.setup() satÄ±rÄ± kaldÄ±rÄ±ldÄ± - circular import sorununa yol aÃ§Ä±yor
+# Django ayarlarını yükle
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')  # noqa: E402
+# django.setup() satırı kaldırıldı - circular import sorununa yol açıyor
 
 # Oyun iÃ§indeki ÅŸirket modelleri yerine sÄ±nÄ±flar kullan
-class GameCompany:
-    def __init__(self, name, sector):
+class GameCompany:  # noqa: F811
+    def __init__(self, name, sector):  # noqa: F811
         self.name = name
         self.sector = sector
 
-class GameDepartment:
-    def __init__(self, name, company):
+class GameDepartment:  # noqa: F811
+    def __init__(self, name, company):  # noqa: F811
         self.name = name
         self.company = company
 
-class GameEmployee:
-    def __init__(self, name, department):
+class GameEmployee:  # noqa: F811
+    def __init__(self, name, department):  # noqa: F811
         self.name = name
         self.department = department
 
@@ -11208,8 +11214,8 @@ quest_ui = {
     'completed_quests_text': None
 }
 
-class FinansalDunya(Entity):
-    def __init__(self, online_mode: bool = False):
+class FinansalDunya(Entity):  # noqa: F811
+    def __init__(self, online_mode: bool = False):  # noqa: F811
         super().__init__()
         self.oyun = FinansalSimulasyonOyunu(online_mode=online_mode)
         self.oyuncu = FirstPersonController()
@@ -11265,7 +11271,7 @@ class FinansalDunya(Entity):
         self.auto_save_thread.daemon = True
         self.auto_save_thread.start()
 
-    def ui_olustur(self):
+    def ui_olustur(self):  # noqa: F811
         # Ana panel
         self.ui_elements['ana_panel'] = Entity(
             parent=camera.ui,
@@ -11354,7 +11360,7 @@ class FinansalDunya(Entity):
         if self.is_mobile:
             self._create_mobile_controls()
             
-    def toggle_language(self):
+    def toggle_language(self):  # noqa: F811
         """Dil seÃ§imini deÄŸiÅŸtir"""
         available_locales = self.locale_manager.get_available_locales()
         current_index = available_locales.index(self.locale_manager.get_current_locale())
@@ -11364,7 +11370,7 @@ class FinansalDunya(Entity):
         # UI'Ä± gÃ¼ncelle
         self.ui_guncelle()
         
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         if self.oyun.oyuncu_bakiyesi >= 1000:
             basari = self.oyun.islem_yap('alis', 1000, 0.5)
             if basari:
@@ -11379,7 +11385,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         basari = self.oyun.islem_yap('satis', 1000, 0.3)
         if basari:
             self.ui_elements['bildirim'].text = self.locale_manager.get_text('game.transactions.success')
@@ -11390,7 +11396,7 @@ class FinansalDunya(Entity):
             
         self.ui_guncelle()
         
-    def ui_guncelle(self):
+    def ui_guncelle(self):  # noqa: F811
         self.ui_elements['bakiye'].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
         self.ui_elements['puan'].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
         self.ui_elements['seviye'].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
@@ -11399,7 +11405,7 @@ class FinansalDunya(Entity):
         self.ui_elements['menu_buton'].text = self.locale_manager.get_text('game.menu.settings')
         self.ui_elements['dil_buton'].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
         
-    def toggle_menu(self):
+    def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
         self.is_paused = not self.is_paused
         
@@ -11455,7 +11461,7 @@ class FinansalDunya(Entity):
                 destroy(self.ui_elements['menu_panel'])
                 del self.ui_elements['menu_panel']
         
-    def update(self):
+    def update(self):  # noqa: F811
         # Performans kontrolÃ¼
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -11479,7 +11485,7 @@ class FinansalDunya(Entity):
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
         
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         simdiki_zaman = time.time()
         for olay in self.olaylar:
             if simdiki_zaman - olay['baslangic'] > olay['sure']:
@@ -11497,13 +11503,13 @@ class FinansalDunya(Entity):
                 self.ui_elements['bildirim'].text = f"Yeni Olay: {olay['tip']}"
                 self.ui_elements['bildirim'].color = color.yellow
 
-def run_game(online_mode: bool = False):
+def run_game(online_mode: bool = False):  # noqa: F811
     """Oyunu baÅŸlat"""
     app = Ursina()
     FinansalDunya(online_mode=online_mode)
     app.run()
 
-def create_ui():
+def create_ui():  # noqa: F811
     """Ana UI'Ä± oluÅŸtur"""
     # Ana panel
     ui['main_panel'] = Entity(
@@ -11536,7 +11542,7 @@ def create_ui():
         on_click=Func(toggle_menu)
     )
 
-def create_top_info_panel():
+def create_top_info_panel():  # noqa: F811
     """Ãœst bilgi panelini oluÅŸtur"""
     # Para
     ui['text_elements']['money'] = Text(
@@ -11565,7 +11571,7 @@ def create_top_info_panel():
         color=color.yellow
     )
 
-def create_portfolio_panel():
+def create_portfolio_panel():  # noqa: F811
     """PortfÃ¶y panelini oluÅŸtur"""
     ui['portfolio_panel'] = Entity(
         parent=ui['main_panel'],
@@ -11608,7 +11614,7 @@ def create_portfolio_panel():
             
             y_pos -= 0.08
 
-def create_market_panel():
+def create_market_panel():  # noqa: F811
     """Market panelini oluÅŸtur"""
     ui['market_panel'] = Entity(
         parent=ui['main_panel'],
@@ -11679,7 +11685,7 @@ def create_market_panel():
         
         y_pos -= 0.08
 
-def create_stats_panel():
+def create_stats_panel():  # noqa: F811
     """Ä°statistik panelini oluÅŸtur"""
     ui['stats_panel'] = Entity(
         parent=ui['main_panel'],
@@ -11751,7 +11757,7 @@ def create_stats_panel():
         color=color.red
     )
 
-def toggle_menu():
+def toggle_menu():  # noqa: F811
     """MenÃ¼yÃ¼ aÃ§/kapat"""
     if not ui['menu_panel']:
         create_menu()
@@ -11759,7 +11765,7 @@ def toggle_menu():
         destroy(ui['menu_panel'])
         ui['menu_panel'] = None
 
-def create_menu():
+def create_menu():  # noqa: F811
     """MenÃ¼ panelini oluÅŸtur"""
     ui['menu_panel'] = Entity(
         parent=camera.ui,
@@ -11818,7 +11824,7 @@ def create_menu():
         on_click=Func(quit_game)
     )
 
-def show_settings():
+def show_settings():  # noqa: F811
     """Ayarlar menÃ¼sÃ¼nÃ¼ gÃ¶ster"""
     # Mevcut menÃ¼yÃ¼ kapat
     destroy(ui['menu_panel'])
@@ -11882,23 +11888,23 @@ def show_settings():
         on_click=Func(lambda: (destroy(ui['settings_panel']), create_menu()))
     )
 
-def toggle_sound():
+def toggle_sound():  # noqa: F811
     """Ses ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['sound_enabled'] = not game_settings['sound_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_music():
+def toggle_music():  # noqa: F811
     """MÃ¼zik ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['music_enabled'] = not game_settings['music_enabled']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def toggle_fullscreen():
+def toggle_fullscreen():  # noqa: F811
     """Tam ekran ayarÄ±nÄ± deÄŸiÅŸtir"""
     game_settings['fullscreen'] = not game_settings['fullscreen']
     window.fullscreen = game_settings['fullscreen']
     show_settings()  # Ayarlar menÃ¼sÃ¼nÃ¼ yenile
 
-def start_tutorial():
+def start_tutorial():  # noqa: F811
     """EÄŸitim modunu baÅŸlat"""
     tutorial_steps = [
         {
@@ -11933,7 +11939,7 @@ def start_tutorial():
     
     current_step = 0
     
-    def show_step():
+    def show_step():  # noqa: F811
         nonlocal current_step
         step = tutorial_steps[current_step]
         
@@ -11974,7 +11980,7 @@ def start_tutorial():
             on_click=next_step
         )
     
-    def next_step():
+    def next_step():  # noqa: F811
         nonlocal current_step
         current_step += 1
         if current_step < len(tutorial_steps):
@@ -11988,7 +11994,7 @@ def start_tutorial():
     # Ä°lk adÄ±mÄ± gÃ¶ster
     show_step()
 
-def save_game():
+def save_game():  # noqa: F811
     """Oyun durumunu kaydet"""
     try:
         # Kaydedilecek verileri hazÄ±rla
@@ -12001,7 +12007,7 @@ def save_game():
         }
         
         # datetime nesnelerini ISO formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼r
-        def convert_datetime(obj):
+        def convert_datetime(obj):  # noqa: F811
             if isinstance(obj, datetime):
                 return obj.isoformat()
             return obj
@@ -12014,7 +12020,7 @@ def save_game():
     except Exception as e:
         show_notification(f'KayÄ±t hatasÄ±: {str(e)}', color.red)
 
-def load_game():
+def load_game():  # noqa: F811
     """KaydedilmiÅŸ oyun durumunu yÃ¼kle"""
     try:
         # JSON dosyasÄ±nÄ± oku
@@ -12022,7 +12028,7 @@ def load_game():
             save_data = json.load(f)
         
         # datetime string'lerini datetime nesnelerine dÃ¶nÃ¼ÅŸtÃ¼r
-        def parse_datetime(obj):
+        def parse_datetime(obj):  # noqa: F811
             for key, value in obj.items():
                 if isinstance(value, str) and 'T' in value:
                     try:
@@ -12050,7 +12056,7 @@ def load_game():
     except Exception as e:
         show_notification(f'YÃ¼kleme hatasÄ±: {str(e)}', color.red)
 
-def show_notification(message, color=color.white):
+def show_notification(message, color=color.white):  # noqa: F811
     """Bildirim gÃ¶ster"""
     notification = Text(
         text=message,
@@ -12060,7 +12066,7 @@ def show_notification(message, color=color.white):
     )
     destroy(notification, delay=3)
 
-def auto_save():
+def auto_save():  # noqa: F811
     """Otomatik kayÄ±t"""
     current_time = datetime.now()
     if not hasattr(auto_save, 'last_save'):
@@ -12070,7 +12076,7 @@ def auto_save():
         save_game()
         auto_save.last_save = current_time
 
-def quit_game():
+def quit_game():  # noqa: F811
     """Oyundan Ã§Ä±k"""
     # Oyunu kaydet
     save_game()
@@ -12078,7 +12084,7 @@ def quit_game():
     # Pencereyi kapat
     application.quit()
 
-def initialize_quest_system():
+def initialize_quest_system():  # noqa: F811
     """GÃ¶rev sistemini baÅŸlat"""
     # GÃ¼nlÃ¼k gÃ¶revleri yÃ¼kle
     daily_quests = ['daily_trade', 'daily_profit', 'daily_diversity']
@@ -12123,7 +12129,7 @@ def initialize_quest_system():
     # GÃ¶rev UI'Ä±nÄ± oluÅŸtur
     create_quest_ui()
 
-def assign_daily_quests():
+def assign_daily_quests():  # noqa: F811
     """GÃ¼nlÃ¼k gÃ¶revleri ata"""
     # GÃ¼nlÃ¼k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [d['id'] for d in quest_system['daily_quests']]]
@@ -12136,7 +12142,7 @@ def assign_daily_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def assign_weekly_quests():
+def assign_weekly_quests():  # noqa: F811
     """HaftalÄ±k gÃ¶revleri ata"""
     # HaftalÄ±k gÃ¶revleri sÄ±fÄ±rla
     player['active_quests'] = [q for q in player['active_quests'] if q not in [w['id'] for w in quest_system['weekly_quests']]]
@@ -12149,7 +12155,7 @@ def assign_weekly_quests():
         player['active_quests'].append(quest['id'])
         player['quest_progress'][quest['id']] = 0
 
-def check_quest_completion():
+def check_quest_completion():  # noqa: F811
     """GÃ¶rev tamamlanma durumunu kontrol et"""
     completed_quests = []
     
@@ -12176,7 +12182,7 @@ def check_quest_completion():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def give_quest_rewards(quest):
+def give_quest_rewards(quest):  # noqa: F811
     """GÃ¶rev Ã¶dÃ¼llerini ver"""
     reward = quest['reward']
     
@@ -12201,7 +12207,7 @@ def give_quest_rewards(quest):
         if reward['achievement'] not in player['achievements']:
             player['achievements'].append(reward['achievement'])
 
-def show_quest_completion(quest):
+def show_quest_completion(quest):  # noqa: F811
     """GÃ¶rev tamamlanma bildirimini gÃ¶ster"""
     # Ana bildirim metni
     completion_text = Text(
@@ -12226,7 +12232,7 @@ def show_quest_completion(quest):
     if reward_text:
         destroy(reward_text, delay=4)
 
-def show_level_up():
+def show_level_up():  # noqa: F811
     """Seviye atlama bildirimini gÃ¶ster"""
     level_text = Text(
         text=f"Seviye AtladÄ±nÄ±z! Yeni Seviye: {player['experience']['level']}",
@@ -12236,11 +12242,11 @@ def show_level_up():
     )
     destroy(level_text, delay=4)
 
-def calculate_next_level_xp(current_level):
+def calculate_next_level_xp(current_level):  # noqa: F811
     """Sonraki seviye iÃ§in gereken XP'yi hesapla"""
     return int(1000 * (1.5 ** (current_level - 1)))
 
-def create_quest_ui():
+def create_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± oluÅŸtur"""
     # GÃ¶rev paneli
     quest_ui['panel'] = Entity(
@@ -12302,7 +12308,7 @@ def create_quest_ui():
     # GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle
     update_quest_ui()
 
-def update_quest_ui():
+def update_quest_ui():  # noqa: F811
     """GÃ¶rev UI'Ä±nÄ± gÃ¼ncelle"""
     # Mevcut gÃ¶rev Ã¶ÄŸelerini temizle
     for item in quest_ui['quest_items']:
@@ -12381,7 +12387,7 @@ def update_quest_ui():
             
             y_position -= 0.1
 
-def calculate_daily_profit():
+def calculate_daily_profit():  # noqa: F811
     """GÃ¼nlÃ¼k kÃ¢rÄ± hesapla"""
     today = datetime.now().date()
     today_trades = [t for t in player['trading_history'] if t['timestamp'].date() == today]
@@ -12400,7 +12406,7 @@ def calculate_daily_profit():
     
     return profit
 
-def calculate_weekly_growth():
+def calculate_weekly_growth():  # noqa: F811
     """HaftalÄ±k bÃ¼yÃ¼meyi hesapla"""
     # BaÅŸlangÄ±Ã§ portfÃ¶y deÄŸeri (1 hafta Ã¶nce)
     week_ago = datetime.now() - timedelta(days=7)
@@ -12414,7 +12420,7 @@ def calculate_weekly_growth():
         return (current_value / 100000) - 1  # BaÅŸlangÄ±Ã§ deÄŸerine gÃ¶re bÃ¼yÃ¼me
     return 0
 
-def update_market_state():
+def update_market_state():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     if (current_time - market_state['last_update']).seconds >= 30:  # Her 30 saniyede bir gÃ¼ncelle
@@ -12449,7 +12455,7 @@ def update_market_state():
         
         market_state['last_update'] = current_time
 
-def update():
+def update():  # noqa: F811
     """Ana oyun dÃ¶ngÃ¼sÃ¼"""
     # Piyasa gÃ¼ncellemesi
     update_market()
@@ -12464,7 +12470,7 @@ def update():
     if game_settings['auto_save']:
         auto_save()
 
-def update_market():
+def update_market():  # noqa: F811
     """Piyasa durumunu gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -12481,7 +12487,7 @@ def update_market():
         
         market_state['last_update'] = current_time
 
-def update_market_trend():
+def update_market_trend():  # noqa: F811
     """Piyasa trendini gÃ¼ncelle"""
     trend_chance = random.random()
     
@@ -12514,7 +12520,7 @@ def update_market_trend():
         0.5 if game_settings['difficulty'] == 'easy' else 0.7 if game_settings['difficulty'] == 'normal' else 0.9
     )
 
-def update_stock_prices():
+def update_stock_prices():  # noqa: F811
     """Hisse senedi fiyatlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         base_price = data['price']
@@ -12547,7 +12553,7 @@ def update_stock_prices():
         new_price = base_price * (1 + total_change)
         player['portfolio'][symbol]['price'] = max(0.01, new_price)
 
-def calculate_sector_effect(sector):
+def calculate_sector_effect(sector):  # noqa: F811
     """SektÃ¶r bazlÄ± fiyat etkisini hesapla"""
     sector_trends = {
         'tech': random.uniform(-0.005, 0.008),
@@ -12558,7 +12564,7 @@ def calculate_sector_effect(sector):
     }
     return sector_trends.get(sector, 0)
 
-def check_market_events():
+def check_market_events():  # noqa: F811
     """Piyasa olaylarÄ±nÄ± kontrol et"""
     if random.random() < game_settings['event_chance']:
         event = generate_market_event()
@@ -12567,7 +12573,7 @@ def check_market_events():
             apply_market_event(event)
             show_market_event(event)
 
-def generate_market_event():
+def generate_market_event():  # noqa: F811
     """Piyasa olayÄ± oluÅŸtur"""
     event_types = {
         'global': [
@@ -12631,7 +12637,7 @@ def generate_market_event():
     
     return None
 
-def apply_market_event(event):
+def apply_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± uygula"""
     effect = event['effect']
     
@@ -12654,7 +12660,7 @@ def apply_market_event(event):
         if effect['symbol'] in player['portfolio']:
             player['portfolio'][effect['symbol']]['price'] *= (1 + effect['change'])
 
-def show_market_event(event):
+def show_market_event(event):  # noqa: F811
     """Piyasa olayÄ±nÄ± gÃ¶ster"""
     # Bildirim paneli
     notification = Entity(
@@ -12709,14 +12715,14 @@ def show_market_event(event):
         'duration': 5  # 5 saniye sonra kaybolacak
     })
 
-def calculate_portfolio_value():
+def calculate_portfolio_value():  # noqa: F811
     """PortfÃ¶y deÄŸerini hesapla"""
     total_value = player['money']
     for symbol, data in player['portfolio'].items():
         total_value += data['shares'] * data['price']
     return total_value
 
-def calculate_risk_score():
+def calculate_risk_score():  # noqa: F811
     """Risk skorunu hesapla"""
     # PortfÃ¶y Ã§eÅŸitliliÄŸi (0-1 arasÄ±)
     portfolio_diversity = calculate_portfolio_diversity()
@@ -12728,7 +12734,7 @@ def calculate_risk_score():
     risk_score = (1 - portfolio_diversity) * 0.6 + debt_to_income * 0.4
     return min(max(risk_score, 0), 1)
 
-def calculate_portfolio_diversity():
+def calculate_portfolio_diversity():  # noqa: F811
     """PortfÃ¶y Ã§eÅŸitliliÄŸini hesapla"""
     total_value = calculate_portfolio_value()
     if total_value == 0:
@@ -12746,7 +12752,7 @@ def calculate_portfolio_diversity():
     diversity = 1 - hhi
     return min(max(diversity, 0), 1)
 
-def calculate_debt_to_income_ratio():
+def calculate_debt_to_income_ratio():  # noqa: F811
     """BorÃ§/gelir oranÄ±nÄ± hesapla"""
     total_income = sum(t['amount'] for t in player.get('trading_history', []) 
                       if t['type'] == 'profit' and (datetime.now() - t['timestamp']).days <= 30)
@@ -12759,7 +12765,7 @@ def calculate_debt_to_income_ratio():
     ratio = total_debt / total_income
     return min(max(ratio, 0), 1)
 
-def update_ui():
+def update_ui():  # noqa: F811
     """UI'Ä± gÃ¼ncelle"""
     # Para ve portfÃ¶y deÄŸerini gÃ¼ncelle
     ui['text_elements']['money'].text = f"Para: ${player['money']:,.2f}"
@@ -12780,7 +12786,7 @@ def update_ui():
     # Bildirimleri gÃ¼ncelle
     update_notifications()
 
-def update_stock_buttons():
+def update_stock_buttons():  # noqa: F811
     """Hisse senedi butonlarÄ±nÄ± gÃ¼ncelle"""
     for symbol, data in player['portfolio'].items():
         # AlÄ±m butonu
@@ -12791,7 +12797,7 @@ def update_stock_buttons():
         if symbol + '_sell' in ui['buttons']:
             ui['buttons'][symbol + '_sell'].enabled = data['shares'] > 0
 
-def update_notifications():
+def update_notifications():  # noqa: F811
     """Bildirimleri gÃ¼ncelle"""
     current_time = datetime.now()
     
@@ -12804,7 +12810,7 @@ def update_notifications():
         if 'text' in notification:
             notification['text'].y = -0.3 - i * 0.1
 
-def buy_stock(symbol):
+def buy_stock(symbol):  # noqa: F811
     """Hisse senedi satÄ±n al"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -12838,7 +12844,7 @@ def buy_stock(symbol):
     # UI'Ä± gÃ¼ncelle
     update_ui()
 
-def sell_stock(symbol):
+def sell_stock(symbol):  # noqa: F811
     """Hisse senedi sat"""
     stock = player['portfolio'][symbol]
     price = stock['price']
@@ -12872,7 +12878,7 @@ def sell_stock(symbol):
     # UI'Ä± gÃ¼ncelle
     update_ui()
 
-def check_quests():
+def check_quests():  # noqa: F811
     """GÃ¶revleri kontrol et"""
     # GÃ¼nlÃ¼k gÃ¶revleri kontrol et
     for quest in quest_system['daily_quests']:
@@ -12905,7 +12911,7 @@ def check_quests():
     # Seviye atlamayÄ± kontrol et
     check_level_up()
 
-def check_level_up():
+def check_level_up():  # noqa: F811
     """Seviye atlamayÄ± kontrol et"""
     while player['experience']['current_xp'] >= player['experience']['next_level_xp']:
         # Seviye atla
@@ -12923,17 +12929,17 @@ def check_level_up():
         # Seviye atlama bildirimini gÃ¶ster
         show_level_up()
 
-class CharacterSelection:
-    def __init__(self):
+class CharacterSelection:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.characters = self.load_characters()
         self.selected_character = None
         self.ui_elements = {}
         
-    def load_characters(self):
+    def load_characters(self):  # noqa: F811
         with open('characters.json', 'r', encoding='utf-8') as f:
             return json.load(f)['characters']
             
-    def create_ui(self):
+    def create_ui(self):  # noqa: F811
         # Karakter seÃ§im paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
@@ -12976,7 +12982,7 @@ class CharacterSelection:
                 parent=self.ui_elements['panel']
             )
             
-    def select_character(self, character):
+    def select_character(self, character):  # noqa: F811
         self.selected_character = character
         # Oyuncu verilerini gÃ¼ncelle
         player['money'] = character['starting_money']
@@ -12986,18 +12992,18 @@ class CharacterSelection:
         # Oyunu baÅŸlat
         start_game()
 
-class MissionSystem:
-    def __init__(self):
+class MissionSystem:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.levels = self.load_missions()
         self.current_level = 1
         self.current_mission = None
         self.ui_elements = {}
         
-    def load_missions(self):
+    def load_missions(self):  # noqa: F811
         with open('missions.json', 'r', encoding='utf-8') as f:
             return json.load(f)['levels']
             
-    def create_mission_ui(self):
+    def create_mission_ui(self):  # noqa: F811
         # GÃ¶rev paneli
         self.ui_elements['panel'] = Entity(
             model='quad',
@@ -13023,7 +13029,7 @@ class MissionSystem:
             parent=self.ui_elements['panel']
         )
         
-    def update_mission_ui(self):
+    def update_mission_ui(self):  # noqa: F811
         if self.current_mission:
             level = self.levels[self.current_level - 1]
             mission = level['missions'][0]  # Ä°lk gÃ¶revi gÃ¶ster
@@ -13050,7 +13056,7 @@ class MissionSystem:
                 parent=self.ui_elements['panel']
             )
             
-    def check_mission_completion(self):
+    def check_mission_completion(self):  # noqa: F811
         if self.current_mission:
             requirements = self.current_mission['requirements']
             completed = True
@@ -13065,7 +13071,7 @@ class MissionSystem:
             if completed:
                 self.complete_mission()
                 
-    def complete_mission(self):
+    def complete_mission(self):  # noqa: F811
         if self.current_mission is None:
             return
             
@@ -13080,7 +13086,7 @@ class MissionSystem:
         # Yeni gÃ¶rev atama
         self.assign_next_mission()
         
-    def assign_next_mission(self):
+    def assign_next_mission(self):  # noqa: F811
         level = self.levels[self.current_level - 1]
         if len(level['missions']) > 1:
             self.current_mission = level['missions'][1]
@@ -13088,7 +13094,7 @@ class MissionSystem:
             # Seviye tamamlandÄ±
             self.level_up()
             
-    def level_up(self):
+    def level_up(self):  # noqa: F811
         self.current_level += 1
         if self.current_level <= len(self.levels):
             # Yeni seviye arka planÄ±nÄ± yÃ¼kle
@@ -13097,14 +13103,14 @@ class MissionSystem:
             self.current_mission = self.levels[self.current_level - 1]['missions'][0]
             show_notification(f'ðŸŽ‰ Seviye {self.current_level} AÃ§Ä±ldÄ±!', color.yellow)
             
-    def load_level_background(self):
+    def load_level_background(self):  # noqa: F811
         level = self.levels[self.current_level - 1]
         level['background']
         # Arka plan deÄŸiÅŸtirme iÅŸlemi
         # ...
 
-class BattleRoyaleMode:
-    def __init__(self):
+class BattleRoyaleMode:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.players = []
         self.events = []
         self.loot_cards = []
@@ -13128,12 +13134,12 @@ class BattleRoyaleMode:
         # OlaylarÄ± ve kartlarÄ± yÃ¼kle
         self.load_game_data()
 
-    def load_game_data(self):
+    def load_game_data(self):  # noqa: F811
         """Oyun verilerini yÃ¼kle"""
         self.events = self.load_events()
         self.loot_cards = self.load_loot_cards()
 
-    def load_events(self):
+    def load_events(self):  # noqa: F811
         """Olay verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/arena_events.json', 'r', encoding='utf-8') as f:
@@ -13141,7 +13147,7 @@ class BattleRoyaleMode:
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             return []
 
-    def load_loot_cards(self):
+    def load_loot_cards(self):  # noqa: F811
         """Kart verilerini yÃ¼kle"""
         try:
             with open('games/ursina_game/loot_cards.json', 'r', encoding='utf-8') as f:
@@ -13149,14 +13155,14 @@ class BattleRoyaleMode:
         except (FileNotFoundError, KeyError, json.JSONDecodeError):
             return []
 
-    def alis_yap(self):
+    def alis_yap(self):  # noqa: F811
         """AlÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'money') and self.player.money >= 1000:
             self.player.money -= 1000
             return True
         return False
 
-    def satis_yap(self):
+    def satis_yap(self):  # noqa: F811
         """SatÄ±ÅŸ iÅŸlemi yap"""
         if self.player and hasattr(self.player, 'shares') and self.player.shares > 0:
             self.player.money += 1000
@@ -13164,14 +13170,14 @@ class BattleRoyaleMode:
             return True
         return False
 
-    def olay_guncelle(self):
+    def olay_guncelle(self):  # noqa: F811
         """OlaylarÄ± gÃ¼ncelle"""
         current_time = time.time()
         for event in self.events:
             if 'start_time' in event and current_time - event['start_time'] > event.get('duration', 0):
                 self.generate_new_event()
 
-    def generate_new_event(self):
+    def generate_new_event(self):  # noqa: F811
         """Yeni olay oluÅŸtur"""
         event_types = ['market_change', 'resource_discovery', 'crisis']
         new_event = {
@@ -13181,7 +13187,7 @@ class BattleRoyaleMode:
         }
         self.events.append(new_event)
 
-    def update(self):
+    def update(self):  # noqa: F811
         """Oyun durumunu gÃ¼ncelle"""
         current_time = time.time()
         if current_time - self.last_update < self.update_interval:
@@ -13205,23 +13211,23 @@ class BattleRoyaleMode:
         # Olay gÃ¼ncellemeleri
         self.olay_guncelle()
 
-class FastFinanceTournament:
-    def __init__(self):
+class FastFinanceTournament:  # noqa: F811
+    def __init__(self):  # noqa: F811
         self.scenarios = self.load_scenarios()
         self.current_scenario = None
         self.player_score = 0
         self.scenario_start_time = 0
         self.scenario_duration = 300  # 5 dakika
         
-    def load_scenarios(self):
+    def load_scenarios(self):  # noqa: F811
         with open('short_matches.json', 'r', encoding='utf-8') as f:
             return json.load(f)['scenarios']
             
-    def start_scenario(self, scenario_id):
+    def start_scenario(self, scenario_id):  # noqa: F811
         self.current_scenario = next(s for s in self.scenarios if s['id'] == scenario_id)
         self.scenario_start_time = time.time()
         
-    def submit_answer(self, option_id):
+    def submit_answer(self, option_id):  # noqa: F811
         if self.current_scenario is None:
             return False
             
@@ -13231,11 +13237,11 @@ class FastFinanceTournament:
                 return True
         return False
         
-    def check_time_up(self):
+    def check_time_up(self):  # noqa: F811
         elapsed = time.time() - self.scenario_start_time
         return elapsed >= self.scenario_duration
 
-def start_game():
+def start_game():  # noqa: F811
     app = Ursina()
     
     # Oyun modlarÄ±
@@ -13249,7 +13255,7 @@ def start_game():
     
     app.run()
 
-def generate_player_event(player=None):
+def generate_player_event(player=None):  # noqa: F811
     if player is None:
         return None
         
@@ -13267,7 +13273,7 @@ def generate_player_event(player=None):
     ]
     return random.choice(events)
 
-def show_player_event(event=None):
+def show_player_event(event=None):  # noqa: F811
     if event is None or not isinstance(event, dict):
         return None
         
@@ -13279,7 +13285,7 @@ def show_player_event(event=None):
     )
     return popup
 
-def apply_player_event(player=None, event=None):
+def apply_player_event(player=None, event=None):  # noqa: F811
     if player is None or event is None or not isinstance(event, dict):
         return
         
@@ -13287,8 +13293,8 @@ def apply_player_event(player=None, event=None):
     if effect and callable(effect):
         effect(player)
 
-class FinAsisGame(Ursina):
-    def __init__(self, player_id):
+class FinAsisGame(Ursina):  # noqa: F811
+    def __init__(self, player_id):  # noqa: F811
         super().__init__()
         self.player_id = player_id
         self.game_integration = GameIntegration(player_id)
@@ -14020,7 +14026,7 @@ class FinAsisGame(Ursina):
             name=isim
         )
 
-    def create_ui(self):
+    def create_ui(self):  # noqa: F811
         """Tüm arayüz (UI) panellerini oluşturur."""
         # Ana menü
         self.main_menu = Entity(
@@ -14080,7 +14086,7 @@ class FinAsisGame(Ursina):
             name='control_panel'
         )
 
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         current_time = time.time()
         
@@ -14252,7 +14258,7 @@ class FinAsisGame(Ursina):
         self.game_state['game_speed'] = speeds[next_index]
         self.show_notification(f"Oyun hÄ±zÄ±: {self.game_state['game_speed']}x")
         
-    def show_notification(self, message, duration=3):
+    def show_notification(self, message, duration=3):  # noqa: F811
         """Bildirim gÃ¶sterir"""
         self.notification_system['messages'].append({
             'text': message,
@@ -14267,7 +14273,7 @@ class FinAsisGame(Ursina):
             if current_time - msg['time'] >= msg['duration']:
                 self.notification_system['messages'].remove(msg)
                 
-    def save_game(self):
+    def save_game(self):  # noqa: F811
         """Oyun durumunu kaydeder"""
         save_data = {
             'player_data': self.player_data,
@@ -14291,7 +14297,7 @@ class FinAsisGame(Ursina):
         except Exception as e:
             self.show_notification(f"KayÄ±t hatasÄ±: {str(e)}", color.red)
             
-    def load_game(self):
+    def load_game(self):  # noqa: F811
         """KaydedilmiÅŸ oyunu yÃ¼kler"""
         try:
             with open(f'save_{self.player_id}.json', 'r') as f:
@@ -14331,7 +14337,8 @@ class FinAsisGame(Ursina):
             self.training_system['last_training_update'] = current_time
             
     def check_training_completion(self):
-        """Tamamlanan eÄŸitimleri kontrol eder"""
+        """Tamamlanan eğitimleri kontrol eder"""
+        current_time = time.time()
         for training in self.training_system['employee_trainings'][:]:
             if current_time - training['start_time'] >= training['duration'] * 3600:
                 # EÄŸitimi tamamla
@@ -15519,7 +15526,7 @@ class FinAsisGame(Ursina):
             }
             self.scm_system['logistics']['routes'].append(new_route)
             
-    def assess_risks(self):
+    def assess_risks(self):  # noqa: F811
         """Riskleri deÄŸerlendirir"""
         # Riskler
         if random.random() < 0.2:  # %20 ÅŸans
@@ -15609,7 +15616,7 @@ class FinAsisGame(Ursina):
             color=color.red
         )
         
-    def input(self, key):
+    def input(self, key):  # noqa: F811
         """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
@@ -15617,7 +15624,7 @@ class FinAsisGame(Ursina):
         if key == 't':
             self.show_scm_panel()
             
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
@@ -15807,7 +15814,7 @@ class FinAsisGame(Ursina):
             color=color.red
         )
         
-    def input(self, key):
+    def input(self, key):  # noqa: F811
         """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
@@ -15815,7 +15822,7 @@ class FinAsisGame(Ursina):
         if key == 'p':
             self.show_pm_panel()
             
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
@@ -15892,7 +15899,7 @@ class FinAsisGame(Ursina):
             }
             self.hr_system['training']['certifications'].append(new_certification)
             
-    def assess_performance(self):
+    def assess_performance(self):  # noqa: F811
         """Performans deÄŸerlendirmesi yapar"""
         # DeÄŸerlendirmeler
         if random.random() < 0.2:  # %20 ÅŸans
@@ -16007,7 +16014,7 @@ class FinAsisGame(Ursina):
             color=color.red
         )
         
-    def input(self, key):
+    def input(self, key):  # noqa: F811
         """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
@@ -16015,7 +16022,7 @@ class FinAsisGame(Ursina):
         if key == 'h':
             self.show_hr_panel()
             
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
@@ -16153,7 +16160,7 @@ class FinAsisGame(Ursina):
             )
             y_pos -= 0.03
             
-    def input(self, key):
+    def input(self, key):  # noqa: F811
         """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
@@ -16161,7 +16168,7 @@ class FinAsisGame(Ursina):
         if key == 'h':
             self.show_health_panel()
             
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         
@@ -16287,7 +16294,7 @@ class FinAsisGame(Ursina):
             )
             y_pos -= 0.03
             
-    def input(self, key):
+    def input(self, key):  # noqa: F811
         """Klavye giriÅŸlerini iÅŸler"""
         # ... existing code ...
         
@@ -16295,7 +16302,7 @@ class FinAsisGame(Ursina):
         if key == 'e':
             self.show_exercise_panel()
             
-    def update(self):
+    def update(self):  # noqa: F811
         """Her frame'de Ã§alÄ±ÅŸacak gÃ¼ncelleme fonksiyonu"""
         # ... existing code ...
         

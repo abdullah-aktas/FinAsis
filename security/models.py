@@ -1,5 +1,5 @@
 # Security models are imported from data_security_compliance.py
-from finance.data_security_compliance import *
+from finance.data_security_compliance import *  # noqa: F403
 
 from django.db import models
 from django.conf import settings

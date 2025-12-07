@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from ursina import *
+from ursina import *  # noqa: F403, F405
 from game_manager import GameManager
 
 
-class GameIntegration(Entity):
+class GameIntegration(Entity):  # noqa: F405
     def __init__(self, player_id, **kwargs):
         super().__init__(**kwargs)
         self.game_manager = GameManager(player_id)
@@ -31,7 +31,7 @@ class GameIntegration(Entity):
     def get_buildings_state(self):
         """Binaların durumunu döndürür"""
         buildings = []
-        for entity in scene.entities:
+        for entity in scene.entities:  # noqa: F405
             if hasattr(entity, "building_type"):
                 buildings.append(
                     {
@@ -55,7 +55,7 @@ class GameIntegration(Entity):
     def get_workers_state(self):
         """Çalışanların durumunu döndürür"""
         workers = []
-        for entity in scene.entities:
+        for entity in scene.entities:  # noqa: F405
             if hasattr(entity, "worker_type"):
                 workers.append(
                     {

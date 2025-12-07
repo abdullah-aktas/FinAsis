@@ -392,7 +392,7 @@ class PermissionAuditMiddleware:
                     logger.info(
                         f"Permission usage: User {request.user.username} performed {request.method} on {request.path}"
                     )
-        except:
+        except (AttributeError, Exception):
             pass
 
     def _log_security_event(self, request, violation):

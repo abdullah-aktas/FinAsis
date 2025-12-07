@@ -27,14 +27,14 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 # Database Optimization (50K Users)
 # =============================================================================
 # Connection pooling for high concurrency
-DATABASES["default"]["CONN_MAX_AGE"] = int(
-    ENV("DJANGO_DB_CONN_MAX_AGE", "600")
+DATABASES["default"]["CONN_MAX_AGE"] = int(  # noqa: F405
+    ENV("DJANGO_DB_CONN_MAX_AGE", "600")  # noqa: F405
 )  # 10 minutes
 
 # PostgreSQL-specific optimizations
-if DATABASES["default"]["ENGINE"].endswith("postgresql"):
-    DATABASES["default"]["OPTIONS"] = {
-        **DATABASES["default"].get("OPTIONS", {}),
+if DATABASES["default"]["ENGINE"].endswith("postgresql"):  # noqa: F405
+    DATABASES["default"]["OPTIONS"] = {  # noqa: F405
+        **DATABASES["default"].get("OPTIONS", {}),  # noqa: F405
         "connect_timeout": 10,
         "options": "-c statement_timeout=30000 -c idle_in_transaction_session_timeout=30000",
     }
@@ -43,12 +43,12 @@ if DATABASES["default"]["ENGINE"].endswith("postgresql"):
 # Redis Cache Configuration (50K Users)
 # =============================================================================
 try:
-    import django_redis
+    import django_redis  # noqa: F401
 
-    REDIS_HOST = ENV("REDIS_HOST", "localhost")
-    REDIS_PORT = int(ENV("REDIS_PORT", "6379"))
-    REDIS_DB = int(ENV("REDIS_DB", "1"))
-    REDIS_PASSWORD = ENV("REDIS_PASSWORD", "")
+    REDIS_HOST = ENV("REDIS_HOST", "localhost")  # noqa: F405
+    REDIS_PORT = int(ENV("REDIS_PORT", "6379"))  # noqa: F405
+    REDIS_DB = int(ENV("REDIS_DB", "1"))  # noqa: F405
+    REDIS_PASSWORD = ENV("REDIS_PASSWORD", "")  # noqa: F405
 
     REDIS_URL = "redis://"
     if REDIS_PASSWORD:
@@ -72,7 +72,7 @@ try:
                 "IGNORE_EXCEPTIONS": True,  # Don't break if Redis is down
             },
             "KEY_PREFIX": "finasis",
-            "TIMEOUT": int(ENV("CACHE_TIMEOUT", "300")),  # 5 minutes default
+            "TIMEOUT": int(ENV("CACHE_TIMEOUT", "300")),  # 5 minutes default  # noqa: F405
         }
     }
 
@@ -94,7 +94,7 @@ except ImportError:
 # Channel Layers (WebSocket) - Redis Backend
 # =============================================================================
 try:
-    import channels_redis
+    import channels_redis  # noqa: F401
 
     CHANNEL_LAYERS = {
         "default": {
@@ -118,12 +118,12 @@ except ImportError:
 # Static & Media Files (Cloud Storage + CDN)
 # =============================================================================
 # Static files should be served via CDN in production
-STATIC_URL = ENV("STATIC_URL", "/static/")
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = ENV("STATIC_URL", "/static/")  # noqa: F405
+STATIC_ROOT = BASE_DIR / "staticfiles"  # noqa: F405
 
 # Media files - Cloud Storage
-MEDIA_URL = ENV("MEDIA_URL", "/media/")
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = ENV("MEDIA_URL", "/media/")  # noqa: F405
+MEDIA_ROOT = BASE_DIR / "media"  # noqa: F405
 
 # =============================================================================
 # Logging Configuration (Production)
@@ -183,7 +183,7 @@ LOGGING = {
 ADMIN_DOCS = False
 
 # Template caching
-TEMPLATES[0]["OPTIONS"]["loaders"] = [
+TEMPLATES[0]["OPTIONS"]["loaders"] = [  # noqa: F405
     (
         "django.template.loaders.cached.Loader",
         [
@@ -196,15 +196,15 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
 # =============================================================================
 # Email Configuration (Production)
 # =============================================================================
-EMAIL_BACKEND = ENV(
+EMAIL_BACKEND = ENV(  # noqa: F405
     "DJANGO_EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend"
 )
-EMAIL_HOST = ENV("DJANGO_EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(ENV("DJANGO_EMAIL_PORT", "587"))
-EMAIL_USE_TLS = env_bool("DJANGO_EMAIL_USE_TLS", True)
-EMAIL_HOST_USER = ENV("DJANGO_EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = ENV("DJANGO_EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = ENV(
+EMAIL_HOST = ENV("DJANGO_EMAIL_HOST", "smtp.gmail.com")  # noqa: F405
+EMAIL_PORT = int(ENV("DJANGO_EMAIL_PORT", "587"))  # noqa: F405
+EMAIL_USE_TLS = env_bool("DJANGO_EMAIL_USE_TLS", True)  # noqa: F405
+EMAIL_HOST_USER = ENV("DJANGO_EMAIL_HOST_USER", "")  # noqa: F405
+EMAIL_HOST_PASSWORD = ENV("DJANGO_EMAIL_HOST_PASSWORD", "")  # noqa: F405
+DEFAULT_FROM_EMAIL = ENV(  # noqa: F405
     "DJANGO_DEFAULT_FROM_EMAIL", "FinAsis <noreply@finasis.com.tr>"
 )
 
@@ -212,10 +212,10 @@ DEFAULT_FROM_EMAIL = ENV(
 # Monitoring & Observability
 # =============================================================================
 # Enable structured logging
-ENABLE_STRUCTURED_LOGS = env_bool("ENABLE_STRUCTURED_LOGS", True)
+ENABLE_STRUCTURED_LOGS = env_bool("ENABLE_STRUCTURED_LOGS", True)  # noqa: F405
 
 # Sentry (if configured)
-SENTRY_DSN = ENV("SENTRY_DSN", "")
+SENTRY_DSN = ENV("SENTRY_DSN", "")  # noqa: F405
 if SENTRY_DSN:
     try:
         import sentry_sdk
@@ -228,12 +228,12 @@ if SENTRY_DSN:
                 DjangoIntegration(transaction_style="url"),
                 RedisIntegration(),
             ],
-            traces_sample_rate=float(
-                ENV("SENTRY_TRACES_SAMPLE_RATE", "0.1")
+            traces_sample_rate=float(  # noqa: F405
+                ENV("SENTRY_TRACES_SAMPLE_RATE", "0.1")  # noqa: F405
             ),  # 10% of transactions
-            profiles_sample_rate=float(ENV("SENTRY_PROFILES_SAMPLE_RATE", "0.0")),
+            profiles_sample_rate=float(ENV("SENTRY_PROFILES_SAMPLE_RATE", "0.0")),  # noqa: F405
             send_default_pii=False,
-            environment=ENV("SENTRY_ENVIRONMENT", "production"),
+            environment=ENV("SENTRY_ENVIRONMENT", "production"),  # noqa: F405
         )
     except ImportError:
         pass
@@ -242,7 +242,7 @@ if SENTRY_DSN:
 # Rate Limiting (50K Users)
 # =============================================================================
 # Increase rate limits for production
-REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {  # noqa: F405
     "developer_freemium": "500/day",  # Increased from 120
     "developer_standard": "5000/hour",  # Increased from 1000
     "developer_professional": "20000/hour",  # Increased from 5000
