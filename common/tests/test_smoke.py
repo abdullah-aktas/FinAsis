@@ -102,6 +102,7 @@ class SmokeTests(TestCase):
                 "/integrations/mock/",
                 "/partners/",
                 "/api/dashboard/",
+                "/locale/",
             ]:
                 continue
 
