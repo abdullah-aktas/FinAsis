@@ -53,6 +53,16 @@ jobs:
           # Remove environment variable overrides (critical for WIF)
           unset CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE || true
           unset GOOGLE_APPLICATION_CREDENTIALS || true
+          unset GOOGLE_GHA_CREDS_PATH || true
+
+          # Also clear them from the GitHub Actions environment so sonraki
+          # adımlarda tekrar set edilmesin
+          {
+            echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE="
+            echo "GOOGLE_APPLICATION_CREDENTIALS="
+            echo "GOOGLE_GHA_CREDS_PATH="
+          } >> "$GITHUB_ENV"
+
           # Remove any credential files created by auth action
           rm -f gha-creds-*.json || true
           # Verify WIF is being used (should show service account)
