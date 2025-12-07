@@ -45,16 +45,16 @@ def evaluate_formula(formula: str, ctx: Dict[str, Any]) -> Decimal:
     if expr == "net*tax_rate":
         return allowed["net"] * allowed["tax_rate"]
     if expr.startswith("net*"):
-        try:
             factor_str = expr.split("*", 1)[1]
-            # Try to parse as Decimal first
-            factor = Decimal(factor_str)
-        except (ValueError, decimal.InvalidOperation):
             # If it's a variable name, look it up in allowed dict
             if factor_str in allowed:
                 factor = allowed[factor_str]
             else:
-                raise ValidationError(f"Geçersiz formül faktörü: {factor_str}")
+                # Try to parse as Decimal
+                try:
+                    factor = Decimal(factor_str)
+                except (ValueError, InvalidOperation):
+                    raise ValidationError(f"Geçersiz formül faktörü: {factor_str}")
         return allowed["net"] * factor
     try:
         return Decimal(expr)
