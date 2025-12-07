@@ -34,8 +34,8 @@ urlpatterns = [
     # AJAX endpoints
     path(
         "ajax/compliance-check/",
-        ajax_compliance_check,
-        name="ajax_compliance_check",  # noqa: F405
+        ajax_compliance_check,  # noqa: F405
+        name="ajax_compliance_check",
     ),
     path(
         "ajax/security-metrics/",
