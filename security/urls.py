@@ -13,11 +13,15 @@ urlpatterns = [
     path("", compliance_dashboard, name="compliance_dashboard"),  # noqa: F405
     # Kişi hakları talepleri
     path(
-        "data-requests/", data_subject_requests, name="data_subject_requests"  # noqa: F405
+        "data-requests/",
+        data_subject_requests,
+        name="data_subject_requests",  # noqa: F405
     ),
     # Kişisel veri envanteri
     path(
-        "data-inventory/", personal_data_inventory, name="personal_data_inventory"  # noqa: F405
+        "data-inventory/",
+        personal_data_inventory,
+        name="personal_data_inventory",  # noqa: F405
     ),
     # Güvenlik olayları
     path("incidents/", security_incidents, name="security_incidents"),  # noqa: F405
@@ -29,9 +33,13 @@ urlpatterns = [
     ),
     # AJAX endpoints
     path(
-        "ajax/compliance-check/", ajax_compliance_check, name="ajax_compliance_check"  # noqa: F405
+        "ajax/compliance-check/",
+        ajax_compliance_check,
+        name="ajax_compliance_check",  # noqa: F405
     ),
     path(
-        "ajax/security-metrics/", ajax_security_metrics, name="ajax_security_metrics"  # noqa: F405
+        "ajax/security-metrics/",
+        ajax_security_metrics,
+        name="ajax_security_metrics",  # noqa: F405
     ),
 ]

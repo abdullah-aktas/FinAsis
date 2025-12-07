@@ -145,7 +145,8 @@ class TradeSim:
                 if hit_info and hit_info in self.blocks.values():
                     if mouse.normal is not None:  # noqa: F405
                         pos = (
-                            hit_info.position + mouse.normal * self.block_size  # noqa: F405
+                            hit_info.position
+                            + mouse.normal * self.block_size  # noqa: F405
                         )
                         pos = tuple(round(x) for x in pos)
                         if self.is_in_stand_area(pos):
