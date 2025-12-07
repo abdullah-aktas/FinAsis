@@ -12,9 +12,10 @@ efatura_logger = logging.getLogger("efatura")
 
 def _pretty_xml(elem: Element) -> bytes:
     rough = tostring(elem, encoding="utf-8")
+    # nosec B318
     return minidom.parseString(rough).toprettyxml(
         indent="  ", encoding="utf-8"
-    )  # nosec B318
+    )
 
 
 def generate_invoice_xml(invoice: Invoice) -> bytes:
