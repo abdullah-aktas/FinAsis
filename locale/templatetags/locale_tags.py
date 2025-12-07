@@ -2,6 +2,7 @@
 Template Tags for Locale
 Çeviri için Template Tag'leri
 """
+
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language

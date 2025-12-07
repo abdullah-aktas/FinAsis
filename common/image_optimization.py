@@ -8,6 +8,7 @@ Features:
 - Image compression
 - CDN URL generation
 """
+
 import logging
 from io import BytesIO
 from pathlib import Path

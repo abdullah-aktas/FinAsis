@@ -126,9 +126,9 @@ def financial_report_post_save(sender, instance, created, **kwargs):
             # Rapor parametrelerini güncelle
             instance.parameters = {
                 "generated_at": timezone.now().isoformat(),
-                "generated_by": instance.created_by.username
-                if instance.created_by
-                else None,
+                "generated_by": (
+                    instance.created_by.username if instance.created_by else None
+                ),
             }
             instance.save()
 

@@ -122,7 +122,9 @@ class UserRoleAdmin(ModelAdmin):
                 '<span class="badge badge-danger">👥 Kullanıcı Yön.</span>'
             )
         if obj.can_edit_finances:
-            permissions.append('<span class="badge badge-success">💰 Mali Düzen.</span>')
+            permissions.append(
+                '<span class="badge badge-success">💰 Mali Düzen.</span>'
+            )
         if obj.can_access_ai:
             permissions.append('<span class="badge badge-info">🤖 AI</span>')
         if obj.can_use_blockchain:

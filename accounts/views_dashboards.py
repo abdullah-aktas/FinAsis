@@ -1,6 +1,7 @@
 """
 Kullanıcı tipine özel fonksiyonel dashboard view'ları
 """
+
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required

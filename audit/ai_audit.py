@@ -2,6 +2,7 @@
 AI-Powered Audit Analysis Module
 Yapay Zeka Destekli Denetim ve Analiz Sistemi
 """
+
 import numpy as np
 from datetime import datetime, timedelta
 from django.db.models import Count
@@ -99,9 +100,9 @@ class AuditAIAnalyzer:
                 anomalies.append(
                     {
                         "type": "frequency",
-                        "severity": "high"
-                        if item["count"] > mean + 4 * std
-                        else "medium",
+                        "severity": (
+                            "high" if item["count"] > mean + 4 * std else "medium"
+                        ),
                         "user": item["actor_username"],
                         "description": f"Olağandışı yüksek işlem sayısı: {item['count']} (Normal: {mean:.0f}±{std:.0f})",
                         "risk_score": min(100, int((item["count"] / threshold) * 70)),
@@ -136,9 +137,9 @@ class AuditAIAnalyzer:
             anomalies.append(
                 {
                     "type": "amount",
-                    "severity": "high"
-                    if event.financial_impact > mean + 4 * std
-                    else "medium",
+                    "severity": (
+                        "high" if event.financial_impact > mean + 4 * std else "medium"
+                    ),
                     "user": event.actor_username,
                     "description": f"Olağandışı yüksek tutar: {event.financial_impact:,.2f} TL (Normal: {mean:,.0f}±{std:,.0f})",
                     "risk_score": min(

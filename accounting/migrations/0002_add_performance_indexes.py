@@ -4,6 +4,7 @@ Generated: 2024
 Estimated performance gain: 60-90% on indexed queries
 Disk overhead: ~15-20% of table sizes
 """
+
 from django.db import migrations, models
 
 

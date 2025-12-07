@@ -65,26 +65,26 @@ def kobi_dashboard(request):
                 {
                     "financial_health": {
                         "score": score_val,
-                        "status_text": _("İyi")
-                        if score_val > 70
-                        else _("Orta")
-                        if score_val > 50
-                        else _("Zayıf"),
+                        "status_text": (
+                            _("İyi")
+                            if score_val > 70
+                            else _("Orta") if score_val > 50 else _("Zayıf")
+                        ),
                         "last_updated": getattr(
                             financial_analysis,
                             "analysis_period_end",
                             timezone.now().date(),
                         ),
-                        "risk_level": "low"
-                        if score_val > 70
-                        else "medium"
-                        if score_val > 50
-                        else "high",
-                        "risk_level_text": _("Düşük Risk")
-                        if score_val > 70
-                        else _("Orta Risk")
-                        if score_val > 50
-                        else _("Yüksek Risk"),
+                        "risk_level": (
+                            "low"
+                            if score_val > 70
+                            else "medium" if score_val > 50 else "high"
+                        ),
+                        "risk_level_text": (
+                            _("Düşük Risk")
+                            if score_val > 70
+                            else _("Orta Risk") if score_val > 50 else _("Yüksek Risk")
+                        ),
                     }
                 }
             )
@@ -136,43 +136,55 @@ def kobi_dashboard(request):
             context["financial_ratios"] = {
                 "current_ratio": {
                     "value": financial_analysis.current_ratio,
-                    "status": "good"
-                    if (financial_analysis.current_ratio or 0) >= 1.2
-                    else "average"
-                    if (financial_analysis.current_ratio or 0) >= 1.0
-                    else "poor",
+                    "status": (
+                        "good"
+                        if (financial_analysis.current_ratio or 0) >= 1.2
+                        else (
+                            "average"
+                            if (financial_analysis.current_ratio or 0) >= 1.0
+                            else "poor"
+                        )
+                    ),
                 },
                 "quick_ratio": {
                     "value": financial_analysis.quick_ratio,
-                    "status": "good"
-                    if (financial_analysis.quick_ratio or 0) >= 1.0
-                    else "average"
-                    if (financial_analysis.quick_ratio or 0) >= 0.8
-                    else "poor",
+                    "status": (
+                        "good"
+                        if (financial_analysis.quick_ratio or 0) >= 1.0
+                        else (
+                            "average"
+                            if (financial_analysis.quick_ratio or 0) >= 0.8
+                            else "poor"
+                        )
+                    ),
                 },
                 "debt_to_equity": {
                     "value": financial_analysis.debt_to_equity_ratio,
-                    "status": "good"
-                    if (financial_analysis.debt_to_equity_ratio or 99) <= 0.5
-                    else "average"
-                    if (financial_analysis.debt_to_equity_ratio or 99) <= 1.0
-                    else "poor",
+                    "status": (
+                        "good"
+                        if (financial_analysis.debt_to_equity_ratio or 99) <= 0.5
+                        else (
+                            "average"
+                            if (financial_analysis.debt_to_equity_ratio or 99) <= 1.0
+                            else "poor"
+                        )
+                    ),
                 },
                 "roa": {
                     "value": financial_analysis.roa,
-                    "status": "good"
-                    if (financial_analysis.roa or 0) >= 10
-                    else "average"
-                    if (financial_analysis.roa or 0) >= 5
-                    else "poor",
+                    "status": (
+                        "good"
+                        if (financial_analysis.roa or 0) >= 10
+                        else "average" if (financial_analysis.roa or 0) >= 5 else "poor"
+                    ),
                 },
                 "roe": {
                     "value": financial_analysis.roe,
-                    "status": "good"
-                    if (financial_analysis.roe or 0) >= 15
-                    else "average"
-                    if (financial_analysis.roe or 0) >= 8
-                    else "poor",
+                    "status": (
+                        "good"
+                        if (financial_analysis.roe or 0) >= 15
+                        else "average" if (financial_analysis.roe or 0) >= 8 else "poor"
+                    ),
                 },
             }
 
@@ -539,25 +551,29 @@ def create_kobi_analysis(company):
             current_liabilities=current_liabilities,
             total_assets=total_assets,
             total_equity=total_equity,
-            current_ratio=current_assets / current_liabilities
-            if current_liabilities > 0
-            else 0,
-            quick_ratio=(current_assets * Decimal("0.8")) / current_liabilities
-            if current_liabilities > 0
-            else 0,
-            debt_to_equity_ratio=(total_assets - total_equity) / total_equity
-            if total_equity > 0
-            else 0,
-            debt_ratio=((total_assets - total_equity) / total_assets * 100)
-            if total_assets > 0
-            else 0,
+            current_ratio=(
+                current_assets / current_liabilities if current_liabilities > 0 else 0
+            ),
+            quick_ratio=(
+                (current_assets * Decimal("0.8")) / current_liabilities
+                if current_liabilities > 0
+                else 0
+            ),
+            debt_to_equity_ratio=(
+                (total_assets - total_equity) / total_equity if total_equity > 0 else 0
+            ),
+            debt_ratio=(
+                ((total_assets - total_equity) / total_assets * 100)
+                if total_assets > 0
+                else 0
+            ),
             profit_margin=((revenue - expenses) / revenue * 100) if revenue > 0 else 0,
-            return_on_assets=((revenue - expenses) / total_assets * 100)
-            if total_assets > 0
-            else 0,
-            return_on_equity=((revenue - expenses) / total_equity * 100)
-            if total_equity > 0
-            else 0,
+            return_on_assets=(
+                ((revenue - expenses) / total_assets * 100) if total_assets > 0 else 0
+            ),
+            return_on_equity=(
+                ((revenue - expenses) / total_equity * 100) if total_equity > 0 else 0
+            ),
         )
 
         # Finansal sağlık skoru hesaplama: modelde farklı implementasyonlar olabilir
@@ -814,16 +830,16 @@ def analyze_risk_factors(analysis):
         {
             "category": _("Likidite Riski"),
             "score": liquidity_score,
-            "severity": "good"
-            if liquidity_score > 70
-            else "average"
-            if liquidity_score > 50
-            else "poor",
-            "severity_text": _("Düşük")
-            if liquidity_score > 70
-            else _("Orta")
-            if liquidity_score > 50
-            else _("Yüksek"),
+            "severity": (
+                "good"
+                if liquidity_score > 70
+                else "average" if liquidity_score > 50 else "poor"
+            ),
+            "severity_text": (
+                _("Düşük")
+                if liquidity_score > 70
+                else _("Orta") if liquidity_score > 50 else _("Yüksek")
+            ),
             "description": _("Kısa vadeli borç ödeme gücü riski"),
             "icon": "tint",
             "color": "primary",
@@ -836,16 +852,16 @@ def analyze_risk_factors(analysis):
         {
             "category": _("Karlılık Riski"),
             "score": profitability_score,
-            "severity": "good"
-            if profitability_score > 70
-            else "average"
-            if profitability_score > 50
-            else "poor",
-            "severity_text": _("Düşük")
-            if profitability_score > 70
-            else _("Orta")
-            if profitability_score > 50
-            else _("Yüksek"),
+            "severity": (
+                "good"
+                if profitability_score > 70
+                else "average" if profitability_score > 50 else "poor"
+            ),
+            "severity_text": (
+                _("Düşük")
+                if profitability_score > 70
+                else _("Orta") if profitability_score > 50 else _("Yüksek")
+            ),
             "description": _("Sürdürülebilir karlılık riski"),
             "icon": "chart-line",
             "color": "success",
@@ -858,16 +874,14 @@ def analyze_risk_factors(analysis):
         {
             "category": _("Borçluluk Riski"),
             "score": debt_score,
-            "severity": "good"
-            if debt_score > 70
-            else "average"
-            if debt_score > 50
-            else "poor",
-            "severity_text": _("Düşük")
-            if debt_score > 70
-            else _("Orta")
-            if debt_score > 50
-            else _("Yüksek"),
+            "severity": (
+                "good" if debt_score > 70 else "average" if debt_score > 50 else "poor"
+            ),
+            "severity_text": (
+                _("Düşük")
+                if debt_score > 70
+                else _("Orta") if debt_score > 50 else _("Yüksek")
+            ),
             "description": _("Aşırı borçlanma riski"),
             "icon": "weight-hanging",
             "color": "warning",
@@ -884,9 +898,9 @@ def generate_pdf_report(request, context):
     # PDF oluşturma kodu buraya gelecek
     # Şimdilik placeholder
     response = HttpResponse(content_type="application/pdf")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="finansal_analiz_raporu.pdf"'
+    response["Content-Disposition"] = (
+        'attachment; filename="finansal_analiz_raporu.pdf"'
+    )
     response.write("PDF raporu yakında eklenecek.".encode("utf-8"))
     return response
 
@@ -900,9 +914,9 @@ def generate_excel_report(request, context):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="finansal_analiz_raporu.xlsx"'
+    response["Content-Disposition"] = (
+        'attachment; filename="finansal_analiz_raporu.xlsx"'
+    )
     response.write("Excel raporu yakında eklenecek.".encode("utf-8"))
     return response
 

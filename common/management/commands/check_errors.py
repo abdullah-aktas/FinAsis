@@ -2,6 +2,7 @@
 Management command to check for recent errors
 Kullanım: python manage.py check_errors --hours 1
 """
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta

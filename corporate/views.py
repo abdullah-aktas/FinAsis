@@ -99,9 +99,11 @@ def _build_corporate_snapshot():
             {
                 "code": plan.code,
                 "name": plan.name,
-                "audience": plan.get_audience_display()
-                if hasattr(plan, "get_audience_display")
-                else plan.audience,
+                "audience": (
+                    plan.get_audience_display()
+                    if hasattr(plan, "get_audience_display")
+                    else plan.audience
+                ),
                 "description": plan.description,
                 "monthly_price": monthly_price.amount if monthly_price else None,
                 "yearly_price": yearly_price.amount if yearly_price else None,
@@ -303,9 +305,11 @@ def _build_corporate_snapshot():
                 "items": [
                     {
                         "label": doc.name,
-                        "meta": formats.date_format(doc.published_at, "DATE_FORMAT")
-                        if doc.published_at
-                        else "",
+                        "meta": (
+                            formats.date_format(doc.published_at, "DATE_FORMAT")
+                            if doc.published_at
+                            else ""
+                        ),
                         "href": doc.file_url,
                     }
                     for doc in investor_documents

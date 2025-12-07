@@ -2,6 +2,7 @@
 FinAsis Yönetim Paneli - Modern, kullanıcı dostu ve fonksiyonel yönetim modülü.
 Admin ve yetkili kullanıcılar için gelişmiş dashboard, kullanıcı, şirket ve fatura yönetimi sağlar.
 """
+
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse

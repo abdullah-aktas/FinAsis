@@ -798,9 +798,11 @@ class StockMovement(models.Model):
             if self.is_inbound:
                 InventoryItem.objects.filter(pk=self.inventory_item.pk).update(
                     current_quantity=F("current_quantity") + self.quantity,
-                    last_purchase_price=self.unit_cost
-                    if self.movement_type == "PURCHASE"
-                    else F("last_purchase_price"),
+                    last_purchase_price=(
+                        self.unit_cost
+                        if self.movement_type == "PURCHASE"
+                        else F("last_purchase_price")
+                    ),
                 )
             else:
                 InventoryItem.objects.filter(pk=self.inventory_item.pk).update(

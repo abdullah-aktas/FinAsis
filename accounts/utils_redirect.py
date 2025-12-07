@@ -2,6 +2,7 @@
 Kullanıcı yönlendirme yardımcı fonksiyonları
 Kullanıcı tipine göre uygun dashboard'a yönlendirir
 """
+
 from django.urls import reverse
 
 

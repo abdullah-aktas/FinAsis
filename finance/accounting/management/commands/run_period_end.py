@@ -22,9 +22,11 @@ class Command(BaseCommand):
         today = timezone.now().date()
         v = Voucher.objects.create(
             company=company,
-            fiscal_year=company.fiscal_years.first()
-            if hasattr(company, "fiscal_years")
-            else None,
+            fiscal_year=(
+                company.fiscal_years.first()
+                if hasattr(company, "fiscal_years")
+                else None
+            ),
             type=vt,
             number=f"DS-{today.strftime('%Y%m')}",
             date=today,

@@ -174,9 +174,9 @@ def ajax_account_balance(request, account_id):
             "current_balance": float(account.current_balance),
             "available_balance": float(account.available_balance),
             "currency": account.currency,
-            "last_updated": account.last_sync_date.isoformat()
-            if account.last_sync_date
-            else None,
+            "last_updated": (
+                account.last_sync_date.isoformat() if account.last_sync_date else None
+            ),
         }
 
         return JsonResponse(data)

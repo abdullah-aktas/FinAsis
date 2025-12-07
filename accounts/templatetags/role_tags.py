@@ -209,9 +209,9 @@ def user_role_card(user):
             "role": profile.role,
             "subscription": subscription,
             "can_upgrade": subscription.plan.name in ["free", "basic"],
-            "expires_soon": subscription.days_remaining <= 7
-            if subscription.is_active
-            else False,
+            "expires_soon": (
+                subscription.days_remaining <= 7 if subscription.is_active else False
+            ),
         }
 
         return context

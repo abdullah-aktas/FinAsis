@@ -1,6 +1,7 @@
 """
 FinQuest 3D - Modern 3D Finansal Macera Oyunu Modelleri
 """
+
 from django.db import models
 from django.conf import settings
 

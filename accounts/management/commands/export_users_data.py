@@ -2,6 +2,7 @@
 Yerel ortamdaki kullanıcı türleri ve kullanıcı bilgilerini JSON formatında export eder.
 Canlı ortama aktarım için hazırlanmıştır.
 """
+
 import json
 from datetime import datetime
 from django.core.management.base import BaseCommand
@@ -38,7 +39,9 @@ class Command(BaseCommand):
         include_passwords = options["include_passwords"]
         include_companies = options["include_companies"]
 
-        self.stdout.write(self.style.SUCCESS("📦 Kullanıcı verileri export ediliyor..."))
+        self.stdout.write(
+            self.style.SUCCESS("📦 Kullanıcı verileri export ediliyor...")
+        )
 
         export_data = {
             "export_date": datetime.now().isoformat(),
@@ -57,9 +60,11 @@ class Command(BaseCommand):
                 {
                     "code": ut.code,
                     "name": ut.name,
-                    "default_subscription_code": ut.default_subscription.code
-                    if ut.default_subscription
-                    else None,
+                    "default_subscription_code": (
+                        ut.default_subscription.code
+                        if ut.default_subscription
+                        else None
+                    ),
                 }
             )
         self.stdout.write(
@@ -79,9 +84,9 @@ class Command(BaseCommand):
                     "description": st.description,
                     "audience": st.audience,
                     "period_options": st.period_options,
-                    "monthly_price": str(st.monthly_price)
-                    if st.monthly_price
-                    else None,
+                    "monthly_price": (
+                        str(st.monthly_price) if st.monthly_price else None
+                    ),
                     "yearly_price": str(st.yearly_price) if st.yearly_price else None,
                     "user_limit": st.user_limit,
                     "features": st.features,
@@ -132,9 +137,9 @@ class Command(BaseCommand):
                 "is_active": user.is_active,
                 "is_staff": user.is_staff,
                 "is_superuser": user.is_superuser,
-                "date_joined": user.date_joined.isoformat()
-                if user.date_joined
-                else None,
+                "date_joined": (
+                    user.date_joined.isoformat() if user.date_joined else None
+                ),
                 "last_login": user.last_login.isoformat() if user.last_login else None,
                 "role": user.role,
                 "user_type_code": user.user_type.code if user.user_type else None,

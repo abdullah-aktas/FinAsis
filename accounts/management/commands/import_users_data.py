@@ -2,6 +2,7 @@
 Export edilmiş kullanıcı verilerini canlı ortama import eder.
 Çakışmaları handle eder ve mevcut verileri günceller.
 """
+
 import json
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
@@ -57,7 +58,9 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"❌ JSON parse hatası: {e}"))
             return
 
-        self.stdout.write(self.style.SUCCESS("📥 Kullanıcı verileri import ediliyor..."))
+        self.stdout.write(
+            self.style.SUCCESS("📥 Kullanıcı verileri import ediliyor...")
+        )
         self.stdout.write(
             f'   Export tarihi: {export_data.get("export_date", "Bilinmiyor")}\n'
         )

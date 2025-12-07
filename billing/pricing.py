@@ -111,9 +111,11 @@ def get_price_breakdown(
         "amount": amount,
         "currency": currency,
         "tax_rate": tax_rate,
-        "tax_rate_percent": float((tax_rate * Decimal("100")).quantize(Decimal("0.01")))
-        if tax_rate > 0
-        else None,
+        "tax_rate_percent": (
+            float((tax_rate * Decimal("100")).quantize(Decimal("0.01")))
+            if tax_rate > 0
+            else None
+        ),
         "tax_amount": tax_amount,
         "total": total,
         "tax_note": tax_note,

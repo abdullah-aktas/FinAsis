@@ -246,9 +246,11 @@ class AdvancedAnalyticsService:
                     "id": customer.id,
                     "name": f"{customer.first_name} {customer.last_name}",
                     "revenue": revenue,
-                    "percent": round(revenue / total_revenue * 100, 2)
-                    if total_revenue > 0
-                    else 0,
+                    "percent": (
+                        round(revenue / total_revenue * 100, 2)
+                        if total_revenue > 0
+                        else 0
+                    ),
                 }
 
                 if cumulative_percent <= 80:

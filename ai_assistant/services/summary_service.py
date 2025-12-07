@@ -88,9 +88,11 @@ class DocumentSummarizationService:
             "summary": summary,
             "summary_length": len(summary_words),
             "original_length": len(original_words),
-            "compression_ratio": round(len(summary_words) / len(original_words), 2)
-            if original_words
-            else 0,
+            "compression_ratio": (
+                round(len(summary_words) / len(original_words), 2)
+                if original_words
+                else 0
+            ),
             "key_points": summary_sentences,
             "entities": cls._extract_entities(summary),
         }

@@ -2,6 +2,7 @@
 Locale Middleware
 RTL Dil Desteği ve Otomatik Dil Algılama
 """
+
 from django.utils import translation
 from django.utils.deprecation import MiddlewareMixin
 from .locale_utils import LocaleManager
@@ -38,9 +39,9 @@ class LocaleMiddleware(MiddlewareMixin):
                 request, "LANGUAGE_INFO", {}
             )
             response.context_data["IS_RTL"] = getattr(request, "IS_RTL", False)
-            response.context_data[
-                "AVAILABLE_LANGUAGES"
-            ] = LocaleManager.get_all_languages()
+            response.context_data["AVAILABLE_LANGUAGES"] = (
+                LocaleManager.get_all_languages()
+            )
 
         return response
 

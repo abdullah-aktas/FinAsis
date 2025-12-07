@@ -2,6 +2,7 @@
 Locale Utilities for FinAsis
 Çok Dilli Destek Yardımcı Fonksiyonları
 """
+
 import json
 from pathlib import Path
 from django.utils.translation import get_language, activate

@@ -2,6 +2,7 @@
 Cache invalidation signals for automatic cache clearing on model changes.
 Ensures data consistency while maintaining high cache hit rates.
 """
+
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
@@ -96,9 +97,11 @@ def setup_company_cache_invalidation(Company):
     def invalidate_company_cache(sender, instance, created, **kwargs):
         patterns = [
             f"Company:{instance.pk}:*",
-            f"user_{instance.owner_id}_companies"
-            if hasattr(instance, "owner_id")
-            else None,
+            (
+                f"user_{instance.owner_id}_companies"
+                if hasattr(instance, "owner_id")
+                else None
+            ),
             "companies_list",
             "companies_stats",
         ]
@@ -127,9 +130,11 @@ def setup_accounting_cache_invalidation(GLAccount, GLJournal):
     def invalidate_glaccount_cache(sender, instance, **kwargs):
         patterns = [
             f"GLAccount:{instance.pk}:*",
-            f"company_{instance.company_id}_accounts"
-            if hasattr(instance, "company_id")
-            else None,
+            (
+                f"company_{instance.company_id}_accounts"
+                if hasattr(instance, "company_id")
+                else None
+            ),
             "chart_of_accounts",
         ]
         patterns = [p for p in patterns if p]
@@ -139,9 +144,11 @@ def setup_accounting_cache_invalidation(GLAccount, GLJournal):
     def invalidate_journal_cache(sender, instance, **kwargs):
         patterns = [
             f"GLJournal:{instance.pk}:*",
-            f"company_{instance.company_id}_journals"
-            if hasattr(instance, "company_id")
-            else None,
+            (
+                f"company_{instance.company_id}_journals"
+                if hasattr(instance, "company_id")
+                else None
+            ),
             "financial_statements",
             "balance_sheet",
             "income_statement",
@@ -162,9 +169,11 @@ def setup_edoc_cache_invalidation(EInvoice, ELedger):
     def invalidate_einvoice_cache(sender, instance, **kwargs):
         patterns = [
             f"EInvoice:{instance.pk}:*",
-            f"company_{instance.company_id}_einvoices"
-            if hasattr(instance, "company_id")
-            else None,
+            (
+                f"company_{instance.company_id}_einvoices"
+                if hasattr(instance, "company_id")
+                else None
+            ),
             "einvoices_pending",
             "einvoices_stats",
         ]
@@ -175,9 +184,11 @@ def setup_edoc_cache_invalidation(EInvoice, ELedger):
     def invalidate_eledger_cache(sender, instance, **kwargs):
         patterns = [
             f"ELedger:{instance.pk}:*",
-            f"company_{instance.company_id}_eledgers"
-            if hasattr(instance, "company_id")
-            else None,
+            (
+                f"company_{instance.company_id}_eledgers"
+                if hasattr(instance, "company_id")
+                else None
+            ),
             "eledgers_stats",
         ]
         patterns = [p for p in patterns if p]

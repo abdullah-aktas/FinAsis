@@ -1,6 +1,7 @@
 """
 E-Spor API endpoints
 """
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -210,9 +211,11 @@ def get_profile_stats(request):
             "level": profile.level,
             "xp": profile.xp,
             "xp_to_next": profile.xp_to_next_level,
-            "xp_percentage": int((profile.xp / profile.xp_to_next_level) * 100)
-            if profile.xp_to_next_level > 0
-            else 0,
+            "xp_percentage": (
+                int((profile.xp / profile.xp_to_next_level) * 100)
+                if profile.xp_to_next_level > 0
+                else 0
+            ),
             "rank": profile.rank,
             "elo": profile.elo_rating,
             "coins": profile.coins,

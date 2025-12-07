@@ -195,16 +195,20 @@ class FinancialForecastService:
                 },
                 {
                     "name": "Yearly Seasonality",
-                    "value": float(forecast["yearly"].iloc[-1])
-                    if "yearly" in forecast
-                    else 0,
+                    "value": (
+                        float(forecast["yearly"].iloc[-1])
+                        if "yearly" in forecast
+                        else 0
+                    ),
                     "importance": 0.3,
                 },
                 {
                     "name": "Weekly Seasonality",
-                    "value": float(forecast["weekly"].iloc[-1])
-                    if "weekly" in forecast
-                    else 0,
+                    "value": (
+                        float(forecast["weekly"].iloc[-1])
+                        if "weekly" in forecast
+                        else 0
+                    ),
                     "importance": 0.2,
                 },
                 {
@@ -522,9 +526,11 @@ class RecommendationService:
                 # Yönetici için en kritik 3 öneri
                 recs = sorted(
                     recs,
-                    key=lambda r: 0
-                    if r.get("priority") == "high"
-                    else (1 if r.get("priority") == "medium" else 2),
+                    key=lambda r: (
+                        0
+                        if r.get("priority") == "high"
+                        else (1 if r.get("priority") == "medium" else 2)
+                    ),
                 )[:3]
 
         package = {

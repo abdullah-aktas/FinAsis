@@ -2,6 +2,7 @@
 TradeSim WebSocket Consumers
 Real-time multiplayer game communication
 """
+
 import json
 from typing import Union
 from channels.generic.websocket import AsyncWebsocketConsumer

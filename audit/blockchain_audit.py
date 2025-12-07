@@ -2,6 +2,7 @@
 Blockchain-Based Audit Trail Module
 Blockchain Tabanlı Değiştirilemez Denetim İzi Sistemi
 """
+
 import hashlib
 import json
 from datetime import datetime
@@ -375,9 +376,11 @@ class BlockchainAuditManager:
             "category": audit_event.category,
             "description": audit_event.description,
             "created_at": audit_event.created_at.isoformat(),
-            "financial_impact": float(audit_event.financial_impact)
-            if audit_event.financial_impact
-            else None,
+            "financial_impact": (
+                float(audit_event.financial_impact)
+                if audit_event.financial_impact
+                else None
+            ),
         }
 
         block = self.blockchain.add_audit_event(event_data)

@@ -497,9 +497,11 @@ class Command(BaseCommand):
                     },
                     {
                         "id": 3,
-                        "path": str(guide_path.relative_to(base_dir))
-                        if guide_path.exists()
-                        else "docs/ai_assistant_guide",
+                        "path": (
+                            str(guide_path.relative_to(base_dir))
+                            if guide_path.exists()
+                            else "docs/ai_assistant_guide"
+                        ),
                         "title": "AI Asistan Kullanım Kılavuzu (Özet)",
                         "content": doc_excerpt
                         or "FinAsis AI Asistan sesli komut, grounded QA ve muhasebe fiş otomasyonu özellikleri sunar.",

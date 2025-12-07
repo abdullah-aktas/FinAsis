@@ -343,12 +343,12 @@ class LocalNLPService:
             "assets": assets,
             "liabilities": liabilities,
             "equity": equity,
-            "debt_to_equity": None
-            if debt_to_equity == math.inf
-            else round(debt_to_equity, 2),
-            "current_ratio": None
-            if current_ratio == math.inf
-            else round(current_ratio, 2),
+            "debt_to_equity": (
+                None if debt_to_equity == math.inf else round(debt_to_equity, 2)
+            ),
+            "current_ratio": (
+                None if current_ratio == math.inf else round(current_ratio, 2)
+            ),
             "benchmarks": benchmarks,
             "advice": advice,
         }

@@ -6,6 +6,7 @@ Features:
 - Resize large uploads
 - Add lazy loading to HTML responses
 """
+
 import re
 import logging
 from django.conf import settings

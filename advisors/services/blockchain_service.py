@@ -115,12 +115,16 @@ class ConsultantBlockchainService:
             "documents_verified": {
                 "diploma": consultant_profile.diploma_verified,
                 "graduation": consultant_profile.graduation_verified,
-                "verified_at": consultant_profile.documents_verified_at.isoformat()
-                if consultant_profile.documents_verified_at
-                else None,
-                "verified_by": consultant_profile.documents_verified_by.username
-                if consultant_profile.documents_verified_by
-                else None,
+                "verified_at": (
+                    consultant_profile.documents_verified_at.isoformat()
+                    if consultant_profile.documents_verified_at
+                    else None
+                ),
+                "verified_by": (
+                    consultant_profile.documents_verified_by.username
+                    if consultant_profile.documents_verified_by
+                    else None
+                ),
             },
         }
 
@@ -211,9 +215,9 @@ class ConsultantBlockchainService:
                 "contract_data": contract.parameters,
                 "created_at": contract.deployed_at,
                 "last_updated": contract.last_executed,
-                "block_number": transaction.block.block_number
-                if transaction.block
-                else None,
+                "block_number": (
+                    transaction.block.block_number if transaction.block else None
+                ),
             }
 
         except (SmartContract.DoesNotExist, Transaction.DoesNotExist) as e:

@@ -19,9 +19,11 @@ def set_request_context(
     _request_local.context = {
         "request_id": request_id,
         "tenant": getattr(tenant, "code", None) if tenant else None,
-        "user": getattr(user, "id", None)
-        if user and getattr(user, "is_authenticated", False)
-        else None,
+        "user": (
+            getattr(user, "id", None)
+            if user and getattr(user, "is_authenticated", False)
+            else None
+        ),
         "path": path,
     }
 

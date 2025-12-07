@@ -858,9 +858,9 @@ class GDPRComplianceChecker:
                     "id", "data_subject_id", "scheduled_deletion_date"
                 )
             ),
-            "compliance_status": "NON_COMPLIANT"
-            if overdue_records.exists()
-            else "COMPLIANT",
+            "compliance_status": (
+                "NON_COMPLIANT" if overdue_records.exists() else "COMPLIANT"
+            ),
         }
 
     def check_consent_validity(self):

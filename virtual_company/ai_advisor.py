@@ -2,6 +2,7 @@
 AI Accounting Advisor for Virtual Companies
 Sanal Şirketler için AI Muhasebe Danışmanı
 """
+
 from typing import Dict, List, Any
 from decimal import Decimal
 

@@ -2,6 +2,7 @@
 Health Check URL Configuration
 Public erişilebilir health check endpoint'leri
 """
+
 from django.urls import path
 from . import views_health
 

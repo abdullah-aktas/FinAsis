@@ -410,14 +410,16 @@ def landing_home(request):
         plans.append(
             {
                 "name": plan.name,
-                "audience": plan.get_audience_display()
-                if hasattr(plan, "get_audience_display")
-                else plan.audience,
+                "audience": (
+                    plan.get_audience_display()
+                    if hasattr(plan, "get_audience_display")
+                    else plan.audience
+                ),
                 "description": plan.description,
                 "price": active_price.amount if active_price else None,
-                "price_period": active_price.get_period_display()
-                if active_price
-                else None,
+                "price_period": (
+                    active_price.get_period_display() if active_price else None
+                ),
                 "currency": active_price.currency if active_price else None,
                 "code": plan.code,
             }
@@ -451,13 +453,15 @@ def landing_home(request):
     investor_documents = [
         {
             "title": doc.name,
-            "kind": doc.get_kind_display()
-            if hasattr(doc, "get_kind_display")
-            else doc.kind,
+            "kind": (
+                doc.get_kind_display() if hasattr(doc, "get_kind_display") else doc.kind
+            ),
             "url": doc.file_url,
-            "published_at": formats.date_format(doc.published_at, "DATE_FORMAT")
-            if doc.published_at
-            else "",
+            "published_at": (
+                formats.date_format(doc.published_at, "DATE_FORMAT")
+                if doc.published_at
+                else ""
+            ),
         }
         for doc in InvestorDocument.objects.all()[:3]
     ]
@@ -810,15 +814,19 @@ def landing_home(request):
             {
                 "code": plan.code,
                 "name": plan.name,
-                "audience": plan.get_audience_display()
-                if hasattr(plan, "get_audience_display")
-                else plan.audience,
+                "audience": (
+                    plan.get_audience_display()
+                    if hasattr(plan, "get_audience_display")
+                    else plan.audience
+                ),
                 "description": plan.description,
                 "monthly_price": monthly_price.amount if monthly_price else None,
                 "yearly_price": yearly_price.amount if yearly_price else None,
-                "currency": (monthly_price or yearly_price).currency
-                if (monthly_price or yearly_price)
-                else None,
+                "currency": (
+                    (monthly_price or yearly_price).currency
+                    if (monthly_price or yearly_price)
+                    else None
+                ),
                 "modules": sample_modules,
             }
         )
@@ -1782,11 +1790,13 @@ def site_search(request):
             results.append(
                 {
                     "title": doc.name,
-                    "snippet": _("Yatırımcı belgesi - {kind}").format(
-                        kind=doc.get_kind_display()
-                    )
-                    if hasattr(doc, "get_kind_display")
-                    else _("Yatırımcı belgesi"),
+                    "snippet": (
+                        _("Yatırımcı belgesi - {kind}").format(
+                            kind=doc.get_kind_display()
+                        )
+                        if hasattr(doc, "get_kind_display")
+                        else _("Yatırımcı belgesi")
+                    ),
                     "url": doc.file_url,
                     "category": _("Yatırımcı Belgeleri"),
                 }

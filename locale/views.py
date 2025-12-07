@@ -2,6 +2,7 @@
 Locale Views for Language Switching
 Dil Değiştirme View'ları
 """
+
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse

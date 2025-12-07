@@ -46,9 +46,9 @@ def rate_limit_exceeded(request, exception=None):
         extra={
             "ip": _get_client_ip(request),
             "path": request.path,
-            "user": request.user.username
-            if request.user.is_authenticated
-            else "anonymous",
+            "user": (
+                request.user.username if request.user.is_authenticated else "anonymous"
+            ),
         },
     )
 
@@ -75,9 +75,9 @@ def security_violation(request, violation_type="unknown"):
             "ip": _get_client_ip(request),
             "path": request.path,
             "user_agent": request.META.get("HTTP_USER_AGENT", ""),
-            "user": request.user.username
-            if request.user.is_authenticated
-            else "anonymous",
+            "user": (
+                request.user.username if request.user.is_authenticated else "anonymous"
+            ),
         },
     )
 

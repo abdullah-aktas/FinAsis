@@ -1,6 +1,7 @@
 """
 E-Spor için gerekli başlangıç verilerini oluşturur
 """
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db import transaction

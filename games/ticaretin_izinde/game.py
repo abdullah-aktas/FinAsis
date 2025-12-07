@@ -510,15 +510,15 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -528,9 +528,9 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):
         """Menüyü aç/kapat"""
@@ -1176,15 +1176,15 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -1194,9 +1194,9 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -2375,16 +2375,16 @@ def update_market_trend():
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 
@@ -3225,15 +3225,15 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -3243,9 +3243,9 @@ class FinAsisGame(Ursina):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -4424,16 +4424,16 @@ def update_market_trend():  # noqa: F811
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 
@@ -5766,15 +5766,15 @@ class FinansalDunya(Entity):
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -5784,9 +5784,9 @@ class FinansalDunya(Entity):
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -6965,16 +6965,16 @@ def update_market_trend():  # noqa: F811
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 
@@ -7805,15 +7805,15 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -7823,9 +7823,9 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -9004,16 +9004,16 @@ def update_market_trend():  # noqa: F811
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 
@@ -10346,15 +10346,15 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -10364,9 +10364,9 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -11545,16 +11545,16 @@ def update_market_trend():  # noqa: F811
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 
@@ -12385,15 +12385,15 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_guncelle()
 
     def ui_guncelle(self):  # noqa: F811
-        self.ui_elements[
-            "bakiye"
-        ].text = f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
-        self.ui_elements[
-            "puan"
-        ].text = f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
-        self.ui_elements[
-            "seviye"
-        ].text = f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        self.ui_elements["bakiye"].text = (
+            f"{self.locale_manager.get_text('game.stats.balance')}: ${self.oyun.oyuncu_bakiyesi:,.2f}"
+        )
+        self.ui_elements["puan"].text = (
+            f"{self.locale_manager.get_text('game.stats.score')}: {self.oyun.oyuncu_puani}"
+        )
+        self.ui_elements["seviye"].text = (
+            f"{self.locale_manager.get_text('game.stats.level')}: {self.oyun.oyuncu_seviyesi}"
+        )
         self.ui_elements["alis_buton"].text = self.locale_manager.get_text(
             "game.transactions.buy"
         )
@@ -12403,9 +12403,9 @@ class FinansalDunya(Entity):  # noqa: F811
         self.ui_elements["menu_buton"].text = self.locale_manager.get_text(
             "game.menu.settings"
         )
-        self.ui_elements[
-            "dil_buton"
-        ].text = f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        self.ui_elements["dil_buton"].text = (
+            f"Dil: {self.locale_manager.get_current_locale().upper()}"
+        )
 
     def toggle_menu(self):  # noqa: F811
         """MenÃ¼yÃ¼ aÃ§/kapat"""
@@ -13584,16 +13584,16 @@ def update_market_trend():  # noqa: F811
 
     # Volatilite gÃ¼ncelleme
     market_state["volatility"] = random.uniform(
-        0.2
-        if game_settings["difficulty"] == "easy"
-        else 0.3
-        if game_settings["difficulty"] == "normal"
-        else 0.4,
-        0.5
-        if game_settings["difficulty"] == "easy"
-        else 0.7
-        if game_settings["difficulty"] == "normal"
-        else 0.9,
+        (
+            0.2
+            if game_settings["difficulty"] == "easy"
+            else 0.3 if game_settings["difficulty"] == "normal" else 0.4
+        ),
+        (
+            0.5
+            if game_settings["difficulty"] == "easy"
+            else 0.7 if game_settings["difficulty"] == "normal" else 0.9
+        ),
     )
 
 

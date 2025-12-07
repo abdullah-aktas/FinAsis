@@ -190,9 +190,9 @@ def play(request):
 
     context = {
         "game_session": session,
-        "difficulty_param": int(diff_param)
-        if diff_param and diff_param.isdigit()
-        else None,
+        "difficulty_param": (
+            int(diff_param) if diff_param and diff_param.isdigit() else None
+        ),
         "difficulty_config": difficulty_config,
         "character": character_data,
         "character_inventory_json": character_inventory_json,

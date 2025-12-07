@@ -713,9 +713,9 @@ def ai_assistant_chat(request):
             "page_path": request.headers.get("X-Page-Path")
             or request.META.get("HTTP_REFERER"),
             "page_title": request.headers.get("X-Page-Title"),
-            "locale": request.LANGUAGE_CODE
-            if hasattr(request, "LANGUAGE_CODE")
-            else None,
+            "locale": (
+                request.LANGUAGE_CODE if hasattr(request, "LANGUAGE_CODE") else None
+            ),
         }
         if not message:
             return Response(

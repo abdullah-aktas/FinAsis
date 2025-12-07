@@ -1,6 +1,7 @@
 """
 TradeSim WebSocket routing configuration
 """
+
 from django.urls import re_path  # type: ignore
 from . import consumers
 

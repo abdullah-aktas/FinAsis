@@ -2,6 +2,7 @@
 Pytest configuration for FinAsis project.
 This file ensures proper Django setup and prevents module conflicts.
 """
+
 import os
 
 # Set DISABLE_LOCALE_APP before Django settings are loaded

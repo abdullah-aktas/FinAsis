@@ -42,9 +42,11 @@ def get_market_analysis() -> Dict[str, Any]:
                 )
                 * 100,
                 "volume": bist_data["Volume"].iloc[-1],
-                "trend": "yükseliş"
-                if bist_data["Close"].iloc[-1] > bist_data["Close"].iloc[0]
-                else "düşüş",
+                "trend": (
+                    "yükseliş"
+                    if bist_data["Close"].iloc[-1] > bist_data["Close"].iloc[0]
+                    else "düşüş"
+                ),
             },
             "usdtry": {
                 "current": usdtry_data["Close"].iloc[-1],
@@ -53,9 +55,11 @@ def get_market_analysis() -> Dict[str, Any]:
                     / usdtry_data["Close"].iloc[0]
                 )
                 * 100,
-                "trend": "yükseliş"
-                if usdtry_data["Close"].iloc[-1] > usdtry_data["Close"].iloc[0]
-                else "düşüş",
+                "trend": (
+                    "yükseliş"
+                    if usdtry_data["Close"].iloc[-1] > usdtry_data["Close"].iloc[0]
+                    else "düşüş"
+                ),
             },
             "eurtry": {
                 "current": eurtry_data["Close"].iloc[-1],
@@ -64,9 +68,11 @@ def get_market_analysis() -> Dict[str, Any]:
                     / eurtry_data["Close"].iloc[0]
                 )
                 * 100,
-                "trend": "yükseliş"
-                if eurtry_data["Close"].iloc[-1] > eurtry_data["Close"].iloc[0]
-                else "düşüş",
+                "trend": (
+                    "yükseliş"
+                    if eurtry_data["Close"].iloc[-1] > eurtry_data["Close"].iloc[0]
+                    else "düşüş"
+                ),
             },
             "gold": {
                 "current": gold_data["Close"].iloc[-1],
@@ -75,9 +81,11 @@ def get_market_analysis() -> Dict[str, Any]:
                     / gold_data["Close"].iloc[0]
                 )
                 * 100,
-                "trend": "yükseliş"
-                if gold_data["Close"].iloc[-1] > gold_data["Close"].iloc[0]
-                else "düşüş",
+                "trend": (
+                    "yükseliş"
+                    if gold_data["Close"].iloc[-1] > gold_data["Close"].iloc[0]
+                    else "düşüş"
+                ),
             },
             "timestamp": datetime.now().isoformat(),
         }

@@ -31,9 +31,11 @@ def hash_edefter(sender, instance: EDefter, created, **kwargs):
     ensure_record(
         reference=f"edefter:{instance.id}",
         payload=payload,
-        status="anchored"
-        if instance.status in ["gonderildi", "onayli", "approved"]
-        else "pending",
+        status=(
+            "anchored"
+            if instance.status in ["gonderildi", "onayli", "approved"]
+            else "pending"
+        ),
     )
 
 

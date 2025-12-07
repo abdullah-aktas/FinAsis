@@ -2,6 +2,7 @@
 Cache decorators for views, queries, and templates.
 Provides high-performance caching utilities with Redis backend.
 """
+
 from functools import wraps
 from django.core.cache import cache, caches
 from django.views.decorators.cache import cache_page

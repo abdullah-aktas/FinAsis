@@ -190,9 +190,11 @@ def compliance_dashboard(request):
     )
     context["encryption_status"] = {
         "active_keys": encryption_keys.count(),
-        "key_strength": _("AES-256")
-        if encryption_keys.exists()
-        else _("Şifreleme yapılandırılmamış"),
+        "key_strength": (
+            _("AES-256")
+            if encryption_keys.exists()
+            else _("Şifreleme yapılandırılmamış")
+        ),
         "last_key_rotation": getattr(last_key_obj, "created_at", None),
     }
 

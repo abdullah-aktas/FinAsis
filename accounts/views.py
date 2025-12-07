@@ -211,11 +211,11 @@ def modul_muhasebe(request):
     context = {
         "stats": stats,
         "company": company,
-        "recent_invoices": Invoice.objects.filter(company=company).order_by(
-            "-issue_date"
-        )[:10]
-        if company
-        else [],
+        "recent_invoices": (
+            Invoice.objects.filter(company=company).order_by("-issue_date")[:10]
+            if company
+            else []
+        ),
     }
 
     return render(request, "accounts/modul_muhasebe.html", context)
@@ -261,11 +261,11 @@ def modul_satis(request):
     context = {
         "stats": stats,
         "company": company,
-        "recent_sales": Invoice.objects.filter(company=company).order_by("-issue_date")[
-            :10
-        ]
-        if company
-        else [],
+        "recent_sales": (
+            Invoice.objects.filter(company=company).order_by("-issue_date")[:10]
+            if company
+            else []
+        ),
     }
 
     return render(request, "accounts/modul_satis.html", context)

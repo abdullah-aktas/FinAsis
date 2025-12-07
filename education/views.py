@@ -212,9 +212,11 @@ def course_marketing(request, slug: str):
     context = {
         "page": page,
         "contact_url": reverse("contact"),
-        "enroll_url": reverse("education:student:dashboard")
-        if request.user.is_authenticated
-        else reverse("accounts:login"),
+        "enroll_url": (
+            reverse("education:student:dashboard")
+            if request.user.is_authenticated
+            else reverse("accounts:login")
+        ),
     }
     return render(request, "education/courses/marketing_detail.html", context)
 
@@ -1115,9 +1117,9 @@ def meeting_presence_csv(request, pk: int):
             ]
         )
     resp = HttpResponse(out.getvalue(), content_type="text/csv; charset=utf-8")
-    resp[
-        "Content-Disposition"
-    ] = f'attachment; filename="meeting_{meeting.pk}_presence.csv"'
+    resp["Content-Disposition"] = (
+        f'attachment; filename="meeting_{meeting.pk}_presence.csv"'
+    )
     return resp
 
 
@@ -1185,9 +1187,9 @@ def meeting_presence_totals_csv(request, pk: int):
             ]
         )
     resp = HttpResponse(out.getvalue(), content_type="text/csv; charset=utf-8")
-    resp[
-        "Content-Disposition"
-    ] = f'attachment; filename="meeting_{meeting.pk}_presence_totals.csv"'
+    resp["Content-Disposition"] = (
+        f'attachment; filename="meeting_{meeting.pk}_presence_totals.csv"'
+    )
     return resp
 
 

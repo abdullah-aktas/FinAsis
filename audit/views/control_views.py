@@ -268,12 +268,12 @@ def control_dashboard(request):
                 "id": getattr(workflow, "id", None),
                 "workflow_name": getattr(workflow, "name", ""),
                 "description": getattr(workflow, "name", ""),
-                "status": "active"
-                if getattr(workflow, "is_active", False)
-                else "inactive",
-                "status_text": _("Aktif")
-                if getattr(workflow, "is_active", False)
-                else _("Pasif"),
+                "status": (
+                    "active" if getattr(workflow, "is_active", False) else "inactive"
+                ),
+                "status_text": (
+                    _("Aktif") if getattr(workflow, "is_active", False) else _("Pasif")
+                ),
                 "initiator": None,
                 "created_at": getattr(workflow, "created_at", None),
                 "steps": steps,
@@ -1012,16 +1012,18 @@ def ajax_notifications(request):  # Dashboard periyodik badge güncellemeleri
     company = getattr(request.user, "company", None)
     data = {
         "pending_audits": 0,
-        "open_risks": RiskAssessment.objects.filter(
-            company=company, overall_risk_level__in=["HIGH", "VERY_HIGH"]
-        ).count()
-        if company
-        else 0,
-        "pending_workflows": ApprovalWorkflow.objects.filter(
-            company=company, is_active=True
-        ).count()
-        if company
-        else 0,
+        "open_risks": (
+            RiskAssessment.objects.filter(
+                company=company, overall_risk_level__in=["HIGH", "VERY_HIGH"]
+            ).count()
+            if company
+            else 0
+        ),
+        "pending_workflows": (
+            ApprovalWorkflow.objects.filter(company=company, is_active=True).count()
+            if company
+            else 0
+        ),
     }
     return JsonResponse(data)
 

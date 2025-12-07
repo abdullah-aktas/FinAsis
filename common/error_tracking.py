@@ -2,6 +2,7 @@
 Beta Error Tracking & Alert System
 Canlıdaki hataları yakalar ve admin'e bildirir
 """
+
 import logging
 import traceback
 import sys
@@ -291,7 +292,9 @@ class BetaErrorTracker:
         if not settings.ADMINS:
             return
 
-        subject = f"🚨 [{error_log.severity}] FinAsis Beta Error: {error_log.error_type}"
+        subject = (
+            f"🚨 [{error_log.severity}] FinAsis Beta Error: {error_log.error_type}"
+        )
 
         message = f"""
 FinAsis Beta Error Alert
@@ -388,9 +391,9 @@ View in Admin: {settings.SITE_URL}/admin/common/errorlog/{error_log.id}/change/
                         },
                         {
                             "name": "User",
-                            "value": error_log.user.email
-                            if error_log.user
-                            else "Anonymous",
+                            "value": (
+                                error_log.user.email if error_log.user else "Anonymous"
+                            ),
                             "inline": True,
                         },
                     ],
@@ -433,9 +436,9 @@ View in Admin: {settings.SITE_URL}/admin/common/errorlog/{error_log.id}/change/
                         },
                         {
                             "title": "User",
-                            "value": error_log.user.email
-                            if error_log.user
-                            else "Anonymous",
+                            "value": (
+                                error_log.user.email if error_log.user else "Anonymous"
+                            ),
                             "short": True,
                         },
                     ],

@@ -2,6 +2,7 @@
 KOBİ-Focused Audit Analytics Module
 KOBİ Odaklı Audit Analiz ve Raporlama Sistemi
 """
+
 from datetime import timedelta
 from typing import Dict, List
 from django.db.models import Sum, Q
@@ -285,9 +286,7 @@ class KOBIAuditAnalytics:
         if total >= 85:
             recommendations.append("✅ Harika! Mevcut performansınızı sürdürün")
         elif total < 50:
-            recommendations.append(
-                "⚠️ Acil eylem gerekli! Profesyonel danışmanlık alın"
-            )
+            recommendations.append("⚠️ Acil eylem gerekli! Profesyonel danışmanlık alın")
 
         return recommendations
 
@@ -341,9 +340,11 @@ class KOBIAuditAnalytics:
                     "company": round(company_audit, 1),
                     "sector_avg": sector_avg["audit_quality"],
                     "difference": round(company_audit - sector_avg["audit_quality"], 1),
-                    "status": "üstünde"
-                    if company_audit > sector_avg["audit_quality"]
-                    else "altında",
+                    "status": (
+                        "üstünde"
+                        if company_audit > sector_avg["audit_quality"]
+                        else "altında"
+                    ),
                 },
                 "compliance": {
                     "company": round(company_compliance, 1),
@@ -351,9 +352,11 @@ class KOBIAuditAnalytics:
                     "difference": round(
                         company_compliance - sector_avg["compliance_score"], 1
                     ),
-                    "status": "üstünde"
-                    if company_compliance > sector_avg["compliance_score"]
-                    else "altında",
+                    "status": (
+                        "üstünde"
+                        if company_compliance > sector_avg["compliance_score"]
+                        else "altında"
+                    ),
                 },
                 "risk_management": {
                     "company": round(100 - company_risk, 1),
@@ -361,9 +364,11 @@ class KOBIAuditAnalytics:
                     "difference": round(
                         (100 - company_risk) - (100 - sector_avg["risk_score"]), 1
                     ),
-                    "status": "üstünde"
-                    if company_risk < sector_avg["risk_score"]
-                    else "altında",
+                    "status": (
+                        "üstünde"
+                        if company_risk < sector_avg["risk_score"]
+                        else "altında"
+                    ),
                 },
                 "operational_efficiency": {
                     "company": round(company_operational, 1),
@@ -371,9 +376,11 @@ class KOBIAuditAnalytics:
                     "difference": round(
                         company_operational - sector_avg["operational_efficiency"], 1
                     ),
-                    "status": "üstünde"
-                    if company_operational > sector_avg["operational_efficiency"]
-                    else "altında",
+                    "status": (
+                        "üstünde"
+                        if company_operational > sector_avg["operational_efficiency"]
+                        else "altında"
+                    ),
                 },
             },
             "insights": cls._generate_benchmark_insights(
@@ -395,7 +402,9 @@ class KOBIAuditAnalytics:
         if audit > sector_avg["audit_quality"] + 10:
             insights.append("🌟 Audit kalitesi sektör ortalamasının üzerinde!")
         elif audit < sector_avg["audit_quality"] - 10:
-            insights.append("📊 Audit kayıtlarınızı sektör standardına yükseltmelisiniz")
+            insights.append(
+                "📊 Audit kayıtlarınızı sektör standardına yükseltmelisiniz"
+            )
 
         if compliance > sector_avg["compliance_score"] + 5:
             insights.append("✅ Uyumluluk performansınız sektörün önünde")
@@ -537,9 +546,7 @@ class KOBIAuditAnalytics:
         trend = (
             "artış"
             if total_events > previous_period
-            else "azalış"
-            if total_events < previous_period
-            else "stabil"
+            else "azalış" if total_events < previous_period else "stabil"
         )
         trend_percent = abs(
             ((total_events - previous_period) / max(previous_period, 1)) * 100

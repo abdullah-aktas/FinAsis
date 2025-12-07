@@ -1,6 +1,7 @@
 """
 FinAsis için kullanıcı tiplerini oluşturan management command
 """
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from accounts.models import UserType

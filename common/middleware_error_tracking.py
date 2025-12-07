@@ -2,6 +2,7 @@
 Error Tracking Middleware
 Tüm hataları otomatik yakalar ve bildirir
 """
+
 import logging
 from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
@@ -34,9 +35,11 @@ class ErrorTrackingMiddleware(MiddlewareMixin):
                 f"Exception in {request.method} {request.path}",
                 extra={
                     "error_log_id": error_log.id if error_log else None,
-                    "user": request.user.email
-                    if hasattr(request, "user") and request.user.is_authenticated
-                    else "Anonymous",
+                    "user": (
+                        request.user.email
+                        if hasattr(request, "user") and request.user.is_authenticated
+                        else "Anonymous"
+                    ),
                 },
             )
 

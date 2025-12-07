@@ -8,6 +8,7 @@ Usage in templates:
     {% lazy_image "path/to/image.jpg" "Alt text" class="img-fluid" %}
     {% cdn_image "static/logo.png" width=300 %}
 """
+
 from typing import Optional
 from django import template
 from django.utils.safestring import mark_safe

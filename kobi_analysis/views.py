@@ -2,6 +2,7 @@
 KOBİ Analysis Views
 AI ve Blockchain Destekli KOBİ Analiz Sistemleri
 """
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -80,9 +81,9 @@ def kobi_dashboard(request):
 
     # KOBİ Sağlık Skoru (AI destekli)
     financial_data = {
-        "net_profit_margin": (net_profit / total_revenue * 100)
-        if total_revenue > 0
-        else 0,
+        "net_profit_margin": (
+            (net_profit / total_revenue * 100) if total_revenue > 0 else 0
+        ),
         "current_ratio": 1.5,  # Varsayılan
         "debt_ratio": 0.4,  # Varsayılan
     }
