@@ -651,7 +651,10 @@ class FeatureFlag(models.Model):
             import hashlib
 
             hash_value = int(
-                hashlib.md5(f"{user.id}{self.key}".encode()).hexdigest(), 16
+                hashlib.md5(  # noqa: B324
+                    f"{user.id}{self.key}".encode(), usedforsecurity=False
+                ).hexdigest(),
+                16,
             )
             return (hash_value % 100) < self.rollout_percentage
         return False

@@ -74,7 +74,9 @@ def cache_query(timeout: int = 300, key_func: Optional[Callable] = None):
                 key_parts = [func.__module__, func.__name__]
                 key_parts.extend(str(arg) for arg in args)
                 key_parts.extend(f"{k}={v}" for k, v in sorted(kwargs.items()))
-                cache_key = hashlib.md5(":".join(key_parts).encode()).hexdigest()
+                cache_key = hashlib.md5(  # noqa: B324
+                    ":".join(key_parts).encode(), usedforsecurity=False
+                ).hexdigest()
 
             # Try to get from cache
             result = cache.get(cache_key)
@@ -113,8 +115,9 @@ def cache_model_instance(timeout: int = 600):
 
             # Add arguments to key if present
             if args or kwargs:
-                arg_hash = hashlib.md5(
-                    json.dumps([args, kwargs], sort_keys=True, default=str).encode()
+                arg_hash = hashlib.md5(  # noqa: B324
+                    json.dumps([args, kwargs], sort_keys=True, default=str).encode(),
+                    usedforsecurity=False,
                 ).hexdigest()[:8]
                 cache_key = f"{cache_key}:{arg_hash}"
 
@@ -158,8 +161,9 @@ def cache_api_response(timeout: int = 300, vary_on_user: bool = True):
 
             # Add query parameters to key
             if request.query_params:
-                query_hash = hashlib.md5(
-                    json.dumps(dict(request.query_params), sort_keys=True).encode()
+                query_hash = hashlib.md5(  # noqa: B324
+                    json.dumps(dict(request.query_params), sort_keys=True).encode(),
+                    usedforsecurity=False,
                 ).hexdigest()[:8]
                 key_parts.append(query_hash)
 

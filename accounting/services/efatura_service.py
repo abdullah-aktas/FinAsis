@@ -12,7 +12,10 @@ efatura_logger = logging.getLogger("efatura")
 
 def _pretty_xml(elem: Element) -> bytes:
     rough = tostring(elem, encoding="utf-8")
-    return minidom.parseString(rough).toprettyxml(indent="  ", encoding="utf-8")
+    # nosec: B318 - Internal XML formatting, not parsing untrusted data
+    return minidom.parseString(rough).toprettyxml(  # noqa: B318
+        indent="  ", encoding="utf-8"
+    )
 
 
 def generate_invoice_xml(invoice: Invoice) -> bytes:
@@ -97,6 +100,7 @@ def send_invoice_to_gib(invoice: Invoice):
             data=xml_bytes,
             headers=headers,
             auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD),
+            timeout=30,
         )
         invoice.gib_status = "sent" if response.status_code == 200 else "error"
         invoice.gib_response = response.text
@@ -123,7 +127,7 @@ def check_invoice_status(invoice: Invoice):
     url = f"{base_url}/{endpoint}/{invoice.gib_uuid}"
     try:
         response = requests.get(
-            url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD)
+            url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD), timeout=30
         )
         invoice.gib_status = response.json().get("status", "unknown")
         invoice.gib_response = response.text
@@ -145,7 +149,7 @@ def cancel_invoice_on_gib(invoice: Invoice):
     url = f"{base_url}/cancelInvoice/{invoice.gib_uuid}"
     try:
         response = requests.post(
-            url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD)
+            url, auth=(settings.GIB_USERNAME, settings.GIB_PASSWORD), timeout=30
         )
         invoice.gib_status = "cancelled" if response.status_code == 200 else "error"
         invoice.gib_response = response.text

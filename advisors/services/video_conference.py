@@ -176,7 +176,7 @@ class ZoomProvider(VideoConferenceProvider):
         }
 
         try:
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(url, headers=headers, json=data, timeout=30)
             response.raise_for_status()
             meeting_data = response.json()
 
@@ -198,7 +198,7 @@ class ZoomProvider(VideoConferenceProvider):
         headers = {"Authorization": f"Bearer {self._generate_jwt_token()}"}
 
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -211,7 +211,7 @@ class ZoomProvider(VideoConferenceProvider):
         headers = {"Authorization": f"Bearer {self._generate_jwt_token()}"}
 
         try:
-            response = requests.delete(url, headers=headers)
+            response = requests.delete(url, headers=headers, timeout=30)
             response.raise_for_status()
             return True
         except requests.exceptions.RequestException as e:

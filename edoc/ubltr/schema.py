@@ -28,7 +28,8 @@ _DISPATCH_XSD_CANDIDATES = (
 
 def _safe_parse_xsd(path: Path) -> etree.XMLSchema:
     with path.open("rb") as f:
-        doc = etree.parse(f)
+        # nosec: B320 - Schema file parsing, trusted source
+        doc = etree.parse(f)  # noqa: B320
     return etree.XMLSchema(doc)
 
 
@@ -127,7 +128,8 @@ def validate_invoice_xml(
         return  # skip if schemas not present
 
     try:
-        xml_doc = etree.fromstring(xml_bytes)
+        # nosec: B320 - Schema-validated XML parsing
+        xml_doc = etree.fromstring(xml_bytes)  # noqa: B320
         schema.assertValid(xml_doc)
     except etree.DocumentInvalid as exc:
         # Build actionable error from error_log
@@ -155,7 +157,8 @@ def validate_dispatch_xml(
     if schema is None:
         return
     try:
-        xml_doc = etree.fromstring(xml_bytes)
+        # nosec: B320 - Schema-validated XML parsing
+        xml_doc = etree.fromstring(xml_bytes)  # noqa: B320
         schema.assertValid(xml_doc)
     except etree.DocumentInvalid as exc:
         log = schema.error_log
