@@ -198,7 +198,7 @@ def user_list(request):
                 detail=f"Silinen kullanıcılar: {', '.join(deleted_users)}",
             )
             messages.success(request, f"{len(ids)} kullanıcı silindi.")
-            return redirect("user_list")
+            return redirect("management:user_list")
     users = CustomUser.objects.all().order_by("-date_joined")
     f = UserFilter(request.GET, queryset=users)
     paginator = Paginator(f.qs, 10)
@@ -407,7 +407,7 @@ def user_add(request):
                 link="/accounts/profile/",
             )
             messages.success(request, "Kullanıcı başarıyla eklendi.")
-            return redirect("user_list")
+            return redirect("management:user_list")
     else:
         form = RegisterForm()
     return render(request, "management/user_form.html", {"form": form})
@@ -426,7 +426,7 @@ def user_edit(request, user_id):
                 detail=f"Güncellenen kullanıcı: {user.username}",
             )
             messages.success(request, "Kullanıcı başarıyla güncellendi.")
-            return redirect("user_list")
+            return redirect("management:user_list")
     else:
         form = RegisterForm(instance=user)
     return render(request, "management/user_form.html", {"form": form, "edit": True})
@@ -494,7 +494,7 @@ def invoice_delete(request, invoice_id):
     if request.method == "POST":
         invoice.delete()
         messages.success(request, "Fatura silindi.")
-        return redirect("invoice_list")
+        return redirect("management:invoice_list")
     return render(
         request, "management/invoice_confirm_delete.html", {"invoice": invoice}
     )
