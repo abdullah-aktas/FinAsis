@@ -72,7 +72,9 @@ try:
                 "IGNORE_EXCEPTIONS": True,  # Don't break if Redis is down
             },
             "KEY_PREFIX": "finasis",
-            "TIMEOUT": int(ENV("CACHE_TIMEOUT", "300")),  # 5 minutes default  # noqa: F405
+            "TIMEOUT": int(
+                ENV("CACHE_TIMEOUT", "300")
+            ),  # 5 minutes default  # noqa: F405
         }
     }
 
@@ -231,7 +233,9 @@ if SENTRY_DSN:
             traces_sample_rate=float(  # noqa: F405
                 ENV("SENTRY_TRACES_SAMPLE_RATE", "0.1")  # noqa: F405
             ),  # 10% of transactions
-            profiles_sample_rate=float(ENV("SENTRY_PROFILES_SAMPLE_RATE", "0.0")),  # noqa: F405
+            profiles_sample_rate=float(
+                ENV("SENTRY_PROFILES_SAMPLE_RATE", "0.0")
+            ),  # noqa: F405
             send_default_pii=False,
             environment=ENV("SENTRY_ENVIRONMENT", "production"),  # noqa: F405
         )

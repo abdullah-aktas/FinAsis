@@ -15,7 +15,16 @@ import pandas as pd
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 
-from ..models import Invoice, Expense, GLJournalLine, Customer, Payment, Vendor, PurchaseInvoice, VendorPayment
+from ..models import (
+    Invoice,
+    Expense,
+    GLJournalLine,
+    Customer,
+    Payment,
+    Vendor,
+    PurchaseInvoice,
+    VendorPayment,
+)
 from finance.accounting.models import Voucher, VoucherLine, GLBalance, Account
 
 if TYPE_CHECKING:  # Hints for static analyzers

@@ -93,7 +93,9 @@ class RecommendationService:
             if not lines:
                 continue
             title = lines[0].rstrip(":")
-            bullets = [line[1:].strip() if line.startswith("-") else line for line in lines[1:]]
+            bullets = [
+                line[1:].strip() if line.startswith("-") else line for line in lines[1:]
+            ]
             if not bullets:
                 # tek satırlık öneri de olabilir
                 bullets = lines[1:] or [title]

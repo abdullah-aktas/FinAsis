@@ -37,7 +37,9 @@ def _get_or_create_category_for_application(
         ),
         "description": application.integration_focus,
     }
-    category, _created = PartnerCategory.objects.get_or_create(code=code, defaults=defaults)
+    category, _created = PartnerCategory.objects.get_or_create(
+        code=code, defaults=defaults
+    )
     return category
 
 

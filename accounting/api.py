@@ -528,10 +528,19 @@ def derive_rule_from_preview(request):
     nature = preview.get("nature") or "expense"
     lines = preview.get("lines") or []
     debit = next(
-        (line.get("account") for line in lines if float(line.get("debit", "0") or "0") > 0), None
+        (
+            line.get("account")
+            for line in lines
+            if float(line.get("debit", "0") or "0") > 0
+        ),
+        None,
     )
     credit = next(
-        (line.get("account") for line in lines if float(line.get("credit", "0") or "0") > 0),
+        (
+            line.get("account")
+            for line in lines
+            if float(line.get("credit", "0") or "0") > 0
+        ),
         None,
     )
     kdv = next(

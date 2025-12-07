@@ -158,7 +158,7 @@ class RoleSecurityMiddleware:
         """Son aktivite zamanını güncelle"""
         try:
             cache_key = f"user_activity_{request.user.id}"
-            cache.set(cache_key, timezone.now(), timeout=300)  # 5 dakika 
+            cache.set(cache_key, timezone.now(), timeout=300)  # 5 dakika
         except Exception:
             pass
 
@@ -341,7 +341,7 @@ class PermissionAuditMiddleware:
         """Kullanıcının abonelik özelliği var mı?"""
         try:
             subscription = user.subscription
-            return subscription.is_active and getattr(subscription.plan, feature, False)                                                                  
+            return subscription.is_active and getattr(subscription.plan, feature, False)
         except (AttributeError, Exception):
             return False
 

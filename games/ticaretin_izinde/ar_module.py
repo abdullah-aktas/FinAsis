@@ -100,7 +100,9 @@ class ARManager:
                 self._detect_color_markers(frame)
 
             if self.show_camera and self.camera_texture:
-                invoke(setattr, self.camera_texture, "set_data", frame_rgb)  # noqa: F405
+                invoke(
+                    setattr, self.camera_texture, "set_data", frame_rgb
+                )  # noqa: F405
             time.sleep(0.01)
 
     def _detect_aruco_markers(self, frame):
@@ -146,7 +148,9 @@ class ARManager:
                     self._update_marker_entity(marker_id, position)
 
     def _update_marker_entity(self, marker_id, position, rotation_matrix=None):
-        invoke(self.on_marker_detected, marker_id, position, rotation_matrix)  # noqa: F405
+        invoke(
+            self.on_marker_detected, marker_id, position, rotation_matrix
+        )  # noqa: F405
 
     def on_marker_detected(self, marker_id, position, rotation_matrix=None):
         if marker_id not in self.markers:

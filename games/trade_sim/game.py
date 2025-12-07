@@ -123,7 +123,9 @@ class TradeSim:
     def setup_world(self):
         """3D dünyayı hazırla"""
         # Temel dünya öğeleri
-        Entity(model="plane", scale=(100, 1, 100), texture="grass", collider="box")  # noqa: F405
+        Entity(
+            model="plane", scale=(100, 1, 100), texture="grass", collider="box"
+        )  # noqa: F405
 
         # Ticaret merkezi
         Entity(model="building", position=(0, 0, 0), scale=2)  # noqa: F405
@@ -142,7 +144,9 @@ class TradeSim:
                 hit_info = mouse.hovered_entity  # noqa: F405
                 if hit_info and hit_info in self.blocks.values():
                     if mouse.normal is not None:  # noqa: F405
-                        pos = hit_info.position + mouse.normal * self.block_size  # noqa: F405
+                        pos = (
+                            hit_info.position + mouse.normal * self.block_size
+                        )  # noqa: F405
                         pos = tuple(round(x) for x in pos)
                         if self.is_in_stand_area(pos):
                             self.add_block(pos)
@@ -217,8 +221,12 @@ class TradeSim:
                     "45 dakikadır oynuyorsun! Lütfen kısa bir mola ver ve su iç!",
                     origin=(0, 0),
                 ),
-                Button("Kapat", scale=(0.4, 0.1), on_click=self.close_rest_modal),  # noqa: F405
-                Button("5 Dakika Mola Ver", scale=(0.4, 0.1), on_click=self.take_rest),  # noqa: F405
+                Button(
+                    "Kapat", scale=(0.4, 0.1), on_click=self.close_rest_modal
+                ),  # noqa: F405
+                Button(
+                    "5 Dakika Mola Ver", scale=(0.4, 0.1), on_click=self.take_rest
+                ),  # noqa: F405
             ),
             position=(0, 0),
             popup=True,
