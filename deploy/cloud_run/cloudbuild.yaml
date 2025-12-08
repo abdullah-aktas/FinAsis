@@ -79,7 +79,7 @@ steps:
         
         # Database environment variables (PostgreSQL için)
         # Not: Cloud SQL connection name varsa, HOST otomatik set edilecek
-        DB_ENV_VARS="DJANGO_DB_ENGINE=django.db.backends.postgresql"
+        DB_ENV_VARS="DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app"
         
         # Cloud SQL connection varsa database host'u set et
         if [ -n "${_CLOUD_SQL_CONNECTION}" ]; then
