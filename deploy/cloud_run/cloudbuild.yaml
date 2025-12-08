@@ -86,11 +86,14 @@ steps:
           DB_ENV_VARS="$${DB_ENV_VARS},DJANGO_DB_HOST=/cloudsql/${_CLOUD_SQL_CONNECTION}"
         fi
         
-        # Mevcut environment variables'ları al (varsa)
-        EXISTING_ENV_VARS=$(gcloud run services describe ${_CLOUD_RUN_SERVICE} \
+        # Mevcut environment variables'ları al (varsa) - JSON formatında parse et
+        EXISTING_ENV_JSON=$(gcloud run services describe ${_CLOUD_RUN_SERVICE} \
           --region=${_REGION} \
           --project=$PROJECT_ID \
-          --format="value(spec.template.spec.containers[0].env)" 2>/dev/null || echo "")
+          --format="json" 2>/dev/null || echo "{}")
+        
+        # JSON'dan environment variables'ları çıkar ve KEY=VALUE formatına dönüştür
+        EXISTING_ENV_VARS=$(echo "$${EXISTING_ENV_JSON}" | jq -r '.spec.template.spec.containers[0].env[]? | "\(.name)=\(.value)"' 2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
         
         # Tüm environment variables'ı birleştir
         ALL_ENV_VARS="$${DEFAULT_ENV_VARS},$${DB_ENV_VARS}"
