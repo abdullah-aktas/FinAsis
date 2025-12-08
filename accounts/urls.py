@@ -1,4 +1,4 @@
-from django.urls import path, include, reverse_lazy
+from django.urls import path, include
 from django.views.generic import RedirectView
 from . import views, views_mfa, views_auth
 from .api import UserProfileView, CompanyView, AchievementsView, UserSettingsView
