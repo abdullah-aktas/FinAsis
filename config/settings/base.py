@@ -68,13 +68,13 @@ if k_service and project_id:
     auto_host = f"{k_service}-{project_id}.{region}.run.app"
     if auto_host not in _allowed_hosts:
         _allowed_hosts.append(auto_host)
-    
+
     # Revision-specific host (eğer K_REVISION varsa)
     if k_revision:
         revision_host = f"{k_service}-{k_revision}-{region}.a.run.app"
         if revision_host not in _allowed_hosts:
             _allowed_hosts.append(revision_host)
-        
+
         # Alternatif format
         revision_host_alt = f"{k_service}-{k_revision}-ew.a.run.app"
         if revision_host_alt not in _allowed_hosts:
