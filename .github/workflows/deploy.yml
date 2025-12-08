@@ -64,12 +64,12 @@ jobs:
 
       - name: Debug gcloud config
         run: |
-          echo "🔍 gcloud config list core"
-          gcloud config list core
-          echo "🔍 gcloud auth list"
-          gcloud auth list
-          echo "🔍 active account"
-          gcloud config get-value account
+           echo "🔍 gcloud config list"
+           gcloud config list || true
+           echo "🔍 gcloud auth list"
+           gcloud auth list || true
+           echo "🔍 active account"
+           gcloud config get-value account || true
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
