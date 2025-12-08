@@ -11,7 +11,7 @@ substitutions:
   _IMAGE_TAG: "latest"
   _CLOUD_RUN_ENV_VARS: ""
   _CLOUD_RUN_SECRETS: ""
-  _CLOUD_SQL_CONNECTION: ""
+  _CLOUD_SQL_CONNECTION: "finasis-478502:europe-west1:finasis-db"  # Cloud SQL connection name
 
 steps:
   - name: "python:${_PYTHON_VERSION}"
