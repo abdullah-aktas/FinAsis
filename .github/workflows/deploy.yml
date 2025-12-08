@@ -18,7 +18,9 @@ on:
   workflow_dispatch: # Manuel tetikleme için
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  # Proje ID'sini sabitliyoruz; böylece yanlış secret/değer kaynaklı
+  # "NOT_FOUND" hatalarını engellemiş oluyoruz.
+  PROJECT_ID: finasis-478502
   SERVICE_NAME: finasis-prod  # Cloud Run service name
   IMAGE_SERVICE: finasis-api  # Container image name (different from service name)
   REGION: europe-west1
