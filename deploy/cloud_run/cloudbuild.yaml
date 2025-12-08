@@ -77,12 +77,24 @@ steps:
         # Default environment variables (Matplotlib cache ve Python ayarları)
         DEFAULT_ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1"
         
+        # Database environment variables (PostgreSQL için)
+        # Not: Cloud SQL connection name varsa, HOST otomatik set edilecek
+        DB_ENV_VARS="DJANGO_DB_ENGINE=django.db.backends.postgresql"
+        
+        # Cloud SQL connection varsa database host'u set et
+        if [ -n "${_CLOUD_SQL_CONNECTION}" ]; then
+          DB_ENV_VARS="$${DB_ENV_VARS},DJANGO_DB_HOST=/cloudsql/${_CLOUD_SQL_CONNECTION}"
+        fi
+        
+        # Tüm environment variables'ı birleştir
+        ALL_ENV_VARS="$${DEFAULT_ENV_VARS},$${DB_ENV_VARS}"
+        
         if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
           # Mevcut env vars ile birleştir
-          DEPLOY_ARGS+=("--set-env-vars=$${DEFAULT_ENV_VARS},${_CLOUD_RUN_ENV_VARS}")
-        else
-          DEPLOY_ARGS+=("--set-env-vars=$${DEFAULT_ENV_VARS}")
+          ALL_ENV_VARS="$${ALL_ENV_VARS},${_CLOUD_RUN_ENV_VARS}"
         fi
+        
+        DEPLOY_ARGS+=("--set-env-vars=$${ALL_ENV_VARS}")
 
         if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
           DEPLOY_ARGS+=("--set-secrets=${_CLOUD_RUN_SECRETS}")
