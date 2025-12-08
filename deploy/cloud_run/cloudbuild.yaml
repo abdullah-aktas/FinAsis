@@ -94,7 +94,8 @@ steps:
           ALL_ENV_VARS="$${ALL_ENV_VARS},${_CLOUD_RUN_ENV_VARS}"
         fi
         
-        DEPLOY_ARGS+=("--set-env-vars=$${ALL_ENV_VARS}")
+        # Mevcut environment variables'ları koru ve yeni olanları ekle/güncelle
+        DEPLOY_ARGS+=("--update-env-vars=$${ALL_ENV_VARS}")
 
         if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
           DEPLOY_ARGS+=("--set-secrets=${_CLOUD_RUN_SECRETS}")
