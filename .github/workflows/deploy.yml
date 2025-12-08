@@ -15,14 +15,12 @@ on:
       - "config/**"
       - "common/**"
       - "accounts/**"
-  workflow_dispatch: # Manuel tetikleme için
+  workflow_dispatch:
 
 env:
-  # Proje ID'sini sabitliyoruz; böylece yanlış secret/değer kaynaklı
-  # "NOT_FOUND" hatalarını engellemiş oluyoruz.
   PROJECT_ID: finasis-478502
-  SERVICE_NAME: finasis-prod  # Cloud Run service name
-  IMAGE_SERVICE: finasis-api  # Container image name (different from service name)
+  SERVICE_NAME: finasis-prod          # Cloud Run service name
+  IMAGE_SERVICE: finasis-api          # Container image name
   REGION: europe-west1
   REPOSITORY: finasis-app
 
@@ -38,45 +36,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
+      - id: auth
+        name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Set up Cloud SDK
+      - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
 
       - name: Clear Google Auth Override
         run: |
-          # Remove any credential file overrides that might interfere with WIF
           gcloud config unset auth/credential_file_override || true
-          # Remove environment variable overrides (critical for WIF)
           unset CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE || true
           unset GOOGLE_APPLICATION_CREDENTIALS || true
           unset GOOGLE_GHA_CREDS_PATH || true
-
-          # Also clear them from the GitHub Actions environment so sonraki
-          # adımlarda tekrar set edilmesin
           {
             echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE="
             echo "GOOGLE_APPLICATION_CREDENTIALS="
             echo "GOOGLE_GHA_CREDS_PATH="
           } >> "$GITHUB_ENV"
 
-          # Remove any credential files created by auth action
-          rm -f gha-creds-*.json || true
-          # Verify WIF is being used (should show service account)
-          echo "🔍 Current authentication:"
+      - name: Debug gcloud config
+        run: |
+          echo "🔍 gcloud config list core"
+          gcloud config list core
+          echo "🔍 gcloud auth list"
           gcloud auth list
-          echo ""
-          echo "🔍 Active account:"
+          echo "🔍 active account"
           gcloud config get-value account
 
-      - name: Configure Docker for GCR
+      - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
       - name: Submit build to Cloud Build
@@ -86,18 +81,3 @@ jobs:
             --region=${{ env.REGION }} \
             --substitutions=_SERVICE=${{ env.IMAGE_SERVICE }},_CLOUD_RUN_SERVICE=${{ env.SERVICE_NAME }},_REGION=${{ env.REGION }},_REPOSITORY=${{ env.REPOSITORY }},_CLOUD_SQL_CONNECTION="${{ secrets.CLOUD_SQL_CONNECTION }}",_CLOUD_RUN_ENV_VARS="${{ secrets.CLOUD_RUN_ENV_VARS }}",_CLOUD_RUN_SECRETS="${{ secrets.CLOUD_RUN_SECRETS }}" \
             --project=${{ env.PROJECT_ID }}
-
-      - name: Get service URL
-        id: service-url
-        run: |
-          URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --format="value(status.url)" \
-            --project=${{ env.PROJECT_ID }})
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "✅ Deployment tamamlandı: $URL"
-
-      - name: Health check
-        run: |
-          sleep 10
-          curl -f ${{ steps.service-url.outputs.url }} || exit 1
