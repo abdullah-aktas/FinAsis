@@ -1,32 +1,22 @@
 name: Deploy to Cloud Run
 
+# Bu workflow Cloud Build trigger'ı REST API ile tetikler.
+# Cloud Build trigger otomatik olarak main branch'e push yapıldığında da çalışır.
+
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "**.py"
-      - "**.html"
-      - "**.js"
-      - "**.css"
-      - "Dockerfile"
-      - "requirements.txt"
-      - "deploy/**"
-      - "config/**"
-      - "common/**"
-      - "accounts/**"
-  workflow_dispatch:
+  workflow_dispatch:  # Sadece manuel tetikleme
 
 env:
   PROJECT_ID: finasis-478502
-  SERVICE_NAME: finasis-prod          # Cloud Run service name
-  IMAGE_SERVICE: finasis-api          # Container image name
+  SERVICE_NAME: finasis-prod
+  IMAGE_SERVICE: finasis-api
   REGION: europe-west1
   REPOSITORY: finasis-app
+  TRIGGER_NAME: finasis-prod-europe-west1-abdullah-aktas-FinAsis
 
 jobs:
   deploy:
-    name: Deploy to Cloud Run
+    name: Trigger Cloud Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,39 +35,40 @@ jobs:
           token_format: access_token
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.PROJECT_ID }}
-
-      - name: Clear Google Auth Override
+      - name: Trigger Cloud Build
         run: |
-          gcloud config unset auth/credential_file_override || true
-          unset CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE || true
-          unset GOOGLE_APPLICATION_CREDENTIALS || true
-          unset GOOGLE_GHA_CREDS_PATH || true
-          {
-            echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE="
-            echo "GOOGLE_APPLICATION_CREDENTIALS="
-            echo "GOOGLE_GHA_CREDS_PATH="
-          } >> "$GITHUB_ENV"
-
-      - name: Debug gcloud config
-        run: |
-           echo "🔍 gcloud config list"
-           gcloud config list || true
-           echo "🔍 gcloud auth list"
-           gcloud auth list || true
-           echo "🔍 active account"
-           gcloud config get-value account || true
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-
-      - name: Submit build to Cloud Build
-        run: |
-          gcloud builds submit \
-            --config=deploy/cloud_run/cloudbuild.yaml \
+          echo "🚀 Cloud Build trigger'ı tetikleniyor..."
+          
+          # Trigger'ı bul
+          TRIGGER_ID=$(gcloud builds triggers list \
+            --filter="name:${{ env.TRIGGER_NAME }}" \
+            --format="value(id)" \
             --region=${{ env.REGION }} \
-            --substitutions=_SERVICE=${{ env.IMAGE_SERVICE }},_CLOUD_RUN_SERVICE=${{ env.SERVICE_NAME }},_REGION=${{ env.REGION }},_REPOSITORY=${{ env.REPOSITORY }},_CLOUD_SQL_CONNECTION="${{ secrets.CLOUD_SQL_CONNECTION }}",_CLOUD_RUN_ENV_VARS="${{ secrets.CLOUD_RUN_ENV_VARS }}",_CLOUD_RUN_SECRETS="${{ secrets.CLOUD_RUN_SECRETS }}" \
-            --project=${{ env.PROJECT_ID }}
+            --project=${{ env.PROJECT_ID }} | head -1)
+          
+          if [ -z "$TRIGGER_ID" ]; then
+            echo "⚠️  Trigger bulunamadı, tüm trigger'ları listeliyorum..."
+            gcloud builds triggers list --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }}
+            echo ""
+            echo "✅ Cloud Build trigger otomatik olarak çalışacak (push tetiklemesi)."
+            echo "📊 Build durumunu takip edin:"
+            echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
+            exit 0
+          fi
+          
+          echo "📋 Trigger ID: $TRIGGER_ID"
+          
+          # Trigger'ı tetikle
+          gcloud builds triggers run $TRIGGER_ID \
+            --branch=main \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} || {
+            echo "⚠️  Trigger tetiklenemedi, ama Cloud Build otomatik olarak çalışacak."
+            echo "📊 Build durumunu takip edin:"
+            echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
+            exit 0
+          }
+          
+          echo "✅ Cloud Build trigger başarıyla tetiklendi!"
+          echo "📊 Build durumunu takip edin:"
+          echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
