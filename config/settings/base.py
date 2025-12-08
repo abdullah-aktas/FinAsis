@@ -55,6 +55,39 @@ if cloud_run_url:
     if parsed.hostname and parsed.hostname not in _allowed_hosts:
         _allowed_hosts.append(parsed.hostname)
 
+# Cloud Run otomatik host detection (K_SERVICE ve K_REVISION environment variables)
+# Cloud Run'da bu değişkenler otomatik olarak set edilir
+k_service = ENV("K_SERVICE", "")
+k_revision = ENV("K_REVISION", "")
+project_id = ENV("GOOGLE_CLOUD_PROJECT", ENV("GCLOUD_PROJECT", ""))
+region = ENV("CLOUD_RUN_REGION", "europe-west1")
+
+# Cloud Run'un otomatik host'unu oluştur (format: SERVICE-REVISION-REGION.a.run.app)
+if k_service and project_id:
+    # Ana Cloud Run host
+    auto_host = f"{k_service}-{project_id}.{region}.run.app"
+    if auto_host not in _allowed_hosts:
+        _allowed_hosts.append(auto_host)
+    
+    # Revision-specific host (eğer K_REVISION varsa)
+    if k_revision:
+        revision_host = f"{k_service}-{k_revision}-{region}.a.run.app"
+        if revision_host not in _allowed_hosts:
+            _allowed_hosts.append(revision_host)
+        
+        # Alternatif format
+        revision_host_alt = f"{k_service}-{k_revision}-ew.a.run.app"
+        if revision_host_alt not in _allowed_hosts:
+            _allowed_hosts.append(revision_host_alt)
+
+# Production'da wildcard pattern ekle (Cloud Run için)
+if not DEBUG:
+    # Cloud Run'un tüm host'larını kabul et
+    if "*.run.app" not in _allowed_hosts:
+        _allowed_hosts.append("*.run.app")
+    if "*.a.run.app" not in _allowed_hosts:
+        _allowed_hosts.append("*.a.run.app")
+
 ALLOWED_HOSTS = _allowed_hosts
 
 CSRF_TRUSTED_ORIGINS = env_list(
