@@ -86,16 +86,30 @@ steps:
           DB_ENV_VARS="$${DB_ENV_VARS},DJANGO_DB_HOST=/cloudsql/${_CLOUD_SQL_CONNECTION}"
         fi
         
+        # Mevcut environment variables'ları al (varsa)
+        EXISTING_ENV_VARS=$(gcloud run services describe ${_CLOUD_RUN_SERVICE} \
+          --region=${_REGION} \
+          --project=$PROJECT_ID \
+          --format="value(spec.template.spec.containers[0].env)" 2>/dev/null || echo "")
+        
         # Tüm environment variables'ı birleştir
         ALL_ENV_VARS="$${DEFAULT_ENV_VARS},$${DB_ENV_VARS}"
         
+        # Mevcut environment variables'ları ekle (varsa)
+        if [ -n "$${EXISTING_ENV_VARS}" ]; then
+          ALL_ENV_VARS="$${ALL_ENV_VARS},$${EXISTING_ENV_VARS}"
+        fi
+        
         if [ -n "${_CLOUD_RUN_ENV_VARS}" ]; then
-          # Mevcut env vars ile birleştir
+          # Ek env vars ile birleştir
           ALL_ENV_VARS="$${ALL_ENV_VARS},${_CLOUD_RUN_ENV_VARS}"
         fi
         
-        # Mevcut environment variables'ları koru ve yeni olanları ekle/güncelle
-        DEPLOY_ARGS+=("--update-env-vars=$${ALL_ENV_VARS}")
+        # Debug: Environment variables'ları logla
+        echo "🔧 Setting environment variables: $${ALL_ENV_VARS}"
+        
+        # Environment variables'ları set et
+        DEPLOY_ARGS+=("--set-env-vars=$${ALL_ENV_VARS}")
 
         if [ -n "${_CLOUD_RUN_SECRETS}" ]; then
           DEPLOY_ARGS+=("--set-secrets=${_CLOUD_RUN_SECRETS}")
