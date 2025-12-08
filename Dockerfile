@@ -50,9 +50,9 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 COPY . .
 # Matplotlib cache dizinini oluştur
 RUN mkdir -p /tmp/matplotlib-cache && chmod 777 /tmp/matplotlib-cache
-RUN python manage.py collectstatic --noinput
-RUN python manage.py migrate
-RUN python manage.py init_trade_sim
+# Static dosyaları build zamanında topla (veritabanı gerektirmez)
+RUN python manage.py collectstatic --noinput || echo "Warning: collectstatic failed, will retry at runtime"
+# NOT: Migration ve init_trade_sim runtime'da entrypoint.sh içinde çalışacak
 
 COPY deploy/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
