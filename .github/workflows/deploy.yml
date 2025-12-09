@@ -76,8 +76,10 @@ jobs:
             DJANGO_DB_NAME=finasis
             DJANGO_DB_USER=finasis-app
             DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db
+            CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db
             DJANGO_DEBUG=0
             DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }}
           secrets: ${{ secrets.CLOUD_RUN_SECRETS }}
 
       - name: Show service URL
