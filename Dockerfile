@@ -23,9 +23,10 @@ FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=config.settings \
-    PORT=8080 \
     PYTHONPATH=/app \
     MPLCONFIGDIR=/tmp/matplotlib-cache
+# NOT: PORT environment variable Cloud Run tarafından otomatik set edilir
+# Gunicorn config dosyası PORT'u otomatik olarak kullanır
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \

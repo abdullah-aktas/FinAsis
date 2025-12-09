@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# PORT kontrolü (Cloud Run otomatik set eder)
+if [ -z "${PORT:-}" ]; then
+  export PORT=8080
+  echo "⚠️  PORT not set, using default: 8080"
+else
+  echo "✅ PORT is set to: $PORT"
+fi
+
 # Collect static files (her zaman çalıştır - eksik statikler olmasın)
 echo "📦 Collecting static files..."
 python manage.py collectstatic --noinput || {
