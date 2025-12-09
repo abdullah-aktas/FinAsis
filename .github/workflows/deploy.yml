@@ -68,6 +68,8 @@ jobs:
             --max-instances=10
             --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }}
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db
+            --startup-cpu-boost
+            --cpu-throttling
           env_vars: |
             MPLCONFIGDIR=/tmp/matplotlib-cache
             PYTHONUNBUFFERED=1
