@@ -6,6 +6,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
+from django.core.exceptions import ImproperlyConfigured
 
 from config import oidc as oidc_config
 
@@ -258,9 +259,16 @@ ASGI_APPLICATION = "config.asgi.application"
 # -----------------------------------------------------------------------------
 # Database
 # -----------------------------------------------------------------------------
+# Production'da SQLite kullanımını engelle
+_db_engine = ENV("DJANGO_DB_ENGINE", "django.db.backends.sqlite3")
+if not DEBUG and _db_engine == "django.db.backends.sqlite3":
+    raise ImproperlyConfigured(
+        "SQLite cannot be used in production. Set DJANGO_DB_ENGINE=django.db.backends.postgresql"
+    )
+
 DATABASES: dict[str, dict[str, Any]] = {
     "default": {
-        "ENGINE": ENV("DJANGO_DB_ENGINE", "django.db.backends.sqlite3"),
+        "ENGINE": _db_engine,
         "NAME": ENV("DJANGO_DB_NAME", str(BASE_DIR / "db.sqlite3")),
         "USER": ENV("DJANGO_DB_USER", ""),
         "PASSWORD": ENV("DJANGO_DB_PASSWORD", ""),
