@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+# Collect static files (her zaman çalıştır - eksik statikler olmasın)
+echo "📦 Collecting static files..."
+python manage.py collectstatic --noinput || {
+  echo "⚠️  collectstatic failed, but continuing..."
+}
+
 # Database migrations (idempotent - safe to run multiple times)
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   echo "🔄 Running database migrations..."
@@ -15,13 +21,6 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   }
 fi
 
-# Collect static files if not already collected (fallback)
-if [ "${COLLECT_STATIC:-false}" = "true" ]; then
-  echo "📦 Collecting static files..."
-  python manage.py collectstatic --noinput || {
-    echo "⚠️  collectstatic failed, but continuing..."
-  }
-fi
-
+# Gunicorn'u başlat
 exec "$@"
 

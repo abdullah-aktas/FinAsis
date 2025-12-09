@@ -1,22 +1,21 @@
 name: Deploy to Cloud Run
 
-# Bu workflow Cloud Build trigger'ı REST API ile tetikler.
-# Cloud Build trigger otomatik olarak main branch'e push yapıldığında da çalışır.
-
 on:
-  workflow_dispatch:  # Sadece manuel tetikleme
+  workflow_dispatch: # Manuel tetikleme
+  push:
+    branches:
+      - main # main branch'e push olduğunda otomatik deploy
 
 env:
   PROJECT_ID: finasis-478502
   SERVICE_NAME: finasis-prod
-  IMAGE_SERVICE: finasis-api
   REGION: europe-west1
   REPOSITORY: finasis-app
-  TRIGGER_NAME: finasis-prod-europe-west1-abdullah-aktas-FinAsis
+  IMAGE_NAME: finasis-api
 
 jobs:
   deploy:
-    name: Trigger Cloud Build
+    name: Build and Deploy to Cloud Run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,40 +34,56 @@ jobs:
           token_format: access_token
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Trigger Cloud Build
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
         run: |
-          echo "🚀 Cloud Build trigger'ı tetikleniyor..."
-          
-          # Trigger'ı bul
-          TRIGGER_ID=$(gcloud builds triggers list \
-            --filter="name:${{ env.TRIGGER_NAME }}" \
-            --format="value(id)" \
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        run: |
+          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: |
+            --platform=managed
+            --allow-unauthenticated
+            --execution-environment=gen2
+            --memory=2Gi
+            --cpu=2
+            --timeout=300
+            --concurrency=40
+            --min-instances=1
+            --max-instances=10
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }}
+            --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db
+          env_vars: |
+            MPLCONFIGDIR=/tmp/matplotlib-cache
+            PYTHONUNBUFFERED=1
+            PYTHONDONTWRITEBYTECODE=1
+            DJANGO_DB_ENGINE=django.db.backends.postgresql
+            DJANGO_DB_NAME=finasis
+            DJANGO_DB_USER=finasis-app
+            DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db
+            DJANGO_DEBUG=0
+          secrets: ${{ secrets.CLOUD_RUN_SECRETS }}
+
+      - name: Show service URL
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
-            --project=${{ env.PROJECT_ID }} | head -1)
-          
-          if [ -z "$TRIGGER_ID" ]; then
-            echo "⚠️  Trigger bulunamadı, tüm trigger'ları listeliyorum..."
-            gcloud builds triggers list --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }}
-            echo ""
-            echo "✅ Cloud Build trigger otomatik olarak çalışacak (push tetiklemesi)."
-            echo "📊 Build durumunu takip edin:"
-            echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
-            exit 0
-          fi
-          
-          echo "📋 Trigger ID: $TRIGGER_ID"
-          
-          # Trigger'ı tetikle
-          gcloud builds triggers run $TRIGGER_ID \
-            --branch=main \
-            --region=${{ env.REGION }} \
-            --project=${{ env.PROJECT_ID }} || {
-            echo "⚠️  Trigger tetiklenemedi, ama Cloud Build otomatik olarak çalışacak."
-            echo "📊 Build durumunu takip edin:"
-            echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
-            exit 0
-          }
-          
-          echo "✅ Cloud Build trigger başarıyla tetiklendi!"
-          echo "📊 Build durumunu takip edin:"
-          echo "   https://console.cloud.google.com/cloud-build/builds?project=${{ env.PROJECT_ID }}"
+            --project=${{ env.PROJECT_ID }} \
+            --format="value(status.url)")
+          echo "✅ Deployment tamamlandı!"
+          echo "🌐 Servis URL: $SERVICE_URL"
