@@ -83,7 +83,21 @@ echo ""
 # 2. Git pull (son değişiklikleri al)
 echo -e "${YELLOW}📥 2. Git pull yapılıyor...${NC}"
 cd ~/FinAsis || { echo -e "${RED}❌ FinAsis dizini bulunamadı!${NC}"; exit 1; }
-git pull origin main
+
+# Yerel değişiklikleri kontrol et ve handle et
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "${YELLOW}⚠️  Yerel değişiklikler bulundu, stash ediliyor...${NC}"
+    git stash push -m "Auto-stash before deployment $(date +%Y%m%d_%H%M%S)" || {
+        echo -e "${YELLOW}⚠️  Stash başarısız, yerel değişiklikler restore ediliyor...${NC}"
+        git restore . || echo -e "${YELLOW}⚠️  Restore başarısız, devam ediliyor...${NC}"
+    }
+fi
+
+# Git pull yap
+git pull origin main || {
+    echo -e "${RED}❌ Git pull başarısız!${NC}"
+    exit 1
+}
 echo -e "${GREEN}✅ Git pull tamamlandı${NC}"
 echo ""
 
