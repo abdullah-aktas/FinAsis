@@ -32,6 +32,54 @@ gcloud config set project $PROJECT_ID
 echo -e "${GREEN}✅ Proje ayarlandı${NC}"
 echo ""
 
+# 1.5. Gerekli API'leri kontrol et ve etkinleştir
+echo -e "${YELLOW}🔧 1.5. Gerekli API'ler kontrol ediliyor...${NC}"
+
+# Cloud Build API
+if ! gcloud services list --enabled --filter="name:cloudbuild.googleapis.com" --format="value(name)" | grep -q cloudbuild; then
+    echo -e "${YELLOW}⚠️  Cloud Build API etkin değil, etkinleştiriliyor...${NC}"
+    gcloud services enable cloudbuild.googleapis.com --project=$PROJECT_ID
+    echo -e "${BLUE}   API etkinleştiriliyor, 30 saniye bekleniyor...${NC}"
+    sleep 30
+fi
+echo -e "${GREEN}✅ Cloud Build API etkin${NC}"
+
+# Cloud Run API
+if ! gcloud services list --enabled --filter="name:run.googleapis.com" --format="value(name)" | grep -q run; then
+    echo -e "${YELLOW}⚠️  Cloud Run API etkin değil, etkinleştiriliyor...${NC}"
+    gcloud services enable run.googleapis.com --project=$PROJECT_ID
+    sleep 10
+fi
+echo -e "${GREEN}✅ Cloud Run API etkin${NC}"
+
+# Artifact Registry API
+if ! gcloud services list --enabled --filter="name:artifactregistry.googleapis.com" --format="value(name)" | grep -q artifactregistry; then
+    echo -e "${YELLOW}⚠️  Artifact Registry API etkin değil, etkinleştiriliyor...${NC}"
+    gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID
+    sleep 10
+fi
+echo -e "${GREEN}✅ Artifact Registry API etkin${NC}"
+
+# Artifact Registry repository kontrolü
+if ! gcloud artifacts repositories describe $REPOSITORY \
+    --location=$REGION \
+    --project=$PROJECT_ID \
+    --format="value(name)" >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  Artifact Registry repository bulunamadı, oluşturuluyor...${NC}"
+    gcloud artifacts repositories create $REPOSITORY \
+        --repository-format=docker \
+        --location=$REGION \
+        --project=$PROJECT_ID \
+        --description="FinAsis application Docker images" || {
+        echo -e "${RED}❌ Artifact Registry repository oluşturulamadı!${NC}"
+        exit 1
+    }
+    echo -e "${GREEN}✅ Artifact Registry repository oluşturuldu${NC}"
+else
+    echo -e "${GREEN}✅ Artifact Registry repository mevcut${NC}"
+fi
+echo ""
+
 # 2. Git pull (son değişiklikleri al)
 echo -e "${YELLOW}📥 2. Git pull yapılıyor...${NC}"
 cd ~/FinAsis || { echo -e "${RED}❌ FinAsis dizini bulunamadı!${NC}"; exit 1; }
