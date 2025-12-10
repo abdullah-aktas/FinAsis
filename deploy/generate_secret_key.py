@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from django.core.management.utils import get_random_secret_key
+
     secret_key = get_random_secret_key()
     print("=" * 70)
     print("🔐 DJANGO_SECRET_KEY (GitHub Secrets'a ekleyin):")
@@ -23,9 +24,9 @@ except ImportError:
     # Django yoksa alternatif yöntem
     import secrets
     import string
-    
+
     chars = string.ascii_letters + string.digits + string.punctuation
-    secret_key = ''.join(secrets.choice(chars) for _ in range(50))
+    secret_key = "".join(secrets.choice(chars) for _ in range(50))
     print("=" * 70)
     print("🔐 DJANGO_SECRET_KEY (GitHub Secrets'a ekleyin):")
     print("=" * 70)
@@ -35,4 +36,3 @@ except ImportError:
     print("=" * 70)
     print("⚠️  Not: Django yüklü değil, alternatif yöntem kullanıldı")
     print("=" * 70)
-

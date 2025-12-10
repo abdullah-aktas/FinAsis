@@ -75,7 +75,7 @@ if k_service:
         auto_host = f"{k_service}-{project_id}.{region}.run.app"
         if auto_host not in _allowed_hosts:
             _allowed_hosts.append(auto_host)
-    
+
     # Format 2: SERVICE-PROJECT_NUMBER.REGION.run.app
     if project_number:
         auto_host_num = f"{k_service}-{project_number}.{region}.run.app"
@@ -115,19 +115,19 @@ if k_service:
         cloud_run_origin = f"https://{k_service}-{project_id}.{region}.run.app"
         if cloud_run_origin not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(cloud_run_origin)
-    
+
     # Format 2: SERVICE-PROJECT_NUMBER.REGION.run.app
     if project_number:
         cloud_run_origin_num = f"https://{k_service}-{project_number}.{region}.run.app"
         if cloud_run_origin_num not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(cloud_run_origin_num)
-    
+
     # Revision-specific origins
     if k_revision:
         revision_origin = f"https://{k_service}-{k_revision}-{region}.a.run.app"
         if revision_origin not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(revision_origin)
-        
+
         revision_origin_alt = f"https://{k_service}-{k_revision}-ew.a.run.app"
         if revision_origin_alt not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(revision_origin_alt)
