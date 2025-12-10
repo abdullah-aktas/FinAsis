@@ -50,6 +50,13 @@ jobs:
           docker push "$IMAGE"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
+      - name: Get Project Number
+        id: project_number
+        run: |
+          PROJECT_NUMBER=$(gcloud projects describe ${{ env.PROJECT_ID }} --format="value(projectNumber)")
+          echo "PROJECT_NUMBER=$PROJECT_NUMBER" >> $GITHUB_OUTPUT
+          echo "✅ Project Number: $PROJECT_NUMBER"
+
       - name: Deploy to Cloud Run
         env:
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
@@ -77,6 +84,9 @@ jobs:
           # SECRET_KEY ve DB_PASSWORD'i ekle
           ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
           ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
+          
+          # GOOGLE_CLOUD_PROJECT_NUMBER'ı ekle (ALLOWED_HOSTS için gerekli)
+          ENV_VARS="$ENV_VARS,GOOGLE_CLOUD_PROJECT_NUMBER=${{ steps.project_number.outputs.PROJECT_NUMBER }}"
 
           echo "🔧 Deploying with environment variables..."
 

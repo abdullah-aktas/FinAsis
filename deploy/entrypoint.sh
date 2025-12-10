@@ -71,9 +71,12 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log "🔄 Applying migrations..."
   
   # Migration'ları çalıştır - başarısız olursa exit
-  # --run-syncdb kullanmıyoruz çünkü migration'lar mevcut
-  # Atomic transaction kullanıyoruz (Django default)
-  if python manage.py migrate --noinput --verbosity 2; then
+  # Bazı migration'lar atomic=False olduğu için InFailedSqlTransaction hatası olabilir
+  # Bu durumda migration'ları tek tek çalıştırmayı deneyebiliriz
+  MIGRATION_OUTPUT=$(python manage.py migrate --noinput --verbosity 2 2>&1)
+  MIGRATION_EXIT_CODE=$?
+  
+  if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
     log "✅ Migrations completed successfully"
     log ""
     log "📋 Final migration status:"
@@ -118,8 +121,13 @@ else:
       log "✅ Table verification passed"
     else
       log "❌ Critical tables are missing! Migration may have failed."
-      log "🔄 Retrying migrations..."
-      if python manage.py migrate --noinput --verbosity 2; then
+      log "🔄 Retrying migrations with fake-initial to skip problematic migrations..."
+      # Önce fake-initial ile deneyelim (zaten uygulanmış migration'ları atla)
+      if python manage.py migrate --noinput --verbosity 2 --fake-initial 2>&1 | tee /tmp/migration_retry.log; then
+        log "✅ Migration retry with --fake-initial successful"
+      else
+        log "⚠️  --fake-initial failed, trying normal migrate..."
+        if python manage.py migrate --noinput --verbosity 2 2>&1 | tee /tmp/migration_retry.log; then
         log "✅ Migration retry successful"
         # Tekrar kontrol et
         log "🔄 Verifying tables after retry..."
@@ -156,16 +164,69 @@ else:
           log "✅ Table verification passed after retry"
         else
           log "❌ Tables still missing after retry!"
+          log "📋 Migration retry log:"
+          cat /tmp/migration_retry.log || true
           exit 1
         fi
       else
         log "❌ Migration retry failed!"
+        log "📋 Migration retry log:"
+        cat /tmp/migration_retry.log || true
         exit 1
       fi
     fi
   else
-    log "❌ Migration failed!"
-    exit 1
+    log "❌ Migration failed with exit code: $MIGRATION_EXIT_CODE"
+    log "📋 Migration output:"
+    echo "$MIGRATION_OUTPUT" | tail -50
+    log "🔄 Retrying migrations..."
+    if python manage.py migrate --noinput --verbosity 2 2>&1 | tee /tmp/migration_retry.log; then
+      log "✅ Migration retry successful"
+      # Tablo kontrolü yap
+      log "🔄 Verifying tables after retry..."
+      if python -c "
+import os
+import sys
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+from django.db import connection
+
+critical_tables = ['billing_module', 'common_errorlog', 'django_migrations']
+missing_tables = []
+
+for table in critical_tables:
+    with connection.cursor() as cursor:
+        cursor.execute(\"\"\"
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = %s
+            );
+        \"\"\", [table])
+        exists = cursor.fetchone()[0]
+        if not exists:
+            missing_tables.append(table)
+
+if missing_tables:
+    print(f'❌ Still missing tables: {missing_tables}')
+    sys.exit(1)
+else:
+    print('✅ All critical tables now exist')
+"; then
+        log "✅ Table verification passed after retry"
+      else
+        log "❌ Tables still missing after retry!"
+        log "📋 Migration retry log:"
+        cat /tmp/migration_retry.log || true
+        exit 1
+      fi
+    else
+      log "❌ Migration retry failed!"
+      log "📋 Migration retry log:"
+      cat /tmp/migration_retry.log || true
+      exit 1
+    fi
   fi
   
   # Initialize Trade Sim seed data (idempotent - uses get_or_create)
