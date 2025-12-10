@@ -147,7 +147,8 @@ jobs:
           echo "🚀 Starting Cloud Run deployment..."
 
           # Environment variables'ı hazırla
-          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0,PORT=${{ env.PORT }}"
+          # NOT: PORT env değişkeni Cloud Run tarafından otomatik set edilir, biz set etmiyoruz (aksi halde "reserved env names" hatası veriyor)
+          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0"
 
           # SECRET_KEY ve DB_PASSWORD'i ekle
           ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
