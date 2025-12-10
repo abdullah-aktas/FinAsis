@@ -26,7 +26,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     MPLCONFIGDIR=/tmp/matplotlib-cache
 # NOT: PORT environment variable Cloud Run tarafından otomatik set edilir
-# Gunicorn config dosyası PORT'u otomatik olarak kullanır
+# CMD'de --bind 0.0.0.0:$PORT ile Cloud Run'ın verdiği PORT'u kullanıyoruz
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
@@ -66,5 +66,6 @@ EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
 # Production için gunicorn config dosyası kullan (50K users için optimize edilmiş)
-CMD ["gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "-c", "gunicorn_config.py"]
+# Cloud Run PORT environment variable'ını kullanarak bind et (shell format gerekli - $PORT expansion için)
+CMD gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -c gunicorn_config.py --bind 0.0.0.0:${PORT:-8080}
 
