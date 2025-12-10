@@ -51,38 +51,42 @@ jobs:
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.SERVICE_NAME }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          region: ${{ env.REGION }}
-          flags: |
-            --platform=managed
-            --allow-unauthenticated
-            --execution-environment=gen2
-            --memory=2Gi
-            --cpu=2
-            --timeout=300
-            --concurrency=40
-            --min-instances=1
-            --max-instances=10
-            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }}
-            --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db
-            --startup-cpu-boost
-            --cpu-throttling
-          env_vars: |
-            MPLCONFIGDIR=/tmp/matplotlib-cache
-            PYTHONUNBUFFERED=1
-            PYTHONDONTWRITEBYTECODE=1
-            DJANGO_DB_ENGINE=django.db.backends.postgresql
-            DJANGO_DB_NAME=finasis
-            DJANGO_DB_USER=finasis-app
-            DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db
-            CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db
-            DJANGO_DEBUG=0
-            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-            DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }}
-          secrets: ${{ secrets.CLOUD_RUN_SECRETS }}
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+        run: |
+          # Environment variables'ı hazırla
+          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0"
+          
+          # SECRET_KEY ve DB_PASSWORD'i ekle (eğer varsa)
+          if [ -n "$DJANGO_SECRET_KEY" ]; then
+            ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
+          fi
+          
+          if [ -n "$DJANGO_DB_PASSWORD" ]; then
+            ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
+          fi
+          
+          echo "🔧 Deploying with environment variables..."
+          
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --region=${{ env.REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --execution-environment=gen2 \
+            --memory=2Gi \
+            --cpu=2 \
+            --timeout=300 \
+            --concurrency=40 \
+            --min-instances=1 \
+            --max-instances=10 \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
+            --startup-cpu-boost \
+            --cpu-throttling \
+            --set-env-vars="$ENV_VARS" \
+            --project=${{ env.PROJECT_ID }}
 
       - name: Show service URL
         run: |
