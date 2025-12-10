@@ -51,8 +51,10 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 COPY . .
 # Matplotlib cache dizinini oluştur
 RUN mkdir -p /tmp/matplotlib-cache && chmod 777 /tmp/matplotlib-cache
-# Staticfiles dizinini oluştur ve app kullanıcısına sahiplik ver
-RUN mkdir -p /app/staticfiles && chown -R app:app /app
+# Staticfiles dizinini oluştur
+RUN mkdir -p /app/staticfiles
+# Tüm /app dizinini app kullanıcısına sahiplik ver (COPY'den sonra)
+RUN chown -R app:app /app
 # NOT: collectstatic, migrate ve init_trade_sim runtime'da entrypoint.sh içinde çalışacak
 # Bu sayede her deployment'ta güncel statikler ve migration'lar garantilenir
 
