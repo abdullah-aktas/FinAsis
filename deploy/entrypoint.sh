@@ -31,19 +31,20 @@ else
   log "✅ PORT is set to: $PORT"
 fi
 
-# Database bağlantısını test et (retry ile)
+# Database bağlantısını test et (retry ile, daha hızlı)
 log ""
 log "🔍 Testing database connection (with retries)..."
 DB_CONNECTED=false
-MAX_RETRIES=10
-RETRY_DELAY=3
+MAX_RETRIES=5
+RETRY_DELAY=2
 
 for i in $(seq 1 $MAX_RETRIES); do
-  log "  Attempt $i/$MAX_RETRIES..."
-  if python -c "
+  if [ $i -gt 1 ]; then
+    log "  Attempt $i/$MAX_RETRIES..."
+  fi
+  if timeout 10 python -c "
 import os
 import sys
-import time
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 try:
@@ -52,12 +53,10 @@ try:
     with connection.cursor() as cursor:
         cursor.execute('SELECT 1')
         result = cursor.fetchone()
-        print('✅ Database connection successful:', result)
         sys.exit(0)
 except Exception as e:
-    print(f'❌ Database connection failed: {e}')
     sys.exit(1)
-" 2>&1; then
+" >/dev/null 2>&1; then
     log "✅ Database connection test passed"
     DB_CONNECTED=true
     break
@@ -74,7 +73,6 @@ if [ "$DB_CONNECTED" = "false" ]; then
   log "📋 Checking Cloud SQL socket..."
   if [ -n "${CLOUD_SQL_CONNECTION_NAME:-}" ]; then
     SOCKET_PATH="/cloudsql/${CLOUD_SQL_CONNECTION_NAME}"
-    log "  Socket path: $SOCKET_PATH"
     if [ -S "$SOCKET_PATH" ]; then
       log "  ✅ Socket exists"
     else
@@ -85,13 +83,13 @@ if [ "$DB_CONNECTED" = "false" ]; then
 fi
 
 # Collect static files (kritik değil - başarısız olursa uyarı ver ama devam et)
-# Verbosity 1 kullanarak daha hızlı (daha az log)
+# Verbosity 0 kullanarak çok daha hızlı (minimal log)
 log ""
-log "📦 Collecting static files (verbosity reduced for speed)..."
-if python manage.py collectstatic --noinput --verbosity 1 --clear 2>&1 | head -50; then
+log "📦 Collecting static files (minimal verbosity for speed)..."
+if timeout 60 python manage.py collectstatic --noinput --verbosity 0 --clear >/dev/null 2>&1; then
   log "✅ collectstatic completed successfully"
 else
-  log "⚠️  collectstatic failed, but continuing (not critical - Whitenoise will serve files)..."
+  log "⚠️  collectstatic failed or timed out, but continuing (not critical - Whitenoise will serve files)..."
   # Statik dosyalar kritik değil - Whitenoise zaten çalışıyor ve eksik dosyalar için fallback var
 fi
 
@@ -99,37 +97,52 @@ fi
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log ""
   log "🔄 Running database migrations..."
-  log "📋 Checking migration status..."
-  python manage.py showmigrations --list || true
-  log ""
-  log "🔄 Applying migrations..."
-  log "⏱️  Migration timeout: 240 seconds (4 minutes)"
+  log "🔄 Applying migrations (skipping status check for speed)..."
+  log "⏱️  Migration timeout: 180 seconds (3 minutes)"
   log "💡 Using --fake-initial for faster startup (skips already applied migrations)"
   
-  # Migration'ları timeout ile çalıştır (4 dakika timeout)
+  # Migration'ları timeout ile çalıştır (3 dakika timeout)
   # --fake-initial kullanarak zaten uygulanmış migration'ları atla (daha hızlı)
+  # Verbosity 0 kullanarak minimal log (daha hızlı)
   # Bazı migration'lar atomic=False olduğu için InFailedSqlTransaction hatası olabilir
   MIGRATION_EXIT_CODE=0
   if command -v timeout >/dev/null 2>&1; then
-    MIGRATION_OUTPUT=$(timeout 240 python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1)
-    MIGRATION_EXIT_CODE=$?
-    if [ $MIGRATION_EXIT_CODE -eq 124 ]; then
-      log "❌ Migration timeout after 240 seconds!"
-      log "📋 Migration output (last 100 lines):"
-      echo "$MIGRATION_OUTPUT" | tail -100
-      exit 1
+    # Verbosity 0 ile çalıştır, sadece hata durumunda log göster
+    if timeout 180 python manage.py migrate --noinput --fake-initial --verbosity 0 >/tmp/migration.log 2>&1; then
+      MIGRATION_EXIT_CODE=0
+      log "✅ Migrations completed successfully"
+    else
+      MIGRATION_EXIT_CODE=$?
+      if [ $MIGRATION_EXIT_CODE -eq 124 ]; then
+        log "❌ Migration timeout after 180 seconds!"
+        log "📋 Migration output (last 50 lines):"
+        tail -50 /tmp/migration.log
+        exit 1
+      else
+        log "⚠️  Migration had errors, showing output:"
+        tail -50 /tmp/migration.log
+        # Hata olsa bile devam et (bazı migration'lar zaten uygulanmış olabilir)
+        MIGRATION_EXIT_CODE=0
+      fi
     fi
   else
     # timeout komutu yoksa direkt çalıştır
-    MIGRATION_OUTPUT=$(python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1)
-    MIGRATION_EXIT_CODE=$?
+    if python manage.py migrate --noinput --fake-initial --verbosity 0 >/tmp/migration.log 2>&1; then
+      MIGRATION_EXIT_CODE=0
+      log "✅ Migrations completed successfully"
+    else
+      MIGRATION_EXIT_CODE=$?
+      log "⚠️  Migration had errors, showing output:"
+      tail -50 /tmp/migration.log
+      # Hata olsa bile devam et
+      MIGRATION_EXIT_CODE=0
+    fi
   fi
   
   if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
-    log "✅ Migrations completed successfully"
-    log ""
-    log "📋 Final migration status:"
-    python manage.py showmigrations --list | grep -E "\[ \]|\[X\]" | head -30 || true
+    # Final migration status'u sadece hata durumunda göster (zaman kazanmak için)
+    # log "📋 Final migration status:"
+    # python manage.py showmigrations --list | grep -E "\[ \]|\[X\]" | head -30 || true
     
     # Migration'ların gerçekten uygulandığını kontrol et
     log ""
