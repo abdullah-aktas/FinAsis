@@ -82,12 +82,13 @@ if k_service and project_id:
             _allowed_hosts.append(revision_host_alt)
 
 # Production'da wildcard pattern ekle (Cloud Run için)
+# NOT: Django wildcard pattern'leri desteklemez (*.run.app çalışmaz)
+# Bu yüzden gerçek hostname'leri environment variable'dan alıyoruz
 if not DEBUG:
-    # Cloud Run'un tüm host'larını kabul et
-    if "*.run.app" not in _allowed_hosts:
-        _allowed_hosts.append("*.run.app")
-    if "*.a.run.app" not in _allowed_hosts:
-        _allowed_hosts.append("*.a.run.app")
+    # Cloud Run'un tüm olası host formatlarını ekle
+    # Format: SERVICE-REVISION-REGION.a.run.app veya SERVICE-PROJECT.REGION.run.app
+    # Bu hostname'ler CLOUD_RUN_HOST environment variable'ından gelir
+    pass  # Wildcard yerine gerçek hostname kullanıyoruz
 
 ALLOWED_HOSTS = _allowed_hosts
 
