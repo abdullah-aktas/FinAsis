@@ -61,14 +61,26 @@ if cloud_run_url:
 k_service = ENV("K_SERVICE", "")
 k_revision = ENV("K_REVISION", "")
 project_id = ENV("GOOGLE_CLOUD_PROJECT", ENV("GCLOUD_PROJECT", ""))
+project_number = ENV("GOOGLE_CLOUD_PROJECT_NUMBER", "")
 region = ENV("CLOUD_RUN_REGION", "europe-west1")
 
-# Cloud Run'un otomatik host'unu oluştur (format: SERVICE-REVISION-REGION.a.run.app)
-if k_service and project_id:
-    # Ana Cloud Run host
-    auto_host = f"{k_service}-{project_id}.{region}.run.app"
-    if auto_host not in _allowed_hosts:
-        _allowed_hosts.append(auto_host)
+# Cloud Run'un otomatik host'unu oluştur
+# Cloud Run farklı hostname formatları kullanabilir:
+# 1. SERVICE-PROJECT_ID.REGION.run.app
+# 2. SERVICE-PROJECT_NUMBER.REGION.run.app
+# 3. SERVICE-REVISION-REGION.a.run.app
+if k_service:
+    # Format 1: SERVICE-PROJECT_ID.REGION.run.app
+    if project_id:
+        auto_host = f"{k_service}-{project_id}.{region}.run.app"
+        if auto_host not in _allowed_hosts:
+            _allowed_hosts.append(auto_host)
+    
+    # Format 2: SERVICE-PROJECT_NUMBER.REGION.run.app
+    if project_number:
+        auto_host_num = f"{k_service}-{project_number}.{region}.run.app"
+        if auto_host_num not in _allowed_hosts:
+            _allowed_hosts.append(auto_host_num)
 
     # Revision-specific host (eğer K_REVISION varsa)
     if k_revision:
@@ -80,14 +92,6 @@ if k_service and project_id:
         revision_host_alt = f"{k_service}-{k_revision}-ew.a.run.app"
         if revision_host_alt not in _allowed_hosts:
             _allowed_hosts.append(revision_host_alt)
-        
-        # Cloud Run'un gerçek hostname formatı (SERVICE-REVISION-REGION.a.run.app)
-        # Bu format bazen farklı olabilir, bu yüzden CLOUD_RUN_HOST environment variable'ı kullanılır
-        # Ama yine de genel pattern'leri ekleyelim
-        if not DEBUG:
-            # Tüm olası Cloud Run hostname formatlarını kabul et
-            # Production'da daha esnek olalım
-            pass  # CLOUD_RUN_HOST environment variable'ından gelecek
 
 # Production'da wildcard pattern ekle (Cloud Run için)
 # NOT: Django wildcard pattern'leri desteklemez (*.run.app çalışmaz)
@@ -105,16 +109,34 @@ CSRF_TRUSTED_ORIGINS = env_list(
 )
 
 # Cloud Run URL'lerini CSRF_TRUSTED_ORIGINS'e ekle
-if k_service and project_id:
-    cloud_run_origin = f"https://{k_service}-{project_id}.{region}.run.app"
-    if cloud_run_origin not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(cloud_run_origin)
+if k_service:
+    # Format 1: SERVICE-PROJECT_ID.REGION.run.app
+    if project_id:
+        cloud_run_origin = f"https://{k_service}-{project_id}.{region}.run.app"
+        if cloud_run_origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(cloud_run_origin)
     
-    # Wildcard pattern ekle (tüm Cloud Run revision'ları için)
-    if "https://*.run.app" not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append("https://*.run.app")
-    if "https://*.a.run.app" not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append("https://*.a.run.app")
+    # Format 2: SERVICE-PROJECT_NUMBER.REGION.run.app
+    if project_number:
+        cloud_run_origin_num = f"https://{k_service}-{project_number}.{region}.run.app"
+        if cloud_run_origin_num not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(cloud_run_origin_num)
+    
+    # Revision-specific origins
+    if k_revision:
+        revision_origin = f"https://{k_service}-{k_revision}-{region}.a.run.app"
+        if revision_origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(revision_origin)
+        
+        revision_origin_alt = f"https://{k_service}-{k_revision}-ew.a.run.app"
+        if revision_origin_alt not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(revision_origin_alt)
+
+# CLOUD_RUN_HOST environment variable'ından gelen hostname'i de ekle
+if cloud_run_host:
+    cloud_run_origin_from_env = f"https://{cloud_run_host}"
+    if cloud_run_origin_from_env not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(cloud_run_origin_from_env)
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = env_list(
