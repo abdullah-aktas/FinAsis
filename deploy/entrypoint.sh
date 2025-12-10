@@ -31,30 +31,64 @@ else
   log "✅ PORT is set to: $PORT"
 fi
 
-# Database bağlantısını test et
+# Database bağlantısını test et (retry ile)
 log ""
-log "🔍 Testing database connection..."
-if python -c "
+log "🔍 Testing database connection (with retries)..."
+DB_CONNECTED=false
+MAX_RETRIES=10
+RETRY_DELAY=3
+
+for i in $(seq 1 $MAX_RETRIES); do
+  log "  Attempt $i/$MAX_RETRIES..."
+  if python -c "
 import os
+import sys
+import time
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-django.setup()
-from django.db import connection
-with connection.cursor() as cursor:
-    cursor.execute('SELECT 1')
-    result = cursor.fetchone()
-    print('✅ Database connection successful:', result)
-"; then
-  log "✅ Database connection test passed"
-else
-  log "❌ Database connection failed!"
+try:
+    django.setup()
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT 1')
+        result = cursor.fetchone()
+        print('✅ Database connection successful:', result)
+        sys.exit(0)
+except Exception as e:
+    print(f'❌ Database connection failed: {e}')
+    sys.exit(1)
+" 2>&1; then
+    log "✅ Database connection test passed"
+    DB_CONNECTED=true
+    break
+  else
+    if [ $i -lt $MAX_RETRIES ]; then
+      log "  ⏳ Waiting ${RETRY_DELAY}s before retry..."
+      sleep $RETRY_DELAY
+    fi
+  fi
+done
+
+if [ "$DB_CONNECTED" = "false" ]; then
+  log "❌ Database connection failed after $MAX_RETRIES attempts!"
+  log "📋 Checking Cloud SQL socket..."
+  if [ -n "${CLOUD_SQL_CONNECTION_NAME:-}" ]; then
+    SOCKET_PATH="/cloudsql/${CLOUD_SQL_CONNECTION_NAME}"
+    log "  Socket path: $SOCKET_PATH"
+    if [ -S "$SOCKET_PATH" ]; then
+      log "  ✅ Socket exists"
+    else
+      log "  ❌ Socket does not exist (Cloud SQL Proxy may not be ready)"
+    fi
+  fi
   exit 1
 fi
 
 # Collect static files (kritik değil - başarısız olursa uyarı ver ama devam et)
+# Verbosity 1 kullanarak daha hızlı (daha az log)
 log ""
-log "📦 Collecting static files..."
-if python manage.py collectstatic --noinput --verbosity 2; then
+log "📦 Collecting static files (verbosity reduced for speed)..."
+if python manage.py collectstatic --noinput --verbosity 1 --clear 2>&1 | head -50; then
   log "✅ collectstatic completed successfully"
 else
   log "⚠️  collectstatic failed, but continuing (not critical - Whitenoise will serve files)..."
@@ -69,24 +103,25 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   python manage.py showmigrations --list || true
   log ""
   log "🔄 Applying migrations..."
-  log "⏱️  Migration timeout: 300 seconds (5 minutes)"
+  log "⏱️  Migration timeout: 240 seconds (4 minutes)"
+  log "💡 Using --fake-initial for faster startup (skips already applied migrations)"
   
-  # Migration'ları timeout ile çalıştır (5 dakika timeout)
+  # Migration'ları timeout ile çalıştır (4 dakika timeout)
+  # --fake-initial kullanarak zaten uygulanmış migration'ları atla (daha hızlı)
   # Bazı migration'lar atomic=False olduğu için InFailedSqlTransaction hatası olabilir
-  # Bu durumda migration'ları tek tek çalıştırmayı deneyebiliriz
   MIGRATION_EXIT_CODE=0
   if command -v timeout >/dev/null 2>&1; then
-    MIGRATION_OUTPUT=$(timeout 300 python manage.py migrate --noinput --verbosity 2 2>&1)
+    MIGRATION_OUTPUT=$(timeout 240 python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1)
     MIGRATION_EXIT_CODE=$?
     if [ $MIGRATION_EXIT_CODE -eq 124 ]; then
-      log "❌ Migration timeout after 300 seconds!"
+      log "❌ Migration timeout after 240 seconds!"
       log "📋 Migration output (last 100 lines):"
       echo "$MIGRATION_OUTPUT" | tail -100
       exit 1
     fi
   else
     # timeout komutu yoksa direkt çalıştır
-    MIGRATION_OUTPUT=$(python manage.py migrate --noinput --verbosity 2 2>&1)
+    MIGRATION_OUTPUT=$(python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1)
     MIGRATION_EXIT_CODE=$?
   fi
   
