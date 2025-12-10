@@ -191,10 +191,10 @@ else:
       else
         log "⚠️  --fake-initial failed, trying normal migrate..."
         if python manage.py migrate --noinput --verbosity 2 2>&1 | tee /tmp/migration_retry.log; then
-        log "✅ Migration retry successful"
-        # Tekrar kontrol et
-        log "🔄 Verifying tables after retry..."
-        if python -c "
+          log "✅ Migration retry successful"
+          # Tekrar kontrol et
+          log "🔄 Verifying tables after retry..."
+          if python -c "
 import os
 import sys
 import django
@@ -224,14 +224,14 @@ if missing_tables:
 else:
     print('✅ All critical tables now exist')
 "; then
-          log "✅ Table verification passed after retry"
+            log "✅ Table verification passed after retry"
+          else
+            log "❌ Tables still missing after retry!"
+            log "📋 Migration retry log:"
+            cat /tmp/migration_retry.log || true
+            exit 1
+          fi
         else
-          log "❌ Tables still missing after retry!"
-          log "📋 Migration retry log:"
-          cat /tmp/migration_retry.log || true
-          exit 1
-        fi
-      else
         log "❌ Migration retry failed!"
         log "📋 Migration retry log:"
         cat /tmp/migration_retry.log || true
