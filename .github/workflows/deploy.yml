@@ -55,17 +55,27 @@ jobs:
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
         run: |
+          # Secret kontrolü
+          if [ -z "$DJANGO_SECRET_KEY" ]; then
+            echo "❌ ERROR: DJANGO_SECRET_KEY is not set in GitHub Secrets!"
+            echo "Please add it in: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          
+          if [ -z "$DJANGO_DB_PASSWORD" ]; then
+            echo "❌ ERROR: DJANGO_DB_PASSWORD is not set in GitHub Secrets!"
+            echo "Please add it in: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          
+          echo "✅ Secrets are set (length check: SECRET_KEY=${#DJANGO_SECRET_KEY} chars, DB_PASSWORD=${#DJANGO_DB_PASSWORD} chars)"
+          
           # Environment variables'ı hazırla
           ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0"
           
-          # SECRET_KEY ve DB_PASSWORD'i ekle (eğer varsa)
-          if [ -n "$DJANGO_SECRET_KEY" ]; then
-            ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
-          fi
-          
-          if [ -n "$DJANGO_DB_PASSWORD" ]; then
-            ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
-          fi
+          # SECRET_KEY ve DB_PASSWORD'i ekle
+          ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
+          ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
           
           echo "🔧 Deploying with environment variables..."
           
@@ -83,7 +93,7 @@ jobs:
             --max-instances=10 \
             --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
-            --startup-cpu-boost \
+            --cpu-boost \
             --cpu-throttling \
             --set-env-vars="$ENV_VARS" \
             --project=${{ env.PROJECT_ID }}
