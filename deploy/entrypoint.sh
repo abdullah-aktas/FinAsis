@@ -5,26 +5,36 @@ set -euo pipefail
 # Python'un stdout/stderr buffer'ını kapat (anında log görünsün)
 export PYTHONUNBUFFERED=1
 
-# Tüm çıktıları stderr'e yönlendir (Cloud Run stderr'i loglar)
-# stdout da stderr'e yönlendirilir
+# Tüm çıktıları stderr'e yaz (Cloud Run stderr'i loglar)
+# stdout'u da stderr'e yönlendir
 exec 1>&2
 
-echo "=========================================="
-echo "🚀 Entrypoint.sh başlatılıyor..."
-echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-echo "=========================================="
+# Log fonksiyonu - her mesajı hem stdout hem stderr'e yazar
+log() {
+  echo "$@" >&2
+}
+
+log "=========================================="
+log "🚀 Entrypoint.sh başlatılıyor..."
+log "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+log "Working directory: $(pwd)"
+log "User: $(whoami)"
+log "Python: $(which python)"
+log "DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-not set}"
+log "=========================================="
 
 # PORT kontrolü (Cloud Run otomatik set eder)
 if [ -z "${PORT:-}" ]; then
   export PORT=8080
-  echo "⚠️  PORT not set, using default: 8080"
+  log "⚠️  PORT not set, using default: 8080"
 else
-  echo "✅ PORT is set to: $PORT"
+  log "✅ PORT is set to: $PORT"
 fi
 
 # Database bağlantısını test et
-echo "🔍 Testing database connection..."
-python -c "
+log ""
+log "🔍 Testing database connection..."
+if python -c "
 import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
@@ -33,41 +43,43 @@ from django.db import connection
 with connection.cursor() as cursor:
     cursor.execute('SELECT 1')
     result = cursor.fetchone()
-    print(f'✅ Database connection successful: {result}')
-" || {
-  echo "❌ Database connection failed!"
+    print('✅ Database connection successful:', result)
+"; then
+  log "✅ Database connection test passed"
+else
+  log "❌ Database connection failed!"
   exit 1
-}
+fi
 
 # Collect static files (her zaman çalıştır - eksik statikler olmasın)
-echo ""
-echo "📦 Collecting static files..."
+log ""
+log "📦 Collecting static files..."
 if python manage.py collectstatic --noinput --verbosity 2; then
-  echo "✅ collectstatic completed successfully"
+  log "✅ collectstatic completed successfully"
 else
-  echo "❌ collectstatic failed!"
+  log "❌ collectstatic failed!"
   exit 1
 fi
 
 # Database migrations (ZORUNLU - başarısız olursa uygulama başlamasın)
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
-  echo ""
-  echo "🔄 Running database migrations..."
-  echo "📋 Checking migration status..."
+  log ""
+  log "🔄 Running database migrations..."
+  log "📋 Checking migration status..."
   python manage.py showmigrations --list || true
-  echo ""
-  echo "🔄 Applying migrations..."
+  log ""
+  log "🔄 Applying migrations..."
   
   # Migration'ları çalıştır - başarısız olursa exit
   if python manage.py migrate --noinput --verbosity 2; then
-    echo "✅ Migrations completed successfully"
-    echo ""
-    echo "📋 Final migration status:"
+    log "✅ Migrations completed successfully"
+    log ""
+    log "📋 Final migration status:"
     python manage.py showmigrations --list | grep -E "\[ \]|\[X\]" | head -30 || true
     
     # Migration'ların gerçekten uygulandığını kontrol et
-    echo ""
-    echo "🔍 Verifying critical tables exist..."
+    log ""
+    log "🔍 Verifying critical tables exist..."
     if python -c "
 import os
 import sys
@@ -101,39 +113,74 @@ if missing_tables:
 else:
     print('\\n✅ All critical tables exist')
 "; then
-      echo "✅ Table verification passed"
+      log "✅ Table verification passed"
     else
-      echo "❌ Critical tables are missing! Migration may have failed."
-      echo "🔄 Retrying migrations..."
+      log "❌ Critical tables are missing! Migration may have failed."
+      log "🔄 Retrying migrations..."
       if python manage.py migrate --noinput --verbosity 2; then
-        echo "✅ Migration retry successful"
+        log "✅ Migration retry successful"
+        # Tekrar kontrol et
+        if python -c "
+import os
+import sys
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+from django.db import connection
+
+critical_tables = ['billing_module', 'common_errorlog', 'django_migrations']
+missing_tables = []
+
+for table in critical_tables:
+    with connection.cursor() as cursor:
+        cursor.execute(\"\"\"
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = %s
+            );
+        \"\"\", [table])
+        exists = cursor.fetchone()[0]
+        if not exists:
+            missing_tables.append(table)
+
+if missing_tables:
+    print(f'❌ Still missing tables: {missing_tables}')
+    sys.exit(1)
+else:
+    print('✅ All critical tables now exist')
+"; then
+          log "✅ Table verification passed after retry"
+        else
+          log "❌ Tables still missing after retry!"
+          exit 1
+        fi
       else
-        echo "❌ Migration retry failed!"
+        log "❌ Migration retry failed!"
         exit 1
       fi
     fi
   else
-    echo "❌ Migration failed!"
+    log "❌ Migration failed!"
     exit 1
   fi
   
   # Initialize Trade Sim seed data (idempotent - uses get_or_create)
-  echo ""
-  echo "🎮 Initializing Trade Sim data..."
+  log ""
+  log "🎮 Initializing Trade Sim data..."
   if python manage.py init_trade_sim; then
-    echo "✅ init_trade_sim completed"
+    log "✅ init_trade_sim completed"
   else
-    echo "⚠️  init_trade_sim failed, but continuing (not critical)..."
+    log "⚠️  init_trade_sim failed, but continuing (not critical)..."
   fi
 else
-  echo "⏭️  Skipping migrations (RUN_DB_MIGRATIONS=false)"
+  log "⏭️  Skipping migrations (RUN_DB_MIGRATIONS=false)"
 fi
 
 # Gunicorn'u başlat (exec ile değiştir - process'i replace et)
-echo ""
-echo "=========================================="
-echo "🚀 Starting Gunicorn..."
-echo "Command: $@"
-echo "=========================================="
+log ""
+log "=========================================="
+log "🚀 Starting Gunicorn..."
+log "Command: $@"
+log "=========================================="
 exec "$@"
-
