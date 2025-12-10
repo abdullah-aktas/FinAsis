@@ -96,7 +96,6 @@ jobs:
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
             --cpu-boost \
             --cpu-throttling \
-            --startup-cpu-boost \
             --set-env-vars="$ENV_VARS" \
             --project=${{ env.PROJECT_ID }}
 
@@ -108,3 +107,15 @@ jobs:
             --format="value(status.url)")
           echo "✅ Deployment tamamlandı!"
           echo "🌐 Servis URL: $SERVICE_URL"
+          # CLOUD_RUN_HOST'u bir sonraki adımda kullanmak için output olarak ayarla
+          CLOUD_RUN_HOST=$(echo "$SERVICE_URL" | sed 's|https\?://||')
+          echo "CLOUD_RUN_HOST=$CLOUD_RUN_HOST" >> $GITHUB_ENV
+
+      - name: Update Cloud Run service with CLOUD_RUN_HOST
+        if: env.CLOUD_RUN_HOST != ''
+        run: |
+          echo "🔧 Updating Cloud Run service with CLOUD_RUN_HOST=${{ env.CLOUD_RUN_HOST }}"
+          gcloud run services update ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --update-env-vars="CLOUD_RUN_HOST=${{ env.CLOUD_RUN_HOST }}"
