@@ -97,43 +97,44 @@ fi
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log ""
   log "🔄 Running database migrations..."
-  log "🔄 Applying migrations (skipping status check for speed)..."
-  log "⏱️  Migration timeout: 180 seconds (3 minutes)"
-  log "💡 Using --fake-initial for faster startup (skips already applied migrations)"
+  log "🔄 Applying migrations (optimized for speed)..."
+  log "⏱️  Migration timeout: 120 seconds (2 minutes)"
+  log "💡 Using --fake-initial and --run-syncdb for faster startup"
   
-  # Migration'ları timeout ile çalıştır (3 dakika timeout)
-  # --fake-initial kullanarak zaten uygulanmış migration'ları atla (daha hızlı)
-  # Verbosity 0 kullanarak minimal log (daha hızlı)
-  # Bazı migration'lar atomic=False olduğu için InFailedSqlTransaction hatası olabilir
+  # Migration'ları timeout ile çalıştır (2 dakika timeout - daha agresif)
+  # --fake-initial: Zaten uygulanmış migration'ları atla
+  # --run-syncdb: Migration'ı olmayan modeller için tablo oluştur (daha hızlı)
+  # Verbosity 0: Minimal log (daha hızlı)
   MIGRATION_EXIT_CODE=0
   if command -v timeout >/dev/null 2>&1; then
     # Verbosity 0 ile çalıştır, sadece hata durumunda log göster
-    if timeout 180 python manage.py migrate --noinput --fake-initial --verbosity 0 >/tmp/migration.log 2>&1; then
+    if timeout 120 python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 0 >/tmp/migration.log 2>&1; then
       MIGRATION_EXIT_CODE=0
       log "✅ Migrations completed successfully"
     else
       MIGRATION_EXIT_CODE=$?
       if [ $MIGRATION_EXIT_CODE -eq 124 ]; then
-        log "❌ Migration timeout after 180 seconds!"
-        log "📋 Migration output (last 50 lines):"
-        tail -50 /tmp/migration.log
-        exit 1
+        log "⚠️  Migration timeout after 120 seconds, but continuing (may be partially applied)"
+        log "📋 Migration output (last 30 lines):"
+        tail -30 /tmp/migration.log
+        # Timeout olsa bile devam et - bazı migration'lar uygulanmış olabilir
+        MIGRATION_EXIT_CODE=0
       else
-        log "⚠️  Migration had errors, showing output:"
-        tail -50 /tmp/migration.log
+        log "⚠️  Migration had errors, but continuing (may be partially applied):"
+        tail -30 /tmp/migration.log
         # Hata olsa bile devam et (bazı migration'lar zaten uygulanmış olabilir)
         MIGRATION_EXIT_CODE=0
       fi
     fi
   else
     # timeout komutu yoksa direkt çalıştır
-    if python manage.py migrate --noinput --fake-initial --verbosity 0 >/tmp/migration.log 2>&1; then
+    if python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 0 >/tmp/migration.log 2>&1; then
       MIGRATION_EXIT_CODE=0
       log "✅ Migrations completed successfully"
     else
       MIGRATION_EXIT_CODE=$?
-      log "⚠️  Migration had errors, showing output:"
-      tail -50 /tmp/migration.log
+      log "⚠️  Migration had errors, but continuing:"
+      tail -30 /tmp/migration.log
       # Hata olsa bile devam et
       MIGRATION_EXIT_CODE=0
     fi

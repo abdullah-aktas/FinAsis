@@ -106,6 +106,7 @@ jobs:
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
             --cpu-boost \
             --cpu-throttling \
+            --startup-cpu-boost \
             --set-env-vars="$ENV_VARS" \
             --project=${{ env.PROJECT_ID }}
 
