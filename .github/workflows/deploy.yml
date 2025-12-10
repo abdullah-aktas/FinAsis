@@ -12,11 +12,13 @@ env:
   REGION: europe-west1
   REPOSITORY: finasis-app
   IMAGE_NAME: finasis-api
+  PORT: 8080 # Cloud Run default port
 
 jobs:
   deploy:
     name: Build and Deploy to Cloud Run
     runs-on: ubuntu-latest
+    timeout-minutes: 30 # Build ve deployment için maksimum süre
     permissions:
       contents: read
       id-token: write
@@ -24,6 +26,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for better caching
 
       - id: auth
         name: Authenticate to Google Cloud (WIF)
@@ -38,17 +42,45 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
+          install_components: ""
 
       - name: Configure Docker for Artifact Registry
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Build Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+
+      - name: Build and Push Docker image
+        id: build
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          docker build -t "$IMAGE" .
-          docker push "$IMAGE"
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          set -e
+          IMAGE_SHA="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          IMAGE_LATEST="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest"
+          IMAGE_CACHE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:buildcache"
+
+          echo "🔨 Building Docker image..."
+          echo "📦 Image SHA: $IMAGE_SHA"
+          echo "📦 Image Latest: $IMAGE_LATEST"
+
+          docker buildx build \
+            --platform linux/amd64 \
+            --push \
+            --tag "$IMAGE_SHA" \
+            --tag "$IMAGE_LATEST" \
+            --cache-from type=registry,ref=$IMAGE_CACHE \
+            --cache-to type=registry,ref=$IMAGE_CACHE,mode=max \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            .
+
+          # Set both env variable and output for flexibility
+          echo "IMAGE=$IMAGE_SHA" >> $GITHUB_ENV
+          echo "IMAGE_SHA=$IMAGE_SHA" >> $GITHUB_OUTPUT
+          echo "✅ Docker image built and pushed successfully"
 
       - name: Get Project Number
         id: project_number
@@ -57,16 +89,22 @@ jobs:
           echo "PROJECT_NUMBER=$PROJECT_NUMBER" >> $GITHUB_OUTPUT
           echo "✅ Project Number: $PROJECT_NUMBER"
 
-      - name: Deploy to Cloud Run
+      - name: Validate Secrets
         env:
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
         run: |
-          # Secret kontrolü
+          set -e
+          echo "🔍 Validating secrets..."
+
           if [ -z "$DJANGO_SECRET_KEY" ]; then
             echo "❌ ERROR: DJANGO_SECRET_KEY is not set in GitHub Secrets!"
             echo "Please add it in: Settings → Secrets and variables → Actions"
             exit 1
+          fi
+
+          if [ ${#DJANGO_SECRET_KEY} -lt 50 ]; then
+            echo "⚠️  WARNING: DJANGO_SECRET_KEY seems too short (${#DJANGO_SECRET_KEY} chars). Recommended: 50+ chars"
           fi
 
           if [ -z "$DJANGO_DB_PASSWORD" ]; then
@@ -75,11 +113,41 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Secrets are set (length check: SECRET_KEY=${#DJANGO_SECRET_KEY} chars, DB_PASSWORD=${#DJANGO_DB_PASSWORD} chars)"
+          if [ ${#DJANGO_DB_PASSWORD} -lt 8 ]; then
+            echo "⚠️  WARNING: DJANGO_DB_PASSWORD seems too short (${#DJANGO_DB_PASSWORD} chars). Recommended: 8+ chars"
+          fi
+
+          echo "✅ Secrets validated (SECRET_KEY=${#DJANGO_SECRET_KEY} chars, DB_PASSWORD=${#DJANGO_DB_PASSWORD} chars)"
+
+      - name: Get Service URL (if exists)
+        id: get_service_url
+        run: |
+          set +e
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format="value(status.url)" 2>/dev/null)
+
+          if [ -n "$SERVICE_URL" ]; then
+            echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
+            CLOUD_RUN_HOST=$(echo "$SERVICE_URL" | sed 's|https\?://||')
+            echo "CLOUD_RUN_HOST=$CLOUD_RUN_HOST" >> $GITHUB_OUTPUT
+            echo "✅ Existing service URL: $SERVICE_URL"
+          else
+            echo "ℹ️  Service does not exist yet, will be created"
+          fi
+        continue-on-error: true
+
+      - name: Deploy to Cloud Run
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+        run: |
+          set -e
+          echo "🚀 Starting Cloud Run deployment..."
 
           # Environment variables'ı hazırla
-          # CLOUD_RUN_HOST dinamik olarak deployment sonrası set edilecek
-          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0"
+          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0,PORT=${{ env.PORT }}"
 
           # SECRET_KEY ve DB_PASSWORD'i ekle
           ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
@@ -88,10 +156,23 @@ jobs:
           # GOOGLE_CLOUD_PROJECT_NUMBER'ı ekle (ALLOWED_HOSTS için gerekli)
           ENV_VARS="$ENV_VARS,GOOGLE_CLOUD_PROJECT_NUMBER=${{ steps.project_number.outputs.PROJECT_NUMBER }}"
 
+          # CLOUD_RUN_HOST'u ekle (varsa - ilk deployment'ta boş olabilir)
+          EXISTING_HOST="${{ steps.get_service_url.outputs.CLOUD_RUN_HOST }}"
+          if [ -n "$EXISTING_HOST" ] && [ "$EXISTING_HOST" != "" ]; then
+            ENV_VARS="$ENV_VARS,CLOUD_RUN_HOST=$EXISTING_HOST"
+            echo "✅ CLOUD_RUN_HOST will be set from existing service: $EXISTING_HOST"
+          else
+            echo "ℹ️  CLOUD_RUN_HOST will be set after deployment"
+          fi
+
+          # Use IMAGE from env (set in build step) or fallback to constructing it
+          DEPLOY_IMAGE="${IMAGE:-${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}}"
+
           echo "🔧 Deploying with environment variables..."
+          echo "📦 Image: $DEPLOY_IMAGE"
 
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --image="$DEPLOY_IMAGE" \
             --region=${{ env.REGION }} \
             --platform=managed \
             --allow-unauthenticated \
@@ -106,27 +187,149 @@ jobs:
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
             --cpu-boost \
             --cpu-throttling \
-            --startup-cpu-boost \
             --set-env-vars="$ENV_VARS" \
-            --project=${{ env.PROJECT_ID }}
+            --port=${{ env.PORT }} \
+            --project=${{ env.PROJECT_ID }} \
+            --quiet
 
-      - name: Show service URL
+          echo "✅ Deployment completed successfully"
+
+      - name: Get Service URL and Update CLOUD_RUN_HOST
+        id: service_url
         run: |
+          set -e
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }} \
             --format="value(status.url)")
+
+          CLOUD_RUN_HOST=$(echo "$SERVICE_URL" | sed 's|https\?://||')
+
+          echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "CLOUD_RUN_HOST=$CLOUD_RUN_HOST" >> $GITHUB_OUTPUT
+
           echo "✅ Deployment tamamlandı!"
           echo "🌐 Servis URL: $SERVICE_URL"
-          # CLOUD_RUN_HOST'u bir sonraki adımda kullanmak için output olarak ayarla
-          CLOUD_RUN_HOST=$(echo "$SERVICE_URL" | sed 's|https\?://||')
-          echo "CLOUD_RUN_HOST=$CLOUD_RUN_HOST" >> $GITHUB_ENV
 
-      - name: Update Cloud Run service with CLOUD_RUN_HOST
-        if: env.CLOUD_RUN_HOST != ''
+          # CLOUD_RUN_HOST'u güncelle (eğer deployment'ta set edilmediyse)
+          EXISTING_HOST="${{ steps.get_service_url.outputs.CLOUD_RUN_HOST }}"
+          if [ -z "$EXISTING_HOST" ] || [ "$EXISTING_HOST" != "$CLOUD_RUN_HOST" ]; then
+            echo "🔧 Updating CLOUD_RUN_HOST environment variable..."
+            gcloud run services update ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --update-env-vars="CLOUD_RUN_HOST=$CLOUD_RUN_HOST" \
+              --quiet
+            echo "✅ CLOUD_RUN_HOST updated to: $CLOUD_RUN_HOST"
+          else
+            echo "ℹ️  CLOUD_RUN_HOST already set correctly: $CLOUD_RUN_HOST"
+          fi
+
+      - name: Wait for Service to be Ready
         run: |
-          echo "🔧 Updating Cloud Run service with CLOUD_RUN_HOST=${{ env.CLOUD_RUN_HOST }}"
-          gcloud run services update ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --project=${{ env.PROJECT_ID }} \
-            --update-env-vars="CLOUD_RUN_HOST=${{ env.CLOUD_RUN_HOST }}"
+          set -e
+          echo "⏳ Waiting for service to be ready..."
+          MAX_WAIT=300 # 5 dakika
+          ELAPSED=0
+
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            # Check if service is ready by checking revision status
+            READY_STATUS=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --format="value(status.conditions[?(@.type=='Ready')].status)" 2>/dev/null || echo "Unknown")
+            
+            if [ "$READY_STATUS" = "True" ]; then
+              echo "✅ Service is ready!"
+              break
+            fi
+            
+            echo "  Waiting... (${ELAPSED}s/${MAX_WAIT}s) - Status: $READY_STATUS"
+            sleep 10
+            ELAPSED=$((ELAPSED + 10))
+          done
+
+          if [ $ELAPSED -ge $MAX_WAIT ]; then
+            echo "⚠️  Warning: Service readiness check timed out"
+            echo "📋 Service status:"
+            gcloud run services describe ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --format="yaml(status.conditions)" || true
+          fi
+
+      - name: Health Check
+        run: |
+          set -e
+          SERVICE_URL="${{ steps.service_url.outputs.SERVICE_URL }}"
+
+          if [ -z "$SERVICE_URL" ]; then
+            echo "❌ ERROR: Service URL not found"
+            exit 1
+          fi
+
+          # Ensure curl is available (should be on Ubuntu by default)
+          if ! command -v curl &> /dev/null; then
+            echo "⚠️  curl not found, installing..."
+            sudo apt-get update && sudo apt-get install -y curl
+          fi
+
+          HEALTH_CHECK_URL="${SERVICE_URL}/health/"
+          echo "🏥 Performing health check: $HEALTH_CHECK_URL"
+
+          MAX_RETRIES=6
+          RETRY_DELAY=10
+          HEALTHY=false
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "  Attempt $i/$MAX_RETRIES..."
+            
+            HTTP_CODE=$(curl -s -o /tmp/health_response.json -w "%{http_code}" \
+              --max-time 30 \
+              --connect-timeout 10 \
+              --retry 2 \
+              --retry-delay 2 \
+              "$HEALTH_CHECK_URL" 2>/dev/null || echo "000")
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed! (HTTP $HTTP_CODE)"
+              if [ -f /tmp/health_response.json ]; then
+                echo "📋 Health check response:"
+                cat /tmp/health_response.json
+                echo ""
+              fi
+              HEALTHY=true
+              break
+            else
+              echo "  ⚠️  Health check failed (HTTP $HTTP_CODE)"
+              if [ -f /tmp/health_response.json ]; then
+                echo "📋 Response body:"
+                cat /tmp/health_response.json || true
+                echo ""
+              fi
+              
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "  ⏳ Retrying in ${RETRY_DELAY}s..."
+                sleep $RETRY_DELAY
+              fi
+            fi
+          done
+
+          if [ "$HEALTHY" = "false" ]; then
+            echo "❌ Health check failed after $MAX_RETRIES attempts"
+            echo "📋 Service logs (last 50 lines):"
+            gcloud run services logs read ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --limit=50 || true
+            echo ""
+            echo "📋 Service revision status:"
+            gcloud run revisions list \
+              --service=${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --limit=3 || true
+            exit 1
+          fi
+
+          echo "✅ Deployment validation successful!"
