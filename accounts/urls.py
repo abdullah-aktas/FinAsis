@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from django.views.generic import RedirectView
 from . import views, views_mfa, views_auth
 from .api import UserProfileView, CompanyView, AchievementsView, UserSettingsView
@@ -12,10 +12,10 @@ from security.ratelimit import rate_limit_login
 app_name = "accounts"
 
 # URL reverse helpers for maintainability
-# Use string literals to avoid circular dependency during URL loading
-PASSWORD_RESET_DONE_URL = "accounts:password_reset_done"
-PASSWORD_RESET_COMPLETE_URL = "accounts:password_reset_complete"
-PASSWORD_CHANGE_DONE_URL = "accounts:password_change_done"
+# Use reverse_lazy to avoid circular dependency during URL loading
+PASSWORD_RESET_DONE_URL = reverse_lazy("accounts:password_reset_done")
+PASSWORD_RESET_COMPLETE_URL = reverse_lazy("accounts:password_reset_complete")
+PASSWORD_CHANGE_DONE_URL = reverse_lazy("accounts:password_change_done")
 
 schema_view = get_schema_view(
     openapi.Info(
