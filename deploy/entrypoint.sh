@@ -21,10 +21,18 @@ fi
 # Database migrations (idempotent - safe to run multiple times)
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   echo "🔄 Running database migrations..."
+  echo "📋 Checking migration status..."
+  python manage.py showmigrations --list 2>&1 | head -20 || true
+  echo ""
+  echo "🔄 Applying migrations..."
   if python manage.py migrate --noinput 2>&1; then
     echo "✅ Migrations completed"
+    echo "📋 Final migration status:"
+    python manage.py showmigrations --list 2>&1 | grep -E "\[ \]|\[X\]" | head -10 || true
   else
     echo "⚠️  Migration failed, but continuing..."
+    echo "📋 Error details:"
+    python manage.py migrate --noinput 2>&1 | tail -20 || true
   fi
   
   # Initialize Trade Sim seed data (idempotent - uses get_or_create)
