@@ -40,6 +40,45 @@ echo "🔧 Proje ayarları yapılıyor..."
 gcloud config set project "$PROJECT_ID"
 
 # ============================================
+# API KONTROLÜ VE ETKİNLEŞTİRME
+# ============================================
+echo ""
+echo "🔍 Gerekli API'ler kontrol ediliyor..."
+REQUIRED_APIS=(
+  "cloudbuild.googleapis.com"
+  "run.googleapis.com"
+  "artifactregistry.googleapis.com"
+  "sqladmin.googleapis.com"
+)
+
+for API in "${REQUIRED_APIS[@]}"; do
+  if gcloud services list --enabled --project="$PROJECT_ID" --filter="name:$API" --format="value(name)" | grep -q "$API"; then
+    echo "   ✅ $API etkin"
+  else
+    echo "   ⚠️  $API etkin değil, etkinleştiriliyor..."
+    gcloud services enable "$API" --project="$PROJECT_ID"
+    echo "   ✅ $API etkinleştirildi"
+  fi
+done
+
+# Artifact Registry repository kontrolü
+echo ""
+echo "🔍 Artifact Registry repository kontrolü..."
+if gcloud artifacts repositories describe "$REPOSITORY" \
+  --location="$REGION" \
+  --project="$PROJECT_ID" >/dev/null 2>&1; then
+  echo "   ✅ Repository mevcut: $REPOSITORY"
+else
+  echo "   ⚠️  Repository bulunamadı, oluşturuluyor..."
+  gcloud artifacts repositories create "$REPOSITORY" \
+    --repository-format=docker \
+    --location="$REGION" \
+    --description="FinAsis Cloud Run images" \
+    --project="$PROJECT_ID"
+  echo "   ✅ Repository oluşturuldu: $REPOSITORY"
+fi
+
+# ============================================
 # REPO KONTROLÜ
 # ============================================
 echo ""
