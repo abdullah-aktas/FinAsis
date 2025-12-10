@@ -14,12 +14,14 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+@csrf_exempt
 def health_check_simple(request):
     """
     Basit health check endpoint - Cloud Run ve monitoring araçları için

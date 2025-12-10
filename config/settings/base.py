@@ -95,6 +95,18 @@ CSRF_TRUSTED_ORIGINS = env_list(
     "DJANGO_CSRF_TRUSTED_ORIGINS", "https://finasis.com.tr,https://www.finasis.com.tr"
 )
 
+# Cloud Run URL'lerini CSRF_TRUSTED_ORIGINS'e ekle
+if k_service and project_id:
+    cloud_run_origin = f"https://{k_service}-{project_id}.{region}.run.app"
+    if cloud_run_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(cloud_run_origin)
+    
+    # Wildcard pattern ekle (tüm Cloud Run revision'ları için)
+    if "https://*.run.app" not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append("https://*.run.app")
+    if "https://*.a.run.app" not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append("https://*.a.run.app")
+
 # CORS Settings
 CORS_ALLOWED_ORIGINS = env_list(
     "DJANGO_CORS_ALLOWED_ORIGINS", "https://finasis.com.tr,https://www.finasis.com.tr"
