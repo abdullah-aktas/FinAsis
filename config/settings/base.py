@@ -76,10 +76,18 @@ if k_service and project_id:
         if revision_host not in _allowed_hosts:
             _allowed_hosts.append(revision_host)
 
-        # Alternatif format
+        # Alternatif format (ew = europe-west kısaltması)
         revision_host_alt = f"{k_service}-{k_revision}-ew.a.run.app"
         if revision_host_alt not in _allowed_hosts:
             _allowed_hosts.append(revision_host_alt)
+        
+        # Cloud Run'un gerçek hostname formatı (SERVICE-REVISION-REGION.a.run.app)
+        # Bu format bazen farklı olabilir, bu yüzden CLOUD_RUN_HOST environment variable'ı kullanılır
+        # Ama yine de genel pattern'leri ekleyelim
+        if not DEBUG:
+            # Tüm olası Cloud Run hostname formatlarını kabul et
+            # Production'da daha esnek olalım
+            pass  # CLOUD_RUN_HOST environment variable'ından gelecek
 
 # Production'da wildcard pattern ekle (Cloud Run için)
 # NOT: Django wildcard pattern'leri desteklemez (*.run.app çalışmaz)
