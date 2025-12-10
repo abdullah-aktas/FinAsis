@@ -49,8 +49,9 @@ def health_check_simple(request):
             logger.error(f"Cache health check failed: {e}")
             cache_ok = False
 
-        # Genel durum
-        overall_status = "healthy" if (db_ok and cache_ok) else "unhealthy"
+        # Genel durum - Database bağlantısı kritik, cache opsiyonel
+        # Cloud Run health check için database bağlantısı yeterli
+        overall_status = "healthy" if db_ok else "unhealthy"
         http_status = (
             status.HTTP_200_OK
             if overall_status == "healthy"
