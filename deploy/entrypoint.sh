@@ -71,6 +71,8 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log "🔄 Applying migrations..."
   
   # Migration'ları çalıştır - başarısız olursa exit
+  # --run-syncdb kullanmıyoruz çünkü migration'lar mevcut
+  # Atomic transaction kullanıyoruz (Django default)
   if python manage.py migrate --noinput --verbosity 2; then
     log "✅ Migrations completed successfully"
     log ""
@@ -120,6 +122,7 @@ else:
       if python manage.py migrate --noinput --verbosity 2; then
         log "✅ Migration retry successful"
         # Tekrar kontrol et
+        log "🔄 Verifying tables after retry..."
         if python -c "
 import os
 import sys
