@@ -126,6 +126,14 @@ class Migration(migrations.Migration):
         ("education", "0004_fix_badge_users_fk_column"),
     ]
 
+    # atomic=False: Migration'ı transaction dışında çalıştır
+    # Böylece bir hata olsa bile diğer migration'lar çalışmaya devam edebilir
+    atomic = False
+
     operations = [
-        migrations.RunPython(forward, backward),
+        migrations.RunPython(
+            forward,
+            backward,
+            atomic=False,  # Bu migration atomic değil
+        ),
     ]
