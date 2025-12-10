@@ -61,24 +61,24 @@ jobs:
             echo "Please add it in: Settings → Secrets and variables → Actions"
             exit 1
           fi
-          
+
           if [ -z "$DJANGO_DB_PASSWORD" ]; then
             echo "❌ ERROR: DJANGO_DB_PASSWORD is not set in GitHub Secrets!"
             echo "Please add it in: Settings → Secrets and variables → Actions"
             exit 1
           fi
-          
+
           echo "✅ Secrets are set (length check: SECRET_KEY=${#DJANGO_SECRET_KEY} chars, DB_PASSWORD=${#DJANGO_DB_PASSWORD} chars)"
-          
+
           # Environment variables'ı hazırla
           ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0"
-          
+
           # SECRET_KEY ve DB_PASSWORD'i ekle
           ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
           ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
-          
+
           echo "🔧 Deploying with environment variables..."
-          
+
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --region=${{ env.REGION }} \
