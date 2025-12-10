@@ -84,7 +84,7 @@ jobs:
           # SECRET_KEY ve DB_PASSWORD'i ekle
           ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
           ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
-          
+
           # GOOGLE_CLOUD_PROJECT_NUMBER'ı ekle (ALLOWED_HOSTS için gerekli)
           ENV_VARS="$ENV_VARS,GOOGLE_CLOUD_PROJECT_NUMBER=${{ steps.project_number.outputs.PROJECT_NUMBER }}"
 
@@ -98,7 +98,7 @@ jobs:
             --execution-environment=gen2 \
             --memory=2Gi \
             --cpu=2 \
-            --timeout=300 \
+            --timeout=600 \
             --concurrency=40 \
             --min-instances=1 \
             --max-instances=10 \
