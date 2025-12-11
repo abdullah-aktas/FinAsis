@@ -29,7 +29,7 @@ urlpatterns = [
     path("", core_ui_views.landing_home, name="home"),
     path("panel/", user_panel, name="user_panel"),
     path("admin/", admin.site.urls),
-        path("robots.txt", core_ui_views.site_robots, name="robots_txt"),
+    path("robots.txt", core_ui_views.site_robots, name="robots_txt"),
     # Health check endpoints (public, no auth required)
     path("health/", include("common.urls_health")),
     path("i18n/", include("django.conf.urls.i18n")),

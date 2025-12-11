@@ -1433,7 +1433,9 @@ def resource_partner_marketplace(request):
                     {
                         "name": partner.name,
                         "headline": partner.headline or partner.integration_focus,
-                        "category": partner.category.name if partner.category_id else "",
+                        "category": (
+                            partner.category.name if partner.category_id else ""
+                        ),
                         "description": partner.description,
                         "badge": partner.badge_label
                         or (_("Öne Çıkan Partner") if partner.is_featured else ""),

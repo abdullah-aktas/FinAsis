@@ -93,6 +93,7 @@ else
   # Statik dosyalar kritik değil - Whitenoise zaten çalışıyor ve eksik dosyalar için fallback var
 fi
 
+: <<'OLD_MIGRATION_BLOCK'
 # Database migrations (ZORUNLU - başarısız olursa uygulama başlamasın)
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log ""
@@ -348,6 +349,91 @@ else:
     fi
   fi
   
+  # Initialize Trade Sim seed data (idempotent - uses get_or_create)
+  log ""
+  log "🎮 Initializing Trade Sim data..."
+  if python manage.py init_trade_sim; then
+    log "✅ init_trade_sim completed"
+  else
+    log "⚠️  init_trade_sim failed, but continuing (not critical)..."
+  fi
+else
+  log "⏭️  Skipping migrations (RUN_DB_MIGRATIONS=false)"
+fi
+
+OLD_MIGRATION_BLOCK
+
+# Database migrations (ZORUNLU - başarısız olursa uygulama başlamasın) - basitleştirilmiş sürüm
+if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
+  log ""
+  log "🔄 Running database migrations..."
+  log "⏱️  Migration timeout: 180 seconds (3 minutes)"
+
+  # Migration'ları timeout ile çalıştır (varsa); hata alırsak uygulamayı başlatmayalım
+  if command -v timeout >/dev/null 2>&1; then
+    if timeout 180 python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 1; then
+      log "✅ Migrations completed successfully"
+    else
+      EXIT_CODE=$?
+      log "❌ migrate failed with exit code: $EXIT_CODE"
+      exit "$EXIT_CODE"
+    fi
+  else
+    if python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 1; then
+      log "✅ Migrations completed successfully"
+    else
+      EXIT_CODE=$?
+      log "❌ migrate failed with exit code: $EXIT_CODE"
+      exit "$EXIT_CODE"
+    fi
+  fi
+
+  # Migration'ların gerçekten uygulandığını basitçe kontrol et
+  log ""
+  log "🔍 Verifying critical tables exist..."
+  if python - << 'PYCODE'
+import os
+import django
+from django.db import connection
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
+critical_tables = ["billing_module", "common_errorlog", "django_migrations"]
+missing_tables = []
+
+for table in critical_tables:
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                AND table_name = %s
+            );
+            """,
+            [table],
+        )
+        exists = cursor.fetchone()[0]
+        if exists:
+            print(f"✅ Table {table} exists")
+        else:
+            print(f"❌ Table {table} does NOT exist")
+            missing_tables.append(table)
+
+if missing_tables:
+    print(f"\n❌ Missing critical tables: {missing_tables}")
+    raise SystemExit(1)
+else:
+    print("\n✅ All critical tables exist")
+PYCODE
+  then
+    log "✅ Table verification passed"
+  else
+    log "❌ Critical tables are missing! Migration may have failed."
+    exit 1
+  fi
+
   # Initialize Trade Sim seed data (idempotent - uses get_or_create)
   log ""
   log "🎮 Initializing Trade Sim data..."
