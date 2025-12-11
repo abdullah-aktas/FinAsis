@@ -371,7 +371,7 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
 
   # Migration'ları timeout ile çalıştır (varsa); hata alırsak uygulamayı başlatmayalım
   if command -v timeout >/dev/null 2>&1; then
-    if timeout 180 python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 1; then
+    if timeout 180 python manage.py migrate --noinput --fake-initial --verbosity 1; then
       log "✅ Migrations completed successfully"
     else
       EXIT_CODE=$?
@@ -379,7 +379,7 @@ if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
       exit "$EXIT_CODE"
     fi
   else
-    if python manage.py migrate --noinput --fake-initial --run-syncdb --verbosity 1; then
+    if python manage.py migrate --noinput --fake-initial --verbosity 1; then
       log "✅ Migrations completed successfully"
     else
       EXIT_CODE=$?
