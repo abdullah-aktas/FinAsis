@@ -201,9 +201,12 @@ def _build_corporate_snapshot():
 
     partner_count = 0
     if PartnerProfile is not None:
-        partner_count = PartnerProfile.objects.filter(
-            status=PartnerProfile.Status.PUBLISHED
-        ).count()
+        try:
+            partner_count = PartnerProfile.objects.filter(
+                status=PartnerProfile.Status.PUBLISHED
+            ).count()
+        except Exception:
+            partner_count = 0
 
     press_releases = list(PressRelease.objects.all()[:3])
     investor_documents = list(InvestorDocument.objects.all()[:3])

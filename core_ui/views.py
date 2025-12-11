@@ -13,7 +13,7 @@ from typing import Dict, List
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q, Sum
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import formats, timezone
@@ -490,9 +490,13 @@ def landing_home(request):
 
     partner_count = 0
     if PartnerProfile is not None:
-        partner_count = PartnerProfile.objects.filter(
-            status=PartnerProfile.Status.PUBLISHED
-        ).count()
+        try:
+            partner_count = PartnerProfile.objects.filter(
+                status=PartnerProfile.Status.PUBLISHED
+            ).count()
+        except Exception:
+            # Üretim ortamında partners tabloları henüz oluşturulmadıysa
+            partner_count = 0
 
     blockchain_tx_count = 0
     blockchain_contract_count = 0
@@ -1418,35 +1422,39 @@ def resource_partner_marketplace(request):
     partner_categories: list[dict[str, str]] = []
 
     if PartnerProfile is not None:
-        qs = (
-            PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED)
-            .select_related("category")
-            .order_by("-is_featured", "sort_order", "name")
-        )
-        for partner in qs:
-            partner_listings.append(
-                {
-                    "name": partner.name,
-                    "headline": partner.headline or partner.integration_focus,
-                    "category": partner.category.name if partner.category_id else "",
-                    "description": partner.description,
-                    "badge": partner.badge_label
-                    or (_("Öne Çıkan Partner") if partner.is_featured else ""),
-                    "website": partner.website_url,
-                }
+        try:
+            qs = (
+                PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED)
+                .select_related("category")
+                .order_by("-is_featured", "sort_order", "name")
             )
+            for partner in qs:
+                partner_listings.append(
+                    {
+                        "name": partner.name,
+                        "headline": partner.headline or partner.integration_focus,
+                        "category": partner.category.name if partner.category_id else "",
+                        "description": partner.description,
+                        "badge": partner.badge_label
+                        or (_("Öne Çıkan Partner") if partner.is_featured else ""),
+                        "website": partner.website_url,
+                    }
+                )
 
-        if PartnerCategory is not None:
-            cat_qs = PartnerCategory.objects.order_by("sort_order", "name")
-            partner_categories = [
-                {
-                    "name": cat.name,
-                    "description": cat.description,
-                    "icon": cat.icon,
-                    "code": cat.code,
-                }
-                for cat in cat_qs
-            ]
+            if PartnerCategory is not None:
+                cat_qs = PartnerCategory.objects.order_by("sort_order", "name")
+                partner_categories = [
+                    {
+                        "name": cat.name,
+                        "description": cat.description,
+                        "icon": cat.icon,
+                        "code": cat.code,
+                    }
+                    for cat in cat_qs
+                ]
+        except Exception:
+            partner_listings = []
+            partner_categories = []
 
     if not partner_listings:
         partner_listings = [
@@ -1896,6 +1904,17 @@ def site_search(request):
         "suggestions": suggestions,
     }
     return render(request, "core_ui/search_results.html", context)
+
+
+def site_robots(request):
+    """robots.txt çıktısı (statik template üzerinden).
+
+    Arama motorları için basit ve güvenli bir robots.txt döner.
+    """
+    response = render(request, "robots.txt", content_type="text/plain")
+    # Statik içerik, cache edilebilir
+    response["Cache-Control"] = "public, max-age=3600"
+    return response
 
 
 @require_http_methods(["POST"])

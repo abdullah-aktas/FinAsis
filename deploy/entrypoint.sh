@@ -156,7 +156,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 from django.db import connection
 
-critical_tables = ['billing_module', 'common_errorlog', 'django_migrations']
+critical_tables = ['billing_module', 'common_errorlog', 'django_migrations', 'partners_partnerprofile']
 missing_tables = []
 
 for table in critical_tables:
@@ -202,7 +202,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 from django.db import connection
 
-critical_tables = ['billing_module', 'common_errorlog', 'django_migrations']
+critical_tables = ['billing_module', 'common_errorlog', 'django_migrations', 'partners_partnerprofile']
 missing_tables = []
 
 for table in critical_tables:
@@ -256,7 +256,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 from django.db import connection
 
-critical_tables = ['billing_module', 'common_errorlog', 'django_migrations']
+critical_tables = ['billing_module', 'common_errorlog', 'django_migrations', 'partners_partnerprofile']
 missing_tables = []
 
 for table in critical_tables:

@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://finasis.com.tr/sitemap.xml
