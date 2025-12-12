@@ -409,7 +409,7 @@ def contact(request):
             messages.error(request, _("Lütfen tüm zorunlu alanları doldurun."))
         else:
             # 1) Mesajı veritabanına kaydet
-            contact_obj = ContactMessage.objects.create(
+            ContactMessage.objects.create(
                 name=name,
                 email=email,
                 company=company,
