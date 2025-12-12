@@ -2,22 +2,28 @@
 
 FROM python:3.11-slim AS builder
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
     libpq-dev \
     libffi-dev \
     libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip wheel --wheel-dir /wheels --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel && \
+    pip wheel --wheel-dir /wheels --no-cache-dir -r requirements.txt && \
+    rm -rf /root/.cache/pip && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
 
 FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -40,13 +46,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpangocairo-1.0-0 \
     libgdk-pixbuf-2.0-0 \
     shared-mime-info \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && rm -rf /var/cache/apt/archives/*
 
 RUN addgroup --system app && adduser --system --ingroup app app
 WORKDIR /app
 
 COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --no-index --find-links /wheels -r /tmp/requirements.txt && \
+    rm -rf /wheels /tmp/requirements.txt && \
+    rm -rf /root/.cache/pip /tmp/* /var/tmp/* && \
+    find /usr/local/lib/python3.11/site-packages -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -name "*.pyo" -delete 2>/dev/null || true
 
 COPY . .
 # Matplotlib cache dizinini oluştur

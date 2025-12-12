@@ -18,10 +18,13 @@ steps:
       # Cloud Build'de sadece kod kontrolleri yapıyoruz, veritabanı bağlantısı gerektirmez
     args:
       - "-c"
-      - |
+      - | 
         set -euo pipefail
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --no-cache-dir -r requirements.txt
+        # Temizlik
+        pip cache purge || true
+        rm -rf /tmp/* /var/tmp/* ~/.cache/pip || true
         # Temel Django kontrolleri (veritabanı gerektirmez)
         python manage.py check --deploy || echo "Warning: Django check failed, continuing..."
         # Migration dosyalarının syntax kontrolü (veritabanı gerektirmez)

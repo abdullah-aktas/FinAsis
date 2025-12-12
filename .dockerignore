@@ -20,4 +20,20 @@ node_modules
 /var
 *.pkl
 *.log
+*.whl
+*.egg-info
+*.egg
+dist/
+build/
+.coverage
+htmlcov/
+.DS_Store
+*.swp
+*.swo
+*~
+models/*.incomplete
+models/*.no-ext
+forecast_model.log
+risk_model.log
+risk_model.pkl
 
