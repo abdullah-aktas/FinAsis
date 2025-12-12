@@ -147,84 +147,105 @@ def play(request):
     If not initialized, redirect users to the start page. Accepts optional
     ?difficulty=<int> to reflect selected difficulty on UI.
     """
-    # Ensure logged in (start API requires auth; keep UX consistent)
-    if not request.user.is_authenticated:
-        return redirect("/accounts/login/?next=/games/trade-sim/start/")
+    try:
+        # Ensure logged in (start API requires auth; keep UX consistent)
+        if not request.user.is_authenticated:
+            return redirect("/accounts/login/?next=/games/trade-sim/start/")
 
-    session = request.session.get("tradesim_game_session")
+        session = request.session.get("tradesim_game_session")
 
-    # If there is a difficulty param but session missing, just keep it in context
-    diff_param = request.GET.get("difficulty")
-    difficulty_level = None
-    difficulty_config = None
-    if diff_param:
-        try:
-            from .difficulty_system import DifficultyLevel, DIFFICULTY_CONFIGS
+        # If there is a difficulty param but session missing, just keep it in context
+        diff_param = request.GET.get("difficulty")
+        difficulty_level = None
+        difficulty_config = None
+        if diff_param:
+            try:
+                from .difficulty_system import DifficultyLevel, DIFFICULTY_CONFIGS
 
-            difficulty_level = DifficultyLevel(int(diff_param))
-            difficulty_config = DIFFICULTY_CONFIGS.get(difficulty_level)
-        except Exception:
-            difficulty_level = None
-            difficulty_config = None
+                difficulty_level = DifficultyLevel(int(diff_param))
+                difficulty_config = DIFFICULTY_CONFIGS.get(difficulty_level)
+            except Exception:
+                difficulty_level = None
+                difficulty_config = None
 
-    # If session not present, route user to difficulty/start page
-    if session is None:
-        # Friendly message via querystring so we don't need messages framework
-        return redirect("/games/trade-sim/start/?need_session=1")
+        # If session not present, route user to difficulty/start page
+        if session is None:
+            # Friendly message via querystring so we don't need messages framework
+            return redirect("/games/trade-sim/start/?need_session=1")
 
-    # Session dict'ini normalize et - eksik key'leri default değerlerle doldur
-    # Template'de güvenli erişim için tüm key'lerin mevcut olması gerekiyor
-    if not isinstance(session, dict):
-        session = {}
-    
-    # Template'de kullanılan tüm key'leri garanti altına al
-    normalized_session = {
-        "difficulty": session.get("difficulty", 1),
-        "difficulty_name": session.get("difficulty_name", "Başlangıç"),
-        "starting_capital": session.get("starting_capital", 10000),
-        "current_capital": session.get("current_capital", session.get("starting_capital", 10000)),
-        "current_city": session.get("current_city", "istanbul"),
-        "total_trades": session.get("total_trades", 0),
-        "profit_loss": session.get("profit_loss", 0),
-        "victory_requirement": session.get("victory_requirement", 20000),
-        "time_limit_minutes": session.get("time_limit_minutes", 30),
-        "ai_count": session.get("ai_count", 0),
-        "turn": session.get("turn", 0),
-        "character_id": session.get("character_id"),
-        "active_events": session.get("active_events", []),
-        "multipliers": session.get("multipliers", {}),
-    }
-    # Orijinal session'daki diğer key'leri de koru
-    normalized_session.update({k: v for k, v in session.items() if k not in normalized_session})
-
-    # Character bilgisini al
-    import json
-
-    character = Character.objects.filter(user=request.user).first()
-    character_data = None
-    character_inventory_json = "{}"
-    if character:
-        # Eski kayıtlarda choices alanı None olabileceği için korumalı erişim kullan
-        choices = character.choices or {}
-        inventory = choices.get("inventory", {})
-        character_inventory_json = json.dumps(inventory)
-        character_data = {
-            "money": character.score,
-            "inventory": inventory,
-            "city": character.city.name if character.city else "İstanbul",
-            "level": character.level,
+        # Session dict'ini normalize et - eksik key'leri default değerlerle doldur
+        # Template'de güvenli erişim için tüm key'lerin mevcut olması gerekiyor
+        if not isinstance(session, dict):
+            session = {}
+        
+        # Template'de kullanılan tüm key'leri garanti altına al
+        normalized_session = {
+            "difficulty": session.get("difficulty", 1),
+            "difficulty_name": session.get("difficulty_name", "Başlangıç"),
+            "starting_capital": session.get("starting_capital", 10000),
+            "current_capital": session.get("current_capital", session.get("starting_capital", 10000)),
+            "current_city": session.get("current_city", "istanbul"),
+            "total_trades": session.get("total_trades", 0),
+            "profit_loss": session.get("profit_loss", 0),
+            "victory_requirement": session.get("victory_requirement", 20000),
+            "time_limit_minutes": session.get("time_limit_minutes", 30),
+            "ai_count": session.get("ai_count", 0),
+            "turn": session.get("turn", 0),
+            "character_id": session.get("character_id"),
+            "active_events": session.get("active_events", []),
+            "multipliers": session.get("multipliers", {}),
         }
+        # Orijinal session'daki diğer key'leri de koru
+        normalized_session.update({k: v for k, v in session.items() if k not in normalized_session})
 
-    context = {
-        "game_session": normalized_session,
-        "difficulty_param": (
-            int(diff_param) if diff_param and diff_param.isdigit() else None
-        ),
-        "difficulty_config": difficulty_config,
-        "character": character_data,
-        "character_inventory_json": character_inventory_json,
-    }
-    return render(request, "trade_sim/play.html", context)
+        # Character bilgisini al
+        import json
+
+        character = Character.objects.filter(user=request.user).first()
+        character_data = None
+        character_inventory_json = "{}"
+        if character:
+            try:
+                # Eski kayıtlarda choices alanı None olabileceği için korumalı erişim kullan
+                choices = character.choices or {}
+                inventory = choices.get("inventory", {}) if isinstance(choices, dict) else {}
+                character_inventory_json = json.dumps(inventory)
+                character_data = {
+                    "money": character.score or 0,
+                    "inventory": inventory,
+                    "city": character.city.name if character.city else "İstanbul",
+                    "level": character.level or 1,
+                }
+            except Exception as e:
+                # Character verisi alınırken hata olursa, boş değerlerle devam et
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Character data error in play view: {e}", exc_info=True)
+                character_data = {
+                    "money": 10000,
+                    "inventory": {},
+                    "city": "İstanbul",
+                    "level": 1,
+                }
+                character_inventory_json = "{}"
+
+        context = {
+            "game_session": normalized_session,
+            "difficulty_param": (
+                int(diff_param) if diff_param and diff_param.isdigit() else None
+            ),
+            "difficulty_config": difficulty_config,
+            "character": character_data,
+            "character_inventory_json": character_inventory_json,
+        }
+        return render(request, "trade_sim/play.html", context)
+    except Exception as e:
+        # Tüm hataları yakala ve logla, sonra kullanıcıyı start sayfasına yönlendir
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in trade-sim play view: {e}", exc_info=True)
+        # Hata durumunda kullanıcıyı start sayfasına yönlendir
+        return redirect("/games/trade-sim/start/?error=1")
 
 
 def leaderboard(request):
