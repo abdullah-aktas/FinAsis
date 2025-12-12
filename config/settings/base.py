@@ -39,6 +39,10 @@ DEBUG = env_bool("DJANGO_DEBUG", True)
 _default_allowed_hosts = "127.0.0.1,localhost,finasis.com.tr,www.finasis.com.tr"
 _allowed_hosts = env_list("DJANGO_ALLOWED_HOSTS", _default_allowed_hosts)
 
+# Test client ve management komutları (örn. check_urls) için 'testserver' host'unu her zaman izinli tut
+if "testserver" not in _allowed_hosts:
+    _allowed_hosts.append("testserver")
+
 # Cloud Run ortamında otomatik olarak Cloud Run host'unu ekle
 # CLOUD_RUN_HOST environment variable ile set edilebilir
 cloud_run_host = ENV("CLOUD_RUN_HOST", "")
