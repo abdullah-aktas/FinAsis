@@ -437,7 +437,7 @@ Bu mesaj FinAsis iletişim formundan gönderilmiştir.
                     email_subject,
                     email_body,
                     settings.DEFAULT_FROM_EMAIL,
-                    ["sales@finasis.com"],
+                    ["bilgi@finasis.com.tr"],
                     fail_silently=False,
                 )
                 messages.success(
@@ -494,17 +494,17 @@ Bu mesaj FinAsis iletişim formundan gönderilmiştir.
             "phone": "+90 212 555 00 00",
         },
         {
-            "city": "Ankara",
-            "address": "Mustafa Kemal Mah. 2123. Cad. No:45 Çankaya/Ankara",
-            "phone": "+90 312 555 00 00",
+            "city": "İzmir",
+            "address": "Fatih Mah. Gençlik Caddesi No:17 Aliağa/İzmir",
+            "phone": "+90 544 320 88 47",
         },
     ]
 
     context = {
         "page_title": _("İletişim"),
-        "sales_email": "sales@finasis.com",
-        "support_email": "support@finasis.com",
-        "phone_number": "+90 212 555 00 00",
+        "sales_email": "satis@finasis.com.tr",
+        "support_email": "destek@finasis.com.tr",
+        "phone_number": "+90 544 320 88 47",
         "office_locations": office_locations,
         "metrics": snapshot["hero_stats"],
         "has_metrics_activity": snapshot["has_metrics_activity"],
