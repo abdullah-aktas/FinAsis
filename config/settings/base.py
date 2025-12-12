@@ -229,12 +229,10 @@ INSTALLED_APPS = [
 if not DISABLE_LOCALE_APP:
     INSTALLED_APPS.append("locale.apps.LocaleConfig")
 
-# Locale uygulaması için henüz migration dosyaları versiyon kontrolünde
-# olmadığı için, migrations'ı devre dışı bırakıyoruz. Böylece Django,
-# migrate sırasında modellerden tablo oluşturuyor (syncdb benzeri).
-MIGRATION_MODULES = {
-    "locale": None,
-}
+# Locale uygulaması için artık normal Django migration akışını kullanıyoruz.
+# Önceden burada "locale": None ile migrations devre dışıydı; bu da production
+# veritabanında tablo eksikliğine ve 500 hatalarına yol açıyordu.
+MIGRATION_MODULES = {}
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
