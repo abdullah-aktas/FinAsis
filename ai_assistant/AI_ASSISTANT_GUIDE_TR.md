@@ -186,17 +186,22 @@ Content-Type: application/json
 
 ## 🔒 Gizlilik ve Güvenlik
 
-### ✅ Tam Local İşleme
-- Tüm analizler yerel sunucuda çalışır
-- Dış AI servislere veri gönderilmez
-- OpenAI, GPT, Claude kullanılmaz
-- Verileriniz tamamen sizde kalır
+### ⚠️ ÖNEMLİ NOT: AI Servis Yapılandırması
+- **Chat Asistanı**: OpenAI API kullanır (opsiyonel, yapılandırılabilir)
+- **Yerel Servisler**: Sentiment analizi, özetleme ve bazı analizler yerel olarak çalışır
+- **Veri Güvenliği**: Hassas veriler KVKK uyumlu şekilde işlenir ve filtrelenir
+- **Mock Modu**: OpenAI API anahtarı yoksa sistem mock modunda çalışır
 
-### ✅ Kullanılan Teknolojiler
-- **Sentiment:** Rule-based + keyword matching
-- **Summarization:** Extractive (TF-IDF benzeri)
-- **Analytics:** Scikit-learn (local ML)
-- **Reports:** Template-based generation
+### ✅ Yerel İşleme (Local Processing)
+- **Sentiment:** Rule-based + keyword matching (yerel)
+- **Summarization:** Extractive (TF-IDF benzeri, yerel)
+- **Analytics:** Scikit-learn (local ML, yerel)
+- **Reports:** Template-based generation (yerel)
+
+### ⚠️ Dış Servisler (External Services)
+- **Chat AI**: OpenAI API kullanılabilir (yapılandırma gerekli)
+- **Veri Filtreleme**: Hassas veriler OpenAI'ye gönderilmeden önce filtrelenir
+- **KVKK Uyumluluk**: Kişisel veriler tespit edildiğinde işlem durdurulur
 
 ---
 

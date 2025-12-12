@@ -15,38 +15,70 @@ except Exception:
     OpenAI = None  # will be validated at runtime when service is used
     ChatCompletionMessageParam = Dict[str, Any]  # fallback for typing
 
+# Yerel LLM servisi
+try:
+    from .local_llm_service import LocalLLMService
+except Exception:
+    LocalLLMService = None
+
 logger = logging.getLogger(__name__)
 
 
 class ChatAIService:
     def __init__(self):
         """AI sohbet servisi başlatıcı"""
+        # AI Provider seçimi: "local", "openai", "auto" (otomatik seçim)
+        self.ai_provider = os.getenv("FINASIS_AI_PROVIDER", "auto").lower()
+        
         # Mock modu: test/sunucuda anahtar yoksa basit yanıt üret
         self.mock_mode = os.getenv("FINASIS_AI_MOCK", "0") in ("1", "true", "True")
-        # API istemcisi varsayılan olarak yok; uygun koşullarda oluşturulacak
-        self.client: Optional[Any] = None
+        
+        # API istemcileri
+        self.openai_client: Optional[Any] = None
+        self.local_llm: Optional[Any] = None
+        
+        # Yerel LLM servisini başlat (öncelikli)
+        if LocalLLMService is not None and self.ai_provider in ("local", "auto"):
+            try:
+                provider = os.getenv("LOCAL_LLM_PROVIDER", "ollama").lower()
+                model_name = os.getenv("LOCAL_LLM_MODEL")
+                self.local_llm = LocalLLMService(provider=provider, model_name=model_name)
+                if self.local_llm.is_available():
+                    logger.info(f"Yerel LLM servisi başlatıldı: {self.local_llm.get_model_info()}")
+                else:
+                    logger.warning("Yerel LLM servisi başlatılamadı")
+                    self.local_llm = None
+            except Exception as e:
+                logger.warning(f"Yerel LLM servisi başlatılamadı: {e}")
+                self.local_llm = None
 
-        # OpenAI paketi yoksa zorunlu mock moda geç ve uyarı logla
-        if OpenAI is None:
-            logger.warning(
-                "OpenAI paketi bulunamadı; ChatAIService mock modunda çalışacak."
-            )
-            self.mock_mode = True
-            self.api_key = None
-        else:
-            # API anahtarını al ve uygun ise istemciyi başlat
+        # OpenAI servisini başlat (fallback veya primary)
+        if self.ai_provider in ("openai", "auto") and OpenAI is not None:
             self.api_key = os.getenv("OPENAI_API_KEY")
-            if not self.api_key:
-                # API anahtarı yoksa mock moda düş
-                self.mock_mode = True
-            else:
-                # Yeni SDK istemcisi
+            if self.api_key:
                 try:
-                    self.client = OpenAI(api_key=self.api_key)
+                    self.openai_client = OpenAI(api_key=self.api_key)
+                    logger.info("OpenAI servisi başlatıldı")
                 except Exception as e:
                     logger.error(f"OpenAI istemcisi başlatılırken hata: {e}")
-                    self.client = None
-                    self.mock_mode = True
+                    self.openai_client = None
+            else:
+                logger.info("OpenAI API anahtarı bulunamadı")
+        elif OpenAI is None:
+            logger.info("OpenAI paketi yüklü değil")
+
+        # Provider seçimi: auto modunda yerel öncelikli
+        if self.ai_provider == "auto":
+            if self.local_llm and self.local_llm.is_available():
+                self.ai_provider = "local"
+                logger.info("AI Provider: Yerel LLM seçildi (otomatik)")
+            elif self.openai_client:
+                self.ai_provider = "openai"
+                logger.info("AI Provider: OpenAI seçildi (otomatik)")
+            else:
+                self.ai_provider = "mock"
+                self.mock_mode = True
+                logger.warning("AI Provider: Mock modu (hiçbir servis mevcut değil)")
 
         # Sistem rolü: Finansman/Muhasebe uzmanı ve FinAsis bağlam bilgesi
         assistant_name = os.getenv("FINASIS_AI_WIDGET_NAME", "FinAsis Bilgesi")
@@ -469,54 +501,82 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             # Yeni sorguyu ekle
             messages.append({"role": "user", "content": user_content})
 
-            # Mock yanıt (istemci yoksa da mock'a düş)
-            if self.mock_mode or not getattr(self, "client", None):
-                prefix = "[MOCK] FinAsis Cevap (Mock)"
-                tips = (
-                    "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
-                    "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
-                    "• Bütçe-tahmin sapmalarını aylık analiz edin."
-                )
-                ctx = f"\n[Bağlam: {context}]" if context else ""
-                return f"{prefix}: {query[:120]}...\n{tips}{ctx}"
+            # AI Provider'a göre yanıt üret
+            if self.ai_provider == "local" and self.local_llm and self.local_llm.is_available():
+                # Yerel LLM kullan
+                try:
+                    # Sistem prompt'u ve kullanıcı mesajını birleştir
+                    full_prompt = user_content
+                    
+                    ai_response = self.local_llm.generate(
+                        prompt=full_prompt,
+                        system_prompt=system_content,
+                        max_tokens=int(os.getenv("LOCAL_LLM_MAX_TOKENS", "800")),
+                        temperature=float(os.getenv("LOCAL_LLM_TEMPERATURE", "0.7")),
+                        top_p=float(os.getenv("LOCAL_LLM_TOP_P", "0.9")),
+                    )
+                    
+                    if ai_response and not ai_response.startswith("[HATA]"):
+                        logger.info("Yerel LLM yanıtı başarıyla üretildi")
+                        return ai_response
+                    else:
+                        # Yerel LLM hatası, fallback'e geç
+                        logger.warning(f"Yerel LLM hatası: {ai_response}")
+                        return self._fallback_response(query, context)
+                        
+                except Exception as local_err:
+                    logger.error(f"Yerel LLM generate hatası: {local_err}")
+                    return self._fallback_response(query, context)
+                    
+            elif self.ai_provider == "openai" and self.openai_client:
+                # OpenAI API'yi çağır (v1 SDK)
+                try:
+                    response = self.openai_client.chat.completions.create(
+                        model=model_name,
+                        messages=messages,
+                        temperature=float(os.getenv("OPENAI_TEMPERATURE", "0.4")),
+                        max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "800")),
+                        timeout=float(os.getenv("OPENAI_REQUEST_TIMEOUT", "20")),
+                    )
 
-            # OpenAI API'yi çağır (v1 SDK)
-            # Bu noktada istemci mevcut olmalı; type checker için cast kullanıyoruz
-            client = cast(Any, self.client)
-            try:
-                response = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    temperature=float(os.getenv("OPENAI_TEMPERATURE", "0.4")),
-                    max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "800")),
-                    timeout=float(os.getenv("OPENAI_REQUEST_TIMEOUT", "20")),
-                )
-
-                # Yanıtı al
-                ai_response = response.choices[0].message.content or ""  # type: ignore[assignment]
-                return ai_response
-            except Exception as call_err:
-                # Bağlantı/istek hatalarında kullanıcıya yedek cevap dön
-                logger.error(f"OpenAI sohbet isteği başarısız: {call_err}")
-                prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
-                tips = (
-                    "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
-                    "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
-                    "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
-                    "• Bütçe-tahmin sapmalarını aylık analiz edin."
-                )
-                ctx = f"\n[Bağlam: {context}]" if context else ""
-                return f"{prefix}: {query[:120]}...\n{tips}{ctx}"
+                    # Yanıtı al
+                    ai_response = response.choices[0].message.content or ""  # type: ignore[assignment]
+                    return ai_response
+                except Exception as call_err:
+                    # Bağlantı/istek hatalarında fallback'e geç
+                    logger.error(f"OpenAI sohbet isteği başarısız: {call_err}")
+                    # Yerel LLM varsa onu dene
+                    if self.local_llm and self.local_llm.is_available():
+                        logger.info("OpenAI hatası, yerel LLM'e geçiliyor...")
+                        try:
+                            ai_response = self.local_llm.generate(
+                                prompt=user_content,
+                                system_prompt=system_content,
+                                max_tokens=800,
+                                temperature=0.7,
+                            )
+                            if ai_response and not ai_response.startswith("[HATA]"):
+                                return ai_response
+                        except Exception:
+                            pass
+                    return self._fallback_response(query, context)
+            else:
+                # Mock modu veya hiçbir servis yok
+                return self._fallback_response(query, context)
 
         except Exception as e:
             # Genel beklenmeyen hatalarda da yedek cevap dön
             logger.error(f"AI sohbet hatası: {str(e)}")
-            prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
-            tips = (
-                "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
-                "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
-                "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
-                "• Bütçe-tahmin sapmalarını aylık analiz edin."
-            )
-            ctx = f"\n[Bağlam: {context}]" if context else ""
-            return f"{prefix}: {query[:120]}...\n{tips}{ctx}"
+            return self._fallback_response(query, context)
+    
+    def _fallback_response(self, query: str, context: Optional[Dict[str, Any]]) -> str:
+        """Fallback yanıt üretir"""
+        prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
+        tips = (
+            "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
+            "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
+            "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
+            "• Bütçe-tahmin sapmalarını aylık analiz edin."
+        )
+        ctx = f"\n[Bağlam: {context}]" if context else ""
+        return f"{prefix}: {query[:120]}...\n{tips}{ctx}"

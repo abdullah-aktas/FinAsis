@@ -232,7 +232,9 @@
     </main>
     {% block footer %}{% include 'components/footer.html' %}{% endblock %}
     {% include 'components/ai_chat_widget.html' %}
+    {% comment %}
     {% include 'components/beta_feedback_button.html' %}
+    {% endcomment %}
     {% include 'components/pwa_install_prompt.html' %}
     {% include 'core_ui/partials/_cookie_consent.html' %}
     <script>
@@ -311,8 +313,10 @@
     </script>
     {% block extra_js %}{% endblock %}
 
-    <!-- Help Widget (her sayfada) -->
+    <!-- Help Widget (her sayfada) - Gizlendi -->
+    {% comment %}
     {% if user.is_authenticated %} {% include
     "common/help/_help_widget_include.html" %} {% endif %}
+    {% endcomment %}
   </body>
 </html>

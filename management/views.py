@@ -288,7 +288,7 @@ def company_add(request):
                 detail=f"Eklenen şirket: {company.name}",
             )
             messages.success(request, "Şirket başarıyla eklendi.")
-            return redirect("company_list")
+            return redirect("management:company_list")
     else:
         form = AccountingCompanyForm()
     return render(request, "management/company_form.html", {"form": form})

@@ -26,6 +26,10 @@ pytesseract>=0.3
 Pillow>=10.4
 openai>=1.55
 langchain>=0.3
+# Yerel LLM desteği (opsiyonel)
+transformers>=4.40.0
+torch>=2.0.0
+accelerate>=0.30.0
 pydub>=0.25
 vosk>=0.3
 yfinance>=0.2

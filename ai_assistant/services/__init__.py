@@ -17,11 +17,24 @@ from .prompt_registry import (
 )
 from .recommendation_service import RecommendationService
 
-__all__: list[str] = [
-    "LocalSTTService",
-    "RecommendationService",
-    "get_prompts_for_role",
-    "get_prompt",
-    "list_roles",
-    "PromptNotFound",
-]
+# Yerel LLM servisi (opsiyonel import)
+try:
+    from .local_llm_service import LocalLLMService
+    __all__: list[str] = [
+        "LocalSTTService",
+        "LocalLLMService",
+        "RecommendationService",
+        "get_prompts_for_role",
+        "get_prompt",
+        "list_roles",
+        "PromptNotFound",
+    ]
+except ImportError:
+    __all__: list[str] = [
+        "LocalSTTService",
+        "RecommendationService",
+        "get_prompts_for_role",
+        "get_prompt",
+        "list_roles",
+        "PromptNotFound",
+    ]

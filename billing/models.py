@@ -14,10 +14,54 @@ class Plan(models.Model):
         default="sme",
     )
     is_active = models.BooleanField(default=True)
+    # Beta dönem özellikleri
+    trial_days = models.IntegerField(
+        default=14,
+        help_text="Ücretsiz deneme süresi (gün)",
+        verbose_name="Deneme Süresi (Gün)",
+    )
+    beta_discount_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text="Beta döneminde uygulanacak indirim yüzdesi",
+        verbose_name="Beta İndirimi (%)",
+    )
+    is_beta_plan = models.BooleanField(
+        default=False,
+        help_text="Bu plan beta dönemine özel mi?",
+        verbose_name="Beta Planı",
+    )
+    is_popular = models.BooleanField(
+        default=False,
+        help_text="Popüler plan olarak işaretle",
+        verbose_name="Popüler",
+    )
+    order = models.IntegerField(
+        default=0,
+        help_text="Görüntüleme sırası",
+        verbose_name="Sıra",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = "Plan"
+        verbose_name_plural = "Planlar"
 
     def __str__(self):
         return self.name
+
+    def get_beta_price(self, period="month"):
+        """Beta döneminde uygulanacak fiyatı hesapla"""
+        try:
+            price = self.prices.get(period=period, is_active=True)
+            if self.beta_discount_percent > 0:
+                discount = price.amount * (self.beta_discount_percent / 100)
+                return price.amount - discount
+            return price.amount
+        except Price.DoesNotExist:
+            return None
 
 
 class EnterpriseInquiry(models.Model):

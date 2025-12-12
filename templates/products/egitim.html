@@ -205,10 +205,10 @@
       </p>
       <div class="mt-4">
         {% if user.is_authenticated %}
-        <a href="/education/student/dashboard/" class="btn btn-light btn-lg px-5 py-3 me-3">
+        <a href="{% url 'education:student:dashboard' %}" class="btn btn-light btn-lg px-5 py-3 me-3">
           📚 Öğrenci Paneli
         </a>
-        <a href="/education/home/" class="btn btn-outline-light btn-lg px-5 py-3">
+        <a href="{% url 'education:education_home' %}" class="btn btn-outline-light btn-lg px-5 py-3">
           🎓 Tüm Kurslar
         </a>
         {% else %}
@@ -360,10 +360,10 @@
       </p>
       <div class="d-flex gap-3 justify-content-center flex-wrap">
         {% if user.is_authenticated %}
-        <a href="/education/student/dashboard/" class="btn btn-primary-custom">
+        <a href="{% url 'education:student:dashboard' %}" class="btn btn-primary-custom">
           🎓 Öğrenci Paneli
         </a>
-        <a href="/education/home/" class="btn btn-outline-primary btn-lg">
+        <a href="{% url 'education:education_home' %}" class="btn btn-outline-primary btn-lg">
           📚 Kurslar
         </a>
         {% else %}
