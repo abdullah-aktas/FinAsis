@@ -761,10 +761,7 @@ TradeSim - {% trans "Ticaret Simülasyonu" %}
       <div class="stat-card">
         <div class="stat-label">{% trans "Sermaye" %}</div>
         <div class="stat-value" id="moneyDisplay">
-          ₺<span id="moneyValue"
-            >{% if character %}{{ character.money }}{% else %}10000{% endif
-            %}</span
-          >
+          ₺<span id="moneyValue">{% if character %}{{ character.money }}{% else %}10000{% endif %}</span>
         </div>
       </div>
       <div class="stat-card">
@@ -780,8 +777,7 @@ TradeSim - {% trans "Ticaret Simülasyonu" %}
       <div class="stat-card">
         <div class="stat-label">{% trans "Zorluk" %}</div>
         <div class="stat-value">
-          {% if game_session.difficulty_name %} {{ game_session.difficulty_name
-          }} {% else %} Lv.{{ game_session.difficulty|default:"1" }} {% endif %}
+          {% if game_session.difficulty_name %}{{ game_session.difficulty_name }}{% else %}Lv.{{ game_session.difficulty|default:"1" }}{% endif %}
         </div>
       </div>
     </div>
