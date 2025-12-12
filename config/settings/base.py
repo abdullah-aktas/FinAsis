@@ -197,6 +197,8 @@ INSTALLED_APPS = [
     "channels",
     "django_otp",
     "django_otp.plugins.otp_totp",
+    "crispy_forms",
+    "crispy_bootstrap5",
     # Project applications
     "accounting.apps.AccountingConfig",
     "accounts.apps.AccountsConfig",
@@ -456,6 +458,12 @@ REGION_LABELS = {
     "US": "ABD",
     "APAC": "APAC",
 }
+
+# -----------------------------------------------------------------------------
+# Crispy Forms
+# -----------------------------------------------------------------------------
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # -----------------------------------------------------------------------------
 # Static & media
