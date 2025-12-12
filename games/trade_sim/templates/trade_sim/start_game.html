@@ -295,20 +295,24 @@ function selectDifficulty(level) {
       character_name: '{{ request.user.username }} Trader'
     })
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('API çağrısı başarısız: ' + response.status);
+    }
+    return response.json();
+  })
   .then(data => {
     if (data.success) {
-      // Oyun ekranına yönlendir veya modal aç
-      alert(data.message);
-      // TODO: Buraya 3D oyun ekranı açılacak
+      // Oyun ekranına yönlendir
       window.location.href = '/games/trade-sim/play/?difficulty=' + level;
     } else {
       alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+      console.error('API Error:', data);
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    alert('Bağlantı hatası!');
+    alert('Bağlantı hatası! Lütfen tekrar deneyin.');
   });
 }
 

@@ -168,10 +168,65 @@ def play(request):
                 difficulty_level = None
                 difficulty_config = None
 
-        # If session not present, route user to difficulty/start page
+        # If session not present but difficulty param exists, try to create session automatically
         if session is None:
-            # Friendly message via querystring so we don't need messages framework
-            return redirect("/games/trade-sim/start/?need_session=1")
+            if diff_param and difficulty_config:
+                # Otomatik session oluştur - kullanıcı start sayfasından gelmiş olabilir
+                try:
+                    from games.models import PlayerProfile
+                    from .models import City
+                    
+                    profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
+                    default_city = City.objects.first()
+                    
+                    if not default_city:
+                        # Eğer hiç şehir yoksa, basit bir şehir oluştur
+                        default_city = City.objects.create(
+                            name="İstanbul",
+                            description="Başlangıç şehri",
+                            sectors=["genel"],
+                            market_size=1000,
+                            coordinates={"x": 0, "y": 0},
+                        )
+                    
+                    character, _ = Character.objects.get_or_create(
+                        user=request.user,
+                        defaults={
+                            "name": f"{request.user.username} Trader",
+                            "city": default_city,
+                        },
+                    )
+                    
+                    # Session oluştur
+                    session = {
+                        "character_id": character.id,
+                        "difficulty": difficulty_level.value if difficulty_level else int(diff_param),
+                        "difficulty_name": difficulty_config.name if difficulty_config else "Başlangıç",
+                        "starting_capital": 10000,
+                        "current_capital": 10000,
+                        "current_city": character.city.name.lower() if character.city else "istanbul",
+                        "total_trades": 0,
+                        "profit_loss": 0,
+                        "victory_requirement": 20000,
+                        "time_limit_minutes": difficulty_config.time_limit_minutes if difficulty_config else 30,
+                        "ai_count": difficulty_config.ai_count if difficulty_config else 0,
+                        "turn": 0,
+                        "active_events": [],
+                        "multipliers": {
+                            "xp": difficulty_config.xp_multiplier if difficulty_config else 1.0,
+                            "coins": difficulty_config.coin_multiplier if difficulty_config else 1.0,
+                        },
+                    }
+                    request.session["tradesim_game_session"] = session
+                except Exception as e:
+                    # Otomatik session oluşturma başarısız olursa, start sayfasına yönlendir
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Auto session creation failed: {e}", exc_info=True)
+                    return redirect("/games/trade-sim/start/?need_session=1")
+            else:
+                # Friendly message via querystring so we don't need messages framework
+                return redirect("/games/trade-sim/start/?need_session=1")
 
         # Session dict'ini normalize et - eksik key'leri default değerlerle doldur
         # Template'de güvenli erişim için tüm key'lerin mevcut olması gerekiyor
