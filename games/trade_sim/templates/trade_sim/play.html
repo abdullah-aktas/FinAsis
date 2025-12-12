@@ -1,6 +1,11 @@
-{% extends "core_ui/base.html" %} {% load static i18n %} {% block title %}
-TradeSim - {% trans "Ticaret Simülasyonu" %} {% endblock %} {% block extra_css
-%}
+{% extends "core_ui/base.html" %}
+{% load static i18n %}
+
+{% block title %}
+TradeSim - {% trans "Ticaret Simülasyonu" %}
+{% endblock title %}
+
+{% block extra_css %}
 <style>
   :root {
     --fin-primary: #0aae94;
@@ -722,7 +727,9 @@ TradeSim - {% trans "Ticaret Simülasyonu" %} {% endblock %} {% block extra_css
     font-weight: 700;
   }
 </style>
-{% endblock %} {% block content %}
+{% endblock extra_css %}
+
+{% block content %}
 <div class="game-container">
   {% if not game_session %}
   <div
@@ -877,7 +884,9 @@ TradeSim - {% trans "Ticaret Simülasyonu" %} {% endblock %} {% block extra_css
 
   {% endif %}
 </div>
-{% endblock %} {% block extra_js %}
+{% endblock content %}
+
+{% block extra_js %}
 <script>
     // CSRF Token
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
@@ -1735,4 +1744,4 @@ TradeSim - {% trans "Ticaret Simülasyonu" %} {% endblock %} {% block extra_css
 
   {% endif %} <!-- endif game_session -->
 </script>
-{% endblock %}
+{% endblock extra_js %}
