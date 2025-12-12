@@ -60,7 +60,10 @@ def _get_user_modules(user):
                 {
                     "name": "Muhasebe",
                     "icon": "bi-calculator",
-                    "color": "#0AAE94",
+                    # Template, bg-gradient-{{ module.color }} pattern'i kullanıyor.
+                    # Bu yüzden burada HEX kodu yerine tanımlı gradient sınıf adlarını
+                    # (primary/success/info/warning/purple/secondary/dark) kullanıyoruz.
+                    "color": "primary",
                     "url": reverse("accounting:dashboard"),
                     "description": "Fatura, defter, e-belge ve banka entegrasyonları",
                     "category": "finance",
@@ -81,7 +84,7 @@ def _get_user_modules(user):
                 {
                     "name": "Finansal Yönetim",
                     "icon": "bi-graph-up-arrow",
-                    "color": "#10b981",
+                    "color": "success",
                     "url": reverse("finance:finance_home"),
                     "description": "KPI, bütçe, nakit akışı ve finansal raporlar",
                     "category": "finance",
@@ -102,7 +105,7 @@ def _get_user_modules(user):
                 {
                     "name": "Denetim",
                     "icon": "bi-shield-check",
-                    "color": "#6366f1",
+                    "color": "info",
                     "url": reverse("audit:landing"),
                     "description": "İşlem kayıtları, risk değerlendirme ve uyumluluk",
                     "category": "management",
@@ -119,7 +122,7 @@ def _get_user_modules(user):
                 {
                     "name": "Blockchain",
                     "icon": "bi-link-45deg",
-                    "color": "#3b82f6",
+                    "color": "purple",
                     "url": reverse("blockchain:home"),
                     "description": "Akıllı sözleşmeler ve değiştirilemez kayıtlar",
                     "category": "technology",
@@ -135,7 +138,7 @@ def _get_user_modules(user):
             {
                 "name": "Yapay Zeka",
                 "icon": "bi-robot",
-                "color": "#8b5cf6",
+                "color": "purple",
                 "url": reverse("ai_assistant:home"),
                 "description": "Türkçe prompt kütüphanesi ve doğal dil raporları",
                 "category": "ai",
@@ -157,7 +160,7 @@ def _get_user_modules(user):
                 {
                     "name": "Mali Müşavirlik",
                     "icon": "bi-briefcase",
-                    "color": "#2563eb",
+                    "color": "primary",
                     "url": reverse("products_mali_musavir"),
                     "description": "Müşteri yönetimi ve danışmanlık oturumları",
                     "category": "management",
@@ -174,7 +177,7 @@ def _get_user_modules(user):
                 {
                     "name": "Eğitim",
                     "icon": "bi-mortarboard",
-                    "color": "#f59e0b",
+                    "color": "warning",
                     "url": reverse("education:education_home"),
                     "description": "Rol bazlı LMS ve FinQuest görev motoru",
                     "category": "education",
@@ -191,7 +194,7 @@ def _get_user_modules(user):
                 {
                     "name": "Eğitim",
                     "icon": "bi-mortarboard",
-                    "color": "#f59e0b",
+                    "color": "warning",
                     "url": reverse("education:education_home"),
                     "description": "Dersler, görevler ve sertifikalar",
                     "category": "education",
@@ -207,7 +210,7 @@ def _get_user_modules(user):
             {
                 "name": "Oyunlar",
                 "icon": "bi-controller",
-                "color": "#8b5cf6",
+                "color": "purple",
                 "url": reverse("games:games_index"),
                 "description": "TradeSim ligleri ve finansal simülasyonlar",
                 "category": "games",
