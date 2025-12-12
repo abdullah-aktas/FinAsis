@@ -129,8 +129,8 @@ class SecurityIncident(models.Model):
     )
 
     class Meta:
-        verbose_name = _("Güvenlik Olayı")
-        verbose_name_plural = _("Güvenlik Olayları")
+        verbose_name = _("Sistem Güvenlik Olayı")
+        verbose_name_plural = _("Sistem Güvenlik Olayları")
         ordering = ["-detected_at"]
         indexes = [
             models.Index(fields=["severity", "-detected_at"]),

@@ -378,8 +378,8 @@ class Product(models.Model):
 
     class Meta:
         app_label = "accounting"
-        verbose_name = "Ürün"
-        verbose_name_plural = "Ürünler"
+        verbose_name = "Muhasebe Ürünü"
+        verbose_name_plural = "Muhasebe Ürünleri"
 
 
 #
@@ -603,8 +603,8 @@ class BankAccount(models.Model):
 
     class Meta:
         app_label = "accounting"
-        verbose_name = "Banka Hesabı"
-        verbose_name_plural = "Banka Hesapları"
+        verbose_name = "Muhasebe Banka Hesabı"
+        verbose_name_plural = "Muhasebe Banka Hesapları"
 
 
 # Fatura Kalemi modeli

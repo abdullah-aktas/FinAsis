@@ -62,8 +62,8 @@ class BankAccount(BaseModel, AuditableMixin):
     is_active = models.BooleanField(_("Aktif"), default=True)
 
     class Meta:
-        verbose_name = _("Banka Hesabı")
-        verbose_name_plural = _("Banka Hesapları")
+        verbose_name = _("Finans Banka Hesabı")
+        verbose_name_plural = _("Finans Banka Hesapları")
         ordering = ["company", "bank", "currency"]
         unique_together = [("company", "iban")]
         app_label = "finance_banking"

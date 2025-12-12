@@ -210,8 +210,8 @@ class FinancialReport(models.Model):
 
     class Meta:
         app_label = "ai_assistant"
-        verbose_name = _("Finansal Rapor")
-        verbose_name_plural = _("Finansal Raporlar")
+        verbose_name = _("AI Finansal Rapor")
+        verbose_name_plural = _("AI Finansal Raporlar")
         ordering = ["-created_at"]
 
     def __str__(self):
@@ -328,7 +328,7 @@ class UserPreference(models.Model):
     class Meta:
         app_label = "ai_assistant"
         verbose_name = _("Kullanıcı Tercihi")
-        verbose_name_plural = _("Kullanıcı Tercihleri")
+        verbose_name_plural = _("AI Kullanıcı Tercihleri")
 
     def __str__(self):
         return f"{self.user.username} - Tercihler"
@@ -409,6 +409,10 @@ class Notification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("AI Bildirimi")
+        verbose_name_plural = _("AI Bildirimleri")
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"

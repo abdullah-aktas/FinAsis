@@ -225,8 +225,8 @@ class Invoice(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Fatura"
-        verbose_name_plural = "Faturalar"
+        verbose_name = "Abonelik Faturası"
+        verbose_name_plural = "Abonelik Faturaları"
         ordering = ["-invoice_date"]
 
     def __str__(self):

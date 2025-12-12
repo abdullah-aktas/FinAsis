@@ -92,8 +92,8 @@ class Invoice(BaseModel):
     )
 
     class Meta:  # type: ignore[override]
-        verbose_name = _("Fatura")
-        verbose_name_plural = _("Faturalar")
+        verbose_name = _("Finans Faturası")
+        verbose_name_plural = _("Finans Faturaları")
         ordering = ["-issue_date"]
 
 
@@ -149,8 +149,8 @@ class Account(BaseModel):
     description = models.TextField(blank=True, verbose_name=_("Açıklama"))
 
     class Meta:  # type: ignore[override]
-        verbose_name = _("Hesap")
-        verbose_name_plural = _("Hesaplar")
+        verbose_name = _("Finans Hesabı")
+        verbose_name_plural = _("Finans Hesapları")
         ordering = ["code"]
 
     def __str__(self):

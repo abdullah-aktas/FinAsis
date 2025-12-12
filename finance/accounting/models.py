@@ -508,8 +508,8 @@ class Invoice(models.Model):
     )
 
     class Meta:
-        verbose_name = _("Fatura")
-        verbose_name_plural = _("Faturalar")
+        verbose_name = _("Muhasebe Faturası")
+        verbose_name_plural = _("Muhasebe Faturaları")
         ordering = ["-issue_date"]
 
     def __str__(self):

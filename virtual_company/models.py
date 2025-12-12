@@ -89,8 +89,8 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Son Güncelleme")
 
     class Meta:
-        verbose_name = "Ürün"
-        verbose_name_plural = "Ürünler"
+        verbose_name = "Sanal Şirket Ürünü"
+        verbose_name_plural = "Sanal Şirket Ürünleri"
         ordering = ["-created_at"]
 
     def __str__(self):
@@ -136,8 +136,8 @@ class Transaction(models.Model):
     date = models.DateField(auto_now_add=True, verbose_name="Tarih")
 
     class Meta:
-        verbose_name = "Finansal İşlem"
-        verbose_name_plural = "Finansal İşlemler"
+        verbose_name = "Sanal Şirket Finansal İşlemi"
+        verbose_name_plural = "Sanal Şirket Finansal İşlemleri"
         ordering = ["-date"]
 
     def __str__(self):
@@ -170,8 +170,8 @@ class Invoice(models.Model):
     issue_date = models.DateField(verbose_name="Fatura Tarihi")
 
     class Meta:
-        verbose_name = "Fatura"
-        verbose_name_plural = "Faturalar"
+        verbose_name = "Sanal Şirket Faturası"
+        verbose_name_plural = "Sanal Şirket Faturaları"
         ordering = ["-issue_date"]
 
     def __str__(self):
@@ -222,8 +222,8 @@ class FinanceReport(models.Model):
     )
 
     class Meta:
-        verbose_name = "Finansal Rapor"
-        verbose_name_plural = "Finansal Raporlar"
+        verbose_name = "Sanal Şirket Finansal Raporu"
+        verbose_name_plural = "Sanal Şirket Finansal Raporları"
 
     def __str__(self):
         return self.title

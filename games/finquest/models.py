@@ -115,8 +115,8 @@ class FinQuestInventory(models.Model):
 
     class Meta:
         unique_together = ["character", "item"]
-        verbose_name = "Envanter"
-        verbose_name_plural = "Envanter"
+        verbose_name = "FinQuest Envanteri"
+        verbose_name_plural = "FinQuest Envanterleri"
 
     def __str__(self):
         return f"{self.character.name} - {self.item.name} (x{self.quantity})"
@@ -304,8 +304,8 @@ class FinQuestSession(models.Model):
     session_data = models.JSONField(default=dict)
 
     class Meta:
-        verbose_name = "Oyun Oturumu"
-        verbose_name_plural = "Oyun Oturumları"
+        verbose_name = "FinQuest Oyun Oturumu"
+        verbose_name_plural = "FinQuest Oyun Oturumları"
         ordering = ["-started_at"]
 
     def __str__(self):

@@ -334,8 +334,8 @@ class RoleBasedUserProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Kullanıcı Profili"
-        verbose_name_plural = "Kullanıcı Profilleri"
+        verbose_name = "Rol Tabanlı Kullanıcı Profili"
+        verbose_name_plural = "Rol Tabanlı Kullanıcı Profilleri"
 
     def __str__(self):
         return f"{self.user.username} - {self.role.display_name}"

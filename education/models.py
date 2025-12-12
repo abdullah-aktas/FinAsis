@@ -68,8 +68,8 @@ class Badge(models.Model):
     )
 
     class Meta:
-        verbose_name = _("Rozet")
-        verbose_name_plural = _("Rozetler")
+        verbose_name = _("Eğitim Rozeti")
+        verbose_name_plural = _("Eğitim Rozetleri")
 
     def __str__(self):
         return self.name
@@ -583,8 +583,8 @@ class Tournament(models.Model):
     standings = models.JSONField(default=list, blank=True, verbose_name=_("Sıralama"))
 
     class Meta:
-        verbose_name = _("Turnuva")
-        verbose_name_plural = _("Turnuvalar")
+        verbose_name = _("Eğitim Turnuvası")
+        verbose_name_plural = _("Eğitim Turnuvaları")
 
 
 class CheatingIncident(models.Model):

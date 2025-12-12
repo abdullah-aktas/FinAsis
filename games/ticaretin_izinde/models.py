@@ -164,6 +164,10 @@ class Tournament(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Ticaretin İzinde Turnuvası"
+        verbose_name_plural = "Ticaretin İzinde Turnuvaları"
+
     def __str__(self):
         return self.name
 

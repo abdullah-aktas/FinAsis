@@ -68,8 +68,8 @@ class PartnerCategory(models.Model):
 
     class Meta:
         ordering = ("priority", "name")
-        verbose_name = _("Partner Kategorisi")
-        verbose_name_plural = _("Partner Kategorileri")
+        verbose_name = _("Kurumsal Partner Kategorisi")
+        verbose_name_plural = _("Kurumsal Partner Kategorileri")
 
     def __str__(self) -> str:
         return self.name
@@ -186,8 +186,8 @@ class PartnerApplication(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = _("Partner Başvurusu")
-        verbose_name_plural = _("Partner Başvuruları")
+        verbose_name = _("Kurumsal Partner Başvurusu")
+        verbose_name_plural = _("Kurumsal Partner Başvuruları")
 
     def __str__(self) -> str:
         return f"{self.company_name} - {self.get_status_display()}"

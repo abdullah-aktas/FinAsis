@@ -91,8 +91,8 @@ class Badge(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Rozet"
-        verbose_name_plural = "Rozetler"
+        verbose_name = "Oyun Rozeti"
+        verbose_name_plural = "Oyun Rozetleri"
         ordering = ["-points", "name"]
 
     def __str__(self):
@@ -366,8 +366,8 @@ class Tournament(models.Model):
     )
 
     class Meta:
-        verbose_name = "Turnuva"
-        verbose_name_plural = "Turnuvalar"
+        verbose_name = "E-Spor Turnuvası"
+        verbose_name_plural = "E-Spor Turnuvaları"
         ordering = ["-start_date"]
 
     def __str__(self):
@@ -613,8 +613,8 @@ class PlayerInventory(models.Model):
     is_equipped = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = "Envanter"
-        verbose_name_plural = "Envanter"
+        verbose_name = "Oyuncu Envanteri"
+        verbose_name_plural = "Oyuncu Envanterleri"
         unique_together = ["player", "item"]
 
     def __str__(self):

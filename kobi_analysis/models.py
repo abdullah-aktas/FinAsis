@@ -1568,8 +1568,8 @@ class PerformanceMetric(models.Model):
     last_updated = models.DateField(verbose_name=_("Son Güncelleme"))
 
     class Meta:
-        verbose_name = _("Performans Metriği")
-        verbose_name_plural = _("Performans Metrikleri")
+        verbose_name = _("KOBİ Performans Metriği")
+        verbose_name_plural = _("KOBİ Performans Metrikleri")
 
     def __str__(self):
         return f"{self.metric_name} - {self.company.name}"

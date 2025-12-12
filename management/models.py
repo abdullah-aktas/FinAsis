@@ -23,6 +23,10 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     link = models.URLField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = "Sistem Bildirimi"
+        verbose_name_plural = "Sistem Bildirimleri"
+
     def __str__(self):
         return f"Bildirim: {self.user} - {self.message[:30]}"
 
@@ -150,8 +154,8 @@ class PerformanceMetric(models.Model):
     recorded_at = models.DateTimeField(auto_now_add=True, verbose_name="Kayıt Zamanı")
 
     class Meta:
-        verbose_name = "Performans Metriği"
-        verbose_name_plural = "Performans Metrikleri"
+        verbose_name = "Sistem Performans Metriği"
+        verbose_name_plural = "Sistem Performans Metrikleri"
         ordering = ["-recorded_at"]
         indexes = [
             models.Index(fields=["metric_type", "-recorded_at"]),

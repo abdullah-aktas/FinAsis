@@ -110,6 +110,10 @@ class Tournament(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "TradeSim Turnuvası"
+        verbose_name_plural = "TradeSim Turnuvaları"
+
     def __str__(self):
         return self.name
 

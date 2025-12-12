@@ -802,8 +802,8 @@ class SecurityIncident(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = _("Güvenlik Olayı")
-        verbose_name_plural = _("Güvenlik Olayları")
+        verbose_name = _("Finans Güvenlik Olayı")
+        verbose_name_plural = _("Finans Güvenlik Olayları")
         ordering = ["-detected_date"]
 
     def __str__(self):
