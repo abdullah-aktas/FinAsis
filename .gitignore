@@ -66,3 +66,6 @@ full_data.json
 users.json
 *_data.json
 accounting_data.json
+
+# LLM Models (büyük dosyalar, GitHub'a push edilmemeli)
+models/
