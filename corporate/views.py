@@ -6,23 +6,23 @@ Kurumsal İşletme Yönetimi ve İletişim Görünümleri
 from decimal import Decimal
 from typing import Dict, List
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
-from django.utils.translation import gettext as _
-from django.utils import formats, timezone
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import formats, timezone
+from django.utils.translation import gettext as _
 
-from billing.models import Plan, Module as BillingModule
 from accounting.models import Company
 from accounting.models import Invoice as AccountingInvoice
 from ai_assistant.services import prompt_registry
+from billing.models import Module as BillingModule, Plan
 from games import task_engine
 
-from .models import PressRelease, InvestorDocument
+from .models import ContactMessage, InvestorDocument, PressRelease
 
 try:
     from partners.models import PartnerProfile
@@ -376,11 +376,15 @@ def corporate_landing(request):
 
 def contact(request):
     """
-    Kurumsal iletişim ve satış ekibiyle bağlantı sayfası
+    Kurumsal iletişim ve satış ekibiyle bağlantı sayfası.
+
+    Not:
+    - Mesajlar hem e-posta ile ilgili ekibe iletilir
+    - Hem de ContactMessage modeli üzerinden veritabanına kaydedilir,
+      böylece Django admin'de listelenebilir.
     """
-    from django.contrib import messages
-    from django.core.mail import send_mail
     from django.conf import settings
+    from django.core.mail import send_mail
 
     snapshot = _build_corporate_snapshot()
 
@@ -404,7 +408,19 @@ def contact(request):
         elif not all([name, email, subject, message]):
             messages.error(request, _("Lütfen tüm zorunlu alanları doldurun."))
         else:
-            # E-posta gönder
+            # 1) Mesajı veritabanına kaydet
+            contact_obj = ContactMessage.objects.create(
+                name=name,
+                email=email,
+                company=company,
+                phone=phone,
+                subject=subject or ContactMessage.Subject.OTHER,
+                message=message,
+                consent_gdpr=bool(privacy),
+                source=request.META.get("HTTP_REFERER", ""),
+            )
+
+            # 2) E-posta gönder
             subject_map = {
                 "demo": _("Demo Talep"),
                 "sales": _("Satış Bilgisi"),
@@ -413,6 +429,26 @@ def contact(request):
                 "partnership": _("Partner Olmak"),
                 "other": _("Diğer"),
             }
+
+            # Konuya göre ilgili ekibe yönlendirme
+            # Varsayılan adresler: ayarlardan veya sabitlerden okunabilir.
+            sales_email = "satis@finasis.com.tr"
+            support_email = "destek@finasis.com.tr"
+            compliance_email = "uyumluluk@finasis.com.tr"
+            partnership_email = "partner@finasis.com.tr"
+
+            if subject in {"demo", "sales"}:
+                recipient_list = [sales_email]
+            elif subject in {"support"}:
+                recipient_list = [support_email]
+            elif subject in {"compliance"}:
+                recipient_list = [compliance_email]
+            elif subject in {"partnership"}:
+                recipient_list = [partnership_email]
+            else:
+                # Genel iletişim için varsayılan bilgi adresi
+                recipient_list = ["bilgi@finasis.com.tr"]
+
             email_subject = f"[FinAsis İletişim] {subject_map.get(subject, _('İletişim Formu'))} - {name}"
 
             email_body = f"""
@@ -437,7 +473,7 @@ Bu mesaj FinAsis iletişim formundan gönderilmiştir.
                     email_subject,
                     email_body,
                     settings.DEFAULT_FROM_EMAIL,
-                    ["bilgi@finasis.com.tr"],
+                    recipient_list,
                     fail_silently=False,
                 )
                 messages.success(

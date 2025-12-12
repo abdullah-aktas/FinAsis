@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 from .models import (
+    ContactMessage,
     InvestorDocument,
     PartnerApplication,
     PartnerApplicationEvent,
@@ -163,3 +164,32 @@ class PartnerApplicationEventAdmin(admin.ModelAdmin):
     list_filter = ("action", "from_status", "to_status", "created_at")
     search_fields = ("application__company_name", "notes")
     autocomplete_fields = ("application", "actor")
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "email",
+        "subject",
+        "company",
+        "phone",
+        "created_at",
+        "is_resolved",
+        "handled_by",
+    )
+    list_filter = ("subject", "is_resolved", "created_at", "consent_gdpr")
+    search_fields = ("name", "email", "company", "phone", "message")
+    readonly_fields = ("name", "email", "company", "phone", "subject", "message", "created_at")
+    autocomplete_fields = ("handled_by",)
+    fieldsets = (
+        (
+            _("Gönderen"),
+            {"fields": ("name", "email", "company", "phone", "source", "created_at")},
+        ),
+        (_("Mesaj"), {"fields": ("subject", "message", "consent_gdpr")}),
+        (
+            _("İç takip"),
+            {"fields": ("is_resolved", "handled_by", "handled_at", "notes")},
+        ),
+    )

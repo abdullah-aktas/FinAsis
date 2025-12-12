@@ -221,3 +221,58 @@ class PartnerApplicationEvent(models.Model):
 
     def __str__(self) -> str:
         return f"{self.application.company_name} · {self.action}"
+
+
+class ContactMessage(models.Model):
+    """
+    Kurumsal iletişim formundan gelen mesajlar.
+
+    Amaç:
+    - İletişime geçen kişilerin ad, e-posta, telefon ve mesajlarını
+      veritabanında saklamak
+    - Django admin üzerinden hızlıca filtreleyip yanıtlayabilmek
+    """
+
+    class Subject(models.TextChoices):
+        DEMO = "demo", _("Demo Talebi")
+        SALES = "sales", _("Satış Bilgisi")
+        SUPPORT = "support", _("Teknik Destek")
+        COMPLIANCE = "compliance", _("Uyumluluk Danışmanlığı")
+        PARTNERSHIP = "partnership", _("Partnerlik")
+        OTHER = "other", _("Diğer")
+
+    name = models.CharField(_("Ad Soyad"), max_length=150)
+    email = models.EmailField(_("E-posta"))
+    company = models.CharField(_("Şirket"), max_length=200, blank=True)
+    phone = models.CharField(_("Telefon"), max_length=50, blank=True)
+    subject = models.CharField(
+        _("Konu"), max_length=32, choices=Subject.choices, default=Subject.OTHER
+    )
+    message = models.TextField(_("Mesaj"))
+    consent_gdpr = models.BooleanField(_("KVKK onayı"), default=False)
+    source = models.CharField(
+        _("Kaynak"),
+        max_length=100,
+        blank=True,
+        help_text=_("Formun gönderildiği sayfa veya kampanya kodu."),
+    )
+    created_at = models.DateTimeField(_("Oluşturulma"), auto_now_add=True)
+    handled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="handled_contact_messages",
+        verbose_name=_("İlgilenen kullanıcı"),
+    )
+    handled_at = models.DateTimeField(_("İlgilenme zamanı"), null=True, blank=True)
+    is_resolved = models.BooleanField(_("Tamamlandı"), default=False)
+    notes = models.TextField(_("İç notlar"), blank=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = _("İletişim Mesajı")
+        verbose_name_plural = _("İletişim Mesajları")
+
+    def __str__(self) -> str:
+        return f"{self.name} <{self.email}> - {self.get_subject_display()}"
