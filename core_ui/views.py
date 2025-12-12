@@ -491,10 +491,30 @@ def landing_home(request):
     partner_count = 0
     if PartnerProfile is not None:
         try:
-            partner_count = PartnerProfile.objects.filter(
-                status=PartnerProfile.Status.PUBLISHED
-            ).count()
-        except Exception:
+            from django.db import connection
+            from django.db.utils import OperationalError, ProgrammingError
+            
+            # Tablonun var olup olmadığını kontrol et
+            table_name = PartnerProfile._meta.db_table
+            with connection.cursor() as cursor:
+                if connection.vendor == 'postgresql':
+                    cursor.execute("""
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_schema = 'public' 
+                            AND table_name = %s
+                        );
+                    """, [table_name])
+                    table_exists = cursor.fetchone()[0]
+                else:
+                    # Diğer veritabanları için tablo kontrolü
+                    table_exists = table_name in connection.introspection.table_names()
+            
+            if table_exists:
+                partner_count = PartnerProfile.objects.filter(
+                    status=PartnerProfile.Status.PUBLISHED
+                ).count()
+        except (OperationalError, ProgrammingError, Exception):
             # Üretim ortamında partners tabloları henüz oluşturulmadıysa
             partner_count = 0
 
@@ -1423,38 +1443,60 @@ def resource_partner_marketplace(request):
 
     if PartnerProfile is not None:
         try:
-            qs = (
-                PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED)
-                .select_related("category")
-                .order_by("-is_featured", "sort_order", "name")
-            )
-            for partner in qs:
-                partner_listings.append(
-                    {
-                        "name": partner.name,
-                        "headline": partner.headline or partner.integration_focus,
-                        "category": (
-                            partner.category.name if partner.category_id else ""
-                        ),
-                        "description": partner.description,
-                        "badge": partner.badge_label
-                        or (_("Öne Çıkan Partner") if partner.is_featured else ""),
-                        "website": partner.website_url,
-                    }
+            from django.db import connection
+            from django.db.utils import OperationalError, ProgrammingError
+            
+            # Tablonun var olup olmadığını kontrol et
+            table_name = PartnerProfile._meta.db_table
+            with connection.cursor() as cursor:
+                if connection.vendor == 'postgresql':
+                    cursor.execute("""
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_schema = 'public' 
+                            AND table_name = %s
+                        );
+                    """, [table_name])
+                    table_exists = cursor.fetchone()[0]
+                else:
+                    table_exists = table_name in connection.introspection.table_names()
+            
+            if not table_exists:
+                partner_listings = []
+                partner_categories = []
+            else:
+                qs = (
+                    PartnerProfile.objects.filter(status=PartnerProfile.Status.PUBLISHED)
+                    .select_related("category")
+                    .order_by("-is_featured", "sort_order", "name")
                 )
+                for partner in qs:
+                    partner_listings.append(
+                        {
+                            "name": partner.name,
+                            "headline": partner.headline or partner.integration_focus,
+                            "category": (
+                                partner.category.name if partner.category_id else ""
+                            ),
+                            "description": partner.description,
+                            "badge": partner.badge_label
+                            or (_("Öne Çıkan Partner") if partner.is_featured else ""),
+                            "website": partner.website_url,
+                        }
+                    )
 
-            if PartnerCategory is not None:
-                cat_qs = PartnerCategory.objects.order_by("sort_order", "name")
-                partner_categories = [
-                    {
-                        "name": cat.name,
-                        "description": cat.description,
-                        "icon": cat.icon,
-                        "code": cat.code,
-                    }
-                    for cat in cat_qs
-                ]
-        except Exception:
+                if PartnerCategory is not None:
+                    cat_qs = PartnerCategory.objects.order_by("sort_order", "name")
+                    partner_categories = [
+                        {
+                            "name": cat.name,
+                            "description": cat.description,
+                            "icon": cat.icon,
+                            "code": cat.code,
+                        }
+                        for cat in cat_qs
+                    ]
+        except (OperationalError, ProgrammingError, Exception):
             partner_listings = []
             partner_categories = []
 
@@ -1640,11 +1682,31 @@ def _get_product_stats(page_key: str) -> Dict[str, object]:
         if apps.is_installed("partners"):
             try:
                 from partners.models import PartnerProfile
+                from django.db import connection
+                from django.db.utils import OperationalError, ProgrammingError
 
-                stats["partner_count"] = PartnerProfile.objects.filter(
-                    status=PartnerProfile.Status.PUBLISHED
-                ).count()
-            except Exception:
+                # Tablonun var olup olmadığını kontrol et
+                table_name = PartnerProfile._meta.db_table
+                with connection.cursor() as cursor:
+                    if connection.vendor == 'postgresql':
+                        cursor.execute("""
+                            SELECT EXISTS (
+                                SELECT FROM information_schema.tables 
+                                WHERE table_schema = 'public' 
+                                AND table_name = %s
+                            );
+                        """, [table_name])
+                        table_exists = cursor.fetchone()[0]
+                    else:
+                        table_exists = table_name in connection.introspection.table_names()
+
+                if table_exists:
+                    stats["partner_count"] = PartnerProfile.objects.filter(
+                        status=PartnerProfile.Status.PUBLISHED
+                    ).count()
+                else:
+                    stats["partner_count"] = 0
+            except (OperationalError, ProgrammingError, Exception):
                 stats["partner_count"] = 0
 
     elif page_key == "products_yapay_zeka":
