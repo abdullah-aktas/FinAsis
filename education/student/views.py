@@ -10,7 +10,8 @@ from django.utils import timezone
 @login_required
 def student_dashboard(request):
     """Öğrenci kontrol paneli ana sayfası"""
-    student_profile = get_object_or_404(StudentProfile, user=request.user)
+    # Profil kaydı olmayan kullanıcılar için 404 yerine otomatik profil oluştur
+    student_profile, _created = StudentProfile.objects.get_or_create(user=request.user)
     active_assignments = StudentAssignment.objects.filter(
         student=request.user, status__in=["not_started", "in_progress"]
     ).select_related("assignment")
@@ -113,7 +114,8 @@ def submit_assignment(request, pk):
 @login_required
 def profile_update(request):
     """Öğrenci profilini güncelleme sayfası (basit placeholder)."""
-    student_profile = get_object_or_404(StudentProfile, user=request.user)
+    # Profil kaydı yoksa burada da otomatik oluştur
+    student_profile, _created = StudentProfile.objects.get_or_create(user=request.user)
     if request.method == "POST":
         # Basit örnek: sadece başarılı mesaj gösterelim; gerçek form entegrasyonu daha sonra eklenir.
         messages.success(request, "Profiliniz güncellendi.")

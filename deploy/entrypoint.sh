@@ -399,7 +399,14 @@ from django.db import connection
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
-critical_tables = ["billing_module", "common_errorlog", "django_migrations"]
+critical_tables = [
+    "billing_module",
+    "common_errorlog",
+    "django_migrations",
+    # Kritik işlevler için ek tablolar
+    "partners_partnerprofile",
+    "locale_language",
+]
 missing_tables = []
 
 for table in critical_tables:

@@ -201,6 +201,116 @@ COURSE_MARKETING_PAGES: Dict[str, CourseMarketingPage] = {
             },
         ],
     ),
+    # Uyum / RegTech odaklı kurs pazarlama sayfası
+    "compliance": CourseMarketingPage(
+        slug="compliance",
+        title=_("Uyum ve RegTech Uygulamaları Eğitimi"),
+        hero_subtitle=_(
+            "Finans, muhasebe ve uyum ekipleri için pratik KVKK, MASAK ve regülasyon uygulamaları."
+        ),
+        hero_highlights=[
+            _("Gerçek mevzuat senaryoları ve vaka çalışmaları"),
+            _("FinAsis üzerinde uçtan uca uyum süreç simülasyonları"),
+            _("AI destekli rapor ve kontrol listeleri ile pekiştirme"),
+        ],
+        video_url=None,
+        audience=[
+            _("Uyum (compliance) ve risk yönetimi ekipleri"),
+            _("Muhasebe ve finans yöneticileri"),
+            _("KOBİ sahipleri ve danışmanlık şirketleri"),
+        ],
+        delivery={
+            "duration": _("4 hafta · 12 saat canlı + 8 saat asenkron"),
+            "format": _("Canlı oturumlar, kontrol listeleri ve simülasyon senaryoları"),
+            "language": _("Türkçe"),
+        },
+        modules=[
+            {
+                "icon": "bi-shield-lock",
+                "title": _("KVKK ve veri gizliliği temelleri"),
+                "description": _(
+                    "Kişisel veri envanteri, aydınlatma metinleri ve veri işleme kayıtları."
+                ),
+            },
+            {
+                "icon": "bi-bank2",
+                "title": _("MASAK yükümlülükleri ve AML kontrolleri"),
+                "description": _(
+                    "Müşterini tanı (KYC), şüpheli işlem bildirimleri ve risk skorlama mantığı."
+                ),
+            },
+            {
+                "icon": "bi-diagram-3",
+                "title": _("Uyum süreçlerinin dijitalleştirilmesi"),
+                "description": _(
+                    "FinAsis iş akışları ile onay, kontrol ve raporlama zincirlerinin modellenmesi."
+                ),
+            },
+            {
+                "icon": "bi-clipboard-check",
+                "title": _("İç denetim ve raporlama"),
+                "description": _(
+                    "İz kayıtları, denetim izi (audit trail) ve üst yönetime yönelik rapor şablonları."
+                ),
+            },
+        ],
+        outcomes=[
+            _("Şirketiniz için temel KVKK ve MASAK uyum haritasını çıkarabilecek"),
+            _("KYC ve işlem izleme kontrollerini FinAsis üzerinde kurgulayabilecek"),
+            _("Uyum süreçleri için tekrar eden görevleri standartlaştırabilecek"),
+            _("Üst yönetime düzenli uyum raporu sunabilecek"),
+        ],
+        metrics=[
+            {
+                "value": "3+",
+                "label": _("Sektör spesifik uyum senaryosu (finans, e-ticaret, KOBİ)"),
+            },
+            {"value": _("80%"), "label": _("Program sonrası süreç otomasyon oranı hedefi")},
+        ],
+        instructor={
+            "name": _("Deniz Arslan"),
+            "title": _("Uyum ve Regülasyon Danışmanı"),
+            "bio": _(
+                "Bankacılık ve fintech sektöründe 10+ yıl uyum ve regülasyon deneyimi; KOBİ'ler için uygulamalı eğitimler."
+            ),
+        },
+        syllabus=[
+            {
+                "week": _("1. Hafta"),
+                "topic": _("Uyum çerçevesi ve veri envanteri"),
+                "format": _("Canlı ders + envanter çıkarma atölyesi"),
+            },
+            {
+                "week": _("2. Hafta"),
+                "topic": _("AML, KYC ve işlem izleme"),
+                "format": _("Senaryo tabanlı vaka analizi"),
+            },
+            {
+                "week": _("3. Hafta"),
+                "topic": _("Süreç otomasyonu ve kontrol listeleri"),
+                "format": _("FinAsis üzerinde uçtan uca süreç tasarımı"),
+            },
+            {
+                "week": _("4. Hafta"),
+                "topic": _("Denetim izi ve yönetim raporlaması"),
+                "format": _("Rapor şablonları ve final proje sunumu"),
+            },
+        ],
+        faqs=[
+            {
+                "question": _("Bu program kimler için uygun?"),
+                "answer": _(
+                    "Finans, muhasebe, uyum ve iç denetim ekipleri ile KOBİ yöneticileri için tasarlanmıştır."
+                ),
+            },
+            {
+                "question": _("Teknik bilgi gerekir mi?"),
+                "answer": _(
+                    "Hayır, temel mevzuat bilgisi ve süreç bakış açısı yeterlidir; teknik kısımlar adım adım gösterilir."
+                ),
+            },
+        ],
+    ),
 }
 
 

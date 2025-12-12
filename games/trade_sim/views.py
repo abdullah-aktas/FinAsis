@@ -179,7 +179,9 @@ def play(request):
     character_data = None
     character_inventory_json = "{}"
     if character:
-        inventory = character.choices.get("inventory", {})
+        # Eski kayıtlarda choices alanı None olabileceği için korumalı erişim kullan
+        choices = character.choices or {}
+        inventory = choices.get("inventory", {})
         character_inventory_json = json.dumps(inventory)
         character_data = {
             "money": character.score,
@@ -921,8 +923,9 @@ def market_trade(request: Request):
                 {"success": False, "error": "Karakter bulunamadı"}, status=404
             )
 
-        # Inventory'yi al (skills JSON field'ında saklayabiliriz veya yeni field)
-        inventory = character.choices.get("inventory", {})
+        # Inventory'yi al (JSON field) - eski kayıtlarda choices None olabilir
+        choices = character.choices or {}
+        inventory = choices.get("inventory", {})
 
         if action == "buy":
             # Satın alma işlemi
@@ -977,7 +980,8 @@ def market_trade(request: Request):
             }
 
         # Güncelleri kaydet
-        character.choices["inventory"] = inventory
+        choices["inventory"] = inventory
+        character.choices = choices
         character.save()
 
         return Response({"status": "ok", "result": result})
