@@ -23,7 +23,11 @@ RUN pip install --upgrade pip setuptools wheel && \
     pip wheel --wheel-dir /wheels --no-cache-dir -r requirements.txt && \
     rm -rf /root/.cache/pip && \
     rm -rf /tmp/* && \
-    rm -rf /var/tmp/*
+    rm -rf /var/tmp/* && \
+    apt-get purge -y build-essential gcc g++ && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -55,12 +59,19 @@ WORKDIR /app
 
 COPY --from=builder /wheels /wheels
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --no-index --find-links /wheels -r /tmp/requirements.txt && \
-    rm -rf /wheels /tmp/requirements.txt && \
-    rm -rf /root/.cache/pip /tmp/* /var/tmp/* && \
+# Paketleri kurarken disk alanını optimize et - pip geçici dosyalarını anında temizle
+# TMPDIR'i küçük bir dizine ayarla ve paketleri kur
+RUN mkdir -p /tmp/pip-tmp && \
+    TMPDIR=/tmp/pip-tmp pip install --no-cache-dir --no-index --find-links /wheels -r /tmp/requirements.txt && \
+    rm -rf /wheels && \
+    rm -rf /tmp/requirements.txt && \
+    rm -rf /tmp/pip-tmp && \
+    rm -rf /root/.cache/pip && \
+    rm -rf /tmp/* /var/tmp/* && \
     find /usr/local/lib/python3.11/site-packages -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -name "*.pyo" -delete 2>/dev/null || true
+    find /usr/local/lib/python3.11/site-packages -name "*.pyo" -delete 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -name "*.py[co]" -delete 2>/dev/null || true
 
 COPY . .
 # Matplotlib cache dizinini oluştur
