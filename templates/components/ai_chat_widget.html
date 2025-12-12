@@ -78,35 +78,69 @@
           return baseUrl;
         })();
         
+        // CSRF token'ı al
+        const getCsrfToken = function(){
+          // Önce cookie'den dene
+          const m = document.cookie.match(/csrftoken=([^;]+)/);
+          if(m) return m[1];
+          // Meta tag'den dene
+          const meta = document.querySelector('meta[name="csrf-token"]');
+          if(meta) return meta.getAttribute('content');
+          // Hidden input'tan dene
+          const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+          if(input) return input.value;
+          return '';
+        };
+        
         const resp = await fetch(apiUrl, {
           method:'POST',
           credentials: 'same-origin', // Session cookie'leri gönder
           headers:{
             'Content-Type':'application/json',
+            'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'X-Page-Path': location.pathname,
             'X-Page-Title': document.title,
-            'X-CSRFToken': (function(){
-              const m = document.cookie.match(/csrftoken=([^;]+)/); return m? m[1]: '';
-            })()
+            'X-CSRFToken': getCsrfToken()
           },
           body: JSON.stringify({ message: text, context: { path: location.pathname, title: document.title }})
         });
         
         if(!resp.ok){
-          const errorData = await resp.json().catch(() => ({error: 'HTTP ' + resp.status}));
+          let errorMsg = '{% trans "Yanıt alınamadı" %}';
+          try{
+            const errorData = await resp.json();
+            errorMsg = errorData.error || errorData.message || `HTTP ${resp.status}`;
+            if(resp.status === 401){
+              errorMsg = '{% trans "Giriş yapmanız gerekiyor" %}';
+            } else if(resp.status === 403){
+              errorMsg = '{% trans "Bu işlem için yetkiniz yok" %}';
+            } else if(resp.status === 404){
+              errorMsg = '{% trans "API endpoint bulunamadı" %}';
+            } else if(resp.status >= 500){
+              errorMsg = '{% trans "Sunucu hatası. Lütfen daha sonra tekrar deneyin" %}';
+            }
+          }catch(e){
+            errorMsg = `HTTP ${resp.status}: ${resp.statusText}`;
+          }
           typing.remove();
-          addMsg('assistant', errorData.error || '{% trans "Yanıt alınamadı" %}');
+          addMsg('assistant', errorMsg);
           return;
         }
         
         const data = await resp.json();
         typing.remove();
-        addMsg('assistant', data.response || '{% trans "Yanıt alınamadı" %}');
+        addMsg('assistant', data.response || data.message || '{% trans "Yanıt alınamadı" %}');
       }catch(err){
         if(typing && typing.remove){ typing.remove(); }
         console.error('Chatbot API error:', err);
-        addMsg('assistant', '{% trans "Bağlantı hatası" %}');
+        let errorMsg = '{% trans "Bağlantı hatası" %}';
+        if(err.name === 'TypeError' && err.message.includes('fetch')){
+          errorMsg = '{% trans "Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin" %}';
+        } else if(err.message){
+          errorMsg = `{% trans "Hata" %}: ${err.message}`;
+        }
+        addMsg('assistant', errorMsg);
       }
     }
 

@@ -85,6 +85,11 @@ urlpatterns = [
         "management/",
         include(("management.urls", "management"), namespace="management"),
     ),
+    # Türkçe alias: yonetim -> management (aynı URL'ler, namespace olmadan)
+    path(
+        "yonetim/",
+        include("management.urls"),
+    ),
     path(
         "developers/",
         include(

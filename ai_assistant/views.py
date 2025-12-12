@@ -9,6 +9,7 @@ from django.shortcuts import render
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -707,31 +708,50 @@ def ai_assistant_chat(request):
     Kullanıcıdan gelen mesajı AI asistanına iletir ve yanıtı döner.
     """
     try:
-        data = request.data
-        message = data.get("message") or data.get("query")
+        # Request data'yı al - hem JSON hem form data destekle
+        try:
+            if hasattr(request, 'data'):
+                data = request.data
+            else:
+                data = json.loads(request.body) if request.body else {}
+        except (json.JSONDecodeError, AttributeError) as e:
+            logger.warning(f"Request data parse hatası: {e}")
+            data = {}
+        
+        message = data.get("message") or data.get("query") or ""
         context = data.get("context") or {
             "page_path": request.headers.get("X-Page-Path")
-            or request.META.get("HTTP_REFERER"),
-            "page_title": request.headers.get("X-Page-Title"),
+            or request.META.get("HTTP_REFERER", ""),
+            "page_title": request.headers.get("X-Page-Title", ""),
             "locale": (
                 request.LANGUAGE_CODE if hasattr(request, "LANGUAGE_CODE") else None
             ),
         }
-        if not message:
+        
+        if not message or not message.strip():
             return Response(
                 {"error": "Mesaj boş olamaz."}, status=status.HTTP_400_BAD_REQUEST
             )
-        chat_service = ChatAIService()
-        response_text = chat_service.get_response(
-            request.user, message, context=context
-        )
+        
+        # Chat servisini başlat ve yanıt al
+        try:
+            chat_service = ChatAIService()
+            response_text = chat_service.get_response(
+                request.user, message.strip(), context=context
+            )
+            
+            if not response_text:
+                response_text = "Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar deneyin."
+        except Exception as service_err:
+            logger.error(f"ChatAIService hatası: {service_err}", exc_info=True)
+            response_text = "AI servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin."
 
         # Etkileşimi kaydet (model alanı opsiyonel; şema gerektirmiyor)
         try:
             UserInteraction.objects.create(
                 user=request.user,
                 interaction_type="chat",
-                content=message,
+                content=message.strip(),
                 ai_response=response_text,
                 processing_time=0.0,
             )
@@ -740,8 +760,12 @@ def ai_assistant_chat(request):
 
         return Response({"response": response_text}, status=status.HTTP_200_OK)
     except Exception as e:
-        logger.error(f"AI asistan chat endpoint hatası: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.error(f"AI asistan chat endpoint hatası: {str(e)}", exc_info=True)
+        error_msg = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+        # Production'da detaylı hata mesajı gösterme
+        if settings.DEBUG:
+            error_msg = f"Hata: {str(e)}"
+        return Response({"error": error_msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AIModelListView(ListView):
