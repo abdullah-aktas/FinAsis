@@ -48,6 +48,17 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
+      - name: Clean up disk space before build
+        run: |
+          echo "🧹 Disk temizliği yapılıyor..."
+          # Docker sistem temizliği
+          docker system prune -f || true
+          # Geçici dosyaları temizle
+          sudo rm -rf /tmp/* /var/tmp/* || true
+          # Disk kullanımını göster
+          df -h
+          echo "✅ Disk temizliği tamamlandı"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -67,6 +78,16 @@ jobs:
           echo "📦 Image SHA: $IMAGE_SHA"
           echo "📦 Image Latest: $IMAGE_LATEST"
 
+          # Build sırasında disk kullanımını izle
+          (
+            while true; do
+              echo "💾 Disk kullanımı: $(df -h / | tail -1 | awk '{print $5}')"
+              sleep 30
+            done
+          ) &
+          DISK_MONITOR_PID=$!
+
+          # Build işlemi
           docker buildx build \
             --platform linux/amd64 \
             --push \
@@ -75,7 +96,25 @@ jobs:
             --cache-from type=registry,ref=$IMAGE_CACHE \
             --cache-to type=registry,ref=$IMAGE_CACHE,mode=max \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
-            .
+            --progress=plain \
+            . || BUILD_ERROR=$?
+
+          # Disk monitor'ü durdur
+          kill $DISK_MONITOR_PID 2>/dev/null || true
+
+          if [ -n "$BUILD_ERROR" ]; then
+            echo "❌ Build hatası! Disk kullanımı:"
+            df -h
+            echo "🧹 Son bir temizlik yapılıyor..."
+            docker system prune -f || true
+            exit $BUILD_ERROR
+          fi
+
+          # Build sonrası temizlik
+          echo "🧹 Build sonrası temizlik yapılıyor..."
+          docker builder prune -f || true
+          docker system prune -f || true
+          sudo rm -rf /tmp/* /var/tmp/* || true
 
           # Set both env variable and output for flexibility
           echo "IMAGE=$IMAGE_SHA" >> $GITHUB_ENV
