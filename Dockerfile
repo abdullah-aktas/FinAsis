@@ -19,15 +19,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 COPY requirements.txt .
+# Wheel oluştururken disk kullanımını minimize et
 RUN pip install --upgrade pip setuptools wheel && \
-    pip wheel --wheel-dir /wheels --no-cache-dir -r requirements.txt && \
+    mkdir -p /tmp/wheel-tmp && \
+    TMPDIR=/tmp/wheel-tmp pip wheel --wheel-dir /wheels --no-cache-dir -r requirements.txt && \
+    rm -rf /tmp/wheel-tmp && \
     rm -rf /root/.cache/pip && \
-    rm -rf /tmp/* && \
-    rm -rf /var/tmp/* && \
+    rm -rf /tmp/* /var/tmp/* && \
     apt-get purge -y build-essential gcc g++ && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/apt/archives/*
 
 FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -61,6 +64,7 @@ COPY --from=builder /wheels /wheels
 COPY requirements.txt /tmp/requirements.txt
 # Paketleri kurarken disk alanını optimize et - pip geçici dosyalarını anında temizle
 # TMPDIR'i küçük bir dizine ayarla ve paketleri kur
+# Büyük paketleri adım adım kurup her adımda temizlik yap
 RUN mkdir -p /tmp/pip-tmp && \
     TMPDIR=/tmp/pip-tmp pip install --no-cache-dir --no-index --find-links /wheels -r /tmp/requirements.txt && \
     rm -rf /wheels && \
@@ -71,7 +75,12 @@ RUN mkdir -p /tmp/pip-tmp && \
     find /usr/local/lib/python3.11/site-packages -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
     find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true && \
     find /usr/local/lib/python3.11/site-packages -name "*.pyo" -delete 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -name "*.py[co]" -delete 2>/dev/null || true
+    find /usr/local/lib/python3.11/site-packages -name "*.py[co]" -delete 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    python -c "import compileall; compileall.compile_dir('/usr/local/lib/python3.11/site-packages', quiet=1, workers=0)" 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true
 
 COPY . .
 # Matplotlib cache dizinini oluştur
