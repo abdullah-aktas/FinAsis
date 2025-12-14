@@ -20,6 +20,8 @@ gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID
 gcloud services enable run.googleapis.com --project=$PROJECT_ID
 gcloud services enable storage-api.googleapis.com --project=$PROJECT_ID
 gcloud services enable storage-component.googleapis.com --project=$PROJECT_ID
+gcloud services enable serviceusage.googleapis.com --project=$PROJECT_ID
+gcloud services enable cloudresourcemanager.googleapis.com --project=$PROJECT_ID
 
 # Cloud Build servis hesabını al
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
