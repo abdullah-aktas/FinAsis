@@ -1,14 +1,18 @@
 # 🚀 Hızlı Deployment Kılavuzu
 
-## ⚡ En Hızlı Yöntem: Cloud Build (Önerilen)
+## ⚡ En Hızlı Yöntem: Cloud Build (Önerilen) ⭐
 
-GitHub Actions disk alanı sorunu yaşandığında Cloud Build kullanın.
+**GitHub Actions runner'ında disk alanı sorunu yaşandığında Cloud Build kullanın.** Bu yöntem daha fazla disk alanı ve daha güvenilir build sağlar.
 
 ### Cloud Shell'de Tek Komut:
 
+**Önce Cloud Shell'i açın:** https://shell.cloud.google.com/
+
 ```bash
-cd ~/FinAsis && gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis-478502 --region=europe-west1
+cd ~/FinAsis && git pull origin main && gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis-478502 --region=europe-west1 .
 ```
+
+**NOT:** Cloud Build config'de secrets kullanımı henüz tam değil. Şimdilik GitHub Actions ile deploy edin veya Cloud Build'i manuel secrets ile çalıştırın.
 
 ### Veya Script ile:
 
