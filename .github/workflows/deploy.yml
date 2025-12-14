@@ -24,6 +24,43 @@ jobs:
       id-token: write
 
     steps:
+      - name: Clean up runner disk space (FIRST STEP)
+        run: |
+          echo "🧹 Runner disk temizliği (İLK ADIM - KRİTİK)..."
+          
+          # Önce disk kullanımını göster
+          echo "📊 Mevcut disk kullanımı:"
+          df -h
+          
+          # Runner log dosyalarını temizle (EN ÖNEMLİSİ)
+          echo "🗑️  Runner log dosyaları temizleniyor..."
+          sudo find /home/runner/actions-runner -type f -name "*.log" -delete 2>/dev/null || true
+          sudo find /home/runner/actions-runner/cached/_diag -type f -mtime +0 -delete 2>/dev/null || true
+          sudo rm -rf /home/runner/actions-runner/cached/_diag/*.log 2>/dev/null || true
+          
+          # Runner cache temizle
+          echo "🗑️  Runner cache temizleniyor..."
+          sudo find /home/runner/.cache -type f -mtime +1 -delete 2>/dev/null || true
+          
+          # Docker sistem temizliği
+          echo "🐳 Docker temizliği..."
+          docker system prune -af --volumes || true
+          docker builder prune -af || true
+          
+          # Geçici dosyaları temizle
+          echo "🗑️  Geçici dosya temizliği..."
+          sudo rm -rf /tmp/* /var/tmp/* || true
+          
+          # Apt cache temizliği
+          echo "📦 Apt cache temizliği..."
+          sudo apt-get clean || true
+          sudo rm -rf /var/cache/apt/archives/* || true
+          
+          # Disk kullanımını tekrar göster
+          echo "📊 Temizlik sonrası disk kullanımı:"
+          df -h
+          echo "✅ Runner disk temizliği tamamlandı"
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
