@@ -45,10 +45,10 @@ BRAND_IDENTITY = {
         "status": "beta",
     },
     "support": {
-        "email": "destek@finasis.com",
-        "phone": "+90 850 000 00 00",
+        "email": "destek@finasis.com.tr",
+        "phone": "+90 850 000 00 00",  # TODO: Gerçek telefon numarası ile değiştirilecek
         "hours": "Hafta içi 09:00 - 18:00",
-        "address": "İzmir Aliağa, Türkiye",
+        "address": "İstanbul, Türkiye",
         "slack_channel": "https://finasis.slack.com/support",
     },
     "assets": {
@@ -89,9 +89,9 @@ BRAND_IDENTITY = {
             "icon": "rocket-takeoff",
         },
         "secondary": {
-            "label": "Demo Talep Et",
-            "url_name": "contact",
-            "icon": "calendar-event",
+            "label": "İki Aylık Ücretsiz Deneme",
+            "url_name": "accounts:register",
+            "icon": "gift",
         },
     },
 }

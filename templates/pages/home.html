@@ -1408,12 +1408,12 @@
           </a>
           {% else %}
           <a
-            href="{% url 'resources' %}"
+            href="{% url 'accounts:register' %}"
             class="btn btn-hero-secondary"
-            data-cta="hero-learn-more"
+            data-cta="hero-trial"
           >
-            <i class="bi bi-play-circle"></i>
-            <span>{% trans "Demo İzle" %}</span>
+            <i class="bi bi-gift"></i>
+            <span>{% trans "İki Aylık Ücretsiz Deneme" %}</span>
           </a>
           {% endif %}
         </div>
