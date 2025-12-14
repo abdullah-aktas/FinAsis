@@ -23,17 +23,47 @@ echo "🔐 Service account kontrol ediliyor..."
 DEFAULT_SA="${PROJECT_ID}@appspot.gserviceaccount.com" || true
 COMPUTE_SA=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")-compute@developer.gserviceaccount.com
 
-# VM'yi oluştur (service account belirtmeden - varsayılan kullanılır)
+# App Engine'i etkinleştir (default service account için gerekli)
+echo "🚀 App Engine etkinleştiriliyor (default service account için)..."
+gcloud app create --region=europe-west1 --project=$PROJECT_ID 2>/dev/null || echo "⚠️  App Engine zaten mevcut veya oluşturulamadı"
+
+# Birkaç saniye bekle (service account'ların oluşması için)
+echo "⏳ Service account'ların hazır olması bekleniyor..."
+sleep 5
+
+# VM'yi oluştur (no-service-account ile veya appspot service account ile)
 echo "🖥️  VM oluşturuluyor: $VM_NAME"
-gcloud compute instances create $VM_NAME \
-  --zone=$ZONE \
-  --machine-type=$MACHINE_TYPE \
-  --boot-disk-size=$DISK_SIZE \
-  --boot-disk-type=pd-ssd \
-  --image-family=ubuntu-2204-lts \
-  --image-project=ubuntu-os-cloud \
-  --project=$PROJECT_ID \
-  --scopes=https://www.googleapis.com/auth/cloud-platform
+# Önce appspot service account'u dene
+APPSPOT_SA="${PROJECT_ID}@appspot.gserviceaccount.com"
+if gcloud iam service-accounts describe $APPSPOT_SA --project=$PROJECT_ID &>/dev/null; then
+  echo "✅ Appspot service account kullanılıyor: $APPSPOT_SA"
+  gcloud compute instances create $VM_NAME \
+    --zone=$ZONE \
+    --machine-type=$MACHINE_TYPE \
+    --boot-disk-size=$DISK_SIZE \
+    --boot-disk-type=pd-ssd \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --project=$PROJECT_ID \
+    --service-account=$APPSPOT_SA \
+    --scopes=https://www.googleapis.com/auth/cloud-platform
+else
+  echo "⚠️  Appspot service account bulunamadı, service account olmadan denenecek..."
+  # Service account olmadan dene (no-scopes)
+  gcloud compute instances create $VM_NAME \
+    --zone=$ZONE \
+    --machine-type=$MACHINE_TYPE \
+    --boot-disk-size=$DISK_SIZE \
+    --boot-disk-type=pd-ssd \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --project=$PROJECT_ID \
+    --no-service-account \
+    --no-scopes || {
+    echo "❌ Service account olmadan da çalışmadı. Compute Engine default service account'unu bekleyin veya Cloud Console'dan VM oluşturun."
+    exit 1
+  }
+fi
 
 echo "✅ VM oluşturuldu!"
 echo ""
