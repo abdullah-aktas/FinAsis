@@ -292,7 +292,9 @@ class BetaErrorTracker:
         if not settings.ADMINS:
             return
 
-        subject = f"🚨 [{error_log.severity}] FinAsis Beta Error: {error_log.error_type}"
+        subject = (
+            f"🚨 [{error_log.severity}] FinAsis Beta Error: {error_log.error_type}"
+        )
 
         message = f"""
 FinAsis Beta Error Alert

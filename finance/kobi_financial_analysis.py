@@ -138,8 +138,7 @@ class KOBIFinancialAnalysis(models.Model):
 
     if TYPE_CHECKING:
         # Django tarafından runtime'da eklenen display helper
-        def get_period_type_display(self) -> str:
-            ...  # pragma: no cover
+        def get_period_type_display(self) -> str: ...  # pragma: no cover
 
     def calculate_all_ratios(self):
         """Tüm finansal oranları hesapla"""

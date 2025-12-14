@@ -39,7 +39,9 @@ class Command(BaseCommand):
         include_passwords = options["include_passwords"]
         include_companies = options["include_companies"]
 
-        self.stdout.write(self.style.SUCCESS("📦 Kullanıcı verileri export ediliyor..."))
+        self.stdout.write(
+            self.style.SUCCESS("📦 Kullanıcı verileri export ediliyor...")
+        )
 
         export_data = {
             "export_date": datetime.now().isoformat(),

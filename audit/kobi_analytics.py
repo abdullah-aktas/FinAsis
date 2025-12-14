@@ -286,9 +286,7 @@ class KOBIAuditAnalytics:
         if total >= 85:
             recommendations.append("✅ Harika! Mevcut performansınızı sürdürün")
         elif total < 50:
-            recommendations.append(
-                "⚠️ Acil eylem gerekli! Profesyonel danışmanlık alın"
-            )
+            recommendations.append("⚠️ Acil eylem gerekli! Profesyonel danışmanlık alın")
 
         return recommendations
 
@@ -404,7 +402,9 @@ class KOBIAuditAnalytics:
         if audit > sector_avg["audit_quality"] + 10:
             insights.append("🌟 Audit kalitesi sektör ortalamasının üzerinde!")
         elif audit < sector_avg["audit_quality"] - 10:
-            insights.append("📊 Audit kayıtlarınızı sektör standardına yükseltmelisiniz")
+            insights.append(
+                "📊 Audit kayıtlarınızı sektör standardına yükseltmelisiniz"
+            )
 
         if compliance > sector_avg["compliance_score"] + 5:
             insights.append("✅ Uyumluluk performansınız sektörün önünde")
@@ -546,9 +546,7 @@ class KOBIAuditAnalytics:
         trend = (
             "artış"
             if total_events > previous_period
-            else "azalış"
-            if total_events < previous_period
-            else "stabil"
+            else "azalış" if total_events < previous_period else "stabil"
         )
         trend_percent = abs(
             ((total_events - previous_period) / max(previous_period, 1)) * 100

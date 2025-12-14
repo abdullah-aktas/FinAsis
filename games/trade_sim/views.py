@@ -200,35 +200,45 @@ def play(request):
                     # Session oluştur
                     session = {
                         "character_id": character.id,
-                        "difficulty": difficulty_level.value
-                        if difficulty_level
-                        else int(diff_param),
-                        "difficulty_name": difficulty_config.name
-                        if difficulty_config
-                        else "Başlangıç",
+                        "difficulty": (
+                            difficulty_level.value
+                            if difficulty_level
+                            else int(diff_param)
+                        ),
+                        "difficulty_name": (
+                            difficulty_config.name if difficulty_config else "Başlangıç"
+                        ),
                         "starting_capital": 10000,
                         "current_capital": 10000,
-                        "current_city": character.city.name.lower()
-                        if character.city
-                        else "istanbul",
+                        "current_city": (
+                            character.city.name.lower()
+                            if character.city
+                            else "istanbul"
+                        ),
                         "total_trades": 0,
                         "profit_loss": 0,
                         "victory_requirement": 20000,
-                        "time_limit_minutes": difficulty_config.time_limit_minutes
-                        if difficulty_config
-                        else 30,
-                        "ai_count": difficulty_config.ai_count
-                        if difficulty_config
-                        else 0,
+                        "time_limit_minutes": (
+                            difficulty_config.time_limit_minutes
+                            if difficulty_config
+                            else 30
+                        ),
+                        "ai_count": (
+                            difficulty_config.ai_count if difficulty_config else 0
+                        ),
                         "turn": 0,
                         "active_events": [],
                         "multipliers": {
-                            "xp": difficulty_config.xp_multiplier
-                            if difficulty_config
-                            else 1.0,
-                            "coins": difficulty_config.coin_multiplier
-                            if difficulty_config
-                            else 1.0,
+                            "xp": (
+                                difficulty_config.xp_multiplier
+                                if difficulty_config
+                                else 1.0
+                            ),
+                            "coins": (
+                                difficulty_config.coin_multiplier
+                                if difficulty_config
+                                else 1.0
+                            ),
                         },
                     }
                     request.session["tradesim_game_session"] = session

@@ -192,9 +192,9 @@ def invoice_xml_download(request: HttpRequest, pk: int) -> HttpResponse:
     try:
         xml_bytes = generate_invoice_xml(invoice)
         response = HttpResponse(xml_bytes, content_type="application/xml")
-        response[
-            "Content-Disposition"
-        ] = f"attachment; filename=invoice_{invoice.invoice_number}.xml"
+        response["Content-Disposition"] = (
+            f"attachment; filename=invoice_{invoice.invoice_number}.xml"
+        )
         return response
     except Exception as e:
         messages.error(request, f"XML oluşturma hatası: {str(e)}")

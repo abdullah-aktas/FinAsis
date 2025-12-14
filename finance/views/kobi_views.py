@@ -68,9 +68,7 @@ def kobi_dashboard(request):
                         "status_text": (
                             _("İyi")
                             if score_val > 70
-                            else _("Orta")
-                            if score_val > 50
-                            else _("Zayıf")
+                            else _("Orta") if score_val > 50 else _("Zayıf")
                         ),
                         "last_updated": getattr(
                             financial_analysis,
@@ -80,16 +78,12 @@ def kobi_dashboard(request):
                         "risk_level": (
                             "low"
                             if score_val > 70
-                            else "medium"
-                            if score_val > 50
-                            else "high"
+                            else "medium" if score_val > 50 else "high"
                         ),
                         "risk_level_text": (
                             _("Düşük Risk")
                             if score_val > 70
-                            else _("Orta Risk")
-                            if score_val > 50
-                            else _("Yüksek Risk")
+                            else _("Orta Risk") if score_val > 50 else _("Yüksek Risk")
                         ),
                     }
                 }
@@ -181,9 +175,7 @@ def kobi_dashboard(request):
                     "status": (
                         "good"
                         if (financial_analysis.roa or 0) >= 10
-                        else "average"
-                        if (financial_analysis.roa or 0) >= 5
-                        else "poor"
+                        else "average" if (financial_analysis.roa or 0) >= 5 else "poor"
                     ),
                 },
                 "roe": {
@@ -191,9 +183,7 @@ def kobi_dashboard(request):
                     "status": (
                         "good"
                         if (financial_analysis.roe or 0) >= 15
-                        else "average"
-                        if (financial_analysis.roe or 0) >= 8
-                        else "poor"
+                        else "average" if (financial_analysis.roe or 0) >= 8 else "poor"
                     ),
                 },
             }
@@ -843,16 +833,12 @@ def analyze_risk_factors(analysis):
             "severity": (
                 "good"
                 if liquidity_score > 70
-                else "average"
-                if liquidity_score > 50
-                else "poor"
+                else "average" if liquidity_score > 50 else "poor"
             ),
             "severity_text": (
                 _("Düşük")
                 if liquidity_score > 70
-                else _("Orta")
-                if liquidity_score > 50
-                else _("Yüksek")
+                else _("Orta") if liquidity_score > 50 else _("Yüksek")
             ),
             "description": _("Kısa vadeli borç ödeme gücü riski"),
             "icon": "tint",
@@ -869,16 +855,12 @@ def analyze_risk_factors(analysis):
             "severity": (
                 "good"
                 if profitability_score > 70
-                else "average"
-                if profitability_score > 50
-                else "poor"
+                else "average" if profitability_score > 50 else "poor"
             ),
             "severity_text": (
                 _("Düşük")
                 if profitability_score > 70
-                else _("Orta")
-                if profitability_score > 50
-                else _("Yüksek")
+                else _("Orta") if profitability_score > 50 else _("Yüksek")
             ),
             "description": _("Sürdürülebilir karlılık riski"),
             "icon": "chart-line",
@@ -898,9 +880,7 @@ def analyze_risk_factors(analysis):
             "severity_text": (
                 _("Düşük")
                 if debt_score > 70
-                else _("Orta")
-                if debt_score > 50
-                else _("Yüksek")
+                else _("Orta") if debt_score > 50 else _("Yüksek")
             ),
             "description": _("Aşırı borçlanma riski"),
             "icon": "weight-hanging",
@@ -918,9 +898,9 @@ def generate_pdf_report(request, context):
     # PDF oluşturma kodu buraya gelecek
     # Şimdilik placeholder
     response = HttpResponse(content_type="application/pdf")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="finansal_analiz_raporu.pdf"'
+    response["Content-Disposition"] = (
+        'attachment; filename="finansal_analiz_raporu.pdf"'
+    )
     response.write("PDF raporu yakında eklenecek.".encode("utf-8"))
     return response
 
@@ -934,9 +914,9 @@ def generate_excel_report(request, context):
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="finansal_analiz_raporu.xlsx"'
+    response["Content-Disposition"] = (
+        'attachment; filename="finansal_analiz_raporu.xlsx"'
+    )
     response.write("Excel raporu yakında eklenecek.".encode("utf-8"))
     return response
 

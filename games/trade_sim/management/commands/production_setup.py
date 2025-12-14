@@ -43,7 +43,9 @@ class Command(BaseCommand):
             if options.get("create_demo", False):
                 self.create_demo_user()
 
-        self.stdout.write(self.style.SUCCESS("✅ TradeSim Production Setup tamamlandı!"))
+        self.stdout.write(
+            self.style.SUCCESS("✅ TradeSim Production Setup tamamlandı!")
+        )
 
     def create_cities(self):
         """Türkiye şehirlerini oluştur"""
@@ -134,9 +136,7 @@ class Command(BaseCommand):
 
         except City.DoesNotExist:
             self.stdout.write(
-                self.style.WARNING(
-                    "⚠️ Bazı şehirler bulunamadı, komşuluklar kurulamadı"
-                )
+                self.style.WARNING("⚠️ Bazı şehirler bulunamadı, komşuluklar kurulamadı")
             )
 
     def create_products(self):

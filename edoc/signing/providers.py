@@ -6,14 +6,12 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class Signer(Protocol):
-    def sign(self, data: bytes, *, profile: str = "XAdES-BES") -> bytes:
-        ...
+    def sign(self, data: bytes, *, profile: str = "XAdES-BES") -> bytes: ...
 
 
 @runtime_checkable
 class TimestampProvider(Protocol):
-    def timestamp(self, data: bytes) -> bytes:
-        ...
+    def timestamp(self, data: bytes) -> bytes: ...
 
 
 @dataclass(slots=True)

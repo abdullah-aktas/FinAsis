@@ -128,9 +128,9 @@ def company_pdf(request: HttpRequest, slug: str) -> HttpResponse:
 
         pdf_file = weasyprint.HTML(string=html).write_pdf()
         response = HttpResponse(pdf_file, content_type="application/pdf")
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="sirket_{company.id}.pdf"'
+        response["Content-Disposition"] = (
+            f'attachment; filename="sirket_{company.id}.pdf"'
+        )
         return response
     except ImportError:
         return HttpResponse("PDF oluşturmak için weasyprint yüklü değil.", status=500)
