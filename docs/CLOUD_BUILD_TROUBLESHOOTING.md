@@ -4,7 +4,25 @@
 
 Bu hata genellikle Cloud Build API'sinin tam olarak etkinleştirilmemiş olmasından kaynaklanır.
 
-### Çözüm 1: Setup Scriptini Çalıştırın
+### Çözüm 1: Kapsamlı Düzeltme Scriptini Çalıştırın (ÖNERİLEN)
+
+Cloud Shell'de:
+
+```bash
+cd ~/FinAsis
+git pull origin main
+bash scripts/fix-cloud-build-notfound-comprehensive.sh
+```
+
+Bu script:
+- Tüm gerekli API'leri etkinleştirir
+- API'lerin etkinleşmesi için bekler (30 saniye)
+- IAM rollerini kontrol eder ve atar
+- Cloud Build storage bucket'ı kontrol eder
+- Artifact Registry repository'yi kontrol eder
+- Cloud Build servisinin erişilebilirliğini test eder
+
+### Çözüm 2: Setup Scriptini Çalıştırın
 
 Cloud Shell'de:
 
