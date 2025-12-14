@@ -27,7 +27,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.stdout.write(self.style.SUCCESS("🎮 Eksiksiz Oyun Verileri Oluşturuluyor...\n"))
+            self.stdout.write(
+                self.style.SUCCESS("🎮 Eksiksiz Oyun Verileri Oluşturuluyor...\n")
+            )
 
             # 1. Oyunları oluştur
             self._create_games()
@@ -53,12 +55,14 @@ class Command(BaseCommand):
             # 8. Örnek karakterler ve quest'ler
             self._create_sample_quests()
 
-            self.stdout.write(self.style.SUCCESS("\n✅ Tüm oyun verileri başarıyla oluşturuldu!"))
+            self.stdout.write(
+                self.style.SUCCESS("\n✅ Tüm oyun verileri başarıyla oluşturuldu!")
+            )
 
     def _create_games(self):
         """Oyun tanımlarını oluştur"""
         self.stdout.write("📦 Oyunlar oluşturuluyor...")
-        
+
         games_data = [
             {
                 "name": "TradeSim",
@@ -293,7 +297,9 @@ class Command(BaseCommand):
                 else:
                     base_multiplier = 1.2  # Şehirde üretilmiyorsa daha pahalı
 
-                price = int(product.base_price * base_multiplier * random.uniform(0.9, 1.1))
+                price = int(
+                    product.base_price * base_multiplier * random.uniform(0.9, 1.1)
+                )
                 supply = random.randint(50, 200)
                 demand = random.randint(50, 200)
 
@@ -516,7 +522,13 @@ class Command(BaseCommand):
                 "entry_fee_coins": 1000,
                 "prize_pool_coins": 500000,
                 "prize_pool_gems": 100,
-                "prize_distribution": {"1": 0.4, "2": 0.25, "3": 0.15, "4-8": 0.1, "9-16": 0.1},
+                "prize_distribution": {
+                    "1": 0.4,
+                    "2": 0.25,
+                    "3": 0.15,
+                    "4-8": 0.1,
+                    "9-16": 0.1,
+                },
             },
             {
                 "name": "Beta Özel Turnuva",
@@ -744,4 +756,3 @@ class Command(BaseCommand):
         self.stdout.write(f"  • Görevler: {DailyQuest.objects.count()}")
         self.stdout.write(f"  • Eşyalar: {Item.objects.count()}")
         self.stdout.write(f"  • Quest'ler: {Quest.objects.count()}")
-

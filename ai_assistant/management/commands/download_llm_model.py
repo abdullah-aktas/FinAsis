@@ -40,9 +40,7 @@ class Command(BaseCommand):
                 )
             )
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Örnek: ollama pull {model_name.replace(':', ' ')}"
-                )
+                self.style.SUCCESS(f"Örnek: ollama pull {model_name.replace(':', ' ')}")
             )
             return
 
@@ -59,12 +57,12 @@ class Command(BaseCommand):
             return
 
         # Model yolu
-        model_path = os.path.join(settings.BASE_DIR, "models", "llm", model_name.replace("/", "_"))
+        model_path = os.path.join(
+            settings.BASE_DIR, "models", "llm", model_name.replace("/", "_")
+        )
         os.makedirs(model_path, exist_ok=True)
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Model indiriliyor: {model_name}")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Model indiriliyor: {model_name}"))
         self.stdout.write(f"Hedef: {model_path}")
 
         try:
@@ -90,9 +88,7 @@ class Command(BaseCommand):
             model.save_pretrained(model_path)
 
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"✅ Model başarıyla indirildi: {model_path}"
-                )
+                self.style.SUCCESS(f"✅ Model başarıyla indirildi: {model_path}")
             )
             self.stdout.write(
                 self.style.SUCCESS(
@@ -101,7 +97,4 @@ class Command(BaseCommand):
             )
 
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Model indirme hatası: {e}")
-            )
-
+            self.stdout.write(self.style.ERROR(f"Model indirme hatası: {e}"))

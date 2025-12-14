@@ -23,7 +23,7 @@ def ensure_role_profile_on_create(sender, instance, created, **kwargs):
         return
 
     ensure_role_profile(instance)
-    
+
     # Yeni kullanıcı kaydı bildirimi
     if created:
         try:
@@ -38,15 +38,15 @@ def notify_suspicious_login(sender, request, user, **kwargs):
     try:
         # IP adresini al
         ip_address = request.META.get("REMOTE_ADDR", "Bilinmiyor")
-        
+
         # Son giriş IP'sini kontrol et (basit kontrol - gerçek uygulamada daha gelişmiş olabilir)
         # Burada sadece örnek olarak bildirim gönderiyoruz
         # Gerçek uygulamada son IP'yi kaydedip karşılaştırmalıyız
-        
+
         # İlk giriş değilse ve farklı IP'den giriş yapıldıysa uyar
         # (Basitleştirilmiş - gerçek uygulamada daha detaylı kontrol gerekir)
         if user.is_authenticated:
             NotificationService.notify_suspicious_login(user, ip_address)
-            
+
     except Exception as e:
         logger.error(f"Giriş bildirimi hatası: {e}")

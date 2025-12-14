@@ -21,7 +21,9 @@ try:
 except ImportError:
     APP_PERMISSIONS = {}
     ROLE_CATEGORIES = {}
-    logger.warning("common.permissions modülü bulunamadı, varsayılan değerler kullanılıyor")
+    logger.warning(
+        "common.permissions modülü bulunamadı, varsayılan değerler kullanılıyor"
+    )
 
 # Otomatik rol atama kuralları
 AUTO_ROLE_RULES = {
@@ -236,24 +238,24 @@ def get_permissions_for_group(group_name: str):
     """
     Grup adına göre atanacak izinleri döndürür
     Önce GROUP_PERMISSIONS'a bakar, yoksa ROLE_CATEGORIES ve APP_PERMISSIONS'ı kullanır
-    
+
     Args:
         group_name: Grup adı
-        
+
     Returns:
         Permission queryset
     """
     permissions = []
     group_config = GROUP_PERMISSIONS.get(group_name, {})
-    
+
     # Süper Yöneticiler için tüm izinler
     if group_config.get("all"):
         return Permission.objects.all()
-    
+
     # Önce GROUP_PERMISSIONS'dan izinleri al
     if "apps" in group_config:
         permissions.extend(_get_permissions_from_config(group_config["apps"]))
-    
+
     # Eğer GROUP_PERMISSIONS'da yoksa, ROLE_CATEGORIES'den grup adına göre rol bul
     if not permissions and ROLE_CATEGORIES:
         # Grup adına göre rol bul
@@ -262,7 +264,7 @@ def get_permissions_for_group(group_name: str):
             if group_name in role_info.get("groups", []):
                 role_name = role
                 break
-        
+
         # Rol bulunduysa, APP_PERMISSIONS'dan izinleri al
         if role_name and APP_PERMISSIONS:
             role_permissions = {}
@@ -272,42 +274,42 @@ def get_permissions_for_group(group_name: str):
                         if app_name not in role_permissions:
                             role_permissions[app_name] = []
                         role_permissions[app_name].append(perm_type)
-            
+
             if role_permissions:
                 permissions.extend(_get_permissions_from_config(role_permissions))
-    
+
     return Permission.objects.filter(id__in=[p.id for p in permissions]).distinct()
 
 
 def _get_permissions_from_config(apps_config: dict):
     """
     App config'den izinleri alır
-    
+
     Args:
         apps_config: {app_name: [perm_types]} formatında dict
-        
+
     Returns:
         Permission listesi
     """
     permissions = []
-    
+
     for app_name, perm_types in apps_config.items():
         try:
             # App'in modellerini al
             app_config = apps.get_app_config(app_name)
             models = app_config.get_models()
-            
+
             for model in models:
                 content_type = ContentType.objects.get_for_model(model)
                 model_name = model._meta.model_name
-                
+
                 for perm_type in perm_types:
                     # Django standart izinleri: add, change, delete, view
                     if perm_type in ["add", "change", "delete", "view"]:
                         try:
                             perm = Permission.objects.get(
                                 content_type=content_type,
-                                codename=f"{perm_type}_{model_name}"
+                                codename=f"{perm_type}_{model_name}",
                             )
                             permissions.append(perm)
                         except Permission.DoesNotExist:
@@ -320,7 +322,7 @@ def _get_permissions_from_config(apps_config: dict):
                         try:
                             perm = Permission.objects.get(
                                 content_type=content_type,
-                                codename=f"{perm_type}_{model_name}"
+                                codename=f"{perm_type}_{model_name}",
                             )
                             permissions.append(perm)
                         except Permission.DoesNotExist:
@@ -329,14 +331,14 @@ def _get_permissions_from_config(apps_config: dict):
         except LookupError:
             logger.warning(f"App bulunamadı: {app_name}")
             continue
-    
+
     return permissions
 
 
 def assign_permissions_to_group(group: Group, force: bool = False):
     """
     Gruba izinleri otomatik atar
-    
+
     Args:
         group: Group instance
         force: True ise mevcut izinleri temizleyip yeniden ata
@@ -344,23 +346,21 @@ def assign_permissions_to_group(group: Group, force: bool = False):
     try:
         group_name = group.name
         permissions = get_permissions_for_group(group_name)
-        
+
         if force:
             group.permissions.clear()
             logger.info(f"Grup {group_name} izinleri temizlendi")
-        
+
         # Mevcut izinleri kontrol et
         existing_perms = set(group.permissions.values_list("id", flat=True))
         new_perms = set(permissions.values_list("id", flat=True))
-        
+
         # Eksik izinleri ekle
         missing_perms = new_perms - existing_perms
         if missing_perms:
             group.permissions.add(*Permission.objects.filter(id__in=missing_perms))
-            logger.info(
-                f"Grup {group_name} için {len(missing_perms)} izin eklendi"
-            )
-        
+            logger.info(f"Grup {group_name} için {len(missing_perms)} izin eklendi")
+
         # Gereksiz izinleri kaldır (sadece force=True ise)
         if force:
             extra_perms = existing_perms - new_perms
@@ -369,7 +369,7 @@ def assign_permissions_to_group(group: Group, force: bool = False):
                 logger.info(
                     f"Grup {group_name} için {len(extra_perms)} izin kaldırıldı"
                 )
-        
+
         return {
             "success": True,
             "group_name": group_name,
@@ -388,29 +388,29 @@ def assign_permissions_to_group(group: Group, force: bool = False):
 def assign_permissions_to_all_groups(force: bool = False):
     """
     Tüm gruplara izinleri otomatik atar
-    
+
     Args:
         force: True ise mevcut izinleri temizleyip yeniden ata
     """
     results = []
     success_count = 0
     error_count = 0
-    
+
     logger.info("Tüm gruplara izin atama başlıyor")
-    
+
     for group in Group.objects.all():
         result = assign_permissions_to_group(group, force=force)
         results.append(result)
-        
+
         if result["success"]:
             success_count += 1
         else:
             error_count += 1
-    
+
     logger.info(
         f"Tüm gruplara izin atama tamamlandı - Başarılı: {success_count}, Hata: {error_count}"
     )
-    
+
     return {
         "total": Group.objects.count(),
         "success": success_count,
@@ -429,7 +429,7 @@ def create_required_groups():
         if created:
             created_count += 1
             logger.info(f"Grup oluşturuldu: {group_name}")
-        
+
         # Gruba izinleri ata (oluşturulmuş veya mevcut)
         assign_permissions_to_group(group, force=False)
 

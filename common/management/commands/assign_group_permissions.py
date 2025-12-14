@@ -48,9 +48,7 @@ class Command(BaseCommand):
                         )
                     )
             except Group.DoesNotExist:
-                self.stdout.write(
-                    self.style.ERROR(f"❌ Grup bulunamadı: {group_name}")
-                )
+                self.stdout.write(self.style.ERROR(f"❌ Grup bulunamadı: {group_name}"))
         else:
             # Tüm gruplara izin ata
             result = assign_permissions_to_all_groups(force=force)
@@ -73,4 +71,3 @@ class Command(BaseCommand):
                             f"  ✗ {res['group_name']}: {res.get('error', 'Bilinmeyen hata')}"
                         )
                     )
-

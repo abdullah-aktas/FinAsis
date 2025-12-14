@@ -175,10 +175,10 @@ def play(request):
                 try:
                     from games.models import PlayerProfile
                     from .models import City
-                    
+
                     profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
                     default_city = City.objects.first()
-                    
+
                     if not default_city:
                         # Eğer hiç şehir yoksa, basit bir şehir oluştur
                         default_city = City.objects.create(
@@ -188,7 +188,7 @@ def play(request):
                             market_size=1000,
                             coordinates={"x": 0, "y": 0},
                         )
-                    
+
                     character, _ = Character.objects.get_or_create(
                         user=request.user,
                         defaults={
@@ -196,31 +196,46 @@ def play(request):
                             "city": default_city,
                         },
                     )
-                    
+
                     # Session oluştur
                     session = {
                         "character_id": character.id,
-                        "difficulty": difficulty_level.value if difficulty_level else int(diff_param),
-                        "difficulty_name": difficulty_config.name if difficulty_config else "Başlangıç",
+                        "difficulty": difficulty_level.value
+                        if difficulty_level
+                        else int(diff_param),
+                        "difficulty_name": difficulty_config.name
+                        if difficulty_config
+                        else "Başlangıç",
                         "starting_capital": 10000,
                         "current_capital": 10000,
-                        "current_city": character.city.name.lower() if character.city else "istanbul",
+                        "current_city": character.city.name.lower()
+                        if character.city
+                        else "istanbul",
                         "total_trades": 0,
                         "profit_loss": 0,
                         "victory_requirement": 20000,
-                        "time_limit_minutes": difficulty_config.time_limit_minutes if difficulty_config else 30,
-                        "ai_count": difficulty_config.ai_count if difficulty_config else 0,
+                        "time_limit_minutes": difficulty_config.time_limit_minutes
+                        if difficulty_config
+                        else 30,
+                        "ai_count": difficulty_config.ai_count
+                        if difficulty_config
+                        else 0,
                         "turn": 0,
                         "active_events": [],
                         "multipliers": {
-                            "xp": difficulty_config.xp_multiplier if difficulty_config else 1.0,
-                            "coins": difficulty_config.coin_multiplier if difficulty_config else 1.0,
+                            "xp": difficulty_config.xp_multiplier
+                            if difficulty_config
+                            else 1.0,
+                            "coins": difficulty_config.coin_multiplier
+                            if difficulty_config
+                            else 1.0,
                         },
                     }
                     request.session["tradesim_game_session"] = session
                 except Exception as e:
                     # Otomatik session oluşturma başarısız olursa, start sayfasına yönlendir
                     import logging
+
                     logger = logging.getLogger(__name__)
                     logger.warning(f"Auto session creation failed: {e}", exc_info=True)
                     return redirect("/games/trade-sim/start/?need_session=1")
@@ -232,13 +247,15 @@ def play(request):
         # Template'de güvenli erişim için tüm key'lerin mevcut olması gerekiyor
         if not isinstance(session, dict):
             session = {}
-        
+
         # Template'de kullanılan tüm key'leri garanti altına al
         normalized_session = {
             "difficulty": session.get("difficulty", 1),
             "difficulty_name": session.get("difficulty_name", "Başlangıç"),
             "starting_capital": session.get("starting_capital", 10000),
-            "current_capital": session.get("current_capital", session.get("starting_capital", 10000)),
+            "current_capital": session.get(
+                "current_capital", session.get("starting_capital", 10000)
+            ),
             "current_city": session.get("current_city", "istanbul"),
             "total_trades": session.get("total_trades", 0),
             "profit_loss": session.get("profit_loss", 0),
@@ -251,7 +268,9 @@ def play(request):
             "multipliers": session.get("multipliers", {}),
         }
         # Orijinal session'daki diğer key'leri de koru
-        normalized_session.update({k: v for k, v in session.items() if k not in normalized_session})
+        normalized_session.update(
+            {k: v for k, v in session.items() if k not in normalized_session}
+        )
 
         # Character bilgisini al
         import json
@@ -263,7 +282,9 @@ def play(request):
             try:
                 # Eski kayıtlarda choices alanı None olabileceği için korumalı erişim kullan
                 choices = character.choices or {}
-                inventory = choices.get("inventory", {}) if isinstance(choices, dict) else {}
+                inventory = (
+                    choices.get("inventory", {}) if isinstance(choices, dict) else {}
+                )
                 character_inventory_json = json.dumps(inventory)
                 character_data = {
                     "money": character.score or 0,
@@ -274,6 +295,7 @@ def play(request):
             except Exception as e:
                 # Character verisi alınırken hata olursa, boş değerlerle devam et
                 import logging
+
                 logger = logging.getLogger(__name__)
                 logger.warning(f"Character data error in play view: {e}", exc_info=True)
                 character_data = {
@@ -297,6 +319,7 @@ def play(request):
     except Exception as e:
         # Tüm hataları yakala ve logla, sonra kullanıcıyı start sayfasına yönlendir
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Error in trade-sim play view: {e}", exc_info=True)
         # Hata durumunda kullanıcıyı start sayfasına yönlendir

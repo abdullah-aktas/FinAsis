@@ -29,19 +29,15 @@ class LocalLLMService:
         self.client = None
         self.model = None
         self.tokenizer = None
-        
+
         # Ollama varsayılan URL
-        self.ollama_base_url = os.getenv(
-            "OLLAMA_BASE_URL", 
-            "http://localhost:11434"
-        )
-        
+        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+
         # Model yolu (transformers için)
         self.model_path = os.getenv(
-            "LOCAL_LLM_MODEL_PATH",
-            os.path.join(settings.BASE_DIR, "models", "llm")
+            "LOCAL_LLM_MODEL_PATH", os.path.join(settings.BASE_DIR, "models", "llm")
         )
-        
+
         self._initialize()
 
     def _get_default_model(self) -> str:
@@ -71,15 +67,20 @@ class LocalLLMService:
         """Ollama servisini başlat"""
         try:
             import requests
+
             self.client = requests
-            
+
             # Ollama'nın çalışıp çalışmadığını kontrol et
             try:
-                response = self.client.get(f"{self.ollama_base_url}/api/tags", timeout=5)
+                response = self.client.get(
+                    f"{self.ollama_base_url}/api/tags", timeout=5
+                )
                 if response.status_code == 200:
                     logger.info(f"Ollama servisi bağlandı: {self.ollama_base_url}")
                 else:
-                    logger.warning(f"Ollama servisi yanıt vermiyor: {response.status_code}")
+                    logger.warning(
+                        f"Ollama servisi yanıt vermiyor: {response.status_code}"
+                    )
                     self.client = None
             except Exception as e:
                 logger.warning(f"Ollama servisine bağlanılamadı: {e}")
@@ -94,24 +95,23 @@ class LocalLLMService:
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
             import torch
-            
+
             # GPU kontrolü
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info(f"Transformers device: {device}")
-            
+
             # Model yolu kontrolü
             if not os.path.exists(self.model_path):
                 logger.warning(f"Model yolu bulunamadı: {self.model_path}")
                 logger.info("Model indirmek için: python manage.py download_llm_model")
                 self.model = None
                 return
-            
+
             # Tokenizer yükle
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_path,
-                trust_remote_code=True
+                self.model_path, trust_remote_code=True
             )
-            
+
             # Model yükle
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_path,
@@ -119,14 +119,16 @@ class LocalLLMService:
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
                 device_map="auto" if device == "cuda" else None,
             )
-            
+
             if device == "cpu":
                 self.model = self.model.to(device)
-            
+
             logger.info(f"Transformers modeli yüklendi: {self.model_name}")
-            
+
         except ImportError:
-            logger.warning("transformers paketi bulunamadı. Transformers kullanılamayacak.")
+            logger.warning(
+                "transformers paketi bulunamadı. Transformers kullanılamayacak."
+            )
             self.model = None
         except Exception as e:
             logger.error(f"Transformers modeli yüklenemedi: {e}")
@@ -139,25 +141,29 @@ class LocalLLMService:
         max_tokens: int = 512,
         temperature: float = 0.7,
         top_p: float = 0.9,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Metin üretir
-        
+
         Args:
             prompt: Kullanıcı mesajı
             system_prompt: Sistem mesajı
             max_tokens: Maksimum token sayısı
             temperature: Yaratıcılık (0.0-1.0)
             top_p: Nucleus sampling
-            
+
         Returns:
             Üretilen metin
         """
         if self.provider == "ollama":
-            return self._generate_ollama(prompt, system_prompt, max_tokens, temperature, top_p)
+            return self._generate_ollama(
+                prompt, system_prompt, max_tokens, temperature, top_p
+            )
         elif self.provider == "transformers":
-            return self._generate_transformers(prompt, system_prompt, max_tokens, temperature, top_p)
+            return self._generate_transformers(
+                prompt, system_prompt, max_tokens, temperature, top_p
+            )
         else:
             return "[HATA] LLM servisi başlatılamadı."
 
@@ -167,19 +173,19 @@ class LocalLLMService:
         system_prompt: str,
         max_tokens: int,
         temperature: float,
-        top_p: float
+        top_p: float,
     ) -> str:
         """Ollama ile metin üret"""
         if not self.client:
             return "[HATA] Ollama servisi bağlantısı yok. Lütfen Ollama'yı başlatın."
-        
+
         try:
             # Mesaj formatı
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
-            
+
             # Ollama API çağrısı
             response = self.client.post(
                 f"{self.ollama_base_url}/api/chat",
@@ -195,14 +201,16 @@ class LocalLLMService:
                 },
                 timeout=120,  # 2 dakika timeout
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
                 return result.get("message", {}).get("content", "")
             else:
-                logger.error(f"Ollama API hatası: {response.status_code} - {response.text}")
+                logger.error(
+                    f"Ollama API hatası: {response.status_code} - {response.text}"
+                )
                 return f"[HATA] Ollama API hatası: {response.status_code}"
-                
+
         except Exception as e:
             logger.error(f"Ollama generate hatası: {e}")
             return f"[HATA] Ollama generate hatası: {str(e)}"
@@ -213,18 +221,18 @@ class LocalLLMService:
         system_prompt: str,
         max_tokens: int,
         temperature: float,
-        top_p: float
+        top_p: float,
     ) -> str:
         """Transformers ile metin üret"""
         if not self.model or not self.tokenizer:
             return "[HATA] Transformers modeli yüklenemedi."
-        
+
         try:
             import torch
-            
+
             # Prompt oluştur
             full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
-            
+
             # Tokenize
             inputs = self.tokenizer(
                 full_prompt,
@@ -232,11 +240,11 @@ class LocalLLMService:
                 truncation=True,
                 max_length=2048,
             )
-            
+
             # Device'a taşı
             device = next(self.model.parameters()).device
             inputs = {k: v.to(device) for k, v in inputs.items()}
-            
+
             # Generate
             with torch.no_grad():
                 outputs = self.model.generate(
@@ -247,15 +255,14 @@ class LocalLLMService:
                     do_sample=True,
                     pad_token_id=self.tokenizer.eos_token_id,
                 )
-            
+
             # Decode
             generated_text = self.tokenizer.decode(
-                outputs[0][inputs["input_ids"].shape[1]:],
-                skip_special_tokens=True
+                outputs[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
             )
-            
+
             return generated_text.strip()
-            
+
         except Exception as e:
             logger.error(f"Transformers generate hatası: {e}")
             return f"[HATA] Transformers generate hatası: {str(e)}"
@@ -318,4 +325,3 @@ class LocalLLMService:
                 "command": "python manage.py download_llm_model Qwen/Qwen2.5-3B-Instruct",
             },
         ]
-

@@ -58,9 +58,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"❌ JSON parse hatası: {e}"))
             return
 
-        self.stdout.write(
-            self.style.SUCCESS("📥 Kullanıcı verileri import ediliyor...")
-        )
+        self.stdout.write(self.style.SUCCESS("📥 Kullanıcı verileri import ediliyor..."))
         self.stdout.write(
             f'   Export tarihi: {export_data.get("export_date", "Bilinmiyor")}\n'
         )

@@ -180,7 +180,15 @@ class ContactMessageAdmin(admin.ModelAdmin):
     )
     list_filter = ("subject", "is_resolved", "created_at", "consent_gdpr")
     search_fields = ("name", "email", "company", "phone", "message")
-    readonly_fields = ("name", "email", "company", "phone", "subject", "message", "created_at")
+    readonly_fields = (
+        "name",
+        "email",
+        "company",
+        "phone",
+        "subject",
+        "message",
+        "created_at",
+    )
     autocomplete_fields = ("handled_by",)
     fieldsets = (
         (

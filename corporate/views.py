@@ -204,23 +204,26 @@ def _build_corporate_snapshot():
         try:
             from django.db import connection
             from django.db.utils import OperationalError, ProgrammingError
-            
+
             # Tablonun var olup olmadığını kontrol et
             table_name = PartnerProfile._meta.db_table
             with connection.cursor() as cursor:
-                if connection.vendor == 'postgresql':
-                    cursor.execute("""
+                if connection.vendor == "postgresql":
+                    cursor.execute(
+                        """
                         SELECT EXISTS (
                             SELECT FROM information_schema.tables 
                             WHERE table_schema = 'public' 
                             AND table_name = %s
                         );
-                    """, [table_name])
+                    """,
+                        [table_name],
+                    )
                     table_exists = cursor.fetchone()[0]
                 else:
                     # Diğer veritabanları için tablo kontrolü
                     table_exists = table_name in connection.introspection.table_names()
-            
+
             if table_exists:
                 partner_count = PartnerProfile.objects.filter(
                     status=PartnerProfile.Status.PUBLISHED

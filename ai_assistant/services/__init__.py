@@ -20,6 +20,7 @@ from .recommendation_service import RecommendationService
 # Yerel LLM servisi (opsiyonel import)
 try:
     from .local_llm_service import LocalLLMService
+
     __all__: list[str] = [
         "LocalSTTService",
         "LocalLLMService",

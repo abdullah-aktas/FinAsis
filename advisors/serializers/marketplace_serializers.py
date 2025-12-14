@@ -429,9 +429,9 @@ class ConsultantContractSerializer(serializers.ModelSerializer):
         # Contract number oluştur
         import uuid
 
-        validated_data["contract_number"] = (
-            f"CT-{timezone.now().year}-{uuid.uuid4().hex[:6].upper()}"
-        )
+        validated_data[
+            "contract_number"
+        ] = f"CT-{timezone.now().year}-{uuid.uuid4().hex[:6].upper()}"
         return super().create(validated_data)
 
 

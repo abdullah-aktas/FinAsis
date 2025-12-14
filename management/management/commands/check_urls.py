@@ -108,7 +108,9 @@ class Command(BaseCommand):
         password: str = options["password"]
         anonymous: bool = options["anonymous"]
 
-        self.stdout.write(self.style.MIGRATE_HEADING("🔍 URL Sağlık Taraması Başlatılıyor"))
+        self.stdout.write(
+            self.style.MIGRATE_HEADING("🔍 URL Sağlık Taraması Başlatılıyor")
+        )
         self.stdout.write(f"DEBUG={getattr(settings, 'DEBUG', False)}")
 
         # URL listesi
@@ -138,7 +140,11 @@ class Command(BaseCommand):
                     )
                 )
             else:
-                self.stdout.write(self.style.SUCCESS("✅ Login başarılı, authenticated URL'ler de test edilecek.\n"))
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        "✅ Login başarılı, authenticated URL'ler de test edilecek.\n"
+                    )
+                )
         else:
             self.stdout.write("Anonim modda çalıştırılıyor (login yapılmayacak).\n")
 
@@ -173,18 +179,26 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.MIGRATE_HEADING("\n📋 Sonuç Özeti"))
         self.stdout.write(self.style.SUCCESS(f"✅ Başarılı: {len(ok_results)} URL"))
-        self.stdout.write(self.style.WARNING(f"⚠️  Uyarı (4xx): {len(warn_results)} URL"))
-        self.stdout.write(self.style.ERROR(f"❌ Hata (5xx / exception): {len(error_results)} URL\n"))
+        self.stdout.write(
+            self.style.WARNING(f"⚠️  Uyarı (4xx): {len(warn_results)} URL")
+        )
+        self.stdout.write(
+            self.style.ERROR(f"❌ Hata (5xx / exception): {len(error_results)} URL\n")
+        )
 
         if warn_results:
-            self.stdout.write(self.style.WARNING("4xx Dönen (muhtemel 404 / izin hatası) URL'ler:"))
+            self.stdout.write(
+                self.style.WARNING("4xx Dönen (muhtemel 404 / izin hatası) URL'ler:")
+            )
             for r in warn_results[:20]:
                 self.stdout.write(f"  - {r.path} -> HTTP {r.status_code}")
             if len(warn_results) > 20:
                 self.stdout.write(f"  ... toplam {len(warn_results)} kayıt\n")
 
         if error_results:
-            self.stdout.write(self.style.ERROR("Hata veren URL'ler (öncelikli inceleme gerekli):"))
+            self.stdout.write(
+                self.style.ERROR("Hata veren URL'ler (öncelikli inceleme gerekli):")
+            )
             for r in error_results:
                 msg = f"  - {r.path} -> {r.error or f'HTTP {r.status_code}'}"
                 self.stdout.write(msg)
@@ -192,6 +206,8 @@ class Command(BaseCommand):
             # Komutu CI/CD'de kırmızı göstermek için non-zero exit
             raise SystemExit(1)
 
-        self.stdout.write(self.style.SUCCESS("🎉 URL sağlık taraması tamamlandı, kritik hata bulunmadı."))
-
-
+        self.stdout.write(
+            self.style.SUCCESS(
+                "🎉 URL sağlık taraması tamamlandı, kritik hata bulunmadı."
+            )
+        )

@@ -132,9 +132,7 @@ class Command(BaseCommand):
                 name=product_data["name"], defaults=product_data
             )
             if created:
-                self.stdout.write(
-                    self.style.SUCCESS(f"  ✅ {product.name} olusturuldu")
-                )
+                self.stdout.write(self.style.SUCCESS(f"  ✅ {product.name} olusturuldu"))
             else:
                 self.stdout.write(f"  ℹ️  {product.name} zaten mevcut")
 

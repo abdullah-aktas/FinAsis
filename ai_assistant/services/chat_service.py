@@ -29,22 +29,26 @@ class ChatAIService:
         """AI sohbet servisi başlatıcı"""
         # AI Provider seçimi: "local", "openai", "auto" (otomatik seçim)
         self.ai_provider = os.getenv("FINASIS_AI_PROVIDER", "auto").lower()
-        
+
         # Mock modu: test/sunucuda anahtar yoksa basit yanıt üret
         self.mock_mode = os.getenv("FINASIS_AI_MOCK", "0") in ("1", "true", "True")
-        
+
         # API istemcileri
         self.openai_client: Optional[Any] = None
         self.local_llm: Optional[Any] = None
-        
+
         # Yerel LLM servisini başlat (öncelikli)
         if LocalLLMService is not None and self.ai_provider in ("local", "auto"):
             try:
                 provider = os.getenv("LOCAL_LLM_PROVIDER", "ollama").lower()
                 model_name = os.getenv("LOCAL_LLM_MODEL")
-                self.local_llm = LocalLLMService(provider=provider, model_name=model_name)
+                self.local_llm = LocalLLMService(
+                    provider=provider, model_name=model_name
+                )
                 if self.local_llm.is_available():
-                    logger.info(f"Yerel LLM servisi başlatıldı: {self.local_llm.get_model_info()}")
+                    logger.info(
+                        f"Yerel LLM servisi başlatıldı: {self.local_llm.get_model_info()}"
+                    )
                 else:
                     logger.warning("Yerel LLM servisi başlatılamadı")
                     self.local_llm = None
@@ -84,7 +88,7 @@ class ChatAIService:
         assistant_name = os.getenv("FINASIS_AI_WIDGET_NAME", "FinAsis Bilgesi")
         default_prompt = self._build_comprehensive_system_prompt(assistant_name)
         self.system_prompt = os.getenv("FINASIS_AI_SYSTEM_PROMPT", default_prompt)
-    
+
     def _get_role_based_guidance(self, user: User) -> List[str]:
         """Kullanıcının rolüne göre özelleştirilmiş rehberlik notları"""
         hints = []
@@ -92,91 +96,120 @@ class ChatAIService:
             # Django groups'dan roller
             groups = list(getattr(user, "groups").all().values_list("name", flat=True))
             group_names_lower = [g.lower() for g in groups]
-            
+
             # UserType kontrolü
             user_type_code = None
             try:
-                if hasattr(user, 'user_type') and user.user_type:
+                if hasattr(user, "user_type") and user.user_type:
                     user_type_code = user.user_type.code.lower()
-                elif hasattr(user, 'role_profile') and user.role_profile:
-                    if hasattr(user.role_profile, 'role') and user.role_profile.role:
+                elif hasattr(user, "role_profile") and user.role_profile:
+                    if hasattr(user.role_profile, "role") and user.role_profile.role:
                         user_type_code = user.role_profile.role.name.lower()
             except Exception:
                 pass
-            
+
             # Rol bazlı özelleştirmeler
             role_mappings = {
                 # Yönetim Rolleri
                 "super_admin": "Kullanıcı süper yöneticidir. Tüm sistem yetkilerine sahip. Sistem yönetimi, kullanıcı yönetimi ve tüm modüllere erişim konularında yardımcı ol.",
                 "admin": "Kullanıcı sistem yöneticisidir. Sistem ayarları, kullanıcı yönetimi ve modül yapılandırmaları konularında destek ver.",
                 "finance_manager": "Kullanıcı finans müdürüdür. Finansal raporlama, bütçe yönetimi, nakit akışı ve stratejik kararlar için özet ve aksiyon odaklı bilgi ver.",
-                
                 # İşletme Rolleri
                 "kobi_owner": "Kullanıcı KOBİ sahibidir. Şirket yönetimi, finansal durum, büyüme stratejileri ve tüm modüllere erişim konularında yardımcı ol. Pratik ve uygulanabilir öneriler ver.",
                 "kobi_employee": "Kullanıcı KOBİ çalışanıdır. Sınırlı yetkilerle çalışıyor. Erişebileceği modüller ve işlemler konusunda rehberlik et.",
                 "muhasebe_elemani": "Kullanıcı muhasebe elemanıdır. Fatura oluşturma, gider takibi, mali tablolar ve raporlama konularında detaylı yardım sağla. Muhasebe modülü özelliklerini açıkla.",
                 "satis_elemani": "Kullanıcı satış elemanıdır. Satış faturaları, müşteri yönetimi, tahsilat takibi ve satış performansı konularında destek ver.",
                 "depo_elemani": "Kullanıcı depo elemanıdır. Stok takibi, giriş/çıkış işlemleri, sevkiyat yönetimi ve düşük stok uyarıları konularında yardımcı ol.",
-                
                 # Profesyonel Roller
                 "accountant": "Kullanıcı muhasebecidir. TFRS/IFRS prensipleri, muhasebe kayıtları, mutabakat, mali tablolar ve raporlama konularında derinlemesine bilgi ver. Teknik detaylara girebilirsin.",
                 "financial_advisor": "Kullanıcı mali müşavirdir. Vergi mevzuatı, uyumluluk, danışmanlık ve raporlama konularında uzman seviyesinde bilgi sağla.",
                 "auditor": "Kullanıcı denetçidir. Denetim süreçleri, uyumluluk kontrolleri, anomali tespiti ve audit raporları konularında destek ver.",
-                
                 # Eğitim Rolleri
                 "teacher": "Kullanıcı öğretmendir. LMS özellikleri, kurs yönetimi, öğrenci takibi, sınav oluşturma ve eğitim içerikleri konularında yardımcı ol.",
                 "student": "Kullanıcı öğrencidir. Kurslara katılım, ödevler, sınavlar, rozetler ve oyunlaştırma özellikleri konularında rehberlik et.",
                 "player": "Kullanıcı oyuncudur. Oyun modüllerine (TradeSim, FinQuest, Ticaretin İzinde) erişim, rozetler, turnuvalar ve liderlik tablosu konularında bilgi ver.",
-                
                 # Diğer
                 "viewer": "Kullanıcı görüntüleyicidir. Sadece görüntüleme yetkisi var. Erişebileceği raporlar ve görünümler konusunda bilgi ver.",
             }
-            
+
             # Group isimlerinden rol tespiti
             for group_name in group_names_lower:
                 for role_key, role_guidance in role_mappings.items():
-                    if role_key in group_name or any(alias in group_name for alias in [
-                        "muhasebe", "accountant", "muhasebeci",
-                        "yönetici", "manager", "admin",
-                        "kobi", "owner", "sahip",
-                        "öğretmen", "teacher", "eğitimci",
-                        "öğrenci", "student",
-                        "oyuncu", "player"
-                    ]):
+                    if role_key in group_name or any(
+                        alias in group_name
+                        for alias in [
+                            "muhasebe",
+                            "accountant",
+                            "muhasebeci",
+                            "yönetici",
+                            "manager",
+                            "admin",
+                            "kobi",
+                            "owner",
+                            "sahip",
+                            "öğretmen",
+                            "teacher",
+                            "eğitimci",
+                            "öğrenci",
+                            "student",
+                            "oyuncu",
+                            "player",
+                        ]
+                    ):
                         hints.append(role_guidance)
                         break
-            
+
             # UserType kodundan rol tespiti
             if user_type_code:
                 for role_key, role_guidance in role_mappings.items():
-                    if role_key == user_type_code or any(alias in user_type_code for alias in [
-                        "muhasebe", "accountant",
-                        "satis", "sales",
-                        "depo", "warehouse",
-                        "kobi", "owner"
-                    ]):
+                    if role_key == user_type_code or any(
+                        alias in user_type_code
+                        for alias in [
+                            "muhasebe",
+                            "accountant",
+                            "satis",
+                            "sales",
+                            "depo",
+                            "warehouse",
+                            "kobi",
+                            "owner",
+                        ]
+                    ):
                         hints.append(role_guidance)
                         break
-            
+
             # Staff kontrolü
             if user.is_staff or user.is_superuser:
-                if not any("yönetici" in h.lower() or "admin" in h.lower() for h in hints):
-                    hints.append("Kullanıcı sistem personelidir. Yönetici seviyesinde yetkilere sahip. Sistem yönetimi ve tüm modüllere erişim konularında destek ver.")
-            
+                if not any(
+                    "yönetici" in h.lower() or "admin" in h.lower() for h in hints
+                ):
+                    hints.append(
+                        "Kullanıcı sistem personelidir. Yönetici seviyesinde yetkilere sahip. Sistem yönetimi ve tüm modüllere erişim konularında destek ver."
+                    )
+
             # Özel durumlar
-            if "accountant" in group_names_lower or "muhasebe" in (user_type_code or ""):
-                hints.append("Muhasebe modülü özelliklerini detaylı açıkla: fatura yönetimi, gider takibi, mali tablolar, OCR ile fiş okuma.")
-            
+            if "accountant" in group_names_lower or "muhasebe" in (
+                user_type_code or ""
+            ):
+                hints.append(
+                    "Muhasebe modülü özelliklerini detaylı açıkla: fatura yönetimi, gider takibi, mali tablolar, OCR ile fiş okuma."
+                )
+
             if "teacher" in group_names_lower or "öğretmen" in (user_type_code or ""):
-                hints.append("Eğitim modülü özelliklerini açıkla: LMS, kurs yönetimi, öğrenci takibi, sınav sistemi.")
-            
+                hints.append(
+                    "Eğitim modülü özelliklerini açıkla: LMS, kurs yönetimi, öğrenci takibi, sınav sistemi."
+                )
+
             if "student" in group_names_lower or "öğrenci" in (user_type_code or ""):
-                hints.append("Eğitim ve oyun modüllerini tanıt: kurslara katılım, rozetler, turnuvalar, oyunlaştırılmış öğrenme.")
-            
+                hints.append(
+                    "Eğitim ve oyun modüllerini tanıt: kurslara katılım, rozetler, turnuvalar, oyunlaştırılmış öğrenme."
+                )
+
         except Exception as e:
             logger.warning(f"Rol tespiti sırasında hata: {e}")
-        
+
         return hints if hints else []
+
     def _build_comprehensive_system_prompt(self, assistant_name: str) -> str:
         """Kapsamlı sistem prompt'u oluştur - proje gereksinimleri, kullanıcı tipleri ve modüller"""
         return f"""Sen {assistant_name} — FinAsis platformunun deneyimli ve kapsamlı bir Yapay Zeka asistanısın.
@@ -359,54 +392,76 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
     def _mask_sensitive_data(self, text: str) -> str:
         """Hassas verileri maskele (KVKK uyumluluğu için)"""
         import re
-        
+
         # TC Kimlik No maskeleme
-        text = re.sub(r'\b(\d{3})\d{5}(\d{3})\b', r'\1*****\2', text)
-        
+        text = re.sub(r"\b(\d{3})\d{5}(\d{3})\b", r"\1*****\2", text)
+
         # IBAN maskeleme
-        text = re.sub(r'\b(TR\d{2})\d{20}(\d{2})\b', r'\1' + '*'*20 + r'\2', text, flags=re.IGNORECASE)
-        
+        text = re.sub(
+            r"\b(TR\d{2})\d{20}(\d{2})\b",
+            r"\1" + "*" * 20 + r"\2",
+            text,
+            flags=re.IGNORECASE,
+        )
+
         # Kredi kartı maskeleme
-        text = re.sub(r'\b(\d{4})[\s-]?\d{4}[\s-]?\d{4}[\s-]?(\d{4})\b', r'\1****\2', text)
-        
+        text = re.sub(
+            r"\b(\d{4})[\s-]?\d{4}[\s-]?\d{4}[\s-]?(\d{4})\b", r"\1****\2", text
+        )
+
         # Telefon maskeleme (Türkiye formatları)
-        text = re.sub(r'(\+90|0)?[\s-]?([5][0-9]{2})[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}', r'\1 \2 *** **', text)
-        
+        text = re.sub(
+            r"(\+90|0)?[\s-]?([5][0-9]{2})[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}",
+            r"\1 \2 *** **",
+            text,
+        )
+
         return text
-    
+
     def _detect_sensitive_data(self, text: str) -> tuple[bool, str]:
         """Hassas veri tespiti yapar (KVKK uyumluluğu için)"""
         import re
-        
+
         # TC Kimlik No (11 haneli sayı)
-        if re.search(r'\b\d{11}\b', text):
+        if re.search(r"\b\d{11}\b", text):
             return True, "TC Kimlik No tespit edildi"
-        
+
         # IBAN (TR ile başlayan 26 haneli)
-        if re.search(r'\bTR\d{24}\b', text, re.IGNORECASE):
+        if re.search(r"\bTR\d{24}\b", text, re.IGNORECASE):
             return True, "IBAN tespit edildi"
-        
+
         # Kredi kartı (16 haneli, Luhn algoritması kontrolü olmadan basit tespit)
-        if re.search(r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b', text):
+        if re.search(r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b", text):
             return True, "Kredi kartı numarası tespit edildi"
-        
+
         # E-posta (basit tespit)
-        if re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text):
+        if re.search(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", text):
             # E-posta genelde sorun değil ama çok hassas içerik varsa uyar
             pass
-        
+
         # Telefon (Türkiye formatları)
-        if re.search(r'(\+90|0)?[\s-]?[5][0-9]{2}[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}', text):
+        if re.search(
+            r"(\+90|0)?[\s-]?[5][0-9]{2}[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}",
+            text,
+        ):
             return True, "Telefon numarası tespit edildi"
-        
+
         # Şifre/parola kelimeleri
-        sensitive_keywords = ['şifre', 'parola', 'password', 'pin', 'gizli', 'sır', 'confidential']
+        sensitive_keywords = [
+            "şifre",
+            "parola",
+            "password",
+            "pin",
+            "gizli",
+            "sır",
+            "confidential",
+        ]
         if any(keyword in text.lower() for keyword in sensitive_keywords):
             # Sadece uyarı, engelleme değil
             pass
-        
+
         return False, ""
-    
+
     def get_response(
         self, user: User, query: str, context: Dict[str, Any] | None = None
     ) -> str:
@@ -425,7 +480,9 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             # Hassas veri kontrolü (KVKK uyumluluğu)
             has_sensitive, sensitive_type = self._detect_sensitive_data(query)
             if has_sensitive:
-                logger.warning(f"Hassas veri tespit edildi: {sensitive_type} - Kullanıcı: {user.username}")
+                logger.warning(
+                    f"Hassas veri tespit edildi: {sensitive_type} - Kullanıcı: {user.username}"
+                )
                 return (
                     "⚠️ **KVKK Uyarısı**\n\n"
                     "Sorgunuzda kişisel veri veya hassas bilgi tespit edildi. "
@@ -464,7 +521,9 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             # Rol tabanlı rehberlik - kapsamlı kullanıcı tipi desteği
             role_hints = self._get_role_based_guidance(user)
             if role_hints:
-                system_content += "\n\n[KULLANICI ROL BİLGİSİ]\n" + "\n".join(role_hints)
+                system_content += "\n\n[KULLANICI ROL BİLGİSİ]\n" + "\n".join(
+                    role_hints
+                )
 
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "system", "content": system_content}
@@ -490,12 +549,16 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
                     for idx, chunk in enumerate(tops, 1):
                         # Daha fazla içerik göster (400 -> 600 karakter)
                         # Hassas bilgileri filtrele
-                        content_preview = chunk.content[:600] + "..." if len(chunk.content) > 600 else chunk.content
+                        content_preview = (
+                            chunk.content[:600] + "..."
+                            if len(chunk.content) > 600
+                            else chunk.content
+                        )
                         # Hassas bilgileri maskele
                         content_preview = self._mask_sensitive_data(content_preview)
                         refs += f"\n{idx}. {chunk.title}\n   Kaynak: {chunk.path}\n   İçerik: {content_preview}\n"
                     user_content += refs
-                    
+
                     # Kullanıcıya bilgi tabanından yararlandığını belirt
                     system_content += "\n\nNot: Yukarıdaki bilgi tabanı içeriklerini kullanarak kullanıcıya en doğru ve güncel bilgiyi ver. HASSAS BİLGİLERİ ASLA PAYLAŞMA."
 
@@ -503,12 +566,16 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             messages.append({"role": "user", "content": user_content})
 
             # AI Provider'a göre yanıt üret
-            if self.ai_provider == "local" and self.local_llm and self.local_llm.is_available():
+            if (
+                self.ai_provider == "local"
+                and self.local_llm
+                and self.local_llm.is_available()
+            ):
                 # Yerel LLM kullan
                 try:
                     # Sistem prompt'u ve kullanıcı mesajını birleştir
                     full_prompt = user_content
-                    
+
                     ai_response = self.local_llm.generate(
                         prompt=full_prompt,
                         system_prompt=system_content,
@@ -516,7 +583,7 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
                         temperature=float(os.getenv("LOCAL_LLM_TEMPERATURE", "0.7")),
                         top_p=float(os.getenv("LOCAL_LLM_TOP_P", "0.9")),
                     )
-                    
+
                     if ai_response and not ai_response.startswith("[HATA]"):
                         logger.info("Yerel LLM yanıtı başarıyla üretildi")
                         return ai_response
@@ -524,11 +591,11 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
                         # Yerel LLM hatası, fallback'e geç
                         logger.warning(f"Yerel LLM hatası: {ai_response}")
                         return self._fallback_response(query, context)
-                        
+
                 except Exception as local_err:
                     logger.error(f"Yerel LLM generate hatası: {local_err}")
                     return self._fallback_response(query, context)
-                    
+
             elif self.ai_provider == "openai" and self.openai_client:
                 # OpenAI API'yi çağır (v1 SDK)
                 try:
@@ -569,7 +636,7 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             # Genel beklenmeyen hatalarda da yedek cevap dön
             logger.error(f"AI sohbet hatası: {str(e)}")
             return self._fallback_response(query, context)
-    
+
     def _fallback_response(self, query: str, context: Optional[Dict[str, Any]]) -> str:
         """Fallback yanıt üretir"""
         prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"

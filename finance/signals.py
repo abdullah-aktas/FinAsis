@@ -131,25 +131,36 @@ def financial_report_post_save(sender, instance, created, **kwargs):
                 ),
             }
             instance.save()
-        
+
         # Otomatik bildirim gönder
         try:
             from common.services.notification_service import NotificationService
             import logging
 
             logger = logging.getLogger(__name__)
-            
+
             # Raporu oluşturan kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'company') and instance.company:
-                user = instance.company.created_by if hasattr(instance.company, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "company") and instance.company:
+                user = (
+                    instance.company.created_by
+                    if hasattr(instance.company, "created_by")
+                    else None
+                )
+
             if user:
                 NotificationService.notify_financial_report_generated(instance, user)
             else:
-                logger.warning(f"Rapor bildirimi gönderilemedi: Kullanıcı bulunamadı - Report #{instance.id}")
+                logger.warning(
+                    f"Rapor bildirimi gönderilemedi: Kullanıcı bulunamadı - Report #{instance.id}"
+                )
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error(f"Rapor bildirimi hatası: {e}")
 

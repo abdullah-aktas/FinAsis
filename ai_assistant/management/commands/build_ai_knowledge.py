@@ -35,20 +35,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--include-modules',
-            action='store_true',
-            help='Include module information in knowledge base',
+            "--include-modules",
+            action="store_true",
+            help="Include module information in knowledge base",
         )
         parser.add_argument(
-            '--include-user-types',
-            action='store_true',
-            help='Include user types and roles information',
+            "--include-user-types",
+            action="store_true",
+            help="Include user types and roles information",
         )
 
     def handle(self, *args, **options):
         os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
         crawler = KnowledgeCrawler(OUT_PATH)
-        
+
         # 1. Dokümantasyon dosyalarını ekle
         self.stdout.write("Dokümantasyon dosyaları ekleniyor...")
         doc_count = 0
@@ -56,40 +56,56 @@ class Command(BaseCommand):
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     text = f.read()
-                title = os.path.basename(path).replace(".md", "").replace("_", " ").title()
+                title = (
+                    os.path.basename(path).replace(".md", "").replace("_", " ").title()
+                )
                 rel_path = os.path.relpath(path, settings.BASE_DIR)
-                
-                crawler.add_local_docs([{
-                    "path": rel_path,
-                    "title": f"Dokümantasyon: {title}",
-                    "content": text
-                }])
+
+                crawler.add_local_docs(
+                    [
+                        {
+                            "path": rel_path,
+                            "title": f"Dokümantasyon: {title}",
+                            "content": text,
+                        }
+                    ]
+                )
                 doc_count += 1
             except Exception as e:
                 self.stderr.write(self.style.WARNING(f"Skip {path}: {e}"))
-        
-        self.stdout.write(self.style.SUCCESS(f"✓ {doc_count} dokümantasyon dosyası eklendi"))
-        
+
+        self.stdout.write(
+            self.style.SUCCESS(f"✓ {doc_count} dokümantasyon dosyası eklendi")
+        )
+
         # 2. Modül bilgilerini ekle
-        if options.get('include_modules', True):
+        if options.get("include_modules", True):
             self.stdout.write("Modül bilgileri ekleniyor...")
             module_info = self._get_module_information()
             crawler.add_local_docs(module_info)
-            self.stdout.write(self.style.SUCCESS(f"✓ {len(module_info)} modül bilgisi eklendi"))
-        
+            self.stdout.write(
+                self.style.SUCCESS(f"✓ {len(module_info)} modül bilgisi eklendi")
+            )
+
         # 3. Kullanıcı tipleri ve roller bilgisini ekle
-        if options.get('include_user_types', True):
+        if options.get("include_user_types", True):
             self.stdout.write("Kullanıcı tipleri ve roller bilgisi ekleniyor...")
             user_type_info = self._get_user_type_information()
             crawler.add_local_docs(user_type_info)
-            self.stdout.write(self.style.SUCCESS(f"✓ {len(user_type_info)} kullanıcı tipi bilgisi eklendi"))
-        
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"✓ {len(user_type_info)} kullanıcı tipi bilgisi eklendi"
+                )
+            )
+
         # 4. Proje özellikleri bilgisini ekle
         self.stdout.write("Proje özellikleri ekleniyor...")
         feature_info = self._get_feature_information()
         crawler.add_local_docs(feature_info)
-        self.stdout.write(self.style.SUCCESS(f"✓ {len(feature_info)} özellik bilgisi eklendi"))
-        
+        self.stdout.write(
+            self.style.SUCCESS(f"✓ {len(feature_info)} özellik bilgisi eklendi")
+        )
+
         # Sonuç
         current = crawler.add_local_docs([])  # Sadece mevcut sayıyı al
         self.stdout.write(
@@ -98,7 +114,7 @@ class Command(BaseCommand):
                 f"  Toplam {current} bilgi parçası eklendi."
             )
         )
-    
+
     def _get_module_information(self):
         """FinAsis modüllerinin bilgilerini döndür"""
         modules = [
@@ -119,7 +135,7 @@ Muhasebe Modülü (accounting) - FinAsis'in temel muhasebe yönetim modülü.
 - Otomatik muhasebe kayıtları: AI destekli kayıt önerileri
 
 URL: /accounting/
-"""
+""",
             },
             {
                 "path": "modules/finance",
@@ -136,7 +152,7 @@ Finans Modülü (finance) - Gelişmiş finansal yönetim ve analiz.
 - Risk skorlama: Finansal risk analizi
 
 URL: /finance/
-"""
+""",
             },
             {
                 "path": "modules/ai_assistant",
@@ -154,7 +170,7 @@ AI Asistan Modülü (ai_assistant) - Yapay zeka destekli asistan ve analiz.
 - Sesli komut: Ses ile komut verme
 
 URL: /ai-assistant/
-"""
+""",
             },
             {
                 "path": "modules/education",
@@ -172,7 +188,7 @@ Eğitim Modülü (education) - Learning Management System (LMS).
 - Öğrenci dashboard: Öğrenci paneli
 
 URL: /education/
-"""
+""",
             },
             {
                 "path": "modules/games",
@@ -193,7 +209,7 @@ Oyunlar:
 - Finansal okuryazarlık eğitimi
 
 URL: /games/
-"""
+""",
             },
             {
                 "path": "modules/blockchain",
@@ -211,7 +227,7 @@ Blockchain Modülü (blockchain) - Enterprise blockchain çözümü.
 - Audit logs: Blockchain aktivite log'ları
 
 URL: /blockchain/
-"""
+""",
             },
             {
                 "path": "modules/audit",
@@ -226,7 +242,7 @@ Denetim Modülü (audit) - Uyumluluk ve denetim araçları.
 - Güvenlik olayları: Güvenlik olay takibi
 
 URL: /audit/
-"""
+""",
             },
             {
                 "path": "modules/kobi_analysis",
@@ -241,11 +257,11 @@ KOBİ Analiz Modülü (kobi_analysis) - KOBİ sağlık ve performans analizi.
 - İyileştirme önerileri: AI destekli öneriler
 
 URL: /kobi-analysis/
-"""
-            }
+""",
+            },
         ]
         return modules
-    
+
     def _get_user_type_information(self):
         """Kullanıcı tipleri ve roller hakkında bilgi"""
         return [
@@ -257,7 +273,7 @@ Yönetim Rolleri:
 - super_admin: Tüm sistem yetkilerine sahip, sistem yönetimi
 - admin: Sistem yönetimi ve ayarları, kullanıcı yönetimi
 - finance_manager: Finans ve muhasebe yönetimi, stratejik kararlar
-"""
+""",
             },
             {
                 "path": "user_types/business",
@@ -269,7 +285,7 @@ Yönetim Rolleri:
 - muhasebe_elemani: Muhasebe işlemleri, fatura, raporlama
 - satis_elemani: Satış faturaları, müşteri yönetimi, tahsilat
 - depo_elemani: Stok takibi, giriş/çıkış, sevkiyat
-"""
+""",
             },
             {
                 "path": "user_types/professional",
@@ -279,7 +295,7 @@ Profesyonel Roller:
 - accountant: Muhasebeci, TFRS/IFRS, muhasebe kayıtları, mutabakat
 - financial_advisor: Mali müşavir, vergi mevzuatı, danışmanlık
 - auditor: Denetçi, denetim süreçleri, uyumluluk kontrolleri
-"""
+""",
             },
             {
                 "path": "user_types/education",
@@ -289,10 +305,10 @@ Eğitim Rolleri:
 - teacher: Öğretmen, LMS, kurs yönetimi, öğrenci takibi
 - student: Öğrenci, kurslara katılım, ödevler, sınavlar
 - player: Oyuncu, oyun modülleri, rozetler, turnuvalar
-"""
-            }
+""",
+            },
         ]
-    
+
     def _get_feature_information(self):
         """Proje özellikleri hakkında bilgi"""
         return [
@@ -331,7 +347,7 @@ VERİ GÜVENLİĞİ ÖNLEMLERİ:
 - MFA/SSO: Çok faktörlü kimlik doğrulama
 - Coğrafi yedekleme: Veriler güvenli lokasyonlarda yedeklenir
 - Veri maskeleme: Loglarda hassas bilgiler maskelenir
-"""
+""",
             },
             {
                 "path": "features/e-transformation",
@@ -343,7 +359,7 @@ E-Dönüşüm Özellikleri:
 - e-Defter: Elektronik defter kayıtları
 - e-İmza: Elektronik imza desteği
 - GIB Entegrasyonu: Gümrük ve Ticaret Bakanlığı entegrasyonu
-"""
+""",
             },
             {
                 "path": "features/financial-reporting",
@@ -356,7 +372,7 @@ Finansal Raporlama:
 - Özkaynak Değişim Tablosu: Özkaynak hareketleri
 - KPI Dashboard: Temel performans göstergeleri
 - Bütçe vs Gerçekleşen: Bütçe analizi
-"""
+""",
             },
             {
                 "path": "features/ai-features",
@@ -370,7 +386,7 @@ AI Özellikleri:
 - Sentiment analizi: Duygu analizi
 - Doküman özetleme: Otomatik özet
 - Otomatik rapor: AI destekli rapor üretimi
-"""
+""",
             },
             {
                 "path": "features/compliance",
@@ -382,6 +398,6 @@ Uyumluluk Özellikleri:
 - TFRS/IFRS: Muhasebe standartları uyumluluğu
 - Vergi mevzuatı: Güncel vergi mevzuatı takibi
 - Audit trail: Denetim izi kayıtları
-"""
-            }
+""",
+            },
         ]

@@ -18,18 +18,28 @@ def auto_journal_invoice(sender, instance, created, **kwargs):
         except Exception:
             # Sessiz geç; ileride logging eklenebilir
             pass
-        
+
         # Otomatik bildirim gönder
         try:
             # Faturayı oluşturan kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'company') and instance.company:
-                user = instance.company.created_by if hasattr(instance.company, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "company") and instance.company:
+                user = (
+                    instance.company.created_by
+                    if hasattr(instance.company, "created_by")
+                    else None
+                )
+
             if user:
                 NotificationService.notify_invoice_created(instance, user)
             else:
-                logger.warning(f"Fatura bildirimi gönderilemedi: Kullanıcı bulunamadı - Invoice #{instance.id}")
+                logger.warning(
+                    f"Fatura bildirimi gönderilemedi: Kullanıcı bulunamadı - Invoice #{instance.id}"
+                )
         except Exception as e:
             logger.error(f"Fatura bildirimi hatası: {e}")
 
@@ -41,18 +51,28 @@ def auto_journal_payment(sender, instance, created, **kwargs):
             create_payment_entry(instance)
         except Exception:
             pass
-        
+
         # Otomatik bildirim gönder
         try:
             # Ödemeyi oluşturan kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'invoice') and instance.invoice:
-                user = instance.invoice.created_by if hasattr(instance.invoice, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "invoice") and instance.invoice:
+                user = (
+                    instance.invoice.created_by
+                    if hasattr(instance.invoice, "created_by")
+                    else None
+                )
+
             if user:
                 NotificationService.notify_payment_received(instance, user)
             else:
-                logger.warning(f"Ödeme bildirimi gönderilemedi: Kullanıcı bulunamadı - Payment #{instance.id}")
+                logger.warning(
+                    f"Ödeme bildirimi gönderilemedi: Kullanıcı bulunamadı - Payment #{instance.id}"
+                )
         except Exception as e:
             logger.error(f"Ödeme bildirimi hatası: {e}")
 
@@ -63,14 +83,24 @@ def auto_notify_expense(sender, instance, created, **kwargs):
     if created:
         try:
             # Gideri oluşturan kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'company') and instance.company:
-                user = instance.company.created_by if hasattr(instance.company, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "company") and instance.company:
+                user = (
+                    instance.company.created_by
+                    if hasattr(instance.company, "created_by")
+                    else None
+                )
+
             if user:
                 NotificationService.notify_expense_created(instance, user)
             else:
-                logger.warning(f"Gider bildirimi gönderilemedi: Kullanıcı bulunamadı - Expense #{instance.id}")
+                logger.warning(
+                    f"Gider bildirimi gönderilemedi: Kullanıcı bulunamadı - Expense #{instance.id}"
+                )
         except Exception as e:
             logger.error(f"Gider bildirimi hatası: {e}")
 
@@ -81,10 +111,18 @@ def auto_notify_customer_added(sender, instance, created, **kwargs):
     if created:
         try:
             # Müşteriyi ekleyen kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'company') and instance.company:
-                user = instance.company.created_by if hasattr(instance.company, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "company") and instance.company:
+                user = (
+                    instance.company.created_by
+                    if hasattr(instance.company, "created_by")
+                    else None
+                )
+
             if user:
                 NotificationService.notify_customer_added(instance, user)
         except Exception as e:
@@ -97,15 +135,27 @@ def auto_notify_vendor_added(sender, instance, created, **kwargs):
     if created:
         try:
             # Tedarikçiyi ekleyen kullanıcıyı bul
-            user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
-            if not user and hasattr(instance, 'company') and instance.company:
-                user = instance.company.created_by if hasattr(instance.company, 'created_by') else None
-            
+            user = (
+                instance.created_by
+                if hasattr(instance, "created_by") and instance.created_by
+                else None
+            )
+            if not user and hasattr(instance, "company") and instance.company:
+                user = (
+                    instance.company.created_by
+                    if hasattr(instance.company, "created_by")
+                    else None
+                )
+
             if user:
                 title = "👥 Yeni Tedarikçi Eklendi"
                 message = f"{instance.name} tedarikçisi başarıyla eklendi."
-                action_url = f"/accounting/vendor/{instance.id}/" if hasattr(instance, 'id') else "/accounting/vendors/"
-                
+                action_url = (
+                    f"/accounting/vendor/{instance.id}/"
+                    if hasattr(instance, "id")
+                    else "/accounting/vendors/"
+                )
+
                 NotificationService.send_notification(
                     user=user,
                     title=title,
@@ -127,10 +177,14 @@ def auto_notify_company_updated(sender, instance, created, **kwargs):
     if not created:  # Sadece güncellemeler için
         try:
             # Şirketi güncelleyen kullanıcıyı bul
-            user = instance.updated_by if hasattr(instance, 'updated_by') and instance.updated_by else None
-            if not user and hasattr(instance, 'created_by') and instance.created_by:
+            user = (
+                instance.updated_by
+                if hasattr(instance, "updated_by") and instance.updated_by
+                else None
+            )
+            if not user and hasattr(instance, "created_by") and instance.created_by:
                 user = instance.created_by
-            
+
             if user:
                 NotificationService.notify_company_updated(instance, user)
         except Exception as e:

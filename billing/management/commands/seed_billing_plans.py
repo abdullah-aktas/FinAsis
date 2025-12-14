@@ -323,7 +323,9 @@ class Command(BaseCommand):
                     "description": data["description"],
                     "is_active": True,
                     "trial_days": data.get("trial_days", 14),
-                    "beta_discount_percent": data.get("beta_discount_percent", Decimal("0.00")),
+                    "beta_discount_percent": data.get(
+                        "beta_discount_percent", Decimal("0.00")
+                    ),
                     "is_beta_plan": data.get("is_beta_plan", False),
                     "is_popular": data.get("is_popular", False),
                     "order": data.get("order", 0),
@@ -334,13 +336,15 @@ class Command(BaseCommand):
                 plan.name = data["name"]
                 plan.description = data["description"]
                 plan.trial_days = data.get("trial_days", 14)
-                plan.beta_discount_percent = data.get("beta_discount_percent", Decimal("0.00"))
+                plan.beta_discount_percent = data.get(
+                    "beta_discount_percent", Decimal("0.00")
+                )
                 plan.is_beta_plan = data.get("is_beta_plan", False)
                 plan.is_popular = data.get("is_popular", False)
                 plan.order = data.get("order", 0)
                 plan.is_active = True
                 plan.save()
-            
+
             # Plan modülleri
             for mcode in data["modules"]:
                 mod = Module.objects.get(code=mcode)
@@ -361,7 +365,7 @@ class Command(BaseCommand):
         ALLOWED_SME = ["starter", "sme_pro", "sme_enterprise"]
         ALLOWED_EDU = ["edu_student", "edu_teacher", "edu_campus"]
         ALLOWED_GAMES = ["games_starter", "games_pro"]
-        
+
         # Diğer planları pasife al
         Plan.objects.filter(audience="sme").exclude(code__in=ALLOWED_SME).update(
             is_active=False
@@ -376,10 +380,22 @@ class Command(BaseCommand):
         # Beta indirim kuponları oluştur
         self._create_beta_discounts()
 
-        self.stdout.write(self.style.SUCCESS("✅ Beta dönemine uygun planlar ve fiyatlar güncellendi."))
-        self.stdout.write(self.style.SUCCESS("📊 KOBİ planları: Başlangıç (₺199), Profesyonel (₺599), Kurumsal (₺1999)"))
-        self.stdout.write(self.style.SUCCESS("🎓 Eğitim planları: Öğrenci (Ücretsiz), Eğitmen (₺99), Kampüs (₺999)"))
-        self.stdout.write(self.style.SUCCESS("🎮 Oyuncu planları: Başlangıç (Ücretsiz), Pro (₺49)"))
+        self.stdout.write(
+            self.style.SUCCESS("✅ Beta dönemine uygun planlar ve fiyatlar güncellendi.")
+        )
+        self.stdout.write(
+            self.style.SUCCESS(
+                "📊 KOBİ planları: Başlangıç (₺199), Profesyonel (₺599), Kurumsal (₺1999)"
+            )
+        )
+        self.stdout.write(
+            self.style.SUCCESS(
+                "🎓 Eğitim planları: Öğrenci (Ücretsiz), Eğitmen (₺99), Kampüs (₺999)"
+            )
+        )
+        self.stdout.write(
+            self.style.SUCCESS("🎮 Oyuncu planları: Başlangıç (Ücretsiz), Pro (₺49)")
+        )
         self.stdout.write(self.style.SUCCESS("🎁 Beta indirim kuponları oluşturuldu!"))
 
     def _create_beta_discounts(self):
@@ -443,7 +459,9 @@ class Command(BaseCommand):
                 },
             )
             if created:
-                self.stdout.write(f"  ✓ İndirim kuponu oluşturuldu: {coupon_data['code']}")
+                self.stdout.write(
+                    f"  ✓ İndirim kuponu oluşturuldu: {coupon_data['code']}"
+                )
             else:
                 # Mevcut kuponu güncelle
                 for key, value in coupon_data.items():
@@ -451,7 +469,9 @@ class Command(BaseCommand):
                         setattr(discount, key, value)
                 discount.is_active = True
                 discount.save()
-                self.stdout.write(f"  → İndirim kuponu güncellendi: {coupon_data['code']}")
+                self.stdout.write(
+                    f"  → İndirim kuponu güncellendi: {coupon_data['code']}"
+                )
 
 
 # Removed a duplicate Command implementation to avoid class redefinition conflict.

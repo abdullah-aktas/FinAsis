@@ -71,9 +71,9 @@ class TradeSim:
             hidden=False,
             created_at=datetime.datetime.now(),
         )
-        self.achievement_system.achievements[big_profit_achievement.id] = (
-            big_profit_achievement
-        )
+        self.achievement_system.achievements[
+            big_profit_achievement.id
+        ] = big_profit_achievement
         # TradeSim'e özel görevler
         from games.quests import QuestType, QuestStatus, Quest
 

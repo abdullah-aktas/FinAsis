@@ -265,7 +265,10 @@ COURSE_MARKETING_PAGES: Dict[str, CourseMarketingPage] = {
                 "value": "3+",
                 "label": _("Sektör spesifik uyum senaryosu (finans, e-ticaret, KOBİ)"),
             },
-            {"value": _("80%"), "label": _("Program sonrası süreç otomasyon oranı hedefi")},
+            {
+                "value": _("80%"),
+                "label": _("Program sonrası süreç otomasyon oranı hedefi"),
+            },
         ],
         instructor={
             "name": _("Deniz Arslan"),
@@ -1227,9 +1230,9 @@ def meeting_presence_csv(request, pk: int):
             ]
         )
     resp = HttpResponse(out.getvalue(), content_type="text/csv; charset=utf-8")
-    resp["Content-Disposition"] = (
-        f'attachment; filename="meeting_{meeting.pk}_presence.csv"'
-    )
+    resp[
+        "Content-Disposition"
+    ] = f'attachment; filename="meeting_{meeting.pk}_presence.csv"'
     return resp
 
 
@@ -1297,9 +1300,9 @@ def meeting_presence_totals_csv(request, pk: int):
             ]
         )
     resp = HttpResponse(out.getvalue(), content_type="text/csv; charset=utf-8")
-    resp["Content-Disposition"] = (
-        f'attachment; filename="meeting_{meeting.pk}_presence_totals.csv"'
-    )
+    resp[
+        "Content-Disposition"
+    ] = f'attachment; filename="meeting_{meeting.pk}_presence_totals.csv"'
     return resp
 
 
