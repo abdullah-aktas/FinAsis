@@ -1,30 +1,8 @@
 # 🚀 Hızlı Deployment Kılavuzu
 
-## ⚡ En Hızlı Yöntem: Cloud Build (Önerilen) ⭐
+## ⚡ En Hızlı Yöntem: GitHub Actions (Önerilen) ⭐
 
-**GitHub Actions runner'ında disk alanı sorunu yaşandığında Cloud Build kullanın.** Bu yöntem daha fazla disk alanı ve daha güvenilir build sağlar.
-
-### Cloud Shell'de Tek Komut:
-
-**Önce Cloud Shell'i açın:** https://shell.cloud.google.com/
-
-```bash
-cd ~/FinAsis && git pull origin main && gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis-478502 --region=europe-west1 .
-```
-
-**NOT:** Cloud Build config'de secrets kullanımı henüz tam değil. Şimdilik GitHub Actions ile deploy edin veya Cloud Build'i manuel secrets ile çalıştırın.
-
-### Veya Script ile:
-
-```bash
-bash scripts/deploy-cloud-build.sh
-```
-
----
-
-## 🔧 Alternatif: GitHub Actions (Optimize Edilmiş)
-
-GitHub Actions workflow'u optimize edildi ve disk temizliği eklendi. Şimdi daha iyi çalışmalı.
+**GitHub Actions workflow optimize edildi ve disk temizliği eklendi.** Bu yöntem şimdi daha güvenilir çalışıyor.
 
 ### Otomatik Trigger:
 - `main` branch'e push yapıldığında otomatik çalışır
@@ -32,32 +10,37 @@ GitHub Actions workflow'u optimize edildi ve disk temizliği eklendi. Şimdi dah
 
 ---
 
-## 📋 Adım Adım Cloud Build Deployment
+## 🔧 Alternatif: Cloud Build (API Etkinleştirme Gerekebilir)
 
-### 1. Cloud Shell'i Açın
-- https://shell.cloud.google.com/
-- Proje: `finasis-478502`
+Cloud Build kullanmak isterseniz, önce API'yi etkinleştirin:
 
-### 2. Proje Dizinine Geçin
+### 1. Cloud Build API'yi Etkinleştirin
+
+Cloud Shell'de:
+
+```bash
+# Cloud Build API'yi etkinleştir
+gcloud services enable cloudbuild.googleapis.com --project=finasis-478502
+
+# Cloud Build servis hesabının yetkilerini kontrol et
+gcloud projects get-iam-policy finasis-478502 \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:serviceAccount:*@cloudbuild.gserviceaccount.com"
+```
+
+### 2. Cloud Build ile Deploy
+
 ```bash
 cd ~/FinAsis
-```
-
-### 3. Son Değişiklikleri Alın (Opsiyonel)
-```bash
 git pull origin main
-```
 
-### 4. Cloud Build'i Başlatın
-```bash
 gcloud builds submit \
   --config=deploy/cloud_run/cloudbuild.yaml \
   --project=finasis-478502 \
-  --region=europe-west1
+  --region=europe-west1 .
 ```
 
-### 5. Deployment'ı İzleyin
-Build logları terminal'de görünecek. İlerlemeyi takip edebilirsiniz.
+**NOT:** Cloud Build config'de secrets kullanımı henüz tam değil. Şimdilik GitHub Actions ile deploy edin.
 
 ---
 
@@ -65,14 +48,19 @@ Build logları terminal'de görünecek. İlerlemeyi takip edebilirsiniz.
 
 ### GitHub Actions'da disk alanı sorunu varsa:
 
-1. **Cloud Build kullanın** (en hızlı çözüm) ⬆️
-2. **GitHub Actions workflow'u optimize edildi** - disk temizliği eklendi
+1. **GitHub Actions workflow optimize edildi** - runner log/cache temizliği eklendi ✅
+2. **Cloud Build kullanın** (API etkinleştirme gerekebilir) - daha fazla disk alanı
 3. **Build cache'i kullanın** - Artifact Registry cache'i otomatik kullanılır
+
+### GitHub Actions Avantajları:
+- ✅ WIF (Workload Identity Federation) ile güvenli authentication
+- ✅ Secrets yönetimi hazır
+- ✅ Disk temizliği optimize edildi
+- ✅ Otomatik trigger
 
 ### Cloud Build Avantajları:
 - ✅ Daha fazla disk alanı
 - ✅ Daha hızlı build (Google Cloud altyapısı)
-- ✅ Daha güvenilir
 - ✅ Detaylı loglar
 
 ---
@@ -100,7 +88,6 @@ curl $SERVICE_URL/health/
 
 ## 📝 Notlar
 
-- **Cloud Build**: Disk alanı sorunu yaşandığında önerilen yöntem
-- **GitHub Actions**: Optimize edildi, ama yine de disk sorunu olabilir
+- **GitHub Actions**: Önerilen yöntem (disk temizliği optimize edildi)
+- **Cloud Build**: Alternatif yöntem (API etkinleştirme gerekebilir)
 - **Build Süresi**: İlk build ~15-20 dakika, sonrakiler cache sayesinde daha hızlı
-
