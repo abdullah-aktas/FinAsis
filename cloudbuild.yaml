@@ -14,23 +14,40 @@ steps:
       - "DJANGO_SECRET_KEY=test-secret-key-for-cloud-build"
       - "DJANGO_DEBUG=False"
       - "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+      # Cloud Build'de veritabanı bağlantısı yok, bu yüzden PostgreSQL engine set ediyoruz
+      # (gerçek bağlantı yapılmayacak, sadece SQLite hatası önlenir)
+      - "DJANGO_DB_ENGINE=django.db.backends.postgresql"
+      - "DJANGO_DB_NAME=finasis"
+      - "DJANGO_DB_USER=finasis-app"
       # Not: Migration'lar Cloud Run container başlatılırken deploy/entrypoint.sh içinde çalışır
       # Cloud Build'de sadece kod kontrolleri yapıyoruz, veritabanı bağlantısı gerektirmez
     args:
       - "-c"
       - | 
-        set -euo pipefail
+        set -eo pipefail
+        echo "📦 Installing dependencies..."
         python -m pip install --upgrade pip
         pip install --no-cache-dir -r requirements.txt
+        
         # Temizlik
+        echo "🧹 Cleaning up cache..."
         pip cache purge || true
         rm -rf /tmp/* /var/tmp/* ~/.cache/pip || true
+        
         # Temel Django kontrolleri (veritabanı gerektirmez)
-        python manage.py check --deploy || echo "Warning: Django check failed, continuing..."
+        # DJANGO_DB_ENGINE set edildiği için SQLite hatası çıkmayacak
+        echo "🔍 Running Django checks..."
+        python manage.py check --deploy || echo "⚠️  Warning: Django check failed, continuing..."
+        
         # Migration dosyalarının syntax kontrolü (veritabanı gerektirmez)
-        python manage.py makemigrations --check --dry-run || echo "Warning: Unapplied migrations detected, continuing..."
+        echo "🔍 Checking migrations..."
+        python manage.py makemigrations --check --dry-run || echo "⚠️  Warning: Unapplied migrations detected, continuing..."
+        
         # Static dosyaların toplanabilirliğini kontrol et (dry-run, veritabanı gerektirmez)
-        python manage.py collectstatic --dry-run --noinput || echo "Warning: collectstatic dry-run failed, continuing..."
+        echo "🔍 Checking static files..."
+        python manage.py collectstatic --dry-run --noinput 2>&1 || echo "⚠️  Warning: collectstatic dry-run failed, continuing..."
+        
+        echo "✅ All checks completed!"
 
 images: []
 

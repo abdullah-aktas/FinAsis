@@ -35,15 +35,45 @@ if gcloud iam service-accounts describe $CB_SA --project=$PROJECT_ID &>/dev/null
   echo "   ✅ Cloud Build service account zaten mevcut: $CB_SA"
 else
   echo "   ⚠️  Cloud Build service account henüz oluşturulmamış"
-  echo "   Cloud Build API etkinleştirildiğinde otomatik oluşturulmalı"
+  echo "   Service account'u tetiklemek için test build başlatılıyor..."
   echo ""
-  echo "   💡 Service account'u oluşturmak için:"
-  echo "   1. Cloud Build Console'dan manuel bir build başlatın:"
-  echo "      https://console.cloud.google.com/cloud-build?project=$PROJECT_ID"
-  echo "   2. Veya birkaç dakika daha bekleyin (API propagation için)"
-  echo ""
-  echo "   ⚠️  NOT: Cloud Build service account'u manuel oluşturulamaz,"
-  echo "   sadece Cloud Build API etkinleştirildiğinde otomatik oluşturulur."
+  
+  # Test build başlat (service account'u tetiklemek için)
+  # Boş bir dizinde minimal build başlat (tüm projeyi yüklememek için)
+  TEST_BUILD_DIR="/tmp/test-build-$(date +%s)"
+  TEST_BUILD_YAML="$TEST_BUILD_DIR/cloudbuild.yaml"
+  mkdir -p "$TEST_BUILD_DIR"
+  
+  cat > "$TEST_BUILD_YAML" <<EOF
+steps:
+- name: 'ubuntu'
+  args: ['echo', 'Test build to trigger Cloud Build service account creation']
+timeout: "60s"
+EOF
+  
+  echo "   🚀 Test build başlatılıyor (boş dizinde, hızlı)..."
+  cd "$TEST_BUILD_DIR"
+  if gcloud builds submit --config=cloudbuild.yaml --project=$PROJECT_ID --quiet 2>&1 | grep -q "SUCCESS\|WORKING"; then
+    echo "   ✅ Test build başlatıldı, service account oluşturuluyor..."
+    echo "   ⏳ Service account'un oluşturulması için 15 saniye bekleniyor..."
+    sleep 15
+  else
+    echo "   ⚠️  Test build başlatılamadı (NOT_FOUND hatası normal olabilir)"
+    echo "   💡 Cloud Build API'sinin tam etkinleşmesi için birkaç dakika bekleyin"
+    echo "   💡 Veya Cloud Build Console'dan manuel bir build başlatın:"
+    echo "      https://console.cloud.google.com/cloud-build?project=$PROJECT_ID"
+  fi
+  cd - > /dev/null
+  rm -rf "$TEST_BUILD_DIR"
+  
+  # Tekrar kontrol et
+  if gcloud iam service-accounts describe $CB_SA --project=$PROJECT_ID &>/dev/null; then
+    echo "   ✅ Cloud Build service account başarıyla oluşturuldu: $CB_SA"
+  else
+    echo "   ⚠️  Service account henüz oluşturulmadı, birkaç dakika bekleyin"
+    echo "   💡 Veya Cloud Build Console'dan manuel bir build başlatın:"
+    echo "      https://console.cloud.google.com/cloud-build?project=$PROJECT_ID"
+  fi
 fi
 
 # 3. IAM rollerini kontrol et ve ata
