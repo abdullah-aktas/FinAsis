@@ -359,50 +359,32 @@ fi
 
 OLD_MIGRATION_BLOCK
 
-# Database migrations (ZORUNLU - başarısız olursa uygulama başlamasın) - basitleştirilmiş ve hızlı sürüm
+# Database migrations - hızlı başlatma için optimize edilmiş
+# Migration'ları background'da çalıştır, gunicorn'u hemen başlat
 if [ "${RUN_DB_MIGRATIONS:-true}" = "true" ]; then
   log ""
-  log "🔄 Running database migrations (fast mode)..."
-  log "⏱️  Migration timeout: 60 seconds (1 minute)"
-
-  # Migration'ları timeout ile çalıştır - hata olsa bile devam et (migration'lar zaten uygulanmış olabilir)
-  MIGRATION_SUCCESS=false
-  if command -v timeout >/dev/null 2>&1; then
-    if timeout 60 python manage.py migrate --noinput --fake-initial --verbosity 0 2>&1; then
-      log "✅ Migrations completed successfully"
-      MIGRATION_SUCCESS=true
-    else
-      EXIT_CODE=$?
-      if [ $EXIT_CODE -eq 124 ]; then
-        log "⚠️  Migration timeout after 60 seconds, but continuing (migrations may be partially applied)..."
-      else
-        log "⚠️  Migration had errors (exit code: $EXIT_CODE), but continuing (migrations may already be applied)..."
-      fi
-    fi
-  else
-    # timeout komutu yoksa direkt çalıştır ama background'a gönder (non-blocking)
-    python manage.py migrate --noinput --fake-initial --verbosity 0 2>&1 &
-    MIGRATION_PID=$!
-    sleep 5  # 5 saniye bekle
-    if kill -0 $MIGRATION_PID 2>/dev/null; then
-      log "⚠️  Migration still running, continuing in background..."
-      # Migration'ı background'da bırak, gunicorn başlasın
-    else
-      wait $MIGRATION_PID
-      if [ $? -eq 0 ]; then
-        log "✅ Migrations completed successfully"
-        MIGRATION_SUCCESS=true
-      else
+  log "🔄 Starting database migrations in background (non-blocking)..."
+  log "💡 Gunicorn will start immediately, migrations will run in parallel"
+  
+  # Migration'ları background'da başlat (non-blocking)
+  (
+    log "🔄 Migration process started (PID: $$)"
+    if command -v timeout >/dev/null 2>&1; then
+      timeout 300 python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1 || {
         log "⚠️  Migration had errors, but continuing..."
-      fi
+      }
+    else
+      python manage.py migrate --noinput --fake-initial --verbosity 1 2>&1 || {
+        log "⚠️  Migration had errors, but continuing..."
+      }
     fi
-  fi
-
-  # Table verification'ı skip et (zaman tasarrufu için)
-  log "⏭️  Skipping table verification (for faster startup)"
-
-  # Initialize Trade Sim seed data (idempotent - uses get_or_create) - skip et (zaman tasarrufu)
-  log "⏭️  Skipping init_trade_sim (for faster startup)"
+    log "✅ Migrations completed"
+  ) &
+  MIGRATION_PID=$!
+  log "📋 Migration running in background (PID: $MIGRATION_PID)"
+  
+  # Kısa bir süre bekle (migration'ların başlaması için)
+  sleep 2
 else
   log "⏭️  Skipping migrations (RUN_DB_MIGRATIONS=false)"
 fi
@@ -421,7 +403,7 @@ log "=========================================="
 # Eğer argüman yoksa veya exec başarısız olursa, direkt gunicorn komutunu çalıştır
 if [ $# -gt 0 ]; then
   log "Executing: exec \"\$@\" with args: $*"
-  exec "$@"
+exec "$@"
 else
   log "⚠️  No arguments provided, using default gunicorn command"
   exec gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -c gunicorn_config.py

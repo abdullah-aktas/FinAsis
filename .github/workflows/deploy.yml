@@ -331,6 +331,7 @@ jobs:
             --set-env-vars="$ENV_VARS" \
             --port=${{ env.PORT }} \
             --project=${{ env.PROJECT_ID }} \
+            --max-instance-request-concurrency=40 \
             --quiet
 
           echo "✅ Deployment completed successfully"
