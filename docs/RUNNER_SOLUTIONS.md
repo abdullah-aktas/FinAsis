@@ -9,12 +9,14 @@ GitHub Actions standart runner'ları **14-28 GB** disk alanına sahip ve büyük
 ### 1. Cloud Build Kullanmak (ÖNERİLEN - HAZIR) ⭐
 
 **Avantajlar:**
+
 - ✅ Daha fazla disk alanı (sınırsız değil ama çok daha fazla)
 - ✅ Daha hızlı build (Google Cloud altyapısı)
 - ✅ Daha güvenilir
 - ✅ Setup script'i hazır
 
 **Kullanım:**
+
 ```bash
 # Cloud Shell'de:
 cd ~/FinAsis && git pull origin main
@@ -29,11 +31,13 @@ gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis
 ### 2. Self-Hosted Runner Kurmak
 
 **Avantajlar:**
+
 - ✅ Tam disk kontrolü (istediğiniz kadar disk alanı)
 - ✅ Daha hızlı (kendi sunucunuzda)
 - ✅ Ücretsiz (sadece sunucu maliyeti)
 
 **Dezavantajlar:**
+
 - ❌ Kurulum ve bakım gerektirir
 - ❌ Sunucu maliyeti
 - ❌ Güvenlik yönetimi
@@ -41,10 +45,12 @@ gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis
 **Kurulum Adımları:**
 
 1. **Sunucu hazırlayın** (Google Cloud Compute Engine, AWS EC2, vb.)
+
    - Minimum: 4 CPU, 8 GB RAM, 50 GB disk
    - Önerilen: 8 CPU, 16 GB RAM, 100 GB disk
 
 2. **Runner'ı kurun:**
+
 ```bash
 # Sunucuda:
 mkdir actions-runner && cd actions-runner
@@ -60,10 +66,11 @@ sudo ./svc.sh start
 ```
 
 3. **Workflow'u güncelleyin:**
+
 ```yaml
 jobs:
   deploy:
-    runs-on: self-hosted  # GitHub-hosted yerine
+    runs-on: self-hosted # GitHub-hosted yerine
 ```
 
 ---
@@ -71,20 +78,23 @@ jobs:
 ### 3. Daha Büyük GitHub-Hosted Runner'lar (Team/Enterprise Gerektirir)
 
 **Özellikler:**
+
 - 64 çekirdek
 - 256 GB RAM
 - **2040 GB SSD depolama** ⭐
 - Windows, Linux ve Mac
 
 **Gereksinimler:**
+
 - ❌ GitHub Team veya Enterprise planı gerekli
 - ❌ Ücretli (aylık maliyet)
 
 **Kullanım:**
+
 ```yaml
 jobs:
   deploy:
-    runs-on: ubuntu-latest-4-cores  # veya daha büyük
+    runs-on: ubuntu-latest-4-cores # veya daha büyük
 ```
 
 **Durum:** Şu anda "Sağlanmamış" - Team/Enterprise planı gerekli
@@ -94,6 +104,7 @@ jobs:
 ### 4. Workflow Optimizasyonları (UYGULANDI) ✅
 
 **Yapılanlar:**
+
 - ✅ İlk adım olarak runner log temizliği
 - ✅ Build öncesi Docker temizliği
 - ✅ Build sonrası Docker temizliği
@@ -106,11 +117,13 @@ jobs:
 ### 5. Paket Optimizasyonu (UZUN VADELİ)
 
 **Strateji:**
+
 - Büyük paketleri (torch, transformers) opsiyonel hale getirin
 - Runtime'da sadece gerekli paketleri yükleyin
 - Multi-stage Dockerfile ile gereksiz dosyaları kaldırın
 
 **Örnek:**
+
 ```python
 # requirements-base.txt (temel paketler)
 Django>=5.2,<6.0
@@ -126,14 +139,17 @@ transformers>=4.40.0
 ## 🎯 Önerilen Çözüm Sırası
 
 ### Hemen (Şimdi):
+
 1. **Cloud Build kullanın** - Hazır ve çalışır durumda ⭐
 2. Workflow optimizasyonları zaten uygulandı
 
 ### Kısa Vadede (1-2 hafta):
+
 1. Self-hosted runner kurmayı değerlendirin (sunucu varsa)
 2. Paket optimizasyonu yapın (opsiyonel paketleri ayırın)
 
 ### Uzun Vadede:
+
 1. GitHub Team/Enterprise planına geçin (büyük runner'lar için)
 2. Paket mimarisini optimize edin
 
@@ -141,12 +157,12 @@ transformers>=4.40.0
 
 ## 📊 Karşılaştırma
 
-| Çözüm | Disk Alanı | Kurulum | Maliyet | Önerilen |
-|-------|-----------|---------|---------|----------|
-| **Cloud Build** | Yüksek | Kolay | Ücretsiz (kota içinde) | ⭐⭐⭐⭐⭐ |
-| **Self-Hosted** | Sınırsız | Orta | Sunucu maliyeti | ⭐⭐⭐⭐ |
-| **Büyük Runner** | 2040 GB | Kolay | Aylık ücret | ⭐⭐⭐ |
-| **Workflow Opt.** | Sınırlı | Kolay | Ücretsiz | ⭐⭐ |
+| Çözüm             | Disk Alanı | Kurulum | Maliyet                | Önerilen   |
+| ----------------- | ---------- | ------- | ---------------------- | ---------- |
+| **Cloud Build**   | Yüksek     | Kolay   | Ücretsiz (kota içinde) | ⭐⭐⭐⭐⭐ |
+| **Self-Hosted**   | Sınırsız   | Orta    | Sunucu maliyeti        | ⭐⭐⭐⭐   |
+| **Büyük Runner**  | 2040 GB    | Kolay   | Aylık ücret            | ⭐⭐⭐     |
+| **Workflow Opt.** | Sınırlı    | Kolay   | Ücretsiz               | ⭐⭐       |
 
 ---
 
@@ -160,4 +176,3 @@ gcloud builds submit --config=deploy/cloud_run/cloudbuild.yaml --project=finasis
 ```
 
 **Bu çözüm şu anda en pratik ve hazır olanıdır!**
-
