@@ -264,6 +264,27 @@ jobs:
         run: |
           set -e
           echo "🚀 Starting Cloud Run deployment..."
+          
+          # Clean up on failure to show logs
+          cleanup_on_failure() {
+            if [ $? -ne 0 ]; then
+              echo "❌ Deployment failed, fetching logs..."
+              REVISION=$(gcloud run revisions list \
+                --service=${{ env.SERVICE_NAME }} \
+                --region=${{ env.REGION }} \
+                --project=${{ env.PROJECT_ID }} \
+                --format="value(name)" \
+                --limit=1 2>/dev/null || echo "")
+              if [ -n "$REVISION" ]; then
+                echo "📋 Recent logs for revision: $REVISION"
+                gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=${{ env.SERVICE_NAME }} AND resource.labels.revision_name=$REVISION" \
+                  --project=${{ env.PROJECT_ID }} \
+                  --limit=50 \
+                  --format=json 2>/dev/null || true
+              fi
+            fi
+          }
+          trap cleanup_on_failure EXIT
 
           # Environment variables'ı hazırla
           # NOT: PORT env değişkeni Cloud Run tarafından otomatik set edilir, biz set etmiyoruz (aksi halde "reserved env names" hatası veriyor)

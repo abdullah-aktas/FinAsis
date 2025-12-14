@@ -460,18 +460,18 @@ fi
 log ""
 log "=========================================="
 log "🚀 Starting Gunicorn..."
-log "Command: $*"
-log "Arguments count: $#"
 log "PORT: ${PORT:-not set}"
+log "Arguments received: $*"
+log "Arguments count: $#"
 log "=========================================="
 
-# exec "$@" JSON array formatındaki CMD'yi doğru çalıştırmayabilir
-# Bu yüzden direkt gunicorn komutunu çalıştıralım
-if [ $# -eq 0 ]; then
-  # Eğer argüman yoksa, default gunicorn komutunu çalıştır
+# Dockerfile'dan gelen CMD argümanlarını direkt çalıştır
+# exec "$@" JSON array formatındaki CMD'yi doğru çalıştırmalı
+# Eğer argüman yoksa veya exec başarısız olursa, direkt gunicorn komutunu çalıştır
+if [ $# -gt 0 ]; then
+  log "Executing: exec \"\$@\" with args: $*"
+  exec "$@"
+else
   log "⚠️  No arguments provided, using default gunicorn command"
   exec gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -c gunicorn_config.py
-else
-  # Argümanlar varsa, onları kullan
-  exec "$@"
 fi
