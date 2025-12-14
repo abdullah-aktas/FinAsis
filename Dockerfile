@@ -100,6 +100,6 @@ EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
 # Production için gunicorn config dosyası kullan (50K users için optimize edilmiş)
-# Cloud Run PORT environment variable'ını kullanarak bind et (shell format gerekli - $PORT expansion için)
-CMD gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -c gunicorn_config.py --bind 0.0.0.0:${PORT:-8080}
+# PORT gunicorn_config.py içinde zaten bind ediliyor, bu yüzden --bind kullanmıyoruz
+CMD ["gunicorn", "config.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "-c", "gunicorn_config.py"]
 
