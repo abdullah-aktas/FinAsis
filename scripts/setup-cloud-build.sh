@@ -21,6 +21,11 @@ gcloud services enable run.googleapis.com --project=$PROJECT_ID
 gcloud services enable storage-api.googleapis.com --project=$PROJECT_ID
 gcloud services enable storage-component.googleapis.com --project=$PROJECT_ID
 
+# Cloud Build servis hesabını al
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+CB_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+echo "🔐 Cloud Build servis hesabı: $CB_SA"
+
 # Cloud Build için Cloud Storage bucket'ını kontrol et ve oluştur
 echo "🪣 Cloud Build storage bucket kontrol ediliyor..."
 BUCKET_NAME="${PROJECT_ID}_cloudbuild"
@@ -33,11 +38,6 @@ if ! gsutil ls -b gs://$BUCKET_NAME &>/dev/null; then
 else
   echo "✅ Cloud Build storage bucket zaten mevcut"
 fi
-
-# Cloud Build servis hesabını al
-PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
-CB_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
-echo "🔐 Cloud Build servis hesabı: $CB_SA"
 
 # Artifact Registry repository'sinin var olup olmadığını kontrol et
 echo "📦 Artifact Registry repository kontrol ediliyor..."
