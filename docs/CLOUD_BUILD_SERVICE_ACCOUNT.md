@@ -1,6 +1,7 @@
 # Cloud Build Service Account Yapılandırması
 
 ## Sorun
+
 Cloud Build Console'da `211704933618-compute@developer.gserviceaccount.com` görünüyor ama bu service account mevcut değil.
 
 ## Çözüm
@@ -61,6 +62,7 @@ bash scripts/setup-cloud-build.sh
 ```
 
 Bu script:
+
 - Cloud Build API'yi etkinleştirir
 - Cloud Build service account'unu kullanır
 - Gerekli IAM rollerini atar
@@ -109,4 +111,3 @@ gcloud projects get-iam-policy finasis-478502 \
   --filter="bindings.members:serviceAccount:$CB_SA" \
   --format="table(bindings.role)"
 ```
-

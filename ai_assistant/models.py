@@ -411,15 +411,13 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        app_label = "ai_assistant"
         verbose_name = _("AI Bildirimi")
         verbose_name_plural = _("AI Bildirimleri")
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
-
-    class Meta:
-        app_label = "ai_assistant"
-        ordering = ["-created_at"]
 
 
 class SectorBenchmark(models.Model):

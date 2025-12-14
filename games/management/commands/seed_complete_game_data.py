@@ -7,10 +7,8 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db import transaction
 from datetime import timedelta
-from games.models import Game, Season, Badge, DailyQuest, Item, Tournament, TournamentParticipant
-from games.trade_sim.models import City, Product, CityMarket, Quest, Tournament as TradeSimTournament
-from games.finquest.models import FinQuestSession, FinQuestInventory
-from games.ticaretin_izinde.models import Tournament as TicaretinIzindeTournament
+from games.models import Game, Season, Badge, DailyQuest, Item, Tournament
+from games.trade_sim.models import City, Product, CityMarket, Quest
 from django.contrib.auth import get_user_model
 import random
 

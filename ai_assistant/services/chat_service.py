@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import Dict, Any, List, Optional, cast
+from typing import Dict, Any, List, Optional
 from django.contrib.auth.models import User
 from ..models import UserInteraction
 import os
@@ -177,6 +177,7 @@ class ChatAIService:
             logger.warning(f"Rol tespiti sırasında hata: {e}")
         
         return hints if hints else []
+    def _build_comprehensive_system_prompt(self, assistant_name: str) -> str:
         """Kapsamlı sistem prompt'u oluştur - proje gereksinimleri, kullanıcı tipleri ve modüller"""
         return f"""Sen {assistant_name} — FinAsis platformunun deneyimli ve kapsamlı bir Yapay Zeka asistanısın.
 

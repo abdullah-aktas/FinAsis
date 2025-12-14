@@ -5,7 +5,7 @@ Kullanıcılara işlem bazlı otomatik bildirimler (in-app ve e-posta) gönderir
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
@@ -177,7 +177,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_payment_received(payment, user):
         """Ödeme alındığında bildirim gönder"""
         title = "Ödeme Alındı"
-        message = f"Ödeme başarıyla kaydedildi.\n"
+        message = "Ödeme başarıyla kaydedildi.\n"
         message += f"Tutar: {payment.amount:,.2f} {payment.currency}\n"
         message += f"Tarih: {payment.payment_date.strftime('%d.%m.%Y')}"
         
@@ -199,7 +199,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_expense_created(expense, user):
         """Gider oluşturulduğunda bildirim gönder"""
         title = "Yeni Gider Kaydedildi"
-        message = f"Gider başarıyla kaydedildi.\n"
+        message = "Gider başarıyla kaydedildi.\n"
         message += f"Kategori: {expense.category.name if hasattr(expense, 'category') and expense.category else 'N/A'}\n"
         message += f"Tutar: {expense.amount:,.2f} {expense.currency if hasattr(expense, 'currency') else 'TRY'}"
         
@@ -330,7 +330,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_suspicious_login(user, ip_address: str, location: str = None):
         """Şüpheli giriş denemesi bildirimi"""
         title = "⚠️ Şüpheli Giriş Denemesi"
-        message = f"Hesabınıza yeni bir cihazdan giriş yapıldı.\n\n"
+        message = "Hesabınıza yeni bir cihazdan giriş yapıldı.\n\n"
         message += f"IP Adresi: {ip_address}\n"
         if location:
             message += f"Konum: {location}\n"
@@ -424,7 +424,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_payment_successful(payment, user):
         """Ödeme başarılı olduğunda bildirim gönder"""
         title = "✅ Ödeme Başarılı"
-        message = f"Ödemeniz başarıyla alındı.\n\n"
+        message = "Ödemeniz başarıyla alındı.\n\n"
         message += f"Tutar: {payment.amount:,.2f} {payment.currency if hasattr(payment, 'currency') else 'TRY'}\n"
         message += f"Tarih: {payment.payment_date.strftime('%d.%m.%Y') if hasattr(payment, 'payment_date') else 'N/A'}"
         
@@ -446,7 +446,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_payment_failed(payment, user, reason: str = None):
         """Ödeme başarısız olduğunda bildirim gönder"""
         title = "❌ Ödeme Başarısız"
-        message = f"Ödemeniz işleme alınamadı.\n\n"
+        message = "Ödemeniz işleme alınamadı.\n\n"
         if reason:
             message += f"Sebep: {reason}\n\n"
         message += "Lütfen ödeme bilgilerinizi kontrol edin ve tekrar deneyin."
@@ -545,7 +545,7 @@ Bu bildirimi almak istemiyorsanız, hesap ayarlarınızdan bildirim tercihlerini
     def notify_role_changed(user, old_role: str, new_role: str):
         """Kullanıcı rolü değiştiğinde bildirim gönder"""
         title = "👤 Rolünüz Güncellendi"
-        message = f"Hesabınızın rolü değiştirildi.\n\n"
+        message = "Hesabınızın rolü değiştirildi.\n\n"
         message += f"Eski Rol: {old_role}\n"
         message += f"Yeni Rol: {new_role}\n\n"
         message += "Yeni rolünüze göre erişim yetkileriniz güncellenmiştir."

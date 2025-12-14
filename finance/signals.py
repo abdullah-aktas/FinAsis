@@ -135,11 +135,9 @@ def financial_report_post_save(sender, instance, created, **kwargs):
         # Otomatik bildirim gönder
         try:
             from common.services.notification_service import NotificationService
-            from django.contrib.auth import get_user_model
             import logging
-            
+
             logger = logging.getLogger(__name__)
-            User = get_user_model()
             
             # Raporu oluşturan kullanıcıyı bul
             user = instance.created_by if hasattr(instance, 'created_by') and instance.created_by else None
