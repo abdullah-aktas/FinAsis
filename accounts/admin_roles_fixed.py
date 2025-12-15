@@ -351,12 +351,14 @@ class UserSubscriptionAdmin(ModelAdmin):
         """Kullanıcı linki"""
         try:
             UserModel = obj.user.__class__
-            url_name = f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_change"
+            url_name = (
+                f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_change"
+            )
             url = reverse(url_name, args=[obj.user.pk])
         except Exception:
             # Fallback: direkt user ID ile
             url = f"/admin/accounts/customuser/{obj.user.pk}/change/"
-        
+
         return format_html(
             '<a href="{}">{}</a>', url, obj.user.get_full_name() or obj.user.username
         )
@@ -503,12 +505,14 @@ class UserProfileAdmin(ModelAdmin):
         """Kullanıcı linki"""
         try:
             UserModel = obj.user.__class__
-            url_name = f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_change"
+            url_name = (
+                f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_change"
+            )
             url = reverse(url_name, args=[obj.user.pk])
         except Exception:
             # Fallback: direkt user ID ile
             url = f"/admin/accounts/customuser/{obj.user.pk}/change/"
-        
+
         full_name = obj.user.get_full_name() or obj.user.username
 
         # Durum indikatorü
