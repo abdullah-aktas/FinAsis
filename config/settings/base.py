@@ -191,7 +191,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
-    "rest_framework_simplejwt.token_blacklist",
+    # "rest_framework_simplejwt.token_blacklist",  # Geçici olarak devre dışı - Django 5.2 uyumluluk sorunu
     "django_filters",
     "drf_yasg",
     "channels",
