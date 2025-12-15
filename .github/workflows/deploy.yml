@@ -331,6 +331,7 @@ jobs:
             --set-env-vars="$ENV_VARS" \
             --port=${{ env.PORT }} \
             --project=${{ env.PROJECT_ID }} \
+            --startup-cpu-boost \
             --quiet
 
           echo "✅ Deployment completed successfully"
