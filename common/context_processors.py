@@ -9,6 +9,7 @@ from copy import deepcopy
 from django.conf import settings
 from django.templatetags.static import static
 from django.utils import timezone
+from django.db.models import Q
 
 from .permissions import (
     get_user_role_category,
@@ -189,33 +190,63 @@ def platform_context(request):
 
 def brand_identity(request):
     """Marka kimliği bilgilerini template'lere taşır."""
-    from .models import SystemSetting
-    import re
+    from .models import SystemSetting, BetaCampaign
     
     brand_data = deepcopy(BRAND_IDENTITY)
     brand_data["current_year"] = timezone.now().year
     
-    # Beta kampanyası indirim oranını SystemSetting'den al
+    # Aktif Beta kampanyasını al
     try:
-        discount_setting = SystemSetting.objects.get(key="beta_campaign_discount_percent")
-        discount_percent = int(discount_setting.get_value())
-    except (SystemSetting.DoesNotExist, ValueError, TypeError):
-        # Varsayılan değer
-        discount_percent = 20
-    
-    # Beta kampanyası metinlerini dinamik olarak güncelle
-    if "beta_campaign" in brand_data:
-        # Description'daki tüm %XX değerlerini değiştir
-        brand_data["beta_campaign"]["description"] = re.sub(
-            r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["description"]
-        )
-        brand_data["beta_campaign"]["short_description"] = re.sub(
-            r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["short_description"]
-        )
-        # Badge'i güncelle
-        for badge in brand_data["beta_campaign"]["badges"]:
-            if badge["icon"] == "percent":
-                badge["label"] = f"%{discount_percent} İndirim"
+        active_campaign = BetaCampaign.objects.filter(
+            is_active=True,
+            status="active"
+        ).filter(
+            Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())
+        ).filter(
+            Q(start_date__isnull=True) | Q(start_date__lte=timezone.now())
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=timezone.now())
+        ).order_by("-created_at").first()
+        
+        if active_campaign:
+            # Aktif kampanya varsa, onu kullan
+            brand_data["beta_campaign"] = {
+                "title": active_campaign.title,
+                "description": active_campaign.description,
+                "short_description": active_campaign.short_description,
+                "badges": active_campaign.get_badges(),
+                "cta_label": "Ücretsiz Başla",
+                "discount_percent": active_campaign.discount_percent,
+                "free_months": active_campaign.free_months,
+                "company_shares": active_campaign.company_shares,
+                "includes_badge": active_campaign.includes_badge,
+                "show_on_homepage": active_campaign.show_on_homepage,
+                "show_on_plans": active_campaign.show_on_plans,
+                "show_on_registration": active_campaign.show_on_registration,
+            }
+        else:
+            # Aktif kampanya yoksa, SystemSetting'den veya varsayılan değerleri kullan
+            try:
+                discount_setting = SystemSetting.objects.get(key="beta_campaign_discount_percent")
+                discount_percent = int(discount_setting.get_value())
+            except (SystemSetting.DoesNotExist, ValueError, TypeError):
+                discount_percent = 20
+            
+            # Varsayılan beta kampanyası bilgilerini güncelle
+            if "beta_campaign" in brand_data:
+                import re
+                brand_data["beta_campaign"]["description"] = re.sub(
+                    r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["description"]
+                )
+                brand_data["beta_campaign"]["short_description"] = re.sub(
+                    r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["short_description"]
+                )
+                for badge in brand_data["beta_campaign"]["badges"]:
+                    if badge["icon"] == "percent":
+                        badge["label"] = f"%{discount_percent} İndirim"
+    except Exception:
+        # Hata durumunda varsayılan değerleri kullan
+        pass
     
     return {
         "brand_identity": brand_data,

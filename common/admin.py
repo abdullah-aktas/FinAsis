@@ -10,6 +10,7 @@ from .models import (
     Webhook,
     WebhookLog,
     ScheduledTask,
+    BetaCampaign,
 )
 
 # Import Error Tracking Admin
@@ -212,3 +213,116 @@ class ScheduledTaskAdmin(admin.ModelAdmin):
     list_filter = ("task_type", "status", "is_recurring", "scheduled_at")
     date_hierarchy = "scheduled_at"
     readonly_fields = ("created_at", "started_at", "completed_at", "execution_time_ms")
+
+
+@admin.register(BetaCampaign)
+class BetaCampaignAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "status",
+        "is_active",
+        "discount_percent",
+        "free_months",
+        "company_shares",
+        "publish_at",
+        "start_date",
+        "end_date",
+        "show_on_homepage",
+        "show_on_plans",
+        "show_on_registration",
+        "created_at",
+    )
+    list_filter = (
+        "status",
+        "is_active",
+        "show_on_homepage",
+        "show_on_plans",
+        "show_on_registration",
+        "publish_at",
+        "start_date",
+        "end_date",
+        "created_at",
+    )
+    search_fields = ("name", "title", "description", "short_description")
+    prepopulated_fields = {"slug": ("name",)}
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at", "updated_at")
+    
+    fieldsets = (
+        ("Temel Bilgiler", {
+            "fields": ("name", "slug", "title", "description", "short_description")
+        }),
+        ("Kampanya Detayları", {
+            "fields": (
+                "discount_percent",
+                "free_months",
+                "company_shares",
+                "includes_badge",
+            )
+        }),
+        ("Zamanlama", {
+            "fields": (
+                "status",
+                "is_active",
+                "publish_at",
+                "start_date",
+                "end_date",
+            ),
+            "description": "publish_at: Kampanyanın yayınlanacağı tarih (zamanlanmış yayınlama)<br>"
+                         "start_date: Kampanyanın başlayacağı tarih<br>"
+                         "end_date: Kampanyanın biteceği tarih"
+        }),
+        ("Görünürlük", {
+            "fields": (
+                "show_on_homepage",
+                "show_on_plans",
+                "show_on_registration",
+            )
+        }),
+        ("Metadata", {
+            "fields": ("created_by", "updated_by", "created_at", "updated_at"),
+            "classes": ("collapse",)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Kaydetme sırasında created_by ve updated_by'ı set et"""
+        if not change:
+            obj.created_by = request.user
+        obj.updated_by = request.user
+        
+        # Status'u otomatik güncelle
+        now = timezone.now()
+        if obj.publish_at and now < obj.publish_at:
+            obj.status = "scheduled"
+        elif obj.status == "scheduled" and obj.publish_at and now >= obj.publish_at:
+            obj.status = "active"
+        elif obj.end_date and now > obj.end_date:
+            obj.status = "ended"
+        
+        super().save_model(request, obj, form, change)
+    
+    actions = ["activate_campaigns", "deactivate_campaigns", "publish_now"]
+    
+    def activate_campaigns(self, request, queryset):
+        """Seçili kampanyaları aktif et"""
+        updated = queryset.update(status="active", is_active=True)
+        self.message_user(request, f"{updated} kampanya aktif edildi.")
+    activate_campaigns.short_description = "Seçili kampanyaları aktif et"
+    
+    def deactivate_campaigns(self, request, queryset):
+        """Seçili kampanyaları deaktif et"""
+        updated = queryset.update(status="paused", is_active=False)
+        self.message_user(request, f"{updated} kampanya deaktif edildi.")
+    deactivate_campaigns.short_description = "Seçili kampanyaları deaktif et"
+    
+    def publish_now(self, request, queryset):
+        """Seçili kampanyaları hemen yayınla"""
+        from django.utils import timezone
+        updated = queryset.update(
+            status="active",
+            is_active=True,
+            publish_at=timezone.now()
+        )
+        self.message_user(request, f"{updated} kampanya hemen yayınlandı.")
+    publish_now.short_description = "Seçili kampanyaları hemen yayınla"
