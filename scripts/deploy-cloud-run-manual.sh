@@ -131,8 +131,7 @@ gcloud run deploy $SERVICE_NAME \
   --cpu-throttling \
   --set-env-vars="$ENV_VARS" \
   --port=8080 \
-  --project=$PROJECT_ID \
-  --startup-cpu-boost
+  --project=$PROJECT_ID
 
 echo ""
 echo "✅ Deployment tamamlandı!"
