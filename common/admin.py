@@ -69,6 +69,24 @@ class SystemSettingAdmin(admin.ModelAdmin):
     search_fields = ("key", "value", "description")
     list_filter = ("value_type", "category", "is_public", "is_editable")
     readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        ("Temel Bilgiler", {
+            "fields": ("key", "value", "value_type", "description", "category")
+        }),
+        ("Ayarlar", {
+            "fields": ("is_public", "is_editable")
+        }),
+        ("Metadata", {
+            "fields": ("updated_by", "created_at", "updated_at"),
+            "classes": ("collapse",)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Kaydetme sırasında updated_by'ı set et"""
+        if change:
+            obj.updated_by = request.user
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(FileUpload)
