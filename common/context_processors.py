@@ -94,6 +94,18 @@ BRAND_IDENTITY = {
             "icon": "gift",
         },
     },
+    "beta_campaign": {
+        "title": "Beta Kullanıcısı Olun, Şirket Ortağı Olun!",
+        "description": "Tüm beta kullanıcılarına 2 ay ücretsiz Pro paket + 1 şirket hissesi hediye! Plus, tam sürüm lansmanında %50 kalıcı indirim garantisi ve Beta Pioneer rozeti.",
+        "short_description": "2 ay ücretsiz Pro paket + 1 şirket hissesi + Beta Pioneer rozeti + %50 kalıcı indirim",
+        "badges": [
+            {"icon": "graph-up-arrow", "label": "1 Şirket Hissesi"},
+            {"icon": "gift", "label": "2 Ay Ücretsiz"},
+            {"icon": "percent", "label": "%50 İndirim"},
+            {"icon": "trophy-fill", "label": "Beta Rozeti"},
+        ],
+        "cta_label": "Ücretsiz Başla",
+    },
 }
 
 
