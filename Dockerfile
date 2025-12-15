@@ -76,11 +76,10 @@ RUN mkdir -p /tmp/pip-tmp && \
     find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true && \
     find /usr/local/lib/python3.11/site-packages -name "*.pyo" -delete 2>/dev/null || true && \
     find /usr/local/lib/python3.11/site-packages -name "*.py[co]" -delete 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    python -c "import compileall; compileall.compile_dir('/usr/local/lib/python3.11/site-packages', quiet=1, workers=0)" 2>/dev/null || true && \
-    find /usr/local/lib/python3.11/site-packages -name "*.pyc" -delete 2>/dev/null || true
+    # NOT: Django'nun test modülünü silme - rest_framework_simplejwt buna ihtiyaç duyuyor
+    # find /usr/local/lib/python3.11/site-packages -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    # find /usr/local/lib/python3.11/site-packages -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.11/site-packages -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 
 COPY . .
 # Matplotlib cache dizinini oluştur
