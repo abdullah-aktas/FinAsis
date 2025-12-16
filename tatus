@@ -1,0 +1,5 @@
+[33m24f9169[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Fix: Kullanıcı yorumlarına göre kritik sorunlar düzeltildi
+[33m258fb71[m Add complete setup and deploy script with Cloud Build API activation
+[33me4d0533[m Add production deployment script for Cloud Shell
+[33ma005ee1[m Add script to fix git merge conflicts for migration files
+[33me98a105[m Add BetaCampaign model with admin management and scheduled publishing support
