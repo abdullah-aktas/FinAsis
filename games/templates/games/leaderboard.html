@@ -235,8 +235,28 @@
         Tüm Sıralamar
       </h5>
 
-      <!-- 4-10 Sıra -->
-      <div class="rank-row">
+      <!-- Leaderboard Tablosu -->
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Oyuncu</th>
+            <th>Puan</th>
+            <th>Rozetler</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <tr>
+            <td colspan="4" class="text-center">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              Yükleniyor...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 4-10 Sıra (Eski statik içerik - kaldırılabilir) -->
+      <div class="rank-row" style="display: none;">
         <div class="rank-number">4</div>
         <div class="player-avatar">O4</div>
         <div class="flex-grow-1">
@@ -370,5 +390,64 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Leaderboard API'den veri çek
+        const response = await fetch('/games/api/leaderboard/?limit=100');
+        if (!response.ok) {
+            console.error('Leaderboard API hatası:', response.status);
+            return;
+        }
+        
+        const data = await response.json();
+        const leaderboard = data.leaderboard || [];
+        const userRank = data.user_rank;
+        
+        // Kullanıcı sıralamasını güncelle
+        if (userRank) {
+            const userRankEl = document.getElementById('user-rank');
+            const userScoreEl = document.getElementById('user-score');
+            const userGamesEl = document.getElementById('user-games');
+            
+            if (userRankEl) userRankEl.textContent = userRank.rank || '-';
+            if (userScoreEl) userScoreEl.textContent = userRank.score || 0;
+            if (userGamesEl) userGamesEl.textContent = userRank.games_played || 0;
+        }
+        
+        // Leaderboard tablosunu güncelle
+        const tbody = document.getElementById('leaderboard-body');
+        if (tbody && leaderboard.length > 0) {
+            tbody.innerHTML = '';
+            leaderboard.forEach((player, index) => {
+                const rank = index + 1;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rank-badge ${rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-default'}">
+                                ${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
+                            </span>
+                            <div>
+                                <strong>${player.username}</strong>
+                                <br>
+                                <small class="text-muted">${player.games_played || 0} oyun</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>${player.score || 0}</strong></td>
+                    <td><span class="badge bg-primary">${player.badge_count || 0} rozet</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.error('Leaderboard yükleme hatası:', error);
+    }
+});
+</script>
 {% endblock %}
 

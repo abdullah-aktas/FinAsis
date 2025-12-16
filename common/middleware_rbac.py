@@ -38,6 +38,7 @@ class RBACMiddleware(MiddlewareMixin):
         r"^/contact/",
         r"^/about/",
         r"^/__debug__/",  # Django Debug Toolbar
+        r"^/games/",  # Tüm oyun sayfaları - authenticated kullanıcılar erişebilir
     ]
 
     # Bu URL'ler özel kontrol gerektirir (logged in olmalı ama role göre değil)

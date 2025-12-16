@@ -638,13 +638,56 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
             return self._fallback_response(query, context)
 
     def _fallback_response(self, query: str, context: Optional[Dict[str, Any]]) -> str:
-        """Fallback yanıt üretir"""
-        prefix = "[FALLBACK] FinAsis Cevap (Yedek Mod)"
-        tips = (
-            "• Şu an AI servisine bağlanırken bir sorun oluştu; geçici öneriler sunuluyor.\n"
-            "• Nakit akışı ve kârlılık metriklerini düzenli takip edin.\n"
-            "• Cari oranı >1.2, Borç/Özsermaye <2 hedefleyin.\n"
-            "• Bütçe-tahmin sapmalarını aylık analiz edin."
-        )
-        ctx = f"\n[Bağlam: {context}]" if context else ""
-        return f"{prefix}: {query[:120]}...\n{tips}{ctx}"
+        """Fallback yanıt üretir - AI servisi çalışmıyorsa kullanıcıya yardımcı ol"""
+        # Kullanıcıya daha yararlı bir yanıt ver
+        query_lower = query.lower()
+        
+        # Finansal terimler için basit yanıtlar
+        if any(term in query_lower for term in ["bütçe", "bütçe", "budget"]):
+            return (
+                "**Bütçe Yönetimi Hakkında:**\n\n"
+                "• Gelir ve giderlerinizi düzenli takip edin\n"
+                "• Aylık bütçe planlaması yapın ve sapmaları analiz edin\n"
+                "• Acil durum fonu oluşturun (3-6 aylık giderler)\n"
+                "• FinAsis'te Bütçe modülünden detaylı analiz yapabilirsiniz"
+            )
+        elif any(term in query_lower for term in ["nakit", "cash", "likidite"]):
+            return (
+                "**Nakit Akışı Yönetimi:**\n\n"
+                "• Nakit akış tablosunu düzenli güncelleyin\n"
+                "• Alacaklarınızı takip edin ve tahsilat sürelerini kısaltın\n"
+                "• Borç ödemelerinizi zamanında yapın\n"
+                "• FinAsis'te Nakit Akışı raporlarını inceleyebilirsiniz"
+            )
+        elif any(term in query_lower for term in ["kâr", "profit", "zarar", "loss"]):
+            return (
+                "**Kârlılık Analizi:**\n\n"
+                "• Gelir tablosunu düzenli kontrol edin\n"
+                "• Brüt ve net kâr marjlarınızı takip edin\n"
+                "• Maliyetlerinizi optimize edin\n"
+                "• FinAsis'te Finansal Analiz modülünden detaylı raporlar alabilirsiniz"
+            )
+        elif any(term in query_lower for term in ["rapor", "report", "analiz"]):
+            return (
+                "**Raporlama:**\n\n"
+                "• FinAsis'te çeşitli finansal raporlar oluşturabilirsiniz:\n"
+                "  - Gelir Tablosu\n"
+                "  - Bilanço\n"
+                "  - Nakit Akışı\n"
+                "  - Kârlılık Analizi\n"
+                "• Raporlar menüsünden istediğiniz raporu seçebilirsiniz"
+            )
+        else:
+            return (
+                "**FinAsis AI Asistanı**\n\n"
+                "Şu anda AI servisi geçici olarak kullanılamıyor. "
+                "Size nasıl yardımcı olabilirim?\n\n"
+                "**Desteklenen Konular:**\n"
+                "• Bütçe yönetimi\n"
+                "• Nakit akışı\n"
+                "• Kârlılık analizi\n"
+                "• Finansal raporlama\n"
+                "• Muhasebe işlemleri\n\n"
+                "Daha detaylı bilgi için ilgili modüllere göz atabilir veya "
+                "daha sonra tekrar deneyebilirsiniz."
+            )
