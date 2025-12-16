@@ -71,28 +71,34 @@ export default function GameWorld() {
   const [npcList, setNpcList] = useState([]);
   const controlsRef = useRef();
 
-  // Gerçek şehir verilerini API'den al
+  // Gerçek şehir verilerini API'den al - NetworkManager kullan
   useEffect(() => {
-    // API'den gerçek şehir verilerini çek
-    fetch('/api/trade-sim/cities/')
-      .then(res => res.json())
-      .then(data => {
-        if (data.cities && data.cities.length > 0) {
-          const realCities = data.cities.map((city, i) => ({
+    const networkManager = new NetworkManager();
+    
+    // Şehirleri çek
+    networkManager.getCities()
+      .then(citiesData => {
+        console.log('API\'den gelen şehir verileri:', citiesData);
+        if (citiesData && citiesData.length > 0) {
+          const realCities = citiesData.map((city, i) => ({
             id: city.id,
             name: city.name,
             coordinates: city.coordinates || { x: i * 20, y: i * 10 },
             sectors: city.sectors || [],
             market_size: city.market_size || 1000,
+            description: city.description || '',
+            neighbors: city.neighbors || [],
           }));
+          console.log('İşlenmiş şehirler:', realCities);
           setCitiesLocal(realCities);
           setCities(realCities);
           // Gerçek şehirler için NPC'ler oluştur
           setNpcList(createNPCs(realCities.map(c => c.name)));
         } else {
+          console.warn('API\'den şehir verisi gelmedi, fallback kullanılıyor');
           // Fallback: Eğer API'den veri gelmezse, gerçek şehir isimleri kullan
           const fallbackCities = generateCities([
-            'Mardin', 'Izmir', 'Corum'
+            'Mardin', 'Izmir', 'Corum', 'Istanbul', 'Ankara', 'Antalya', 'Konya', 'Trabzon', 'Gaziantep', 'Adana'
           ]).map((city, i) => ({
             id: i + 1,
             name: city.name,
@@ -101,14 +107,23 @@ export default function GameWorld() {
           }));
           setCitiesLocal(fallbackCities);
           setCities(fallbackCities);
-          setNpcList(createNPCs(['Mardin', 'Izmir', 'Corum']));
+          setNpcList(createNPCs(['Mardin', 'Izmir', 'Corum', 'Istanbul', 'Ankara', 'Antalya', 'Konya', 'Trabzon', 'Gaziantep', 'Adana']));
         }
       })
       .catch(err => {
         console.error('Şehir verileri alınamadı:', err);
-        // Hata durumunda boş liste
-        setCitiesLocal([]);
-        setCities([]);
+        // Hata durumunda fallback kullan
+        const fallbackCities = generateCities([
+          'Mardin', 'Izmir', 'Corum', 'Istanbul', 'Ankara', 'Antalya', 'Konya', 'Trabzon', 'Gaziantep', 'Adana'
+        ]).map((city, i) => ({
+          id: i + 1,
+          name: city.name,
+          coordinates: { x: i * 20, y: i * 10 },
+          ...city
+        }));
+        setCitiesLocal(fallbackCities);
+        setCities(fallbackCities);
+        setNpcList(createNPCs(['Mardin', 'Izmir', 'Corum', 'Istanbul', 'Ankara', 'Antalya', 'Konya', 'Trabzon', 'Gaziantep', 'Adana']));
       });
     
     // Kullanıcının gerçek NFT'lerini çek (eğer varsa)

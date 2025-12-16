@@ -62,6 +62,23 @@ class AdvisorProfileAdmin(admin.ModelAdmin):
         return obj.verified_at is not None
     is_active.boolean = True
     is_active.short_description = "Aktif"
+    
+    actions = ["verify_advisors", "unverify_advisors"]
+    
+    @admin.action(description="Seçili mali müşavirleri doğrula")
+    def verify_advisors(self, request, queryset):
+        from django.utils import timezone
+        count = queryset.filter(verified_at__isnull=True).update(
+            verified_at=timezone.now()
+        )
+        self.message_user(request, f"{count} mali müşavir doğrulandı.")
+    
+    @admin.action(description="Seçili mali müşavirlerin doğrulamasını kaldır")
+    def unverify_advisors(self, request, queryset):
+        count = queryset.filter(verified_at__isnull=False).update(
+            verified_at=None
+        )
+        self.message_user(request, f"{count} mali müşavirin doğrulaması kaldırıldı.")
 
 
 @admin.register(AdvisorRegistrySource)

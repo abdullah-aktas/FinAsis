@@ -56,26 +56,43 @@
     box-shadow: 0 6px 30px rgba(102, 126, 234, 0.7);
   }
 
-  /* Game Container */
+  /* Game Container - Responsive ve ekrana sığdırılabilir */
   .game-container {
-    max-width: 1400px;
-    margin: clamp(10px, 2vw, 20px) auto;
-    padding: 0 clamp(10px, 2vw, 20px);
+    max-width: 100%;
+    margin: 0 auto;
+    padding: clamp(8px, 1.5vw, 15px);
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media (min-width: 768px) {
+    .game-container {
+      max-width: 1600px;
+      padding: clamp(10px, 2vw, 20px);
+    }
   }
 
-  /* Header */
+  /* Header - Compact ve responsive */
   .game-header {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: clamp(12px, 2.5vw, 20px);
-    padding: clamp(15px, 3vw, 25px) clamp(15px, 3vw, 30px);
-    margin-bottom: clamp(10px, 2vw, 20px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(10px, 2vw, 18px) clamp(12px, 2.5vw, 20px);
+    margin-bottom: clamp(8px, 1.5vw, 12px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     animation: slideDown 0.5s ease-out;
     width: 100%;
     box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .game-header {
+      padding: clamp(8px, 1.5vw, 12px);
+    }
   }
 
   @keyframes slideDown {
@@ -100,9 +117,17 @@
 
   .game-info {
     display: flex;
-    gap: clamp(10px, 2vw, 30px);
+    gap: clamp(8px, 1.5vw, 20px);
     flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
+  }
+  
+  @media (max-width: 768px) {
+    .game-info {
+      gap: clamp(6px, 1.2vw, 12px);
+      font-size: clamp(11px, 2.2vw, 14px);
+    }
   }
 
   .info-item {
@@ -125,15 +150,31 @@
     font-size: clamp(14px, 3vw, 18px);
   }
 
-  /* Game Board */
+  /* Game Board - Responsive grid layout */
   .game-board {
     display: grid;
     grid-template-columns: 1fr;
-    gap: clamp(15px, 3vw, 20px);
-    margin-bottom: clamp(10px, 2vw, 20px);
+    gap: clamp(10px, 2vw, 15px);
+    margin-bottom: clamp(8px, 1.5vw, 15px);
     animation: fadeIn 0.6s ease-out;
     width: 100%;
     box-sizing: border-box;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  @media (min-width: 1024px) {
+    .game-board {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(15px, 2.5vw, 20px);
+    }
+  }
+  
+  @media (min-width: 1400px) {
+    .game-board {
+      grid-template-columns: 300px 1fr 300px;
+    }
   }
 
   @keyframes fadeIn {
@@ -147,15 +188,25 @@
     }
   }
 
-  /* Account Cards Section */
+  /* Account Cards Section - Compact ve scrollable */
   .accounts-section {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: clamp(12px, 2.5vw, 20px);
-    padding: clamp(15px, 3vw, 25px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(10px, 2vw, 18px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
     box-sizing: border-box;
     overflow: hidden;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media (max-width: 768px) {
+    .accounts-section {
+      max-height: 40vh;
+      overflow-y: auto;
+    }
   }
 
   .section-title {
@@ -176,9 +227,19 @@
 
   .accounts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 20vw, 140px), 1fr));
-    gap: clamp(8px, 1.5vw, 12px);
+    grid-template-columns: repeat(auto-fill, minmax(clamp(90px, 18vw, 130px), 1fr));
+    gap: clamp(6px, 1.2vw, 10px);
     width: 100%;
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
+  }
+  
+  @media (max-width: 768px) {
+    .accounts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: clamp(5px, 1vw, 8px);
+      max-height: 30vh;
+    }
   }
 
   .account-card {
@@ -244,13 +305,22 @@
 
   .drop-zone {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: clamp(12px, 2.5vw, 20px);
-    padding: clamp(15px, 3vw, 25px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    min-height: clamp(250px, 50vw, 350px);
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(12px, 2.5vw, 20px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    min-height: clamp(200px, 40vw, 300px);
+    max-height: calc(100vh - 250px);
     width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  @media (max-width: 768px) {
+    .drop-zone {
+      min-height: clamp(180px, 35vw, 250px);
+      max-height: 40vh;
+    }
   }
 
   .drop-zone.debit {
@@ -365,15 +435,25 @@
     transform: scale(1.1);
   }
 
-  /* Document Panel */
+  /* Document Panel - Compact ve scrollable */
   .document-panel {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: clamp(12px, 2.5vw, 20px);
-    padding: clamp(15px, 3vw, 25px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(12px, 2.5vw, 20px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 300px);
+    flex: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .document-panel {
+      max-height: 50vh;
+      padding: clamp(10px, 2vw, 15px);
+    }
   }
 
   .document-header {
@@ -626,16 +706,32 @@
     word-break: break-word;
   }
 
-  /* Theory Panel */
+  /* Theory Panel - Compact ve collapsible */
   .theory-panel {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: clamp(12px, 2.5vw, 20px);
-    padding: clamp(15px, 3vw, 25px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    margin-bottom: clamp(10px, 2vw, 20px);
+    border-radius: clamp(10px, 2vw, 16px);
+    padding: clamp(10px, 2vw, 18px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: clamp(8px, 1.5vw, 12px);
     width: 100%;
     box-sizing: border-box;
     overflow: hidden;
+    flex-shrink: 0;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .theory-panel {
+      max-height: 150px;
+      padding: clamp(8px, 1.5vw, 12px);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .theory-panel {
+      max-height: 250px;
+    }
   }
 
   .theory-title {
@@ -673,7 +769,42 @@
     margin-right: 8px;
   }
 
-  /* Responsive Design - Mobile First */
+  /* Responsive Design - Mobile First - Optimize edildi */
+  @media (max-width: 576px) {
+    .game-container {
+      padding: clamp(5px, 1vw, 10px);
+    }
+    
+    .game-header {
+      padding: clamp(8px, 1.5vw, 12px);
+    }
+    
+    .game-info {
+      font-size: clamp(10px, 2vw, 12px);
+      gap: clamp(4px, 1vw, 8px);
+    }
+    
+    .accounts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: clamp(4px, 0.8vw, 6px);
+    }
+    
+    .account-card {
+      min-height: clamp(60px, 10vw, 75px);
+      padding: clamp(6px, 1.2vw, 8px);
+    }
+    
+    .drop-zone {
+      min-height: clamp(150px, 30vw, 200px);
+      padding: clamp(8px, 1.5vw, 12px);
+    }
+    
+    .game-btn {
+      padding: clamp(10px, 2vw, 12px) clamp(15px, 3vw, 20px);
+      font-size: clamp(12px, 2.5vw, 14px);
+    }
+  }
+  
   @media (min-width: 576px) {
     .game-board {
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
