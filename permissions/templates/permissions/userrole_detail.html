@@ -1,42 +1,42 @@
-{%% extends "base.html" %%}
-{%% load i18n %%}
-{%% load static %%}
-{%% load messages %%}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load messages %}
 
-{%% block title %%}{%% trans 'Kullanıcı Rolü Detayı' %%}{%% endblock %%}
+{% block title %}{% trans 'Kullanıcı Rolü Detayı' %}{% endblock %}
 
-{%% block content %%}
+{% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h2 class="mb-4">{%% trans 'Kullanıcı Rolü Detayı' %%}</h2>
-            {%% if messages %%}
+            <h2 class="mb-4">{% trans 'Kullanıcı Rolü Detayı' %}</h2>
+            {% if messages %}
             <div>
-                {%% for message in messages %%}
+                {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {%% endfor %%}
+                {% endfor %}
             </div>
-            {%% endif %%}
+            {% endif %}
             <div class="card">
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">{%% trans 'Kullanıcı' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'Kullanıcı' %}</dt>
                         <dd class="col-sm-8">{{ user_role.user }}</dd>
-                        <dt class="col-sm-4">{%% trans 'Rol' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'Rol' %}</dt>
                         <dd class="col-sm-8">{{ user_role.role }}</dd>
-                        <dt class="col-sm-4">{%% trans 'Oluşturulma Tarihi' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'Oluşturulma Tarihi' %}</dt>
                         <dd class="col-sm-8">{{ user_role.created_at|date:"d.m.Y H:i" }}</dd>
-                        <dt class="col-sm-4">{%% trans 'Güncellenme Tarihi' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'Güncellenme Tarihi' %}</dt>
                         <dd class="col-sm-8">{{ user_role.updated_at|date:"d.m.Y H:i" }}</dd>
                     </dl>
                 </div>
                 <div class="card-footer text-end">
-                    <a href="{%% url 'permissions:user_role_update' user_role.id %%}" class="btn btn-warning">{%% trans 'Düzenle' %%}</a>
-                    <a href="{%% url 'permissions:user_role_delete' user_role.id %%}" class="btn btn-danger">{%% trans 'Sil' %%}</a>
+                    <a href="{% url 'permissions:user_role_update' user_role.id %}" class="btn btn-warning">{% trans 'Düzenle' %}</a>
+                    <a href="{% url 'permissions:user_role_delete' user_role.id %}" class="btn btn-danger">{% trans 'Sil' %}</a>
                     <a href="{% url 'permissions:userrole_list' %}" class="btn btn-secondary">{% trans 'Geri Dön' %}</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{%% endblock %%} 
+{% endblock %} 

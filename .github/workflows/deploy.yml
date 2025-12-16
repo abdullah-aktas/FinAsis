@@ -289,7 +289,7 @@ jobs:
           # Environment variables'ı hazırla
           # NOT: PORT env değişkeni Cloud Run tarafından otomatik set edilir, biz set etmiyoruz (aksi halde "reserved env names" hatası veriyor)
           # Özel karakterler içeren değerler için --update-env-vars kullanıyoruz
-          
+
           # Use IMAGE from env (set in build step) or fallback to constructing it
           DEPLOY_IMAGE="${IMAGE:-${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}}"
 

@@ -45,6 +45,9 @@ User = get_user_model()
 
 class Command(BaseCommand):
     help = "Test kullanıcıları, örnek veriler, feature flag'ler ve AI varlıklarını oluşturur."
+    
+    # ÖNEMLİ: Bu komut SADECE test/development ortamlarında kullanılmalıdır!
+    # Production'da asla çalıştırılmamalıdır!
 
     DEFAULT_PASSWORD = "FinAsis!2025"
 
@@ -204,6 +207,17 @@ class Command(BaseCommand):
     ]
 
     def handle(self, *args, **options):
+        # Production'da çalıştırılmasını engelle
+        from django.conf import settings
+        if not settings.DEBUG:
+            self.stdout.write(
+                self.style.ERROR(
+                    "❌ BU KOMUT SADECE TEST/DEVELOPMENT ORTAMLARINDA ÇALIŞTIRILABİLİR!\n"
+                    "Production'da demo/test verileri oluşturulamaz.\n"
+                    "Dürüstlük politikamız gereği production'da sadece gerçek veriler bulunmalıdır."
+                )
+            )
+            return
         with transaction.atomic():
             self.stdout.write(self.style.WARNING("> Test ortami kurulumu basliyor..."))
             self._run_prerequisite_commands()

@@ -791,7 +791,7 @@
     <div class="game-info">
       <div class="info-item">
         <i class="bi bi-file-earmark-text"></i>
-        <span>İşlem <span id="currentScenario">1</span>/<span id="totalScenarios">5</span></span>
+        <span>İşlem <span id="currentScenario">1</span>/<span id="totalScenarios">15</span></span>
       </div>
       <div class="info-item">
         <i class="bi bi-trophy"></i>
@@ -801,6 +801,38 @@
         <i class="bi bi-check-circle"></i>
         <span>Doğru: <span id="correctCount">0</span></span>
       </div>
+      <div class="info-item">
+        <i class="bi bi-star"></i>
+        <span>Seviye: <span id="playerLevel">1</span></span>
+      </div>
+      <div class="info-item">
+        <i class="bi bi-funnel"></i>
+        <span>Zorluk: 
+          <select id="difficultyFilter" onchange="filterByDifficulty()" style="border: none; background: transparent; color: #764ba2; font-weight: 700; cursor: pointer;">
+            <option value="0">Tümü</option>
+            <option value="1">Başlangıç</option>
+            <option value="2">Orta</option>
+            <option value="3">İleri</option>
+          </select>
+        </span>
+      </div>
+    </div>
+    <!-- XP Bar -->
+    <div style="margin-top: 15px; background: #e9ecef; border-radius: 10px; height: 25px; position: relative; overflow: hidden;">
+      <div id="xpBar" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; transition: width 0.5s ease;">
+        0/100 XP
+      </div>
+    </div>
+  </div>
+  
+  <!-- Achievements Panel -->
+  <div class="theory-panel" style="margin-top: 15px;">
+    <div class="theory-title">
+      <i class="bi bi-trophy-fill"></i>
+      Başarımlar
+    </div>
+    <div id="achievementsList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+      <!-- Achievements will be rendered here -->
     </div>
   </div>
 
@@ -901,127 +933,450 @@
 </div>
 
 <script>
-// Game Data
+// Game Data - Genişletilmiş Hesap Planı
 const ACCOUNTS = {
-  "100": { name: "Kasa", type: "Varlık" },
-  "102": { name: "Bankalar", type: "Varlık" },
-  "120": { name: "Alıcılar", type: "Varlık" },
-  "153": { name: "Ticari Mallar", type: "Varlık" },
-  "191": { name: "İndirilecek KDV", type: "Varlık" },
-  "300": { name: "Banka Kredileri", type: "Yabancı Kaynak" },
-  "320": { name: "Satıcılar", type: "Yabancı Kaynak" },
-  "391": { name: "Hesaplanan KDV", type: "Yükümlülük" },
-  "600": { name: "Yurtiçi Satışlar", type: "Gelir" },
-  "770": { name: "Genel Yönetim Giderleri", type: "Gider" }
+  "100": { name: "Kasa", type: "Varlık", category: "Dönen Varlık" },
+  "102": { name: "Bankalar", type: "Varlık", category: "Dönen Varlık" },
+  "120": { name: "Alıcılar", type: "Varlık", category: "Dönen Varlık" },
+  "121": { name: "Alacak Senetleri", type: "Varlık", category: "Dönen Varlık" },
+  "153": { name: "Ticari Mallar", type: "Varlık", category: "Dönen Varlık" },
+  "191": { name: "İndirilecek KDV", type: "Varlık", category: "Dönen Varlık" },
+  "250": { name: "Banka Kredileri (Kısa Vadeli)", type: "Yabancı Kaynak", category: "Kısa Vadeli Borç" },
+  "300": { name: "Banka Kredileri (Uzun Vadeli)", type: "Yabancı Kaynak", category: "Uzun Vadeli Borç" },
+  "320": { name: "Satıcılar", type: "Yabancı Kaynak", category: "Kısa Vadeli Borç" },
+  "321": { name: "Borç Senetleri", type: "Yabancı Kaynak", category: "Kısa Vadeli Borç" },
+  "391": { name: "Hesaplanan KDV", type: "Yükümlülük", category: "Kısa Vadeli Borç" },
+  "500": { name: "Sermaye", type: "Özkaynak", category: "Özkaynak" },
+  "600": { name: "Yurtiçi Satışlar", type: "Gelir", category: "Gelir" },
+  "610": { name: "Satış İndirimleri", type: "Gelir", category: "Gelir" },
+  "630": { name: "Satış İadeleri", type: "Gelir", category: "Gelir" },
+  "650": { name: "Satışların Maliyeti", type: "Gider", category: "Gider" },
+  "770": { name: "Genel Yönetim Giderleri", type: "Gider", category: "Gider" },
+  "780": { name: "Pazarlama ve Satış Giderleri", type: "Gider", category: "Gider" },
+  "790": { name: "Araştırma ve Geliştirme Giderleri", type: "Gider", category: "Gider" }
 };
 
+// Senaryolar - Zorluk Seviyeleri: 1=Başlangıç, 2=Orta, 3=İleri
 const SCENARIOS = [
+  // BAŞLANGIÇ SEVİYESİ (1-5)
   {
     id: 1,
-    title: "Nakit satış (Fatura): 6.000 TL + %20 KDV, tahsilat kasaya.",
+    difficulty: 1,
+    title: "Nakit Satış - Fatura",
+    description: "Müşteriye nakit satış yapıldı. Faturayı inceleyip kaydı oluşturun.",
     document: {
       type: "FATURA",
       number: "FTR-2025-0001",
-      date: "2025-11-01",
-      seller: "FinAsis Ltd.",
-      buyer: "Müşteri A",
+      date: "2025-01-15",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "ABC Ticaret Ltd.",
+      tax_id: "1234567890",
+      address: "İstanbul, Türkiye",
       lines: [
-        { desc: "Mal Satışı", qty: 1, unit_price: 6000.0, vat_rate: 0.2 }
+        { desc: "Laptop Bilgisayar", qty: 2, unit_price: 5000.0, vat_rate: 0.2 }
       ],
       payment: "NAKIT",
-      note: "Tutar kasaya alınmıştır."
+      note: "Tutar kasaya alınmıştır. Müşteri faturayı nakit olarak ödemiştir.",
+      document_icon: "📄"
     },
     expected: [
-      { code: "100", side: "D", amount: 7200.0 },
-      { code: "600", side: "C", amount: 6000.0 },
-      { code: "391", side: "C", amount: 1200.0 }
+      { code: "100", side: "D", amount: 12000.0 },
+      { code: "600", side: "C", amount: 10000.0 },
+      { code: "391", side: "C", amount: 2000.0 }
     ],
-    hint: "Kasa (D), Yurtiçi Satışlar (C), Hesaplanan KDV (C)"
+    hint: "Nakit satışta: Kasa (D), Satış Geliri (C), Hesaplanan KDV (C)",
+    explanation: "Nakit satışta kasa artar (BORÇ), satış geliri oluşur (ALACAK), KDV yükümlülüğü doğar (ALACAK)."
   },
   {
     id: 2,
-    title: "Vadeli mal alışı (Fatura): 10.000 TL + %20 KDV, borç satıcıya.",
+    difficulty: 1,
+    title: "Vadeli Mal Alışı",
+    description: "Tedarikçiden vadeli mal alındı. Faturayı inceleyip kaydı oluşturun.",
     document: {
       type: "FATURA",
       number: "FTR-2025-0002",
-      date: "2025-11-01",
-      seller: "Tedarikçi X",
-      buyer: "FinAsis Ltd.",
+      date: "2025-01-16",
+      seller: "XYZ Tedarik A.Ş.",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "9876543210",
+      address: "Ankara, Türkiye",
       lines: [
-        { desc: "Ticari Mal", qty: 1, unit_price: 10000.0, vat_rate: 0.2 }
+        { desc: "Ofis Malzemeleri", qty: 50, unit_price: 200.0, vat_rate: 0.2 }
       ],
       payment: "VADELİ",
-      note: "Ödeme 30 gün sonra."
+      note: "Ödeme 30 gün sonra yapılacaktır. Vade: 15.02.2025",
+      document_icon: "📋"
     },
     expected: [
       { code: "153", side: "D", amount: 10000.0 },
       { code: "191", side: "D", amount: 2000.0 },
       { code: "320", side: "C", amount: 12000.0 }
     ],
-    hint: "153-191 (D), 320 (C)"
+    hint: "Vadeli alışta: Ticari Mallar (D), İndirilecek KDV (D), Satıcılar (C)",
+    explanation: "Mal alındığında stok artar (BORÇ), KDV indirilecek (BORÇ), satıcıya borç oluşur (ALACAK)."
   },
   {
     id: 3,
-    title: "Maaş ödemesi: 15.000 TL peşin (kasa).",
+    difficulty: 1,
+    title: "Maaş Ödemesi",
+    description: "Personel maaşları kasadan ödendi. Bordroyu inceleyip kaydı oluşturun.",
     document: {
       type: "MAAŞ BORDROSU",
       number: "PAY-2025-0003",
-      date: "2025-11-01",
-      seller: "İK Birimi",
+      date: "2025-01-31",
+      seller: "İnsan Kaynakları",
       buyer: "Personel",
+      tax_id: "-",
+      address: "FinAsis Teknoloji A.Ş.",
       lines: [
-        { desc: "Net Maaş Ödemesi", qty: 1, unit_price: 15000.0, vat_rate: 0.0 }
+        { desc: "Net Maaş Ödemesi (5 Personel)", qty: 5, unit_price: 8000.0, vat_rate: 0.0 }
       ],
       payment: "NAKIT",
-      note: "Bordro ödemesi."
+      note: "Ocak ayı maaşları kasadan ödendi.",
+      document_icon: "💰"
     },
     expected: [
-      { code: "770", side: "D", amount: 15000.0 },
-      { code: "100", side: "C", amount: 15000.0 }
+      { code: "770", side: "D", amount: 40000.0 },
+      { code: "100", side: "C", amount: 40000.0 }
     ],
-    hint: "Gider borçlanır, ödeme kasadan."
+    hint: "Maaş ödemesinde: Gider (D), Kasa (C)",
+    explanation: "Maaş bir giderdir, giderler borçlanır. Ödeme kasadan yapıldığı için kasa azalır (ALACAK)."
   },
   {
     id: 4,
-    title: "Banka kredisi: 50.000 TL kredi alınmıştır.",
+    difficulty: 1,
+    title: "Banka Kredisi Alınması",
+    description: "Banka kredisi alındı. Dekontu inceleyip kaydı oluşturun.",
     document: {
       type: "BANKA DEKONTU",
       number: "BNK-2025-0004",
-      date: "2025-11-01",
-      seller: "X Bankası",
-      buyer: "FinAsis Ltd.",
+      date: "2025-01-20",
+      seller: "Türkiye İş Bankası",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "-",
+      address: "İstanbul Şubesi",
       lines: [
-        { desc: "Ticari Kredi", qty: 1, unit_price: 50000.0, vat_rate: 0.0 }
+        { desc: "Ticari Kredi (12 Ay Vadeli)", qty: 1, unit_price: 100000.0, vat_rate: 0.0 }
       ],
       payment: "BANKA",
-      note: "12 ay vadeli kredi."
+      note: "12 ay vadeli ticari kredi. Faiz oranı: %15",
+      document_icon: "🏦"
     },
     expected: [
-      { code: "102", side: "D", amount: 50000.0 },
-      { code: "300", side: "C", amount: 50000.0 }
+      { code: "102", side: "D", amount: 100000.0 },
+      { code: "300", side: "C", amount: 100000.0 }
     ],
-    hint: "Banka (D), Banka Kredileri (C)"
+    hint: "Kredi alındığında: Banka (D), Banka Kredileri (C)",
+    explanation: "Kredi alındığında banka hesabı artar (BORÇ), bankaya borç oluşur (ALACAK)."
   },
   {
     id: 5,
-    title: "Alıcıdan tahsilat: Müşteri B'den 8.000 TL bankaya.",
+    difficulty: 1,
+    title: "Alıcıdan Tahsilat",
+    description: "Müşteriden alacak tahsil edildi. Makbuzu inceleyip kaydı oluşturun.",
     document: {
       type: "TAHSİLAT MAKBUZU",
       number: "TAH-2025-0005",
-      date: "2025-11-01",
-      seller: "FinAsis Ltd.",
-      buyer: "Müşteri B",
+      date: "2025-01-25",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "DEF İnşaat Ltd.",
+      tax_id: "1122334455",
+      address: "İzmir, Türkiye",
       lines: [
-        { desc: "Alacak Tahsilatı", qty: 1, unit_price: 8000.0, vat_rate: 0.0 }
+        { desc: "Alacak Tahsilatı (FTR-2025-0001)", qty: 1, unit_price: 12000.0, vat_rate: 0.0 }
       ],
       payment: "BANKA",
-      note: "Alacak kapatıldı."
+      note: "Vadeli satışın tahsilatı banka hesabına yatırıldı.",
+      document_icon: "💳"
     },
     expected: [
-      { code: "102", side: "D", amount: 8000.0 },
-      { code: "120", side: "C", amount: 8000.0 }
+      { code: "102", side: "D", amount: 12000.0 },
+      { code: "120", side: "C", amount: 12000.0 }
     ],
-    hint: "Banka (D), Alıcılar (C)"
+    hint: "Tahsilatta: Banka (D), Alıcılar (C)",
+    explanation: "Alacak tahsil edildiğinde banka artar (BORÇ), alıcı alacağı azalır (ALACAK)."
+  },
+  // ORTA SEVİYE (6-10)
+  {
+    id: 6,
+    difficulty: 2,
+    title: "Senetli Satış",
+    description: "Müşteriye senet karşılığı satış yapıldı. Faturayı ve senedi inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA + SENET",
+      number: "FTR-2025-0006 / SNT-001",
+      date: "2025-02-01",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "GHI Elektronik A.Ş.",
+      tax_id: "2233445566",
+      address: "Bursa, Türkiye",
+      lines: [
+        { desc: "Yazılım Lisansı (Yıllık)", qty: 1, unit_price: 24000.0, vat_rate: 0.2 }
+      ],
+      payment: "SENET",
+      note: "90 gün vadeli senet alındı. Vade: 01.05.2025",
+      document_icon: "📜"
+    },
+    expected: [
+      { code: "121", side: "D", amount: 28800.0 },
+      { code: "600", side: "C", amount: 24000.0 },
+      { code: "391", side: "C", amount: 4800.0 }
+    ],
+    hint: "Senetli satışta: Alacak Senetleri (D), Satış (C), KDV (C)",
+    explanation: "Senet alındığında alacak senetleri artar (BORÇ), satış geliri oluşur (ALACAK), KDV yükümlülüğü doğar (ALACAK)."
+  },
+  {
+    id: 7,
+    difficulty: 2,
+    title: "Senetli Alış",
+    description: "Tedarikçiye senet verildi. Faturayı ve senedi inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA + SENET",
+      number: "FTR-2025-0007 / SNT-002",
+      date: "2025-02-05",
+      seller: "JKL Hizmet Ltd.",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "3344556677",
+      address: "Antalya, Türkiye",
+      lines: [
+        { desc: "Danışmanlık Hizmeti", qty: 1, unit_price: 50000.0, vat_rate: 0.2 }
+      ],
+      payment: "SENET",
+      note: "60 gün vadeli senet verildi. Vade: 06.04.2025",
+      document_icon: "📜"
+    },
+    expected: [
+      { code: "770", side: "D", amount: 50000.0 },
+      { code: "191", side: "D", amount: 10000.0 },
+      { code: "321", side: "C", amount: 60000.0 }
+    ],
+    hint: "Senetli alışta: Gider (D), İndirilecek KDV (D), Borç Senetleri (C)",
+    explanation: "Gider oluşur (BORÇ), KDV indirilecek (BORÇ), borç senedi verildi (ALACAK)."
+  },
+  {
+    id: 8,
+    difficulty: 2,
+    title: "Satış İndirimi",
+    description: "Müşteriye satış indirimi yapıldı. İndirim faturasını inceleyip kaydı oluşturun.",
+    document: {
+      type: "İNDİRİM FİŞİ",
+      number: "IND-2025-0008",
+      date: "2025-02-10",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "MNO Ticaret A.Ş.",
+      tax_id: "4455667788",
+      address: "Kocaeli, Türkiye",
+      lines: [
+        { desc: "Toplu Alım İndirimi (%10)", qty: 1, unit_price: -5000.0, vat_rate: 0.2 }
+      ],
+      payment: "VADELİ",
+      note: "Önceki satışa %10 indirim uygulandı. KDV dahil.",
+      document_icon: "🎁"
+    },
+    expected: [
+      { code: "120", side: "D", amount: 6000.0 },
+      { code: "610", side: "C", amount: 5000.0 },
+      { code: "391", side: "C", amount: 1000.0 }
+    ],
+    hint: "İndirimde: Alıcılar (D), Satış İndirimleri (C), KDV (C)",
+    explanation: "İndirim alıcı alacağını artırır (BORÇ), satış indirimi geliri azaltır (ALACAK), KDV düşer (ALACAK)."
+  },
+  {
+    id: 9,
+    difficulty: 2,
+    title: "Satış İadesi",
+    description: "Müşteri mal iade etti. İade faturasını inceleyip kaydı oluşturun.",
+    document: {
+      type: "İADE FİŞİ",
+      number: "IAD-2025-0009",
+      date: "2025-02-15",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "PQR Teknoloji Ltd.",
+      tax_id: "5566778899",
+      address: "Gaziantep, Türkiye",
+      lines: [
+        { desc: "İade Edilen Mal (Arızalı)", qty: 1, unit_price: 8000.0, vat_rate: 0.2 }
+      ],
+      payment: "BANKA",
+      note: "Arızalı mal iade edildi. Tutar banka hesabından iade edildi.",
+      document_icon: "↩️"
+    },
+    expected: [
+      { code: "630", side: "D", amount: 8000.0 },
+      { code: "391", side: "D", amount: 1600.0 },
+      { code: "102", side: "C", amount: 9600.0 }
+    ],
+    hint: "İadede: Satış İadeleri (D), KDV (D), Banka (C)",
+    explanation: "İade satışı azaltır (BORÇ), KDV geri alınır (BORÇ), ödeme bankadan yapılır (ALACAK)."
+  },
+  {
+    id: 10,
+    difficulty: 2,
+    title: "Satılan Malın Maliyeti",
+    description: "Satılan malların maliyeti kaydediliyor. Stok çıkış belgesini inceleyip kaydı oluşturun.",
+    document: {
+      type: "STOK ÇIKIŞ FİŞİ",
+      number: "STK-2025-0010",
+      date: "2025-02-20",
+      seller: "Depo",
+      buyer: "Satış",
+      tax_id: "-",
+      address: "FinAsis Depo",
+      lines: [
+        { desc: "Satılan Malın Maliyeti (10 Adet)", qty: 10, unit_price: 3000.0, vat_rate: 0.0 }
+      ],
+      payment: "-",
+      note: "Satılan malların maliyeti stoktan çıkarıldı.",
+      document_icon: "📦"
+    },
+    expected: [
+      { code: "650", side: "D", amount: 30000.0 },
+      { code: "153", side: "C", amount: 30000.0 }
+    ],
+    hint: "Maliyet kaydında: Satışların Maliyeti (D), Ticari Mallar (C)",
+    explanation: "Satış maliyeti gider olarak kaydedilir (BORÇ), stok azalır (ALACAK)."
+  },
+  // İLERİ SEVİYE (11-15)
+  {
+    id: 11,
+    difficulty: 3,
+    title: "Karma İşlem - Nakit + Senet",
+    description: "Karma ödeme yapıldı. Faturayı inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA",
+      number: "FTR-2025-0011",
+      date: "2025-03-01",
+      seller: "FinAsis Teknoloji A.Ş.",
+      buyer: "STU Holding A.Ş.",
+      tax_id: "6677889900",
+      address: "Ankara, Türkiye",
+      lines: [
+        { desc: "Yazılım Paketi", qty: 1, unit_price: 100000.0, vat_rate: 0.2 }
+      ],
+      payment: "KARMA",
+      note: "50.000 TL nakit, 70.000 TL 60 gün vadeli senet alındı.",
+      document_icon: "💼"
+    },
+    expected: [
+      { code: "100", side: "D", amount: 50000.0 },
+      { code: "121", side: "D", amount: 70000.0 },
+      { code: "600", side: "C", amount: 100000.0 },
+      { code: "391", side: "C", amount: 20000.0 }
+    ],
+    hint: "Karma ödemede: Kasa (D), Alacak Senetleri (D), Satış (C), KDV (C)",
+    explanation: "Nakit kısım kasaya (BORÇ), senet kısmı alacak senetlerine (BORÇ), satış geliri (ALACAK), KDV (ALACAK)."
+  },
+  {
+    id: 12,
+    difficulty: 3,
+    title: "Pazarlama Gideri",
+    description: "Pazarlama kampanyası için harcama yapıldı. Faturayı inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA",
+      number: "FTR-2025-0012",
+      date: "2025-03-05",
+      seller: "VWX Reklam Ajansı",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "7788990011",
+      address: "İstanbul, Türkiye",
+      lines: [
+        { desc: "Dijital Pazarlama Hizmeti", qty: 1, unit_price: 25000.0, vat_rate: 0.2 }
+      ],
+      payment: "BANKA",
+      note: "Pazarlama kampanyası için ödeme bankadan yapıldı.",
+      document_icon: "📢"
+    },
+    expected: [
+      { code: "780", side: "D", amount: 25000.0 },
+      { code: "191", side: "D", amount: 5000.0 },
+      { code: "102", side: "C", amount: 30000.0 }
+    ],
+    hint: "Pazarlama giderinde: Pazarlama Giderleri (D), İndirilecek KDV (D), Banka (C)",
+    explanation: "Pazarlama gideri oluşur (BORÇ), KDV indirilecek (BORÇ), ödeme bankadan (ALACAK)."
+  },
+  {
+    id: 13,
+    difficulty: 3,
+    title: "Ar-Ge Gideri",
+    description: "Araştırma ve geliştirme harcaması yapıldı. Faturayı inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA",
+      number: "FTR-2025-0013",
+      date: "2025-03-10",
+      seller: "YZ Teknoloji Lab.",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "8899001122",
+      address: "İzmir, Türkiye",
+      lines: [
+        { desc: "Yazılım Geliştirme Hizmeti", qty: 1, unit_price: 75000.0, vat_rate: 0.2 }
+      ],
+      payment: "VADELİ",
+      note: "Ar-Ge projesi için hizmet alındı. Ödeme 45 gün sonra.",
+      document_icon: "🔬"
+    },
+    expected: [
+      { code: "790", side: "D", amount: 75000.0 },
+      { code: "191", side: "D", amount: 15000.0 },
+      { code: "320", side: "C", amount: 90000.0 }
+    ],
+    hint: "Ar-Ge giderinde: Ar-Ge Giderleri (D), İndirilecek KDV (D), Satıcılar (C)",
+    explanation: "Ar-Ge gideri oluşur (BORÇ), KDV indirilecek (BORÇ), satıcıya borç oluşur (ALACAK)."
+  },
+  {
+    id: 14,
+    difficulty: 3,
+    title: "Sermaye Artırımı",
+    description: "Ortaklardan sermaye artırımı yapıldı. Dekontu inceleyip kaydı oluşturun.",
+    document: {
+      type: "BANKA DEKONTU",
+      number: "BNK-2025-0014",
+      date: "2025-03-15",
+      seller: "Ortaklar",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "-",
+      address: "Genel Kurul",
+      lines: [
+        { desc: "Sermaye Artırımı", qty: 1, unit_price: 200000.0, vat_rate: 0.0 }
+      ],
+      payment: "BANKA",
+      note: "Ortaklardan nakit sermaye artırımı yapıldı.",
+      document_icon: "💎"
+    },
+    expected: [
+      { code: "102", side: "D", amount: 200000.0 },
+      { code: "500", side: "C", amount: 200000.0 }
+    ],
+    hint: "Sermaye artırımında: Banka (D), Sermaye (C)",
+    explanation: "Sermaye artırımında banka artar (BORÇ), özkaynak (sermaye) artar (ALACAK)."
+  },
+  {
+    id: 15,
+    difficulty: 3,
+    title: "Karma Gider - Nakit + Vadeli",
+    description: "Karma ödeme ile gider kaydedildi. Faturayı inceleyip kaydı oluşturun.",
+    document: {
+      type: "FATURA",
+      number: "FTR-2025-0015",
+      date: "2025-03-20",
+      seller: "ABC Hizmet Ltd.",
+      buyer: "FinAsis Teknoloji A.Ş.",
+      tax_id: "9900112233",
+      address: "Bursa, Türkiye",
+      lines: [
+        { desc: "Danışmanlık Hizmeti", qty: 1, unit_price: 60000.0, vat_rate: 0.2 }
+      ],
+      payment: "KARMA",
+      note: "30.000 TL nakit, 42.000 TL vadeli ödeme yapıldı.",
+      document_icon: "💼"
+    },
+    expected: [
+      { code: "770", side: "D", amount: 60000.0 },
+      { code: "191", side: "D", amount: 12000.0 },
+      { code: "100", side: "C", amount: 30000.0 },
+      { code: "320", side: "C", amount: 42000.0 }
+    ],
+    hint: "Karma giderde: Gider (D), KDV (D), Kasa (C), Satıcılar (C)",
+    explanation: "Gider oluşur (BORÇ), KDV indirilecek (BORÇ), nakit kısım kasadan (ALACAK), vadeli kısım satıcıya borç (ALACAK)."
   }
 ];
 
@@ -1030,6 +1385,20 @@ let currentScenarioIndex = 0;
 let score = 0;
 let correctAnswers = 0;
 let draggedElement = null;
+let playerLevel = 1;
+let playerXP = 0;
+let xpToNextLevel = 100;
+let completedScenarios = new Set();
+let selectedDifficulty = 0; // 0=Tümü, 1=Başlangıç, 2=Orta, 3=İleri
+let availableScenarios = [...SCENARIOS];
+let achievements = {
+  beginner: { unlocked: false, name: "Başlangıç Ustası", desc: "5 başlangıç seviyesi senaryoyu tamamla" },
+  intermediate: { unlocked: false, name: "Orta Seviye Uzmanı", desc: "5 orta seviye senaryoyu tamamla" },
+  advanced: { unlocked: false, name: "İleri Seviye Ustası", desc: "5 ileri seviye senaryoyu tamamla" },
+  perfect: { unlocked: false, name: "Mükemmeliyet", desc: "10 senaryoyu hatasız tamamla" },
+  speedster: { unlocked: false, name: "Hız Canavarı", desc: "5 senaryoyu 2 dakikada tamamla" },
+  master: { unlocked: false, name: "Muhasebe Ustası", desc: "Tüm senaryoları tamamla" }
+};
 
 // Initialize Game
 document.addEventListener('DOMContentLoaded', function() {
@@ -1041,6 +1410,35 @@ function initializeGame() {
   renderDropSlots();
   loadScenario(currentScenarioIndex);
   updateGameStats();
+  renderAchievements();
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievementsList');
+  if (!container) return;
+  
+  container.innerHTML = Object.keys(achievements).map(key => {
+    const ach = achievements[key];
+    const unlocked = ach.unlocked;
+    return `
+      <div style="
+        padding: 10px;
+        background: ${unlocked ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#f8f9fa'};
+        border-radius: 8px;
+        border: 2px solid ${unlocked ? '#667eea' : '#dee2e6'};
+        color: ${unlocked ? 'white' : '#666'};
+        font-size: 12px;
+        opacity: ${unlocked ? '1' : '0.7'};
+      ">
+        <div style="font-weight: 700; margin-bottom: 5px;">
+          ${unlocked ? '🏆' : '🔒'} ${ach.name}
+        </div>
+        <div style="font-size: 11px; opacity: 0.9;">
+          ${ach.desc}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderAccounts() {
@@ -1099,25 +1497,64 @@ function createDropSlot() {
   return slot;
 }
 
+function filterByDifficulty() {
+  selectedDifficulty = parseInt(document.getElementById('difficultyFilter').value);
+  if (selectedDifficulty === 0) {
+    availableScenarios = [...SCENARIOS];
+  } else {
+    availableScenarios = SCENARIOS.filter(s => s.difficulty === selectedDifficulty);
+  }
+  
+  // Mevcut senaryo filtrelenmiş listede yoksa ilkine geç
+  if (!availableScenarios.find(s => s.id === SCENARIOS[currentScenarioIndex].id)) {
+    currentScenarioIndex = SCENARIOS.indexOf(availableScenarios[0]);
+  }
+  
+  loadScenario(currentScenarioIndex);
+  updateGameStats();
+}
+
 function loadScenario(index) {
   const scenario = SCENARIOS[index];
   const doc = scenario.document;
   
-  // Update title
-  document.getElementById('scenarioTitle').textContent = scenario.title;
+  // Senaryo zorluk seviyesi göstergesi
+  const difficultyLabels = { 1: "🟢 Başlangıç", 2: "🟡 Orta", 3: "🔴 İleri" };
+  const difficultyLabel = difficultyLabels[scenario.difficulty] || "❓";
+  
+  // Update title with difficulty
+  document.getElementById('scenarioTitle').innerHTML = `
+    ${scenario.title} <span style="font-size: 0.7em; color: #666;">${difficultyLabel}</span>
+  `;
   document.getElementById('currentScenario').textContent = index + 1;
   document.getElementById('totalScenarios').textContent = SCENARIOS.length;
   
-  // Update document
-  document.getElementById('documentType').textContent = doc.type;
+  // Senaryo açıklaması ekle
+  if (scenario.description) {
+    const descElement = document.getElementById('scenarioDescription');
+    if (!descElement) {
+      const desc = document.createElement('div');
+      desc.id = 'scenarioDescription';
+      desc.style.cssText = 'margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 8px; font-size: 14px; color: #555;';
+      desc.textContent = scenario.description;
+      document.getElementById('scenarioTitle').parentElement.appendChild(desc);
+    } else {
+      descElement.textContent = scenario.description;
+    }
+  }
+  
+  // Update document with icon
+  document.getElementById('documentType').innerHTML = `${doc.document_icon || '📄'} ${doc.type}`;
   document.getElementById('documentNumber').textContent = `No: ${doc.number}`;
   
-  // Document info
+  // Document info - enhanced
   const infoHtml = `
-    <div class="info-row"><span class="info-label">Tarih:</span> <span class="info-value">${doc.date}</span></div>
-    <div class="info-row"><span class="info-label">Satıcı:</span> <span class="info-value">${doc.seller}</span></div>
-    <div class="info-row"><span class="info-label">Alıcı:</span> <span class="info-value">${doc.buyer}</span></div>
-    <div class="info-row"><span class="info-label">Ödeme:</span> <span class="info-value">${doc.payment}</span></div>
+    <div class="info-row"><span class="info-label">📅 Tarih:</span> <span class="info-value">${doc.date}</span></div>
+    <div class="info-row"><span class="info-label">🏢 Satıcı:</span> <span class="info-value">${doc.seller}</span></div>
+    ${doc.tax_id ? `<div class="info-row"><span class="info-label">🆔 Vergi No:</span> <span class="info-value">${doc.tax_id}</span></div>` : ''}
+    <div class="info-row"><span class="info-label">👤 Alıcı:</span> <span class="info-value">${doc.buyer}</span></div>
+    <div class="info-row"><span class="info-label">📍 Adres:</span> <span class="info-value">${doc.address}</span></div>
+    <div class="info-row"><span class="info-label">💳 Ödeme:</span> <span class="info-value">${doc.payment}</span></div>
   `;
   document.getElementById('documentInfo').innerHTML = infoHtml;
   
@@ -1359,15 +1796,36 @@ function checkAnswer() {
   
   if (debitCorrect && creditCorrect) {
     // Correct!
-    const points = 100;
+    const scenario = SCENARIOS[currentScenarioIndex];
+    const basePoints = 100;
+    const difficultyMultiplier = scenario.difficulty; // 1, 2, veya 3
+    const points = basePoints * difficultyMultiplier;
+    const xpGained = 20 * difficultyMultiplier;
+    
     score += points;
     correctAnswers++;
+    playerXP += xpGained;
+    completedScenarios.add(scenario.id);
+    
+    // Level up check
+    checkLevelUp();
+    
+    // Achievement check
+    checkAchievements();
+    
     updateGameStats();
     
-    showFeedback('success', '✅ Mükemmel! Kayıt tamamen doğru!', `+${points} puan kazandınız. Toplam: ${score}`);
+    let explanationText = scenario.explanation || '';
+    showFeedback('success', 
+      '✅ Mükemmel! Kayıt tamamen doğru!', 
+      `+${points} puan ve +${xpGained} XP kazandınız! Toplam: ${score} puan${explanationText ? '. ' + explanationText : ''}`
+    );
     
     // Confetti effect
     createConfetti();
+    
+    // Mark scenario as completed
+    highlightCompletedScenario();
   } else {
     // Partial or incorrect
     const correctCount = 
@@ -1393,11 +1851,32 @@ function checkAnswer() {
 
 function showHint() {
   const scenario = SCENARIOS[currentScenarioIndex];
-  showFeedback('warning', '💡 İpucu', scenario.hint);
+  const hintText = scenario.hint || 'Bu senaryo için ipucu bulunmuyor.';
+  const explanationText = scenario.explanation || '';
+  showFeedback('warning', '💡 İpucu', hintText + (explanationText ? '\n\n📚 Açıklama: ' + explanationText : ''));
+  
+  // İpucu kullanımı puan kaybettirmez ama bonus vermez
 }
 
 function nextScenario() {
-  currentScenarioIndex = (currentScenarioIndex + 1) % SCENARIOS.length;
+  // Filtrelenmiş listeden sonraki senaryoya geç
+  const currentScenario = SCENARIOS[currentScenarioIndex];
+  const currentInFiltered = availableScenarios.findIndex(s => s.id === currentScenario.id);
+  
+  if (currentInFiltered >= 0 && currentInFiltered < availableScenarios.length - 1) {
+    // Filtrelenmiş listede sonraki var
+    const nextInFiltered = availableScenarios[currentInFiltered + 1];
+    currentScenarioIndex = SCENARIOS.findIndex(s => s.id === nextInFiltered.id);
+  } else {
+    // Filtrelenmiş listede sonraki yok, başa dön veya tüm listeye geç
+    if (selectedDifficulty === 0) {
+      currentScenarioIndex = (currentScenarioIndex + 1) % SCENARIOS.length;
+    } else {
+      // Filtrelenmiş listede başa dön
+      currentScenarioIndex = SCENARIOS.findIndex(s => s.id === availableScenarios[0].id);
+    }
+  }
+  
   loadScenario(currentScenarioIndex);
   resetBoard();
 }
@@ -1405,6 +1884,87 @@ function nextScenario() {
 function updateGameStats() {
   document.getElementById('scoreDisplay').textContent = score;
   document.getElementById('correctCount').textContent = correctAnswers;
+  document.getElementById('playerLevel').textContent = playerLevel;
+  
+  // XP bar update (if exists)
+  const xpBar = document.getElementById('xpBar');
+  if (xpBar) {
+    const xpPercent = (playerXP % xpToNextLevel) / xpToNextLevel * 100;
+    xpBar.style.width = xpPercent + '%';
+    xpBar.textContent = `${playerXP % xpToNextLevel}/${xpToNextLevel} XP`;
+  }
+}
+
+function checkLevelUp() {
+  while (playerXP >= xpToNextLevel) {
+    playerXP -= xpToNextLevel;
+    playerLevel++;
+    xpToNextLevel = Math.floor(100 * Math.pow(1.2, playerLevel - 1));
+    
+    showFeedback('success', 
+      `🎉 Seviye Atladınız!`, 
+      `Yeni seviye: ${playerLevel}. +50 bonus puan!`
+    );
+    score += 50;
+    createConfetti();
+  }
+}
+
+function checkAchievements() {
+  // Beginner achievement
+  const beginnerCount = SCENARIOS.filter(s => s.difficulty === 1 && completedScenarios.has(s.id)).length;
+  if (beginnerCount >= 5 && !achievements.beginner.unlocked) {
+    achievements.beginner.unlocked = true;
+    showAchievement('beginner');
+  }
+  
+  // Intermediate achievement
+  const intermediateCount = SCENARIOS.filter(s => s.difficulty === 2 && completedScenarios.has(s.id)).length;
+  if (intermediateCount >= 5 && !achievements.intermediate.unlocked) {
+    achievements.intermediate.unlocked = true;
+    showAchievement('intermediate');
+  }
+  
+  // Advanced achievement
+  const advancedCount = SCENARIOS.filter(s => s.difficulty === 3 && completedScenarios.has(s.id)).length;
+  if (advancedCount >= 5 && !achievements.advanced.unlocked) {
+    achievements.advanced.unlocked = true;
+    showAchievement('advanced');
+  }
+  
+  // Master achievement
+  if (completedScenarios.size >= SCENARIOS.length && !achievements.master.unlocked) {
+    achievements.master.unlocked = true;
+    showAchievement('master');
+  }
+  
+  // Perfect achievement (10 perfect answers)
+  if (correctAnswers >= 10 && !achievements.perfect.unlocked) {
+    achievements.perfect.unlocked = true;
+    showAchievement('perfect');
+  }
+  
+  // Re-render achievements
+  renderAchievements();
+}
+
+function showAchievement(achievementKey) {
+  const achievement = achievements[achievementKey];
+  showFeedback('success', 
+    `🏆 Başarım Açıldı: ${achievement.name}`, 
+    achievement.desc + ' +100 bonus puan!'
+  );
+  score += 100;
+  createConfetti();
+  setTimeout(() => createConfetti(), 500);
+}
+
+function highlightCompletedScenario() {
+  // Senaryo başlığına tamamlandı işareti ekle
+  const title = document.getElementById('scenarioTitle');
+  if (!title.textContent.includes('✓')) {
+    title.innerHTML = title.innerHTML + ' <span style="color: #28a745;">✓</span>';
+  }
 }
 
 function showFeedback(type, title, detail) {

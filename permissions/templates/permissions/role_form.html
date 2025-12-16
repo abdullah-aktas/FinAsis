@@ -1,50 +1,49 @@
-{%% extends "base.html" %%}
-{%% load i18n %%}
-{%% load static %%}
-{%% load crispy_forms_tags %%}
-{%% load messages %%}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap5 %}
 
-{%% block title %%}{%% if object %}{%% trans 'Rolü Güncelle' %%}{%% else %}{%% trans 'Yeni Rol' %%}{%% endif %}{%% endblock %%}
+{% block title %}{% if object %}{% trans 'Rolü Güncelle' %}{% else %}{% trans 'Yeni Rol' %}{% endif %}{% endblock %}
 
-{%% block content %%}
+{% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h2 class="mb-4">{%% if object %}{%% trans 'Rolü Güncelle' %%}{%% else %}{%% trans 'Yeni Rol Ekle' %%}{%% endif %}</h2>
-            {%% if messages %%}
+            <h2 class="mb-4">{% if object %}{% trans 'Rolü Güncelle' %}{% else %}{% trans 'Yeni Rol Ekle' %}{% endif %}</h2>
+            {% if messages %}
             <div>
-                {%% for message in messages %%}
+                {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {%% endfor %%}
+                {% endfor %}
             </div>
-            {%% endif %%}
+            {% endif %}
             <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body">
-                        {{ form|crispy }}
-                        {%% if form.errors %%}
+                        {% bootstrap_form form layout='vertical' %}
+                        {% if form.errors %}
                         <div class="alert alert-danger mt-3">
                             <ul>
-                                {%% for field in form %%}
-                                    {%% for error in field.errors %%}
+                                {% for field in form %}
+                                    {% for error in field.errors %}
                                         <li>{{ field.label }}: {{ error }}</li>
-                                    {%% endfor %%}
-                                {%% endfor %%}
-                                {%% for error in form.non_field_errors %%}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
                                     <li>{{ error }}</li>
-                                {%% endfor %%}
+                                {% endfor %}
                             </ul>
                         </div>
-                        {%% endif %%}
+                        {% endif %}
                     </div>
                     <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-success">{%% if object %}{%% trans 'Güncelle' %%}{%% else %}{%% trans 'Oluştur' %%}{%% endif %%}</button>
-                        <a href="{%% url 'permissions:role_list' %%}" class="btn btn-secondary">{%% trans 'İptal' %%}</a>
+                        <button type="submit" class="btn btn-success">{% if object %}{% trans 'Güncelle' %}{% else %}{% trans 'Oluştur' %}{% endif %}</button>
+                        <a href="{% url 'permissions:role_list' %}" class="btn btn-secondary">{% trans 'İptal' %}</a>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
-{%% endblock %%} 
+{% endblock %} 

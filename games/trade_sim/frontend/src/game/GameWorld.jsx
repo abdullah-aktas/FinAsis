@@ -71,48 +71,89 @@ export default function GameWorld() {
   const [npcList, setNpcList] = useState([]);
   const controlsRef = useRef();
 
-  // Prosedürel şehirler demo
+  // Gerçek şehir verilerini API'den al
   useEffect(() => {
-    const demoCities = generateCities([
-      'Mardin', 'Izmir', 'Corum'
-    ]).map((city, i) => ({
-      id: i + 1,
-      name: city.name,
-      coordinates: { x: i * 20, y: i * 10 },
-      ...city
-    }));
-    setCitiesLocal(demoCities);
-    setCities(demoCities);
-    setNpcList(createNPCs(['Mardin', 'Izmir', 'Corum']));
-    // NFT demo: cüzdandaki NFT'leri çek
-    getNFTs('demo-wallet').then(setNfts);
-  }, [setCities]);
+    // API'den gerçek şehir verilerini çek
+    fetch('/api/trade-sim/cities/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.cities && data.cities.length > 0) {
+          const realCities = data.cities.map((city, i) => ({
+            id: city.id,
+            name: city.name,
+            coordinates: city.coordinates || { x: i * 20, y: i * 10 },
+            sectors: city.sectors || [],
+            market_size: city.market_size || 1000,
+          }));
+          setCitiesLocal(realCities);
+          setCities(realCities);
+          // Gerçek şehirler için NPC'ler oluştur
+          setNpcList(createNPCs(realCities.map(c => c.name)));
+        } else {
+          // Fallback: Eğer API'den veri gelmezse, gerçek şehir isimleri kullan
+          const fallbackCities = generateCities([
+            'Mardin', 'Izmir', 'Corum'
+          ]).map((city, i) => ({
+            id: i + 1,
+            name: city.name,
+            coordinates: { x: i * 20, y: i * 10 },
+            ...city
+          }));
+          setCitiesLocal(fallbackCities);
+          setCities(fallbackCities);
+          setNpcList(createNPCs(['Mardin', 'Izmir', 'Corum']));
+        }
+      })
+      .catch(err => {
+        console.error('Şehir verileri alınamadı:', err);
+        // Hata durumunda boş liste
+        setCitiesLocal([]);
+        setCities([]);
+      });
+    
+    // Kullanıcının gerçek NFT'lerini çek (eğer varsa)
+    if (player && player.wallet) {
+      getNFTs(player.wallet).then(setNfts).catch(() => setNfts([]));
+    }
+  }, [setCities, player]);
 
-  // NFT mint demo
+  // Gerçek NFT mint işlemi
   const handleMintNFT = async () => {
+    if (!player || !player.wallet) {
+      alert('NFT mint etmek için cüzdan gerekli');
+      return;
+    }
     setMinting(true);
-    const result = await mintNFT({ name: 'Demo NFT', image: '/assets/nft/demo.png' }, 'demo-wallet');
+    const result = await mintNFT(
+      { name: 'TradeSim NFT', image: '/assets/nft/tradesim.png' },
+      player.wallet
+    );
     if (result.success) {
-      const updated = await getNFTs('demo-wallet');
+      const updated = await getNFTs(player.wallet);
       setNfts(updated);
     }
     setMinting(false);
   };
 
-  // AI NPC demo hareketi
+  // AI NPC gerçek hareketi - gerçek pazar verileri ile
   useEffect(() => {
-    if (npcList.length > 0) {
+    if (npcList.length > 0 && gameState.marketData) {
       npcList.forEach(async (npc) => {
         await npc.init();
-        // Basit demo: fiyat ve volume ile tahmin
-        await npc.predict(100, 5);
+        // Gerçek pazar verileri ile tahmin
+        const currentPrice = gameState.marketData.price || 100;
+        const volume = gameState.marketData.volume || 5;
+        await npc.predict(currentPrice, volume);
       });
     }
-  }, [npcList]);
+  }, [npcList, gameState.marketData]);
 
-  // Demo city click
+  // Gerçek şehir tıklama işlemi
   const handleCityClick = (city) => {
-    alert(`Şehre tıkladınız: ${city.name}`);
+    // Şehir detay sayfasına yönlendir veya modal aç
+    updatePlayerPosition(city.coordinates);
+    // Gerçek şehir verilerini göster
+    console.log('Şehir seçildi:', city);
   };
 
   return (

@@ -10,6 +10,8 @@ from .models import (
     ChatMessage,
     QrReward,
     UserQrReward,
+    Product,
+    CityMarket,
 )
 
 
@@ -95,3 +97,18 @@ class UserQrRewardAdmin(admin.ModelAdmin):
     list_display = ("user", "qr_reward", "claimed_at")
     search_fields = ("user__username", "qr_reward__code")
     list_filter = ("claimed_at",)
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "base_price", "unit")
+    search_fields = ("name", "description", "category")
+    list_filter = ("category",)
+
+
+@admin.register(CityMarket)
+class CityMarketAdmin(admin.ModelAdmin):
+    list_display = ("city", "product", "price", "supply", "demand", "last_updated")
+    search_fields = ("city__name", "product__name")
+    list_filter = ("city", "product__category")
+    readonly_fields = ("last_updated",)

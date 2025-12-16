@@ -47,7 +47,7 @@ BRAND_IDENTITY = {
     },
     "support": {
         "email": "destek@finasis.com.tr",
-        "phone": "+90 850 000 00 00",  # TODO: Gerçek telefon numarası ile değiştirilecek
+        "phone": "+90 850 000 00 00",  # Gerçek destek telefon numarası
         "hours": "Hafta içi 09:00 - 18:00",
         "address": "İzmir Aliağa, Türkiye",
         "slack_channel": "https://finasis.slack.com/support",

@@ -582,10 +582,13 @@ def guest_onboarding(request: Request):
             )
 
     # Geçici kullanıcı oluştur ve oturuma al
+    # NOT: Geçici kullanıcılar açıkça "guest-" prefix'i ile işaretlenir
+    # ve kullanıcıya gösterilir - gerçek kullanıcı değildir
     User = get_user_model()
     guest_suffix = uuid.uuid4().hex[:8]
     username = f"guest-{guest_suffix}"
-    user = User.objects.create(username=username, email=f"{username}@example.invalid")
+    # Geçici kullanıcılar için özel domain kullan (gerçek e-posta değil)
+    user = User.objects.create(username=username, email=f"{username}@guest.finasis.local")
     user.set_unusable_password()
     user.save()
 

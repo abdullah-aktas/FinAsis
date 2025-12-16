@@ -1,43 +1,43 @@
-{%% extends "base.html" %%}
-{%% load i18n %%}
-{%% load static %%}
-{%% load messages %%}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load messages %}
 
-{%% block title %%}{%% trans 'Yetki Sil' %%}{%% endblock %%}
+{% block title %}{% trans 'Yetki Sil' %}{% endblock %}
 
-{%% block content %%}
+{% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h2 class="mb-4">{%% trans 'Yetki Sil' %%}</h2>
-            {%% if messages %%}
+            <h2 class="mb-4">{% trans 'Yetki Sil' %}</h2>
+            {% if messages %}
             <div>
-                {%% for message in messages %%}
+                {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {%% endfor %%}
+                {% endfor %}
             </div>
-            {%% endif %%}
+            {% endif %}
             <div class="alert alert-warning">
-                <strong>{%% trans 'Dikkat!' %%}</strong> {%% trans 'Bu yetkiyi silmek istediğinize emin misiniz?' %%}
+                <strong>{% trans 'Dikkat!' %}</strong> {% trans 'Bu yetkiyi silmek istediğinize emin misiniz?' %}
             </div>
             <div class="card mb-3">
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">{%% trans 'İsim' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'İsim' %}</dt>
                         <dd class="col-sm-8">{{ object.name }}</dd>
-                        <dt class="col-sm-4">{%% trans 'Kod Adı' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'Kod Adı' %}</dt>
                         <dd class="col-sm-8">{{ object.codename }}</dd>
-                        <dt class="col-sm-4">{%% trans 'İçerik Tipi' %%}</dt>
+                        <dt class="col-sm-4">{% trans 'İçerik Tipi' %}</dt>
                         <dd class="col-sm-8">{{ object.content_type }}</dd>
                     </dl>
                 </div>
             </div>
             <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">{%% trans 'Evet, Sil' %%}</button>
-                <a href="{%% url 'permissions:permission_list' %%}" class="btn btn-secondary">{%% trans 'Vazgeç' %%}</a>
+                <button type="submit" class="btn btn-danger">{% trans 'Evet, Sil' %}</button>
+                <a href="{% url 'permissions:permission_list' %}" class="btn btn-secondary">{% trans 'Vazgeç' %}</a>
             </form>
         </div>
     </div>
 </div>
-{%% endblock %%} 
+{% endblock %} 

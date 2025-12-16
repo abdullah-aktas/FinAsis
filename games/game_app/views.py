@@ -120,15 +120,28 @@ def welcome(request):
 
 
 def scoreboard(request):
-    """Basit skor tablosu placeholder.
-    Gerçek skor verileri eklendiğinde bu view genişletilecektir.
-    """
-    scores = [
-        {"user": "demo1", "score": 1200},
-        {"user": "demo2", "score": 950},
-        {"user": "demo3", "score": 870},
+    """Gerçek skor tablosu - sadece gerçek oyuncu skorlarını gösterir."""
+    from games.models import PlayerProfile
+    
+    # Gerçek oyuncu skorlarını al
+    scores = PlayerProfile.objects.filter(
+        games_played__gt=0  # En az bir oyun oynamış oyuncular
+    ).order_by('-total_score')[:100].values(
+        'user__username', 'total_score', 'games_won', 'games_played'
+    )
+    
+    # Formatla
+    score_list = [
+        {
+            "user": score['user__username'],
+            "score": score['total_score'],
+            "games_won": score['games_won'],
+            "games_played": score['games_played'],
+        }
+        for score in scores
     ]
-    return render(request, "game_app/scoreboard.html", {"scores": scores})
+    
+    return render(request, "game_app/scoreboard.html", {"scores": score_list})
 
 
 def student_dashboard(request):

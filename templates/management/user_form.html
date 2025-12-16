@@ -1,11 +1,11 @@
 {% extends "management/base_admin.html" %}
-{% load crispy_forms_tags %}
+{% load bootstrap5 %}
 {% block admin_content %}
 <div class="container my-5">
     <h2>{% if edit %}Kullanıcıyı Düzenle{% else %}Yeni Kullanıcı Ekle{% endif %}</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form|crispy }}
+        {% bootstrap_form form layout='vertical' %}
         <button type="submit" class="btn btn-primary">Kaydet</button>
         <a href="/yonetim/kullanicilar/" class="btn btn-secondary">İptal</a>
     </form>

@@ -1,0 +1,168 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    TRADESIM KARAKTER SİSTEMİ AKIŞI                        ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 1. KULLANICI KAYIT OLUR                                                 │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 2. DJANGO SIGNAL TETİKLENİR (post_save)                                 │
+│    → create_default_character_for_user() çalışır                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 3. KARAKTER OLUŞTURULUR                                                 │
+│    • name: "{username} Trader"                                          │
+│    • city: İlk şehir (City.objects.first())                            │
+│    • score: 0 (başlangıç parası)                                        │
+│    • level: 1                                                           │
+│    • skills: {}                                                         │
+│    • choices: {} (envanter boş)                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 4. SETUP_TRADESIM KOMUTU ÇALIŞTIRILIR                                   │
+│    → python manage.py setup_tradesim                                    │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 5. KARAKTERLERE PARA VERİLİR                                           │
+│    → character.score = 10,000                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 6. KARAKTERLER ŞEHİRLERE DAĞITILIR                                      │
+│    → distribute_characters komutu                                      │
+│    → Döngüsel dağıtım: idx % len(cities)                                │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 7. OYUNCU OYUNA GİRER                                                   │
+│    → Character.objects.filter(user=user).first()                        │
+└─────────────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+        ┌───────────────────────┐
+        │   OYUN İÇİ İŞLEMLER   │
+        └───────────────────────┘
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+        ▼                       ▼
+┌───────────────┐     ┌───────────────┐
+│  ÜRÜN ALIŞ    │     │  ÜRÜN SATIŞ   │
+└───────────────┘     └───────────────┘
+        │                       │
+        │                       │
+        ▼                       ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ALIŞ ALGORİTMASI:                                                       │
+│ 1. total_cost = amount * price                                          │
+│ 2. if character.score < total_cost: HATA                               │
+│ 3. character.score -= total_cost                                       │
+│ 4. inventory[item] += amount                                           │
+│ 5. character.save()                                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ SATIŞ ALGORİTMASI:                                                      │
+│ 1. if inventory[item] < amount: HATA                                  │
+│ 2. total_gain = amount * price                                          │
+│ 3. character.score += total_gain                                       │
+│ 4. inventory[item] -= amount                                           │
+│ 5. if inventory[item] <= 0: inventory.pop(item)                       │
+│ 6. character.save()                                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         VERİ YAPISI                                       ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+CHARACTER MODEL:
+┌─────────────────────────────────────────────────────────────────────────┐
+│ {                                                                       │
+│   "id": 1,                                                              │
+│   "user": User(id=5),                                                   │
+│   "name": "Ahmet Trader",                                               │
+│   "city": City(id=1, name="Istanbul"),                                  │
+│   "score": 10000,              ← PARA (coin)                           │
+│   "level": 1,                                                           │
+│   "skills": {                                                           │
+│     "ticaret": 1,                                                       │
+│     "pazarlik": 2                                                       │
+│   },                                                                    │
+│   "story_state": {                                                      │
+│     "ana_gorev": "basladi"                                             │
+│   },                                                                    │
+│   "choices": {                                                          │
+│     "inventory": {          ← ENVANTER BURADA                          │
+│       "Bugday": 50,                                                     │
+│       "Elma": 20,                                                       │
+│       "Peynir": 5                                                       │
+│     },                                                                  │
+│     "badges": ["market_explorer"]                                       │
+│   }                                                                     │
+│ }                                                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    ŞEHİR DAĞITIM ALGORİTMASI                              ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+ŞEHİRLER: [Istanbul, Ankara, Izmir, Antalya, Konya, Trabzon, Mardin, Gaziantep, Adana]
+KARAKTERLER: [Kar1, Kar2, Kar3, ..., Kar16]
+
+DÖNGÜSEL DAĞITIM (Modulo Operatörü):
+
+idx=0:  Kar1 → Istanbul   (0 % 9 = 0)
+idx=1:  Kar2 → Ankara     (1 % 9 = 1)
+idx=2:  Kar3 → Izmir      (2 % 9 = 2)
+idx=3:  Kar4 → Antalya    (3 % 9 = 3)
+idx=4:  Kar5 → Konya      (4 % 9 = 4)
+idx=5:  Kar6 → Trabzon     (5 % 9 = 5)
+idx=6:  Kar7 → Mardin      (6 % 9 = 6)
+idx=7:  Kar8 → Gaziantep   (7 % 9 = 7)
+idx=8:  Kar9 → Adana       (8 % 9 = 8)
+idx=9:  Kar10 → Istanbul   (9 % 9 = 0) ← Tekrar başlar
+idx=10: Kar11 → Ankara     (10 % 9 = 1)
+...
+idx=15: Kar16 → Gaziantep  (15 % 9 = 6)
+
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    ÖRNEK TİCARET AKIŞI                                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+BAŞLANGIÇ:
+  Para: 10,000
+  Envanter: {}
+  Şehir: Istanbul
+
+ADIM 1: ÜRÜN ALIŞ
+  → 50 kg Buğday, 30 lira/kg
+  → Toplam: 1,500 lira
+  → Para: 10,000 - 1,500 = 8,500
+  → Envanter: {"Bugday": 50}
+
+ADIM 2: ŞEHİR DEĞİŞTİRME
+  → Ankara'ya seyahat
+  → Seyahat maliyeti: 200 lira
+  → Para: 8,500 - 200 = 8,300
+  → Şehir: Ankara
+
+ADIM 3: ÜRÜN SATIŞ
+  → 50 kg Buğday, 35 lira/kg
+  → Toplam: 1,750 lira
+  → Para: 8,300 + 1,750 = 10,050
+  → Envanter: {} (boş)
+  → KAR: +50 lira (1,750 - 1,500 - 200)
+
