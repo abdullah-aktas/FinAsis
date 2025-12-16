@@ -15,6 +15,13 @@ class AdvisorProfile(models.Model):
     e_signature_serial = models.CharField(max_length=128, blank=True)
     mali_muhur_fingerprint = models.CharField(max_length=128, blank=True)
     verified_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Mali Müşavir Profili"
+        verbose_name_plural = "Mali Müşavir Profilleri"
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.user.username} ({self.type})"
@@ -40,6 +47,13 @@ class TaxpayerProfile(models.Model):
         on_delete=models.SET_NULL,
         related_name="taxpayers",
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Mükellef Profili"
+        verbose_name_plural = "Mükellef Profilleri"
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.name} ({self.vkn_tckn})"
@@ -62,9 +76,13 @@ class Engagement(models.Model):
         default="active",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        verbose_name = "Danışman-Müşteri İlişkisi"
+        verbose_name_plural = "Danışman-Müşteri İlişkileri"
         unique_together = (("advisor", "taxpayer", "scope"),)
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.advisor} -> {self.taxpayer} ({self.scope})"

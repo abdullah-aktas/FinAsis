@@ -16,6 +16,12 @@ from ..views.marketplace_views import (
     ConsultantDashboardView,
     ClientDashboardView,
 )
+from ..views.marketplace_frontend_views import (
+    consultant_list,
+    consultant_detail,
+    booking_create,
+    booking_detail,
+)
 
 app_name = "marketplace"
 
@@ -30,6 +36,12 @@ router.register(r"reviews", ConsultantReviewViewSet, basename="review")
 router.register(r"availability", ConsultantAvailabilityViewSet, basename="availability")
 
 urlpatterns = [
+    # Frontend views
+    path("", consultant_list, name="consultant-list"),
+    path("consultants/<int:consultant_id>/", consultant_detail, name="consultant-detail"),
+    path("consultants/<int:consultant_id>/book/", booking_create, name="booking-create"),
+    path("bookings/<int:booking_id>/", booking_detail, name="booking-detail"),
+    
     # API endpoints
     path("api/", include(router.urls)),
     # Dashboard endpoints

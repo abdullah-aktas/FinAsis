@@ -9,3 +9,6 @@ class AdvisorsConfig(AppConfig):
     def ready(self):
         # Marketplace modellerini app registry'e kaydet
         from . import models_marketplace  # noqa: F401
+        
+        # Signal handlers'ı import et
+        from . import signals  # noqa: F401

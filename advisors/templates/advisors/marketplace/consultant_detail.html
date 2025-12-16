@@ -1,0 +1,181 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ consultant.display_name }} - {% trans "Mali Müşavir" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sol Kolon - Profil -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            {% if consultant.profile_photo %}
+                            <img src="{{ consultant.profile_photo.url }}" class="img-fluid rounded-circle mb-3" alt="{{ consultant.display_name }}" style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                                <i class="bi bi-person-circle" style="font-size: 100px; color: #6c757d;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h2>{{ consultant.display_name }}</h2>
+                            <p class="text-muted">
+                                <i class="bi bi-geo-alt"></i> {{ consultant.city }}
+                                {% if consultant.years_of_experience %}
+                                | <i class="bi bi-briefcase"></i> {{ consultant.years_of_experience }} {% trans "yıl deneyim" %}
+                                {% endif %}
+                            </p>
+                            {% if consultant.average_rating %}
+                            <div class="mb-2">
+                                <span class="badge bg-warning text-dark fs-6">
+                                    <i class="bi bi-star-fill"></i> {{ consultant.average_rating|floatformat:1 }}
+                                </span>
+                                <span class="text-muted">({{ consultant.total_reviews }} {% trans "değerlendirme" %})</span>
+                            </div>
+                            {% endif %}
+                            <div class="mb-2">
+                                <strong>{% trans "Saatlik Ücret:" %}</strong> 
+                                <span class="fs-4 text-primary">{{ consultant.hourly_rate }} {{ consultant.currency }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biyografi -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Hakkında" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ consultant.bio|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Uzmanlık Alanları -->
+            {% if consultant.specializations %}
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Uzmanlık Alanları" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for spec in consultant.specializations %}
+                    <span class="badge bg-primary me-2 mb-2">{{ spec }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Hizmetler -->
+            {% if services %}
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Hizmetler" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for service in services %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <h6>{{ service.title }}</h6>
+                        <p class="text-muted small">{{ service.description|truncatewords:30 }}</p>
+                        <div>
+                            <strong>{% trans "Fiyat:" %}</strong> {{ service.price }} {{ service.currency }}
+                            {% if service.pricing_type == 'hourly' %}
+                            / {% trans "saat" %}
+                            {% elif service.pricing_type == 'monthly' %}
+                            / {% trans "ay" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Değerlendirmeler -->
+            {% if reviews %}
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Değerlendirmeler" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% for review in reviews %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>{{ review.client.get_full_name|default:review.client.username }}</strong>
+                                <span class="badge bg-warning text-dark ms-2">
+                                    <i class="bi bi-star-fill"></i> {{ review.rating }}
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+                        </div>
+                        <h6>{{ review.title }}</h6>
+                        <p>{{ review.comment|truncatewords:50 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sağ Kolon - Randevu -->
+        <div class="col-md-4">
+            <div class="card shadow sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> {% trans "Randevu Al" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if consultant.is_available %}
+                    <p class="text-success">
+                        <i class="bi bi-check-circle"></i> {% trans "Yeni müşteri kabul ediyor" %}
+                    </p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'advisors:marketplace:booking-create' consultant.id %}" class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-calendar-plus"></i> {% trans "Randevu Oluştur" %}
+                    </a>
+                    {% else %}
+                    <a href="{% url 'account_login' %}?next={% url 'advisors:marketplace:booking-create' consultant.id %}" class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> {% trans "Giriş Yap ve Randevu Al" %}
+                    </a>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-muted">
+                        <i class="bi bi-x-circle"></i> {% trans "Şu anda yeni müşteri kabul etmiyor" %}
+                    </p>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <strong>{% trans "İletişim" %}</strong><br>
+                        {% if consultant.phone %}
+                        <i class="bi bi-telephone"></i> {{ consultant.phone }}<br>
+                        {% endif %}
+                        {% if consultant.website %}
+                        <i class="bi bi-globe"></i> <a href="{{ consultant.website }}" target="_blank">{{ consultant.website }}</a><br>
+                        {% endif %}
+                        {% if consultant.office_address %}
+                        <i class="bi bi-geo-alt"></i> {{ consultant.office_address|truncatewords:10 }}
+                        {% endif %}
+                    </div>
+
+                    {% if consultant.working_hours %}
+                    <div>
+                        <strong>{% trans "Çalışma Saatleri" %}</strong>
+                        <ul class="list-unstyled small">
+                            {% for day, hours in consultant.working_hours.items %}
+                            <li>{{ day }}: {{ hours.start }} - {{ hours.end }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

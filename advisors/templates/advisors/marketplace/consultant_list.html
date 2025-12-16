@@ -1,0 +1,137 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Mali Müşavir Marketplace" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 mb-3">{% trans "Mali Müşavir Marketplace" %}</h1>
+            <p class="lead">{% trans "Sertifikalı mali müşavirlerle buluşun, danışmanlık alın" %}</p>
+        </div>
+    </div>
+
+    <!-- Filtreler -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">{% trans "Şehir" %}</label>
+                            <select name="city" class="form-select">
+                                <option value="">{% trans "Tümü" %}</option>
+                                {% for city in cities %}
+                                <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{% trans "Uzmanlık" %}</label>
+                            <select name="specialization" class="form-select">
+                                <option value="">{% trans "Tümü" %}</option>
+                                {% for spec in specializations %}
+                                <option value="{{ spec }}" {% if request.GET.specialization == spec %}selected{% endif %}>{{ spec }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{% trans "Sıralama" %}</label>
+                            <select name="sort" class="form-select">
+                                <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>{% trans "En Yüksek Puan" %}</option>
+                                <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>{% trans "En Düşük Fiyat" %}</option>
+                                <option value="reviews" {% if request.GET.sort == 'reviews' %}selected{% endif %}>{% trans "En Çok Değerlendirme" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">{% trans "Filtrele" %}</button>
+                            <a href="{% url 'advisors:marketplace:consultant-list' %}" class="btn btn-secondary">{% trans "Temizle" %}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mali Müşavir Listesi -->
+    <div class="row">
+        {% for consultant in consultants %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if consultant.profile_photo %}
+                <img src="{{ consultant.profile_photo.url }}" class="card-img-top" alt="{{ consultant.display_name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="bi bi-person-circle" style="font-size: 80px; color: #6c757d;"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ consultant.display_name }}</h5>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ consultant.city }}
+                        {% if consultant.years_of_experience %}
+                        <br><i class="bi bi-briefcase"></i> {{ consultant.years_of_experience }} {% trans "yıl deneyim" %}
+                        {% endif %}
+                    </p>
+                    <div class="mb-2">
+                        {% if consultant.average_rating %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-star-fill"></i> {{ consultant.average_rating|floatformat:1 }}
+                        </span>
+                        <span class="text-muted small">({{ consultant.total_reviews }} {% trans "değerlendirme" %})</span>
+                        {% else %}
+                        <span class="text-muted">{% trans "Henüz değerlendirme yok" %}</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text small">{{ consultant.bio|truncatewords:20 }}</p>
+                    <div class="mb-2">
+                        <strong>{% trans "Saatlik Ücret:" %}</strong> {{ consultant.hourly_rate }} {{ consultant.currency }}
+                    </div>
+                    {% if consultant.specializations %}
+                    <div class="mb-2">
+                        {% for spec in consultant.specializations|slice:":3" %}
+                        <span class="badge bg-secondary">{{ spec }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'advisors:marketplace:consultant-detail' consultant.id %}" class="btn btn-primary btn-sm w-100">
+                        {% trans "Profil Görüntüle" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> {% trans "Mali müşavir bulunamadı." %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Sayfalama -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Önceki" %}</a>
+            </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Sonraki" %}</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+

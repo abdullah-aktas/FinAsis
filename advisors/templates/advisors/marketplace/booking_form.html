@@ -1,0 +1,169 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Randevu Al" %} - FinAsis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-calendar-check"></i> {% trans "Randevu Al" %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>{{ consultant.display_name }}</h5>
+                        <p class="text-muted">
+                            <i class="bi bi-geo-alt"></i> {{ consultant.city }}
+                            {% if consultant.average_rating %}
+                            | <i class="bi bi-star-fill text-warning"></i> {{ consultant.average_rating|floatformat:1 }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.service.id_for_label }}" class="form-label">
+                                {% trans "Hizmet" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.service }}
+                            {% if form.service.errors %}
+                            <div class="text-danger small">{{ form.service.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.meeting_type.id_for_label }}" class="form-label">
+                                {% trans "Görüşme Tipi" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.meeting_type }}
+                            {% if form.meeting_type.errors %}
+                            <div class="text-danger small">{{ form.meeting_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.scheduled_date.id_for_label }}" class="form-label">
+                                    {% trans "Tarih" %} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.scheduled_date }}
+                                {% if form.scheduled_date.errors %}
+                                <div class="text-danger small">{{ form.scheduled_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.scheduled_time.id_for_label }}" class="form-label">
+                                    {% trans "Saat" %} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.scheduled_time }}
+                                {% if form.scheduled_time.errors %}
+                                <div class="text-danger small">{{ form.scheduled_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.duration_minutes.id_for_label }}" class="form-label">
+                                {% trans "Süre (Dakika)" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.duration_minutes }}
+                            {% if form.duration_minutes.errors %}
+                            <div class="text-danger small">{{ form.duration_minutes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.subject.id_for_label }}" class="form-label">
+                                {% trans "Konu" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                            <div class="text-danger small">{{ form.subject.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {% trans "Detaylar" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div id="meetingAddressField" class="mb-3" style="display: none;">
+                            <label for="{{ form.meeting_address.id_for_label }}" class="form-label">
+                                {% trans "Görüşme Adresi" %}
+                            </label>
+                            {{ form.meeting_address }}
+                            {% if form.meeting_address.errors %}
+                            <div class="text-danger small">{{ form.meeting_address.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>{% trans "Tahmini Ücret:" %}</strong>
+                            <span id="estimatedPrice">-</span> {{ consultant.currency }}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> {% trans "Randevu Oluştur" %}
+                            </button>
+                            <a href="{% url 'advisors:marketplace:consultant-detail' consultant.id %}" class="btn btn-secondary">
+                                {% trans "İptal" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const meetingTypeSelect = document.getElementById('{{ form.meeting_type.id_for_label }}');
+    const addressField = document.getElementById('meetingAddressField');
+    const durationInput = document.getElementById('{{ form.duration_minutes.id_for_label }}');
+    const priceDisplay = document.getElementById('estimatedPrice');
+    const hourlyRate = {{ consultant.hourly_rate }};
+
+    // Görüşme tipine göre adres alanını göster/gizle
+    meetingTypeSelect.addEventListener('change', function() {
+        if (this.value === 'in_person') {
+            addressField.style.display = 'block';
+        } else {
+            addressField.style.display = 'none';
+        }
+    });
+
+    // Süre değiştiğinde fiyatı güncelle
+    durationInput.addEventListener('input', function() {
+        const duration = parseInt(this.value) || 0;
+        const hours = duration / 60;
+        const price = hourlyRate * hours;
+        priceDisplay.textContent = price.toFixed(2);
+    });
+
+    // İlk yüklemede fiyatı hesapla
+    if (durationInput.value) {
+        durationInput.dispatchEvent(new Event('input'));
+    }
+});
+</script>
+{% endblock %}
+
