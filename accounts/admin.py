@@ -1,6 +1,7 @@
 # FinAsis Accounts App admin ayarları
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import gettext_lazy as _
 from .models import (
     CustomUser,
     Achievement,
@@ -123,8 +124,60 @@ class SubscriptionLogAdmin(admin.ModelAdmin):
     search_fields = ["user__username", "note"]
 
 
-admin.site.register(Achievement)
-admin.site.register(UserSettings)
+@admin.register(Achievement)
+class AchievementAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "category", "points", "is_active", "user_count", "created_at")
+    list_filter = ("category", "is_active", "created_at")
+    search_fields = ("name", "code", "description")
+    readonly_fields = ("user_count", "created_at", "updated_at")
+    
+    fieldsets = (
+        (_("Temel Bilgiler"), {
+            "fields": ("name", "code", "category", "description")
+        }),
+        (_("Ödül"), {
+            "fields": ("points", "badge_icon", "badge_color")
+        }),
+        (_("Durum"), {
+            "fields": ("is_active", "user_count")
+        }),
+        (_("Bilgiler"), {
+            "fields": ("created_at", "updated_at"),
+            "classes": ("collapse",)
+        }),
+    )
+    
+    def user_count(self, obj):
+        """Bu başarımı kazanan kullanıcı sayısı"""
+        return obj.userachievement_set.count() if hasattr(obj, 'userachievement_set') else 0
+    user_count.short_description = "Kazanan Kullanıcı"
+
+
+@admin.register(UserSettings)
+class UserSettingsAdmin(admin.ModelAdmin):
+    list_display = ("user", "theme", "language", "timezone", "email_notifications", "updated_at")
+    list_filter = ("theme", "language", "timezone", "email_notifications", "updated_at")
+    search_fields = ("user__username", "user__email")
+    readonly_fields = ("created_at", "updated_at")
+    
+    fieldsets = (
+        (_("Kullanıcı"), {
+            "fields": ("user",)
+        }),
+        (_("Görünüm"), {
+            "fields": ("theme", "language", "timezone")
+        }),
+        (_("Bildirimler"), {
+            "fields": ("email_notifications", "push_notifications", "sms_notifications")
+        }),
+        (_("Güvenlik"), {
+            "fields": ("two_factor_enabled", "session_timeout")
+        }),
+        (_("Bilgiler"), {
+            "fields": ("created_at", "updated_at"),
+            "classes": ("collapse",)
+        }),
+    )
 
 
 # ============================================================================
