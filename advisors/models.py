@@ -32,6 +32,13 @@ class AdvisorRegistrySource(models.Model):
     external_id = models.CharField(max_length=100, blank=True)
     data = models.JSONField(default=dict, blank=True)
     fetched_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Danışman Kayıt Kaynağı"
+        verbose_name_plural = "Danışman Kayıt Kaynakları"
+        ordering = ["-fetched_at"]
 
 
 class TaxpayerProfile(models.Model):
