@@ -268,141 +268,105 @@ admin.site.site_header = _("FinAsis Finansal Yönetim")
 admin.site.index_title = _("FinAsis Paneline Hoşgeldiniz")
 
 
-# Admin paneline logo ve kısa açıklama eklemek için custom AdminSite kullan
-class FinAsisAdminSite(admin.AdminSite):
-    site_title = _("FinAsis Yönetim Paneli")
-    site_header = _("FinAsis Finansal Yönetim")
-    index_title = _("FinAsis Paneline Hoşgeldiniz")
+# Admin index metodunu özelleştir - template için gerekli değişkenleri sağla
+_original_index = admin.site.index
 
-    def each_context(self, request):
-        context = super().each_context(request)
-        context["finasis_logo"] = "/static/common/FinAsis_logo.png"
-        context["finasis_desc"] = _("Modern Finansal Yönetim Platformu")
-        return context
-
-    def index(self, request, extra_context=None):
-        User = get_user_model()
+def custom_index(request, extra_context=None):
+    """Admin index sayfası için gerekli context değişkenlerini sağla"""
+    extra_context = extra_context or {}
+    
+    # Gerekli modelleri import et
+    User = get_user_model()
+    
+    try:
         user_count = User.objects.count()
+    except Exception:
+        user_count = 0
+    
+    try:
         company_count = Company.objects.count()
+    except Exception:
+        company_count = 0
+    
+    try:
         invoice_count = Invoice.objects.count()
+    except Exception:
+        invoice_count = 0
+    
+    try:
         expense_count = Expense.objects.count()
+    except Exception:
+        expense_count = 0
+    
+    try:
         last_invoices = Invoice.objects.order_by("-issue_date")[:5]
+    except Exception:
+        last_invoices = []
+    
+    try:
         last_expenses = Expense.objects.order_by("-expense_date")[:5]
-        # Süper kullanıcılar için ekstra aksiyon kısa yolları
-        quick_actions = []
-        if request.user.is_superuser:
-            quick_actions = []
-            # Users (support custom AUTH_USER_MODEL)
-            UserModel = get_user_model()
-            user_url_name = f"admin:{UserModel._meta.app_label}_{UserModel._meta.model_name}_changelist"
+    except Exception:
+        last_expenses = []
+    
+    # Chart verileri - son 7 günün aktif kullanıcı sayıları
+    chart_labels = []
+    chart_data = []
+    try:
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        for i in range(6, -1, -1):
+            date = (timezone.now() - timedelta(days=i)).date()
+            chart_labels.append(date.strftime("%d.%m"))
+            
+            # O güne kadar olan toplam kullanıcı sayısı
+            user_count_on_date = User.objects.filter(
+                date_joined__date__lte=date
+            ).count()
+            chart_data.append(user_count_on_date)
+    except Exception:
+        chart_labels = []
+        chart_data = []
+    
+    # Süper kullanıcılar için hızlı erişim linkleri
+    quick_actions = []
+    if request.user.is_superuser:
+        try:
+            user_url_name = f"admin:{User._meta.app_label}_{User._meta.model_name}_changelist"
+            quick_actions.append({"label": "Kullanıcılar", "url": reverse(user_url_name)})
+        except NoReverseMatch:
+            pass
+        
+        try:
+            quick_actions.append({"label": "Gruplar", "url": reverse("admin:auth_group_changelist")})
+        except NoReverseMatch:
+            pass
+        
+        for name, urlname in [
+            ("Şirketler", "admin:accounting_company_changelist"),
+            ("Faturalar", "admin:accounting_invoice_changelist"),
+            ("Giderler", "admin:accounting_expense_changelist"),
+        ]:
             try:
-                quick_actions.append(
-                    {"label": "Kullanıcılar", "url": reverse(user_url_name)}
-                )
+                quick_actions.append({"label": name, "url": reverse(urlname)})
             except NoReverseMatch:
-                pass
-            # Groups
-            try:
-                quick_actions.append(
-                    {"label": "Gruplar", "url": reverse("admin:auth_group_changelist")}
-                )
-            except NoReverseMatch:
-                pass
-            # Companies, Invoices, Rules
-            for name, urlname in [
-                ("Şirketler", "admin:accounting_company_changelist"),
-                ("Faturalar", "admin:accounting_invoice_changelist"),
-                ("Kurallar", "admin:finance_accounting_autobookingrule_changelist"),
-            ]:
-                try:
-                    quick_actions.append({"label": name, "url": reverse(urlname)})
-                except NoReverseMatch:
-                    continue
-        context = {
-            "user_count": user_count,
-            "company_count": company_count,
-            "invoice_count": invoice_count,
-            "expense_count": expense_count,
-            "last_invoices": last_invoices,
-            "last_expenses": last_expenses,
-            "quick_actions": quick_actions,
-        }
-        if extra_context:
-            context.update(extra_context)
-        return super().index(request, extra_context=context)
-
-    # --- Modules Overview Custom Page ---
-    def get_urls(self):  # type: ignore[override]
-        from django.urls import path
-
-        urls = super().get_urls()
-        custom = [
-            path(
-                "modules/",
-                self.admin_view(self.modules_overview),
-                name="modules_overview",
-            ),
-        ]
-        # Put custom urls at the beginning so they have priority
-        return custom + urls
-
-    def modules_overview(self, request):
-        """Basit modül yönetim paneli: Yüklü uygulamaları, model sayılarını ve linkleri listeler.
-        Gelecekte: etkin/pasif etme, izin özetleri, arama vb. eklenebilir.
-        """
-        from django.apps import apps as django_apps
-
-        app_configs = []
-        for app_config in django_apps.get_app_configs():
-            # Sadece proje içi uygulamalar (django.contrib.* hariç)
-            if app_config.name.startswith("django."):
                 continue
-            models_info = []
-            for model in app_config.get_models():
-                model_name = model._meta.model_name
-                app_label = model._meta.app_label
-                change_url = None
-                try:
-                    change_url = reverse(f"admin:{app_label}_{model_name}_changelist")
-                except Exception:
-                    pass
-                count = None
-                try:
-                    count = model.objects.count()
-                except Exception:
-                    count = "—"
-                models_info.append(
-                    {
-                        "verbose_name": model._meta.verbose_name,
-                        "model_name": model_name,
-                        "count": count,
-                        "change_url": change_url,
-                    }
-                )
-            app_configs.append(
-                {
-                    "label": app_config.label,
-                    "name": app_config.name,
-                    "verbose_name": getattr(
-                        app_config, "verbose_name", app_config.label.title()
-                    ),
-                    "models": models_info,
-                }
-            )
-        app_configs.sort(key=lambda x: x["label"])
-        context = dict(
-            self.each_context(request),
-            title=_("Modül Yönetimi"),
-            app_list=app_configs,
-        )
-        from django.template.response import TemplateResponse
+    
+    extra_context.update({
+        'user_count': user_count,
+        'company_count': company_count,
+        'invoice_count': invoice_count,
+        'expense_count': expense_count,
+        'last_invoices': last_invoices,
+        'last_expenses': last_expenses,
+        'quick_actions': quick_actions,
+        'chart_labels': chart_labels,
+        'chart_data': chart_data,
+    })
+    
+    return _original_index(request, extra_context)
 
-        return TemplateResponse(request, "admin/modules_overview.html", context)
-
-
-# Varsayılan admin site ile devam etmek için aşağıdaki satırı yorumda bırakıyoruz
-# admin.site = FinAsisAdminSite()
-# Eğer tam özelleştirilmiş bir panel isterseniz yukarıdaki satırı aktif edin ve urls.py'da admin.site yerine bu nesneyi kullanın.
+admin.site.index = custom_index
 
 admin.site.register(BankTransaction)
 

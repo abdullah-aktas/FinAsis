@@ -268,6 +268,8 @@ class RoleViewSet(viewsets.ModelViewSet):
 class UserRoleViewSet(viewsets.ModelViewSet):
     """
     Kullanıcı rolü yönetimi için API endpoint'leri.
+    Normal kullanıcılar sadece kendi rollerini görebilir ve yönetebilir.
+    Admin/superuser'lar tüm kullanıcı rollerini görebilir ve yönetebilir.
     """
 
     queryset = UserRole.active.all()
@@ -278,22 +280,82 @@ class UserRoleViewSet(viewsets.ModelViewSet):
     ordering_fields = ["user", "role", "created_at"]
     ordering = ["user"]
 
+    def get_queryset(self):
+        """
+        Normal kullanıcılar sadece kendi rollerini görebilir.
+        Admin/superuser'lar tüm rollerini görebilir.
+        """
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # Admin veya superuser ise tüm rollerini görebilir
+        if user.is_staff or user.is_superuser:
+            return queryset
+        
+        # Normal kullanıcı sadece kendi rollerini görebilir
+        return queryset.filter(user=user)
+
     def perform_create(self, serializer: UserRoleSerializer) -> None:
         """
-        Yeni bir kullanıcı rolü oluşturulurken audit log kaydı bırakır.
+        Yeni bir kullanıcı rolü oluşturulurken:
+        - Normal kullanıcılar sadece kendilerine rol atayabilir
+        - Admin/superuser'lar herhangi bir kullanıcıya rol atayabilir
         """
-        instance = serializer.save()
-        print(f"AUDIT: {self.request.user} kullanıcıya {instance.role} rolünü atadı.")
+        user = self.request.user
+        target_user = serializer.validated_data.get('user')
+        
+        # Normal kullanıcı sadece kendisine rol atayabilir
+        if not (user.is_staff or user.is_superuser):
+            if target_user and target_user != user:
+                raise PermissionDenied(
+                    _("Sadece kendi rollerinizi yönetebilirsiniz.")
+                )
+            # Kullanıcı kendisine rol atıyorsa, user'ı otomatik set et
+            instance = serializer.save(user=user)
+            print(f"AUDIT: {user} kendisine {instance.role} rolünü atadı.")
+        else:
+            # Admin/superuser herhangi bir kullanıcıya rol atayabilir
+            # Eğer user belirtilmemişse, kendisine atar
+            if not target_user:
+                target_user = user
+            instance = serializer.save(user=target_user)
+            print(f"AUDIT: {user} {target_user} kullanıcıya {instance.role} rolünü atadı.")
+
+    def perform_update(self, serializer: UserRoleSerializer) -> None:
+        """
+        Kullanıcı rolü güncellenirken:
+        - Normal kullanıcılar sadece kendi rollerini güncelleyebilir
+        - Admin/superuser'lar herhangi bir kullanıcının rolünü güncelleyebilir
+        """
+        user = self.request.user
+        instance = self.get_object()
+        
+        # Normal kullanıcı sadece kendi rollerini güncelleyebilir
+        if not (user.is_staff or user.is_superuser):
+            if instance.user != user:
+                raise PermissionDenied(
+                    _("Sadece kendi rollerinizi yönetebilirsiniz.")
+                )
+        
+        serializer.save()
+        print(f"AUDIT: {user} {instance} kullanıcı rolünü güncelledi.")
 
     def perform_destroy(self, instance: UserRole) -> None:
         """
-        Kullanıcı rolü silinirken sadece süperuser'a izin verir ve audit log kaydı bırakır.
+        Kullanıcı rolü silinirken:
+        - Normal kullanıcılar sadece kendi rollerini silebilir
+        - Superuser'lar herhangi bir kullanıcının rolünü silebilir
         """
-        if not self.request.user.is_superuser:
-            raise PermissionDenied(
-                _("Sadece süperuser kullanıcılar kullanıcı rolü silebilir.")
-            )
-        print(f"AUDIT: {self.request.user} {instance} kullanıcı rolünü sildi.")
+        user = self.request.user
+        
+        # Normal kullanıcı sadece kendi rollerini silebilir
+        if not user.is_superuser:
+            if instance.user != user:
+                raise PermissionDenied(
+                    _("Sadece kendi rollerinizi silebilirsiniz.")
+                )
+        
+        print(f"AUDIT: {user} {instance} kullanıcı rolünü sildi.")
         return super().perform_destroy(instance)
 
 

@@ -22,7 +22,19 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class UserRoleSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), 
+        source='user', 
+        write_only=True, 
+        required=False
+    )
     role = RoleSerializer(read_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.active.all(),
+        source='role',
+        write_only=True,
+        required=True
+    )
 
     class Meta:
         model = UserRole

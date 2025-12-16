@@ -288,30 +288,15 @@ jobs:
 
           # Environment variables'ı hazırla
           # NOT: PORT env değişkeni Cloud Run tarafından otomatik set edilir, biz set etmiyoruz (aksi halde "reserved env names" hatası veriyor)
-          ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0,RUN_DB_MIGRATIONS=true"
-
-          # SECRET_KEY ve DB_PASSWORD'i ekle
-          ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
-          ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
-
-          # GOOGLE_CLOUD_PROJECT_NUMBER'ı ekle (ALLOWED_HOSTS için gerekli)
-          ENV_VARS="$ENV_VARS,GOOGLE_CLOUD_PROJECT_NUMBER=${{ steps.project_number.outputs.PROJECT_NUMBER }}"
-
-          # CLOUD_RUN_HOST'u ekle (varsa - ilk deployment'ta boş olabilir)
-          EXISTING_HOST="${{ steps.get_service_url.outputs.CLOUD_RUN_HOST }}"
-          if [ -n "$EXISTING_HOST" ] && [ "$EXISTING_HOST" != "" ]; then
-            ENV_VARS="$ENV_VARS,CLOUD_RUN_HOST=$EXISTING_HOST"
-            echo "✅ CLOUD_RUN_HOST will be set from existing service: $EXISTING_HOST"
-          else
-            echo "ℹ️  CLOUD_RUN_HOST will be set after deployment"
-          fi
-
+          # Özel karakterler içeren değerler için --update-env-vars kullanıyoruz
+          
           # Use IMAGE from env (set in build step) or fallback to constructing it
           DEPLOY_IMAGE="${IMAGE:-${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}}"
 
           echo "🔧 Deploying with environment variables..."
           echo "📦 Image: $DEPLOY_IMAGE"
 
+          # Önce temel environment variables'ı set et
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image="$DEPLOY_IMAGE" \
             --region=${{ env.REGION }} \
@@ -328,11 +313,30 @@ jobs:
             --add-cloudsql-instances=finasis-478502:europe-west1:finasis-db \
             --cpu-boost \
             --cpu-throttling \
-            --set-env-vars="$ENV_VARS" \
+            --update-env-vars="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1,DJANGO_DB_ENGINE=django.db.backends.postgresql,DJANGO_DB_NAME=finasis,DJANGO_DB_USER=finasis-app,DJANGO_DB_HOST=/cloudsql/finasis-478502:europe-west1:finasis-db,CLOUD_SQL_CONNECTION_NAME=finasis-478502:europe-west1:finasis-db,DJANGO_DEBUG=0,RUN_DB_MIGRATIONS=true,GOOGLE_CLOUD_PROJECT_NUMBER=${{ steps.project_number.outputs.PROJECT_NUMBER }}" \
             --port=${{ env.PORT }} \
             --project=${{ env.PROJECT_ID }} \
-            --startup-cpu-boost \
             --quiet
+
+          # Şifreleri ayrı ayrı set et (özel karakterler için güvenli)
+          gcloud run services update ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --update-env-vars="DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD" \
+            --quiet
+
+          # CLOUD_RUN_HOST'u ekle (varsa)
+          EXISTING_HOST="${{ steps.get_service_url.outputs.CLOUD_RUN_HOST }}"
+          if [ -n "$EXISTING_HOST" ] && [ "$EXISTING_HOST" != "" ]; then
+            echo "✅ Setting CLOUD_RUN_HOST: $EXISTING_HOST"
+            gcloud run services update ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --project=${{ env.PROJECT_ID }} \
+              --update-env-vars="CLOUD_RUN_HOST=$EXISTING_HOST" \
+              --quiet
+          else
+            echo "ℹ️  CLOUD_RUN_HOST will be set after deployment"
+          fi
 
           echo "✅ Deployment completed successfully"
 

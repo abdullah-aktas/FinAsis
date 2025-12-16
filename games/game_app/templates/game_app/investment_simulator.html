@@ -251,11 +251,19 @@ function invest(assetId, event) {
     if (event) event.stopPropagation();
     
     const asset = assets.find(a => a.id === assetId);
-    const amount = prompt(`${asset.name} için kaç adet almak istersiniz?\n(Fiyat: ₺${asset.price})`);
+    const amount = prompt(`${asset.name} için kaç adet almak istersiniz?\n(Fiyat: ₺${asset.price.toLocaleString('tr-TR')})`);
     
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+        return;
+    }
     
-    const totalCost = asset.price * amount;
+    const amountNum = parseInt(amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+        alert('Geçersiz miktar!');
+        return;
+    }
+    
+    const totalCost = asset.price * amountNum;
     
     if (totalCost > capital) {
         alert('Yetersiz sermaye!');
@@ -268,11 +276,62 @@ function invest(assetId, event) {
         portfolio[assetId] = { asset: asset, quantity: 0, cost: 0 };
     }
     
-    portfolio[assetId].quantity += parseInt(amount);
+    portfolio[assetId].quantity += amountNum;
     portfolio[assetId].cost += totalCost;
     
     updatePortfolio();
-    showNotification(`${amount} adet ${asset.name} satın alındı!`, 'success');
+    showNotification(`${amountNum} adet ${asset.name} satın alındı!`, 'success');
+}
+
+function sell(assetId, event) {
+    if (event) event.stopPropagation();
+    
+    const portfolioItem = portfolio[assetId];
+    if (!portfolioItem || portfolioItem.quantity <= 0) {
+        alert('Satılacak yatırım bulunamadı!');
+        return;
+    }
+    
+    const asset = portfolioItem.asset;
+    const maxAmount = portfolioItem.quantity;
+    const amount = prompt(`${asset.name} için kaç adet satmak istersiniz?\n(Mevcut: ${maxAmount} adet, Fiyat: ₺${asset.price.toLocaleString('tr-TR')})`);
+    
+    if (!amount || amount <= 0) {
+        return;
+    }
+    
+    const amountNum = parseInt(amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+        alert('Geçersiz miktar!');
+        return;
+    }
+    
+    if (amountNum > maxAmount) {
+        alert(`Sadece ${maxAmount} adet satabilirsiniz!`);
+        return;
+    }
+    
+    // Satış işlemi
+    const totalRevenue = asset.price * amountNum;
+    const avgCostPerUnit = portfolioItem.cost / portfolioItem.quantity;
+    const costOfSold = avgCostPerUnit * amountNum;
+    const profit = totalRevenue - costOfSold;
+    
+    // Sermayeyi artır
+    capital += totalRevenue;
+    
+    // Portföyden çıkar
+    portfolioItem.quantity -= amountNum;
+    portfolioItem.cost -= costOfSold;
+    
+    // Eğer tüm yatırım satıldıysa portföyden kaldır
+    if (portfolioItem.quantity <= 0) {
+        delete portfolio[assetId];
+    }
+    
+    updatePortfolio();
+    const profitText = profit >= 0 ? `Kar: ₺${profit.toFixed(2)}` : `Zarar: ₺${Math.abs(profit).toFixed(2)}`;
+    showNotification(`${amountNum} adet ${asset.name} satıldı! ${profitText}`, profit >= 0 ? 'success' : 'warning');
 }
 
 function updatePortfolio() {
@@ -330,7 +389,7 @@ function renderPortfolioItems() {
         return;
     }
     
-    container.innerHTML = Object.values(portfolio).map(item => {
+    container.innerHTML = Object.entries(portfolio).map(([assetId, item]) => {
         const currentValue = item.asset.price * item.quantity;
         const profit = currentValue - item.cost;
         const profitPercent = ((profit / item.cost) * 100).toFixed(2);
@@ -347,6 +406,9 @@ function renderPortfolioItems() {
                         <small class="${profit >= 0 ? 'text-success' : 'text-danger'}">
                             ${profit >= 0 ? '+' : ''}₺${profit.toFixed(0)} (${profitPercent}%)
                         </small>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="sell(${assetId}, event)">
+                            <i class="bi bi-dash-circle"></i> Sat
+                        </button>
                     </div>
                 </div>
             </div>

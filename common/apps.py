@@ -1,5 +1,6 @@
 ﻿from django.apps import AppConfig
 from django.db.models.signals import post_migrate
+from django.core.signals import setting_changed
 
 
 class CommonConfig(AppConfig):

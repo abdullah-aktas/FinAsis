@@ -25,8 +25,9 @@ admin.site.register(Budget)
 admin.site.register(Tax)
 admin.site.register(CashFlow)
 admin.site.register(IncomeStatement)
-admin.site.register(BankAccount)
-admin.site.register(Invoice)
+# BankAccount ve Invoice accounting modülünde yönetiliyor, burada kaldırıldı
+# admin.site.register(BankAccount)  # accounting.BankAccount kullanılıyor
+# admin.site.register(Invoice)  # accounting.Invoice kullanılıyor
 admin.site.register(FinancialReport)
 admin.site.register(EInvoice)
 admin.site.register(EInvoiceItem)

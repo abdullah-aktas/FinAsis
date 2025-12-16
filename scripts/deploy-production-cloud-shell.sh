@@ -13,12 +13,89 @@ IMAGE_NAME="finasis-api"
 echo "🚀 Production Deployment Başlatılıyor..."
 echo ""
 
-# 1. Git durumunu kontrol et
+# 1. Gerekli API'leri etkinleştir
+echo "📡 Gerekli API'ler etkinleştiriliyor..."
+gcloud services enable cloudbuild.googleapis.com --project=$PROJECT_ID || echo "⚠️  Cloud Build API zaten etkin"
+gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID || echo "⚠️  Artifact Registry API zaten etkin"
+gcloud services enable storage-api.googleapis.com --project=$PROJECT_ID || echo "⚠️  Storage API zaten etkin"
+gcloud services enable storage-component.googleapis.com --project=$PROJECT_ID || echo "⚠️  Storage Component API zaten etkin"
+
+echo "⏳ API'lerin etkinleşmesi için 20 saniye bekleniyor..."
+sleep 20
+
+# 1.1. Project number ve Cloud Build service account
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+CB_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+echo "🔐 Cloud Build Service Account: $CB_SA"
+
+# 1.2. Cloud Build storage bucket kontrolü
+echo "🪣 Cloud Build storage bucket kontrol ediliyor..."
+BUCKET_NAME="${PROJECT_ID}_cloudbuild"
+if ! gsutil ls -b gs://$BUCKET_NAME &>/dev/null; then
+  echo "🪣 Cloud Build storage bucket oluşturuluyor..."
+  gsutil mb -l $REGION gs://$BUCKET_NAME || echo "⚠️  Bucket zaten mevcut veya oluşturulamadı"
+  # Bucket'a Cloud Build servis hesabına yetki ver
+  gsutil iam ch serviceAccount:$CB_SA:roles/storage.admin gs://$BUCKET_NAME || true
+  echo "✅ Cloud Build storage bucket hazır"
+else
+  echo "✅ Cloud Build storage bucket mevcut"
+fi
+
+# 1.3. Artifact Registry repository kontrolü
+echo "📦 Artifact Registry repository kontrol ediliyor..."
+if ! gcloud artifacts repositories describe $REPOSITORY \
+  --location=$REGION \
+  --project=$PROJECT_ID &>/dev/null; then
+  echo "📦 Artifact Registry repository oluşturuluyor..."
+  gcloud artifacts repositories create $REPOSITORY \
+    --repository-format=docker \
+    --location=$REGION \
+    --project=$PROJECT_ID \
+    --description="FinAsis Docker images" || echo "⚠️  Repository zaten mevcut veya oluşturulamadı"
+  echo "✅ Artifact Registry repository hazır"
+else
+  echo "✅ Artifact Registry repository mevcut"
+fi
+
+# 1.4. Cloud Build service account IAM rolleri kontrolü
+echo "🔐 Cloud Build service account IAM rolleri kontrol ediliyor..."
+IAM_ROLES=$(gcloud projects get-iam-policy $PROJECT_ID \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:serviceAccount:$CB_SA" \
+  --format="value(bindings.role)" 2>/dev/null || echo "")
+
+if ! echo "$IAM_ROLES" | grep -q "artifactregistry.writer"; then
+  echo "🔐 Artifact Registry Writer rolü veriliyor..."
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$CB_SA" \
+    --role="roles/artifactregistry.writer" \
+    --condition=None || echo "⚠️  Rol zaten verilmiş"
+fi
+
+if ! echo "$IAM_ROLES" | grep -q "run.admin"; then
+  echo "🔐 Cloud Run Admin rolü veriliyor..."
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$CB_SA" \
+    --role="roles/run.admin" \
+    --condition=None || echo "⚠️  Rol zaten verilmiş"
+fi
+
+if ! echo "$IAM_ROLES" | grep -q "iam.serviceAccountUser"; then
+  echo "🔐 Service Account User rolü veriliyor..."
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$CB_SA" \
+    --role="roles/iam.serviceAccountUser" \
+    --condition=None || echo "⚠️  Rol zaten verilmiş"
+fi
+
+echo ""
+
+# 2. Git durumunu kontrol et
 cd ~/FinAsis
 echo "📊 Git durumu kontrol ediliyor..."
 git status
 
-# 2. Son commit SHA'sını al
+# 3. Son commit SHA'sını al
 COMMIT_SHA=$(git rev-parse --short HEAD)
 IMAGE_TAG="${COMMIT_SHA}"
 FULL_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -29,7 +106,7 @@ echo "   Commit SHA: $COMMIT_SHA"
 echo "   Image: $FULL_IMAGE"
 echo ""
 
-# 3. Docker build ve push
+# 4. Docker build ve push
 echo "🔨 Docker image build ediliyor ve push ediliyor..."
 gcloud builds submit \
   --tag="$FULL_IMAGE" \
@@ -39,9 +116,6 @@ gcloud builds submit \
 echo ""
 echo "✅ Build tamamlandı!"
 echo ""
-
-# 4. Project number'ı al
-PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
 
 # 5. Secret'ları al (Secret Manager'dan veya kullanıcıdan)
 if [ -z "${DJANGO_SECRET_KEY:-}" ]; then
@@ -58,7 +132,7 @@ if [ -z "${DJANGO_DB_PASSWORD:-}" ]; then
   export DJANGO_DB_PASSWORD
 fi
 
-# 6. Environment variables
+# 7. Environment variables
 ENV_VARS="MPLCONFIGDIR=/tmp/matplotlib-cache,PYTHONUNBUFFERED=1,PYTHONDONTWRITEBYTECODE=1"
 ENV_VARS="$ENV_VARS,DJANGO_DB_ENGINE=django.db.backends.postgresql"
 ENV_VARS="$ENV_VARS,DJANGO_DB_NAME=finasis"
@@ -70,7 +144,7 @@ ENV_VARS="$ENV_VARS,GOOGLE_CLOUD_PROJECT_NUMBER=$PROJECT_NUMBER"
 ENV_VARS="$ENV_VARS,DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
 ENV_VARS="$ENV_VARS,DJANGO_DB_PASSWORD=$DJANGO_DB_PASSWORD"
 
-# 7. Mevcut host'u ekle
+# 8. Mevcut host'u ekle
 EXISTING_HOST=$(gcloud run services describe $SERVICE_NAME \
   --region=$REGION \
   --project=$PROJECT_ID \
@@ -83,14 +157,14 @@ fi
 
 echo ""
 
-# 8. Service account'u al
+# 9. Service account'u al
 SERVICE_ACCOUNT=$(gcloud run services describe $SERVICE_NAME \
   --region=$REGION \
   --project=$PROJECT_ID \
   --format="value(spec.template.spec.serviceAccountName)" 2>/dev/null || \
   echo "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com")
 
-# 9. Deploy
+# 10. Deploy
 echo "🚀 Cloud Run'a deploy ediliyor..."
 gcloud run deploy $SERVICE_NAME \
   --image="$FULL_IMAGE" \
@@ -115,7 +189,7 @@ gcloud run deploy $SERVICE_NAME \
 echo ""
 echo "✅ Deployment tamamlandı!"
 
-# 10. Service URL'ini göster
+# 11. Service URL'ini göster
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
   --region=$REGION \
   --project=$PROJECT_ID \
