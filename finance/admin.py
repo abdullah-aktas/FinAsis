@@ -25,22 +25,22 @@ from .models import (
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ("id", "account", "amount", "transaction_type", "date", "description_short", "balance_after")
-    list_filter = ("transaction_type", "date", "account")
-    search_fields = ("description", "account__name", "reference")
-    date_hierarchy = "date"
-    readonly_fields = ("balance_after", "created_at", "updated_at")
-    ordering = ("-date",)
+    list_display = ("id", "type", "amount", "status", "transaction_date", "description_short")
+    list_filter = ("type", "status", "transaction_date")
+    search_fields = ("description",)
+    date_hierarchy = "transaction_date"
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-transaction_date",)
     
     fieldsets = (
         (_("Temel Bilgiler"), {
-            "fields": ("account", "amount", "transaction_type", "date")
+            "fields": ("type", "amount", "status", "transaction_date")
         }),
         (_("Detaylar"), {
-            "fields": ("description", "reference", "category")
+            "fields": ("description",)
         }),
         (_("Bilgiler"), {
-            "fields": ("balance_after", "created_at", "updated_at"),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",)
         }),
     )
@@ -52,20 +52,20 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ("name", "account_type", "balance", "currency", "is_active", "created_at")
-    list_filter = ("account_type", "currency", "is_active", "created_at")
-    search_fields = ("name", "account_number", "description")
-    readonly_fields = ("balance", "created_at", "updated_at")
+    list_display = ("name", "code", "type", "balance", "currency", "is_active", "created_at")
+    list_filter = ("type", "currency", "is_active", "created_at")
+    search_fields = ("name", "code", "description")
+    readonly_fields = ("created_at", "updated_at")
     
     fieldsets = (
         (_("Temel Bilgiler"), {
-            "fields": ("name", "account_type", "account_number", "currency")
+            "fields": ("name", "code", "type", "currency")
         }),
         (_("Durum"), {
             "fields": ("balance", "is_active")
         }),
         (_("Detaylar"), {
-            "fields": ("description", "bank_name", "bank_branch")
+            "fields": ("description",)
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -76,21 +76,21 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(Budget)
 class BudgetAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "amount", "period", "spent_amount", "remaining", "status")
-    list_filter = ("period", "category", "status", "start_date")
+    list_display = ("name", "category", "amount", "actual_amount", "remaining", "start_date", "end_date")
+    list_filter = ("category", "start_date", "end_date")
     search_fields = ("name", "category", "description")
     date_hierarchy = "start_date"
-    readonly_fields = ("spent_amount", "remaining", "created_at", "updated_at")
+    readonly_fields = ("remaining", "created_at", "updated_at")
     
     fieldsets = (
         (_("Temel Bilgiler"), {
             "fields": ("name", "category", "description")
         }),
         (_("Bütçe Bilgileri"), {
-            "fields": ("amount", "period", "start_date", "end_date")
+            "fields": ("amount", "actual_amount", "start_date", "end_date")
         }),
         (_("Durum"), {
-            "fields": ("status", "spent_amount", "remaining")
+            "fields": ("remaining", "is_active")
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -99,30 +99,26 @@ class BudgetAdmin(admin.ModelAdmin):
     )
     
     def remaining(self, obj):
-        return obj.amount - obj.spent_amount
+        return obj.amount - obj.actual_amount
     remaining.short_description = "Kalan"
 
 
 @admin.register(Tax)
 class TaxAdmin(admin.ModelAdmin):
-    list_display = ("name", "tax_type", "rate", "amount", "due_date", "status", "paid_date")
-    list_filter = ("tax_type", "status", "due_date")
-    search_fields = ("name", "description", "reference")
-    date_hierarchy = "due_date"
-    readonly_fields = ("paid_date", "created_at", "updated_at")
+    list_display = ("name", "code", "type", "rate", "is_active", "created_at")
+    list_filter = ("type", "is_active", "created_at")
+    search_fields = ("name", "code", "description")
+    readonly_fields = ("created_at", "updated_at")
     
     fieldsets = (
         (_("Temel Bilgiler"), {
-            "fields": ("name", "tax_type", "description")
+            "fields": ("name", "code", "type", "description")
         }),
         (_("Vergi Bilgileri"), {
-            "fields": ("rate", "amount", "taxable_amount")
+            "fields": ("rate",)
         }),
-        (_("Tarihler"), {
-            "fields": ("due_date", "paid_date", "status")
-        }),
-        (_("Referans"), {
-            "fields": ("reference", "invoice_number")
+        (_("Durum"), {
+            "fields": ("is_active",)
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -133,18 +129,18 @@ class TaxAdmin(admin.ModelAdmin):
 
 @admin.register(CashFlow)
 class CashFlowAdmin(admin.ModelAdmin):
-    list_display = ("period", "opening_balance", "total_inflow", "total_outflow", "closing_balance", "created_at")
-    list_filter = ("period", "created_at")
-    search_fields = ("period", "description")
-    date_hierarchy = "period"
-    readonly_fields = ("opening_balance", "closing_balance", "created_at", "updated_at")
+    list_display = ("period", "start_date", "end_date", "opening_balance", "total_income", "total_expense", "closing_balance", "net_cash_flow")
+    list_filter = ("period", "start_date", "end_date", "created_at")
+    search_fields = ("period",)
+    date_hierarchy = "start_date"
+    readonly_fields = ("net_cash_flow", "created_at", "updated_at")
     
     fieldsets = (
         (_("Dönem Bilgileri"), {
-            "fields": ("period", "description")
+            "fields": ("period", "start_date", "end_date")
         }),
         (_("Nakit Akışı"), {
-            "fields": ("opening_balance", "total_inflow", "total_outflow", "closing_balance")
+            "fields": ("opening_balance", "total_income", "total_expense", "closing_balance", "net_cash_flow")
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -155,18 +151,18 @@ class CashFlowAdmin(admin.ModelAdmin):
 
 @admin.register(IncomeStatement)
 class IncomeStatementAdmin(admin.ModelAdmin):
-    list_display = ("period", "total_revenue", "total_expenses", "net_income", "created_at")
-    list_filter = ("period", "created_at")
-    search_fields = ("period", "description")
-    date_hierarchy = "period"
-    readonly_fields = ("net_income", "created_at", "updated_at")
+    list_display = ("period", "start_date", "end_date", "revenue", "operating_expenses", "net_income", "created_at")
+    list_filter = ("period", "start_date", "end_date", "created_at")
+    search_fields = ("period",)
+    date_hierarchy = "start_date"
+    readonly_fields = ("gross_profit", "operating_income", "net_income", "created_at", "updated_at")
     
     fieldsets = (
         (_("Dönem Bilgileri"), {
-            "fields": ("period", "description")
+            "fields": ("period", "start_date", "end_date")
         }),
         (_("Gelir Tablosu"), {
-            "fields": ("total_revenue", "total_expenses", "net_income")
+            "fields": ("revenue", "cost_of_goods_sold", "gross_profit", "operating_expenses", "operating_income", "other_income", "other_expenses", "net_income")
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -177,21 +173,21 @@ class IncomeStatementAdmin(admin.ModelAdmin):
 
 @admin.register(FinancialReport)
 class FinancialReportAdmin(admin.ModelAdmin):
-    list_display = ("name", "report_type", "period", "generated_at", "status")
-    list_filter = ("report_type", "status", "generated_at")
-    search_fields = ("name", "description", "period")
-    date_hierarchy = "generated_at"
-    readonly_fields = ("generated_at", "created_at", "updated_at")
+    list_display = ("name", "type", "start_date", "end_date", "status", "created_at")
+    list_filter = ("type", "status", "start_date", "end_date", "created_at")
+    search_fields = ("name",)
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at", "updated_at")
     
     fieldsets = (
         (_("Temel Bilgiler"), {
-            "fields": ("name", "report_type", "description")
+            "fields": ("name", "type", "status")
         }),
         (_("Dönem"), {
-            "fields": ("period", "start_date", "end_date")
+            "fields": ("start_date", "end_date")
         }),
-        (_("Durum"), {
-            "fields": ("status", "generated_at")
+        (_("Parametreler"), {
+            "fields": ("parameters",)
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -202,21 +198,24 @@ class FinancialReportAdmin(admin.ModelAdmin):
 
 @admin.register(EInvoice)
 class EInvoiceAdmin(admin.ModelAdmin):
-    list_display = ("invoice_number", "invoice_date", "total_amount", "status", "customer_name", "created_at")
-    list_filter = ("status", "invoice_date", "created_at")
-    search_fields = ("invoice_number", "customer_name", "customer_tax_id")
-    date_hierarchy = "invoice_date"
+    list_display = ("invoice_number", "invoice_type", "issue_date", "due_date", "total", "status", "customer", "created_at")
+    list_filter = ("status", "invoice_type", "issue_date", "due_date", "created_at")
+    search_fields = ("invoice_number", "customer__name")
+    date_hierarchy = "issue_date"
     readonly_fields = ("created_at", "updated_at")
     
     fieldsets = (
         (_("Fatura Bilgileri"), {
-            "fields": ("invoice_number", "invoice_date", "due_date", "status")
+            "fields": ("invoice_number", "invoice_type", "issue_date", "due_date", "status")
         }),
         (_("Müşteri"), {
-            "fields": ("customer_name", "customer_tax_id", "customer_address")
+            "fields": ("customer",)
         }),
         (_("Tutar"), {
-            "fields": ("subtotal", "tax_amount", "total_amount")
+            "fields": ("subtotal", "tax_total", "total", "currency")
+        }),
+        (_("Ek Bilgiler"), {
+            "fields": ("note", "uuid", "sent_at", "accepted_at")
         }),
         (_("Bilgiler"), {
             "fields": ("created_at", "updated_at"),
@@ -227,23 +226,23 @@ class EInvoiceAdmin(admin.ModelAdmin):
 
 @admin.register(EInvoiceItem)
 class EInvoiceItemAdmin(admin.ModelAdmin):
-    list_display = ("invoice", "product_name", "quantity", "unit_price", "total", "line_number")
+    list_display = ("invoice", "description", "quantity", "unit", "unit_price", "tax_rate", "line_total", "tax_amount")
     list_filter = ("invoice",)
-    search_fields = ("product_name", "invoice__invoice_number")
-    readonly_fields = ("total", "created_at")
+    search_fields = ("description", "invoice__invoice_number")
+    readonly_fields = ("line_total", "tax_amount", "created_at", "updated_at")
     
     fieldsets = (
         (_("Fatura"), {
-            "fields": ("invoice", "line_number")
+            "fields": ("invoice",)
         }),
         (_("Ürün/Hizmet"), {
-            "fields": ("product_name", "description")
+            "fields": ("description",)
         }),
         (_("Miktar ve Fiyat"), {
-            "fields": ("quantity", "unit_price", "total")
+            "fields": ("quantity", "unit", "unit_price", "tax_rate", "line_total", "tax_amount")
         }),
         (_("Bilgiler"), {
-            "fields": ("created_at",),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",)
         }),
     )
@@ -251,46 +250,34 @@ class EInvoiceItemAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ("name", "employee_id", "department", "position", "salary", "hire_date", "is_active")
-    list_filter = ("department", "position", "is_active", "hire_date")
-    search_fields = ("name", "employee_id", "email", "phone")
-    date_hierarchy = "hire_date"
-    readonly_fields = ("created_at", "updated_at")
+    list_display = ("user", "employee_id", "department")
+    list_filter = ("department",)
+    search_fields = ("employee_id", "user__username", "user__email", "user__first_name", "user__last_name")
     
     fieldsets = (
-        (_("Kişisel Bilgiler"), {
-            "fields": ("name", "employee_id", "email", "phone", "address")
+        (_("Kullanıcı"), {
+            "fields": ("user",)
         }),
         (_("İş Bilgileri"), {
-            "fields": ("department", "position", "hire_date", "is_active")
-        }),
-        (_("Maaş"), {
-            "fields": ("salary", "salary_currency")
-        }),
-        (_("Bilgiler"), {
-            "fields": ("created_at", "updated_at"),
-            "classes": ("collapse",)
+            "fields": ("employee_id", "department")
         }),
     )
 
 
 @admin.register(Voucher)
 class VoucherAdmin(admin.ModelAdmin):
-    list_display = ("voucher_number", "voucher_date", "voucher_type", "amount", "status", "created_at")
-    list_filter = ("voucher_type", "status", "voucher_date")
-    search_fields = ("voucher_number", "description", "reference")
-    date_hierarchy = "voucher_date"
-    readonly_fields = ("created_at", "updated_at")
+    list_display = ("employee", "amount", "description", "created_at", "tenant")
+    list_filter = ("tenant", "created_at")
+    search_fields = ("employee__user__username", "description", "amount")
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at",)
     
     fieldsets = (
         (_("Fiş Bilgileri"), {
-            "fields": ("voucher_number", "voucher_date", "voucher_type", "status")
-        }),
-        (_("Tutar ve Detaylar"), {
-            "fields": ("amount", "description", "reference")
+            "fields": ("employee", "amount", "description", "tenant")
         }),
         (_("Bilgiler"), {
-            "fields": ("created_at", "updated_at"),
+            "fields": ("created_at",),
             "classes": ("collapse",)
         }),
     )

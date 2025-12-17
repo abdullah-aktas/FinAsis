@@ -175,7 +175,7 @@ class AdvisorServiceAdmin(admin.ModelAdmin):
     )
     list_filter = ("service_type", "pricing_model", "is_active", "currency", "created_at")
     search_fields = ("service_name", "description", "advisor__user__username")
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at",)
     date_hierarchy = "created_at"
     
     fieldsets = (
@@ -189,7 +189,7 @@ class AdvisorServiceAdmin(admin.ModelAdmin):
             "fields": ("is_active",)
         }),
         (_("Bilgiler"), {
-            "fields": ("created_at", "updated_at"),
+            "fields": ("created_at",),
             "classes": ("collapse",)
         }),
     )

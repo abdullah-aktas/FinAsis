@@ -126,56 +126,36 @@ class SubscriptionLogAdmin(admin.ModelAdmin):
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "category", "points", "is_active", "user_count", "created_at")
-    list_filter = ("category", "is_active", "created_at")
-    search_fields = ("name", "code", "description")
-    readonly_fields = ("user_count", "created_at", "updated_at")
+    list_display = ("title", "company", "date_earned", "icon")
+    list_filter = ("company", "date_earned")
+    search_fields = ("title", "description", "company__name")
+    readonly_fields = ("date_earned",)
     
     fieldsets = (
         (_("Temel Bilgiler"), {
-            "fields": ("name", "code", "category", "description")
+            "fields": ("company", "title", "description")
         }),
-        (_("Ödül"), {
-            "fields": ("points", "badge_icon", "badge_color")
+        (_("Görünüm"), {
+            "fields": ("icon",)
         }),
-        (_("Durum"), {
-            "fields": ("is_active", "user_count")
-        }),
-        (_("Bilgiler"), {
-            "fields": ("created_at", "updated_at"),
-            "classes": ("collapse",)
+        (_("Tarih"), {
+            "fields": ("date_earned",)
         }),
     )
-    
-    def user_count(self, obj):
-        """Bu başarımı kazanan kullanıcı sayısı"""
-        return obj.userachievement_set.count() if hasattr(obj, 'userachievement_set') else 0
-    user_count.short_description = "Kazanan Kullanıcı"
 
 
 @admin.register(UserSettings)
 class UserSettingsAdmin(admin.ModelAdmin):
-    list_display = ("user", "theme", "language", "timezone", "email_notifications", "updated_at")
-    list_filter = ("theme", "language", "timezone", "email_notifications", "updated_at")
+    list_display = ("user", "email_notifications", "dark_mode")
+    list_filter = ("email_notifications", "dark_mode")
     search_fields = ("user__username", "user__email")
-    readonly_fields = ("created_at", "updated_at")
     
     fieldsets = (
         (_("Kullanıcı"), {
             "fields": ("user",)
         }),
-        (_("Görünüm"), {
-            "fields": ("theme", "language", "timezone")
-        }),
-        (_("Bildirimler"), {
-            "fields": ("email_notifications", "push_notifications", "sms_notifications")
-        }),
-        (_("Güvenlik"), {
-            "fields": ("two_factor_enabled", "session_timeout")
-        }),
-        (_("Bilgiler"), {
-            "fields": ("created_at", "updated_at"),
-            "classes": ("collapse",)
+        (_("Ayarlar"), {
+            "fields": ("email_notifications", "dark_mode")
         }),
     )
 
