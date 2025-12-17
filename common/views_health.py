@@ -31,16 +31,29 @@ def health_check_simple(request):
         # Database kontrolü
         db_ok = False
         db_time_ms = 0
+        db_error = None
         try:
             start_time = time.time()
+            # Connection'ı kapatıp yeniden açmayı dene
+            connection.close()
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
                 result = cursor.fetchone()
                 db_ok = result and result[0] == 1
             db_time_ms = int((time.time() - start_time) * 1000)
         except Exception as e:
-            logger.error(f"Database health check failed: {e}")
+            db_error = str(e)
+            logger.error(
+                f"Database health check failed: {e}",
+                exc_info=True,
+                extra={"error_type": type(e).__name__},
+            )
             db_ok = False
+            # Connection'ı temizle
+            try:
+                connection.close()
+            except Exception:
+                pass
 
         # Cache kontrolü
         cache_ok = False
@@ -67,6 +80,7 @@ def health_check_simple(request):
                 "database": {
                     "status": "ok" if db_ok else "failed",
                     "response_time_ms": db_time_ms,
+                    "error": db_error if not db_ok and db_error else None,
                 },
                 "cache": {
                     "status": "ok" if cache_ok else "failed",
