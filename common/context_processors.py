@@ -190,23 +190,21 @@ def platform_context(request):
 def brand_identity(request):
     """Marka kimliği bilgilerini template'lere taşır."""
     from .models import SystemSetting, BetaCampaign
-    
+
     brand_data = deepcopy(BRAND_IDENTITY)
     brand_data["current_year"] = timezone.now().year
-    
+
     # Aktif Beta kampanyasını al
     try:
-        active_campaign = BetaCampaign.objects.filter(
-            is_active=True,
-            status="active"
-        ).filter(
-            Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())
-        ).filter(
-            Q(start_date__isnull=True) | Q(start_date__lte=timezone.now())
-        ).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=timezone.now())
-        ).order_by("-created_at").first()
-        
+        active_campaign = (
+            BetaCampaign.objects.filter(is_active=True, status="active")
+            .filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now()))
+            .filter(Q(start_date__isnull=True) | Q(start_date__lte=timezone.now()))
+            .filter(Q(end_date__isnull=True) | Q(end_date__gte=timezone.now()))
+            .order_by("-created_at")
+            .first()
+        )
+
         if active_campaign:
             # Aktif kampanya varsa, onu kullan
             brand_data["beta_campaign"] = {
@@ -226,19 +224,26 @@ def brand_identity(request):
         else:
             # Aktif kampanya yoksa, SystemSetting'den veya varsayılan değerleri kullan
             try:
-                discount_setting = SystemSetting.objects.get(key="beta_campaign_discount_percent")
+                discount_setting = SystemSetting.objects.get(
+                    key="beta_campaign_discount_percent"
+                )
                 discount_percent = int(discount_setting.get_value())
             except (SystemSetting.DoesNotExist, ValueError, TypeError):
                 discount_percent = 20
-            
+
             # Varsayılan beta kampanyası bilgilerini güncelle
             if "beta_campaign" in brand_data:
                 import re
+
                 brand_data["beta_campaign"]["description"] = re.sub(
-                    r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["description"]
+                    r"%\d+",
+                    f"%{discount_percent}",
+                    brand_data["beta_campaign"]["description"],
                 )
                 brand_data["beta_campaign"]["short_description"] = re.sub(
-                    r'%\d+', f'%{discount_percent}', brand_data["beta_campaign"]["short_description"]
+                    r"%\d+",
+                    f"%{discount_percent}",
+                    brand_data["beta_campaign"]["short_description"],
                 )
                 for badge in brand_data["beta_campaign"]["badges"]:
                     if badge["icon"] == "percent":
@@ -246,7 +251,7 @@ def brand_identity(request):
     except Exception:
         # Hata durumunda varsayılan değerleri kullan
         pass
-    
+
     return {
         "brand_identity": brand_data,
     }

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finance_accounting", "0006_alter_accountingperiod_closed_by"),
     ]

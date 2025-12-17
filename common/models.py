@@ -658,7 +658,7 @@ class SupportTicket(models.Model):
 
 class BetaCampaign(models.Model):
     """Beta kampanyası yönetimi - Admin panelinden yönetilebilir"""
-    
+
     STATUS_CHOICES = [
         ("draft", "Taslak"),
         ("scheduled", "Zamanlanmış"),
@@ -666,94 +666,89 @@ class BetaCampaign(models.Model):
         ("paused", "Duraklatıldı"),
         ("ended", "Sonlandı"),
     ]
-    
+
     # Temel Bilgiler
     name = models.CharField(max_length=200, verbose_name="Kampanya Adı")
     slug = models.SlugField(max_length=200, unique=True, verbose_name="Slug")
     description = models.TextField(verbose_name="Açıklama")
-    
+
     # Kampanya Detayları
     title = models.CharField(
-        max_length=200, 
+        max_length=200,
         verbose_name="Başlık",
-        help_text="Örn: Beta Kullanıcısı Olun, Şirket Ortağı Olun!"
+        help_text="Örn: Beta Kullanıcısı Olun, Şirket Ortağı Olun!",
     )
     short_description = models.CharField(
         max_length=500,
         verbose_name="Kısa Açıklama",
-        help_text="Örn: 2 ay ücretsiz Pro paket + 1 şirket hissesi + Beta Pioneer rozeti + %20 kalıcı indirim"
+        help_text="Örn: 2 ay ücretsiz Pro paket + 1 şirket hissesi + Beta Pioneer rozeti + %20 kalıcı indirim",
     )
-    
+
     # İndirim ve Avantajlar
     discount_percent = models.IntegerField(
         default=20,
         verbose_name="İndirim Yüzdesi",
-        help_text="Kalıcı indirim yüzdesi (örn: 20 = %20)"
+        help_text="Kalıcı indirim yüzdesi (örn: 20 = %20)",
     )
     free_months = models.IntegerField(
         default=2,
         verbose_name="Ücretsiz Ay Sayısı",
-        help_text="Kaç ay ücretsiz erişim verilecek"
+        help_text="Kaç ay ücretsiz erişim verilecek",
     )
     company_shares = models.IntegerField(
         default=1,
         verbose_name="Şirket Hissesi Sayısı",
-        help_text="Verilecek şirket hissesi sayısı"
+        help_text="Verilecek şirket hissesi sayısı",
     )
     includes_badge = models.BooleanField(
         default=True,
         verbose_name="Beta Rozeti Dahil",
-        help_text="Beta Pioneer rozeti verilecek mi?"
+        help_text="Beta Pioneer rozeti verilecek mi?",
     )
-    
+
     # Zamanlama
     status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default="draft",
-        verbose_name="Durum"
+        max_length=20, choices=STATUS_CHOICES, default="draft", verbose_name="Durum"
     )
     start_date = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name="Başlangıç Tarihi",
-        help_text="Kampanyanın başlayacağı tarih (boş bırakılırsa hemen başlar)"
+        help_text="Kampanyanın başlayacağı tarih (boş bırakılırsa hemen başlar)",
     )
     end_date = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name="Bitiş Tarihi",
-        help_text="Kampanyanın biteceği tarih (boş bırakılırsa süresiz)"
+        help_text="Kampanyanın biteceği tarih (boş bırakılırsa süresiz)",
     )
     publish_at = models.DateTimeField(
         null=True,
         blank=True,
         verbose_name="Yayınlanma Tarihi",
-        help_text="Kampanyanın yayınlanacağı tarih (zamanlanmış yayınlama)"
+        help_text="Kampanyanın yayınlanacağı tarih (zamanlanmış yayınlama)",
     )
-    
+
     # Görünürlük
     is_active = models.BooleanField(
-        default=True,
-        verbose_name="Aktif",
-        help_text="Kampanya aktif mi?"
+        default=True, verbose_name="Aktif", help_text="Kampanya aktif mi?"
     )
     show_on_homepage = models.BooleanField(
         default=True,
         verbose_name="Ana Sayfada Göster",
-        help_text="Ana sayfada kampanya banner'ı gösterilsin mi?"
+        help_text="Ana sayfada kampanya banner'ı gösterilsin mi?",
     )
     show_on_plans = models.BooleanField(
         default=True,
         verbose_name="Planlar Sayfasında Göster",
-        help_text="Planlar sayfasında kampanya gösterilsin mi?"
+        help_text="Planlar sayfasında kampanya gösterilsin mi?",
     )
     show_on_registration = models.BooleanField(
         default=True,
         verbose_name="Kayıt Sayfasında Göster",
-        help_text="Kayıt sayfasında kampanya gösterilsin mi?"
+        help_text="Kayıt sayfasında kampanya gösterilsin mi?",
     )
-    
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturulma")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Güncellenme")
@@ -763,7 +758,7 @@ class BetaCampaign(models.Model):
         null=True,
         blank=True,
         related_name="created_campaigns",
-        verbose_name="Oluşturan"
+        verbose_name="Oluşturan",
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -771,9 +766,9 @@ class BetaCampaign(models.Model):
         null=True,
         blank=True,
         related_name="updated_campaigns",
-        verbose_name="Güncelleyen"
+        verbose_name="Güncelleyen",
     )
-    
+
     class Meta:
         verbose_name = "Beta Kampanyası"
         verbose_name_plural = "Beta Kampanyaları"
@@ -783,56 +778,51 @@ class BetaCampaign(models.Model):
             models.Index(fields=["start_date", "end_date"]),
             models.Index(fields=["publish_at"]),
         ]
-    
+
     def __str__(self):
         return f"{self.name} ({self.get_status_display()})"
-    
+
     def is_currently_active(self):
         """Kampanya şu anda aktif mi?"""
         if not self.is_active or self.status != "active":
             return False
-        
+
         now = timezone.now()
-        
+
         # Zamanlanmış yayınlama kontrolü
         if self.publish_at and now < self.publish_at:
             return False
-        
+
         # Başlangıç tarihi kontrolü
         if self.start_date and now < self.start_date:
             return False
-        
+
         # Bitiş tarihi kontrolü
         if self.end_date and now > self.end_date:
             return False
-        
+
         return True
-    
+
     def get_discount_display(self):
         """İndirim yüzdesini formatla"""
         return f"%{self.discount_percent}"
-    
+
     def get_badges(self):
         """Kampanya rozetlerini döndür"""
         badges = []
         if self.company_shares > 0:
-            badges.append({
-                "icon": "graph-up-arrow",
-                "label": f"{self.company_shares} Şirket Hissesi"
-            })
+            badges.append(
+                {
+                    "icon": "graph-up-arrow",
+                    "label": f"{self.company_shares} Şirket Hissesi",
+                }
+            )
         if self.free_months > 0:
-            badges.append({
-                "icon": "gift",
-                "label": f"{self.free_months} Ay Ücretsiz"
-            })
+            badges.append({"icon": "gift", "label": f"{self.free_months} Ay Ücretsiz"})
         if self.discount_percent > 0:
-            badges.append({
-                "icon": "percent",
-                "label": f"%{self.discount_percent} İndirim"
-            })
+            badges.append(
+                {"icon": "percent", "label": f"%{self.discount_percent} İndirim"}
+            )
         if self.includes_badge:
-            badges.append({
-                "icon": "trophy-fill",
-                "label": "Beta Rozeti"
-            })
+            badges.append({"icon": "trophy-fill", "label": "Beta Rozeti"})
         return badges

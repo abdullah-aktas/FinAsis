@@ -15,4 +15,3 @@ def create_investment_profile(sender, instance, created, **kwargs):
     """Yeni kullanıcı için otomatik yatırım profili oluştur"""
     if created:
         InvestmentProfile.objects.get_or_create(user=instance)
-

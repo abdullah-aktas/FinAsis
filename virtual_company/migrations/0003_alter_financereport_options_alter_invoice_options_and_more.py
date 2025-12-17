@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("virtual_company", "0002_companyleaderboard_companyachievement"),
     ]

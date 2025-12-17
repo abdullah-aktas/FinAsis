@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finance", "0016_financialmetric_paymentterm_recurringtransaction_and_more"),
     ]

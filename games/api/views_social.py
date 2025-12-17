@@ -20,40 +20,38 @@ def send_friend_request(request):
     username = request.data.get("username")
     if not username:
         return Response(
-            {"error": "Kullanıcı adı gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Kullanıcı adı gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if username == request.user.username:
         return Response(
             {"error": "Kendinize arkadaşlık isteği gönderemezsiniz."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     try:
         to_user = User.objects.get(username=username)
     except User.DoesNotExist:
         return Response(
-            {"error": "Kullanıcı bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Kullanıcı bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
-    
+
     # Zaten arkadaş mı kontrol et
     existing = Friend.objects.filter(
-        Q(from_player=request.user, to_player=to_user) |
-        Q(from_player=to_user, to_player=request.user)
+        Q(from_player=request.user, to_player=to_user)
+        | Q(from_player=to_user, to_player=request.user)
     ).first()
-    
+
     if existing:
         if existing.status == "accepted":
             return Response(
                 {"error": "Bu kullanıcı zaten arkadaşınız."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
         elif existing.status == "pending" and existing.from_player == request.user:
             return Response(
                 {"error": "Bu kullanıcıya zaten arkadaşlık isteği gönderdiniz."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
         elif existing.status == "pending" and existing.to_player == request.user:
             # Karşılıklı istek varsa otomatik kabul et
@@ -61,25 +59,22 @@ def send_friend_request(request):
             existing.save()
             return Response(
                 {"message": "Arkadaşlık isteği kabul edildi.", "status": "accepted"},
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
-    
+
     # Yeni istek oluştur
     friend_request, created = Friend.objects.get_or_create(
-        from_player=request.user,
-        to_player=to_user,
-        defaults={"status": "pending"}
+        from_player=request.user, to_player=to_user, defaults={"status": "pending"}
     )
-    
+
     if not created:
         return Response(
-            {"error": "İstek zaten mevcut."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "İstek zaten mevcut."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     return Response(
         {"message": "Arkadaşlık isteği gönderildi.", "status": "pending"},
-        status=status.HTTP_201_CREATED
+        status=status.HTTP_201_CREATED,
     )
 
 
@@ -90,26 +85,21 @@ def accept_friend_request(request):
     request_id = request.data.get("request_id")
     if not request_id:
         return Response(
-            {"error": "İstek ID gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "İstek ID gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         friend_request = Friend.objects.get(
-            id=request_id,
-            to_player=request.user,
-            status="pending"
+            id=request_id, to_player=request.user, status="pending"
         )
         friend_request.status = "accepted"
         friend_request.save()
         return Response(
-            {"message": "Arkadaşlık isteği kabul edildi."},
-            status=status.HTTP_200_OK
+            {"message": "Arkadaşlık isteği kabul edildi."}, status=status.HTTP_200_OK
         )
     except Friend.DoesNotExist:
         return Response(
-            {"error": "İstek bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "İstek bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -120,25 +110,20 @@ def reject_friend_request(request):
     request_id = request.data.get("request_id")
     if not request_id:
         return Response(
-            {"error": "İstek ID gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "İstek ID gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         friend_request = Friend.objects.get(
-            id=request_id,
-            to_player=request.user,
-            status="pending"
+            id=request_id, to_player=request.user, status="pending"
         )
         friend_request.delete()
         return Response(
-            {"message": "Arkadaşlık isteği reddedildi."},
-            status=status.HTTP_200_OK
+            {"message": "Arkadaşlık isteği reddedildi."}, status=status.HTTP_200_OK
         )
     except Friend.DoesNotExist:
         return Response(
-            {"error": "İstek bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "İstek bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -149,32 +134,28 @@ def remove_friend(request):
     username = request.data.get("username")
     if not username:
         return Response(
-            {"error": "Kullanıcı adı gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Kullanıcı adı gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         to_user = User.objects.get(username=username)
         friendship = Friend.objects.filter(
-            Q(from_player=request.user, to_player=to_user, status="accepted") |
-            Q(from_player=to_user, to_player=request.user, status="accepted")
+            Q(from_player=request.user, to_player=to_user, status="accepted")
+            | Q(from_player=to_user, to_player=request.user, status="accepted")
         ).first()
-        
+
         if friendship:
             friendship.delete()
             return Response(
-                {"message": "Arkadaş listeden kaldırıldı."},
-                status=status.HTTP_200_OK
+                {"message": "Arkadaş listeden kaldırıldı."}, status=status.HTTP_200_OK
             )
         else:
             return Response(
-                {"error": "Arkadaşlık bulunamadı."},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Arkadaşlık bulunamadı."}, status=status.HTTP_404_NOT_FOUND
             )
     except User.DoesNotExist:
         return Response(
-            {"error": "Kullanıcı bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Kullanıcı bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -186,31 +167,33 @@ def search_users(request):
     if len(query) < 2:
         return Response(
             {"error": "En az 2 karakter girmelisiniz."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
-    users = User.objects.filter(
-        username__icontains=query
-    ).exclude(id=request.user.id)[:20]
-    
+
+    users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)[
+        :20
+    ]
+
     # Mevcut arkadaşlık durumlarını kontrol et
     results = []
     for user in users:
         friendship = Friend.objects.filter(
-            Q(from_player=request.user, to_player=user) |
-            Q(from_player=user, to_player=request.user)
+            Q(from_player=request.user, to_player=user)
+            | Q(from_player=user, to_player=request.user)
         ).first()
-        
+
         status_value = None
         if friendship:
             status_value = friendship.status
-        
-        results.append({
-            "id": user.id,
-            "username": user.username,
-            "friendship_status": status_value,
-        })
-    
+
+        results.append(
+            {
+                "id": user.id,
+                "username": user.username,
+                "friendship_status": status_value,
+            }
+        )
+
     return Response({"users": results})
 
 
@@ -221,48 +204,41 @@ def create_team(request):
     name = request.data.get("name")
     tag = request.data.get("tag")
     description = request.data.get("description", "")
-    
+
     if not name or not tag:
         return Response(
             {"error": "Takım adı ve etiket gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     # Tag 10 karakterden uzun olamaz
     if len(tag) > 10:
         return Response(
             {"error": "Takım etiketi en fazla 10 karakter olabilir."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     # Aynı isim veya tag var mı kontrol et
     if Team.objects.filter(name=name).exists():
         return Response(
             {"error": "Bu takım adı zaten kullanılıyor."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     if Team.objects.filter(tag=tag).exists():
         return Response(
             {"error": "Bu takım etiketi zaten kullanılıyor."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     # Takım oluştur
     team = Team.objects.create(
-        name=name,
-        tag=tag,
-        description=description,
-        owner=request.user
+        name=name, tag=tag, description=description, owner=request.user
     )
-    
+
     # Sahibi takıma ekle
-    TeamMembership.objects.create(
-        team=team,
-        player=request.user,
-        role="owner"
-    )
-    
+    TeamMembership.objects.create(team=team, player=request.user, role="owner")
+
     return Response(
         {
             "message": "Takım oluşturuldu.",
@@ -270,9 +246,9 @@ def create_team(request):
                 "id": team.id,
                 "name": team.name,
                 "tag": team.tag,
-            }
+            },
         },
-        status=status.HTTP_201_CREATED
+        status=status.HTTP_201_CREATED,
     )
 
 
@@ -283,35 +259,26 @@ def join_team(request):
     team_id = request.data.get("team_id")
     if not team_id:
         return Response(
-            {"error": "Takım ID gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Takım ID gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         team = Team.objects.get(id=team_id)
-        
+
         # Zaten üye mi kontrol et
         if TeamMembership.objects.filter(team=team, player=request.user).exists():
             return Response(
                 {"error": "Zaten bu takımın üyesisiniz."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         # Üye ekle
-        TeamMembership.objects.create(
-            team=team,
-            player=request.user,
-            role="member"
-        )
-        
-        return Response(
-            {"message": "Takıma katıldınız."},
-            status=status.HTTP_200_OK
-        )
+        TeamMembership.objects.create(team=team, player=request.user, role="member")
+
+        return Response({"message": "Takıma katıldınız."}, status=status.HTTP_200_OK)
     except Team.DoesNotExist:
         return Response(
-            {"error": "Takım bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Takım bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -322,38 +289,33 @@ def leave_team(request):
     team_id = request.data.get("team_id")
     if not team_id:
         return Response(
-            {"error": "Takım ID gereklidir."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Takım ID gereklidir."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         team = Team.objects.get(id=team_id)
         membership = TeamMembership.objects.filter(
-            team=team,
-            player=request.user
+            team=team, player=request.user
         ).first()
-        
+
         if not membership:
             return Response(
                 {"error": "Bu takımın üyesi değilsiniz."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         # Sahip takımdan ayrılamaz (önce sahipliği devretmesi gerekir)
         if membership.role == "owner":
             return Response(
-                {"error": "Takım sahibi takımdan ayrılamaz. Önce sahipliği devretmelisiniz."},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": "Takım sahibi takımdan ayrılamaz. Önce sahipliği devretmelisiniz."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
         membership.delete()
-        return Response(
-            {"message": "Takımdan ayrıldınız."},
-            status=status.HTTP_200_OK
-        )
+        return Response({"message": "Takımdan ayrıldınız."}, status=status.HTTP_200_OK)
     except Team.DoesNotExist:
         return Response(
-            {"error": "Takım bulunamadı."},
-            status=status.HTTP_404_NOT_FOUND
+            {"error": "Takım bulunamadı."}, status=status.HTTP_404_NOT_FOUND
         )
-

@@ -115,9 +115,11 @@ def ledger_game(request):
         return render(request, "game_app/ledger_game.html")
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Ledger game view error: {e}", exc_info=True)
         from django.http import HttpResponseServerError
+
         return HttpResponseServerError("Muhasebe oyunu yüklenirken bir hata oluştu.")
 
 
@@ -129,25 +131,27 @@ def welcome(request):
 def scoreboard(request):
     """Gerçek skor tablosu - sadece gerçek oyuncu skorlarını gösterir."""
     from games.models import PlayerProfile
-    
+
     # Gerçek oyuncu skorlarını al
-    scores = PlayerProfile.objects.filter(
-        games_played__gt=0  # En az bir oyun oynamış oyuncular
-    ).order_by('-total_score')[:100].values(
-        'user__username', 'total_score', 'games_won', 'games_played'
+    scores = (
+        PlayerProfile.objects.filter(
+            games_played__gt=0  # En az bir oyun oynamış oyuncular
+        )
+        .order_by("-total_score")[:100]
+        .values("user__username", "total_score", "games_won", "games_played")
     )
-    
+
     # Formatla
     score_list = [
         {
-            "user": score['user__username'],
-            "score": score['total_score'],
-            "games_won": score['games_won'],
-            "games_played": score['games_played'],
+            "user": score["user__username"],
+            "score": score["total_score"],
+            "games_won": score["games_won"],
+            "games_played": score["games_played"],
         }
         for score in scores
     ]
-    
+
     return render(request, "game_app/scoreboard.html", {"scores": score_list})
 
 
@@ -176,83 +180,93 @@ def game_detail(request, game_key):
     try:
         # Oyun bilgileri (örnek, ileride veritabanı veya dict ile dinamik yapılabilir)
         games_info = {
-        "tradesim": {
-            "title": "TradeSim & Ticaretin İzinde",
-            "description": "Şehirler arası ticaret, şirket yönetimi, finansal eğitim ve görevlerle birleşik simülasyon.",
-            "image": "/static/img/games/tradesim.jpg",
-            "how_to_play": "Şirketini kur, şehirler arası ticaret yap, görevleri tamamla ve finansal okuryazarlığını geliştir.",
-            "features": [
-                "Şehirler arası ticaret",
-                "Şirket ve karakter yönetimi",
-                "Finansal eğitim",
-                "Görev ve başarımlar",
-                "Skor tablosu",
-            ],
-            "play_url": "/games/game_app/tradesim/",
-        },
-        "stock-market": {
-            "title": "Borsa Simülasyonu",
-            "description": "Sanal borsada al-sat yaparak yatırım deneyimi kazan.",
-            "image": "/static/img/games/stock.jpg",
-            "how_to_play": "Hisse senetlerini analiz et, al-sat yap, portföyünü büyüt.",
-            "features": [
-                "Gerçek zamanlı fiyatlar",
-                "Portföy yönetimi",
-                "Yatırım stratejileri",
-            ],
-            "play_url": "/games/game_app/stock-market/",
-        },
-        "budget-challenge": {
-            "title": "Bütçe Mücadelesi",
-            "description": "Gerçek hayat senaryolarıyla bütçe yönetimini öğren.",
-            "image": "/static/img/games/budget.jpg",
-            "how_to_play": "Gelir ve giderlerini yönet, tasarruf et, finansal hedeflere ulaş.",
-            "features": ["Senaryo tabanlı", "Gider analizi", "Tasarruf ipuçları"],
-            "play_url": "/games/game_app/budget-challenge/",
-        },
-        "investment-simulator": {
-            "title": "Yatırım Simülatörü",
-            "description": "Yatırım stratejilerini test et ve deneyim kazan.",
-            "image": "/static/img/games/investment.jpg",
-            "how_to_play": "Farklı yatırım araçlarını dene, riskleri analiz et, portföyünü büyüt.",
-            "features": [
-                "Çeşitli yatırım araçları",
-                "Risk analizi",
-                "Getiri simülasyonu",
-            ],
-            "play_url": "/games/game_app/investment-simulator/",
-        },
-        "trade-trail-3d": {
-            "title": "FinQuest 3D",
-            "description": "3D dünyada ticaret ve finansı deneyimle.",
-            "image": "/static/img/games/trade3d.jpg",
-            "how_to_play": "Karakterini seç, şirketini kur, 3D dünyada ticaret yap.",
-            "features": ["3D ortam", "Karakter ve şirket seçimi", "Görevler ve eğitim"],
-            "play_url": "/games/game_app/trade-trail-3d/",
-        },
-        "ledger-game": {
-            "title": "Muhasebe Kayıt Oyunu (TDHP)",
-            "description": "Belgelere dayalı muhasebe kayıtlarını öğrenin. Sürükle-bırak ile borç-alacak kayıtları oluşturun.",
-            "image": "/static/img/games/ledger.jpg",
-            "how_to_play": "Belgeyi incele, hesap kartlarını sürükle, BORÇ ve ALACAK alanlarına bırak, kaydı kontrol et.",
-            "features": [
-                "Gerçek belge simülasyonu",
-                "TDHP hesap planı",
-                "Sürükle-bırak mekanizması",
-                "5 farklı senaryo",
-                "Mobil uyumlu",
-                "Web tabanlı",
-            ],
-            "play_url": "/games/game_app/ledger-game/",
-        },
-    }
+            "tradesim": {
+                "title": "TradeSim & Ticaretin İzinde",
+                "description": "Şehirler arası ticaret, şirket yönetimi, finansal eğitim ve görevlerle birleşik simülasyon.",
+                "image": "/static/img/games/tradesim.jpg",
+                "how_to_play": "Şirketini kur, şehirler arası ticaret yap, görevleri tamamla ve finansal okuryazarlığını geliştir.",
+                "features": [
+                    "Şehirler arası ticaret",
+                    "Şirket ve karakter yönetimi",
+                    "Finansal eğitim",
+                    "Görev ve başarımlar",
+                    "Skor tablosu",
+                ],
+                "play_url": "/games/game_app/tradesim/",
+            },
+            "stock-market": {
+                "title": "Borsa Simülasyonu",
+                "description": "Sanal borsada al-sat yaparak yatırım deneyimi kazan.",
+                "image": "/static/img/games/stock.jpg",
+                "how_to_play": "Hisse senetlerini analiz et, al-sat yap, portföyünü büyüt.",
+                "features": [
+                    "Gerçek zamanlı fiyatlar",
+                    "Portföy yönetimi",
+                    "Yatırım stratejileri",
+                ],
+                "play_url": "/games/game_app/stock-market/",
+            },
+            "budget-challenge": {
+                "title": "Bütçe Mücadelesi",
+                "description": "Gerçek hayat senaryolarıyla bütçe yönetimini öğren.",
+                "image": "/static/img/games/budget.jpg",
+                "how_to_play": "Gelir ve giderlerini yönet, tasarruf et, finansal hedeflere ulaş.",
+                "features": ["Senaryo tabanlı", "Gider analizi", "Tasarruf ipuçları"],
+                "play_url": "/games/game_app/budget-challenge/",
+            },
+            "investment-simulator": {
+                "title": "Yatırım Simülatörü",
+                "description": "Yatırım stratejilerini test et ve deneyim kazan.",
+                "image": "/static/img/games/investment.jpg",
+                "how_to_play": "Farklı yatırım araçlarını dene, riskleri analiz et, portföyünü büyüt.",
+                "features": [
+                    "Çeşitli yatırım araçları",
+                    "Risk analizi",
+                    "Getiri simülasyonu",
+                ],
+                "play_url": "/games/game_app/investment-simulator/",
+            },
+            "trade-trail-3d": {
+                "title": "FinQuest 3D",
+                "description": "3D dünyada ticaret ve finansı deneyimle.",
+                "image": "/static/img/games/trade3d.jpg",
+                "how_to_play": "Karakterini seç, şirketini kur, 3D dünyada ticaret yap.",
+                "features": [
+                    "3D ortam",
+                    "Karakter ve şirket seçimi",
+                    "Görevler ve eğitim",
+                ],
+                "play_url": "/games/game_app/trade-trail-3d/",
+            },
+            "ledger-game": {
+                "title": "Muhasebe Kayıt Oyunu (TDHP)",
+                "description": "Belgelere dayalı muhasebe kayıtlarını öğrenin. Sürükle-bırak ile borç-alacak kayıtları oluşturun.",
+                "image": "/static/img/games/ledger.jpg",
+                "how_to_play": "Belgeyi incele, hesap kartlarını sürükle, BORÇ ve ALACAK alanlarına bırak, kaydı kontrol et.",
+                "features": [
+                    "Gerçek belge simülasyonu",
+                    "TDHP hesap planı",
+                    "Sürükle-bırak mekanizması",
+                    "5 farklı senaryo",
+                    "Mobil uyumlu",
+                    "Web tabanlı",
+                ],
+                "play_url": "/games/game_app/ledger-game/",
+            },
+        }
         game = games_info.get(game_key)
         if not game:
-            return render(request, "game_app/game_not_found.html", {"game_key": game_key})
+            return render(
+                request, "game_app/game_not_found.html", {"game_key": game_key}
+            )
         return render(request, "game_app/game_detail.html", {"game": game})
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Game detail view error: {e}", exc_info=True)
         from django.http import HttpResponseServerError
-        return HttpResponseServerError("Oyun detay sayfası yüklenirken bir hata oluştu.")
+
+        return HttpResponseServerError(
+            "Oyun detay sayfası yüklenirken bir hata oluştu."
+        )

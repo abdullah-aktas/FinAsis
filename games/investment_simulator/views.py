@@ -28,7 +28,7 @@ def investment_simulator(request):
     try:
         profile, _ = InvestmentProfile.objects.get_or_create(user=request.user)
         player_profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
-        
+
         # Portföy analizi - hata yakalama ile
         analysis = {}
         suggested_assets = []
@@ -38,6 +38,7 @@ def investment_simulator(request):
             suggested_assets = analyzer.get_suggested_assets(profile, limit=5)
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.warning(f"Portfolio analysis error: {e}", exc_info=True)
             # Basit analiz
@@ -46,71 +47,81 @@ def investment_simulator(request):
             if portfolio:
                 total_value += float(portfolio.total_value or 0)
             analysis = {
-                'total_value': total_value,
-                'total_return': float(profile.total_profit_loss or 0),
-                'risk_score': 0.5,
+                "total_value": total_value,
+                "total_return": float(profile.total_profit_loss or 0),
+                "risk_score": 0.5,
             }
             suggested_assets = Asset.objects.filter(is_active=True)[:5]
-        
+
         # Liderlik tablosu - basitleştirilmiş
         weekly_leaderboard = []
         try:
             # Tüm profilleri al ve toplam değerlerine göre sırala
             all_profiles = InvestmentProfile.objects.filter(
                 user__is_active=True
-            ).select_related('user')
-            
+            ).select_related("user")
+
             leaderboard_data = []
             for prof in all_profiles:
                 portfolio = Portfolio.objects.filter(profile=prof).first()
                 total_val = float(prof.cash_balance or 0)
                 if portfolio:
                     total_val += float(portfolio.current_value or 0)
-                leaderboard_data.append({
-                    'user': prof.user.username if prof.user else 'Anonim',
-                    'total_value': total_val,
-                })
-            
+                leaderboard_data.append(
+                    {
+                        "user": prof.user.username if prof.user else "Anonim",
+                        "total_value": total_val,
+                    }
+                )
+
             # Toplam değere göre sırala
-            leaderboard_data.sort(key=lambda x: x['total_value'], reverse=True)
+            leaderboard_data.sort(key=lambda x: x["total_value"], reverse=True)
             weekly_leaderboard = [
-                {**item, 'rank': idx + 1}
+                {**item, "rank": idx + 1}
                 for idx, item in enumerate(leaderboard_data[:10])
             ]
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.warning(f"Leaderboard error: {e}", exc_info=True)
-        
+
         # Aktif piyasa olayları
         active_events = []
         try:
             active_events = MarketEvent.objects.filter(
                 is_active=True,
                 event_date__lte=timezone.now(),
-                expires_at__gte=timezone.now()
+                expires_at__gte=timezone.now(),
             )[:5]
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.warning(f"Market event error: {e}", exc_info=True)
-        
+
         context = {
-            'profile': profile,
-            'player_profile': player_profile,
-            'analysis': analysis,
-            'suggested_assets': suggested_assets,
-            'weekly_leaderboard': weekly_leaderboard,
-            'active_events': active_events,
+            "profile": profile,
+            "player_profile": player_profile,
+            "analysis": analysis,
+            "suggested_assets": suggested_assets,
+            "weekly_leaderboard": weekly_leaderboard,
+            "active_events": active_events,
         }
-        
-        return render(request, 'investment_simulator/investment_simulator.html', context)
+
+        return render(
+            request, "investment_simulator/investment_simulator.html", context
+        )
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Investment simulator view error: {e}", exc_info=True)
         from django.http import HttpResponseServerError
-        return HttpResponseServerError("Yatırım simülatörü yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
+
+        return HttpResponseServerError(
+            "Yatırım simülatörü yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+        )
 
 
 @login_required
@@ -118,24 +129,29 @@ def investment_simulator(request):
 def api_assets(request):
     """Tüm yatırım araçlarını getir"""
     assets = Asset.objects.filter(is_active=True)
-    
-    data = [{
-        'id': asset.id,
-        'name': asset.name,
-        'symbol': asset.symbol,
-        'type': asset.asset_type,
-        'risk_level': asset.risk_level,
-        'current_price': float(asset.current_price),
-        'base_price': float(asset.base_price),
-        'volatility': float(asset.volatility),
-        'expected_return': float(asset.expected_return),
-        'trend': asset.trend,
-        'momentum': float(asset.momentum),
-        'icon': asset.icon,
-        'price_change_24h': asset.price_history[-1]['change_percent'] if asset.price_history else 0,
-    } for asset in assets]
-    
-    return JsonResponse({'assets': data})
+
+    data = [
+        {
+            "id": asset.id,
+            "name": asset.name,
+            "symbol": asset.symbol,
+            "type": asset.asset_type,
+            "risk_level": asset.risk_level,
+            "current_price": float(asset.current_price),
+            "base_price": float(asset.base_price),
+            "volatility": float(asset.volatility),
+            "expected_return": float(asset.expected_return),
+            "trend": asset.trend,
+            "momentum": float(asset.momentum),
+            "icon": asset.icon,
+            "price_change_24h": asset.price_history[-1]["change_percent"]
+            if asset.price_history
+            else 0,
+        }
+        for asset in assets
+    ]
+
+    return JsonResponse({"assets": data})
 
 
 @login_required
@@ -144,27 +160,32 @@ def api_portfolio(request):
     """Kullanıcının portföyünü getir"""
     profile = get_object_or_404(InvestmentProfile, user=request.user)
     holdings = Portfolio.objects.filter(profile=profile)
-    
-    portfolio_data = [{
-        'asset_id': holding.asset.id,
-        'asset_name': holding.asset.name,
-        'asset_symbol': holding.asset.symbol,
-        'quantity': float(holding.quantity),
-        'average_cost': float(holding.average_cost),
-        'current_price': float(holding.asset.current_price),
-        'current_value': float(holding.current_value),
-        'total_cost': float(holding.total_cost),
-        'profit_loss': float(holding.profit_loss),
-        'profit_loss_percent': float(holding.profit_loss_percentage),
-    } for holding in holdings]
-    
-    return JsonResponse({
-        'portfolio': portfolio_data,
-        'cash_balance': float(profile.cash_balance),
-        'portfolio_value': float(profile.portfolio_value),
-        'total_profit_loss': float(profile.total_profit_loss_calculated),
-        'total_return_percentage': float(profile.total_return_percentage),
-    })
+
+    portfolio_data = [
+        {
+            "asset_id": holding.asset.id,
+            "asset_name": holding.asset.name,
+            "asset_symbol": holding.asset.symbol,
+            "quantity": float(holding.quantity),
+            "average_cost": float(holding.average_cost),
+            "current_price": float(holding.asset.current_price),
+            "current_value": float(holding.current_value),
+            "total_cost": float(holding.total_cost),
+            "profit_loss": float(holding.profit_loss),
+            "profit_loss_percent": float(holding.profit_loss_percentage),
+        }
+        for holding in holdings
+    ]
+
+    return JsonResponse(
+        {
+            "portfolio": portfolio_data,
+            "cash_balance": float(profile.cash_balance),
+            "portfolio_value": float(profile.portfolio_value),
+            "total_profit_loss": float(profile.total_profit_loss_calculated),
+            "total_return_percentage": float(profile.total_return_percentage),
+        }
+    )
 
 
 @login_required
@@ -172,41 +193,44 @@ def api_portfolio(request):
 def api_buy(request):
     """Yatırım aracı satın al"""
     profile = get_object_or_404(InvestmentProfile, user=request.user)
-    
+
     try:
         data = json.loads(request.body)
-        asset_id = data.get('asset_id')
-        quantity = Decimal(str(data.get('quantity', 0)))
-        
+        asset_id = data.get("asset_id")
+        quantity = Decimal(str(data.get("quantity", 0)))
+
         if quantity <= 0:
-            return JsonResponse({'error': 'Geçersiz miktar'}, status=400)
-        
+            return JsonResponse({"error": "Geçersiz miktar"}, status=400)
+
         asset = get_object_or_404(Asset, id=asset_id, is_active=True)
-        
+
         # Toplam maliyet
         total_cost = asset.current_price * quantity
-        commission = total_cost * Decimal('0.001')  # %0.1 komisyon
+        commission = total_cost * Decimal("0.001")  # %0.1 komisyon
         total_with_commission = total_cost + commission
-        
+
         # Nakit kontrolü
         if total_with_commission > profile.cash_balance:
-            return JsonResponse({
-                'error': 'Yetersiz nakit',
-                'required': float(total_with_commission),
-                'available': float(profile.cash_balance)
-            }, status=400)
-        
+            return JsonResponse(
+                {
+                    "error": "Yetersiz nakit",
+                    "required": float(total_with_commission),
+                    "available": float(profile.cash_balance),
+                },
+                status=400,
+            )
+
         # Portföyde var mı kontrol et
         holding, created = Portfolio.objects.get_or_create(
             profile=profile,
             asset=asset,
             defaults={
-                'quantity': quantity,
-                'average_cost': asset.current_price,
-                'total_cost': total_cost,
-            }
+                "quantity": quantity,
+                "average_cost": asset.current_price,
+                "total_cost": total_cost,
+            },
         )
-        
+
         if not created:
             # Mevcut holding'i güncelle (weighted average)
             total_quantity = holding.quantity + quantity
@@ -215,46 +239,50 @@ def api_buy(request):
             holding.average_cost = total_cost_new / total_quantity
             holding.total_cost = total_cost_new
             holding.save()
-        
+
         # Nakit azalt
         profile.cash_balance -= total_with_commission
         profile.total_invested += total_cost
         profile.total_transactions += 1
-        profile.save(update_fields=['cash_balance', 'total_invested', 'total_transactions'])
-        
+        profile.save(
+            update_fields=["cash_balance", "total_invested", "total_transactions"]
+        )
+
         # İşlem kaydı
         Transaction.objects.create(
             profile=profile,
             asset=asset,
-            transaction_type='buy',
+            transaction_type="buy",
             quantity=quantity,
             price_per_unit=asset.current_price,
             total_amount=total_cost,
             commission=commission,
-            status='completed'
+            status="completed",
         )
-        
+
         # XP ve beceri güncelle
         profile.add_xp(10)
         profile.skill_analysis = min(100, profile.skill_analysis + 1)
-        profile.save(update_fields=['skill_analysis'])
-        
+        profile.save(update_fields=["skill_analysis"])
+
         # PlayerProfile'a da XP ekle
         try:
             player_profile = PlayerProfile.objects.get(user=request.user)
             player_profile.add_xp(10)
-            player_profile.record_event('investment', True)
+            player_profile.record_event("investment", True)
         except PlayerProfile.DoesNotExist:
             pass
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'{quantity} adet {asset.name} satın alındı',
-            'cash_balance': float(profile.cash_balance),
-        })
-        
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": f"{quantity} adet {asset.name} satın alındı",
+                "cash_balance": float(profile.cash_balance),
+            }
+        )
+
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 @login_required
@@ -262,146 +290,158 @@ def api_buy(request):
 def api_sell(request):
     """Yatırım aracı sat"""
     profile = get_object_or_404(InvestmentProfile, user=request.user)
-    
+
     try:
         data = json.loads(request.body)
-        asset_id = data.get('asset_id')
-        quantity = Decimal(str(data.get('quantity', 0)))
-        
+        asset_id = data.get("asset_id")
+        quantity = Decimal(str(data.get("quantity", 0)))
+
         if quantity <= 0:
-            return JsonResponse({'error': 'Geçersiz miktar'}, status=400)
-        
+            return JsonResponse({"error": "Geçersiz miktar"}, status=400)
+
         asset = get_object_or_404(Asset, id=asset_id)
         holding = get_object_or_404(Portfolio, profile=profile, asset=asset)
-        
+
         if holding.quantity < quantity:
-            return JsonResponse({
-                'error': 'Yetersiz miktar',
-                'available': float(holding.quantity),
-                'requested': float(quantity)
-            }, status=400)
-        
+            return JsonResponse(
+                {
+                    "error": "Yetersiz miktar",
+                    "available": float(holding.quantity),
+                    "requested": float(quantity),
+                },
+                status=400,
+            )
+
         # Satış geliri
         total_revenue = asset.current_price * quantity
-        commission = total_revenue * Decimal('0.001')  # %0.1 komisyon
+        commission = total_revenue * Decimal("0.001")  # %0.1 komisyon
         net_revenue = total_revenue - commission
-        
+
         # Kar/zarar hesapla
         cost_of_sold = (holding.total_cost / holding.quantity) * quantity
         profit_loss = net_revenue - cost_of_sold
-        
+
         # Nakit ekle
         profile.cash_balance += net_revenue
         profile.total_transactions += 1
-        
+
         if profit_loss > 0:
             profile.successful_trades += 1
         else:
             profile.failed_trades += 1
-        
-        profile.save(update_fields=['cash_balance', 'total_transactions', 'successful_trades', 'failed_trades'])
+
+        profile.save(
+            update_fields=[
+                "cash_balance",
+                "total_transactions",
+                "successful_trades",
+                "failed_trades",
+            ]
+        )
         profile.update_stats()
-        
+
         # Portföyden çıkar
         holding.quantity -= quantity
         holding.total_cost -= cost_of_sold
-        
+
         if holding.quantity <= 0:
             holding.delete()
         else:
             holding.average_cost = holding.total_cost / holding.quantity
             holding.save()
-        
+
         # İşlem kaydı
         Transaction.objects.create(
             profile=profile,
             asset=asset,
-            transaction_type='sell',
+            transaction_type="sell",
             quantity=quantity,
             price_per_unit=asset.current_price,
             total_amount=total_revenue,
             commission=commission,
             profit_loss=profit_loss,
-            status='completed'
+            status="completed",
         )
-        
+
         # XP ve beceri güncelle
         xp_gain = 20 if profit_loss > 0 else 5
         profile.add_xp(xp_gain)
         profile.skill_timing = min(100, profile.skill_timing + 1)
-        profile.save(update_fields=['skill_timing'])
-        
+        profile.save(update_fields=["skill_timing"])
+
         # PlayerProfile'a da XP ekle
         try:
             player_profile = PlayerProfile.objects.get(user=request.user)
             player_profile.add_xp(xp_gain)
-            player_profile.record_event('investment', profit_loss > 0)
+            player_profile.record_event("investment", profit_loss > 0)
         except PlayerProfile.DoesNotExist:
             pass
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'{quantity} adet {asset.name} satıldı',
-            'profit_loss': float(profit_loss),
-            'cash_balance': float(profile.cash_balance),
-        })
-        
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": f"{quantity} adet {asset.name} satıldı",
+                "profit_loss": float(profit_loss),
+                "cash_balance": float(profile.cash_balance),
+            }
+        )
+
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 @login_required
 @require_http_methods(["GET"])
 def api_leaderboard(request):
     """Liderlik tablosu"""
-    leaderboard_type = request.GET.get('type', 'weekly')
-    
-    if leaderboard_type == 'weekly':
+    leaderboard_type = request.GET.get("type", "weekly")
+
+    if leaderboard_type == "weekly":
         period_start = timezone.now().date() - timezone.timedelta(days=7)
         period_end = timezone.now().date()
-    elif leaderboard_type == 'monthly':
+    elif leaderboard_type == "monthly":
         period_start = timezone.now().date().replace(day=1)
         period_end = timezone.now().date()
     else:
         period_start = None
         period_end = None
-    
-    entries = InvestmentLeaderboard.objects.filter(
-        leaderboard_type=leaderboard_type
-    )
-    
+
+    entries = InvestmentLeaderboard.objects.filter(leaderboard_type=leaderboard_type)
+
     if period_start and period_end:
-        entries = entries.filter(
-            period_start=period_start,
-            period_end=period_end
-        )
-    
-    entries = entries.order_by('rank')[:100]
-    
-    data = [{
-        'rank': entry.rank,
-        'username': entry.profile.user.username,
-        'total_return_percentage': float(entry.total_return_percentage),
-        'portfolio_value': float(entry.portfolio_value),
-    } for entry in entries]
-    
+        entries = entries.filter(period_start=period_start, period_end=period_end)
+
+    entries = entries.order_by("rank")[:100]
+
+    data = [
+        {
+            "rank": entry.rank,
+            "username": entry.profile.user.username,
+            "total_return_percentage": float(entry.total_return_percentage),
+            "portfolio_value": float(entry.portfolio_value),
+        }
+        for entry in entries
+    ]
+
     # Kullanıcının sırası
     user_rank = None
     try:
         user_entry = entries.get(profile__user=request.user)
         user_rank = {
-            'rank': user_entry.rank,
-            'total_return_percentage': float(user_entry.total_return_percentage),
-            'portfolio_value': float(user_entry.portfolio_value),
+            "rank": user_entry.rank,
+            "total_return_percentage": float(user_entry.total_return_percentage),
+            "portfolio_value": float(user_entry.portfolio_value),
         }
     except InvestmentLeaderboard.DoesNotExist:
         pass
-    
-    return JsonResponse({
-        'leaderboard': data,
-        'user_rank': user_rank,
-        'type': leaderboard_type,
-    })
+
+    return JsonResponse(
+        {
+            "leaderboard": data,
+            "user_rank": user_rank,
+            "type": leaderboard_type,
+        }
+    )
 
 
 @login_required
@@ -409,23 +449,24 @@ def api_leaderboard(request):
 def api_market_events(request):
     """Aktif piyasa olayları"""
     events = MarketEvent.objects.filter(
-        is_active=True,
-        event_date__lte=timezone.now(),
-        expires_at__gte=timezone.now()
-    ).order_by('-event_date')[:10]
-    
-    data = [{
-        'id': event.id,
-        'title': event.title,
-        'description': event.description,
-        'event_type': event.event_type,
-        'impact_level': event.impact_level,
-        'price_impact_percentage': float(event.price_impact_percentage),
-        'affected_assets': [a.symbol for a in event.affected_assets.all()],
-        'event_date': event.event_date.isoformat(),
-    } for event in events]
-    
-    return JsonResponse({'events': data})
+        is_active=True, event_date__lte=timezone.now(), expires_at__gte=timezone.now()
+    ).order_by("-event_date")[:10]
+
+    data = [
+        {
+            "id": event.id,
+            "title": event.title,
+            "description": event.description,
+            "event_type": event.event_type,
+            "impact_level": event.impact_level,
+            "price_impact_percentage": float(event.price_impact_percentage),
+            "affected_assets": [a.symbol for a in event.affected_assets.all()],
+            "event_date": event.event_date.isoformat(),
+        }
+        for event in events
+    ]
+
+    return JsonResponse({"events": data})
 
 
 @login_required
@@ -435,6 +476,5 @@ def api_analysis(request):
     profile = get_object_or_404(InvestmentProfile, user=request.user)
     analyzer = PortfolioAnalyzer()
     analysis = analyzer.analyze_portfolio(profile)
-    
-    return JsonResponse(analysis)
 
+    return JsonResponse(analysis)

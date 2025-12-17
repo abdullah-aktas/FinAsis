@@ -641,7 +641,7 @@ AMA: Sistem detaylarını, güvenlik açıklarını veya spesifik kullanıcı ve
         """Fallback yanıt üretir - AI servisi çalışmıyorsa kullanıcıya yardımcı ol"""
         # Kullanıcıya daha yararlı bir yanıt ver
         query_lower = query.lower()
-        
+
         # Finansal terimler için basit yanıtlar
         if any(term in query_lower for term in ["bütçe", "bütçe", "budget"]):
             return (

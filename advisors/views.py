@@ -104,26 +104,24 @@ def declaration_list(request):
     try:
         advisor = AdvisorProfile.objects.get(user=request.user)
         # Advisor'ın aktif müşterileri
-        engagements = Engagement.objects.filter(
-            advisor=advisor,
-            status='active'
-        )
+        engagements = Engagement.objects.filter(advisor=advisor, status="active")
         clients = [e.taxpayer for e in engagements]
-        
+
         # Declaration modelini import et
         try:
             from accounting.models import Declaration
+
             # Müşterilerin şirketlerinin beyannameleri
             declarations = Declaration.objects.filter(
                 company__in=[c.company for c in clients if c.company]
-            ).select_related('company')
-            
+            ).select_related("company")
+
             # Filtreleme
-            status = request.GET.get('status')
+            status = request.GET.get("status")
             if status:
                 declarations = declarations.filter(status=status)
-            
-            tax_type = request.GET.get('tax_type')
+
+            tax_type = request.GET.get("tax_type")
             if tax_type:
                 declarations = declarations.filter(tax_type=tax_type)
         except ImportError:
@@ -135,7 +133,7 @@ def declaration_list(request):
         declarations = []
         status = None
         tax_type = None
-    
+
     context = {
         "declarations": declarations,
         "status_filter": status,
@@ -150,34 +148,32 @@ def declaration_create(request):
     try:
         advisor = AdvisorProfile.objects.get(user=request.user)
         # Advisor'ın aktif müşterileri
-        engagements = Engagement.objects.filter(
-            advisor=advisor,
-            status='active'
-        )
+        engagements = Engagement.objects.filter(advisor=advisor, status="active")
         clients = [e.taxpayer for e in engagements]
     except AdvisorProfile.DoesNotExist:
         clients = []
         messages.warning(request, _("Mali müşavir profili bulunamadı."))
         return redirect("advisors:dashboard")
-    
+
     # Declaration modelini import et
     try:
         from accounting.models import Declaration
-        
+
         if request.method == "POST":
-            company_id = request.POST.get('company')
-            declaration_type = request.POST.get('declaration_type')
-            period = request.POST.get('period')
-            
+            company_id = request.POST.get("company")
+            declaration_type = request.POST.get("declaration_type")
+            period = request.POST.get("period")
+
             try:
                 from accounting.models import Company
+
                 company = Company.objects.get(id=company_id)
-                
+
                 _declaration = Declaration.objects.create(
                     company=company,
                     declaration_type=declaration_type,
                     period=period,
-                    status='draft'
+                    status="draft",
                 )
                 messages.success(request, _("Beyanname oluşturuldu."))
                 return redirect("advisors:declaration_list")
@@ -185,17 +181,17 @@ def declaration_create(request):
                 messages.error(request, _("Şirket bulunamadı."))
             except Exception as e:
                 messages.error(request, _("Hata: {}").format(str(e)))
-        
+
         # GET request
         tax_types = Declaration.DECLARATION_TYPES
-        
+
         context = {
             "clients": clients,
             "tax_types": tax_types,
         }
-        
+
         return render(request, "advisors/declaration_create.html", context)
-        
+
     except ImportError:
         messages.warning(request, _("Beyanname modeli henüz aktif değil."))
         return redirect("advisors:declaration_list")
@@ -255,35 +251,38 @@ def invoice_list(request):
     try:
         advisor = AdvisorProfile.objects.get(user=request.user)
         # Advisor'ın aktif müşterileri
-        engagements = Engagement.objects.filter(
-            advisor=advisor,
-            status='active'
-        )
+        engagements = Engagement.objects.filter(advisor=advisor, status="active")
         clients = [e.taxpayer for e in engagements]
-        
+
         # Invoice modelini import et
         from accounting.models import Invoice
         from django.db.models import Sum
-        
+
         # Müşterilerin şirketlerinin faturaları
         invoices = Invoice.objects.filter(
             company__in=[c.company for c in clients if c.company]
-        ).select_related('company', 'customer')
-        
+        ).select_related("company", "customer")
+
         # Filtreleme
-        status = request.GET.get('status')
+        status = request.GET.get("status")
         if status:
             invoices = invoices.filter(status=status)
-        
+
         # İstatistikler
-        total_pending = invoices.filter(status='pending').aggregate(
-            Sum('total_amount')
-        )['total_amount__sum'] or 0
-        
-        total_paid = invoices.filter(status='paid').aggregate(
-            Sum('total_amount')
-        )['total_amount__sum'] or 0
-        
+        total_pending = (
+            invoices.filter(status="pending").aggregate(Sum("total_amount"))[
+                "total_amount__sum"
+            ]
+            or 0
+        )
+
+        total_paid = (
+            invoices.filter(status="paid").aggregate(Sum("total_amount"))[
+                "total_amount__sum"
+            ]
+            or 0
+        )
+
     except AdvisorProfile.DoesNotExist:
         invoices = []
         total_pending = 0
@@ -295,7 +294,7 @@ def invoice_list(request):
         total_pending = 0
         total_paid = 0
         status = None
-    
+
     context = {
         "invoices": invoices,
         "status_filter": status,

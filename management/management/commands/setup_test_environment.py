@@ -45,7 +45,7 @@ User = get_user_model()
 
 class Command(BaseCommand):
     help = "Test kullanıcıları, örnek veriler, feature flag'ler ve AI varlıklarını oluşturur."
-    
+
     # ÖNEMLİ: Bu komut SADECE test/development ortamlarında kullanılmalıdır!
     # Production'da asla çalıştırılmamalıdır!
 
@@ -209,6 +209,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Production'da çalıştırılmasını engelle
         from django.conf import settings
+
         if not settings.DEBUG:
             self.stdout.write(
                 self.style.ERROR(

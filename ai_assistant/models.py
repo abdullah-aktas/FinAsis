@@ -31,9 +31,9 @@ try:
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.model_selection import train_test_split
 except Exception:  # pragma: no cover
-    StandardScaler = LogisticRegression = DecisionTreeClassifier = train_test_split = (
-        None
-    )
+    StandardScaler = (
+        LogisticRegression
+    ) = DecisionTreeClassifier = train_test_split = None
 
 try:
     import joblib

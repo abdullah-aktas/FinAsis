@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kobi_analysis", "0003_workingcapitalanalysis_sensitivityanalysis_and_more"),
     ]

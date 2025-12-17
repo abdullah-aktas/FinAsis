@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("management", "0004_databasesnapshot_usagestatistics_systemhealth_and_more"),
     ]

@@ -124,9 +124,9 @@ def build_ubl_invoice_xml(
             ET.SubElement(il, ET.QName(nsmap["cbc"], "InvoicedQuantity")).text = str(
                 qty
             )
-            ET.SubElement(il, ET.QName(nsmap["cbc"], "LineExtensionAmount")).text = (
-                f"{ext:.2f}"
-            )
+            ET.SubElement(
+                il, ET.QName(nsmap["cbc"], "LineExtensionAmount")
+            ).text = f"{ext:.2f}"
             # Item name (optional)
             item_name = line.get("name")
             if item_name:
@@ -136,29 +136,29 @@ def build_ubl_invoice_xml(
                 )
             # Price (optional structure)
             price_el = ET.SubElement(il, ET.QName(nsmap["cac"], "Price"))
-            ET.SubElement(price_el, ET.QName(nsmap["cbc"], "PriceAmount")).text = (
-                f"{price:.2f}"
-            )
+            ET.SubElement(
+                price_el, ET.QName(nsmap["cbc"], "PriceAmount")
+            ).text = f"{price:.2f}"
 
     # Tax total (optional)
     if total_tax_amt > 0:
         tax_total = ET.SubElement(root, ET.QName(nsmap["cac"], "TaxTotal"))
-        ET.SubElement(tax_total, ET.QName(nsmap["cbc"], "TaxAmount")).text = (
-            f"{total_tax_amt:.2f}"
-        )
+        ET.SubElement(
+            tax_total, ET.QName(nsmap["cbc"], "TaxAmount")
+        ).text = f"{total_tax_amt:.2f}"
 
     # LegalMonetaryTotal (optional minimal)
     if line_total > 0:
         lmt = ET.SubElement(root, ET.QName(nsmap["cac"], "LegalMonetaryTotal"))
-        ET.SubElement(lmt, ET.QName(nsmap["cbc"], "LineExtensionAmount")).text = (
-            f"{line_total:.2f}"
-        )
-        ET.SubElement(lmt, ET.QName(nsmap["cbc"], "TaxExclusiveAmount")).text = (
-            f"{line_total:.2f}"
-        )
-        ET.SubElement(lmt, ET.QName(nsmap["cbc"], "TaxInclusiveAmount")).text = (
-            f"{(line_total + total_tax_amt):.2f}"
-        )
+        ET.SubElement(
+            lmt, ET.QName(nsmap["cbc"], "LineExtensionAmount")
+        ).text = f"{line_total:.2f}"
+        ET.SubElement(
+            lmt, ET.QName(nsmap["cbc"], "TaxExclusiveAmount")
+        ).text = f"{line_total:.2f}"
+        ET.SubElement(
+            lmt, ET.QName(nsmap["cbc"], "TaxInclusiveAmount")
+        ).text = f"{(line_total + total_tax_amt):.2f}"
 
     # Add a lightweight note carrying payload size for traceability
     note = ET.SubElement(root, ET.QName(nsmap["cbc"], "Note"))

@@ -43,4 +43,3 @@ class Command(BaseCommand):
                         f"✅ Beta kampanyası indirim oranı güncellendi: %{setting.value}"
                     )
                 )
-

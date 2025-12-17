@@ -130,17 +130,11 @@ class AchievementAdmin(admin.ModelAdmin):
     list_filter = ("company", "date_earned")
     search_fields = ("title", "description", "company__name")
     readonly_fields = ("date_earned",)
-    
+
     fieldsets = (
-        (_("Temel Bilgiler"), {
-            "fields": ("company", "title", "description")
-        }),
-        (_("Görünüm"), {
-            "fields": ("icon",)
-        }),
-        (_("Tarih"), {
-            "fields": ("date_earned",)
-        }),
+        (_("Temel Bilgiler"), {"fields": ("company", "title", "description")}),
+        (_("Görünüm"), {"fields": ("icon",)}),
+        (_("Tarih"), {"fields": ("date_earned",)}),
     )
 
 
@@ -149,14 +143,10 @@ class UserSettingsAdmin(admin.ModelAdmin):
     list_display = ("user", "email_notifications", "dark_mode")
     list_filter = ("email_notifications", "dark_mode")
     search_fields = ("user__username", "user__email")
-    
+
     fieldsets = (
-        (_("Kullanıcı"), {
-            "fields": ("user",)
-        }),
-        (_("Ayarlar"), {
-            "fields": ("email_notifications", "dark_mode")
-        }),
+        (_("Kullanıcı"), {"fields": ("user",)}),
+        (_("Ayarlar"), {"fields": ("email_notifications", "dark_mode")}),
     )
 
 

@@ -5,7 +5,9 @@ from . import views
 app_name = "finquest"
 
 urlpatterns = [
-    path("game/", views.game_redirect, name="game_redirect"),  # /finquest/game/ için yönlendirme
+    path(
+        "game/", views.game_redirect, name="game_redirect"
+    ),  # /finquest/game/ için yönlendirme
     path("play/", views.play, name="game"),
     path("start/", views.start, name="start_game"),
     path("pause/", views.pause, name="pause_game"),

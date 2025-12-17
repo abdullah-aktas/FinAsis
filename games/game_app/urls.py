@@ -27,7 +27,10 @@ urlpatterns = [
     path("budget-challenge/", views.budget_challenge, name="budget_challenge"),
     path(
         "investment-simulator/",
-        include(("games.investment_simulator.urls", "investment_simulator"), namespace="investment_simulator"),
+        include(
+            ("games.investment_simulator.urls", "investment_simulator"),
+            namespace="investment_simulator",
+        ),
     ),
     path("trade-trail/", views.trade_trail, name="trade_trail"),
     path("kobi-dashboard/", views.kobi_dashboard, name="kobi_dashboard"),

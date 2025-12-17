@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 class BillingNotificationService:
     """Faturalandırma bildirim servisi"""
-    
+
     @staticmethod
     def send_payment_confirmation(subscription_profile, transaction, invoice=None):
         """Ödeme onayı bildirimi ve mail gönder"""
         user = subscription_profile.user
-        
+
         try:
             # 1. Bildirim oluştur
             notification = UserNotification.objects.create(
@@ -38,42 +38,39 @@ class BillingNotificationService:
                     "transaction_id": str(transaction.id),
                     "invoice_id": str(invoice.id) if invoice else None,
                     "amount": str(transaction.amount),
-                }
+                },
             )
-            
+
             # 2. E-posta gönder
             BillingNotificationService._send_payment_email(
-                user,
-                subscription_profile,
-                transaction,
-                invoice
+                user, subscription_profile, transaction, invoice
             )
-            
+
             logger.info(
                 f"Ödeme onayı bildirimi gönderildi: User {user.username}, "
                 f"Transaction {transaction.id}"
             )
-            
+
             return notification
-            
+
         except Exception as e:
-            logger.error(
-                f"Ödeme onayı bildirimi hatası: {e}",
-                exc_info=True
-            )
+            logger.error(f"Ödeme onayı bildirimi hatası: {e}", exc_info=True)
             return None
-    
+
     @staticmethod
     def _send_payment_email(user, subscription_profile, transaction, invoice=None):
         """Ödeme onayı e-postası gönder"""
         try:
             plan = subscription_profile.plan
-            
+
             # Blockchain sözleşme bilgisi
-            from billing.services.blockchain_contract import SubscriptionBlockchainService
+            from billing.services.blockchain_contract import (
+                SubscriptionBlockchainService,
+            )
+
             contracts = SubscriptionBlockchainService.get_user_contracts(user)
             contract = contracts.first() if contracts.exists() else None
-            
+
             context = {
                 "user": user,
                 "subscription": subscription_profile,
@@ -82,46 +79,46 @@ class BillingNotificationService:
                 "invoice": invoice,
                 "contract": contract,
                 "site_url": getattr(settings, "SITE_URL", "https://finasis.com.tr"),
-                "support_email": getattr(settings, "SUPPORT_EMAIL", "destek@finasis.com.tr"),
+                "support_email": getattr(
+                    settings, "SUPPORT_EMAIL", "destek@finasis.com.tr"
+                ),
             }
-            
+
             # HTML e-posta içeriği
             html_content = render_to_string(
-                "billing/emails/payment_confirmation.html",
-                context
+                "billing/emails/payment_confirmation.html", context
             )
-            
+
             # Plain text versiyonu
             text_content = strip_tags(html_content)
-            
+
             # E-posta gönder
             subject = f"Ödeme Onaylandı - {plan.name if plan else 'Abonelik'}"
-            
+
             email = EmailMultiAlternatives(
                 subject=subject,
                 body=text_content,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"),
+                from_email=getattr(
+                    settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"
+                ),
                 to=[user.email],
             )
-            
+
             email.attach_alternative(html_content, "text/html")
-            
+
             # Fatura PDF ekle (varsa)
             if invoice:
                 # Fatura PDF oluştur ve ekle
                 # TODO: PDF oluşturma servisi entegre et
                 pass
-            
+
             email.send()
-            
+
             logger.info(f"Ödeme onayı e-postası gönderildi: {user.email}")
-            
+
         except Exception as e:
-            logger.error(
-                f"Ödeme onayı e-postası gönderme hatası: {e}",
-                exc_info=True
-            )
-    
+            logger.error(f"Ödeme onayı e-postası gönderme hatası: {e}", exc_info=True)
+
     @staticmethod
     def send_contract_notification(user, contract):
         """Blockchain sözleşme bildirimi gönder"""
@@ -139,9 +136,9 @@ class BillingNotificationService:
                 metadata={
                     "contract_address": contract.contract_address,
                     "contract_type": contract.contract_type,
-                }
+                },
             )
-            
+
             # E-posta gönder
             context = {
                 "user": user,
@@ -149,36 +146,34 @@ class BillingNotificationService:
                 "site_url": getattr(settings, "SITE_URL", "https://finasis.com.tr"),
                 "contract_url": f"{getattr(settings, 'SITE_URL', 'https://finasis.com.tr')}/blockchain/contracts/{contract.contract_address}/",
             }
-            
+
             html_content = render_to_string(
-                "billing/emails/contract_created.html",
-                context
+                "billing/emails/contract_created.html", context
             )
             text_content = strip_tags(html_content)
-            
+
             email = EmailMultiAlternatives(
                 subject="Blockchain Sözleşme Oluşturuldu - FinAsis",
                 body=text_content,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"),
+                from_email=getattr(
+                    settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"
+                ),
                 to=[user.email],
             )
             email.attach_alternative(html_content, "text/html")
             email.send()
-            
+
             logger.info(
                 f"Blockchain sözleşme bildirimi gönderildi: User {user.username}, "
                 f"Contract {contract.contract_address}"
             )
-            
+
             return notification
-            
+
         except Exception as e:
-            logger.error(
-                f"Blockchain sözleşme bildirimi hatası: {e}",
-                exc_info=True
-            )
+            logger.error(f"Blockchain sözleşme bildirimi hatası: {e}", exc_info=True)
             return None
-    
+
     @staticmethod
     def send_invoice_email(user, invoice):
         """Fatura e-postası gönder"""
@@ -187,34 +182,33 @@ class BillingNotificationService:
                 "user": user,
                 "invoice": invoice,
                 "subscription": invoice.subscription,
-                "plan": invoice.subscription.plan if invoice.subscription.plan else None,
+                "plan": invoice.subscription.plan
+                if invoice.subscription.plan
+                else None,
                 "site_url": getattr(settings, "SITE_URL", "https://finasis.com.tr"),
             }
-            
-            html_content = render_to_string(
-                "billing/emails/invoice.html",
-                context
-            )
+
+            html_content = render_to_string("billing/emails/invoice.html", context)
             text_content = strip_tags(html_content)
-            
+
             email = EmailMultiAlternatives(
                 subject=f"Fatura - {invoice.invoice_number}",
                 body=text_content,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"),
+                from_email=getattr(
+                    settings, "DEFAULT_FROM_EMAIL", "noreply@finasis.com.tr"
+                ),
                 to=[user.email],
             )
             email.attach_alternative(html_content, "text/html")
-            
+
             # Fatura PDF ekle
             # TODO: PDF oluşturma servisi entegre et
-            
+
             email.send()
-            
-            logger.info(f"Fatura e-postası gönderildi: {user.email}, Invoice {invoice.invoice_number}")
-            
-        except Exception as e:
-            logger.error(
-                f"Fatura e-postası gönderme hatası: {e}",
-                exc_info=True
+
+            logger.info(
+                f"Fatura e-postası gönderildi: {user.email}, Invoice {invoice.invoice_number}"
             )
 
+        except Exception as e:
+            logger.error(f"Fatura e-postası gönderme hatası: {e}", exc_info=True)

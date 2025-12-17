@@ -100,6 +100,6 @@ class WebhookTestForm(forms.Form):
         ).strip()
         for name in ("custom_headers", "payload_override"):
             widget = self.fields[name].widget
-            widget.attrs["class"] = (
-                f'{widget.attrs.get("class", "")} font-monospace'.strip()
-            )
+            widget.attrs[
+                "class"
+            ] = f'{widget.attrs.get("class", "")} font-monospace'.strip()

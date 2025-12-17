@@ -89,14 +89,14 @@ def dashboard_stats(request):
     recent_activity = []
     try:
         from accounting.models import Invoice
-        
+
         # Son 7 gün içindeki gerçek aktiviteler
-        if hasattr(request.user, 'company') and request.user.company:
+        if hasattr(request.user, "company") and request.user.company:
             recent_invoices = Invoice.objects.filter(
                 company=request.user.company,
-                created_at__gte=timezone.now() - timedelta(days=7)
-            ).order_by('-created_at')[:5]
-            
+                created_at__gte=timezone.now() - timedelta(days=7),
+            ).order_by("-created_at")[:5]
+
             for invoice in recent_invoices:
                 time_ago = timezone.now() - invoice.created_at
                 if time_ago.days > 0:
@@ -105,20 +105,25 @@ def dashboard_stats(request):
                     time_str = f"{time_ago.seconds // 3600} saat önce"
                 else:
                     time_str = f"{time_ago.seconds // 60} dakika önce"
-                
-                recent_activity.append({
-                    "icon": "file-earmark-text",
-                    "title": f"Fatura oluşturuldu: {invoice.invoice_number}",
-                    "time": time_str,
-                })
-        
+
+                recent_activity.append(
+                    {
+                        "icon": "file-earmark-text",
+                        "title": f"Fatura oluşturuldu: {invoice.invoice_number}",
+                        "time": time_str,
+                    }
+                )
+
         # Yeni kullanıcı bilgisi (sadece admin için)
         if request.user.is_staff and new_users_this_month > 0:
-            recent_activity.insert(0, {
-                "icon": "person-plus",
-                "title": f"{new_users_this_month} yeni kullanıcı kaydoldu",
-                "time": "Bu ay",
-            })
+            recent_activity.insert(
+                0,
+                {
+                    "icon": "person-plus",
+                    "title": f"{new_users_this_month} yeni kullanıcı kaydoldu",
+                    "time": "Bu ay",
+                },
+            )
     except Exception:
         # Hata durumunda boş liste - placeholder göstermek yerine
         pass
@@ -127,15 +132,18 @@ def dashboard_stats(request):
     total_revenue = 0
     try:
         from accounting.models import Invoice
+
         # Kullanıcının şirketine ait faturaların toplamı
-        if hasattr(request.user, 'company') and request.user.company:
+        if hasattr(request.user, "company") and request.user.company:
             total_revenue = float(
-                Invoice.objects.filter(company=request.user.company)
-                .aggregate(total=models.Sum('total_amount'))['total'] or 0
+                Invoice.objects.filter(company=request.user.company).aggregate(
+                    total=models.Sum("total_amount")
+                )["total"]
+                or 0
             )
     except Exception:
         pass  # Hata durumunda 0 kalır
-    
+
     data = {
         "totalUsers": total_users,
         "activeUsers": active_users,
@@ -220,28 +228,29 @@ def user_activity_graph(request):
         day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
         day_end = day_start + timedelta(days=1)
         days.append(day.strftime("%d.%m"))
-        
+
         # Kullanıcının o günkü gerçek aktivitelerini say
         try:
             from accounting.models import Invoice, Expense
-            if hasattr(request.user, 'company') and request.user.company:
+
+            if hasattr(request.user, "company") and request.user.company:
                 day_count = (
                     Invoice.objects.filter(
                         company=request.user.company,
                         created_at__gte=day_start,
-                        created_at__lt=day_end
-                    ).count() +
-                    Expense.objects.filter(
+                        created_at__lt=day_end,
+                    ).count()
+                    + Expense.objects.filter(
                         company=request.user.company,
                         expense_date__gte=day_start.date(),
-                        expense_date__lt=day_end.date()
+                        expense_date__lt=day_end.date(),
                     ).count()
                 )
             else:
                 day_count = 0
         except Exception:
             day_count = 0
-        
+
         counts.append(day_count)
 
     return Response(

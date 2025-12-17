@@ -17,8 +17,10 @@ def game_redirect(request):
     # Oyun geliştirme aşamasında olduğu için kullanıcıyı uygun bir şekilde yönlendir
     messages.info(
         request,
-        _("FinQuest 3D oyunu şu anda geliştirme aşamasındadır. "
-          "Yakında sizlerle buluşacak! Diğer oyunlarımızı deneyebilirsiniz.")
+        _(
+            "FinQuest 3D oyunu şu anda geliştirme aşamasındadır. "
+            "Yakında sizlerle buluşacak! Diğer oyunlarımızı deneyebilirsiniz."
+        ),
     )
     return redirect("game_app:games")
 

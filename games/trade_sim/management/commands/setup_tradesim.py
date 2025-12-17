@@ -107,11 +107,11 @@ class Command(BaseCommand):
             neighbors = city_data.get("neighbors", [])
             city_name = city_data["name"]
             city_neighbors[city_name] = neighbors
-            
+
             # neighbors'ı city_data'dan çıkar çünkü City modelinde yok
             city_data_copy = city_data.copy()
             city_data_copy.pop("neighbors", None)
-            
+
             city, created = City.objects.get_or_create(
                 name=city_name, defaults=city_data_copy
             )
@@ -120,7 +120,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"  [+] {city.name} olusturuldu"))
             else:
                 self.stdout.write(f"  [!] {city.name} zaten mevcut")
-        
+
         # Şehirler arası komşuluk ilişkileri
         self.stdout.write("\n[*] Sehir komsuluk iliskileri kuruluyor...")
         for city_name, neighbors in city_neighbors.items():
@@ -291,10 +291,8 @@ class Command(BaseCommand):
                     city = cities[idx % len(cities)]
                     char.city = city
                     char.save()
-                    self.stdout.write(
-                        f"  [+] {char.name} {city.name} sehrine atandi"
-                    )
-                
+                    self.stdout.write(f"  [+] {char.name} {city.name} sehrine atandi")
+
                 if chars_without_city:
                     self.stdout.write(
                         self.style.SUCCESS(

@@ -45,43 +45,49 @@ class CharacterQuestAdmin(admin.ModelAdmin):
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ("name", "start_time", "end_time", "is_active", "entry_count", "created_at")
+    list_display = (
+        "name",
+        "start_time",
+        "end_time",
+        "is_active",
+        "entry_count",
+        "created_at",
+    )
     search_fields = ("name", "description")
     list_filter = ("is_active", "start_time", "end_time")
     date_hierarchy = "start_time"
     readonly_fields = ("created_at", "entry_count_display")
-    
+
     fieldsets = (
-        ("Temel Bilgiler", {
-            "fields": ("name", "description")
-        }),
-        ("Tarih ve Zaman", {
-            "fields": ("start_time", "end_time")
-        }),
-        ("Ödül Havuzu", {
-            "fields": ("prize_pool",),
-            "description": "JSON formatında ödül bilgileri. Örnek: {'coins': 10000, 'badge': 'champion', 'xp': 5000}"
-        }),
-        ("Durum", {
-            "fields": ("is_active",)
-        }),
-        ("Bilgiler", {
-            "fields": ("created_at", "entry_count_display"),
-            "classes": ("collapse",)
-        }),
+        ("Temel Bilgiler", {"fields": ("name", "description")}),
+        ("Tarih ve Zaman", {"fields": ("start_time", "end_time")}),
+        (
+            "Ödül Havuzu",
+            {
+                "fields": ("prize_pool",),
+                "description": "JSON formatında ödül bilgileri. Örnek: {'coins': 10000, 'badge': 'champion', 'xp': 5000}",
+            },
+        ),
+        ("Durum", {"fields": ("is_active",)}),
+        (
+            "Bilgiler",
+            {"fields": ("created_at", "entry_count_display"), "classes": ("collapse",)},
+        ),
     )
-    
+
     def entry_count(self, obj):
         """Turnuvaya katılan karakter sayısı"""
         return obj.entries.count()
+
     entry_count.short_description = "Katılımcı Sayısı"
-    
+
     def entry_count_display(self, obj):
         """Detay sayfasında gösterilecek katılımcı bilgisi"""
         count = obj.entries.count()
         if count > 0:
             return f"{count} katılımcı"
         return "Henüz katılımcı yok"
+
     entry_count_display.short_description = "Katılımcı Durumu"
 
 

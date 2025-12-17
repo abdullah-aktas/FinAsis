@@ -271,54 +271,55 @@ admin.site.index_title = _("FinAsis Paneline Hoşgeldiniz")
 # Admin index metodunu özelleştir - template için gerekli değişkenleri sağla
 _original_index = admin.site.index
 
+
 def custom_index(request, extra_context=None):
     """Admin index sayfası için gerekli context değişkenlerini sağla"""
     extra_context = extra_context or {}
-    
+
     # Gerekli modelleri import et
     User = get_user_model()
-    
+
     try:
         user_count = User.objects.count()
     except Exception:
         user_count = 0
-    
+
     try:
         company_count = Company.objects.count()
     except Exception:
         company_count = 0
-    
+
     try:
         invoice_count = Invoice.objects.count()
     except Exception:
         invoice_count = 0
-    
+
     try:
         expense_count = Expense.objects.count()
     except Exception:
         expense_count = 0
-    
+
     try:
         last_invoices = Invoice.objects.order_by("-issue_date")[:5]
     except Exception:
         last_invoices = []
-    
+
     try:
         last_expenses = Expense.objects.order_by("-expense_date")[:5]
     except Exception:
         last_expenses = []
-    
+
     # Chart verileri - son 7 günün aktif kullanıcı sayıları
     chart_labels = []
     chart_data = []
     try:
         from django.utils import timezone
         from datetime import timedelta
-        
+
         for i in range(6, -1, -1):
             date = (timezone.now() - timedelta(days=i)).date()
             chart_labels.append(date.strftime("%d.%m"))
-            
+
             # O güne kadar olan toplam kullanıcı sayısı
             user_count_on_date = User.objects.filter(
                 date_joined__date__lte=date
@@ -327,21 +328,27 @@ def custom_index(request, extra_context=None):
     except Exception:
         chart_labels = []
         chart_data = []
-    
+
     # Süper kullanıcılar için hızlı erişim linkleri
     quick_actions = []
     if request.user.is_superuser:
         try:
-            user_url_name = f"admin:{User._meta.app_label}_{User._meta.model_name}_changelist"
-            quick_actions.append({"label": "Kullanıcılar", "url": reverse(user_url_name)})
+            user_url_name = (
+                f"admin:{User._meta.app_label}_{User._meta.model_name}_changelist"
+            )
+            quick_actions.append(
+                {"label": "Kullanıcılar", "url": reverse(user_url_name)}
+            )
         except NoReverseMatch:
             pass
-        
+
         try:
-            quick_actions.append({"label": "Gruplar", "url": reverse("admin:auth_group_changelist")})
+            quick_actions.append(
+                {"label": "Gruplar", "url": reverse("admin:auth_group_changelist")}
+            )
         except NoReverseMatch:
             pass
-        
+
         for name, urlname in [
             ("Şirketler", "admin:accounting_company_changelist"),
             ("Faturalar", "admin:accounting_invoice_changelist"),
@@ -351,20 +358,23 @@ def custom_index(request, extra_context=None):
                 quick_actions.append({"label": name, "url": reverse(urlname)})
             except NoReverseMatch:
                 continue
-    
-    extra_context.update({
-        'user_count': user_count,
-        'company_count': company_count,
-        'invoice_count': invoice_count,
-        'expense_count': expense_count,
-        'last_invoices': last_invoices,
-        'last_expenses': last_expenses,
-        'quick_actions': quick_actions,
-        'chart_labels': chart_labels,
-        'chart_data': chart_data,
-    })
-    
+
+    extra_context.update(
+        {
+            "user_count": user_count,
+            "company_count": company_count,
+            "invoice_count": invoice_count,
+            "expense_count": expense_count,
+            "last_invoices": last_invoices,
+            "last_expenses": last_expenses,
+            "quick_actions": quick_actions,
+            "chart_labels": chart_labels,
+            "chart_data": chart_data,
+        }
+    )
+
     return _original_index(request, extra_context)
+
 
 admin.site.index = custom_index
 

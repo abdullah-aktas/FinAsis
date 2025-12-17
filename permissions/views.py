@@ -287,11 +287,11 @@ class UserRoleViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Admin veya superuser ise tüm rollerini görebilir
         if user.is_staff or user.is_superuser:
             return queryset
-        
+
         # Normal kullanıcı sadece kendi rollerini görebilir
         return queryset.filter(user=user)
 
@@ -302,14 +302,12 @@ class UserRoleViewSet(viewsets.ModelViewSet):
         - Admin/superuser'lar herhangi bir kullanıcıya rol atayabilir
         """
         user = self.request.user
-        target_user = serializer.validated_data.get('user')
-        
+        target_user = serializer.validated_data.get("user")
+
         # Normal kullanıcı sadece kendisine rol atayabilir
         if not (user.is_staff or user.is_superuser):
             if target_user and target_user != user:
-                raise PermissionDenied(
-                    _("Sadece kendi rollerinizi yönetebilirsiniz.")
-                )
+                raise PermissionDenied(_("Sadece kendi rollerinizi yönetebilirsiniz."))
             # Kullanıcı kendisine rol atıyorsa, user'ı otomatik set et
             instance = serializer.save(user=user)
             print(f"AUDIT: {user} kendisine {instance.role} rolünü atadı.")
@@ -319,7 +317,9 @@ class UserRoleViewSet(viewsets.ModelViewSet):
             if not target_user:
                 target_user = user
             instance = serializer.save(user=target_user)
-            print(f"AUDIT: {user} {target_user} kullanıcıya {instance.role} rolünü atadı.")
+            print(
+                f"AUDIT: {user} {target_user} kullanıcıya {instance.role} rolünü atadı."
+            )
 
     def perform_update(self, serializer: UserRoleSerializer) -> None:
         """
@@ -329,14 +329,12 @@ class UserRoleViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         instance = self.get_object()
-        
+
         # Normal kullanıcı sadece kendi rollerini güncelleyebilir
         if not (user.is_staff or user.is_superuser):
             if instance.user != user:
-                raise PermissionDenied(
-                    _("Sadece kendi rollerinizi yönetebilirsiniz.")
-                )
-        
+                raise PermissionDenied(_("Sadece kendi rollerinizi yönetebilirsiniz."))
+
         serializer.save()
         print(f"AUDIT: {user} {instance} kullanıcı rolünü güncelledi.")
 
@@ -347,14 +345,12 @@ class UserRoleViewSet(viewsets.ModelViewSet):
         - Superuser'lar herhangi bir kullanıcının rolünü silebilir
         """
         user = self.request.user
-        
+
         # Normal kullanıcı sadece kendi rollerini silebilir
         if not user.is_superuser:
             if instance.user != user:
-                raise PermissionDenied(
-                    _("Sadece kendi rollerinizi silebilirsiniz.")
-                )
-        
+                raise PermissionDenied(_("Sadece kendi rollerinizi silebilirsiniz."))
+
         print(f"AUDIT: {user} {instance} kullanıcı rolünü sildi.")
         return super().perform_destroy(instance)
 

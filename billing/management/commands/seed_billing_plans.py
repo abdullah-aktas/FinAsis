@@ -381,9 +381,7 @@ class Command(BaseCommand):
         self._create_beta_discounts()
 
         self.stdout.write(
-            self.style.SUCCESS(
-                "✅ Beta dönemine uygun planlar ve fiyatlar güncellendi."
-            )
+            self.style.SUCCESS("✅ Beta dönemine uygun planlar ve fiyatlar güncellendi.")
         )
         self.stdout.write(
             self.style.SUCCESS(

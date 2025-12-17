@@ -71,67 +71,58 @@ def handle_payment_confirmation(sender, instance, created, **kwargs):
     # Sadece ödeme tamamlandığında işlem yap
     if instance.status != "completed":
         return
-    
+
     try:
         from billing.services.blockchain_contract import SubscriptionBlockchainService
         from billing.services.notification_service import BillingNotificationService
-        
+
         # Abonelik profili al
         subscription_profile = SubscriptionProfile.objects.filter(
             user=instance.user
         ).first()
-        
+
         if not subscription_profile:
-            logger.warning(f"Transaction {instance.id} için abonelik profili bulunamadı")
+            logger.warning(
+                f"Transaction {instance.id} için abonelik profili bulunamadı"
+            )
             return
-        
+
         # Fatura oluştur (varsa)
         invoice = None
         try:
             invoice = Invoice.objects.filter(
-                subscription=subscription_profile,
-                transaction=instance
+                subscription=subscription_profile, transaction=instance
             ).first()
         except Exception:
             pass
-        
+
         # Blockchain sözleşme oluştur (10.000₺+ veya beta üye ise)
         contract_result = SubscriptionBlockchainService.create_subscription_contract(
-            subscription_profile,
-            transaction=instance
+            subscription_profile, transaction=instance
         )
-        
+
         # Sözleşme bildirimi gönder
         if contract_result and contract_result.get("contract"):
             BillingNotificationService.send_contract_notification(
-                instance.user,
-                contract_result["contract"]
+                instance.user, contract_result["contract"]
             )
-        
+
         # Ödeme onayı bildirimi ve mail gönder
         BillingNotificationService.send_payment_confirmation(
-            subscription_profile,
-            instance,
-            invoice
+            subscription_profile, instance, invoice
         )
-        
+
         # Fatura e-postası gönder (varsa)
         if invoice:
-            BillingNotificationService.send_invoice_email(
-                instance.user,
-                invoice
-            )
-        
+            BillingNotificationService.send_invoice_email(instance.user, invoice)
+
         logger.info(
             f"Ödeme onayı işlemleri tamamlandı: Transaction {instance.id}, "
             f"User {instance.user.username}"
         )
-        
+
     except Exception as e:
-        logger.error(
-            f"Ödeme onayı işlem hatası: {e}",
-            exc_info=True
-        )
+        logger.error(f"Ödeme onayı işlem hatası: {e}", exc_info=True)
 
 
 @receiver(post_save, sender=Invoice)
@@ -140,16 +131,14 @@ def handle_invoice_created(sender, instance, created, **kwargs):
     if created and instance.status == "SENT":
         try:
             from billing.services.notification_service import BillingNotificationService
-            
+
             BillingNotificationService.send_invoice_email(
-                instance.subscription.user,
-                instance
+                instance.subscription.user, instance
             )
-            
-            logger.info(f"Fatura e-postası gönderildi: Invoice {instance.invoice_number}")
-            
+
+            logger.info(
+                f"Fatura e-postası gönderildi: Invoice {instance.invoice_number}"
+            )
+
         except Exception as e:
-            logger.error(
-                f"Fatura e-postası gönderme hatası: {e}",
-                exc_info=True
-            )
+            logger.error(f"Fatura e-postası gönderme hatası: {e}", exc_info=True)

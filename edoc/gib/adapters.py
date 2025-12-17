@@ -23,13 +23,16 @@ class SendResult:
 class GibAdapter(Protocol):
     def send_invoice(
         self, xml_bytes: bytes, idempotency_key: Optional[str] = None
-    ) -> SendResult: ...
+    ) -> SendResult:
+        ...
 
     def send_archive_invoice(
         self, xml_bytes: bytes, idempotency_key: Optional[str] = None
-    ) -> SendResult: ...
+    ) -> SendResult:
+        ...
 
-    def poll(self, tracking_id: str) -> Status: ...
+    def poll(self, tracking_id: str) -> Status:
+        ...
 
 
 class StubGibAdapter:

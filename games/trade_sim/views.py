@@ -588,7 +588,9 @@ def guest_onboarding(request: Request):
     guest_suffix = uuid.uuid4().hex[:8]
     username = f"guest-{guest_suffix}"
     # Geçici kullanıcılar için özel domain kullan (gerçek e-posta değil)
-    user = User.objects.create(username=username, email=f"{username}@guest.finasis.local")
+    user = User.objects.create(
+        username=username, email=f"{username}@guest.finasis.local"
+    )
     user.set_unusable_password()
     user.save()
 
@@ -693,14 +695,17 @@ def onboarding(request: Request):
 def city_list(request: Request):
     """Tüm şehirleri listeler - API endpoint"""
     cities = City.objects.all()
-    
+
     # Eğer şehir yoksa, setup komutunu çalıştırmayı öner
     if not cities.exists():
-        return JsonResponse({
-            "cities": [],
-            "error": "Şehir verisi bulunamadı. Lütfen 'python manage.py setup_tradesim' komutunu çalıştırın."
-        }, status=200)
-    
+        return JsonResponse(
+            {
+                "cities": [],
+                "error": "Şehir verisi bulunamadı. Lütfen 'python manage.py setup_tradesim' komutunu çalıştırın.",
+            },
+            status=200,
+        )
+
     data = [
         {
             "id": c.pk,
@@ -711,7 +716,7 @@ def city_list(request: Request):
             "coordinates": c.coordinates or {"x": 0, "y": 0},
             "neighbors": list(c.neighbors.values_list("id", flat=True)),
         }
-        for c in cities.prefetch_related('neighbors')
+        for c in cities.prefetch_related("neighbors")
     ]
     return JsonResponse({"cities": data})
 
@@ -982,22 +987,43 @@ class ChatMessageReportView(generics.UpdateAPIView):
 def product_list(request: Request):
     """Tüm ürünleri listeler."""
     products = Product.objects.all()
-    
+
     # Eğer ürün yoksa, varsayılan ürünler oluştur
     if not products.exists():
         default_products = [
-            {"name": "Buğday", "description": "Temel tarım ürünü", "base_price": 100, "unit": "kg", "category": "tarım"},
-            {"name": "Pamuk", "description": "Tekstil hammaddesi", "base_price": 150, "unit": "kg", "category": "tarım"},
-            {"name": "Demir", "description": "Sanayi hammaddesi", "base_price": 200, "unit": "ton", "category": "sanayi"},
-            {"name": "Petrol", "description": "Enerji kaynağı", "base_price": 300, "unit": "varil", "category": "enerji"},
+            {
+                "name": "Buğday",
+                "description": "Temel tarım ürünü",
+                "base_price": 100,
+                "unit": "kg",
+                "category": "tarım",
+            },
+            {
+                "name": "Pamuk",
+                "description": "Tekstil hammaddesi",
+                "base_price": 150,
+                "unit": "kg",
+                "category": "tarım",
+            },
+            {
+                "name": "Demir",
+                "description": "Sanayi hammaddesi",
+                "base_price": 200,
+                "unit": "ton",
+                "category": "sanayi",
+            },
+            {
+                "name": "Petrol",
+                "description": "Enerji kaynağı",
+                "base_price": 300,
+                "unit": "varil",
+                "category": "enerji",
+            },
         ]
         for prod_data in default_products:
-            Product.objects.get_or_create(
-                name=prod_data["name"],
-                defaults=prod_data
-            )
+            Product.objects.get_or_create(name=prod_data["name"], defaults=prod_data)
         products = Product.objects.all()
-    
+
     data = [
         {
             "id": p.pk,
@@ -1020,7 +1046,7 @@ def city_market_list(request: Request, city_id):
         city = City.objects.get(id=city_id)
     except City.DoesNotExist:
         return Response({"error": "Şehir bulunamadı."}, status=404)
-    
+
     # Eğer pazarlar yoksa, tüm ürünler için varsayılan pazarlar oluştur
     markets = CityMarket.objects.filter(city=city)
     if not markets.exists():
@@ -1034,10 +1060,10 @@ def city_market_list(request: Request, city_id):
                     "price": product.base_price,
                     "supply": 100,
                     "demand": 100,
-                }
+                },
             )
         markets = CityMarket.objects.filter(city=city)
-    
+
     data = [
         {
             "product": m.product.name,
@@ -1047,7 +1073,7 @@ def city_market_list(request: Request, city_id):
             "demand": float(m.demand),
             "last_updated": m.last_updated.isoformat() if m.last_updated else None,
         }
-        for m in markets.select_related('product')
+        for m in markets.select_related("product")
     ]
     return Response({"city": city.name, "city_id": city.id, "markets": data})
 

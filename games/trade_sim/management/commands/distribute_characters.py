@@ -13,21 +13,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("\n[*] Karakterler sehirlere dagitiliyor...")
-        
+
         cities = list(City.objects.all())
         if not cities:
             self.stdout.write(
                 self.style.ERROR("  [!] Hic sehir yok! Once sehirleri olusturun.")
             )
             return
-        
+
         characters = list(Character.objects.all())
         if not characters:
-            self.stdout.write(
-                self.style.WARNING("  [!] Hic karakter yok.")
-            )
+            self.stdout.write(self.style.WARNING("  [!] Hic karakter yok."))
             return
-        
+
         # Karakterleri şehirlere döngüsel olarak dağıt
         distributed = 0
         for idx, char in enumerate(characters):
@@ -36,13 +34,8 @@ class Command(BaseCommand):
             char.city = city
             char.save()
             distributed += 1
-            self.stdout.write(
-                f"  [+] {char.name}: {old_city} -> {city.name}"
-            )
-        
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\n  [+] {distributed} karakter sehirlere dagitildi!"
-            )
-        )
+            self.stdout.write(f"  [+] {char.name}: {old_city} -> {city.name}")
 
+        self.stdout.write(
+            self.style.SUCCESS(f"\n  [+] {distributed} karakter sehirlere dagitildi!")
+        )

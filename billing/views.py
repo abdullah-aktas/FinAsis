@@ -637,21 +637,23 @@ def _activate_subscription(user, plan, price):
     else:
         profile.current_period_end = timezone.now() + timezone.timedelta(days=365)
     profile.save()
-    
+
     # Blockchain sözleşme oluştur (10.000₺+ veya beta üye ise)
     try:
         from billing.services.blockchain_contract import SubscriptionBlockchainService
         from billing.services.notification_service import BillingNotificationService
-        
-        contract_result = SubscriptionBlockchainService.create_subscription_contract(profile)
-        
+
+        contract_result = SubscriptionBlockchainService.create_subscription_contract(
+            profile
+        )
+
         if contract_result and contract_result.get("contract"):
             BillingNotificationService.send_contract_notification(
-                user,
-                contract_result["contract"]
+                user, contract_result["contract"]
             )
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Blockchain sözleşme oluşturma hatası: {e}", exc_info=True)
 
