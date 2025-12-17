@@ -3,11 +3,24 @@
 FinQuest 3D Views
 Modern 3D web-based finansal macera oyunu
 """
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+
+def game_redirect(request):
+    """FinQuest game URL yönlendirmesi - geliştirme aşamasında kullanıcıyı bilgilendir"""
+    # Oyun geliştirme aşamasında olduğu için kullanıcıyı uygun bir şekilde yönlendir
+    messages.info(
+        request,
+        _("FinQuest 3D oyunu şu anda geliştirme aşamasındadır. "
+          "Yakında sizlerle buluşacak! Diğer oyunlarımızı deneyebilirsiniz.")
+    )
+    return redirect("game_app:games")
 
 
 def play(request):

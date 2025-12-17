@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Sözleşme Oluşturuldu - FinAsis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6f42c1 0%, #4a2c7a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .info-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #6f42c1;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #6f42c1;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔗 Blockchain Sözleşme Oluşturuldu</h1>
+        <p>FinAsis Blockchain Sistemi</p>
+    </div>
+    
+    <div class="content">
+        <p>Sayın <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+        
+        <p>
+            Aboneliğiniz için blockchain sözleşmesi başarıyla oluşturuldu. 
+            Bu sözleşme, aboneliğinizin güvenli ve şeffaf bir şekilde kaydedilmesini sağlar.
+        </p>
+        
+        <div class="info-box">
+            <h3>Sözleşme Bilgileri</h3>
+            <p><strong>Sözleşme Adı:</strong> {{ contract.contract_name }}</p>
+            <p><strong>Sözleşme Adresi:</strong> <code>{{ contract.contract_address }}</code></p>
+            <p><strong>Sözleşme Tipi:</strong> {{ contract.get_contract_type_display }}</p>
+            <p><strong>Oluşturulma Tarihi:</strong> {{ contract.deployed_at|date:"d.m.Y H:i" }}</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>Blockchain Sözleşmesinin Avantajları</h3>
+            <ul>
+                <li>✅ Değiştirilemez kayıt</li>
+                <li>✅ Şeffaf ve doğrulanabilir</li>
+                <li>✅ Güvenli saklama</li>
+                <li>✅ Otomatik yürütme</li>
+            </ul>
+        </div>
+        
+        <p>
+            <a href="{{ contract_url }}" class="button">
+                Sözleşmeyi Görüntüle
+            </a>
+        </p>
+        
+        <p>
+            Sorularınız için <a href="mailto:{{ support_email|default:'destek@finasis.com.tr' }}">destek ekibimiz</a> ile iletişime geçebilirsiniz.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>© {% now "Y" %} FinAsis. Tüm hakları saklıdır.</p>
+        <p>Bu e-posta otomatik olarak gönderilmiştir.</p>
+    </div>
+</body>
+</html>
+

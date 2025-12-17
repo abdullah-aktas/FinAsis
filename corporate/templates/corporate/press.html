@@ -1,0 +1,136 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Basın Merkezi" %} · FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="corporate-hero py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <span class="badge bg-info-subtle text-info-emphasis mb-3">
+          {% trans "Basın Merkezi" %}
+        </span>
+        <h1 class="display-4 fw-bold mb-4">
+          {% trans "Basın & Medya" %}
+        </h1>
+        <p class="lead text-secondary mb-4">
+          {% trans "FinAsis hakkındaki en güncel haberler, basın bültenleri ve medya kaynaklarına buradan ulaşabilirsiniz." %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">{% trans "Basın Bültenleri" %}</h2>
+        <p class="text-secondary">
+          {% trans "FinAsis'in önemli duyuruları, ürün lansmanları ve şirket haberleri." %}
+        </p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for release in press_releases %}
+      <div class="col-md-6">
+        <div class="resource-card h-100 p-4">
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-shrink-0">
+              <i class="bi bi-newspaper text-primary fs-2"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h3 class="h6 fw-semibold mb-2">{{ release.title }}</h3>
+              <p class="text-secondary small mb-2">
+                <span class="text-muted">{{ release.date|date:"d.m.Y" }}</span>
+              </p>
+              {% if release.summary %}
+              <p class="text-secondary small mb-3">{{ release.summary|truncatewords:20 }}</p>
+              {% endif %}
+              {% if release.url %}
+              <a href="{{ release.url }}" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer">
+                <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "Devamını Oku" %}
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center">
+        <p class="text-secondary">{% trans "Basın bültenleri yakında eklenecektir." %}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Medya Kiti" %}</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="p-4 bg-white rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-image text-primary me-2"></i>
+                {% trans "Logo & Görseller" %}
+              </h4>
+              <p class="text-secondary small mb-3">
+                {% trans "FinAsis logosu, marka görselleri ve kullanım kılavuzları." %}
+              </p>
+              <a href="{% static 'common/FinAsis_logo.png' %}" download class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-download me-1"></i>{% trans "Logo İndir" %}
+              </a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-4 bg-white rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-file-text text-primary me-2"></i>
+                {% trans "Şirket Bilgileri" %}
+              </h4>
+              <p class="text-secondary small mb-3">
+                {% trans "FinAsis hakkında temel bilgiler, istatistikler ve önemli tarihler." %}
+              </p>
+              <a href="{% url 'corporate:about' %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-right me-1"></i>{% trans "Hakkımızda" %}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Basın İletişimi" %}</h2>
+        <div class="text-center p-4 bg-light rounded-4">
+          <p class="text-secondary mb-4">
+            {% trans "Basın sorularınız, röportaj talepleri veya medya kiti istekleri için basın ekibimizle iletişime geçebilirsiniz." %}
+          </p>
+          <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+            <a href="{% url 'contact' %}?subject=press" class="btn btn-primary btn-lg px-4">
+              <i class="bi bi-envelope-open me-2"></i>{% trans "Basın İletişimi" %}
+            </a>
+            <a href="mailto:basin@finasis.com.tr" class="btn btn-outline-primary btn-lg px-4">
+              <i class="bi bi-envelope me-2"></i>basin@finasis.com.tr
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

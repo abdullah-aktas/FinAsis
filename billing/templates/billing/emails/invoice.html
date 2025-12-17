@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatura - {{ invoice.invoice_number }} - FinAsis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0AAE94 0%, #067a68 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .invoice-details {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #0AAE94;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📄 Fatura</h1>
+        <p>{{ invoice.invoice_number }}</p>
+    </div>
+    
+    <div class="content">
+        <p>Sayın <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+        
+        <p>
+            Aboneliğiniz için fatura oluşturuldu. Fatura detayları aşağıda yer almaktadır.
+        </p>
+        
+        <div class="invoice-details">
+            <h3>Fatura Bilgileri</h3>
+            <p><strong>Fatura No:</strong> {{ invoice.invoice_number }}</p>
+            <p><strong>Fatura Tarihi:</strong> {{ invoice.invoice_date|date:"d.m.Y" }}</p>
+            <p><strong>Vade Tarihi:</strong> {{ invoice.due_date|date:"d.m.Y" }}</p>
+            <p><strong>Dönem:</strong> {{ invoice.billing_period_start|date:"d.m.Y" }} - {{ invoice.billing_period_end|date:"d.m.Y" }}</p>
+            {% if plan %}
+            <p><strong>Plan:</strong> {{ plan.name }}</p>
+            {% endif %}
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ara Toplam</td>
+                    <td>{{ invoice.subtotal }} ₺</td>
+                </tr>
+                {% if invoice.discount_amount > 0 %}
+                <tr>
+                    <td>İndirim</td>
+                    <td>-{{ invoice.discount_amount }} ₺</td>
+                </tr>
+                {% endif %}
+                {% if invoice.tax_amount > 0 %}
+                <tr>
+                    <td>KDV</td>
+                    <td>{{ invoice.tax_amount }} ₺</td>
+                </tr>
+                {% endif %}
+                <tr class="total">
+                    <td>Toplam</td>
+                    <td>{{ invoice.total_amount }} ₺</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p>
+            <a href="{{ site_url }}/billing/portal/" class="button">
+                Faturalarımı Görüntüle
+            </a>
+        </p>
+        
+        <p>
+            Sorularınız için <a href="mailto:{{ support_email|default:'destek@finasis.com.tr' }}">destek ekibimiz</a> ile iletişime geçebilirsiniz.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>© {% now "Y" %} FinAsis. Tüm hakları saklıdır.</p>
+        <p>Bu e-posta otomatik olarak gönderilmiştir.</p>
+    </div>
+</body>
+</html>
+

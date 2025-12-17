@@ -1,0 +1,170 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Yatırımcı İlişkileri" %} · FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="corporate-hero py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">
+          {% trans "Yatırımcı İlişkileri" %}
+        </span>
+        <h1 class="display-4 fw-bold mb-4">
+          {% trans "Yatırımcılar için FinAsis" %}
+        </h1>
+        <p class="lead text-secondary mb-4">
+          {% trans "FinAsis'in büyüme stratejisi, finansal performansı ve yatırım fırsatları hakkında detaylı bilgilere buradan ulaşabilirsiniz." %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">{% trans "Yatırımcı Dokümanları" %}</h2>
+        <p class="text-secondary">
+          {% trans "FinAsis'in stratejisi, finansal durumu ve büyüme planları hakkında detaylı bilgiler." %}
+        </p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for doc in documents %}
+      <div class="col-md-6">
+        <div class="resource-card h-100 p-4">
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-shrink-0">
+              {% if doc.kind == "deck" %}
+              <i class="bi bi-file-slides text-primary fs-2"></i>
+              {% else %}
+              <i class="bi bi-file-earmark-text text-primary fs-2"></i>
+              {% endif %}
+            </div>
+            <div class="flex-grow-1">
+              <h3 class="h6 fw-semibold mb-2">{{ doc.name }}</h3>
+              <p class="text-secondary small mb-2">
+                <span class="badge bg-primary-subtle text-primary-emphasis me-2">
+                  {{ doc.get_kind_display }}
+                </span>
+                {% if doc.published_at %}
+                <span class="text-muted">{{ doc.published_at|date:"d.m.Y" }}</span>
+                {% endif %}
+              </p>
+              {% if doc.file_url %}
+              <a href="{{ doc.file_url }}" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer">
+                <i class="bi bi-download me-1"></i>{% trans "İndir" %}
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center">
+        <p class="text-secondary">{% trans "Yatırımcı dokümanları yakında eklenecektir." %}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Finansal Özet" %}</h2>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="text-center p-4 bg-white rounded-4">
+              <h3 class="h5 fw-semibold mb-3">{% trans "Büyüme" %}</h3>
+              <p class="text-secondary small mb-0">
+                {% trans "FinAsis, Türkiye'deki KOBİ'lerin dijital dönüşüm ihtiyacına odaklanarak hızlı bir büyüme stratejisi izlemektedir." %}
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-4 bg-white rounded-4">
+              <h3 class="h5 fw-semibold mb-3">{% trans "Pazar Fırsatı" %}</h3>
+              <p class="text-secondary small mb-0">
+                {% trans "Türkiye'deki 3 milyon+ KOBİ'nin dijital dönüşüm ihtiyacı, FinAsis için önemli bir pazar fırsatı sunmaktadır." %}
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-4 bg-white rounded-4">
+              <h3 class="h5 fw-semibold mb-3">{% trans "Teknoloji Avantajı" %}</h3>
+              <p class="text-secondary small mb-0">
+                {% trans "Yerel AI teknolojileri, blockchain entegrasyonu ve KVKK uyumluluğu ile rekabet avantajı sağlıyoruz." %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Yatırım Fırsatları" %}</h2>
+        <div class="p-4 bg-light rounded-4">
+          <p class="text-secondary mb-4">
+            {% trans "FinAsis, stratejik yatırımcılar ve ortaklarla büyüme yolculuğunu paylaşmak istiyor. Aşağıdaki alanlarda yatırım fırsatları değerlendirilmektedir:" %}
+          </p>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-3">
+              <i class="bi bi-check-circle-fill text-primary me-2"></i>
+              <strong>{% trans "Teknoloji Geliştirme:" %}</strong>
+              {% trans "Yerel AI modelleri, blockchain altyapısı ve platform özelliklerinin geliştirilmesi" %}
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle-fill text-primary me-2"></i>
+              <strong>{% trans "Pazar Genişletme:" %}</strong>
+              {% trans "Türkiye genelinde müşteri kazanımı ve pazarlama faaliyetleri" %}
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle-fill text-primary me-2"></i>
+              <strong>{% trans "Ekip Büyütme:" %}</strong>
+              {% trans "Ürün geliştirme, satış ve destek ekiplerinin genişletilmesi" %}
+            </li>
+            <li>
+              <i class="bi bi-check-circle-fill text-primary me-2"></i>
+              <strong>{% trans "Stratejik Ortaklıklar:" %}</strong>
+              {% trans "Mali müşavirler, muhasebe firmaları ve finansal danışmanlarla işbirliği" %}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "İletişim" %}</h2>
+        <div class="text-center p-4 bg-white rounded-4">
+          <p class="text-secondary mb-4">
+            {% trans "Yatırım fırsatları ve ortaklık teklifleri hakkında daha fazla bilgi almak için yatırımcı ilişkileri ekibimizle iletişime geçebilirsiniz." %}
+          </p>
+          <a href="{% url 'contact' %}?subject=investment" class="btn btn-primary btn-lg px-4">
+            <i class="bi bi-envelope-open me-2"></i>{% trans "Yatırımcı İlişkileri ile İletişime Geçin" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from . import views
 from .views_extra import report_views
+from .views_extra import tfrs_report_views
 from accounting.views_extra.enhanced_views import ajax_search_accounts
 from .api import (
     InvoiceViewSet,
@@ -477,4 +478,25 @@ urlpatterns = [
         "chart-of-accounts/", report_views.mizan_defteri_view, name="chart_of_accounts"
     ),
     path("close-period/", report_views.envanter_defteri_view, name="close_period"),
+    # TFRS/VUK Uyumlu Raporlar (Yazdırma ve Dijital Gönderim ile)
+    path(
+        "tfrs-raporlar/liste/",
+        tfrs_report_views.tfrs_report_list_view,
+        name="tfrs_report_list",
+    ),
+    path(
+        "tfrs-raporlar/bilanco/",
+        tfrs_report_views.tfrs_balance_sheet_view,
+        name="tfrs_balance_sheet",
+    ),
+    path(
+        "tfrs-raporlar/gelir-tablosu/",
+        tfrs_report_views.tfrs_income_statement_view,
+        name="tfrs_income_statement",
+    ),
+    path(
+        "tfrs-raporlar/mizan/",
+        tfrs_report_views.tfrs_trial_balance_view,
+        name="tfrs_trial_balance",
+    ),
 ]

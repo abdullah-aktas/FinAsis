@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "game_app"
@@ -26,7 +26,8 @@ urlpatterns = [
     path("stock-market/", views.stock_market_game, name="stock_market"),
     path("budget-challenge/", views.budget_challenge, name="budget_challenge"),
     path(
-        "investment-simulator/", views.investment_simulator, name="investment_simulator"
+        "investment-simulator/",
+        include(("games.investment_simulator.urls", "investment_simulator"), namespace="investment_simulator"),
     ),
     path("trade-trail/", views.trade_trail, name="trade_trail"),
     path("kobi-dashboard/", views.kobi_dashboard, name="kobi_dashboard"),

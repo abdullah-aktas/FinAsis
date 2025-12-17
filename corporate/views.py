@@ -590,8 +590,13 @@ def about(request):
 
 def team(request):
     """Kurumsal ekip sayfası."""
+    from .models import TeamMember
+    
+    team_members = TeamMember.objects.all().order_by('department', 'name')
+    
     context = {
         "page_title": _("FinAsis · Ekip"),
+        "team_members": team_members,
     }
     return render(request, "corporate/team.html", context)
 
@@ -619,8 +624,13 @@ def investors(request):
 
 def press(request):
     """Basın bültenleri sayfası."""
+    from .models import PressRelease
+    
+    press_releases = PressRelease.objects.all().order_by('-date')[:10]
+    
     context = {
         "page_title": _("FinAsis · Basın Merkezi"),
+        "press_releases": press_releases,
     }
     return render(request, "corporate/press.html", context)
 

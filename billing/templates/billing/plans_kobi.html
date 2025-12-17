@@ -757,7 +757,7 @@
         {% if period == 'month' or not period %}
           {% if card.month_amount %}
             <div>
-              <span class="price-amount">{{ card.month_amount }}</span>
+              <span class="price-amount">{{ card.month_amount|floatformat:0 }}</span>
               <span class="price-currency">{{ card.currency }}</span>
             </div>
             <div class="price-period">/ ay</div>
@@ -779,7 +779,7 @@
         {% else %}
           {% if card.year_amount %}
             <div>
-              <span class="price-amount">{{ card.year_amount }}</span>
+              <span class="price-amount">{{ card.year_amount|floatformat:0 }}</span>
               <span class="price-currency">{{ card.currency }}</span>
             </div>
             <div class="price-period">/ yıl</div>

@@ -1,0 +1,205 @@
+{% extends "core_ui/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Kariyer" %} · FinAsis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/corporate.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="corporate-hero py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <span class="badge bg-success-subtle text-success-emphasis mb-3">
+          {% trans "Kariyer" %}
+        </span>
+        <h1 class="display-4 fw-bold mb-4">
+          {% trans "FinAsis'te Kariyer" %}
+        </h1>
+        <p class="lead text-secondary mb-4">
+          {% trans "Finans teknolojileri alanında kariyer yapmak, yenilikçi projelerde çalışmak ve sürekli öğrenmek isteyen yetenekli profesyonelleri arıyoruz." %}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="display-5 fw-bold mb-4">{% trans "Açık Pozisyonlar" %}</h2>
+        <p class="text-secondary">
+          {% trans "Şu anda açık pozisyonlarımız bulunmamaktadır. Ancak gelecekteki fırsatlar için başvurunuzu gönderebilirsiniz." %}
+        </p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="p-4 bg-light rounded-4 text-center">
+          <i class="bi bi-briefcase display-4 text-muted mb-3"></i>
+          <p class="text-secondary mb-4">
+            {% trans "Açık pozisyonlar için bizi takipte kalın veya genel başvurunuzu gönderin." %}
+          </p>
+          <a href="{% url 'contact' %}?subject=career" class="btn btn-primary btn-lg px-4">
+            <i class="bi bi-envelope-open me-2"></i>{% trans "Genel Başvuru Gönder" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Çalışma Kültürümüz" %}</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <i class="bi bi-heart-fill text-primary fs-3"></i>
+              </div>
+              <div>
+                <h4 class="h6 fw-semibold mb-2">{% trans "İş-Yaşam Dengesi" %}</h4>
+                <p class="text-secondary small mb-0">
+                  {% trans "Esnek çalışma saatleri, uzaktan çalışma seçenekleri ve anlayışlı yönetim anlayışı." %}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <i class="bi bi-mortarboard-fill text-primary fs-3"></i>
+              </div>
+              <div>
+                <h4 class="h6 fw-semibold mb-2">{% trans "Sürekli Öğrenme" %}</h4>
+                <p class="text-secondary small mb-0">
+                  {% trans "Eğitim bütçesi, konferans katılımı ve iç eğitim programları ile kendinizi geliştirme fırsatı." %}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <i class="bi bi-people-fill text-primary fs-3"></i>
+              </div>
+              <div>
+                <h4 class="h6 fw-semibold mb-2">{% trans "Takım Çalışması" %}</h4>
+                <p class="text-secondary small mb-0">
+                  {% trans "Açık iletişim, işbirliği ve karşılıklı destek kültürü." %}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0">
+                <i class="bi bi-lightbulb-fill text-primary fs-3"></i>
+              </div>
+              <div>
+                <h4 class="h6 fw-semibold mb-2">{% trans "İnovasyon" %}</h4>
+                <p class="text-secondary small mb-0">
+                  {% trans "Yeni fikirleri destekleyen, deneyim yapmaktan çekinmeyen bir ortam." %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-5 fw-bold mb-4 text-center">{% trans "Aradığımız Özellikler" %}</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="p-4 bg-light rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-code-slash text-primary me-2"></i>
+                {% trans "Yazılım Geliştirme" %}
+              </h4>
+              <ul class="list-unstyled mb-0 text-secondary small">
+                <li class="mb-2">• Python, Django, React</li>
+                <li class="mb-2">• Blockchain teknolojileri</li>
+                <li class="mb-2">• AI/ML deneyimi</li>
+                <li>• API geliştirme</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-4 bg-light rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-calculator text-primary me-2"></i>
+                {% trans "Finans & Muhasebe" %}
+              </h4>
+              <ul class="list-unstyled mb-0 text-secondary small">
+                <li class="mb-2">• TFRS/VUK bilgisi</li>
+                <li class="mb-2">• Mali müşavirlik deneyimi</li>
+                <li class="mb-2">• Finansal analiz</li>
+                <li>• Uyumluluk (KVKK, MASAK)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-4 bg-light rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-mortarboard text-primary me-2"></i>
+                {% trans "Eğitim & İçerik" %}
+              </h4>
+              <ul class="list-unstyled mb-0 text-secondary small">
+                <li class="mb-2">• Eğitim programı tasarımı</li>
+                <li class="mb-2">• İçerik geliştirme</li>
+                <li class="mb-2">• LMS deneyimi</li>
+                <li>• Oyunlaştırma</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-4 bg-light rounded-4 h-100">
+              <h4 class="h6 fw-semibold mb-3">
+                <i class="bi bi-graph-up text-primary me-2"></i>
+                {% trans "İş Geliştirme" %}
+              </h4>
+              <ul class="list-unstyled mb-0 text-secondary small">
+                <li class="mb-2">• Satış & pazarlama</li>
+                <li class="mb-2">• Müşteri ilişkileri</li>
+                <li class="mb-2">• Stratejik planlama</li>
+                <li>• Partner yönetimi</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4 p-5 bg-primary text-white rounded-4">
+      <div>
+        <h2 class="display-6 fw-bold mb-3">{% trans "FinAsis Ekibine Katılın" %}</h2>
+        <p class="lead mb-0">
+          {% trans "Finans teknolojileri alanında kariyer yapmak ister misiniz?" %}
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'contact' %}?subject=career" class="btn btn-light btn-lg px-4">
+          <i class="bi bi-envelope-open me-2"></i>{% trans "Başvuru Gönder" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

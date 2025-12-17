@@ -13,7 +13,16 @@ from .models import (
     BankTransfer,
     EnterpriseInquiry,
 )
-from .services import PayTRClient, RefGenerator
+# PayTRClient ve RefGenerator billing/services.py'den import edilir
+# services/ klasörü ile çakışmayı önlemek için doğrudan dosyadan import
+import importlib.util
+from pathlib import Path
+services_file = Path(__file__).parent / "services.py"
+spec = importlib.util.spec_from_file_location("billing_services_py", services_file)
+billing_services_py = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(billing_services_py)
+PayTRClient = billing_services_py.PayTRClient
+RefGenerator = billing_services_py.RefGenerator
 from decimal import Decimal, InvalidOperation
 from typing import Optional, Iterable, Dict, List, Tuple
 from django.utils import timezone
@@ -626,6 +635,23 @@ def _activate_subscription(user, plan, price):
     else:
         profile.current_period_end = timezone.now() + timezone.timedelta(days=365)
     profile.save()
+    
+    # Blockchain sözleşme oluştur (10.000₺+ veya beta üye ise)
+    try:
+        from billing.services.blockchain_contract import SubscriptionBlockchainService
+        from billing.services.notification_service import BillingNotificationService
+        
+        contract_result = SubscriptionBlockchainService.create_subscription_contract(profile)
+        
+        if contract_result and contract_result.get("contract"):
+            BillingNotificationService.send_contract_notification(
+                user,
+                contract_result["contract"]
+            )
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Blockchain sözleşme oluşturma hatası: {e}", exc_info=True)
 
     # Eski Accounts abonelik tipi ile uyumlu loglama (opsiyonel köprü)
     # Varsa aynı isimli SubscriptionType'a eşle

@@ -224,16 +224,14 @@ Fiyatlandırma - FinAsis{% endblock %}
 
         {% if price_ranges.kobi %}
         <div class="text-center price-range">
-          {{ price_ranges.kobi.min }}{{ price_ranges.kobi.currency }}
+          {{ price_ranges.kobi.min|floatformat:0 }}{{ price_ranges.kobi.currency }}
           -
-          {{ price_ranges.kobi.max }}{{ price_ranges.kobi.currency }}
+          {{ price_ranges.kobi.max|floatformat:0 }}{{ price_ranges.kobi.currency }}
         </div>
         <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% else %}
-        <div class="text-center price-range">—</div>
-        <p class="text-center text-muted small mb-4">
-          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
-        </p>
+        <div class="text-center price-range">₺199 - ₺1,999</div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% endif %}
 
         <ul class="feature-list">
@@ -281,16 +279,14 @@ Fiyatlandırma - FinAsis{% endblock %}
 
         {% if price_ranges.education %}
         <div class="text-center price-range">
-          {{ price_ranges.education.min }}{{ price_ranges.education.currency }}
+          {{ price_ranges.education.min|floatformat:0 }}{{ price_ranges.education.currency }}
           -
-          {{ price_ranges.education.max }}{{ price_ranges.education.currency }}
+          {{ price_ranges.education.max|floatformat:0 }}{{ price_ranges.education.currency }}
         </div>
         <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% else %}
-        <div class="text-center price-range">—</div>
-        <p class="text-center text-muted small mb-4">
-          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
-        </p>
+        <div class="text-center price-range">Ücretsiz - ₺999</div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% endif %}
 
         <ul class="feature-list">
@@ -335,16 +331,14 @@ Fiyatlandırma - FinAsis{% endblock %}
 
         {% if price_ranges.games %}
         <div class="text-center price-range">
-          {{ price_ranges.games.min }}{{ price_ranges.games.currency }}
+          {{ price_ranges.games.min|floatformat:0 }}{{ price_ranges.games.currency }}
           -
-          {{ price_ranges.games.max }}{{ price_ranges.games.currency }}
+          {{ price_ranges.games.max|floatformat:0 }}{{ price_ranges.games.currency }}
         </div>
         <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% else %}
-        <div class="text-center price-range">—</div>
-        <p class="text-center text-muted small mb-4">
-          {% trans "Güncel fiyat için detay sayfasını inceleyin." %}
-        </p>
+        <div class="text-center price-range">Ücretsiz - ₺49</div>
+        <p class="text-center text-muted small mb-4">/ {% trans "ay" %}</p>
         {% endif %}
 
         <ul class="feature-list">

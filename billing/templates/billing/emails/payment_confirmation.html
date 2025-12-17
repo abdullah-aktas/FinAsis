@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme Onaylandı - FinAsis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0AAE94 0%, #067a68 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .info-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #0AAE94;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #0AAE94;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✅ Ödeme Onaylandı</h1>
+        <p>FinAsis Abonelik Sistemi</p>
+    </div>
+    
+    <div class="content">
+        <p>Sayın <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+        
+        <p>
+            <strong>{{ plan.name|default:"Abonelik" }}</strong> için ödemeniz başarıyla onaylandı.
+        </p>
+        
+        <div class="info-box">
+            <h3>Ödeme Detayları</h3>
+            <p><strong>Plan:</strong> {{ plan.name|default:"-" }}</p>
+            <p><strong>Tutar:</strong> {{ transaction.amount }} {{ transaction.currency }}</p>
+            <p><strong>Ödeme Yöntemi:</strong> {{ transaction.get_method_display }}</p>
+            <p><strong>İşlem Tarihi:</strong> {{ transaction.created_at|date:"d.m.Y H:i" }}</p>
+            {% if invoice %}
+            <p><strong>Fatura No:</strong> {{ invoice.invoice_number }}</p>
+            {% endif %}
+        </div>
+        
+        {% if plan.is_beta_plan %}
+        <div class="info-box" style="border-left-color: #ffc107;">
+            <h3>🎉 Beta Üyelik Avantajları</h3>
+            <ul>
+                <li>Yeni özelliklere erken erişim</li>
+                <li>Öncelikli destek</li>
+                <li>Beta indirimleri</li>
+                <li>Ortaklık fırsatları</li>
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if contract %}
+        <div class="info-box" style="border-left-color: #6f42c1;">
+            <h3>🔗 Blockchain Sözleşme</h3>
+            <p>
+                Aboneliğiniz için blockchain sözleşmesi oluşturuldu. 
+                Sözleşme adresi: <code>{{ contract.contract_address }}</code>
+            </p>
+            <p>
+                <a href="{{ site_url }}/blockchain/contracts/{{ contract.contract_address }}/" class="button">
+                    Sözleşmeyi Görüntüle
+                </a>
+            </p>
+        </div>
+        {% endif %}
+        
+        <p>
+            <a href="{{ site_url }}/billing/portal/" class="button">
+                Abonelik Yönetim Paneline Git
+            </a>
+        </p>
+        
+        <p>
+            Sorularınız için <a href="mailto:{{ support_email }}">{{ support_email }}</a> adresinden bizimle iletişime geçebilirsiniz.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>© {% now "Y" %} FinAsis. Tüm hakları saklıdır.</p>
+        <p>Bu e-posta otomatik olarak gönderilmiştir.</p>
+    </div>
+</body>
+</html>
+

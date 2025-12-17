@@ -112,7 +112,7 @@ BASE_MODULES = {
 }
 
 PLANS = [
-    # KOBİ (SME) aile - BETA DÖNEMİ FİYATLARI
+    # KOBİ (SME) aile - GERÇEK FİYATLAR (Beta döneminde indirimli)
     {
         "code": "starter",
         "name": "KOBİ Başlangıç",
@@ -120,7 +120,7 @@ PLANS = [
         "description": "Küçük işletmeler için temel finansal yönetim ve başlangıç özellikleri. Beta döneminde özel fiyat!",
         "prices": {
             "month": Decimal("199.00"),  # Beta: 499 → 199 (%60 indirim)
-            "year": Decimal("199.00") * 12 * Decimal("0.80"),  # ~%20 ek indirim
+            "year": Decimal("1910.40"),  # 199 * 12 * 0.80 = ~%20 ek indirim
         },
         "modules": ["reporting", "budgeting", "cashflow", "accounting", "banking"],
         "trial_days": 14,
@@ -136,7 +136,7 @@ PLANS = [
         "description": "Büyüyen işletmeler için e-dönüşüm, bankacılık entegrasyonları ve AI analizleri. Beta döneminde en popüler plan!",
         "prices": {
             "month": Decimal("599.00"),  # Beta: 1599 → 599 (%62 indirim)
-            "year": Decimal("599.00") * 12 * Decimal("0.75"),  # ~%25 ek indirim
+            "year": Decimal("5391.00"),  # 599 * 12 * 0.75 = ~%25 ek indirim
         },
         "modules": [
             "reporting",
@@ -169,7 +169,7 @@ PLANS = [
         "description": "Gelişmiş entegrasyonlar, denetim, çoklu şirket ve özel destek. Beta döneminde özel fiyat!",
         "prices": {
             "month": Decimal("1999.00"),  # Beta: 5999 → 1999 (%67 indirim)
-            "year": Decimal("1999.00") * 12 * Decimal("0.70"),  # ~%30 ek indirim
+            "year": Decimal("16791.60"),  # 1999 * 12 * 0.70 = ~%30 ek indirim
         },
         "modules": [
             "reporting",
@@ -226,7 +226,7 @@ PLANS = [
         "description": "Eğitmenler için LMS, analitik ve AI destekli içerik. Beta döneminde özel fiyat!",
         "prices": {
             "month": Decimal("99.00"),  # Beta: 199 → 99 (%50 indirim)
-            "year": Decimal("99.00") * 12 * Decimal("0.80"),  # ~%20 ek indirim
+            "year": Decimal("950.40"),  # 99 * 12 * 0.80 = ~%20 ek indirim
         },
         "modules": ["lms", "reporting", "analytics", "ai"],
         "trial_days": 30,
@@ -242,7 +242,7 @@ PLANS = [
         "description": "Kurumsal eğitim yönetimi, entegrasyonlar ve çoklu organizasyon. Beta döneminde özel fiyat!",
         "prices": {
             "month": Decimal("999.00"),  # Beta: 4999/yıl → 999/ay (yıllık %76 indirim)
-            "year": Decimal("999.00") * 12 * Decimal("0.70"),  # ~%30 ek indirim
+            "year": Decimal("8391.60"),  # 999 * 12 * 0.70 = ~%30 ek indirim
         },
         "modules": [
             "lms",
@@ -282,7 +282,7 @@ PLANS = [
         "description": "Gelişmiş oyun özellikleri, turnuvalar ve rozetler. Beta döneminde özel fiyat!",
         "prices": {
             "month": Decimal("49.00"),  # Beta: özel fiyat
-            "year": Decimal("49.00") * 12 * Decimal("0.80"),  # ~%20 ek indirim
+            "year": Decimal("470.40"),  # 49 * 12 * 0.80 = ~%20 ek indirim
         },
         "modules": ["lms", "reporting", "analytics", "ai"],
         "trial_days": 14,
