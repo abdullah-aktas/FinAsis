@@ -193,32 +193,43 @@ class PortfolioAnalyzer:
     def analyze_portfolio(profile):
         """Portföy analizi yap"""
         from .models import Portfolio
+        from decimal import Decimal
         
-        holdings = Portfolio.objects.filter(profile=profile)
+        holdings = Portfolio.objects.filter(profile=profile).select_related('asset')
         
         if not holdings.exists():
             return {
+                'total_value': float(profile.cash_balance or 0),
                 'diversification_score': 0,
                 'risk_score': 0,
+                'total_return': 0,
                 'recommendations': ['Portföyünüz boş. Yatırım yapmaya başlayın!']
             }
         
         # Çeşitlendirme skoru
-        asset_types = set(h.asset.asset_type for h in holdings)
-        diversification_score = min(100, len(asset_types) * 20)
+        asset_types = set(h.asset.asset_type for h in holdings if h.asset)
+        diversification_score = min(100, len(asset_types) * 20) if asset_types else 0
         
-        # Risk skoru
-        total_value = sum(h.current_value for h in holdings)
-        risk_score = 0
+        # Toplam değer ve risk skoru
+        total_value = Decimal('0')
         for holding in holdings:
-            weight = holding.current_value / total_value if total_value > 0 else 0
-            risk_value = {
-                'low': 1,
-                'medium': 2,
-                'high': 3,
-                'very_high': 4
-            }.get(holding.asset.risk_level, 2)
-            risk_score += weight * risk_value
+            if holding.asset:
+                current_price = Decimal(str(holding.asset.current_price or 0))
+                total_value += Decimal(str(holding.quantity or 0)) * current_price
+        
+        risk_score = Decimal('0')
+        for holding in holdings:
+            if holding.asset and total_value > 0:
+                current_price = Decimal(str(holding.asset.current_price or 0))
+                holding_value = Decimal(str(holding.quantity or 0)) * current_price
+                weight = holding_value / total_value
+                risk_value = {
+                    'low': 1,
+                    'medium': 2,
+                    'high': 3,
+                    'very_high': 4
+                }.get(holding.asset.risk_level, 2)
+                risk_score += weight * Decimal(str(risk_value))
         
         # Öneriler
         recommendations = []

@@ -13,13 +13,24 @@
       aria-label="{{ brand_identity.name|default:'FinAsis' }}"
     >
       <div class="header-logo position-relative">
-        <img
-          src="{{ brand_identity.assets.logo_mark|default:'/static/brand/logo-fa.svg' }}"
-          alt="{{ brand_identity.name|default:'FinAsis' }} logo"
-          loading="lazy"
-          decoding="async"
-          style="height: 42px; width: auto; transition: transform 0.3s ease;"
-        />
+        {% if brand_identity.assets.logo_mark %}
+          <img
+            src="{% static brand_identity.assets.logo_mark|default:'common/finasis_logo-192.png' %}"
+            alt="{{ brand_identity.name|default:'FinAsis' }} logo"
+            loading="lazy"
+            decoding="async"
+            style="height: 42px; width: auto; transition: transform 0.3s ease;"
+            onerror="this.src='{% static 'common/FinAsis_logo.png' %}'"
+          />
+        {% else %}
+          <img
+            src="{% static 'common/FinAsis_logo.png' %}"
+            alt="{{ brand_identity.name|default:'FinAsis' }} logo"
+            loading="lazy"
+            decoding="async"
+            style="height: 42px; width: auto; transition: transform 0.3s ease;"
+          />
+        {% endif %}
       </div>
       <div class="d-none d-sm-flex flex-column lh-1">
         <strong class="text-dark fw-bold mb-0" style="font-size: 1.125rem; letter-spacing: -0.02em;">{{ brand_identity.name|default:'FinAsis' }}</strong>

@@ -691,18 +691,27 @@ def onboarding(request: Request):
 
 
 def city_list(request: Request):
+    """Tüm şehirleri listeler - API endpoint"""
     cities = City.objects.all()
+    
+    # Eğer şehir yoksa, setup komutunu çalıştırmayı öner
+    if not cities.exists():
+        return JsonResponse({
+            "cities": [],
+            "error": "Şehir verisi bulunamadı. Lütfen 'python manage.py setup_tradesim' komutunu çalıştırın."
+        }, status=200)
+    
     data = [
         {
             "id": c.pk,
             "name": c.name,
-            "description": c.description,
-            "sectors": c.sectors,
-            "market_size": c.market_size,
-            "coordinates": c.coordinates,
+            "description": c.description or "",
+            "sectors": c.sectors or [],
+            "market_size": c.market_size or 1000,
+            "coordinates": c.coordinates or {"x": 0, "y": 0},
             "neighbors": list(c.neighbors.values_list("id", flat=True)),
         }
-        for c in cities
+        for c in cities.prefetch_related('neighbors')
     ]
     return JsonResponse({"cities": data})
 
@@ -973,14 +982,31 @@ class ChatMessageReportView(generics.UpdateAPIView):
 def product_list(request: Request):
     """Tüm ürünleri listeler."""
     products = Product.objects.all()
+    
+    # Eğer ürün yoksa, varsayılan ürünler oluştur
+    if not products.exists():
+        from .models import Product
+        default_products = [
+            {"name": "Buğday", "description": "Temel tarım ürünü", "base_price": 100, "unit": "kg", "category": "tarım"},
+            {"name": "Pamuk", "description": "Tekstil hammaddesi", "base_price": 150, "unit": "kg", "category": "tarım"},
+            {"name": "Demir", "description": "Sanayi hammaddesi", "base_price": 200, "unit": "ton", "category": "sanayi"},
+            {"name": "Petrol", "description": "Enerji kaynağı", "base_price": 300, "unit": "varil", "category": "enerji"},
+        ]
+        for prod_data in default_products:
+            Product.objects.get_or_create(
+                name=prod_data["name"],
+                defaults=prod_data
+            )
+        products = Product.objects.all()
+    
     data = [
         {
             "id": p.pk,
             "name": p.name,
-            "description": p.description,
-            "base_price": p.base_price,
-            "unit": p.unit,
-            "category": p.category,
+            "description": p.description or "",
+            "base_price": float(p.base_price),
+            "unit": p.unit or "adet",
+            "category": p.category or "genel",
         }
         for p in products
     ]
@@ -995,19 +1021,36 @@ def city_market_list(request: Request, city_id):
         city = City.objects.get(id=city_id)
     except City.DoesNotExist:
         return Response({"error": "Şehir bulunamadı."}, status=404)
+    
+    # Eğer pazarlar yoksa, tüm ürünler için varsayılan pazarlar oluştur
     markets = CityMarket.objects.filter(city=city)
+    if not markets.exists():
+        # Tüm ürünler için varsayılan pazar oluştur
+        products = Product.objects.all()
+        for product in products:
+            CityMarket.objects.get_or_create(
+                city=city,
+                product=product,
+                defaults={
+                    "price": product.base_price,
+                    "supply": 100,
+                    "demand": 100,
+                }
+            )
+        markets = CityMarket.objects.filter(city=city)
+    
     data = [
         {
             "product": m.product.name,
-            "product_id": getattr(m, "product_id"),
-            "price": m.price,
-            "supply": m.supply,
-            "demand": m.demand,
-            "last_updated": m.last_updated,
+            "product_id": m.product.id,
+            "price": float(m.price),
+            "supply": float(m.supply),
+            "demand": float(m.demand),
+            "last_updated": m.last_updated.isoformat() if m.last_updated else None,
         }
-        for m in markets
+        for m in markets.select_related('product')
     ]
-    return Response({"city": city.name, "markets": data})
+    return Response({"city": city.name, "city_id": city.id, "markets": data})
 
 
 @api_view(["POST"])

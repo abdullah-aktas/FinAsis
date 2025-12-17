@@ -141,7 +141,56 @@ TradeSim - {% trans "Ticaret Simülasyonu" %}
     overflow-y: auto;
   }
 
+  /* Mobil optimizasyonlar - Touch friendly */
   @media (max-width: 767px) {
+    .game-container {
+      padding: 8px;
+      overflow-x: hidden;
+    }
+    
+    .game-header {
+      padding: 12px;
+      border-radius: 12px;
+    }
+    
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    
+    .stat-card {
+      padding: 10px;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+    }
+    
+    /* Touch target sizes - minimum 44x44px */
+    button, .btn, .modal-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 12px 16px;
+    }
+    
+    /* Scrollable areas */
+    .market-grid, .city-list {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+    
+    /* Modal responsive */
+    .modal-content {
+      width: 95vw;
+      max-width: 95vw;
+      margin: 5vh auto;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+  }
+  
+  @media (max-width: 480px) {
     .cities-container {
       flex-direction: row;
       overflow-x: auto;

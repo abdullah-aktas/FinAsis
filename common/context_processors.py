@@ -53,9 +53,9 @@ BRAND_IDENTITY = {
         "slack_channel": "https://finasis.slack.com/support",
     },
     "assets": {
-        "logo_full": static("common/FinAsis_logo.png"),
-        "logo_mark": static("common/finasis_logo-192.png"),
-        "favicon": static("common/favicon.ico"),
+        "logo_full": "common/FinAsis_logo.png",
+        "logo_mark": "common/FinAsis_logo.png",  # Fallback için aynı logo
+        "favicon": "common/favicon.ico",
     },
     "social": [
         {

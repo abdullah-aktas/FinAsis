@@ -2042,6 +2042,7 @@ def error_500(request):
     Handles server errors gracefully with proper logging
     """
     import logging
+    import traceback
 
     logger = logging.getLogger(__name__)
 
@@ -2050,13 +2051,21 @@ def error_500(request):
         logger.exception(
             f"500 Error on {request.method} {request.path}", exc_info=request._exception
         )
+    else:
+        logger.error(f"500 Error on {request.method} {request.path} - No exception info available")
 
     # Try to render the custom error page
     try:
         return render(request, "500.html", status=500)
-    except Exception:
+    except Exception as e:
         # If template rendering fails, return a simple error page
         logger.exception("Failed to render 500.html template")
+        from django.http import HttpResponseServerError
+        return HttpResponseServerError(
+            "<h1>500 - Sunucu Hatası</h1>"
+            "<p>Üzgünüz, bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>"
+            "<p><a href='/'>Ana Sayfaya Dön</a></p>"
+        )
 
         # Return a simple HTML error page
         error_html = """

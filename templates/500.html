@@ -1,76 +1,61 @@
 {% extends "core_ui/base_min.html" %}
-{% load static %}
+{% load static i18n %}
 {% block title %}500 - Sunucu Hatası | FinAsis{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  .error-section {
-    position: relative;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  .error-section {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
     overflow: hidden;
-    padding: 60px 20px;
   }
 
   .error-section::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
     background: 
-      radial-gradient(circle at 30% 40%, rgba(239, 68, 68, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 70% 60%, rgba(220, 38, 38, 0.3) 0%, transparent 50%);
+      radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
     animation: gradientShift 15s ease infinite;
+    z-index: 0;
   }
 
   @keyframes gradientShift {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  .floating-shape {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.08;
-    animation: float 25s infinite ease-in-out;
-  }
-
-  .shape-1 {
-    width: 350px;
-    height: 350px;
-    background: white;
-    top: 10%;
-    right: 5%;
-  }
-
-  .shape-2 {
-    width: 250px;
-    height: 250px;
-    background: white;
-    bottom: 15%;
-    left: 10%;
-    animation-delay: 10s;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-30px, 30px) rotate(180deg); }
+    0%, 100% { opacity: 1; transform: rotate(0deg); }
+    50% { opacity: 0.7; transform: rotate(180deg); }
   }
 
   .error-card {
     position: relative;
     z-index: 2;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
-    border-radius: 32px;
-    padding: 60px 40px;
-    max-width: 650px;
-    margin: 0 auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    border-radius: 24px;
+    padding: clamp(30px, 5vw, 60px) clamp(20px, 4vw, 40px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     text-align: center;
     animation: slideUp 0.8s ease;
   }
@@ -87,15 +72,14 @@
   }
 
   .error-icon-wrapper {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 32px;
+    width: clamp(80px, 15vw, 120px);
+    height: clamp(80px, 15vw, 120px);
+    margin: 0 auto clamp(20px, 4vw, 32px);
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -111,12 +95,12 @@
   }
 
   .error-icon {
-    font-size: 64px;
+    font-size: clamp(40px, 8vw, 64px);
     color: white;
   }
 
   .error-code {
-    font-size: 80px;
+    font-size: clamp(50px, 12vw, 80px);
     font-weight: 900;
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     -webkit-background-clip: text;
@@ -127,17 +111,17 @@
   }
 
   .error-title {
-    font-size: 32px;
+    font-size: clamp(24px, 5vw, 32px);
     font-weight: 800;
     color: #1a202c;
     margin-bottom: 16px;
   }
 
   .error-description {
-    font-size: 18px;
+    font-size: clamp(16px, 3vw, 18px);
     color: #718096;
     line-height: 1.7;
-    margin-bottom: 32px;
+    margin-bottom: clamp(24px, 5vw, 32px);
   }
 
   .error-actions {
@@ -145,21 +129,32 @@
     gap: 16px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: clamp(24px, 5vw, 32px);
+  }
+
+  .btn-error-primary,
+  .btn-error-secondary {
+    padding: clamp(12px, 2.5vw, 14px) clamp(24px, 5vw, 32px);
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: clamp(14px, 3vw, 16px);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 140px;
+    max-width: 250px;
   }
 
   .btn-error-primary {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
-    border: none;
-    padding: 14px 32px;
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 16px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
   }
 
@@ -173,15 +168,6 @@
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
     border: 2px solid rgba(239, 68, 68, 0.3);
-    padding: 12px 32px;
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 16px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
   }
 
   .btn-error-secondary:hover {
@@ -192,8 +178,8 @@
   }
 
   .error-info-box {
-    margin-top: 40px;
-    padding: 24px;
+    margin-top: clamp(24px, 5vw, 40px);
+    padding: clamp(16px, 3vw, 24px);
     background: rgba(239, 68, 68, 0.05);
     border-left: 4px solid #ef4444;
     border-radius: 12px;
@@ -201,7 +187,7 @@
   }
 
   .info-box-title {
-    font-size: 16px;
+    font-size: clamp(14px, 3vw, 16px);
     font-weight: 700;
     color: #1a202c;
     margin-bottom: 12px;
@@ -211,7 +197,7 @@
   }
 
   .info-box-list {
-    font-size: 14px;
+    font-size: clamp(13px, 2.5vw, 14px);
     color: #718096;
     line-height: 1.7;
     margin: 0;
@@ -222,64 +208,75 @@
     margin-bottom: 8px;
   }
 
-  @media (max-width: 768px) {
-    .error-card {
-      padding: 40px 24px;
-    }
-    .error-code {
-      font-size: 60px;
-    }
-    .error-title {
-      font-size: 24px;
-    }
+  .info-box-list a {
+    color: #ef4444;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .info-box-list a:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobil optimizasyonlar */
+  @media (max-width: 480px) {
     .error-actions {
       flex-direction: column;
     }
+    
     .btn-error-primary,
     .btn-error-secondary {
       width: 100%;
-      justify-content: center;
+      max-width: 100%;
+    }
+    
+    .error-card {
+      padding: 30px 20px;
+    }
+  }
+
+  /* Tablet optimizasyonlar */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .error-card {
+      padding: 40px 30px;
     }
   }
 </style>
+{% endblock %}
 
+{% block content %}
 <section class="error-section">
-  <div class="floating-shape shape-1"></div>
-  <div class="floating-shape shape-2"></div>
-  
-  <div class="container">
-    <div class="error-card">
-      <div class="error-icon-wrapper">
-        <i class="bi bi-exclamation-triangle error-icon"></i>
+  <div class="error-card">
+    <div class="error-icon-wrapper">
+      <i class="bi bi-exclamation-triangle error-icon"></i>
+    </div>
+    <div class="error-code">500</div>
+    <h1 class="error-title">Sunucu Hatası</h1>
+    <p class="error-description">
+      Üzgünüz, şu anda sistemimizde beklenmeyen bir sorun yaşıyoruz.<br>
+      Teknik ekibimiz sorunu çözme konusunda çalışıyor.
+    </p>
+    <div class="error-actions">
+      <a href="{% url 'home' %}" class="btn-error-primary">
+        <i class="bi bi-house"></i>
+        Ana Sayfaya Dön
+      </a>
+      <a href="javascript:location.reload()" class="btn-error-secondary">
+        <i class="bi bi-arrow-clockwise"></i>
+        Sayfayı Yenile
+      </a>
+    </div>
+    <div class="error-info-box">
+      <div class="info-box-title">
+        <i class="bi bi-info-circle"></i>
+        Ne Yapabilirsiniz?
       </div>
-      <div class="error-code">500</div>
-      <h1 class="error-title">Sunucu Hatası</h1>
-      <p class="error-description">
-        Üzgünüz, şu anda sistemimizde beklenmeyen bir sorun yaşıyoruz.<br>
-        Teknik ekibimiz sorunu çözme konusunda çalışıyor.
-      </p>
-      <div class="error-actions">
-        <a href="{% url 'home' %}" class="btn-error-primary">
-          <i class="bi bi-house"></i>
-          Ana Sayfaya Dön
-        </a>
-        <a href="javascript:location.reload()" class="btn-error-secondary">
-          <i class="bi bi-arrow-clockwise"></i>
-          Sayfayı Yenile
-        </a>
-      </div>
-      <div class="error-info-box">
-        <div class="info-box-title">
-          <i class="bi bi-info-circle"></i>
-          Ne Yapabilirsiniz?
-        </div>
-        <ul class="info-box-list">
-          <li>Sayfayı yenilemeyi deneyin</li>
-          <li>Birkaç dakika sonra tekrar uğrayın</li>
-          <li>Sorun devam ederse destek ekibimizle iletişime geçin</li>
-          <li>Destek: <a href="mailto:destek@finasis.com" style="color: #ef4444; font-weight: 600;">destek@finasis.com</a></li>
-        </ul>
-      </div>
+      <ul class="info-box-list">
+        <li>Sayfayı yenilemeyi deneyin</li>
+        <li>Birkaç dakika sonra tekrar uğrayın</li>
+        <li>Sorun devam ederse destek ekibimizle iletişime geçin</li>
+        <li>Destek: <a href="mailto:destek@finasis.com.tr">destek@finasis.com.tr</a></li>
+      </ul>
     </div>
   </div>
 </section>

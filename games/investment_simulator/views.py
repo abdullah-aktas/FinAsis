@@ -16,7 +16,6 @@ from .models import (
     Portfolio,
     Transaction,
     MarketEvent,
-    InvestmentLeaderboard,
 )
 from .market_engine import MarketEngine, PortfolioAnalyzer
 from games.models import PlayerProfile
@@ -25,38 +24,92 @@ from games.models import PlayerProfile
 @login_required
 def investment_simulator(request):
     """Yatırım simülatörü ana sayfası"""
-    profile, _ = InvestmentProfile.objects.get_or_create(user=request.user)
-    player_profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
-    
-    # Portföy analizi
-    analyzer = PortfolioAnalyzer()
-    analysis = analyzer.analyze_portfolio(profile)
-    suggested_assets = analyzer.get_suggested_assets(profile, limit=5)
-    
-    # Liderlik tablosu
-    weekly_leaderboard = InvestmentLeaderboard.objects.filter(
-        leaderboard_type='weekly',
-        period_start__lte=timezone.now().date(),
-        period_end__gte=timezone.now().date()
-    ).order_by('rank')[:10]
-    
-    # Aktif piyasa olayları
-    active_events = MarketEvent.objects.filter(
-        is_active=True,
-        event_date__lte=timezone.now(),
-        expires_at__gte=timezone.now()
-    )[:5]
-    
-    context = {
-        'profile': profile,
-        'player_profile': player_profile,
-        'analysis': analysis,
-        'suggested_assets': suggested_assets,
-        'weekly_leaderboard': weekly_leaderboard,
-        'active_events': active_events,
-    }
-    
-    return render(request, 'investment_simulator/investment_simulator.html', context)
+    try:
+        profile, _ = InvestmentProfile.objects.get_or_create(user=request.user)
+        player_profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
+        
+        # Portföy analizi - hata yakalama ile
+        analysis = {}
+        suggested_assets = []
+        try:
+            analyzer = PortfolioAnalyzer()
+            analysis = analyzer.analyze_portfolio(profile)
+            suggested_assets = analyzer.get_suggested_assets(profile, limit=5)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Portfolio analysis error: {e}", exc_info=True)
+            # Basit analiz
+            portfolio = Portfolio.objects.filter(profile=profile).first()
+            total_value = float(profile.cash_balance or 0)
+            if portfolio:
+                total_value += float(portfolio.total_value or 0)
+            analysis = {
+                'total_value': total_value,
+                'total_return': float(profile.total_profit_loss or 0),
+                'risk_score': 0.5,
+            }
+            suggested_assets = Asset.objects.filter(is_active=True)[:5]
+        
+        # Liderlik tablosu - basitleştirilmiş
+        weekly_leaderboard = []
+        try:
+            # Tüm profilleri al ve toplam değerlerine göre sırala
+            all_profiles = InvestmentProfile.objects.filter(
+                user__is_active=True
+            ).select_related('user')
+            
+            leaderboard_data = []
+            for prof in all_profiles:
+                portfolio = Portfolio.objects.filter(profile=prof).first()
+                total_val = float(prof.cash_balance or 0)
+                if portfolio:
+                    total_val += float(portfolio.current_value or 0)
+                leaderboard_data.append({
+                    'user': prof.user.username if prof.user else 'Anonim',
+                    'total_value': total_val,
+                })
+            
+            # Toplam değere göre sırala
+            leaderboard_data.sort(key=lambda x: x['total_value'], reverse=True)
+            weekly_leaderboard = [
+                {**item, 'rank': idx + 1}
+                for idx, item in enumerate(leaderboard_data[:10])
+            ]
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Leaderboard error: {e}", exc_info=True)
+        
+        # Aktif piyasa olayları
+        active_events = []
+        try:
+            active_events = MarketEvent.objects.filter(
+                is_active=True,
+                event_date__lte=timezone.now(),
+                expires_at__gte=timezone.now()
+            )[:5]
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Market event error: {e}", exc_info=True)
+        
+        context = {
+            'profile': profile,
+            'player_profile': player_profile,
+            'analysis': analysis,
+            'suggested_assets': suggested_assets,
+            'weekly_leaderboard': weekly_leaderboard,
+            'active_events': active_events,
+        }
+        
+        return render(request, 'investment_simulator/investment_simulator.html', context)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Investment simulator view error: {e}", exc_info=True)
+        from django.http import HttpResponseServerError
+        return HttpResponseServerError("Yatırım simülatörü yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
 
 
 @login_required

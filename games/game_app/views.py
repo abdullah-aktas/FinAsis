@@ -111,7 +111,14 @@ def quiz(request):
 
 def ledger_game(request):
     """Muhasebe kayıt oyunu - belgeye dayalı TDHP eğitimi"""
-    return render(request, "game_app/ledger_game.html")
+    try:
+        return render(request, "game_app/ledger_game.html")
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Ledger game view error: {e}", exc_info=True)
+        from django.http import HttpResponseServerError
+        return HttpResponseServerError("Muhasebe oyunu yüklenirken bir hata oluştu.")
 
 
 # Ek sayfalar (URL'lerde kullanılan)
@@ -166,8 +173,9 @@ def trade_trail(request):
 
 def game_detail(request, game_key):
     """Her oyun için detay sayfası"""
-    # Oyun bilgileri (örnek, ileride veritabanı veya dict ile dinamik yapılabilir)
-    games_info = {
+    try:
+        # Oyun bilgileri (örnek, ileride veritabanı veya dict ile dinamik yapılabilir)
+        games_info = {
         "tradesim": {
             "title": "TradeSim & Ticaretin İzinde",
             "description": "Şehirler arası ticaret, şirket yönetimi, finansal eğitim ve görevlerle birleşik simülasyon.",
@@ -238,7 +246,13 @@ def game_detail(request, game_key):
             "play_url": "/games/game_app/ledger-game/",
         },
     }
-    game = games_info.get(game_key)
-    if not game:
-        return render(request, "game_app/game_not_found.html", {"game_key": game_key})
-    return render(request, "game_app/game_detail.html", {"game": game})
+        game = games_info.get(game_key)
+        if not game:
+            return render(request, "game_app/game_not_found.html", {"game_key": game_key})
+        return render(request, "game_app/game_detail.html", {"game": game})
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Game detail view error: {e}", exc_info=True)
+        from django.http import HttpResponseServerError
+        return HttpResponseServerError("Oyun detay sayfası yüklenirken bir hata oluştu.")

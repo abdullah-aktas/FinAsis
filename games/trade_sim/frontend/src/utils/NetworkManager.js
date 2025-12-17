@@ -1,8 +1,9 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+// API base URL - /api prefix'i olmadan, direkt Django URL'leri kullan
+const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
+const WS_URL = import.meta.env.VITE_WS_URL || (typeof window !== 'undefined' ? window.location.origin.replace('http', 'ws') : 'ws://localhost:8000');
 
 /**
  * NetworkManager - Singleton class for managing network connections
@@ -21,9 +22,10 @@ export class NetworkManager {
     this.token = localStorage.getItem('auth_token');
     this.callbacks = {};
 
-    // Configure axios
+    // Configure axios - Django URL'leri için base URL'i düzelt
+    const baseURL = API_BASE_URL.endsWith('/api') ? API_BASE_URL.replace('/api', '') : API_BASE_URL;
     this.api = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -222,7 +224,7 @@ export class NetworkManager {
   async getProducts() {
     try {
       const response = await this.api.get('/games/trade-sim/products/');
-      return response.data.products;
+      return response.data.products || [];
     } catch (error) {
       console.error('Get products error:', error);
       return [];
@@ -235,7 +237,7 @@ export class NetworkManager {
   async getCityMarkets(cityId) {
     try {
       const response = await this.api.get(`/games/trade-sim/city-markets/${cityId}/`);
-      return response.data.markets;
+      return response.data.markets || [];
     } catch (error) {
       console.error('Get city markets error:', error);
       return [];
