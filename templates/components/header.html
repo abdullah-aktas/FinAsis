@@ -11,15 +11,17 @@
       class="navbar-brand d-flex align-items-center gap-2 text-decoration-none"
       href="{% url 'home' %}"
       aria-label="{{ brand_identity.name|default:'FinAsis' }}"
+      style="flex-shrink: 0; min-width: 0; max-width: 100%; overflow: visible;"
     >
-      <div class="header-logo position-relative">
+      <div class="header-logo position-relative" style="flex-shrink: 0; display: flex; align-items: center;">
         {% if brand_identity.assets.logo_mark %}
           <img
             src="{% static brand_identity.assets.logo_mark|default:'common/finasis_logo-192.png' %}"
             alt="{{ brand_identity.name|default:'FinAsis' }} logo"
             loading="lazy"
             decoding="async"
-            style="height: 42px; width: auto; transition: transform 0.3s ease;"
+            class="header-logo-img"
+            style="height: 42px; width: auto; max-width: 120px; min-width: 32px; transition: transform 0.3s ease; object-fit: contain; display: block;"
             onerror="this.src='{% static 'common/FinAsis_logo.png' %}'"
           />
         {% else %}
@@ -28,7 +30,8 @@
             alt="{{ brand_identity.name|default:'FinAsis' }} logo"
             loading="lazy"
             decoding="async"
-            style="height: 42px; width: auto; transition: transform 0.3s ease;"
+            class="header-logo-img"
+            style="height: 42px; width: auto; max-width: 120px; min-width: 32px; transition: transform 0.3s ease; object-fit: contain; display: block;"
           />
         {% endif %}
       </div>
@@ -538,8 +541,33 @@
 
 <style>
   /* Modern Header Stilleri */
-  .header-logo img {
+  .header-logo {
+    flex-shrink: 0;
+    display: flex !important;
+    align-items: center;
+    min-width: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-logo img,
+  .header-logo-img {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block !important;
+    object-fit: contain;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .navbar-brand {
+    flex-shrink: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
   }
 
   .header-logo:hover img {
@@ -684,6 +712,46 @@
     .dropdown-menu {
       margin-top: 0.5rem !important;
       border-radius: 12px !important;
+    }
+
+    /* Mobil Logo Stilleri */
+    .header-logo {
+      flex-shrink: 0 !important;
+      min-width: 32px;
+      max-width: 100px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+    }
+
+    .header-logo-img {
+      height: 36px !important;
+      max-width: 100px !important;
+      min-width: 32px !important;
+      width: auto !important;
+      object-fit: contain !important;
+      display: block !important;
+    }
+
+    .navbar-brand {
+      flex-shrink: 0 !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+    }
+  }
+
+  /* Çok küçük ekranlar için */
+  @media (max-width: 575.98px) {
+    .header-logo {
+      min-width: 28px;
+      max-width: 80px;
+    }
+
+    .header-logo-img {
+      height: 32px !important;
+      max-width: 80px !important;
+      min-width: 28px !important;
     }
   }
 
