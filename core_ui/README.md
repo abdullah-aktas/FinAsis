@@ -4,10 +4,11 @@ Bu uygulama FinAsis projesi içinde kurumsal görünüm ve tekrar kullanılabili
 
 ## İçerik
 - `templates/core_ui/base.html` : Tüm sayfaların genişleteceği temel layout
-- `templates/core_ui/components/*` : Navbar, footer, mesajlar vb. parçalar
-- `static/core_ui/css/corporate.css` : Tema ve renk değişkenleri
+- `templates/core_ui/components/*` : Navbar, mesajlar vb. parçalar
 - `static/core_ui/js/theme-toggle.js` : Karanlık mod anahtarı
 - `templatetags/core_ui.py` : Mesaj bileşeni inclusion tag
+
+**Not:** Footer component'i `templates/components/footer.html` içinde bulunmaktadır. Corporate CSS dosyası `static/css/pages/corporate.css` içinde bulunmaktadır.
 
 ## Kullanım
 Bir template dosyasında:

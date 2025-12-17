@@ -154,9 +154,21 @@
 
 <style>
 .finasis-footer {
-  background: linear-gradient(180deg, #0d3b66 0%, #0a2e4f 100%);
+  background: linear-gradient(180deg, var(--brand-ink, #0D3B66) 0%, #0a2e4f 100%);
   color: #ffffff;
   margin-top: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.finasis-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(10, 174, 148, 0.3), transparent);
 }
 
 .finasis-footer a {
@@ -181,17 +193,47 @@
 
 .finasis-footer__cta {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.finasis-footer__cta:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(10, 174, 148, 0.3);
 }
 
 .finasis-footer__contact a {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.finasis-footer__list a {
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.finasis-footer__list a:hover {
+  transform: translateX(4px);
+  color: var(--brand-primary, #0AAE94) !important;
+}
+
+.finasis-footer__contact a {
+  transition: all 0.2s ease;
+}
+
+.finasis-footer__contact a:hover {
+  color: var(--brand-primary, #0AAE94) !important;
+}
+
 @media (max-width: 768px) {
   .finasis-footer__cta {
     padding: 1.5rem;
+  }
+  
+  .finasis-footer {
+    padding: 2rem 0;
   }
 }
 

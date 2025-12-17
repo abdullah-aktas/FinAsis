@@ -9,48 +9,55 @@
 {% endblock %}
 
 {% block content %}
-<section id="overview" class="corporate-hero">
-  <div class="row align-items-end g-4">
-    <div class="col-lg-7">
-      <h1 class="display-4 fw-bold mb-3">
-        {% trans "FinAsis Kurumsal Merkez" %}
-      </h1>
-      <p class="lead mb-4">
-        {% trans "Buradan FinAsis'in şirket yapısı, ekip, yatırımcı bilgileri, güvenlik ve sürdürülebilirlik politikalarına tek noktadan ulaşabilirsiniz." %}
-      </p>
-      <div class="d-flex flex-column flex-md-row gap-3">
-        <a href="{% url 'corporate:about' %}" class="btn btn-light btn-lg px-4" data-cta="corporate-hub-about">
-          <i class="bi bi-info-circle me-2"></i>{% trans "Hakkımızda" %}
-        </a>
-        <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg px-4" data-cta="corporate-hub-contact">
-          <i class="bi bi-envelope-open me-2"></i>{% trans "İletişim" %}
-        </a>
-      </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="corporate-metric-grid">
-        {% for metric in metrics|slice:":3" %}
-        <div class="corporate-metric-card">
-          <span class="value">{{ metric.value }}</span>
-          <span class="label">{{ metric.label }}</span>
+<!-- Hero Section -->
+<section id="overview" class="corporate-hero-modern">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="corporate-hero-badge">
+          <i class="bi bi-building me-2"></i>{% trans "Kurumsal" %}
+        </span>
+        <h1 class="corporate-hero-title">
+          {% trans "FinAsis Kurumsal Merkez" %}
+        </h1>
+        <p class="corporate-hero-description">
+          {% trans "Buradan FinAsis'in şirket yapısı, ekip, yatırımcı bilgileri, güvenlik ve sürdürülebilirlik politikalarına tek noktadan ulaşabilirsiniz." %}
+        </p>
+        <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+          <a href="{% url 'corporate:about' %}" class="btn btn-light btn-lg px-4 corporate-hero-btn" data-cta="corporate-hub-about">
+            <i class="bi bi-info-circle me-2"></i>{% trans "Hakkımızda" %}
+          </a>
+          <a href="{% url 'contact' %}" class="btn btn-outline-light btn-lg px-4 corporate-hero-btn" data-cta="corporate-hub-contact">
+            <i class="bi bi-envelope-open me-2"></i>{% trans "İletişim" %}
+          </a>
         </div>
-        {% endfor %}
+      </div>
+      <div class="col-lg-5">
+        <div class="corporate-metric-grid-modern">
+          {% for metric in metrics|slice:":3" %}
+          <div class="corporate-metric-card-modern">
+            <span class="corporate-metric-value">{{ metric.value }}</span>
+            <span class="corporate-metric-label">{{ metric.label }}</span>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="company" class="py-5 bg-light">
+<!-- Company Section -->
+<section id="company" class="corporate-section-modern corporate-section-light">
   <div class="container">
     <div class="row mb-5">
       <div class="col-lg-7">
-        <span class="badge bg-primary-subtle text-primary-emphasis mb-3">
-          {% trans "Şirket" %}
+        <span class="corporate-section-badge corporate-section-badge-primary">
+          <i class="bi bi-building me-2"></i>{% trans "Şirket" %}
         </span>
-        <h2 class="landing-section-title mb-3">
+        <h2 class="corporate-section-title">
           {% trans "FinAsis markasının arkasındaki yapı" %}
         </h2>
-        <p class="fs-5 text-secondary mb-0">
+        <p class="corporate-section-description">
           {% trans "Kurumsal hikayemiz, ekip yapımız ve sürdürülebilirlik yaklaşımımız hakkında detaylı bilgi edinin." %}
         </p>
       </div>
@@ -58,12 +65,15 @@
     <div class="row g-4">
       <div class="col-md-4">
         <a href="{% url 'corporate:about' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-about">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Hakkımızda" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-info-circle"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Hakkımızda" %}</h3>
+            <p class="corporate-card-description">
               {% trans "FinAsis'in kuruluş amacı, vizyonu ve odaklandığı alanlar." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -71,12 +81,15 @@
       </div>
       <div class="col-md-4">
         <a href="{% url 'corporate:team' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-team">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Takım" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-people"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Takım" %}</h3>
+            <p class="corporate-card-description">
               {% trans "Ürün geliştirme, finans ve eğitim alanlarında çalışan çekirdek ekip." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -84,12 +97,15 @@
       </div>
       <div class="col-md-4">
         <a href="{% url 'corporate:sustainability' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-sustainability">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Sürdürülebilirlik" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-leaf"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Sürdürülebilirlik" %}</h3>
+            <p class="corporate-card-description">
               {% trans "Sosyal etki, çevresel sorumluluk ve uzun vadeli ürün stratejisi." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -99,17 +115,18 @@
   </div>
 </section>
 
-<section id="governance" class="py-5">
+<!-- Governance Section -->
+<section id="governance" class="corporate-section-modern">
   <div class="container">
     <div class="row mb-5">
       <div class="col-lg-7">
-        <span class="badge bg-secondary-subtle text-secondary-emphasis mb-3">
-          {% trans "Yatırımcı & Güvenlik" %}
+        <span class="corporate-section-badge corporate-section-badge-secondary">
+          <i class="bi bi-shield-check me-2"></i>{% trans "Yatırımcı & Güvenlik" %}
         </span>
-        <h2 class="landing-section-title mb-3">
+        <h2 class="corporate-section-title">
           {% trans "Şeffaflık, güven ve bilgi paylaşımı" %}
         </h2>
-        <p class="fs-5 text-secondary mb-0">
+        <p class="corporate-section-description">
           {% trans "Yatırımcı dokümanları, basın bültenleri ve güvenlik politikalarına buradan ulaşabilirsiniz." %}
         </p>
       </div>
@@ -117,12 +134,15 @@
     <div class="row g-4">
       <div class="col-md-4">
         <a href="{% url 'corporate:investors' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-investors">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Yatırımcılar" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Yatırımcılar" %}</h3>
+            <p class="corporate-card-description">
               {% trans "Yatırımcı sunumları, özetler ve ilgili dokümanlara yönlendirmeler." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -130,12 +150,15 @@
       </div>
       <div class="col-md-4">
         <a href="{% url 'corporate:press' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-press">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Basın" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-newspaper"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Basın" %}</h3>
+            <p class="corporate-card-description">
               {% trans "Basın duyuruları, medya kitleri ve haber bağlantıları." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -143,12 +166,15 @@
       </div>
       <div class="col-md-4">
         <a href="{% url 'corporate:security' %}" class="text-decoration-none text-reset d-block h-100" data-cta="corporate-card-security">
-          <div class="resource-card h-100">
-            <h3 class="h5 fw-semibold mb-2">{% trans "Güvenlik" %}</h3>
-            <p class="text-secondary mb-3">
+          <div class="corporate-card-modern h-100">
+            <div class="corporate-card-icon">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+            <h3 class="corporate-card-title">{% trans "Güvenlik" %}</h3>
+            <p class="corporate-card-description">
               {% trans "Altyapı, veri koruma ve güvenlik uygulamalarına ilişkin bilgiler." %}
             </p>
-            <span class="small fw-semibold text-primary">
+            <span class="corporate-card-link">
               {% trans "Sayfayı aç" %} <i class="bi bi-arrow-up-right ms-1"></i>
             </span>
           </div>
@@ -157,22 +183,24 @@
     </div>
   </div>
 </section>
-<section id="careers" class="py-5 bg-light">
+
+<!-- Careers Section -->
+<section id="careers" class="corporate-section-modern corporate-section-light">
   <div class="container">
     <div class="row align-items-center g-4">
       <div class="col-lg-7">
-        <span class="badge bg-success-subtle text-success-emphasis mb-3">
-          {% trans "Kariyer" %}
+        <span class="corporate-section-badge corporate-section-badge-success">
+          <i class="bi bi-briefcase me-2"></i>{% trans "Kariyer" %}
         </span>
-        <h2 class="landing-section-title mb-3">
+        <h2 class="corporate-section-title">
           {% trans "FinAsis'te kariyer fırsatları" %}
         </h2>
-        <p class="fs-5 text-secondary mb-0">
+        <p class="corporate-section-description">
           {% trans "Açık pozisyonlar, çalışma kültürü ve başvuru süreçleri için kariyer sayfamızı inceleyin." %}
         </p>
       </div>
       <div class="col-lg-5 text-lg-end">
-        <a href="{% url 'corporate:careers' %}" class="btn btn-success btn-lg px-4" data-cta="corporate-card-careers">
+        <a href="{% url 'corporate:careers' %}" class="btn btn-primary btn-lg px-4 corporate-cta-btn" data-cta="corporate-card-careers">
           <i class="bi bi-briefcase me-2"></i>{% trans "Kariyer sayfasına git" %}
         </a>
       </div>
@@ -180,16 +208,17 @@
   </div>
 </section>
 
-<section id="contact" class="py-5">
+<!-- Contact CTA Section -->
+<section id="contact" class="corporate-cta-modern">
   <div class="container">
-    <div class="cta-banner d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-4">
-      <div>
-        <h2 class="display-6 fw-bold mb-3">{% trans "Kurumsal ekibimizle iletişime geçin." %}</h2>
-        <p class="lead mb-0">
+    <div class="corporate-cta-content">
+      <div class="corporate-cta-text">
+        <h2 class="corporate-cta-title">{% trans "Kurumsal ekibimizle iletişime geçin." %}</h2>
+        <p class="corporate-cta-description">
           {% trans "Ürün, iş ortaklığı veya yatırımcı ilişkileri hakkında sorularınız için iletişim formunu kullanabilirsiniz." %}
         </p>
       </div>
-      <div class="d-flex flex-column flex-md-row gap-3">
+      <div class="corporate-cta-actions">
         <a class="btn btn-light btn-lg px-4" href="{% url 'contact' %}" data-cta="corporate-hub-contact-primary">
           <i class="bi bi-chat-right-dots me-2"></i>{% trans "İletişim formu" %}
         </a>
