@@ -86,7 +86,7 @@ def consultation_payment_post_save(sender, instance, created, **kwargs):
             # Ödeme tamamlandı ama payout oluşturulmamış
             try:
                 # Aylık payout oluştur (veya mevcut payout'a ekle)
-                from datetime import datetime, timedelta
+                from datetime import timedelta
                 now = timezone.now()
                 period_start = now.replace(day=1).date()  # Ayın ilk günü
                 period_end = (now.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)  # Ayın son günü

@@ -7,7 +7,6 @@ Template'lerde global olarak kullanılacak değişkenler
 from copy import deepcopy
 
 from django.conf import settings
-from django.templatetags.static import static
 from django.utils import timezone
 from django.db.models import Q
 

@@ -4,21 +4,15 @@ Mali Müşavirlik Modülü Model Testleri
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 
 from advisors.models import (
     AdvisorProfile,
     TaxpayerProfile,
     Engagement,
-    ConsultationSession,
-    AdvisorReport,
-    ClientContract,
-    AdvisorTask,
 )
 from advisors.models_marketplace import (
     ConsultantProfile,
     ConsultationBooking,
-    ConsultantReview,
 )
 
 User = get_user_model()

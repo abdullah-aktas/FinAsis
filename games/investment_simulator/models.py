@@ -8,7 +8,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
-import json
 
 
 class InvestmentProfile(models.Model):

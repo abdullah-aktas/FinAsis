@@ -985,7 +985,6 @@ def product_list(request: Request):
     
     # Eğer ürün yoksa, varsayılan ürünler oluştur
     if not products.exists():
-        from .models import Product
         default_products = [
             {"name": "Buğday", "description": "Temel tarım ürünü", "base_price": 100, "unit": "kg", "category": "tarım"},
             {"name": "Pamuk", "description": "Tekstil hammaddesi", "base_price": 150, "unit": "kg", "category": "tarım"},

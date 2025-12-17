@@ -16,8 +16,9 @@ from .models import (
     Portfolio,
     Transaction,
     MarketEvent,
+    InvestmentLeaderboard,
 )
-from .market_engine import MarketEngine, PortfolioAnalyzer
+from .market_engine import PortfolioAnalyzer
 from games.models import PlayerProfile
 
 

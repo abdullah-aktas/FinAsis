@@ -6,12 +6,9 @@ Abonelik ve beta üyelik için blockchain sözleşme oluşturma
 import json
 import logging
 from decimal import Decimal
-from django.utils import timezone
-from django.conf import settings
 
 from blockchain.services import SmartContractManager, TransactionManager
 from blockchain.models import SmartContract
-from billing.models import SubscriptionProfile, Plan, Invoice, Transaction as BillingTransaction
 
 logger = logging.getLogger(__name__)
 

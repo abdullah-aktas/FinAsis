@@ -4,7 +4,6 @@ Yatırım Simülatörü Piyasa Motoru
 Gerçekçi piyasa simülasyonu ve fiyat hareketleri
 """
 import random
-import math
 from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta

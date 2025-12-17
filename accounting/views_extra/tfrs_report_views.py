@@ -4,15 +4,12 @@ TFRS/VUK Uyumlu Raporlama View'ları
 Yazdırma, dijital gönderim, yetki kontrolü ve KVKK uyumluluğu ile
 """
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST, require_http_methods
-from django.db import transaction
+from django.views.decorators.http import require_http_methods
 from datetime import date, datetime
-import json
 import io
 
 from ..models import Company

@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from .models import (
     TaxpayerProfile,
     AdvisorProfile,
+    Engagement,
     ConsultationSession,
     ClientDocument,
     ClientContract,
@@ -172,7 +173,7 @@ def declaration_create(request):
                 from accounting.models import Company
                 company = Company.objects.get(id=company_id)
                 
-                declaration = Declaration.objects.create(
+                _declaration = Declaration.objects.create(
                     company=company,
                     declaration_type=declaration_type,
                     period=period,
@@ -262,7 +263,7 @@ def invoice_list(request):
         
         # Invoice modelini import et
         from accounting.models import Invoice
-        from django.db.models import Sum, Q
+        from django.db.models import Sum
         
         # Müşterilerin şirketlerinin faturaları
         invoices = Invoice.objects.filter(

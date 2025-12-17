@@ -10,7 +10,6 @@ from advisors.models import (
     AdvisorProfile,
     TaxpayerProfile,
     Engagement,
-    ConsultationSession,
 )
 
 User = get_user_model()

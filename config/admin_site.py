@@ -6,7 +6,6 @@ Dinamik modül yönetimi ve yönlendirme desteği
 from django.contrib import admin
 from django.urls import reverse, NoReverseMatch
 from django.utils.translation import gettext_lazy as _
-from django.template.response import TemplateResponse
 from django.apps import apps as django_apps
 from django.utils.html import format_html
 
@@ -71,7 +70,6 @@ class FinAsisAdminSite(admin.AdminSite):
             
             # Her model için de modül linki ekle
             for model in app.get('models', []):
-                model_name = model.get('object_name', '')
                 # Model için özel URL varsa ekle
                 if app_url:
                     model['module_url'] = app_url

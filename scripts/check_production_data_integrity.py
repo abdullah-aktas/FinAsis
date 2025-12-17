@@ -9,9 +9,9 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 django.setup()
 
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from accounting.models import Company
+from django.conf import settings  # noqa: E402
+from django.contrib.auth import get_user_model  # noqa: E402
+from accounting.models import Company  # noqa: E402
 
 User = get_user_model()
 

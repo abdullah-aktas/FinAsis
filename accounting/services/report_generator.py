@@ -5,10 +5,9 @@ Türkiye Muhasebe Standartları, Vergi Usul Kanunu ve Türkiye Tekdüzen Hesap P
 """
 import logging
 from decimal import Decimal
-from datetime import date, datetime
+from datetime import date
 from typing import Dict, List, Optional, Any
-from django.db.models import Sum, Q, F, Count
-from django.db import transaction as db_transaction
+from django.db.models import Sum
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -16,23 +15,15 @@ from django.utils.html import strip_tags
 from django.conf import settings
 from django.http import HttpResponse
 import io
-import json
 import hashlib
 
 from ..models import (
     Company,
-    Invoice,
-    Expense,
     GLAccount,
     GLJournalEntry,
     GLJournalLine,
-    Customer,
-    Vendor,
-    Payment,
-    VendorPayment,
-    PurchaseInvoice,
 )
-from finance.accounting.models import Voucher, VoucherLine, Account, GLBalance
+from finance.accounting.models import GLBalance
 
 logger = logging.getLogger(__name__)
 
@@ -378,8 +369,8 @@ class TFRSReportGenerator:
             is_active=True
         ).order_by('code')
         
-        # Gider hesapları
-        expense_accounts = GLAccount.objects.filter(
+        # Gider hesapları (not used but kept for potential future use)
+        _expense_accounts = GLAccount.objects.filter(
             company=self.company,
             category__in=['EXPENSE', 'COST', 'COST_OF_SALES', 'OPERATING_EXPENSE'],
             is_active=True
@@ -419,7 +410,6 @@ class TFRSReportGenerator:
         
         # Giderler
         expenses = []
-        total_expenses = Decimal('0')
         
         # Satışların maliyeti
         cost_of_sales = Decimal('0')
@@ -448,7 +438,8 @@ class TFRSReportGenerator:
                 'amount': balance
             })
         
-        total_expenses = cost_of_sales + operating_expenses
+        # Total expenses (not used but kept for potential future use)
+        _total_expenses = cost_of_sales + operating_expenses
         
         # Brüt kar
         gross_profit = total_revenue - cost_of_sales
@@ -814,12 +805,12 @@ class ReportExportService:
     def export_to_pdf(report_data: Dict[str, Any], report_type: str, template_name: str) -> HttpResponse:
         """Raporu PDF olarak dışa aktar"""
         try:
-            from reportlab.lib.pagesizes import A4, letter
+            from reportlab.lib.pagesizes import A4
             from reportlab.lib.units import cm
             from reportlab.lib import colors
-            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-            from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+            from reportlab.lib.enums import TA_CENTER
             from django.utils import timezone
             
             buffer = io.BytesIO()
@@ -937,7 +928,7 @@ class ReportExportService:
     @staticmethod
     def _build_income_statement_table(report_data: Dict[str, Any], styles) -> List:
         """Gelir tablosu oluştur"""
-        from reportlab.platypus import Table, TableStyle, Spacer
+        from reportlab.platypus import Table, TableStyle
         from reportlab.lib import colors
         from reportlab.lib.units import cm
         
@@ -976,7 +967,7 @@ class ReportExportService:
     @staticmethod
     def _build_trial_balance_table(report_data: Dict[str, Any], styles) -> List:
         """Mizan tablosu oluştur"""
-        from reportlab.platypus import Table, TableStyle, Spacer
+        from reportlab.platypus import Table, TableStyle
         from reportlab.lib import colors
         from reportlab.lib.units import cm
         
@@ -1022,10 +1013,8 @@ class ReportExportService:
     def export_to_excel(report_data: Dict[str, Any], report_type: str) -> HttpResponse:
         """Raporu Excel olarak dışa aktar"""
         try:
-            import pandas as pd
             from openpyxl import Workbook
-            from openpyxl.styles import Font, Alignment, PatternFill
-            from openpyxl.utils import get_column_letter
+            from openpyxl.styles import Font, PatternFill
             from django.utils import timezone
             
             output = io.BytesIO()
@@ -1086,7 +1075,7 @@ class ReportExportService:
                     try:
                         if len(str(cell.value)) > max_length:
                             max_length = len(str(cell.value))
-                    except:
+                    except (AttributeError, TypeError, ValueError):
                         pass
                 adjusted_width = min(max_length + 2, 50)
                 ws.column_dimensions[column].width = adjusted_width

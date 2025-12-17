@@ -8,10 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-from django.utils import timezone
-from django.urls import reverse
 
-from billing.models import SubscriptionProfile, Invoice, Transaction
 from accounts.models import UserNotification
 
 logger = logging.getLogger(__name__)

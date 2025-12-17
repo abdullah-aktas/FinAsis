@@ -1,3 +1,9 @@
+from decimal import Decimal, InvalidOperation
+from typing import Optional, Iterable, Dict, List, Tuple
+import importlib.util
+import requests
+from pathlib import Path
+
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -5,6 +11,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest, HttpResponse
 from django.conf import settings
+from django.utils import timezone
+from django.utils.translation import gettext as _
+from django.contrib.auth.models import Group
+from django.core.mail import send_mail
+from django.db.models import Prefetch
+from django.db import IntegrityError, transaction
+
+from accounts.models import SubscriptionType, Subscription, SubscriptionLog
+from accounting.models import Invoice, Customer
 from .models import (
     Plan,
     Price,
@@ -12,30 +27,8 @@ from .models import (
     Transaction,
     BankTransfer,
     EnterpriseInquiry,
+    PlanGroup,
 )
-# PayTRClient ve RefGenerator billing/services.py'den import edilir
-# services/ klasörü ile çakışmayı önlemek için doğrudan dosyadan import
-import importlib.util
-from pathlib import Path
-services_file = Path(__file__).parent / "services.py"
-spec = importlib.util.spec_from_file_location("billing_services_py", services_file)
-billing_services_py = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(billing_services_py)
-PayTRClient = billing_services_py.PayTRClient
-RefGenerator = billing_services_py.RefGenerator
-from decimal import Decimal, InvalidOperation
-from typing import Optional, Iterable, Dict, List, Tuple
-from django.utils import timezone
-from django.utils.translation import gettext as _
-from accounts.models import SubscriptionType, Subscription, SubscriptionLog
-from django.contrib.auth.models import Group
-from .models import PlanGroup
-from accounting.models import Invoice, Customer
-from django.core.mail import send_mail
-import requests
-from django.db.models import Prefetch
-from django.db import IntegrityError, transaction
-
 from .pricing import (
     build_plan_card,
     get_region_config,
@@ -43,6 +36,15 @@ from .pricing import (
     get_supported_regions,
     resolve_region,
 )
+
+# PayTRClient ve RefGenerator billing/services.py'den import edilir
+# services/ klasörü ile çakışmayı önlemek için doğrudan dosyadan import
+services_file = Path(__file__).parent / "services.py"
+spec = importlib.util.spec_from_file_location("billing_services_py", services_file)
+billing_services_py = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(billing_services_py)
+PayTRClient = billing_services_py.PayTRClient
+RefGenerator = billing_services_py.RefGenerator
 
 
 def _build_region_context(
