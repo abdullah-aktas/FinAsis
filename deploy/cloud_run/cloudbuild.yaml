@@ -122,6 +122,29 @@ steps:
           DEPLOY_ARGS+=("--add-cloudsql-instances=${_CLOUD_SQL_CONNECTION}")
         fi
 
+        # Service account'u kontrol et ve ayarla (idempotent)
+        # Mevcut service account'u al veya default'u kullan
+        EXISTING_SA=$(gcloud run services describe ${_CLOUD_RUN_SERVICE} \
+          --region=${_REGION} \
+          --project=$PROJECT_ID \
+          --format="value(spec.template.spec.serviceAccountName)" 2>/dev/null || echo "")
+        
+        if [ -n "$${EXISTING_SA}" ]; then
+          echo "✅ Mevcut service account kullanılıyor: $${EXISTING_SA}"
+          DEPLOY_ARGS+=("--service-account=$${EXISTING_SA}")
+        else
+          # Default compute service account'u kontrol et
+          PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+          COMPUTE_SA="$${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+          if gcloud iam service-accounts describe "$${COMPUTE_SA}" --project=$PROJECT_ID &>/dev/null; then
+            echo "✅ Default compute service account kullanılıyor: $${COMPUTE_SA}"
+            DEPLOY_ARGS+=("--service-account=$${COMPUTE_SA}")
+          else
+            echo "⚠️  Default compute service account mevcut değil, Cloud Run default kullanılacak"
+            # Service account belirtilmezse Cloud Run default'unu kullanır
+          fi
+        fi
+        
         # Cloud Build service account ile deploy et
         gcloud run deploy "$${DEPLOY_ARGS[@]}"
 

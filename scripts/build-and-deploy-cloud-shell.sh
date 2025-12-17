@@ -81,12 +81,28 @@ fi
 
 echo ""
 
-# 8. Service account'u al
+# 8. Service account'u al (idempotent - hata durumunda fallback)
+echo "🔍 Service account kontrol ediliyor..."
 SERVICE_ACCOUNT=$(gcloud run services describe $SERVICE_NAME \
   --region=$REGION \
   --project=$PROJECT_ID \
-  --format="value(spec.template.spec.serviceAccountName)" 2>/dev/null || \
-  echo "${PROJECT_NUMBER}-compute@developer.gserviceaccount.com")
+  --format="value(spec.template.spec.serviceAccountName)" 2>/dev/null || echo "")
+
+# Eğer service account yoksa, default compute service account'u kullan
+if [ -z "$SERVICE_ACCOUNT" ]; then
+  COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+  # Service account'un var olup olmadığını kontrol et
+  if gcloud iam service-accounts describe "$COMPUTE_SA" --project=$PROJECT_ID &>/dev/null; then
+    SERVICE_ACCOUNT="$COMPUTE_SA"
+    echo "✅ Default compute service account kullanılıyor: $SERVICE_ACCOUNT"
+  else
+    # Service account yoksa, Cloud Run default'unu kullan (boş bırak)
+    echo "⚠️  Default compute service account mevcut değil, Cloud Run default kullanılacak"
+    SERVICE_ACCOUNT=""
+  fi
+else
+  echo "✅ Mevcut service account kullanılıyor: $SERVICE_ACCOUNT"
+fi
 
 # 9. Deploy
 echo "🚀 Cloud Run'a deploy ediliyor..."

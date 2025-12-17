@@ -31,11 +31,27 @@ gcloud app create --region=europe-west1 --project=$PROJECT_ID 2>/dev/null || ech
 echo "⏳ Service account'ların hazır olması bekleniyor..."
 sleep 5
 
-# VM'yi oluştur (no-service-account ile veya appspot service account ile)
+# VM'yi oluştur (idempotent - service account kontrolü ile)
 echo "🖥️  VM oluşturuluyor: $VM_NAME"
-# Önce appspot service account'u dene
-APPSPOT_SA="${PROJECT_ID}@appspot.gserviceaccount.com"
-if gcloud iam service-accounts describe $APPSPOT_SA --project=$PROJECT_ID &>/dev/null; then
+
+# Önce compute service account'u dene (en güvenilir)
+if gcloud iam service-accounts describe "$COMPUTE_SA" --project=$PROJECT_ID &>/dev/null; then
+  echo "✅ Compute service account kullanılıyor: $COMPUTE_SA"
+  gcloud compute instances create $VM_NAME \
+    --zone=$ZONE \
+    --machine-type=$MACHINE_TYPE \
+    --boot-disk-size=$DISK_SIZE \
+    --boot-disk-type=pd-ssd \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --project=$PROJECT_ID \
+    --service-account=$COMPUTE_SA \
+    --scopes=https://www.googleapis.com/auth/cloud-platform || {
+    echo "⚠️  VM oluşturma hatası (zaten mevcut olabilir)"
+    exit 0
+  }
+# Sonra appspot service account'u dene
+elif gcloud iam service-accounts describe "$APPSPOT_SA" --project=$PROJECT_ID &>/dev/null; then
   echo "✅ Appspot service account kullanılıyor: $APPSPOT_SA"
   gcloud compute instances create $VM_NAME \
     --zone=$ZONE \
@@ -46,9 +62,12 @@ if gcloud iam service-accounts describe $APPSPOT_SA --project=$PROJECT_ID &>/dev
     --image-project=ubuntu-os-cloud \
     --project=$PROJECT_ID \
     --service-account=$APPSPOT_SA \
-    --scopes=https://www.googleapis.com/auth/cloud-platform
+    --scopes=https://www.googleapis.com/auth/cloud-platform || {
+    echo "⚠️  VM oluşturma hatası (zaten mevcut olabilir)"
+    exit 0
+  }
 else
-  echo "⚠️  Appspot service account bulunamadı, service account olmadan denenecek..."
+  echo "⚠️  Service account bulunamadı, service account olmadan denenecek..."
   # Service account olmadan dene (no-scopes)
   gcloud compute instances create $VM_NAME \
     --zone=$ZONE \
@@ -60,8 +79,15 @@ else
     --project=$PROJECT_ID \
     --no-service-account \
     --no-scopes || {
-    echo "❌ Service account olmadan da çalışmadı. Compute Engine default service account'unu bekleyin veya Cloud Console'dan VM oluşturun."
-    exit 1
+    echo "⚠️  VM oluşturma hatası (zaten mevcut olabilir veya service account gerekli)"
+    # VM zaten mevcut olabilir, kontrol et
+    if gcloud compute instances describe $VM_NAME --zone=$ZONE --project=$PROJECT_ID &>/dev/null; then
+      echo "✅ VM zaten mevcut: $VM_NAME"
+      exit 0
+    else
+      echo "❌ VM oluşturulamadı. Lütfen Cloud Console'dan manuel oluşturun."
+      exit 1
+    fi
   }
 fi
 
