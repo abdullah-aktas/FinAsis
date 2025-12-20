@@ -244,6 +244,8 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    # Cloudflare gerçek IP desteği (en üstte olmalı)
+    "common.middleware.cloudflare.CloudflareRealIPMiddleware",
 ]
 
 # Add WhiteNoise only if the package is available, to avoid ModuleNotFoundError in tests
